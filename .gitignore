@@ -1,5 +1,6 @@
-.cambc/
-compile_commands.json
-build/
-__pycache__/
 *.pyc
+.cambc/
+.pytest_cache/
+__pycache__/
+build/
+compile_commands.json
