@@ -814,7 +814,8 @@ Err Game::move(int c, Vec2 to, bool& ok)
 	if (ch.moved) return Err::move_already_moved;
 	if (ch.cast_exclusive) return Err::move_exclusive_spell_cast;
 	const bool ranged = champion_design(ch.type).ranged;
-	if (ranged && (ch.attacked || ch.attack_reset)) return Err::move_cant_move; // a reset restores the attack, not the walk
+	// A ranged champion's attack spends its move (36); a reset restores the attack, not the walk.
+	if (ranged && (ch.attacked || ch.attack_reset)) return Err::move_already_moved;
 	bool hidden = false;
 	if (!landing_ok(ch, to, hidden, true)) return Err::move_bad_destination;
 	if (chebyshev(ch.pos, to) > champion_design(ch.type).move_speed) return Err::move_unreachable;
@@ -935,17 +936,16 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 	if (a.exclusive_with_movement && ch.moved) return Err::cast_already_moved;
 	Bitboard vis;
 	champion_vision(c, vis);
-	// Unit-targeted casts of ground abilities land on the target's tile. An invalid unit target
-	// is error 30 for an AoE; a dash instead falls back to the given destination (and ignores
-	// allied champions).
+	// Unit-targeted AoE casts land on the target's tile (a visible living enemy champion or camp,
+	// else 30). A dash ignores the unit target and always uses the given destination.
 	if ((a.kind == AbilityKind::aoe_damage || a.kind == AbilityKind::dash) && kind != EntityKind::none)
 	{
 		const bool dash = a.kind == AbilityKind::dash;
-		if (kind == EntityKind::champion && handle >= 0 && handle < static_cast<int>(champs.size()) && champs[handle].alive &&
-			!(dash && champs[handle].team == ch.team) && vis.test(champs[handle].pos))
+		if (!dash && kind == EntityKind::champion && handle >= 0 && handle < static_cast<int>(champs.size()) && champs[handle].alive &&
+			champs[handle].team != ch.team && vis.test(champs[handle].pos))
 			dest = champs[handle].pos;
-		else if (kind == EntityKind::camp && handle >= 0 && handle < static_cast<int>(camps.size()) && camps[handle].life != CampLife::dead &&
-				 vis.test(camps[handle].pos))
+		else if (!dash && kind == EntityKind::camp && handle >= 0 && handle < static_cast<int>(camps.size()) &&
+				 camps[handle].life != CampLife::dead && vis.test(camps[handle].pos))
 			dest = camps[handle].pos;
 		else if (!dash)
 			return Err::cast_bad_target;
@@ -1067,7 +1067,7 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 				if (map_->in_bounds(mid) && chebyshev(mid, dest) <= 1 && camp_at(mid) >= 0 && !vis.test(mid)) CBS_RULE_HIT("dash_past_unseen_camp");
 				if (map_->in_bounds(mid) && chebyshev(mid, dest) <= 1 && map_->altars.test(mid)) CBS_RULE_HIT("dash_over_altar");
 				if (map_->in_bounds(mid) && !map_->walls.test(mid) && chebyshev(mid, dest) <= 1 &&
-					(occ < 0 || champs[occ].team == ch.team || !vis.test(mid)) && camp_at(mid) < 0)
+					(occ < 0 || champs[occ].team == ch.team || !vis.test(mid)) && camp_at(mid) < 0 && !tile_reserved_by_teleport(mid))
 					path = true;
 			}
 		if (!path) return Err::cast_bad_destination;
@@ -1159,8 +1159,8 @@ Err Game::sell(int c, int item)
 {
 	Champion& ch = champs[c];
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
+	if (is_stunned(c)) return Err::cant_act;
 	if (champion_design(ch.type).passive != Passive::remote_shop) return Err::sell_not_tavi;
-	if (is_stunned(c)) return Err::cant_act; // RULE? order vs the Tavi check
 	if (item < 0 || item >= kNumItems) return Err::sell_invalid_item;
 	if (ch.items[item] <= 0) return Err::sell_not_owned;
 	if (!can_sell(c)) return Err::sell_not_on_spawn;
@@ -1241,7 +1241,8 @@ Err Game::cancel_channel(int c)
 	Champion& ch = champs[c];
 	if (ch.channel == Channel::none) return Err::cancel_not_channeling;
 	if (ch.channel == Channel::teleport) return Err::cancel_not_cancellable;
-	if (ch.recall_cancelled || ch.submit_cancelled) return Err::cancel_already_used;
+	// One cancellation per channel type per turn.
+	if (ch.channel == Channel::recall ? ch.recall_cancelled : ch.submit_cancelled) return Err::cancel_already_used;
 	if (ch.channel == Channel::recall) ch.recall_cancelled = true;
 	else ch.submit_cancelled = true;
 	ch.channel = Channel::none;
@@ -1255,16 +1256,17 @@ Err Game::submit_gems(int c, Vec2 altar)
 	if (!ch.alive) return Err::submit_cant_channel;
 	if (ch.submit_started) return Err::submit_already_used; // RULE? order vs channel checks
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
+	// A tribute against an enemy lock becomes a basic attack on the lock when one is possible.
+	if (map_->in_bounds(altar))
+		if (const int li = lock_at(altar, 1 - ch.team); li >= 0)
+		{
+			if (chebyshev(ch.pos, altar) > settings().submit_gems_range) return Err::submit_out_of_range;
+			return attack(c, EntityKind::altar_lock, locks[li].handle) == Err::success ? Err::success : Err::submit_altar_locked;
+		}
+	if (is_stunned(c)) return Err::submit_cant_channel; // after the lock check: a stunned tribute at a locked altar is 125
 	if (ch.gems == 0) return Err::submit_no_gems;
 	if (!map_->in_bounds(altar) || !map_->altars.test(altar)) return Err::submit_bad_altar;
 	if (chebyshev(ch.pos, altar) > settings().submit_gems_range) return Err::submit_out_of_range;
-	const int li = lock_at(altar, 1 - ch.team);
-	if (li >= 0)
-	{
-		// A tribute against an enemy lock becomes a basic attack on the lock when one is possible.
-		return attack(c, EntityKind::altar_lock, locks[li].handle) == Err::success ? Err::success : Err::submit_altar_locked;
-	}
-	if (is_stunned(c)) return Err::submit_cant_channel; // after the lock check: a stunned tribute at a locked altar is 125
 	ch.channel = Channel::tribute;
 	const double raw = std::ceil(settings().submit_gem_duration_multiplier * ch.gems) + settings().submit_gem_base_duration;
 	ch.channel_timer = std::max(settings().submit_gem_minimum_duration, static_cast<int>(raw));

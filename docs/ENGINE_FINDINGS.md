@@ -232,8 +232,8 @@ Established from normal traces plus fuzzed traces (tracer seeds >= 100 issue
 random actions with random arguments while alive, dead, stunned and
 channelling). "Incapacitated" = dead or stunned: a dead champion gets the
 same per-action code as a stunned one (shopping aside, which the dead may do).
-- move: incapacitated 21 -> channel (34/35/123) -> already moved / ranged
-  attacked -> destination legality 22 -> reach 38 (no 37 observed). Hidden
+- move: incapacitated 21 -> channel (34/35/123) -> already moved 36 (a ranged
+  champion's attack or attack reset also counts, 36) -> destination legality 22 -> reach 38 (no 37 observed). Hidden
   occupant: ok=0, tile revealed for the round.
 - attack: incapacitated 40 -> channel -> target validity 42 -> already
   attacked 41 (a ranged champion's move counts as its attack, also 41) ->
@@ -241,24 +241,27 @@ same per-action code as a stunned one (shopping aside, which the dead may do).
 - cast: incapacitated 26 -> channel -> slot/ability -> cooldown 28 -> already
   cast 27 -> attack-reset precondition 26 (needs a spent attack; a ranged
   champion's move spends it) -> moved/exclusive 126 -> targeting. Unit
-  targets on ground abilities: AoE uses the unit's tile and an invalid unit
-  (dead, unseen, out of range of handles) is 30; a dash uses the tile of a
-  visible living enemy champion or camp and otherwise falls back to the
-  given destination (allies are ignored), so e.g. (-1,-1) gives 32.
+  targets on ground abilities: an AoE uses the tile of a visible living enemy
+  champion or camp, anything else (ally, dead, unseen, bad handle) is 30; a
+  dash ignores the unit target entirely and uses the given destination (so
+  (-1,-1) gives 32). Dash intermediate tiles are also blocked by an in-flight
+  teleport destination.
 - buy: stun 33 -> channel -> not on spawn 49 -> invalid/unpurchasable 50 ->
   count 51 -> gold 52.
 - buy consumable: channel (34/35/123) -> stun 33 -> not on spawn 55 ->
   invalid id 56 (outside 0..3) -> carry limit 58 (ids 1 and 3 have limit 0, so
   they always give 58) -> gold 59.
-- sell (Tavi): channel -> not Tavi 128 -> stun 33 -> invalid -> not owned 130
+- sell (Tavi): channel -> stun 33 -> not Tavi 128 -> invalid -> not owned 130
   -> not on spawn 133 -> already sold 131.
 - use consumable: incapacitated 33 -> channel -> invalid type 60 -> not owned
   61 -> lock / teleport checks.
 - recall: incapacitated 44 -> channel (34/35/123, recalling again is 34) ->
   already started this turn 113.
-- tribute: dead 45 -> already started 114 -> channel -> no gems 46 -> bad
-  altar 47 -> range 48 -> enemy lock (converted to an attack on the lock, else
-  125) -> stunned 45.
+- cancel: not channelling 115 -> teleport 124 -> already cancelled 116, counted
+  per channel type (a tribute cancel does not use up the recall cancel).
+- tribute: dead 45 -> already started 114 -> channel -> enemy lock on the tile
+  (range 48, then converted to an attack on the lock, else 125) -> stunned 45
+  -> no gems 46 -> bad altar 47 -> range 48.
 - ward: incapacitated 63 -> channel -> no charge 62 -> bad tile 64 (out of
   map, wall, hole, altar, **enemy spawn zone**) -> range 65 -> any allied ward
   (own included) on tile 117 if the tile is visible; an allied ward on a tile

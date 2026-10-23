@@ -116,7 +116,7 @@ engine's fuel semantics and applies only to Python policies.
    diff counts by kind. `--watch-camp`, `--watch-group` and `--watch-champ`
    print internal state for chosen rounds when chasing a diff.
 
-Status (Oct 2026): seeds 11, 12 and 13 on all 40 pool maps and seeds 1-4 on
+Status (Oct 2026): seeds 11, 12, 13 and fuzzed seeds 100, 101 on all 40 pool maps and seeds 1-4 on
 00elkring replay with **zero diffs** (about 0.5-1.2 M observation lines and
 14-32 k actions per game) and identical final results. Remaining unconfirmed
 rules are marked `RULE?` in the code.
