@@ -429,8 +429,14 @@ int main(int argc, char** argv)
 	auto map = load_map(argv[1]);
 	std::ifstream f(argv[2]);
 	std::vector<Block> blocks;
+	std::string result_line;
 	for (std::string line; std::getline(f, line);)
 	{
+		if (line.rfind("RESULT ", 0) == 0)
+		{
+			result_line = line;
+			continue;
+		}
 		if (line.rfind("DRAFT ", 0) == 0)
 		{
 			Block b;
@@ -473,7 +479,10 @@ int main(int argc, char** argv)
 	g.start_play();
 	int order_diffs = 0;
 	std::vector<int> order;
-	while (bi < blocks.size() && !g.over && g.round < max_rounds)
+	// After the last logged turn, finish that round without bots: the game may end at a turn
+	// start (a tribute completing) or at the round limit.
+	bool stop = false;
+	while (!g.over && g.round < max_rounds && !stop)
 	{
 		g.begin_round();
 		g.turn_order(order);
@@ -498,13 +507,20 @@ int main(int argc, char** argv)
 		}
 		for (int c : order)
 		{
-			if (bi >= blocks.size()) break;
+			if (bi >= blocks.size())
+			{
+				// No more logged turns: the engine must have ended the game at this turn start
+				// (a completing tribute); otherwise this champion's turn would have been logged.
+				g.begin_turn(c);
+				if (!g.over) std::printf("NOTE: trace ended but the sim game continues at round %d champ %d\n", g.round, c);
+				stop = true;
+				break;
+			}
 			const Block& b = blocks[bi];
 			if (b.round != g.round || b.champ != c)
 			{
 				if (order_diffs++ < 10)
 					std::printf("ORDER mismatch: engine has round %d champ %d, sim expects round %d champ %d\n", b.round, b.champ, g.round, c);
-				// Follow the engine's order for the remainder of this round.
 			}
 			const int who = (b.round == g.round) ? b.champ : c;
 			g.begin_turn(who);
@@ -513,6 +529,7 @@ int main(int argc, char** argv)
 			++bi;
 			if (g.over) break;
 		}
+		if (stop) break;
 		g.end_round();
 	}
 	std::printf("replayed %zu/%zu blocks, %d rounds; lines ok=%d, actions ok=%d, diffs=%d, order mismatches=%d\n", bi, blocks.size(), g.round,
@@ -520,9 +537,20 @@ int main(int argc, char** argv)
 	std::printf("sim result: over=%d winner=%d reason=%d rounds=%d score=%u,%u\n", g.over, g.result.winner, g.result.reason, g.result.rounds,
 				g.teams[0].submitted, g.teams[1].submitted);
 	if (bi < blocks.size()) std::printf("WARNING: sim ended before the trace (%zu blocks left)\n", blocks.size() - bi);
+	int result_diff = 0;
+	if (!result_line.empty())
+	{
+		char outcome[32] = {};
+		int rounds = 0;
+		unsigned ga = 0, gb = 0;
+		std::sscanf(result_line.c_str(), "RESULT %31s %d %u,%u", outcome, &rounds, &ga, &gb);
+		const int want = std::string(outcome) == "teamA" ? 0 : 1;
+		result_diff = !(g.over && g.result.winner == want && g.teams[0].submitted == ga && g.teams[1].submitted == gb);
+		std::printf("engine result: %s rounds=%d score=%u,%u -> %s\n", outcome, rounds, ga, gb, result_diff ? "MISMATCH" : "match");
+	}
 	std::vector<std::pair<int, std::string>> kinds;
 	for (auto& [k, v] : r.diff_kinds) kinds.push_back({ v, k });
 	std::sort(kinds.rbegin(), kinds.rend());
 	for (std::size_t i = 0; i < kinds.size() && i < 15; ++i) std::printf("  %6d %s\n", kinds[i].first, kinds[i].second.c_str());
-	return r.diffs ? 1 : 0;
+	return (r.diffs || result_diff) ? 1 : 0;
 }

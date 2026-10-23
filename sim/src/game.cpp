@@ -136,7 +136,8 @@ void Game::grant_gold(Champion& ch, std::uint32_t amount, bool earned)
 	int pct = 0;
 	if (champion_design(ch.type).passive == Passive::bonus_gold) pct += 33;
 	if (ch.has_passive(ItemPassive::treasure)) pct += 20;
-	const std::uint32_t total = amount + amount * static_cast<std::uint32_t>(pct) / 100; // RULE? rounding
+	// Bonus gold is kept fractionally (RULE? float precision of the multiplier).
+	const float total = static_cast<float>(amount) * (static_cast<float>(100 + pct) / 100.0f);
 	ch.gold += total;
 	if (earned)
 	{
@@ -233,20 +234,20 @@ void Game::champion_vision(int c, Bitboard& out) const
 
 int Game::channel_time(int c) const { return champs[c].channel_timer; }
 
-float Game::outgoing_multiplier(const Champion& src, bool vs_camp) const
+float Game::apply_outgoing(const Champion& src, float amount, bool vs_camp) const
 {
-	float m = 1.0f;
+	// Applied sequentially in float, as the engine does: (base * (1 + missing-health bonus)) * 1.1.
 	if (champion_design(src.type).passive == Passive::missing_health_damage)
-		m *= 1.0f + 0.5f * (1.0f - src.hp / src.max_hp); // RULE? exact formula
-	if (vs_camp && src.has_passive(ItemPassive::monster)) m *= 1.1f;
-	return m;
+		amount *= 1.0f + 0.5f * (1.0f - src.hp / src.max_hp);
+	if (vs_camp && src.has_passive(ItemPassive::monster)) amount *= 1.1f;
+	return amount;
 }
 
 float Game::ability_damage(int c, int slot) const
 {
 	const Champion& ch = champs[c];
 	const auto& a = champion_design(ch.type).abilities[slot];
-	return a.modifier * ch.focus * outgoing_multiplier(ch, false);
+	return apply_outgoing(ch, a.modifier * ch.focus, false);
 }
 float Game::ability_heal(int c, int slot) const
 {
@@ -304,10 +305,12 @@ void Game::damage_champion(int target, const Hit& hit)
 	t.hp -= amount;
 	interrupt_channel(t, true);
 	// Ren retaliation (also as he dies).
-	if (champion_design(t.type).passive == Passive::retaliation && hit.src_champ != target && (hit.src_champ >= 0 || hit.src_camp >= 0))
+	if (champion_design(t.type).passive == Passive::retaliation && !hit.splash && !hit.retaliation && hit.src_champ != target &&
+		(hit.src_champ >= 0 || hit.src_camp >= 0))
 	{
 		Hit back;
 		back.src_champ = target;
+		back.retaliation = true;
 		back.amount = 0.2f * t.focus;
 		if (hit.src_champ >= 0) damage_champion(hit.src_champ, back);
 		else damage_camp(hit.src_camp, back);
@@ -521,6 +524,7 @@ void Game::process_captures()
 		G.respawn_timer = info.respawn;
 		G.capture_team = -1;
 		G.capture_timer = 0;
+		for (auto& ch : champs) update_group_memory(ch.id); // champions watching the region see it start respawning
 	}
 }
 
@@ -550,11 +554,14 @@ void Game::camp_turn(int k)
 			}
 			return best;
 		};
-		const int target = c.buffs.has(BuffType::stun) ? -1 : nearest(); // a stunned camp acquires no target
+		// A champion in range resets the sleep timer even while stunned; a stunned camp just cannot attack
+		// (or fall asleep).
+		const bool stunned = c.buffs.has(BuffType::stun);
+		const int target = nearest();
 		if (target >= 0)
 		{
 			c.sleep_timer = settings().camp_sleep_time;
-			if (c.strength > 0)
+			if (c.strength > 0 && !stunned)
 			{
 				Hit h;
 				h.src_camp = k;
@@ -563,7 +570,7 @@ void Game::camp_turn(int k)
 				damage_champion(target, h);
 			}
 		}
-		else if (c.sleep_timer <= 0 && !c.buffs.has(BuffType::stun)) // a stunned camp does not fall asleep
+		else if (c.sleep_timer <= 0 && !stunned)
 			c.life = CampLife::asleep; // RULE? health is kept
 	}
 	if (c.sleep_timer > 0) --c.sleep_timer;
@@ -639,7 +646,7 @@ bool Game::free_spawn_tile(int team, Vec2& out) const
 	for (int i = 0; i < n; ++i)
 	{
 		const Vec2 p = spawn_slot(team, i);
-		if (champion_at(p) < 0)
+		if (champion_at(p) < 0 && !tile_reserved_by_teleport(p))
 		{
 			out = p;
 			return true;
@@ -803,35 +810,36 @@ void Game::apply_basic_attack(int c, EntityKind kind, int handle)
 	const auto& d = champion_design(ch.type);
 	const bool enhanced = ch.buffs.has(BuffType::enhanced_attack);
 	if (enhanced) ch.buffs.remove(ch.buffs.find(BuffType::enhanced_attack));
-	auto hit_unit = [&](EntityKind k, int h, float base) {
+	auto hit_unit = [&](EntityKind k, int h, float base, bool splash) {
 		Hit hit;
 		hit.src_champ = c;
 		hit.basic = true;
+		hit.splash = splash;
 		if (k == EntityKind::champion)
 		{
-			hit.amount = base * outgoing_multiplier(ch, false);
+			hit.amount = apply_outgoing(ch, base, false);
 			damage_champion(h, hit);
 			if (enhanced) stun_champion(h, 1);
 		}
 		else
 		{
-			hit.amount = base * outgoing_multiplier(ch, true) * d.camp_damage_multiplier;
+			hit.amount = apply_outgoing(ch, base, true) * d.camp_damage_multiplier;
 			damage_camp(h, hit);
 			if (enhanced) stun_camp(h, 1);
 		}
 	};
 	const Vec2 tp = kind == EntityKind::champion ? champs[handle].pos : camps[handle].pos;
-	hit_unit(kind, handle, ch.strength);
+	hit_unit(kind, handle, ch.strength, false);
 	if (d.passive == Passive::splash_attack)
 	{
 		for (auto& o : champs)
 			if (o.alive && o.team != ch.team && !(kind == EntityKind::champion && o.id == handle) && chebyshev(o.pos, tp) <= 1)
-				hit_unit(EntityKind::champion, o.id, ch.strength);
+				hit_unit(EntityKind::champion, o.id, ch.strength, true);
 		for (int dy = -1; dy <= 1; ++dy)
 			for (int dx = -1; dx <= 1; ++dx)
 			{
 				const int k = camp_at({ tp.x + dx, tp.y + dy });
-				if (k >= 0 && !(kind == EntityKind::camp && k == handle)) hit_unit(EntityKind::camp, k, ch.strength);
+				if (k >= 0 && !(kind == EntityKind::camp && k == handle)) hit_unit(EntityKind::camp, k, ch.strength, true);
 			}
 	}
 }
@@ -895,9 +903,9 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 	const AbilityDesign& a = d.abilities[slot];
 	if (a.kind == AbilityKind::none) return Err::cast_no_ability;
 	if (ch.cast) return Err::cast_already_cast;
+	if (ch.cooldown[slot] > 0) return Err::cast_on_cooldown;
 	// An attack reset needs a spent basic attack to restore.
 	if (a.kind == AbilityKind::attack_reset && !ch.attacked) return Err::cast_cant_cast;
-	if (ch.cooldown[slot] > 0) return Err::cast_on_cooldown;
 	if (a.exclusive_with_movement && ch.moved) return Err::cast_already_moved;
 	Bitboard vis;
 	champion_vision(c, vis);
@@ -953,13 +961,11 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 				champs[handle].hp = std::min(champs[handle].max_hp, champs[handle].hp + a.modifier * ch.focus);
 			else
 			{
-				if (a.modifier > 0)
-				{
-					Hit h;
-					h.src_champ = c;
-					h.amount = a.modifier * ch.focus * outgoing_multiplier(ch, false);
-					damage_champion(handle, h);
-				}
+				// Even a zero-damage hit (Cassi's stun) counts as damage, e.g. for Ren's retaliation.
+				Hit h;
+				h.src_champ = c;
+				h.amount = apply_outgoing(ch, a.modifier * ch.focus, false);
+				damage_champion(handle, h);
 				if (a.kind == AbilityKind::cc) stun_champion(handle, a.duration);
 			}
 			return finish();
@@ -971,11 +977,10 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 			const Camp& t = camps[handle];
 			if (t.life == CampLife::dead || !vis.test(t.pos)) return Err::cast_bad_target;
 			if (!in_range(t.pos)) return Err::cast_out_of_range;
-			if (a.modifier > 0)
 			{
 				Hit h;
 				h.src_champ = c;
-				h.amount = a.modifier * ch.focus * outgoing_multiplier(ch, true);
+				h.amount = apply_outgoing(ch, a.modifier * ch.focus, true);
 				damage_camp(handle, h);
 			}
 			if (a.kind == AbilityKind::cc) stun_camp(handle, a.duration);
@@ -988,8 +993,8 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 		if (!map_->in_bounds(dest)) return Err::cast_bad_destination;
 		if (!in_range(dest)) return Err::cast_out_of_range;
 		const int r = static_cast<int>(a.radius);
-		const float dmg_c = a.modifier * ch.focus * outgoing_multiplier(ch, false);
-		const float dmg_k = a.modifier * ch.focus * outgoing_multiplier(ch, true);
+		const float dmg_c = apply_outgoing(ch, a.modifier * ch.focus, false);
+		const float dmg_k = apply_outgoing(ch, a.modifier * ch.focus, true);
 		for (auto& o : champs)
 			if (o.alive && o.team != ch.team && chebyshev(o.pos, dest) <= r)
 			{
@@ -1048,7 +1053,7 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 					{
 						Hit h;
 						h.src_champ = c;
-						h.amount = a.modifier * ch.focus * outgoing_multiplier(ch, false);
+						h.amount = apply_outgoing(ch, a.modifier * ch.focus, false);
 						damage_champion(o.id, h);
 					}
 					if (a.duration > 0) stun_champion(o.id, a.duration);
@@ -1062,7 +1067,7 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 					{
 						Hit h;
 						h.src_champ = c;
-						h.amount = a.modifier * ch.focus * outgoing_multiplier(ch, true);
+						h.amount = apply_outgoing(ch, a.modifier * ch.focus, true);
 						damage_camp(k, h);
 					}
 					if (a.duration > 0) stun_camp(k, a.duration);
@@ -1077,15 +1082,15 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 Err Game::buy_item(int c, int item, int count)
 {
 	Champion& ch = champs[c];
+	if (ch.alive && is_stunned(c)) return Err::cant_act;
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
-	if (item < 0 || item >= kNumItems) return Err::buy_invalid_item;
 	if (!can_shop(c, false)) return Err::buy_not_on_spawn;
-	if (!item_design(item).purchasable) return Err::buy_invalid_item;
+	if (item < 0 || item >= kNumItems || !item_design(item).purchasable) return Err::buy_invalid_item;
 	if (count <= 0) return Err::buy_invalid_count;
 	const auto& it = item_design(item);
 	const std::uint64_t cost = static_cast<std::uint64_t>(it.cost) * static_cast<std::uint64_t>(count);
-	if (cost > ch.gold) return Err::buy_not_enough_gold;
-	ch.gold -= static_cast<std::uint32_t>(cost);
+	if (static_cast<float>(cost) > ch.gold) return Err::buy_not_enough_gold;
+	ch.gold -= static_cast<float>(cost);
 	ch.spent_gold += cost;
 	const float old_max = ch.max_hp;
 	ch.items[item] += count;
@@ -1103,11 +1108,12 @@ Err Game::buy_consumable(int c, int type)
 {
 	Champion& ch = champs[c];
 	if (type < 0 || type >= kNumConsumables || consumable_design(type).carry_limit == 0) return Err::buyc_invalid_type;
+	if (ch.alive && is_stunned(c)) return Err::cant_act; // RULE? order vs invalid type
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
 	if (!can_shop(c, true)) return Err::buyc_not_on_spawn;
 	if (ch.cons[type] >= consumable_design(type).carry_limit) return Err::buyc_inventory_full;
-	if (ch.gold < static_cast<std::uint32_t>(consumable_design(type).cost)) return Err::buyc_not_enough_gold;
-	ch.gold -= static_cast<std::uint32_t>(consumable_design(type).cost);
+	if (ch.gold < static_cast<float>(consumable_design(type).cost)) return Err::buyc_not_enough_gold;
+	ch.gold -= static_cast<float>(consumable_design(type).cost);
 	ch.spent_gold += static_cast<std::uint64_t>(consumable_design(type).cost);
 	ch.cons[type]++;
 	return Err::success;
@@ -1117,12 +1123,13 @@ Err Game::sell(int c, int item)
 {
 	Champion& ch = champs[c];
 	if (champion_design(ch.type).passive != Passive::remote_shop) return Err::sell_not_tavi;
+	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
 	if (item < 0 || item >= kNumItems) return Err::sell_invalid_item;
 	if (ch.items[item] <= 0) return Err::sell_not_owned;
 	if (!can_sell(c)) return Err::sell_not_on_spawn;
 	if (ch.sold) return Err::sell_already_sold;
 	ch.items[item]--;
-	ch.gold += static_cast<std::uint32_t>(item_design(item).cost);
+	ch.gold += static_cast<float>(item_design(item).cost);
 	ch.sold = true;
 	recompute_stats(ch);
 	ch.hp = std::min(ch.hp, ch.max_hp);
@@ -1143,8 +1150,8 @@ Err Game::use_consumable(int c, int type, Vec2 dest, bool& ok)
 		if (chebyshev(ch.pos, dest) > 2) return Err::lock_out_of_range;
 		if (lock_at(dest, ch.team) >= 0) return Err::lock_already_locked; // each team may hold one lock per altar
 		locks.push_back({ next_lock_handle++, ch.team, dest, settings().altar_lock_hits });
-		for (auto& o : champs)
-			if (o.team != ch.team && o.channel == Channel::tribute && o.channel_target == dest)
+		for (auto& o : champs) // cancels every tribute at the altar, allies' included
+			if (o.channel == Channel::tribute && o.channel_target == dest)
 			{
 				o.channel = Channel::none;
 				o.channel_timer = 0;
@@ -1227,7 +1234,7 @@ Err Game::place_ward(int c, Vec2 dest, bool& ok)
 	if (is_stunned(c)) return Err::ward_cant_place;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	if (ch.ward_charges <= 0) return Err::ward_no_charges;
-	if (!map_->in_bounds(dest) || map_->walls.test(dest) || map_->holes.test(dest)) return Err::ward_bad_destination; // RULE? altars
+	if (!map_->in_bounds(dest) || map_->walls.test(dest) || map_->holes.test(dest) || map_->altars.test(dest)) return Err::ward_bad_destination;
 	if (chebyshev(ch.pos, dest) > settings().ward_placement_radius) return Err::ward_out_of_range;
 	for (const auto& w : wards)
 		if (w.team == ch.team && w.pos == dest) return Err::ward_ally_ward_present;

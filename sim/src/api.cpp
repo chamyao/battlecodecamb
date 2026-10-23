@@ -257,7 +257,7 @@ Err Api::champion_gold(std::uint32_t h, std::uint32_t* out)
 	charge(Call::champion_gold);
 	if (h >= g_.champs.size()) return Err::api_invalid_champion;
 	if (static_cast<int>(h) != champ_) return Err::api_not_owner;
-	*out = g_.champs[h].gold;
+	*out = g_.champs[h].gold_int();
 	return Err::success;
 }
 
@@ -452,7 +452,7 @@ Err Api::teleports(TeleportRecord* out, std::uint32_t cap, std::uint32_t* count)
 	{
 		const Bitboard& v = vis();
 		for (auto& c : g_.champs)
-			if (c.alive && c.channel == Channel::teleport && v.test(c.channel_target))
+			if (c.alive && c.channel == Channel::teleport && (c.id == champ_ || v.test(c.channel_target)))
 			{
 				if (*count < cap)
 					out[*count] = { static_cast<std::uint32_t>(c.id), static_cast<std::int32_t>(c.type), static_cast<std::uint32_t>(c.team),
