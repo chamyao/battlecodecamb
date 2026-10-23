@@ -682,6 +682,30 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	return n;
 }
 
+bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions)
+{
+	// Per call, not static: the charge inside distance_field can suspend this bot while others
+	// run on the same thread.
+	std::vector<std::uint16_t> field(static_cast<std::size_t>(g_.map().W) * g_.map().H);
+	std::uint16_t* d = field.data();
+	Bitboard roots, visited;
+	roots.set(origin);
+	const int n = distance_field(walls, roots, &cand, kUnreachable, d, visited);
+	if (expansions) *expansions = n;
+	const int W = g_.map().W;
+	std::uint16_t bd = kUnreachable;
+	bool found = false;
+	cand.for_each(g_.map().H, [&](int x, int y) {
+		if (d[y * W + x] < bd)
+		{
+			bd = d[y * W + x];
+			out = { x, y };
+			found = true;
+		}
+	});
+	return found;
+}
+
 // ---------------------------------------------------------------- draft
 
 Err Api::draft_num_rounds(std::uint8_t* out)

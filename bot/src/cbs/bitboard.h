@@ -1,7 +1,12 @@
-// Fixed-capacity tile mask (up to 100x100) and the engine's geometry primitives.
-// Row-major: bit x of row y. Every algorithm here is verified bit-for-bit against the
-// engine's own host functions (oracle/fixtures/geom, docs/ENGINE_FINDINGS.md).
+// Bot-only replacement for sim/include/cbs/bitboard.h (bot/sync.sh installs it as
+// bot/src/cbs/bitboard.h). Same interface as the simulator's cbs::Bitboard, but the bits live
+// in the engine's chunked layout (one 64-bit word per 8x8 chunk: word (y/8)*stride + x/8,
+// bit (y%8)*8 + x%8) and board-wide work goes through the host imports, which cost about
+// 6 + chunks fuel each, against ~1 fuel per byte (1600 per board) for the same work in wasm
+// (docs/FUEL.md). for_each and first are row-major, as in the simulator; for_each_unordered
+// is the cheap host order.
 #pragma once
+#include <cambc.h>
 #include <bit>
 #include <cstdint>
 #include <cstring>
@@ -9,175 +14,147 @@
 
 namespace cbs
 {
-// Rows that board-wide operations touch. Every tile set lies inside the map, so rows at or
-// beyond the map height are always zero; a bot sets this to its map height once (inside
-// wasm a full 100-row pass costs ~1.8k fuel). Per thread, so concurrent matches are safe.
-inline thread_local int board_rows = kMaxDim;
+// Unused in the bot (kept so shared headers compile).
+inline int board_rows = kMaxDim;
+
+namespace hostbb
+{
+inline cambc::detail::metadata md{}; // set by init() before any Bitboard is built
+inline int stride = 0, words = 0;
+inline void init()
+{
+	cambc::detail::sdk_bc_metadata(&md);
+	stride = static_cast<int>(md.chunk_stride);
+	words = static_cast<int>(md.board_bytes / 8);
+}
+constexpr int kWords = 256; // >= board_bytes / 8 on every map up to 100x100
+struct Pos
+{
+	std::int32_t x, y;
+};
+// GetSetBits output, one buffer per nesting level of for_each (callbacks may iterate too).
+constexpr int kDepth = 3;
+inline Pos pos_buf[kDepth][kMaxDim * kMaxDim];
+inline int depth = 0;
+} // namespace hostbb
 
 struct Bitboard
 {
-	// Two words per row: bits 0..63 in w[y][0], 64..99 in w[y][1].
-	std::uint64_t w[kMaxDim][2];
-	// One row as a 128-bit vector (SSE2 natively, simd128 in a wasm bot).
-	using Row = std::uint64_t __attribute__((vector_size(16)));
-	static Row load(const std::uint64_t* p)
-	{
-		Row r;
-		std::memcpy(&r, p, sizeof r);
-		return r;
-	}
-	static void store(std::uint64_t* p, Row r) { std::memcpy(p, &r, sizeof r); }
+	alignas(16) std::uint64_t w[hostbb::kWords];
 
-	Bitboard() { clear(); }
-	void clear() { std::memset(w, 0, sizeof w); }
-	bool test(int x, int y) const { return (w[y][x >> 6] >> (x & 63)) & 1; }
+	Bitboard() { cambc::detail::sdk_Bitboard_Zero(w); }
+	Bitboard(const Bitboard& o) { cambc::detail::sdk_Bitboard_Union(o.w, o.w, w); }
+	Bitboard& operator=(const Bitboard& o)
+	{
+		if (this != &o) cambc::detail::sdk_Bitboard_Union(o.w, o.w, w);
+		return *this;
+	}
+	void clear() { cambc::detail::sdk_Bitboard_Zero(w); }
+
+	static int word(int x, int y) { return (y >> 3) * hostbb::stride + (x >> 3); }
+	static int bit(int x, int y) { return (y & 7) * 8 + (x & 7); }
+	bool test(int x, int y) const { return (w[word(x, y)] >> bit(x, y)) & 1; }
 	bool test(Vec2 p) const { return test(p.x, p.y); }
-	void set(int x, int y) { w[y][x >> 6] |= std::uint64_t{ 1 } << (x & 63); }
+	void set(int x, int y) { w[word(x, y)] |= std::uint64_t{ 1 } << bit(x, y); }
 	void set(Vec2 p) { set(p.x, p.y); }
-	void reset(int x, int y) { w[y][x >> 6] &= ~(std::uint64_t{ 1 } << (x & 63)); }
+	void reset(int x, int y) { w[word(x, y)] &= ~(std::uint64_t{ 1 } << bit(x, y)); }
 	void reset(Vec2 p) { reset(p.x, p.y); }
 	void assign(Vec2 p, bool v) { v ? set(p) : reset(p); }
-	int count(int h) const
+
+	int count(int) const
 	{
-		int n = 0;
-		for (int y = 0; y < h; ++y) n += std::popcount(w[y][0]) + std::popcount(w[y][1]);
-		return n;
+		std::uint32_t n = 0;
+		cambc::detail::sdk_Bitboard_NumSetBits(w, &n);
+		return static_cast<int>(n);
 	}
-	bool any(int h) const
+	bool any(int) const
 	{
-		for (int y = 0; y < h; ++y)
-			if (w[y][0] | w[y][1]) return true;
-		return false;
+		std::int32_t z = 1;
+		cambc::detail::sdk_Bitboard_IsZero(w, &z);
+		return !z;
 	}
 	Bitboard& operator|=(const Bitboard& o)
 	{
-		for (int y = 0, n = board_rows; y < n; ++y) store(w[y], load(w[y]) | load(o.w[y]));
+		cambc::detail::sdk_Bitboard_Union(w, o.w, w);
 		return *this;
 	}
 	Bitboard& operator&=(const Bitboard& o)
 	{
-		for (int y = 0, n = board_rows; y < n; ++y) store(w[y], load(w[y]) & load(o.w[y]));
+		cambc::detail::sdk_Bitboard_Intersect(w, o.w, w);
 		return *this;
 	}
-	// this &= ~o
+	// this &= ~o, as this ^ (this & o)
 	Bitboard& andnot(const Bitboard& o)
 	{
-		for (int y = 0, n = board_rows; y < n; ++y) store(w[y], load(w[y]) & ~load(o.w[y]));
+		alignas(16) static std::uint64_t t[hostbb::kWords];
+		cambc::detail::sdk_Bitboard_Intersect(w, o.w, t);
+		cambc::detail::sdk_Bitboard_Xor(w, t, w);
 		return *this;
 	}
-	// Calls f(x, y) for every set tile in rows [0, h), row-major.
+	// Calls f(x, y) for every set tile in the host's order (chunk by chunk; row-major inside a
+	// chunk). Cheapest iteration: 11 + chunks + n fuel for the host call.
 	template <class F>
-	void for_each(int h, F&& f) const
+	void for_each_unordered(int, F&& f) const
 	{
-		for (int y = 0; y < h; ++y)
-			for (int k = 0; k < 2; ++k)
-				for (std::uint64_t bits = w[y][k]; bits; bits &= bits - 1) f(64 * k + std::countr_zero(bits), y);
+		std::uint32_t n = 0;
+		hostbb::Pos* buf = hostbb::pos_buf[hostbb::depth];
+		cambc::detail::sdk_Bitboard_GetSetBits(w, buf, kMaxDim * kMaxDim, &n);
+		++hostbb::depth;
+		for (std::uint32_t i = 0; i < n; ++i) f(buf[i].x, buf[i].y);
+		--hostbb::depth;
+	}
+	// Calls f(x, y) for every set tile, row-major (as the simulator's Bitboard does).
+	template <class F>
+	void for_each(int, F&& f) const
+	{
+		std::uint32_t n = 0;
+		hostbb::Pos* buf = hostbb::pos_buf[hostbb::depth];
+		cambc::detail::sdk_Bitboard_GetSetBits(w, buf, kMaxDim * kMaxDim, &n);
+		// Host order is (chunk row, chunk column, y, x): sort each chunk row's run by (y, x).
+		for (std::uint32_t i = 1; i < n; ++i)
+		{
+			const hostbb::Pos p = buf[i];
+			std::uint32_t j = i;
+			for (; j > 0 && (buf[j - 1].y > p.y || (buf[j - 1].y == p.y && buf[j - 1].x > p.x)); --j) buf[j] = buf[j - 1];
+			buf[j] = p;
+		}
+		++hostbb::depth;
+		for (std::uint32_t i = 0; i < n; ++i) f(buf[i].x, buf[i].y);
+		--hostbb::depth;
 	}
 	// First set tile in row-major order; false if empty.
-	bool first(int h, Vec2& out) const
+	bool first(int, Vec2& out) const
 	{
-		for (int y = 0; y < h; ++y)
-			for (int k = 0; k < 2; ++k)
-				if (w[y][k])
+		const int ch = static_cast<int>(hostbb::md.chunked_height), cw = static_cast<int>(hostbb::md.chunked_width);
+		for (int cy = 0; cy < ch; ++cy)
+		{
+			const std::uint64_t* row = w + cy * hostbb::stride;
+			// lowest sub-row (y % 8) with a bit in any chunk of this chunk row, then lowest x on it
+			int best_y = 8, best_x = 0;
+			for (int cx = 0; cx < cw; ++cx)
+				if (const std::uint64_t v = row[cx])
 				{
-					out = { 64 * k + std::countr_zero(w[y][k]), y };
-					return true;
+					const int b = std::countr_zero(v), y = b >> 3;
+					if (y < best_y) best_y = y, best_x = cx * 8 + (b & 7);
 				}
+			if (best_y < 8)
+			{
+				out = { best_x, cy * 8 + best_y };
+				return true;
+			}
+		}
 		return false;
 	}
-	bool operator==(const Bitboard& o) const { return std::memcmp(w, o.w, sizeof w) == 0; }
+	bool operator==(const Bitboard& o) const
+	{
+		std::int32_t eq = 0;
+		cambc::detail::sdk_Bitboard_IsEqual(w, o.w, &eq);
+		return eq != 0;
+	}
 };
 
-// Linear (row-major, LSB-first) packing as exported by the SDK's export_linear_buffer.
-void to_linear(const Bitboard& b, int W, int H, std::uint8_t* out);
-void from_linear(Bitboard& b, int W, int H, const std::uint8_t* in);
-
-// Symmetric shadowcasting from `origin` with Chebyshev radius `dist`.
-// `blocking(x, y)` is queried only for in-map tiles; out-of-map tiles never block.
-// Blocking tiles are never marked visible; the origin always is.
-template <class Blocking, class Mark>
-void shadowcast(int W, int H, Vec2 origin, int dist, Blocking&& blocking, Mark&& mark);
-
-// Engine Bitboard::shadow_cast with `walls` as the blocking set.
-void shadow_cast(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitboard& out);
-// Engine Bitboard::reachable_tiles: 8-neighbour BFS over non-walls up to `dist` steps.
-void reachable(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitboard& out);
-// Engine DistanceField compute / compute_to. `dests` may be null. Returns the expansion count.
+// Engine geometry (the simulator's versions are verified bit-for-bit against these).
+inline void draw_circle(Bitboard& b, int, int, Vec2 c, float r) { cambc::detail::sdk_Bitboard_DrawCircle(b.w, c.x, c.y, r); }
+inline void draw_chebyshev(Bitboard& b, int, int, Vec2 c, float r) { cambc::detail::sdk_Bitboard_DrawChebyshev(b.w, c.x, c.y, r); }
 constexpr std::uint16_t kUnreachable = 0xFFFF;
-int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int W, int H, int max_distance,
-				   std::uint16_t* dist /* W*H row-major */, Bitboard& visited);
-void draw_circle(Bitboard& b, int W, int H, Vec2 c, float r);
-void draw_chebyshev(Bitboard& b, int W, int H, Vec2 c, float r);
-
-// ---- implementation of the templated shadowcaster ----
-namespace detail
-{
-// floor(a / b) for b > 0.
-constexpr long floor_div(long a, long b) { return a >= 0 ? a / b : -((-a + b - 1) / b); }
-constexpr long ceil_div(long a, long b) { return -floor_div(-a, b); }
-
-template <class Blocking, class Mark>
-struct Caster
-{
-	int W, H, ox, oy, dist, q;
-	Blocking& blocking;
-	Mark& mark;
-	void tr(int row, int col, int& x, int& y) const
-	{
-		switch (q)
-		{
-		case 0: x = ox + col, y = oy - row; break;
-		case 1: x = ox + col, y = oy + row; break;
-		case 2: x = ox + row, y = oy + col; break;
-		default: x = ox - row, y = oy + col; break;
-		}
-	}
-	bool wall(int row, int col) const
-	{
-		int x, y;
-		tr(row, col, x, y);
-		return x >= 0 && y >= 0 && x < W && y < H && blocking(x, y);
-	}
-	// Slopes are sn/sd and en/ed with positive denominators.
-	void scan(int depth, long sn, long sd, long en, long ed)
-	{
-		if (depth > dist) return;
-		// min_col = round_ties_up(depth*s) = floor(depth*sn/sd + 1/2); max_col = round_ties_down(depth*e) = ceil(depth*en/ed - 1/2)
-		const long min_col = floor_div(2 * depth * sn + sd, 2 * sd);
-		const long max_col = ceil_div(2 * depth * en - ed, 2 * ed);
-		bool has_prev = false, prev_wall = false;
-		for (long col = min_col; col <= max_col; ++col)
-		{
-			const bool w = wall(depth, static_cast<int>(col));
-			// symmetric: depth*s <= col <= depth*e
-			if (!w && col * sd >= depth * sn && col * ed <= depth * en)
-			{
-				int x, y;
-				tr(depth, static_cast<int>(col), x, y);
-				if (x >= 0 && y >= 0 && x < W && y < H) mark(x, y);
-			}
-			if (has_prev && prev_wall && !w)
-			{
-				sn = 2 * col - 1;
-				sd = 2 * depth;
-			}
-			if (has_prev && !prev_wall && w) scan(depth + 1, sn, sd, 2 * col - 1, 2 * depth);
-			has_prev = true;
-			prev_wall = w;
-		}
-		if (has_prev && !prev_wall) scan(depth + 1, sn, sd, en, ed);
-	}
-};
-} // namespace detail
-
-template <class Blocking, class Mark>
-void shadowcast(int W, int H, Vec2 origin, int dist, Blocking&& blocking, Mark&& mark)
-{
-	mark(origin.x, origin.y);
-	for (int q = 0; q < 4; ++q)
-	{
-		detail::Caster<Blocking, Mark> c{ W, H, origin.x, origin.y, dist, q, blocking, mark };
-		c.scan(1, -1, 1, 1, 1);
-	}
-}
 } // namespace cbs
