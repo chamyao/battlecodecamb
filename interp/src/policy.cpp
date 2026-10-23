@@ -72,7 +72,9 @@ constexpr int kMaxVars = 8;
 	X(claim, "claim(Tile)") X(unclaim, "unclaim()") X(claimed_by_allies, "claimed_by_allies()") X(claim_count, "claim_count(Tile)")                           \
 	X(set_team_target, "set_team_target(Unit)") X(team_target, "team_target()")                                          \
 	X(wolf_tiles, "wolf_tiles()") X(elk_tiles, "elk_tiles()") X(gem_cluster_tiles, "gem_cluster_tiles()")                \
-	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")
+	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")    \
+	X(in_danger, "in_danger()") X(move_away_from, "move_away_from(Tile)") X(allies_within, "allies_within(Num)")          \
+	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")
 
 enum class Op : std::uint16_t
 {
@@ -556,6 +558,9 @@ struct Interp
 	std::vector<Value> vars = std::vector<Value>(kNumTypes * kMaxVars);
 	std::vector<char> kept = std::vector<char>(kNumTypes * kMaxVars, 0);
 	std::vector<std::uint16_t> field;
+	Vec2 idle_pos = { -1, -1 };
+	int idle_turns = 0;
+	std::uint64_t idle_last_turn = ~0ull;
 	std::vector<std::uint32_t> camp_ids;
 
 	const cbs::Map& m() const { return api.map(); }
@@ -1307,6 +1312,85 @@ struct Interp
 			if (v > 0) r.unit = { EntityKind::champion, static_cast<std::uint32_t>(v - 1) };
 			return r;
 		}
+		case Op::in_danger:
+		{
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			const Vec2 pos{ ci.x, ci.y };
+			for (std::uint32_t c = 0; c < m().camps.size(); ++c)
+			{
+				const int range = cbs::camp_design(m().camps[c].type).attack_range;
+				if (range <= 0 || cbs::chebyshev(pos, m().camps[c].pos) > range + 2) continue; // camps don't chase
+				std::uint32_t life = 0;
+				if (api.camp_state(c, &life) != Err::success || life != static_cast<std::uint32_t>(cbs::CampLife::awake)) continue;
+				cbs::CampRecord cr{};
+				if (api.camp(c, &cr) == Err::success && cr.health > 0 && cbs::chebyshev(pos, { cr.x, cr.y }) <= range) return num(1);
+			}
+			std::uint32_t ids[16], n = 0;
+			api.enemies(ids, 16, &n);
+			for (std::uint32_t i = 0; i < n && i < 16; ++i)
+			{
+				ChampionInfo ei{};
+				if (api.champion(ids[i], &ei) != Err::success || !(ei.state & state_bit::alive)) continue;
+				if (cbs::chebyshev(pos, { ei.x, ei.y }) <= ei.attack_range + 1) return num(1);
+			}
+			return num(0);
+		}
+		case Op::allies_within:
+		{
+			const double r = eval(a[0]).n;
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			const Value l = champions(false);
+			int k = 0;
+			for (const Unit& u : *l.units)
+			{
+				Vec2 p;
+				double hp;
+				if (unit_info(u, p, hp) && cbs::chebyshev({ ci.x, ci.y }, p) <= r) ++k;
+			}
+			return num(k);
+		}
+		case Op::unit_health_frac:
+		{
+			const Unit u = eval(a[0]).unit;
+			if (u.kind == EntityKind::champion)
+			{
+				ChampionInfo ei{};
+				if (api.champion(u.h, &ei) == Err::success && ei.max_health > 0) return num(ei.health / ei.max_health);
+			}
+			else if (u.kind == EntityKind::camp)
+			{
+				cbs::CampRecord cr{};
+				if (api.camp(u.h, &cr) == Err::success && cr.max_health > 0) return num(cr.health / cr.max_health);
+			}
+			return num(0);
+		}
+		case Op::capturable_spawns:
+		{
+			Bitboard b;
+			for (std::size_t g = 0; g < m().groups.size(); ++g)
+			{
+				std::uint32_t gs = 0;
+				if (api.camp_group_state(static_cast<std::uint32_t>(g), &gs) != Err::success) continue;
+				if (gs != static_cast<std::uint32_t>(cbs::GroupState::reward)) continue;
+				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
+			}
+			return set_of(b);
+		}
+		case Op::turns_idle:
+		{
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			const Vec2 p{ ci.x, ci.y };
+			if (turn_no != idle_last_turn)
+			{
+				idle_turns = (p == idle_pos && idle_last_turn == turn_no - 1) ? idle_turns + 1 : 0;
+				idle_pos = p;
+				idle_last_turn = turn_no;
+			}
+			return num(idle_turns);
+		}
 		case Op::unit_gems:
 		{
 			const Unit u = eval(a[0]).unit;
@@ -1412,6 +1496,30 @@ struct Interp
 			break;
 		}
 		case Op::recall: api.recall(); break;
+		case Op::move_away_from:
+		{
+			const Vec2 t = eval(a[0]).tile;
+			ChampionInfo ci{};
+			if (!has_tile(t) || !me(ci)) break;
+			const Vec2 pos{ ci.x, ci.y };
+			const Bitboard blocked = blocked_tiles(pos);
+			Vec2 best = pos;
+			int bd = cbs::chebyshev(pos, t);
+			for (int dy = -1; dy <= 1; ++dy)
+				for (int dx = -1; dx <= 1; ++dx)
+				{
+					const Vec2 p{ pos.x + dx, pos.y + dy };
+					if (!m().in_bounds(p) || blocked.test(p)) continue;
+					const int d = cbs::chebyshev(p, t);
+					if (d > bd)
+					{
+						bd = d;
+						best = p;
+					}
+				}
+			if (!(best == pos)) api.move_to(best, &ok);
+			break;
+		}
 		case Op::claim:
 		case Op::unclaim:
 		{
