@@ -1,8 +1,6 @@
 // Plays a policy against an opponent and prints one JSON summary line.
 // Usage: interp_eval --a A --b B [--games N] [--threads T] [--seed S] [--max-rounds R] [--fuel-mult X]
-//                    [--bot-seeds] [--details] [--no-fuel] MAP...
-// --no-fuel: skip all fuel bookkeeping (no budget, no pricing): ~fastest, exact only for policies
-//            that are never suspended.
+//                    [--bot-seeds] [--details] MAP...
 // --bot-seeds: policies seeded per instance as the deploy bot is (reproduces cambc games);
 // --details: one JSON line per game (map, side of A, winner, gems, end round) before the summary.
 //        interp_eval --list-blocks
@@ -45,7 +43,7 @@ int main(int argc, char** argv)
 	std::string a_spec = "builtin:starter", b_spec = "builtin:starter";
 	int games = 10, threads = 1, max_rounds = 0;
 	double fuel_mult = 1.0; // exploration: scale every bot's per-turn fuel budget
-	bool bot_seeds = false, details = false, no_fuel = false;
+	bool bot_seeds = false, details = false;
 	std::uint64_t seed = 1;
 	for (int i = 1; i < argc; ++i)
 	{
@@ -63,7 +61,6 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--fuel-mult")) fuel_mult = std::atof(argv[++i]);
 		else if (!std::strcmp(argv[i], "--bot-seeds")) bot_seeds = true;
 		else if (!std::strcmp(argv[i], "--details")) details = true;
-		else if (!std::strcmp(argv[i], "--no-fuel")) no_fuel = true;
 		else maps.push_back(argv[i]);
 	}
 	if (maps.empty())
@@ -101,7 +98,6 @@ int main(int argc, char** argv)
 				MatchOptions opt;
 				opt.seed = gs;
 				opt.max_rounds = max_rounds;
-				opt.no_fuel = no_fuel;
 				opt.fuel.per_turn = static_cast<std::int64_t>(static_cast<double>(opt.fuel.per_turn) * fuel_mult);
 				Match match(loaded[(g / 2) % loaded.size()], swap ? *pb : *pa, swap ? *pa : *pb, opt);
 				const GameResult r = match.run();

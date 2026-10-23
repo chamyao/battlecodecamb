@@ -36,8 +36,7 @@ std::unique_ptr<Match::Instance> Match::make_instance(int team, int champ)
 {
 	const PriceTable* prices = players_[team]->prices() ? players_[team]->prices() : opt_.prices;
 	auto inst = std::make_unique<Instance>(game, team, champ, prices, opt_.stack_size);
-	inst->api.unlimited = opt_.unlimited_fuel || opt_.no_fuel;
-	if (opt_.no_fuel) inst->api.count_charges = false;
+	inst->api.unlimited = opt_.unlimited_fuel;
 	if (players_[team]->is_inline()) return inst;
 	inst->body = players_[team]->make_bot(team, champ);
 	inst->api.attach(&inst->coro);
