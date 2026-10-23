@@ -117,6 +117,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   `dist/deploy-v3.zip` sha256 d14dc314...): fs-1 plus retreat when hurt and in
   danger, hold only capturable spawns, skip monoliths and golems. Sim: 87% vs v2,
   81.5% vs fs-1; real cambc: 66/80 vs fs-1.
+  v3 went 13-22 in its first 35 games; losses traced to altar locks freezing
+  our carriers, fights lost at even numbers, and small bags (`analysis/sprint1`,
+  `docs/LADDER_LOSSES_V3.md`). 3 = v4 (Oct 23; `deploy/v0` c06711d, sha256
+  8381086a...): v3 + tribute through locked altars, prefer altars out of monolith
+  reach. Real cambc: 39/80 vs v3, 71/80 vs locker (v3 66/80).
 
 ### Deployment shape (agreed so far)
 
