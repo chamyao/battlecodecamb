@@ -125,11 +125,14 @@ rules are marked `RULE?` in the code.
 
 Single thread, `-O2`, one game = full draft + up to 2000 rounds:
 
-| Matchup | Map | Games/s |
-| --- | --- | --- |
-| idle vs idle (engine floor) | 00elkring (30x30) | 230 |
-| starter vs starter | 00elkring | 26 |
-| starter vs starter | 01big-world | 5.8 |
+| Matchup | Map | 1 thread | 4 threads |
+| --- | --- | --- | --- |
+| idle vs idle (engine floor) | 00elkring (30x30) | 270 | |
+| starter vs starter | 00elkring | 31 | 104 |
+| starter vs starter | 01big-world | 4.5 | 19 |
+| starter vs starter | all 40 pool maps, round robin | | 50 |
+
+(4-core container, `bench`; games/s for full games including the draft.)
 
 With the starter policy most time is the policy's own distance fields; the
 engine itself (vision, rules, Api) is a few percent. `run_matches`/`bench
