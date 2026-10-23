@@ -1,4 +1,5 @@
-# opp-icecream: test opponent = v7-zerogem with only the draft changed to heart_of_ruin, vesper_vale, marcella, vendetta, ryth (ladder team draft, docs/LADDER_LOSSES_V6.md).
+# opp-icecream: test opponent = v7zg-cast with only the draft changed to heart_of_ruin, vesper_vale, marcella, vendetta, ryth (ladder team draft, docs/LADDER_LOSSES_V6.md).
+# v7zg-cast [hybrid line]: v7-zerogem + ability-type-aware casting grafted from hybrid #14 (Opus, runs/hyb2-g1 #14): shield/heal on self, dash kept for escape and far camp goals, damage/aoe/stun/reset at the target.
 # v7-zerogem: v7 + fixes for the three maps where a v7 mirror tributes nothing (docs/ZERO_GEM_MAPS.md):
 # no fighting enemies on their own spawn, fight a camp that is the only way to an altar, and go
 # for monoliths when nothing is tributed by round 300. Proposal from the sim-calibration session.
@@ -14,6 +15,19 @@
 # camp tile only when its group is capturable; skip monoliths and golems.
 # Based on fs-1: FunSearch pilot #146 (5 Haiku edits from v1): split strength/health shards, heal on spawn,
 # retreat at 50% health when carrying gems, hold on a cleared camp spawn to capture, one camps_visible() per turn.
+
+# zg14: ability-type-aware casting from hybrid #14 (Opus): shield/heal on self, dash kept for escape/travel
+def cast_on(slot, u):
+    if ability_ready(slot):
+        if slot_is_shield(slot) or slot_is_heal(slot):
+            cast_self(slot)
+        elif not slot_is_dash(slot):
+            cast_at_unit(slot, u)
+
+def dash_to(slot, t):
+    if ability_ready(slot):
+        if slot_is_dash(slot):
+            dash_towards(slot, t)
 
 # ---- draft ----
 if is_draft():
@@ -59,7 +73,10 @@ if at_spawn:
 # retreat at 20% health normally, but at 50% when carrying gems
 if not at_spawn and health() < 0.3 * max_health():
     if in_danger():
-        move_towards( closest( spawn_region(ally()) ) )
+        let home = closest( spawn_region(ally()) )
+        dash_to(0, home)
+        dash_to(1, home)
+        move_towards(home)
         end_turn()
     recall()
     end_turn()
@@ -70,10 +87,8 @@ if not at_spawn and gems() > 0 and health() < 0.5 * max_health() and not in_dang
 let enemy = weakest( filter( enemies_visible(), in_attack_range() ) )
 # an enemy on its own spawn is healed every turn: fighting it there never ends (00reverse-spiral)
 if exists(enemy) and not contains( spawn_region(enemy()), unit_position(enemy) ):
-    if ability_ready(0):
-        cast_at_unit(0, enemy)
-    if ability_ready(1):
-        cast_at_unit(1, enemy)
+    cast_on(0, enemy)
+    cast_on(1, enemy)
     attack(enemy)
     end_turn()
 
@@ -109,10 +124,8 @@ let camps = camps_visible()
 
 let camp = first( filter( camps, in_attack_range() ) )
 if exists(camp):
-    if ability_ready(0):
-        cast_at_unit(0, camp)
-    if ability_ready(1):
-        cast_at_unit(1, camp)
+    cast_on(0, camp)
+    cast_on(1, camp)
     attack(camp)
     end_turn()
 
@@ -134,6 +147,10 @@ if distance(goal, position()) == 0:
     if exists(live) and not contains( union( monolith_tiles(), golem_tiles() ), unit_position(live) ):
         move_towards( unit_position(live) )
         end_turn()
+# tunable: dash toward a camp goal only when it is farther than this
+if exists(goal) and distance(position(), goal) > 4:
+    dash_to(0, goal)
+    dash_to(1, goal)
 move_towards( goal )
 let camp2 = first( filter( camps, in_attack_range() ) )
 if exists(camp2):

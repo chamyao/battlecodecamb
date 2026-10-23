@@ -17,6 +17,7 @@ G = {
     "bag": ("gems() >= 10 or", [f"gems() >= {v} or" for v in (1, 5, 7, 14, 20, 30)]),
     "baground": ("round_number() > 1500", [f"round_number() > {v}" for v in (1000, 1250, 1750, 1900)]),
     "baghp": ("or health() < 0.5 * max_health()\n", [f"or health() < {v} * max_health()\n" for v in (0.3, 0.4, 0.6, 0.7)]),
+    "dash": ("distance(position(), goal) > 4", [f"distance(position(), goal) > {v}" for v in (2, 3, 6, 8, 12, 1000)]),
     "monolith": ("ring(monolith_tiles(), 5)", [f"ring(monolith_tiles(), {v})" for v in (3, 4, 6, 7)]),
 }
 cands = {}
