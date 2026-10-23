@@ -40,6 +40,7 @@
 { "div(Num,Num)", false, { 246078, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=24658 mean=261 mae=9 (profile fuel)
 { "elk_tiles()", false, { 802604, 0, 6098, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=1230 mae=150 (profile fuel)
 { "enemies_visible()", false, { 920148, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=32644 mean=975 mae=83 (profile fuel)
+{ "enemies_within(Num)", false, { 2611908, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // PROVISIONAL (copied from allies_within) until the sim session calibrates
 { "enemy()", false, { 44334, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=47 mae=0 (profile fuel)
 { "eq(Num,Num)", false, { 278265, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=16582 mean=295 mae=0 (profile fuel)
 { "attack(Unit)", true, { 249966, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=1658 mean=265 mae=0 (profile fuel)
@@ -51,6 +52,7 @@
 { "cast_self(Num)", true, { 499933, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4 mean=530 mae=0 (profile fuel)
 { "claim(Tile)", true, { 338634, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=5781 mean=359 mae=0 (profile fuel)
 { "dash_towards(Num,Tile)", true, { 1296826, 0, 9986, 0, 0, 40195, 999, 0, 0, 0 } }, // n=528 mean=2777 mae=293 (profile fuel)
+{ "local_strength(Num)", false, { 5200000, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // PROVISIONAL (about allies_within + enemies_within) until calibrated
 { "move_away_from(Tile)", true, { 1268524, 11022, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4515 mean=1872 mae=55 (profile fuel)
 { "move_towards(Tile)", true, { 1383356, 0, 11059, 0, 11889, 0, 0, 0, 0, 0 } }, // n=8952 mean=2459 mae=81 (profile fuel)
 { "pick(Champ)", true, { 297130, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=109 mean=315 mae=0 (profile fuel)
