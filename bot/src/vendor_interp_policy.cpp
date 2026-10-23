@@ -662,7 +662,12 @@ struct Interp
 		return camps_cache;
 	}
 
-	Bitboard blocked_tiles(Vec2 me)
+	// Blocked tiles for the champion at `me`; rebuilt only when the occupancy is refreshed or
+	// the champion moved (both bump `epoch` or the turn).
+	std::uint64_t blocked_turn = ~0ull, blocked_epoch = ~0ull;
+	Vec2 blocked_me = kNoTile;
+	Bitboard blocked_cache;
+	const Bitboard& blocked_tiles(Vec2 me)
 	{
 		if (!static_ready)
 		{
@@ -673,17 +678,23 @@ struct Interp
 			static_ready = true;
 		}
 		refresh_occupancy(me);
-		Bitboard blocked = static_block;
-		blocked |= dyn_block;
-		blocked.reset(me);
-		return blocked;
+		if (blocked_turn != turn_no || blocked_epoch != epoch || !(blocked_me == me))
+		{
+			blocked_cache = static_block;
+			blocked_cache |= dyn_block;
+			blocked_cache.reset(me);
+			blocked_turn = turn_no;
+			blocked_epoch = epoch;
+			blocked_me = me;
+		}
+		return blocked_cache;
 	}
 
 	// The starter bot's move_towards_closest: distance field from the goals, step downhill.
 	void move_towards_goals(Bitboard goals, Vec2 me)
 	{
 		if (goals.test(me)) return;
-		Bitboard blocked = blocked_tiles(me);
+		const Bitboard& blocked = blocked_tiles(me);
 		const Bitboard& camps = camp_occupancy(me);
 		Bitboard taken = blocked;
 		taken.andnot(camps);
@@ -716,7 +727,8 @@ struct Interp
 	Vec2 dash_target(Vec2 goal, Vec2 me)
 	{
 		if (goal == me) return kNoTile;
-		Bitboard blocked = blocked_tiles(me), root, visited, box;
+		const Bitboard& blocked = blocked_tiles(me);
+		Bitboard root, visited, box;
 		Bitboard walls = blocked;
 		walls.reset(goal);
 		root.set(goal);
@@ -748,7 +760,7 @@ struct Interp
 		if (!me(ci)) return kNoTile;
 		const Vec2 pos{ ci.x, ci.y };
 		if (set.test(pos)) return pos;
-		Bitboard blocked = blocked_tiles(pos);
+		const Bitboard& blocked = blocked_tiles(pos);
 		const Bitboard& camps = camp_occupancy(pos);
 		Bitboard cand = set, taken = blocked;
 		taken.andnot(camps);

@@ -161,6 +161,14 @@ Err Api::altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* cou
 void Api::visible_camps(std::vector<std::uint32_t>& out)
 {
 	out.clear();
+#ifdef BOT_REFERENCE
+	for (std::uint32_t c = 0; c < g_.map().camps.size(); ++c)
+	{
+		cambc::detail::camp_state cs{};
+		if (sdk_camp(c, &cs) == 0 && cs.health > 0) out.push_back(c);
+	}
+	return;
+#endif
 	Bitboard occ;
 	if (sdk_camp_occupancy(occ.w) == 0)
 		occ.for_each_unordered(g_.map().H, [&](int x, int y) {
@@ -266,7 +274,8 @@ constexpr int kSlots = 4;
 FieldSlot* slots = nullptr;
 std::uint64_t slot_clock = 0;
 alignas(16) std::uint64_t delta_w[hostbb::kWords];
-hostbb::Pos delta_pos[64];
+constexpr std::uint32_t kMaxDelta = 16;
+hostbb::Pos delta_pos[kMaxDim * kMaxDim];
 #ifdef BOT_VERIFY
 alignas(16) std::uint16_t verify_field[kFieldWords];
 long verify_checks = 0, verify_fails = 0;
@@ -289,10 +298,15 @@ inline int cheb(int x, int y, Vec2 p) { return std::max(std::abs(x - p.x), std::
 // Unknown distances (beyond L) are taken as L + 1: a lower bound, so the test stays sound.
 bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int S, int qr, int W, int H)
 {
+#ifdef BOT_PROF2
+	struct BT { long long f0 = PROF_T; ~BT() { bot_prof[7] += f0 - PROF_T; } } bt_;
+#endif
 	sdk_Bitboard_Xor(sl.walls.w, walls.w, delta_w);
 	std::uint32_t n = 0;
-	sdk_Bitboard_GetSetBits(delta_w, delta_pos, 64, &n);
-	if (n > 64) return false;
+	// Many changed tiles rarely pass and cost ~100-200 fuel each to examine: give up early.
+	// (GetSetBits reports how many it wrote, capped at the capacity, so ask for all of them.)
+	sdk_Bitboard_GetSetBits(delta_w, delta_pos, kMaxDim * kMaxDim, &n);
+	if (n > kMaxDelta) return false;
 	const int L = sl.depth;
 	auto d = [&](int x, int y) {
 		const int v = sl.field[fidx(x, y)];
@@ -425,9 +439,15 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 	};
 	FieldAnswer ans{ nullptr, &walls, -1, 0 };
 	FieldSlot *use = nullptr, *same_roots = nullptr;
+#ifdef BOT_PROF2
+	const long long p0 = PROF_T;
+#endif
 	for (int i = 0; i < kSlots && !use; ++i)
 	{
 		FieldSlot& sl = slots[i];
+#ifdef BOT_REFERENCE
+		continue; // reference build: always a fresh search
+#endif
 		if (sl.depth < 0 || sl.maxd != maxd || !(sl.roots == roots)) continue;
 		same_roots = &sl;
 #ifdef BOT_DF_PROFILE
@@ -450,6 +470,13 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 			if (best >= 0 && best <= sl.depth && box_unaffected(sl, walls, roots, me, best, qr, W, H)) use = &sl, ans.limit = best;
 		}
 	}
+#ifdef BOT_PROF2
+	bot_prof[5] += p0 - PROF_T;
+#endif
+#ifdef BOT_VERIFY
+	int vpath = use ? (use->walls == walls ? 1 : 2) : 0;
+	int vdepth = use ? use->depth : -1, vcomplete = use ? use->complete : -1;
+#endif
 	if (use)
 	{
 		ans.count = ans.limit >= 0 ? ans.limit : use->depth;
@@ -467,9 +494,16 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 			for (int i = 1; i < kSlots; ++i)
 				if (slots[i].used < use->used) use = &slots[i];
 		}
-		Bitboard visited, me_only;
+		// Scratch boards (never zeroed: the host writes all of `visited`; me_only is kept empty
+		// between calls).
+		static Bitboard visited, me_only;
 		const Bitboard* sd = dests;
-		if (dests && have_me && dests->test(me))
+#ifdef BOT_REFERENCE
+		const bool to_me = false;
+#else
+		const bool to_me = dests && have_me && dests->test(me);
+#endif
+		if (to_me)
 		{
 			me_only.set(me);
 			sd = &me_only;
@@ -489,7 +523,12 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		use->depth = count;
 		// Stopped early only if a dest was reached (visited = every reached tile) or at maxd.
 		bool reached = false;
-		if (sd)
+		if (to_me)
+		{
+			reached = visited.test(me);
+			me_only.reset(me);
+		}
+		else if (sd)
 		{
 			visited &= *sd;
 			reached = visited.any(H);
@@ -532,7 +571,7 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		if (bad)
 		{
 			++verify_fails;
-			std::printf("@@VERIFY field mismatch tiles=%d limit=%d count=%d stop=%d\n", bad, ans.limit, ans.count, stop);
+			std::printf("@@VERIFY field mismatch tiles=%d limit=%d count=%d stop=%d path=%d depth=%d complete=%d qr=%d me=%d,%d nroots=%d\n", bad, ans.limit, ans.count, stop, vpath, vdepth, vcomplete, qr, me.x, me.y, roots.count(H));
 		}
 	}
 #endif
@@ -553,15 +592,25 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	// The interpreter reads the dests and, around the champion, its 3x3 (move_towards) or, when
 	// the dests reach that far, its 5x5 box (dash_towards); every other entry is unspecified,
 	// and `visited` is not maintained (no caller reads it).
+	static hostbb::Pos dpos[kMaxDim * kMaxDim];
+	std::uint32_t nd = 0;
 	int qr = 1;
-	if (dests && have_me)
-		dests->for_each_unordered(H, [&](int x, int y) { qr = std::max(qr, cheb(x, y, me)); });
+	if (dests)
+	{
+		sdk_Bitboard_GetSetBits(dests->w, dpos, kMaxDim * kMaxDim, &nd);
+		if (have_me)
+			for (std::uint32_t i = 0; i < nd; ++i) qr = std::max(qr, cheb(dpos[i].x, dpos[i].y, me));
+	}
 	const FieldAnswer ans = field_query(walls, roots, dests, max_distance, have_me, me, std::min(qr, 3), W, H);
-	auto put = [&](int x, int y) { dist[y * W + x] = ans.at(x, y); };
+#ifdef BOT_PROF2
+	struct QT { long long q0 = PROF_T; ~QT() { bot_prof[6] += q0 - PROF_T; } } qt_;
+#endif
+	const int r = std::min(qr, 2);
 	if (have_me)
-		for (int y = std::max(0, me.y - 2); y <= std::min(H - 1, me.y + 2); ++y)
-			for (int x = std::max(0, me.x - 2); x <= std::min(W - 1, me.x + 2); ++x) put(x, y);
-	if (dests) dests->for_each_unordered(H, put);
+		for (int y = std::max(0, me.y - r); y <= std::min(H - 1, me.y + r); ++y)
+			for (int x = std::max(0, me.x - r); x <= std::min(W - 1, me.x + r); ++x) dist[y * W + x] = ans.at(x, y);
+	for (std::uint32_t i = 0; i < nd; ++i)
+		if (!have_me || cheb(dpos[i].x, dpos[i].y, me) > r) dist[dpos[i].y * W + dpos[i].x] = ans.at(dpos[i].x, dpos[i].y);
 	return ans.count;
 }
 
@@ -577,6 +626,22 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 #endif
 	if (expansions) *expansions = 0; // only the simulator prices it
 	const int W = g_.map().W, H = g_.map().H;
+#ifdef BOT_REFERENCE
+	{
+		// The simulator's algorithm, on a fresh host search.
+		static std::uint16_t f[kFieldWords];
+		Bitboard o, v;
+		o.set(origin);
+		std::uint16_t c = 0;
+		sdk_DistanceField_ComputeToWithExpansionCount(walls.w, o.w, cand.w, v.w, f, kUnreachable, &c);
+		std::uint16_t bd = kUnreachable;
+		bool found = false;
+		cand.for_each(H, [&](int x, int y) {
+			if (f[fidx(x, y)] < bd) bd = f[fidx(x, y)], out = { x, y }, found = true;
+		});
+		return found;
+	}
+#endif
 	champion_info ci{};
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0 && ci.x == origin.x && ci.y == origin.y;
 	Bitboard o;
