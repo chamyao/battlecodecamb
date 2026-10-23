@@ -81,6 +81,25 @@ check, constant tuning (inner loop: best constants per structure; method
 open). Opponents: starter bot and hand-written bots first, then self-play.
 Grammar code: `policygen/` (branch `grammar/v0`).
 
+### Status and findings (Oct 23)
+
+- **Simulator** (`sim/`, branch `sim/engine`): exact vs cambc on all 40 pool maps;
+  measured fuel prices (`docs/FUEL.md`). Host calls cost 1-30 fuel; guest code ~1
+  fuel/instruction; host geometry is 30-200x cheaper than doing it in the bot; SDK
+  wrappers can cost ~10x the raw import. Instances survive death; 256 MiB memory;
+  source limit 5 MB zipped / 64 MB unzipped.
+- **Interpreter** (`interp/`, branch `interp/v0`): runs `.policy` files in the
+  simulator. Translated starter = builtin starter (53% over 400 games).
+- **FunSearch** (`funsearch/`): built; needs `ANTHROPIC_API_KEY` in the
+  environment to run with Claude. Two-stage scoring (16-game screens are too
+  noisy; confirmed on 160 fresh games).
+- **v1** (`policies/v1.policy`): 89% vs starter. Single changes measured over 400
+  games: strength shards +0.22, abilities on camps +0.20, recall at 20% (not 35%)
+  +0.11; delaying tribute for a bigger bag *hurts*. Champion choice barely matters
+  at this level (Stellar worst).
+- **Sprint 1**: winner Intercontinental Fish, runner-up Nyx; top-16 replays on
+  branch `analysis/sprint1`, analysed by its own session.
+
 ### Deployment shape (agreed so far)
 
 - No model runs on the bots. The network lives offline and outputs
