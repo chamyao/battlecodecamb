@@ -3,19 +3,21 @@ The first play turn of each champion (2x budget) is reported separately from the
 import glob, os, re, struct, sys, zipfile
 
 out = sys.argv[1]
+team = sys.argv[2] if len(sys.argv) > 2 else "team-a"  # the deploy bot's side
+me, them = ("A", "B") if team == "team-a" else ("B", "A")
 rows = []
 for d in sorted(glob.glob(f"{out}/*/")):
     m = os.path.basename(d.rstrip("/"))
     log = open(f"{d}/log.txt", errors="replace").read()
     res = "?"
     mm = re.search(r"Team ([AB]) \((\S+)\) wins: (.*)", log)
-    if mm: res = ("WIN " if mm.group(1) == "A" else "loss") + " " + mm.group(3)[:38]
-    crash = re.search(r"^\s+A\s+\S+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)", log, re.M)
+    if mm: res = ("WIN " if mm.group(1) == me else "loss") + " " + mm.group(3)[:38]
+    crash = re.search(r"^\s+" + me + r"\s+\S+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)", log, re.M)
     bundles = glob.glob(f"{d}/*.repl26a")
     if not bundles:
         rows.append((m, res, None)); continue
     z = zipfile.ZipFile(bundles[0])
-    data = z.read("team-a.fuel")
+    data = z.read(f"{team}.fuel")
     n = (len(data) - 13) // 8
     v = struct.unpack_from(f"<{n}Q", data, 13)
     used = list(v[8:])
@@ -26,7 +28,7 @@ for d in sorted(glob.glob(f"{out}/*/")):
     k = max(1, min(8, round(len(play) / max(1, rounds))))  # champion instances
     first, rest = play[:k], play[k:]
     rest_s = sorted(rest) or [0]
-    stdout = z.read("team-a.stdout").replace(b"\0", b"").decode(errors="replace")
+    stdout = z.read(f"{team}.stdout").replace(b"\0", b"").decode(errors="replace")
     errs = stdout.count("bot error")
     rows.append((m, res, dict(n=len(rest), mean=sum(rest) / max(1, len(rest)), p99=rest_s[int(len(rest_s) * .99)], mx=rest_s[-1],
                                cap=sum(x >= 100000 for x in rest), first=max(first or [0]), crashes=int(crash.group(1)) if crash else -1, errs=errs)))
