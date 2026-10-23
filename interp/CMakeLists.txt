@@ -16,3 +16,6 @@ target_compile_options(interp PRIVATE -Wall -Wextra -Wno-unused-parameter)
 
 add_executable(interp_eval tools/interp_eval.cpp)
 target_link_libraries(interp_eval interp pthread)
+
+add_executable(fuel_turns tools/fuel_turns.cpp)
+target_link_libraries(fuel_turns interp pthread)

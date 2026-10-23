@@ -9,10 +9,24 @@
 
 namespace cbs
 {
+// Rows that board-wide operations touch. Every tile set lies inside the map, so rows at or
+// beyond the map height are always zero; a bot sets this to its map height once (inside
+// wasm a full 100-row pass costs ~1.8k fuel). Per thread, so concurrent matches are safe.
+inline thread_local int board_rows = kMaxDim;
+
 struct Bitboard
 {
 	// Two words per row: bits 0..63 in w[y][0], 64..99 in w[y][1].
 	std::uint64_t w[kMaxDim][2];
+	// One row as a 128-bit vector (SSE2 natively, simd128 in a wasm bot).
+	using Row = std::uint64_t __attribute__((vector_size(16)));
+	static Row load(const std::uint64_t* p)
+	{
+		Row r;
+		std::memcpy(&r, p, sizeof r);
+		return r;
+	}
+	static void store(std::uint64_t* p, Row r) { std::memcpy(p, &r, sizeof r); }
 
 	Bitboard() { clear(); }
 	void clear() { std::memset(w, 0, sizeof w); }
@@ -37,19 +51,39 @@ struct Bitboard
 	}
 	Bitboard& operator|=(const Bitboard& o)
 	{
-		for (int y = 0; y < kMaxDim; ++y) w[y][0] |= o.w[y][0], w[y][1] |= o.w[y][1];
+		for (int y = 0, n = board_rows; y < n; ++y) store(w[y], load(w[y]) | load(o.w[y]));
 		return *this;
 	}
 	Bitboard& operator&=(const Bitboard& o)
 	{
-		for (int y = 0; y < kMaxDim; ++y) w[y][0] &= o.w[y][0], w[y][1] &= o.w[y][1];
+		for (int y = 0, n = board_rows; y < n; ++y) store(w[y], load(w[y]) & load(o.w[y]));
 		return *this;
 	}
 	// this &= ~o
 	Bitboard& andnot(const Bitboard& o)
 	{
-		for (int y = 0; y < kMaxDim; ++y) w[y][0] &= ~o.w[y][0], w[y][1] &= ~o.w[y][1];
+		for (int y = 0, n = board_rows; y < n; ++y) store(w[y], load(w[y]) & ~load(o.w[y]));
 		return *this;
+	}
+	// Calls f(x, y) for every set tile in rows [0, h), row-major.
+	template <class F>
+	void for_each(int h, F&& f) const
+	{
+		for (int y = 0; y < h; ++y)
+			for (int k = 0; k < 2; ++k)
+				for (std::uint64_t bits = w[y][k]; bits; bits &= bits - 1) f(64 * k + std::countr_zero(bits), y);
+	}
+	// First set tile in row-major order; false if empty.
+	bool first(int h, Vec2& out) const
+	{
+		for (int y = 0; y < h; ++y)
+			for (int k = 0; k < 2; ++k)
+				if (w[y][k])
+				{
+					out = { 64 * k + std::countr_zero(w[y][k]), y };
+					return true;
+				}
+		return false;
 	}
 	bool operator==(const Bitboard& o) const { return std::memcmp(w, o.w, sizeof w) == 0; }
 };
