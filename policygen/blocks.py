@@ -170,6 +170,8 @@ _b("allies_within", "Num", "Num")
 _b("unit_health_frac", "Unit", "Num")
 _b("capturable_spawns", "", "TileSet")
 _b("turns_idle", "", "Num")
+_b("enemies_within", "Num", "Num")
+_b("local_strength", "Num", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)

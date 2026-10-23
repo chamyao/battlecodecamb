@@ -76,7 +76,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(wolf_tiles, "wolf_tiles()") X(elk_tiles, "elk_tiles()") X(gem_cluster_tiles, "gem_cluster_tiles()")                \
 	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")    \
 	X(in_danger, "in_danger()") X(move_away_from, "move_away_from(Tile)") X(allies_within, "allies_within(Num)")          \
-	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")
+	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")   \
+	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")
 
 enum class Op : std::uint16_t
 {
@@ -692,10 +693,10 @@ struct Interp
 		// The deploy bot's one-off start-up (map, camp layout, allocator; the policy is embedded
 		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 24 cambc games of
 		// v5d / fs-1 as first-turn fuel minus the simulator's charge for that turn (docs/FUEL.md):
-		// mae 1.3k on a mean of 43k.
+		// mae 1.3k on a mean of 47k.
 		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
-			api.compute(17890 + 2207 * m().W * m().H / 1000 + 245 * static_cast<std::int64_t>(m().camps.size()) +
-						417 * static_cast<std::int64_t>(m().groups.size()));
+			api.compute(21662 + 2281 * m().W * m().H / 1000 + 247 * static_cast<std::int64_t>(m().camps.size()) +
+						387 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
 		blocks_this_turn = 0;
@@ -1385,6 +1386,50 @@ struct Interp
 				if (unit_info(u, p, hp) && cbs::chebyshev({ ci.x, ci.y }, p) <= r) ++k;
 			}
 			return num(k);
+		}
+		case Op::enemies_within:
+		{
+			const double r = eval(a[0]).n;
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			std::uint32_t ids[16], n = 0;
+			api.enemies(ids, 16, &n);
+			int k = 0;
+			for (std::uint32_t i = 0; i < n && i < 16; ++i)
+			{
+				ChampionInfo ei{};
+				if (api.champion(ids[i], &ei) == Err::success && (ei.state & state_bit::alive) &&
+					cbs::chebyshev({ ci.x, ci.y }, { ei.x, ei.y }) <= r)
+					++k;
+			}
+			return num(k);
+		}
+		case Op::local_strength:
+		{
+			// (total health x total damage) of us and visible allies within r, over the same for
+			// visible enemy champions within r (Lanchester square law); damage per unit is
+			// strength + focus / 2. 100 when no enemy is within r.
+			const double r = eval(a[0]).n;
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			double hp[2] = { ci.health, 0 }, dmg[2] = { ci.strength + 0.5 * ci.focus, 0 };
+			for (int side = 0; side < 2; ++side)
+			{
+				std::uint32_t ids[16], n = 0;
+				side ? api.enemies(ids, 16, &n) : api.allies(ids, 16, &n);
+				for (std::uint32_t i = 0; i < n && i < 16; ++i)
+				{
+					if (side == 0 && ids[i] == self()) continue;
+					ChampionInfo ei{};
+					if (api.champion(ids[i], &ei) != Err::success || !(ei.state & state_bit::alive) ||
+						cbs::chebyshev({ ci.x, ci.y }, { ei.x, ei.y }) > r)
+						continue;
+					hp[side] += ei.health;
+					dmg[side] += ei.strength + 0.5 * ei.focus;
+				}
+			}
+			if (hp[1] <= 0) return num(100);
+			return num(std::min(100.0, hp[0] * dmg[0] / std::max(1e-6, hp[1] * dmg[1])));
 		}
 		case Op::unit_health_frac:
 		{

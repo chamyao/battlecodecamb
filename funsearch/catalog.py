@@ -150,6 +150,8 @@ DOCS = {
     "allies_within": "number of living allies you can see within Chebyshev distance r",
     "unit_health_frac": "unit's health / max health (0 if not visible)",
     "capturable_spawns": "spawn tiles of visible camp groups that are fully cleared with reward available (stand here to capture)",
+    "enemies_within": "number of living enemy champions you can see within Chebyshev distance r",
+    "local_strength": "(health x damage) of you + visible allies within r over the same for visible enemy champions within r; >1 means the local fight favours you, 100 if no enemy in r. Use as an engagement/retreat test with a tunable threshold",
     "turns_idle": "consecutive turns (counted each time you check) your position has not changed",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
     "map_width": "", "map_height": "", "camp_count": "camps on the map",
