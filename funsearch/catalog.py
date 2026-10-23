@@ -94,6 +94,11 @@ Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights 
   (33-38/80); preferring elk/gem clusters, or a bag of 25, were neutral. The gain probably needs
   a value-vs-distance trade-off when choosing camps, team monolith takes, and bigger bags
   without more deaths. Treat these as directions, not rules.
+- Constant tuning around the current best finds nothing better (its thresholds are locally
+  optimal). The open lever is STRUCTURAL camp choice: today the goal is simply the closest camp
+  spawn. Try scoring candidate camps by gems per turn of travel and fighting (group value vs
+  distance and danger), splitting the team between rich groups, or committing together to the
+  richest one, rather than adjusting the existing numbers.
 """
 
 GRAMMAR += """\
