@@ -25,8 +25,8 @@ SYSTEM = f"""You improve bot policies for a programming competition, written in 
 
 # Your task
 You are shown earlier policy versions, worst first, with their scores (win rate against the
-reference bots, plus a small bonus for gem margin; higher is better) and how many turns per game
-its champions ran out of fuel (each one is a lost turn). Write one new version that
+reference bots, plus a small bonus for gem margin; higher is better) and, if any, how many turns
+per game its champions ran out of fuel (each one is a lost turn). Write one new version that
 should score higher. Make a focused, meaningful change: a better rule, a missing behaviour, a
 better threshold, or a cheaper way to do the same thing. Keep everything that already works.
 Reply with the complete new policy in a single ```policy code block, then nothing else."""
@@ -72,7 +72,7 @@ class Proposer:
                 raise BudgetExceeded(f"spent ${self.spent:.2f} of ${self.budget:.2f}")
         model = self._model()
         def header(i, score, suspended):
-            fuel = f"; out of fuel {suspended:.0f} turns per game" if suspended is not None else ""
+            fuel = f"; out of fuel {suspended:.0f} turns per game" if suspended else ""
             return f"## Version {i} (score {score:.3f}{fuel})"
         shown = "\n\n".join(
             f"{header(i, score, suspended)}\n```policy\n{text.strip()}\n```"

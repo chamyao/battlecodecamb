@@ -18,12 +18,9 @@ do both in one turn), and cast one of two abilities (8-turn cooldowns). Recall (
 cancelled by damage) teleports home; standing on spawn heals. Vision is 8 tiles, blocked by
 walls and bushes, and is not shared between allies; 8 bytes of shared memory are.
 Every block a bot runs costs fuel; each bot gets 100,000 fuel per turn, and a bot that runs
-out is suspended mid-turn: the rest of that turn is lost (no move or attack). Fuel is a real
-lever here: typical policies get suspended thousands of times per game, mostly from the
-board-scanning blocks (move_towards, closest, ring, camps_visible, filter on tile sets cost
-thousands to tens of thousands each; simple reads cost ~200). Each block's typical price is
-listed below. Compute expensive values once with let/keep, skip them when not needed (check
-cheap conditions first), and reuse results instead of re-querying.
+out is suspended mid-turn (the rest of that turn is lost). Typical policies use ~15k per turn,
+so fuel rarely binds: gains come from better play. Each block's typical price is listed below;
+keep an eye on it only when adding expensive board-scanning blocks (thousands of fuel each).
 """
 
 GRAMMAR = """\
@@ -144,7 +141,7 @@ def _typical_fuel():
     except FileNotFoundError:
         return {}
     prices = {}
-    for key, const, rest in re.findall(r'^\{ "([^"]+)", \w+, \{ (\d+),.*\}(.*)$', text, re.M):
+    for key, const, rest in re.findall(r'^\{ "([^"]+)", \w+, \{ (-?\d+),.*\}(.*)$', text, re.M):
         mean = re.search(r"mean=(\d+)", rest)
         prices[key] = int(mean.group(1)) if mean else round(int(const) / 1000)  # provisional: constant term
     return prices
