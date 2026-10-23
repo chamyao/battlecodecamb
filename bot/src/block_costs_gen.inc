@@ -58,6 +58,7 @@
 { "place_altar_lock(Tile)", true, { 317300, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=5747 mean=336 mae=0 (profile fuel)
 { "place_ward(Tile)", true, { 301246, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=561 mean=319 mae=0 (profile fuel)
 { "recall()", true, { 124653, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=438 mean=132 mae=0 (profile fuel)
+{ "rich_spawns(Num)", false, { 1860998, 0, 16526, 0, 0, 0, 0, 2000, 0, 0 } }, // PROVISIONAL (camp_spawn_tiles + 2/camp) until calibrated
 { "set_priority(Num)", true, { 205370, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=69107 mean=217 mae=20 (profile fuel)
 { "set_team_target(Unit)", true, { 271971, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4862 mean=288 mae=0 (profile fuel)
 { "teleport_to(Tile)", true, { 278582, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4080 mean=295 mae=0 (profile fuel)
