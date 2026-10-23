@@ -77,3 +77,24 @@ fixed options a block comes in (e.g. depth); each setting is its own move.
 ## Draft
 54. Current draft state: picks so far, team size [`draft.current_draft`, `team_size`]
 55. Pick champion [`draft.pick`]
+
+## Lists and sets (pure; replace loops in the grammar)
+56. `filter(list, predicate)`
+57. `first(list)` -> item or none
+58. `exists(x)`
+59. `union(sets)`, `minus(a, b)`, `contains(set, tile)` (bitboard ops)
+60. `ring(set, r)`: tiles within Chebyshev r of a set
+61. `closest(set)`: nearest reachable tile in a set
+
+## Predicates (arguments to `filter`)
+62. `in_attack_range`
+63. `within(r, tile)`
+64. `is_enemy`, `is_ally`, `is_awake`, `is_asleep` ...
+
+## Randomness (mixed strategies)
+65. `random_choice(list)`
+66. `random_int(n)`
+
+## Movement helper
+67. `move_towards(tile or set)`: block occupied tiles, distance field from
+    goals, step downhill (bundles the starter bot's `move_towards_closest`)

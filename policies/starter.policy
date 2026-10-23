@@ -1,0 +1,50 @@
+# The official starter-cpp bot (cambc 3.0.5), translated to our grammar.
+
+# ---- draft ----
+if is_draft():
+    write_draft("hello world")
+    pick( random_choice( unpicked_champions() ) )
+    end_turn()
+
+# ---- every turn ----
+keep stat        = random_choice([strength, focus, health])    # first turn only
+keep camp_spawns = union( spawn_tiles( camp_groups() ) )       # first turn only
+
+write_shared(0, round_number())
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally), position() )
+if at_spawn:
+    buy( shard(stat), floor( gold() / 30 ) )
+
+if not at_spawn and health() < 0.35 * max_health():
+    recall()
+    end_turn()
+
+let enemy = first( filter( enemies_visible(), in_attack_range ) )
+if exists(enemy):
+    attack(enemy)
+    end_turn()
+
+if gems() > 0:
+    let open_altars = minus( altars(), locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    move_towards( closest( ring(open_altars, 1) ) )
+    end_turn()
+
+let camp = first( filter( camps_visible(), in_attack_range ) )
+if exists(camp):
+    attack(camp)
+    end_turn()
+let goals = minus( camp_spawns, respawning_visible_spawns() )
+move_towards( closest(goals) )
+let camp2 = first( filter( camps_visible(), in_attack_range ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
