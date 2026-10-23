@@ -110,6 +110,7 @@ PriceTable::PriceTable()
 	per_n_chunk_milli[static_cast<int>(Call::distance_field)] = 1000;
 	set(Call::nearest_by_walk, 9, 16); // the same field, rooted at the origin
 	per_n_chunk_milli[static_cast<int>(Call::nearest_by_walk)] = 1000;
+	set(Call::visible_camps, 0); // raw: charged as one camp call per camp instead
 	set(Call::draw_shape, 16, 0, 1000);			// n = chunks covered by the shape's bounding box (+-~2)
 	// misc
 	set(Call::fuel_remaining, 1);
