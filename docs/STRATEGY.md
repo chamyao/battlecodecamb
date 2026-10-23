@@ -132,6 +132,12 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   97f7d5f6...): v5d + fs-2's Treasure/Jungle shards and tribute at 10+ gems,
   the first ladder version with FunSearch-found changes (hybrid line). Sim
   61.3% vs v5d; real cambc 50/80 vs v5d.
+  7 = v7 (`deploy/v0` b2eef11, sha256 2bca208d...): v5d-fs2 + idle fix (on a
+  dead camp of an uncleared group, walk to a living camp; `docs/FARM_DIAGNOSIS.md`
+  on `deploy/v0`). Real cambc 47/80 vs v5d-fs2, exactly as `interp_eval
+  --bot-seeds` predicted. v6 (freeze fixes) was not uploaded: 38/80 in cambc
+  despite 54.5% in the per-game-seed sim. Use `--bot-seeds` (all 40 maps x 2
+  sides) as the pre-build check for the ladder bar.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
   source), pure FunSearch (only its own outputs, from fs-1), tuning + draft (no
   LLM), style FunSearch (lockdown / team fights / late monolith). Each runs in
