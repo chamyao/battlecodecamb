@@ -8,7 +8,7 @@ if ! pgrep -f "^python3 -m funsearch.league --name pure4 " >/dev/null; then
 fi
 tail -5 runs/pure4.log
 for f in runs/pure*-g*.log; do tail -1 "$f"; done
-for f in runs/pure.log runs/pure.json runs/pure2.log runs/pure2.json runs/pure3.log runs/pure3.json runs/pure4.log runs/pure4.json runs/pure*-g*.log runs/pure*-g*/programs.jsonl runs/pure*-g*/proposals.jsonl runs/pure_checkin.sh runs/pure_launch.sh; do [ -f "$f" ] && git add -f "$f"; done
+for f in runs/pure.log runs/pure.json runs/pure2.log runs/pure2.json runs/pure3.log runs/pure3.json runs/pure4.log runs/pure4.json runs/pure*-g*.log runs/pure*-g*/programs.jsonl runs/pure*-g*/proposals.jsonl runs/pure_checkin.sh runs/pure_launch.sh runs/pure_fixed.txt runs/pure_send.txt; do [ -f "$f" ] && git add -f "$f"; done
 git commit -qm "runs: pure line progress
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
