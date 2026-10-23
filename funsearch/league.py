@@ -193,8 +193,12 @@ def main():
         cfile = ROOT / "runs" / f"{args.name}.challengers"
         queued = [c.strip() for c in cfile.read_text().splitlines() if c.strip()] if cfile.exists() else []
         queued = [c for c in queued if c not in state.get("challengers", []) and c != best]
-        if queued:
-            cfile.write_text("")
+        missing = [c for c in queued if not (ROOT / c).exists()]
+        if missing:  # not merged yet: keep them queued for the next boundary
+            log(f"  challengers not found yet, kept queued: {missing}", logfile)
+            queued = [c for c in queued if c not in missing]
+        if queued or missing:
+            cfile.write_text("".join(f"{c}\n" for c in missing))
             state.setdefault("challengers", []).extend(queued)
             state_path.write_text(json.dumps(state))
             log(f"  challengers: {queued}", logfile)
