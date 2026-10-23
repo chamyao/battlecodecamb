@@ -1,7 +1,8 @@
 """Loss report for a bot version window: v3 failure-mode checks, per-opponent summary.
 
-Usage: python3 v6_report.py EXDIR FETCHDIR SPLIT_ISO [TEAM]
-Games created before SPLIT_ISO are labelled 'v5d', after it 'v5d-fs2'.
+Usage: python3 v6_report.py EXDIR FETCHDIR SPLITS [TEAM]
+SPLITS is either one ISO time (games before it are 'v5d', after it 'v5d-fs2') or a comma list
+LABEL@ISO,... (each game gets the label of the latest boundary at or before its creation).
 """
 import collections, json, os, statistics, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +12,17 @@ from analyse import CAMP, CH, DRAFT
 
 def med(x):
     return statistics.median(x) if x else 0
+
+
+def label_for(created, splits):
+    if '@' not in splits:
+        return 'v5d' if created < splits else 'v5d-fs2'
+    lab = 'before'
+    for item in splits.split(','):
+        name, t = item.split('@')
+        if created >= t:
+            lab = name
+    return lab
 
 
 def main(exdir, fetchdir, split, me='Master'):
@@ -66,7 +78,7 @@ def main(exdir, fetchdir, split, me='Master'):
                     run = 0
                 prev = p if c[2] else None
         u, o = st[us], st[1 - us]
-        rows.append(dict(ver='v5d' if created.get(mid, '') < split else 'v5d-fs2', map=v['map'], opp=v['B'] if us == 0 else v['A'],
+        rows.append(dict(ver=label_for(created.get(mid, ''), split), map=v['map'], opp=v['B'] if us == 0 else v['A'],
                          win=win, rounds=d['rounds_played'], sub=(sub[us], sub[1 - us]),
                          end='reached 1000' if max(sub) >= 1000 else ('gems tiebreak' if sub[0] != sub[1] else 'gold tiebreak'),
                          lock_stall=lock_stall, locks=len(locks), mono_altar=mono_altar_deaths, zero_gem=sub[us] == 0, idle=idle,
@@ -77,7 +89,7 @@ def main(exdir, fetchdir, split, me='Master'):
                          opp_draft=' '.join(DRAFT[x].split()[0] for x in d['drafts'][1 - us] if x >= 0),
                          opp_locks_placed=locks, opp_mono_hits=o.get('atk_camp', 0)))
     P = print
-    for ver in ('v5d', 'v5d-fs2'):
+    for ver in sorted(set(r['ver'] for r in rows), key=lambda v: min(created.get(k.split('/')[1], '') for k, vv in sides.items() if label_for(created.get(k.split('/')[1], ''), split) == v)):
         X = [r for r in rows if r['ver'] == ver]
         if not X:
             continue
