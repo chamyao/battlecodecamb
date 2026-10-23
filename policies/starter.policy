@@ -3,12 +3,12 @@
 # ---- draft ----
 if is_draft():
     write_draft("hello world")
-    pick( random_choice( unpicked_champions() ) )
+    pick( random_champion( unpicked_champions() ) )
     end_turn()
 
 # ---- every turn ----
-keep stat        = random_choice([strength, focus, health])    # first turn only
-keep camp_spawns = union( spawn_tiles( camp_groups() ) )       # first turn only
+keep stat        = random_stat()                               # first turn only
+keep camp_spawns = camp_spawn_tiles()                          # first turn only
 
 write_shared(0, round_number())
 
