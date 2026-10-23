@@ -577,7 +577,9 @@ void draft_turn()
 	{
 		std::array<std::uint8_t, 16> m{};
 		for (auto& b : m) b = static_cast<std::uint8_t>(rnd());
-		std::printf("@@A draftmem -> %d\n", sdk_bc_submit_draft_memory(m.data(), m.size()));
+		std::printf("@@A draftmem ");
+		for (auto b : m) std::printf("%02x", b);
+		std::printf(" -> %d\n", sdk_bc_submit_draft_memory(m.data(), m.size()));
 	}
 }
 } // namespace
