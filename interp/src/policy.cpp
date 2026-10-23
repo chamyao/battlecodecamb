@@ -692,11 +692,11 @@ struct Interp
 		++turn_no;
 		// The deploy bot's one-off start-up (map, camp layout, allocator; the policy is embedded
 		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 24 cambc games of
-		// v5d / fs-1 as first-turn fuel minus the simulator's charge for that turn (docs/FUEL.md):
-		// mae 1.3k on a mean of 47k.
+		// v7 / fs-1 as first-turn fuel minus the simulator's charge for that turn (docs/FUEL.md):
+		// mae 1.3k on a mean of 49k.
 		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
-			api.compute(21662 + 2281 * m().W * m().H / 1000 + 247 * static_cast<std::int64_t>(m().camps.size()) +
-						387 * static_cast<std::int64_t>(m().groups.size()));
+			api.compute(22085 + 2216 * m().W * m().H / 1000 + 288 * static_cast<std::int64_t>(m().camps.size()) +
+						394 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
 		last_end = last_do = nullptr;
@@ -821,7 +821,24 @@ struct Interp
 		dyn_block |= occ;
 		api.camp_occupancy(camps_cache, 0);
 		dyn_block |= camps_cache;
+		// Camp spawn tiles are static map data: one we cannot see is assumed occupied, so a path
+		// does not flip between "through the camp" and "around it" as the tile enters and leaves
+		// vision (the 01the-farm livelock, docs/FARM_DIAGNOSIS.md). Such tiles join the camp set,
+		// which move_towards_goals and closest keep as valid goals.
+		if (!camp_tiles_ready)
+		{
+			for (const auto& cp : m().camps) camp_tiles.set(cp.pos);
+			camp_tiles_ready = true;
+		}
+		Bitboard vis, unseen = camp_tiles;
+		api.vision(vis);
+		unseen.andnot(vis);
+		unseen.reset(me);
+		dyn_block |= unseen;
+		camps_cache |= unseen;
 	}
+	Bitboard camp_tiles;
+	bool camp_tiles_ready = false;
 	const Bitboard& camp_occupancy(Vec2 me)
 	{
 		refresh_occupancy(me);
