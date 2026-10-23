@@ -122,29 +122,22 @@ struct Bitboard
 		for (std::uint32_t i = 0; i < n; ++i) f(buf[i].x, buf[i].y);
 		--hostbb::depth;
 	}
-	// First set tile in row-major order; false if empty.
-	bool first(int h, Vec2& out) const
+	// First set tile in row-major order; false if empty. The host lists tiles chunk row by
+	// chunk row, so the answer is the smallest (y, x) among the leading run from the first
+	// non-empty chunk row (one host call, 11 + chunks + n fuel, instead of a wasm scan of every
+	// chunk word).
+	bool first(int, Vec2& out) const
 	{
-		if (!any(h)) return false; // one host call instead of a scan over every chunk
-		const int ch = static_cast<int>(hostbb::md.chunked_height), cw = static_cast<int>(hostbb::md.chunked_width);
-		for (int cy = 0; cy < ch; ++cy)
-		{
-			const std::uint64_t* row = w + cy * hostbb::stride;
-			// lowest sub-row (y % 8) with a bit in any chunk of this chunk row, then lowest x on it
-			int best_y = 8, best_x = 0;
-			for (int cx = 0; cx < cw; ++cx)
-				if (const std::uint64_t v = row[cx])
-				{
-					const int b = std::countr_zero(v), y = b >> 3;
-					if (y < best_y) best_y = y, best_x = cx * 8 + (b & 7);
-				}
-			if (best_y < 8)
-			{
-				out = { best_x, cy * 8 + best_y };
-				return true;
-			}
-		}
-		return false;
+		std::uint32_t n = 0;
+		hostbb::Pos* buf = hostbb::pos_buf[hostbb::depth];
+		cambc::detail::sdk_Bitboard_GetSetBits(w, buf, kMaxDim * kMaxDim, &n);
+		if (n == 0) return false;
+		const int cy = buf[0].y >> 3;
+		hostbb::Pos b = buf[0];
+		for (std::uint32_t i = 1; i < n && (buf[i].y >> 3) == cy; ++i)
+			if (buf[i].y < b.y || (buf[i].y == b.y && buf[i].x < b.x)) b = buf[i];
+		out = { b.x, b.y };
+		return true;
 	}
 	bool operator==(const Bitboard& o) const
 	{

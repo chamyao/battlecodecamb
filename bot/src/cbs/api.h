@@ -275,7 +275,11 @@ private:
 	struct MemoCharge
 	{
 		std::int64_t layers, misses;
+		bool answered; // false: a miss with compute off (no search ran)
 	};
-	MemoCharge memo_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, Vec2 me, bool have_me, int qr);
+	MemoCharge memo_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, Vec2 me, bool have_me, int qr,
+						  bool compute = true);
+	// The deploy bot's nearest_by_walk history (bot_api.cpp), mirrored for pricing.
+	std::shared_ptr<void> nbw_hist_;
 };
 } // namespace cbs
