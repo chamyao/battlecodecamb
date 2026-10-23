@@ -68,6 +68,11 @@ def main():
     if args.proposer == "claude":
         from .llm import BudgetExceeded, Proposer
         proposer = Proposer(args.budget, opus_every=args.opus_every)
+    def suspensions(p):
+        """Mean out-of-fuel turns per game across opponents (None for runs scored before it was recorded)."""
+        per = [m["a_suspensions"] for m in p.metrics.values() if isinstance(m, dict) and "a_suspensions" in m]
+        return sum(per) / len(per) if per else None
+
     proposals_lock = threading.Lock()
 
     def log_proposals(pid, score, model, proposals):
@@ -91,7 +96,7 @@ def main():
             return
         if proposer:
             try:
-                text, model, cost, proposals = proposer.propose([(p.text, p.score) for p in parents])
+                text, model, cost, proposals = proposer.propose([(p.text, p.score, suspensions(p)) for p in parents])
             except BudgetExceeded as e:
                 print(e)
                 stop.set()

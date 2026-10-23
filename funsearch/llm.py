@@ -25,7 +25,8 @@ SYSTEM = f"""You improve bot policies for a programming competition, written in 
 
 # Your task
 You are shown earlier policy versions, worst first, with their scores (win rate against the
-reference bots, plus a small bonus for gem margin; higher is better). Write one new version that
+reference bots, plus a small bonus for gem margin; higher is better) and how many turns per game
+its champions ran out of fuel (each one is a lost turn). Write one new version that
 should score higher. Make a focused, meaningful change: a better rule, a missing behaviour, a
 better threshold, or a cheaper way to do the same thing. Keep everything that already works.
 Reply with the complete new policy in a single ```policy code block, then nothing else."""
@@ -65,14 +66,17 @@ class Proposer:
         return (tokens_in * pin + usage.output_tokens * pout) / 1e6
 
     def propose(self, parents):
-        """parents: list of (text, score), worst first. Returns (policy text or None, model, cost, proposals)."""
+        """parents: list of (text, score, suspensions per game or None), worst first. Returns (policy text or None, model, cost, proposals)."""
         with self.lock:
             if self.spent >= self.budget:
                 raise BudgetExceeded(f"spent ${self.spent:.2f} of ${self.budget:.2f}")
         model = self._model()
+        def header(i, score, suspended):
+            fuel = f"; out of fuel {suspended:.0f} turns per game" if suspended is not None else ""
+            return f"## Version {i} (score {score:.3f}{fuel})"
         shown = "\n\n".join(
-            f"## Version {i} (score {score:.3f})\n```policy\n{text.strip()}\n```"
-            for i, (text, score) in enumerate(parents))
+            f"{header(i, score, suspended)}\n```policy\n{text.strip()}\n```"
+            for i, (text, score, suspended) in enumerate(parents))
         user = f"{shown}\n\n## Version {len(parents)}\nWrite it."
         kwargs = dict(
             model=model,

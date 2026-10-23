@@ -1,0 +1,92 @@
+# procless (ladder #4), approximated from 45 games.
+# Draft Heart of Ruin (no pick block) > Vesper Vale > Ryth > Marcella > Vendetta; Treasure Health
+# opener on every champion then Jungle/Bruiser/Durability; most captures among the top 4 (62.5/game),
+# smallest bags (median 22): tribute after every capture.
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    else:
+        if available(pool, champ_ryth()):
+            pick(champ_ryth())
+        else:
+            if available(pool, champ_marcella()):
+                pick(champ_marcella())
+            else:
+                if available(pool, champ_vendetta()):
+                    pick(champ_vendetta())
+                else:
+                    if available(pool, champ_prism()):
+                        pick(champ_prism())
+                    else:
+                        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+keep wants_focus = i_am(champ_marcella())
+keep wants_health = i_am(champ_ryth())
+keep self0 = i_am(champ_vesper_vale()) or i_am(champ_vendetta()) or i_am(champ_marcella()) or i_am(champ_tavi()) or i_am(champ_varg()) or i_am(champ_cassi_issac())
+keep self1 = i_am(champ_varg())
+keep dasher = i_am(champ_vesper_vale()) or i_am(champ_vendetta()) or i_am(champ_cassi_issac()) or i_am(champ_ren())
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally), position() )
+if at_spawn:
+    if wants_focus:
+        buy( shard(stat_focus()), floor( gold() / 30 ) )
+    else:
+        if wants_health:
+            buy( shard(stat_health()), floor( gold() / 30 ) )
+        else:
+            buy( shard(stat_strength()), floor( gold() / 30 ) )
+
+if not at_spawn and health() < 0.2 * max_health():
+    recall()
+    end_turn()
+
+let enemy = first( filter( enemies_visible(), in_attack_range ) )
+let camp = first( filter( camps_visible(), in_attack_range ) )
+if exists(enemy) or exists(camp):
+    if self0 and ability_ready(0):
+        cast_self(0)
+    if self1 and ability_ready(1):
+        cast_self(1)
+
+if exists(enemy):
+    if (not self0) and ability_ready(0):
+        cast_at_unit(0, enemy)
+    if (not self1) and (not dasher) and ability_ready(1):
+        cast_at_unit(1, enemy)
+    attack(enemy)
+    end_turn()
+
+if gems() > 0:
+    let open_altars = minus( altars(), locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    move_towards( closest( ring(open_altars, 1) ) )
+    end_turn()
+
+if exists(camp):
+    if (not self0) and ability_ready(0):
+        cast_at_unit(0, camp)
+    if (not self1) and (not dasher) and ability_ready(1):
+        cast_at_unit(1, camp)
+    attack(camp)
+    end_turn()
+let goals = minus( camp_spawns, respawning_visible_spawns() )
+let goal = closest(goals)
+if dasher and ability_ready(1) and distance(position(), goal) > 3:
+    cast_at_tile(1, first( filter( ring(goals, distance(position(), goal) - 2), within(2, position()) ) ))
+move_towards(goal)
+let camp2 = first( filter( camps_visible(), in_attack_range ) )
+if exists(camp2):
+    attack(camp2)
+end_turn()

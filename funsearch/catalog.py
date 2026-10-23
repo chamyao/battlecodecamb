@@ -1,4 +1,7 @@
 """What the language model is told: the game, the grammar, and every block."""
+import re
+from pathlib import Path
+
 from policygen.blocks import REGISTRY, VOID
 
 GAME = """\
@@ -15,7 +18,12 @@ do both in one turn), and cast one of two abilities (8-turn cooldowns). Recall (
 cancelled by damage) teleports home; standing on spawn heals. Vision is 8 tiles, blocked by
 walls and bushes, and is not shared between allies; 8 bytes of shared memory are.
 Every block a bot runs costs fuel; each bot gets 100,000 fuel per turn, and a bot that runs
-out is suspended mid-turn and loses tempo. So cheaper policies are better, all else equal.
+out is suspended mid-turn: the rest of that turn is lost (no move or attack). Fuel is a real
+lever here: typical policies get suspended thousands of times per game, mostly from the
+board-scanning blocks (move_towards, closest, ring, camps_visible, filter on tile sets cost
+thousands to tens of thousands each; simple reads cost ~200). Each block's typical price is
+listed below. Compute expensive values once with let/keep, skip them when not needed (check
+cheap conditions first), and reuse results instead of re-querying.
 """
 
 GRAMMAR = """\
@@ -113,7 +121,22 @@ DOCS = {
 }
 
 
+def _typical_fuel():
+    """Mean measured fuel per block call, from the calibration table's comments."""
+    path = Path(__file__).resolve().parent.parent / "interp" / "src" / "block_costs_gen.inc"
+    try:
+        text = path.read_text()
+    except FileNotFoundError:
+        return {}
+    prices = {}
+    for key, const, rest in re.findall(r'^\{ "([^"]+)", \w+, \{ (\d+),.*\}(.*)$', text, re.M):
+        mean = re.search(r"mean=(\d+)", rest)
+        prices[key] = int(mean.group(1)) if mean else round(int(const) / 1000)  # provisional: constant term
+    return prices
+
+
 def block_catalog():
+    fuel = _typical_fuel()
     lines = []
     for b in REGISTRY:
         if b.infix or b.name == "not":
@@ -121,5 +144,8 @@ def block_catalog():
         sig = f"{b.name}({', '.join(b.args)})"
         ret = "effect" if b.ret == VOID else b.ret
         doc = DOCS.get(b.name, "")
+        price = fuel.get(f"{b.name}({','.join(b.args)})")
+        if price is not None:
+            doc = f"~{price} fuel" + (f"; {doc}" if doc else "")
         lines.append(f"  {sig} -> {ret}" + (f"   # {doc}" if doc else ""))
     return "\n".join(lines)
