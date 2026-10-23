@@ -61,6 +61,7 @@ def allowed(nm):
     if nm=='in_danger()': return ['1','camps']  # guest loop over every map camp (API calls are their own scopes)
     if nm=='capturable_spawns()': return ['1','groups','camps']
     if nm=='rich_spawns(Num)': return ['1','groups','camps','ch']  # static loop over groups and camps
+    if nm=='group_tiles(TileSet)': return ['1','groups','camps','ch']  # static loop over groups and their camps
     if nm=='respawning_visible_spawns()': return ['1','groups']
     if nm in ('ring(TileSet,Num)','filter(TileSet,TilePred)','first(TileSet)','count(TileSet)'): return ['1','H','altars']
     return ['1','H','ch','occ','occ*H','dbits','exp*ch']
