@@ -58,7 +58,7 @@ s = re.sub(r'(\t\t\+\+turn_no;\n(?:.*\n)*?)(\t\trun\(prog\.steps\);)', lambda m:
 #endif
 			for (int k = 0; k < 2; ++k)
 				for (int i = 0; i < 512; ++i)
-					if (turn_tot[k][i] > 3000)
+					if (turn_tot[k][i] > 400)
 						std::printf(" %s%s=%lld", k ? "do:" : "", i < kNumBlocks ? kBlockTable[i].key : "?", (long long)turn_tot[k][i]);
 			std::printf("\\n");
 		}

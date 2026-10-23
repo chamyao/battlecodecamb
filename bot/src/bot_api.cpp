@@ -274,7 +274,7 @@ constexpr int kSlots = 4;
 FieldSlot* slots = nullptr;
 std::uint64_t slot_clock = 0;
 alignas(16) std::uint64_t delta_w[hostbb::kWords];
-constexpr std::uint32_t kMaxDelta = 16;
+constexpr std::uint32_t kMaxDelta = 24;
 hostbb::Pos delta_pos[kMaxDim * kMaxDim];
 #ifdef BOT_VERIFY
 alignas(16) std::uint16_t verify_field[kFieldWords];
@@ -296,81 +296,62 @@ inline int cheb(int x, int y, Vec2 p) { return std::max(std::abs(x - p.x), std::
 //    it is at least lb(r) + cheb(r, q) long, lb(r) = min_n d(n) + 1 over old-open n. If that
 //    is at least D_q (or S + 1 for tiles farther than S), q gets no closer.
 // Unknown distances (beyond L) are taken as L + 1: a lower bound, so the test stays sound.
+bool box_unaffected_(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int S, int qr, int W, int H);
+#ifdef BOT_DF_PROFILE
+std::uint32_t dbg_n = 0;
+#endif
 bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int S, int qr, int W, int H)
+{
+#ifdef BOT_DF_PROFILE
+	const long long f0 = sdk_fuel_remaining();
+	dbg_n = 0;
+	const bool r = box_unaffected_(sl, walls, roots, me, S, qr, W, H);
+	std::printf("@@BOX n=%u ok=%d fuel=%lld S=%d L=%d qr=%d\n", dbg_n, r, f0 - (long long)sdk_fuel_remaining(), S, sl.depth, qr);
+	return r;
+#else
+	return box_unaffected_(sl, walls, roots, me, S, qr, W, H);
+#endif
+}
+bool box_unaffected_(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int S, int qr, int W, int H)
 {
 #ifdef BOT_PROF2
 	struct BT { long long f0 = PROF_T; ~BT() { bot_prof[7] += f0 - PROF_T; } } bt_;
 #endif
 	sdk_Bitboard_Xor(sl.walls.w, walls.w, delta_w);
 	std::uint32_t n = 0;
-	// Many changed tiles rarely pass and cost ~100-200 fuel each to examine: give up early.
+	// Give up on many changed tiles (each removed one costs ~300 fuel to examine).
 	// (GetSetBits reports how many it wrote, capped at the capacity, so ask for all of them.)
 	sdk_Bitboard_GetSetBits(delta_w, delta_pos, kMaxDim * kMaxDim, &n);
+#ifdef BOT_DF_PROFILE
+	dbg_n = n;
+#endif
 	if (n > kMaxDelta) return false;
 	const int L = sl.depth;
 	auto d = [&](int x, int y) {
 		const int v = sl.field[fidx(x, y)];
 		return v <= L ? v : L + 1;
 	};
-	// Q and the targets: D_q if D_q <= S, else S + 1 (filled on first need).
-	struct Q
-	{
-		int x, y, t;
-		bool known;
-	};
-	Q box[25];
-	int nb = -1;
-	auto fill_box = [&]() {
-		nb = 0;
-		for (int y = std::max(0, me.y - qr); y <= std::min(H - 1, me.y + qr); ++y)
-			for (int x = std::max(0, me.x - qr); x <= std::min(W - 1, me.x + qr); ++x)
-				if (!walls.test(x, y))
-				{
-					const int v = d(x, y);
-					box[nb++] = { x, y, v <= S ? v : S + 1, v <= S };
-				}
-	};
+	// Conservative per-tile tests against the whole of Q at once (cheb(t, q) >= cheb(t, me) -
+	// qr, and every target is at most S, or S + 1 for tiles beyond S): cheap, and a rejection
+	// only costs a fresh search.
 	for (std::uint32_t i = 0; i < n; ++i)
 	{
 		const int x = delta_pos[i].x, y = delta_pos[i].y;
-		if (roots.test(x, y))
-		{
-#ifdef BOT_DF_PROFILE
-			std::printf("@@FAIL root\n");
-#endif
-			return false;
-		}
+		if (roots.test(x, y)) return false;
 		const int c = cheb(x, y, me);
 		if (walls.test(x, y))
 		{
-			const int da = d(x, y);
-			if (da > S || da + c - qr > S) continue;
-			if (nb < 0) fill_box();
-			for (int k = 0; k < nb; ++k)
-				if (box[k].known && da + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) <= box[k].t)
-				{
-#ifdef BOT_DF_PROFILE
-					std::printf("@@FAIL + n=%u at=%d,%d da=%d S=%d L=%d q=%d,%d\n", n, x, y, da, S, L, box[k].x, box[k].y);
-#endif
-					return false;
-				}
+			// a is excluded from Q (walls read as unreachable), so cheb(a, q) >= 1 for q in Q.
+			if (d(x, y) + std::max(1, c - qr) <= S) return false;
 		}
 		else
 		{
+			if (c - qr >= S) continue; // lb >= 1
 			int lb = 0x10000;
 			for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
 				for (int xx = std::max(0, x - 1); xx <= std::min(W - 1, x + 1); ++xx)
 					if ((xx != x || yy != y) && !sl.walls.test(xx, yy)) lb = std::min(lb, d(xx, yy) + 1);
-			if (lb + c - qr >= S + 1) continue;
-			if (nb < 0) fill_box();
-			for (int k = 0; k < nb; ++k)
-				if (lb + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) < box[k].t)
-				{
-#ifdef BOT_DF_PROFILE
-					std::printf("@@FAIL - n=%u at=%d,%d lb=%d S=%d L=%d q=%d,%d\n", n, x, y, lb, S, L, box[k].x, box[k].y);
-#endif
-					return false;
-				}
+			if (lb + std::max(0, c - qr) < S + 1) return false;
 		}
 	}
 	return true;
