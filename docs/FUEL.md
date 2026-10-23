@@ -147,8 +147,8 @@ The script generates:
 - `docs/fuel_calibration.json`: all fits with sample counts and errors, and the correction.
 
 The bot's start-up (map, camp layout, allocator) costs each champion's first turn about
-22k + 2.3·W·H + 247·camps + 387·groups more (24 cambc games of v5d and fs-1 on deploy/v0
-28ca3b5 + interp/v0 6fbaedd, MAE 1.3k, against the 200k first-turn budget). Since ee76a6e the policy is embedded
+22k + 2.2·W·H + 288·camps + 394·groups more (24 cambc games of v7 and fs-1 on deploy/v0 with
+interp/v0 6297d62, MAE 1.3k, against the 200k first-turn budget). Since ee76a6e the policy is embedded
 pre-parsed; parsing it had cost ~170 fuel per program node, ~40k for v3. Re-fit this after
 start-up changes with the scratch comparison of first turns (cambc vs `fuel_turns`): first
 turns now match within 1% (v5d 83.3k vs 83.0k mean, fs-1 73.6k vs 74.2k). It is not in the profile, so it is charged from a hand fit in `interp`.
@@ -168,6 +168,7 @@ samples):
 | `api:visible_camps` | 186 + 162·occupied camp tiles | 682 | 131 |
 | `in_danger()` | 311 + 92·camps (early exits: MAE ~30%) | 5957 | 1772 |
 | `enemies_within(Num)`, `local_strength(Num)` | 1160, 2565 | | 74, 211 |
+| `api:vision` (unseen camp tiles block paths; once per occupancy refresh) | 66 | | 35 |
 | `capturable_spawns()` | 83 + 125·groups + 5.8·camps | 3124 | 44 |
 | `move_towards(Tile)` | 1467 + 11.7·ch + 12.6·refresh·H | 2459 | 81 |
 | `dash_towards(Num,Tile)` | 1375 + 10.6·ch + 43·dests + 1.06·layers·ch | 2777 | 293 |
