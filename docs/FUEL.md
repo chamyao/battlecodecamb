@@ -212,14 +212,38 @@ Known weak spots:
   walls-changed proof costs more than a same-walls hit, and the profile does not separate
   them. Per round this averages out.
 - `or`/`and` are bimodal (short-circuit or not), charged at their mean (MAE ~100).
-- The simulator's memo miss rate ran 5-10 points above the bot's in comparable (not
-  identical) games. The memo code is shared and the BFS matches the host exactly, so this is
-  probably game differences; it is not verified on an identical game.
+- `nearest_by_walk`'s history (bot_api.cpp: after a dear reachable mask, a capped
+  origin-rooted search on memo misses) is mirrored in `Api::nearest_by_walk`. The bot decides
+  on the mask's *measured* fuel; the simulator uses an estimate, max(190 + 1.7 per tile reached,
+  0.9·chunks·D) (the bot session's measurements: compact regions vs long open walks),
+  so its choice of path can differ on a few turns.
 - The model is for this bot build: re-run `run_bot_profile.sh` (coverage, v2 and fs-1) and
   `fuel_calibrate.py` whenever `bot/` or the interpreter changes (a run takes ~30 minutes
   on 4 cores), then refit the start-up constants in `Interp::turn` from full cambc games.
 - The simulator's bot pricing costs speed: 200 games of v2 vs starter take ~6.9 s against
   ~5.4 s with raw prices (the memo runs its own searches on misses).
+
+**Exact per-turn check.** Policy-vs-policy games reproduce cambc exactly when the simulator
+seeds policies as the bot does (docs/ENGINE_FINDINGS.md, "Match seeding"), so fuel can be
+compared turn by turn on the identical game:
+`interp/tools/fuel_turns A.pol MAP --enforce --bot-seeds --opp B.pol` against team A's `.fuel`
+in the bundle of `cambc run botA botB` (skip the draft turns, one per draft round). The
+built-in starter does not play exactly like starter-cpp, so games against it diverge.
+
+v7zg-cast vs fs-1, 12 maps (00ambush to 00interlock), deploy/v0 with interp/v0 d9b8cde. All 12
+games are identical (same end round and gems):
+
+| | value |
+| --- | --- |
+| turns compared | 75,713 |
+| total fuel, simulator / cambc | 1.044 (per map 1.008-1.078) |
+| per-turn error (turns > 3k), median | +3.5% |
+| 10-90% / 1-99% | [−6.1%, +14.3%] / [−17.1%, +27.5%] |
+| heaviest turns | within 1% (e.g. 153.9k vs 153.0k, 142.0k vs 142.0k) |
+
+On the same games fs-1 (team B, `--side b`) comes out at 1.008 in total (median −0.8%,
+10-90% [−9.0%, +11.8%]), so the +4% is specific to v7zg-cast, not a global offset. (Re-run on
+d3f0df8 with the refined mask estimate below: v7zg-cast 1.045.)
 
 **Outcome check.** With the current table, the simulator gives 0 suspensions per game for v3
 and fs-1 against starter (40 maps × 5 seeds). Win rates: v3 196/200 = 98%, fs-1 195/200 =

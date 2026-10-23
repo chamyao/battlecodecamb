@@ -3,10 +3,28 @@
 #include "cbs/game.h"
 #include "cbs/coverage.h"
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <cmath>
 
 namespace cbs
 {
+namespace
+{
+// Diagnostics (GAME_EVENTS=1): deaths with their killer, camp kills, captures and champion hits
+// on camps, one "@@EV" line each. Simulator only (the bot does not link game.cpp).
+bool events_on()
+{
+	static const bool on = std::getenv("GAME_EVENTS") != nullptr;
+	return on;
+}
+const char* camp_name(CampType t)
+{
+	static const char* n[] = { "wolf", "elk", "gem", "gold", "monolith", "golem" };
+	return n[static_cast<int>(t)];
+}
+} // namespace
+
 namespace
 {
 ChampionType bodies(int choice, int which)
@@ -330,13 +348,28 @@ void Game::damage_champion(int target, const Hit& hit)
 		if (hit.src_champ >= 0) damage_champion(hit.src_champ, back);
 		else damage_camp(hit.src_camp, back);
 	}
-	if (t.hp <= 0 && t.alive) kill_champion(target, hit.src_champ);
+	if (t.hp <= 0 && t.alive)
+	{
+		if (events_on())
+		{
+			if (hit.src_camp >= 0)
+				std::printf("@@EV r=%d death team=%d champ=%d pos=%d,%d gems=%u by=camp %s group=%d\n", round, t.team, target, t.pos.x, t.pos.y, t.gems,
+							camp_name(camps[hit.src_camp].type), camps[hit.src_camp].group);
+			else
+				std::printf("@@EV r=%d death team=%d champ=%d pos=%d,%d gems=%u by=champ %d\n", round, t.team, target, t.pos.x, t.pos.y, t.gems,
+							hit.src_champ);
+		}
+		kill_champion(target, hit.src_champ);
+	}
 }
 
 void Game::damage_camp(int k, const Hit& hit)
 {
 	Camp& c = camps[k];
 	if (c.life == CampLife::dead) return;
+	if (events_on() && hit.src_champ >= 0)
+		std::printf("@@EV r=%d hit team=%d champ=%d camp=%d %s group=%d hp=%.0f\n", round, champs[hit.src_champ].team, hit.src_champ, k,
+					camp_name(c.type), c.group, static_cast<double>(c.hp - hit.amount));
 	c.hp -= hit.amount;
 	// Damage wakes every sleeping member of the group; awake camps keep their idle count.
 	wake_group(c.group);
@@ -380,6 +413,9 @@ void Game::kill_champion(int target, int killer)
 void Game::kill_camp(int k, int killer)
 {
 	Camp& c = camps[k];
+	if (events_on())
+		std::printf("@@EV r=%d campkill camp=%d %s group=%d by=%d team=%d\n", round, k, camp_name(c.type), c.group, killer,
+					killer >= 0 ? champs[killer].team : -1);
 	c.life = CampLife::dead;
 	c.hp = 0;
 	c.buffs.n = 0;
@@ -526,6 +562,9 @@ void Game::process_captures()
 		}
 		std::sort(who, who + n);
 		const auto& info = map_->groups[g];
+		if (events_on())
+			std::printf("@@EV r=%d capture group=%d team=%d gems=%d gold=%d champs=%d\n", round, g, n ? champs[who[0]].team : -1,
+						static_cast<int>(info.gems), static_cast<int>(info.gold), n);
 		for (int i = 0; i < n; ++i)
 		{
 			Champion& ch = champs[who[i]];

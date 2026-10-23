@@ -53,6 +53,7 @@ struct Slot
 	int depth = -1;		   // last layer expanded; -1 = empty slot
 	bool complete = false; // the search ran out of tiles (every reachable tile is exact)
 	int maxd = 0;
+	Vec2 root0{ -1, -1 }; // first root in row-major order: a cheap mismatch test before roots ==
 	std::uint64_t used = 0;
 };
 
@@ -89,9 +90,10 @@ public:
 
 	// `me` is the champion's tile (have_me false for the draft bot). The caller reads the
 	// answer only at dests and at open tiles within Chebyshev `qr` of `me` (qr > 2: no
-	// walls-changed reuse).
+	// walls-changed reuse). With compute false a miss runs no search and returns f == nullptr
+	// (miss set, no slot touched).
 	Answer<Ops> query(const Board& walls, const Board& roots, const Board* dests, int max_distance, bool have_me, Vec2 me, int qr,
-					  int W, int H)
+					  int W, int H, bool compute = true)
 	{
 		if (!slots_) slots_.reset(new Slot<Board>[kSlots]);
 		const auto maxd = static_cast<std::uint16_t>(std::clamp(max_distance, 0, 0xFFFF));
@@ -114,11 +116,13 @@ public:
 		};
 		Answer<Ops> ans{ &ops_, nullptr, &walls, -1, 0, false, 0, 0, -1, -1 };
 		Slot<Board>*use = nullptr, *same_roots = nullptr;
+		Vec2 root0{ -1, -1 };
+		if (!roots.first(H, root0)) root0 = { -1, -1 };
 		for (int i = 0; i < kSlots && !use; ++i)
 		{
 			Slot<Board>& sl = slots_[i];
 			if (reference) continue;
-			if (sl.depth < 0 || sl.maxd != maxd || !(sl.roots == roots)) continue;
+			if (sl.depth < 0 || sl.maxd != maxd || !(sl.root0 == root0) || !(sl.roots == roots)) continue;
 			same_roots = &sl;
 			if (sl.walls == walls)
 			{
@@ -144,6 +148,11 @@ public:
 			ans.depth = use->depth;
 			ans.complete = use->complete;
 		}
+		else if (!compute)
+		{
+			ans.miss = true;
+			return ans;
+		}
 		else
 		{
 			// Replace the stale field with the same roots, else the least recently used one.
@@ -165,6 +174,7 @@ public:
 			const std::uint16_t count = ops_.compute(walls, roots, sd, maxd, use->field, visited_);
 			use->walls = walls;
 			use->roots = roots;
+			use->root0 = root0;
 			use->maxd = maxd;
 			use->depth = count;
 			// Stopped early only if a dest was reached (visited = every reached tile) or at maxd.

@@ -163,6 +163,8 @@ DOCS = {
     "capturable_spawns": "spawn tiles of visible camp groups that are fully cleared with reward available (stand here to capture)",
     "enemies_within": "number of living enemy champions you can see within Chebyshev distance r",
     "local_strength": "(health x damage) of you + visible allies within r over the same for visible enemy champions within r; >1 means the local fight favours you, 100 if no enemy in r. Use as an engagement/retreat test with a tunable threshold",
+    "rich_spawns": "spawn tiles of every camp whose group gives at least n gems when captured (static; gold-only groups give 0 gems, elk/gem-cluster groups 15-60+). Bind it with keep",
+    "group_tiles": "spawn tiles of every camp in a group that has a camp on one of the given tiles (static; hitting any camp of a group wakes the whole group, e.g. group_tiles(monolith_tiles()) wakes monoliths). Bind it with keep",
     "turns_idle": "consecutive turns (counted each time you check) your position has not changed",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
     "map_width": "", "map_height": "", "camp_count": "camps on the map",
