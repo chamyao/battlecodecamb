@@ -214,7 +214,8 @@ Known weak spots:
 - `or`/`and` are bimodal (short-circuit or not), charged at their mean (MAE ~100).
 - `nearest_by_walk`'s history (bot_api.cpp: after a dear reachable mask, a capped
   origin-rooted search on memo misses) is mirrored in `Api::nearest_by_walk`. The bot decides
-  on the mask's *measured* fuel; the simulator uses an estimate (190 + 1.7 per tile reached),
+  on the mask's *measured* fuel; the simulator uses an estimate, max(190 + 1.7 per tile reached,
+  0.9·chunks·D) (the bot session's measurements: compact regions vs long open walks),
   so its choice of path can differ on a few turns.
 - The model is for this bot build: re-run `run_bot_profile.sh` (coverage, v2 and fs-1) and
   `fuel_calibrate.py` whenever `bot/` or the interpreter changes (a run takes ~30 minutes
@@ -240,7 +241,9 @@ games are identical (same end round and gems):
 | 10-90% / 1-99% | [−6.1%, +14.3%] / [−17.1%, +27.5%] |
 | heaviest turns | within 1% (e.g. 153.9k vs 153.0k, 142.0k vs 142.0k) |
 
-The simulator is slightly conservative (≈+4%) for this policy.
+On the same games fs-1 (team B, `--side b`) comes out at 1.008 in total (median −0.8%,
+10-90% [−9.0%, +11.8%]), so the +4% is specific to v7zg-cast, not a global offset. (Re-run on
+d3f0df8 with the refined mask estimate below: v7zg-cast 1.045.)
 
 **Outcome check.** With the current table, the simulator gives 0 suspensions per game for v3
 and fs-1 against starter (40 maps × 5 seeds). Win rates: v3 196/200 = 98%, fs-1 195/200 =

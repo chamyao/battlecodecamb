@@ -872,7 +872,9 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 				}
 				h->D = bd;
 				h->round = round;
-				h->mask = 190 + reach * 17 / 10; // the bot measures it; ~190 + 1.7 per tile reached
+				// The bot measures it. Estimate (bot session's measurements): ~190 + 1.7 per tile
+				// reached in compact regions, ~0.9 chunks per layer on long open walks.
+				h->mask = std::max<long long>(190 + reach * 17 / 10, static_cast<long long>(chunks) * bd * 9 / 10);
 				h->used = ++hs.clock;
 			}
 		}
