@@ -269,9 +269,10 @@ inline int fidx(int x, int y) { return ((y >> 3) * static_cast<int>(md.chunked_w
 inline int cheb(int x, int y, Vec2 p) { return std::max(std::abs(x - p.x), std::abs(y - p.y)); }
 
 // Can the walls of `sl` be replaced by `walls` for a request that stops at layer S <= L (its
-// nearest dest, all dests being in the 5x5 box around `me`)? Every box tile q must keep its
-// cached distance D_q if D_q <= S, and stay farther than S otherwise. Let A be the tiles
-// that became walls and R the tiles that opened.
+// nearest dest) and is read only on Q, the open tiles within Chebyshev `qr` of `me` (all its
+// dests are in Q)? Every q in Q must keep its cached distance D_q if D_q <= S, and stay
+// farther than S otherwise. (Tiles that are walls in the request read as unreachable, which
+// is exact: see FieldAnswer.) Let A be the tiles that became walls and R those that opened.
 //  - An old shortest path to q passes through a in A only if d(a) + cheb(a, q) <= D_q. If no
 //    a qualifies, an old shortest path survives, so q gets no farther. (Walls only removed
 //    paths, so tiles farther than S stay so.)
@@ -279,21 +280,18 @@ inline int cheb(int x, int y, Vec2 p) { return std::max(std::abs(x - p.x), std::
 //    it is at least lb(r) + cheb(r, q) long, lb(r) = min_n d(n) + 1 over old-open n. If that
 //    is at least D_q (or S + 1 for tiles farther than S), q gets no closer.
 // Unknown distances (beyond L) are taken as L + 1: a lower bound, so the test stays sound.
-bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int S, int W, int H)
+bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int S, int qr, int W, int H)
 {
 	sdk_Bitboard_Xor(sl.walls.w, walls.w, delta_w);
 	std::uint32_t n = 0;
 	sdk_Bitboard_GetSetBits(delta_w, delta_pos, 64, &n);
-#ifdef BOT_DF_PROFILE
-	std::printf("@@NDELTA %u\n", n);
-#endif
 	if (n > 64) return false;
 	const int L = sl.depth;
 	auto d = [&](int x, int y) {
 		const int v = sl.field[fidx(x, y)];
 		return v <= L ? v : L + 1;
 	};
-	// Box tiles and their targets: D_q if D_q <= S, else S + 1 (filled on first need).
+	// Q and the targets: D_q if D_q <= S, else S + 1 (filled on first need).
 	struct Q
 	{
 		int x, y, t;
@@ -303,12 +301,13 @@ bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& 
 	int nb = -1;
 	auto fill_box = [&]() {
 		nb = 0;
-		for (int y = std::max(0, me.y - 2); y <= std::min(H - 1, me.y + 2); ++y)
-			for (int x = std::max(0, me.x - 2); x <= std::min(W - 1, me.x + 2); ++x)
-			{
-				const int v = d(x, y);
-				box[nb++] = { x, y, v <= S ? v : S + 1, v <= S };
-			}
+		for (int y = std::max(0, me.y - qr); y <= std::min(H - 1, me.y + qr); ++y)
+			for (int x = std::max(0, me.x - qr); x <= std::min(W - 1, me.x + qr); ++x)
+				if (!walls.test(x, y))
+				{
+					const int v = d(x, y);
+					box[nb++] = { x, y, v <= S ? v : S + 1, v <= S };
+				}
 	};
 	for (std::uint32_t i = 0; i < n; ++i)
 	{
@@ -316,7 +315,7 @@ bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& 
 		if (roots.test(x, y))
 		{
 #ifdef BOT_DF_PROFILE
-			std::printf("@@FAIL root n=%u\n", n);
+			std::printf("@@FAIL root\n");
 #endif
 			return false;
 		}
@@ -324,13 +323,13 @@ bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& 
 		if (walls.test(x, y))
 		{
 			const int da = d(x, y);
-			if (da > S || da + c - 2 > S) continue;
+			if (da > S || da + c - qr > S) continue;
 			if (nb < 0) fill_box();
 			for (int k = 0; k < nb; ++k)
 				if (box[k].known && da + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) <= box[k].t)
 				{
 #ifdef BOT_DF_PROFILE
-					std::printf("@@FAIL + n=%u c=%d da=%d S=%d L=%d\n", n, c, da, S, L);
+					std::printf("@@FAIL + n=%u at=%d,%d da=%d S=%d L=%d q=%d,%d\n", n, x, y, da, S, L, box[k].x, box[k].y);
 #endif
 					return false;
 				}
@@ -341,13 +340,13 @@ bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& 
 			for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
 				for (int xx = std::max(0, x - 1); xx <= std::min(W - 1, x + 1); ++xx)
 					if ((xx != x || yy != y) && !sl.walls.test(xx, yy)) lb = std::min(lb, d(xx, yy) + 1);
-			if (lb + c - 2 >= S + 1) continue;
+			if (lb + c - qr >= S + 1) continue;
 			if (nb < 0) fill_box();
 			for (int k = 0; k < nb; ++k)
 				if (lb + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) < box[k].t)
 				{
 #ifdef BOT_DF_PROFILE
-					std::printf("@@FAIL - n=%u c=%d lb=%d S=%d L=%d\n", n, c, lb, S, L);
+					std::printf("@@FAIL - n=%u at=%d,%d lb=%d S=%d L=%d q=%d,%d\n", n, x, y, lb, S, L, box[k].x, box[k].y);
 #endif
 					return false;
 				}
@@ -359,18 +358,20 @@ bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& 
 struct FieldAnswer
 {
 	const std::uint16_t* f;
-	int limit; // values above this read as unreachable (-1: none)
-	int count; // the stopping layer (expansion count of an equivalent fresh search)
+	const Bitboard* walls; // the request's: never reached by a fresh search
+	int limit;			   // values above this read as unreachable (-1: none)
+	int count;			   // the stopping layer (expansion count of an equivalent fresh search)
 	std::uint16_t at(int x, int y) const
 	{
 		const std::uint16_t v = f[fidx(x, y)];
-		return limit >= 0 && v > limit ? kUnreachable : v;
+		return (limit >= 0 && v > limit) || walls->test(x, y) ? kUnreachable : v;
 	}
 };
 
-// `me` is the champion's tile (have_me false for the draft bot).
+// `me` is the champion's tile (have_me false for the draft bot). The caller reads the answer
+// only at dests and at open tiles within Chebyshev `qr` of `me` (qr > 2: no walls-changed reuse).
 FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, bool have_me, Vec2 me,
-						int W, int H)
+						int qr, int W, int H)
 {
 	if (!slots) slots = new FieldSlot[kSlots];
 #ifdef BOT_DF_PROFILE
@@ -382,8 +383,17 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		int& hit;
 		const Bitboard* d;
 		int H;
-		~PfTail() { std::printf("@@DF %lld %d %d\n", static_cast<long long>(f0 - sdk_fuel_remaining()), hit, d ? d->count(H) : -1); }
-	} pf_tail{ pf0, pf_hit, dests, H };
+		const Bitboard* r;
+		int qr;
+		Vec2 me;
+		~PfTail()
+		{
+			Vec2 rt{ -1, -1 };
+			r->first(H, rt);
+			std::printf("@@DF %lld %d nd=%d roots=%d r0=%d,%d qr=%d me=%d,%d\n", static_cast<long long>(f0 - sdk_fuel_remaining()), hit, d ? d->count(H) : -1,
+						r->count(H), rt.x, rt.y, qr, me.x, me.y);
+		}
+	} pf_tail{ pf0, pf_hit, dests, H, &roots, qr, me };
 #endif
 	const auto maxd = static_cast<std::uint16_t>(std::clamp(max_distance, 0, 0xFFFF));
 	// Nearest dest in a cached field (0x10000 if none within its depth); -1 if need_box and
@@ -393,17 +403,17 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		const int L = sl.depth;
 		dests->for_each_unordered(H, [&](int x, int y) {
 			if (best < 0) return;
-			if (need_box && cheb(x, y, me) > 2)
+			if (need_box && cheb(x, y, me) > qr)
 			{
 				best = -1;
 				return;
 			}
 			const int v = sl.field[fidx(x, y)];
-			if (v <= L && v < best) best = v;
+			if (v <= L && v < best && !walls.test(x, y)) best = v; // a wall dest is never reached
 		});
 		return best;
 	};
-	FieldAnswer ans{ nullptr, -1, 0 };
+	FieldAnswer ans{ nullptr, &walls, -1, 0 };
 	FieldSlot *use = nullptr, *same_roots = nullptr;
 	for (int i = 0; i < kSlots && !use; ++i)
 	{
@@ -424,10 +434,10 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 			if (best <= sl.depth) use = &sl, ans.limit = best;
 			else if (sl.complete) use = &sl; // no dest reachable: a fresh search would run to completion
 		}
-		else if (dests && have_me)
+		else if (dests && have_me && qr <= 2)
 		{
 			const int best = nearest(sl, true);
-			if (best >= 0 && best <= sl.depth && box_unaffected(sl, walls, roots, me, best, W, H)) use = &sl, ans.limit = best;
+			if (best >= 0 && best <= sl.depth && box_unaffected(sl, walls, roots, me, best, qr, W, H)) use = &sl, ans.limit = best;
 		}
 	}
 	if (use)
@@ -501,8 +511,8 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 			bad += ans.at(x, y) != want;
 		};
 		if (have_me)
-			for (int y = std::max(0, me.y - 2); y <= std::min(H - 1, me.y + 2); ++y)
-				for (int x = std::max(0, me.x - 2); x <= std::min(W - 1, me.x + 2); ++x) check(x, y);
+			for (int y = std::max(0, me.y - std::min(qr, 2)); y <= std::min(H - 1, me.y + std::min(qr, 2)); ++y)
+				for (int x = std::max(0, me.x - std::min(qr, 2)); x <= std::min(W - 1, me.x + std::min(qr, 2)); ++x) check(x, y);
 		if (dests) dests->for_each_unordered(H, check);
 		if (++verify_checks % 2000 == 0) std::printf("@@VERIFY checks=%ld fails=%ld\n", verify_checks, verify_fails);
 		if (bad)
@@ -523,10 +533,13 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	champion_info ci{};
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0;
 	const Vec2 me{ ci.x, ci.y };
-	const FieldAnswer ans = field_query(walls, roots, dests, max_distance, have_me, me, W, H);
-	// Only the dests and the 5x5 box around the champion are written: those are the only
-	// entries the interpreter reads after a call (every other entry is unspecified, and
-	// `visited` is not maintained: no caller reads it).
+	// The interpreter reads the dests and, around the champion, its 3x3 (move_towards) or, when
+	// the dests reach that far, its 5x5 box (dash_towards); every other entry is unspecified,
+	// and `visited` is not maintained (no caller reads it).
+	int qr = 1;
+	if (dests && have_me)
+		dests->for_each_unordered(H, [&](int x, int y) { qr = std::max(qr, cheb(x, y, me)); });
+	const FieldAnswer ans = field_query(walls, roots, dests, max_distance, have_me, me, std::min(qr, 3), W, H);
 	auto put = [&](int x, int y) { dist[y * W + x] = ans.at(x, y); };
 	if (have_me)
 		for (int y = std::max(0, me.y - 2); y <= std::min(H - 1, me.y + 2); ++y)
@@ -548,7 +561,7 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0 && ci.x == origin.x && ci.y == origin.y;
 	Bitboard o;
 	o.set(origin);
-	const FieldAnswer ans = field_query(walls, cand, &o, kUnreachable, have_me, origin, W, H);
+	const FieldAnswer ans = field_query(walls, cand, &o, kUnreachable, have_me, origin, 0, W, H); // reads only origin
 	const int D = ans.at(origin.x, origin.y);
 	bool found = false;
 	if (D != kUnreachable)
@@ -566,7 +579,7 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 		}
 		else
 		{
-			const FieldAnswer a2 = field_query(walls, o, &cand, D, have_me, origin, W, H);
+			const FieldAnswer a2 = field_query(walls, o, &cand, D, have_me, origin, 0, W, H);
 			Vec2 best{ W, H };
 			cand.for_each_unordered(H, [&](int x, int y) {
 				if (a2.at(x, y) <= D && (y < best.y || (y == best.y && x < best.x))) best = { x, y };
