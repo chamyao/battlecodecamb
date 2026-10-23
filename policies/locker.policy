@@ -1,0 +1,91 @@
+# locker: test opponent = v3 that buys altar locks and places them on altars it passes.
+# v3: fs-1 + three fixes from the ladder-loss analysis (docs/LADDER_LOSSES.md on analysis/sprint1):
+# retreat toward spawn below 30% health while in_danger() and recall only once clear; hold on a
+# camp tile only when its group is capturable; skip monoliths and golems.
+# Based on fs-1: FunSearch pilot #146 (5 Haiku edits from v1): split strength/health shards, heal on spawn,
+# retreat at 50% health when carrying gems, hold on a cleared camp spawn to capture, one camps_visible() per turn.
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally()), position() )
+if at_spawn and not has_altar_lock() and gold() >= 10:
+    buy_altar_lock()
+if has_altar_lock():
+    let lock_at = first( filter( minus( altars(), locked_altars() ), within(2, position()) ) )
+    if exists(lock_at):
+        place_altar_lock(lock_at)
+if at_spawn:
+    let shards_bought = floor( gold() / 30 )
+    let strength_shards = floor( shards_bought / 2 )
+    buy( shard(stat_strength()), strength_shards )
+    buy( shard(stat_health()), shards_bought - strength_shards )
+    # heal on spawn before heading back out, unless an enemy is already in reach
+    if health() < max_health() and not exists(first(filter(enemies_visible(), in_attack_range()))):
+        end_turn()
+
+# retreat at 20% health normally, but at 50% when carrying gems
+if not at_spawn and health() < 0.3 * max_health():
+    if in_danger():
+        move_towards( closest( spawn_region(ally()) ) )
+        end_turn()
+    recall()
+    end_turn()
+if not at_spawn and gems() > 0 and health() < 0.5 * max_health() and not in_danger():
+    recall()
+    end_turn()
+
+let enemy = first( filter( enemies_visible(), in_attack_range() ) )
+if exists(enemy):
+    if ability_ready(0):
+        cast_at_unit(0, enemy)
+    if ability_ready(1):
+        cast_at_unit(1, enemy)
+    attack(enemy)
+    end_turn()
+
+if gems() > 0:
+    let open_altars = minus( altars(), locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    move_towards( closest( ring(open_altars, 1) ) )
+    end_turn()
+
+# one camps_visible() query per turn, reused for both attack checks
+let camps = camps_visible()
+
+let camp = first( filter( camps, in_attack_range() ) )
+if exists(camp):
+    if ability_ready(0):
+        cast_at_unit(0, camp)
+    if ability_ready(1):
+        cast_at_unit(1, camp)
+    attack(camp)
+    end_turn()
+
+let goals = minus( minus( minus( camp_spawns, respawning_visible_spawns() ), monolith_tiles() ), golem_tiles() )
+
+# already standing on a cleared camp spawn: hold here so the capture timer keeps running
+if contains(capturable_spawns(), position()):
+    end_turn()
+
+move_towards( closest(goals) )
+let camp2 = first( filter( camps, in_attack_range() ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
