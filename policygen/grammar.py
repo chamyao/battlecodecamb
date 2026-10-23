@@ -30,7 +30,7 @@ class Limits:
     max_depth: int = 5   # expression tree height
     max_nest: int = 4    # nested ifs
     max_steps: int = 24  # steps per block
-    max_vars: int = 8    # variables per type
+    max_vars: int = 16   # variables per type (interp kMaxVars; 15 types x 16 fits one code band)
 
 
 # ---- vocabulary -------------------------------------------------------

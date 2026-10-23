@@ -27,7 +27,14 @@ int main()
 	std::shared_ptr<const interp::Program> prog;
 	try
 	{
-		prog = interp::load_program_codes(kPolicyCode, sizeof kPolicyCode / sizeof *kPolicyCode, kPolicyNums, kPolicyNumCount, kPolicyBytes, kPolicyBytesCount);
+		// Pre-parsed constant arrays (bot/encode_policy.py): no parsing on the first turn.
+		prog = interp::load_program_static(kPolicySteps + kPolicyTopStart, kPolicyTopCount);
+#ifdef BOT_VERIFY
+		// The runtime parser must build the same program.
+		auto parsed = interp::load_program_codes(kPolicyCode, sizeof kPolicyCode / sizeof *kPolicyCode, kPolicyNums, kPolicyNumCount,
+												 kPolicyBytes, kPolicyBytesCount);
+		std::printf("@@VERIFY static program %s\n", interp::same_program(*prog, *parsed) ? "ok" : "MISMATCH");
+#endif
 	}
 	catch (const std::exception& e)
 	{
