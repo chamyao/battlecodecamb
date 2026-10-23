@@ -196,7 +196,8 @@ Each rule below was needed to make full games replay with zero differences.
   tile as the destination.
 - Dash path: the destination is validated like a landing tile; a 2-step dash
   needs an intermediate tile that is not a wall and holds no camp or enemy
-  champion (allies can be passed; holes can be crossed). No path -> error 32.
+  champion **visible to the caster** (allies and unseen enemies, e.g. in a
+  bush, can be passed; holes can be crossed). No path -> error 32.
 - Attack resets require that the basic attack was already used this turn
   (otherwise 26); for ranged champions a reset restores the attack only, not
   the walk.

@@ -1026,15 +1026,18 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 		bool hidden = false;
 		if (!landing_ok(ch, dest, hidden, true)) return Err::cast_bad_destination;
 		// Legal dash path: one intermediate king step that is not a wall and holds no camp or
-		// enemy champion (holes may be crossed, allies passed through). RULE? enemies, altars
+		// enemy champion the caster can see (holes may be crossed, allies and unseen enemies passed
+		// through). RULE? unseen camps, altars
 		bool path = chebyshev(ch.pos, dest) <= 1;
+		Bitboard vis;
+		if (!path) champion_vision(c, vis);
 		for (int dy = -1; dy <= 1 && !path; ++dy)
 			for (int dx = -1; dx <= 1 && !path; ++dx)
 			{
 				const Vec2 mid{ ch.pos.x + dx, ch.pos.y + dy };
 				const int occ = champion_at(mid);
-				if (map_->in_bounds(mid) && !map_->walls.test(mid) && chebyshev(mid, dest) <= 1 && (occ < 0 || champs[occ].team == ch.team) &&
-					camp_at(mid) < 0)
+				if (map_->in_bounds(mid) && !map_->walls.test(mid) && chebyshev(mid, dest) <= 1 &&
+					(occ < 0 || champs[occ].team == ch.team || !vis.test(mid)) && camp_at(mid) < 0)
 					path = true;
 			}
 		if (!path) return Err::cast_bad_destination;
