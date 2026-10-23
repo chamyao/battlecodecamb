@@ -38,9 +38,11 @@ class BudgetExceeded(Exception):
 class Proposer:
     def __init__(self, budget_usd, opus_every=10, max_tokens=16000):
         # The cloud environment reserves ANTHROPIC_API_KEY for Claude Code's own login and does not
-        # pass it to processes, so the key is stored as FUNSEARCH_ANTHROPIC_KEY there.
+        # pass it to processes, so the key is stored as FUNSEARCH_ANTHROPIC_KEY there. It may also
+        # point ANTHROPIC_BASE_URL at Claude Code's endpoint, so the API URL is pinned.
         self.client = anthropic.Anthropic(
-            api_key=os.environ.get("FUNSEARCH_ANTHROPIC_KEY") or os.environ.get("ANTHROPIC_API_KEY"))
+            api_key=os.environ.get("FUNSEARCH_ANTHROPIC_KEY") or os.environ.get("ANTHROPIC_API_KEY"),
+            base_url=os.environ.get("FUNSEARCH_BASE_URL", "https://api.anthropic.com"))
         self.budget = budget_usd
         self.spent = 0.0
         self.calls = 0
