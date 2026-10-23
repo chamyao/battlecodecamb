@@ -1,4 +1,5 @@
 """Claude proposer: asks for an improved policy; tracks spend against a hard budget."""
+import os
 import re
 import threading
 
@@ -36,7 +37,10 @@ class BudgetExceeded(Exception):
 
 class Proposer:
     def __init__(self, budget_usd, opus_every=10, max_tokens=16000):
-        self.client = anthropic.Anthropic()
+        # The cloud environment reserves ANTHROPIC_API_KEY for Claude Code's own login and does not
+        # pass it to processes, so the key is stored as FUNSEARCH_ANTHROPIC_KEY there.
+        self.client = anthropic.Anthropic(
+            api_key=os.environ.get("FUNSEARCH_ANTHROPIC_KEY") or os.environ.get("ANTHROPIC_API_KEY"))
         self.budget = budget_usd
         self.spent = 0.0
         self.calls = 0

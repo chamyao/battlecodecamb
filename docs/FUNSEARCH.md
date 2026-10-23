@@ -5,7 +5,7 @@ for an improved version, score it in the simulator, store it.
 
 ```
 cmake -S interp -B interp/build && cmake --build interp/build -j --target interp_eval
-python3 -m funsearch.run --run pilot --budget 2 --max-programs 200      # needs ANTHROPIC_API_KEY
+python3 -m funsearch.run --run pilot --budget 2 --max-programs 200      # needs FUNSEARCH_ANTHROPIC_KEY (or ANTHROPIC_API_KEY)
 python3 -m funsearch.run --run test --proposer mutate --max-programs 40  # no API calls
 ```
 
