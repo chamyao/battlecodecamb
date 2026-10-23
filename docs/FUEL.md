@@ -146,9 +146,12 @@ The script generates:
   guessed. If a new block is added, extend coverage.policy and re-profile.
 - `docs/fuel_calibration.json`: all fits with sample counts and errors, and the correction.
 
-The bot's start-up (map, camp layout, policy load, allocator) costs each champion's first turn
-about 58k + 2.2·W·H + 240·camps + 417·groups more (24 cambc games of v3 and fs-1, MAE 1.8k,
-against the 200k first-turn budget). It is not in the profile, so it is charged from a hand fit in `interp`.
+The bot's start-up (map, camp layout, allocator) costs each champion's first turn about
+18k + 2.2·W·H + 245·camps + 417·groups more (24 cambc games of v5d and fs-1 on deploy/v0
+ee76a6e, MAE 1.3k, against the 200k first-turn budget). Since ee76a6e the policy is embedded
+pre-parsed; parsing it had cost ~170 fuel per program node, ~40k for v3. Re-fit this after
+start-up changes with the scratch comparison of first turns (cambc vs `fuel_turns`): first
+turns now match within 1% (v5d 83.3k vs 83.0k mean, fs-1 73.6k vs 74.2k). It is not in the profile, so it is charged from a hand fit in `interp`.
 
 Current calibration (deploy/v0 after a3d1f0b, interp/v0 4f525b2):
 - coverage.policy (EVERY=1, 400 rounds) on 00collision, 00elkring, 00lanes, 00monolith,

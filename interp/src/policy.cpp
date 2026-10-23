@@ -1,4 +1,5 @@
 #include "interp/policy.h"
+#include "interp/program.h"
 #include <algorithm>
 #include <exception>
 #include <string_view>
@@ -28,7 +29,8 @@ namespace state_bit = cbs::state_bit;
 static const char* const kTypes[] = { "Num", "Bool", "Tile", "TileSet", "Unit", "UnitList", "UnitPred",
 									  "TilePred", "Stat", "Item", "Team", "Champ", "ChampList", "Bytes", "Family" };
 constexpr int kNumTypes = sizeof kTypes / sizeof *kTypes;
-constexpr int kMaxVars = 8;
+constexpr int kMaxVars = 16;
+static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code band");
 
 #define INTERP_BLOCKS(X)                                                                                                    \
 	X(ally, "ally()") X(enemy, "enemy()") X(stat_strength, "stat_strength()") X(stat_focus, "stat_focus()")                \
@@ -210,42 +212,12 @@ std::vector<std::string> supported_blocks()
 
 // ---- program ---------------------------------------------------------------
 
-struct Expr;
-// A node's arguments: a contiguous run in the Program's expression pool (one allocation for the
-// whole program instead of one vector per node: allocation and moves are costly in a wasm bot).
-struct ExprSpan
-{
-	const Expr* p = nullptr;
-	std::uint32_t n = 0;
-	const Expr& operator[](std::size_t i) const;
-	const Expr* begin() const { return p; }
-	const Expr* end() const;
-	std::size_t size() const { return n; }
-};
-
-struct Expr
-{
-	Op op = Op::const_num;
-	int var = -1;
-	double num = 0;
-	std::string bytes;
-	ExprSpan args;
-};
-inline const Expr& ExprSpan::operator[](std::size_t i) const { return p[i]; }
-inline const Expr* ExprSpan::end() const { return p + n; }
-
-struct Step
-{
-	enum Kind { do_, if_, let_, keep_, end_turn } kind = do_;
-	Expr expr; // effect call, condition, or bound value
-	int var = -1;
-	std::vector<Step> then, orelse;
-};
-
 struct Program
 {
-	std::vector<Expr> pool; // every argument node; reserved up front, never reallocated
-	std::vector<Step> steps;
+	std::unique_ptr<Expr[]> exprs;	   // argument nodes
+	std::unique_ptr<Step[]> step_pool; // every block's steps, each block contiguous
+	std::vector<std::string> strings;  // byte constants (reserved up front: views stay valid)
+	Span<Step> steps;
 };
 
 // Programs are parsed from a compact code stream (one code per token) so that a bot can embed
@@ -292,7 +264,11 @@ struct Parser
 	const char* const* bytes;
 	std::size_t nbytes;
 	int counts[kNumTypes] = {};
-	std::vector<Expr>* pool = nullptr; // capacity >= n (every node takes a code): never reallocates
+	// Pools sized to n codes (every node takes at least one code), filled front to back.
+	Expr* exprs = nullptr;
+	Step* step_pool = nullptr;
+	std::size_t n_exprs = 0, n_steps = 0;
+	std::vector<std::string>* strings = nullptr;
 
 	std::uint16_t take()
 	{
@@ -308,6 +284,13 @@ struct Parser
 	}
 	void expr_into(Expr& e)
 	{
+		// Field by field: a whole-struct assignment compiles to memory.copy, ~1 fuel per byte in wasm.
+		e.op = Op::const_num;
+		e.var = -1;
+		e.num = 0;
+		e.bytes = {};
+		e.args.p = nullptr;
+		e.args.n = 0;
 		const std::uint16_t t = take();
 		if (t == codes::kNum)
 		{
@@ -321,7 +304,8 @@ struct Parser
 			const std::uint16_t k = take();
 			if (k >= nbytes) throw std::runtime_error("policy: bad bytes index");
 			e.op = Op::const_bytes;
-			e.bytes = unhex(bytes[k]);
+			strings->push_back(unhex(bytes[k]));
+			e.bytes = strings->back();
 		}
 		else if (t >= codes::kVar && t < codes::kVar + kNumTypes * kMaxVars)
 		{
@@ -332,24 +316,41 @@ struct Parser
 		{
 			const BlockInfo& b = kBlockTable[t];
 			e.op = b.op;
-			const std::size_t k = pool->size();
-			if (k + static_cast<std::size_t>(b.arity) > pool->capacity()) throw std::runtime_error("policy: expression pool overflow");
-			pool->resize(k + static_cast<std::size_t>(b.arity));
-			e.args = { pool->data() + k, static_cast<std::uint32_t>(b.arity) };
-			for (int i = 0; i < b.arity; ++i) expr_into((*pool)[k + static_cast<std::size_t>(i)]);
+			const std::size_t k = n_exprs;
+			n_exprs += static_cast<std::size_t>(b.arity);
+			if (n_exprs > n) throw std::runtime_error("policy: expression pool overflow");
+			e.args = { exprs + k, static_cast<std::uint32_t>(b.arity) };
+			for (int i = 0; i < b.arity; ++i) expr_into(exprs[k + static_cast<std::size_t>(i)]);
 		}
 		else
 			throw std::runtime_error("policy: bad code in expression");
 	}
-	std::vector<Step> steps()
+	// One block, ending at kEnd: its steps are gathered on a scratch stack (nested blocks are
+	// gathered above them and moved to the pool first), then copied to the pool as one run.
+	Step* scratch = nullptr; // n entries, uninitialised; used as a stack
+	std::size_t n_scratch = 0;
+	Span<Step> steps()
 	{
-		std::vector<Step> out;
-		out.reserve(16); // regrowth moves whole Step trees (costly in a wasm bot)
+		const std::size_t base = n_scratch;
 		for (;;)
 		{
 			const std::uint16_t t = take();
-			if (t == codes::kEnd) return out;
-			Step& s = out.emplace_back(); // filled in place; `out` grows only at the next emplace_back
+			if (t == codes::kEnd)
+			{
+				const std::size_t m = n_scratch - base;
+				if (n_steps + m > n) throw std::runtime_error("policy: step pool overflow");
+				Step* dst = step_pool + n_steps;
+				std::copy(scratch + base, scratch + n_scratch, dst);
+				n_steps += m;
+				n_scratch = base;
+				return { dst, static_cast<std::uint32_t>(m) };
+			}
+			if (n_scratch == n) throw std::runtime_error("policy: step scratch overflow");
+			Step& s = scratch[n_scratch++];
+			s.kind = Step::do_;
+			s.var = -1;
+			s.then = {};
+			s.orelse = {};
 			if (t == codes::kEndTurn) s.kind = Step::end_turn;
 			else if (t == codes::kIf)
 			{
@@ -382,13 +383,46 @@ struct Parser
 };
 } // namespace
 
+std::shared_ptr<const Program> load_program_static(const Step* steps, std::size_t n)
+{
+	auto prog = std::make_shared<Program>();
+	prog->steps = { steps, static_cast<std::uint32_t>(n) };
+	return prog;
+}
+
+static bool same_expr(const Expr& a, const Expr& b)
+{
+	if (a.op != b.op || a.var != b.var || !(a.num == b.num) || a.bytes != b.bytes || a.args.size() != b.args.size()) return false;
+	for (std::size_t i = 0; i < a.args.size(); ++i)
+		if (!same_expr(a.args[i], b.args[i])) return false;
+	return true;
+}
+static bool same_steps(Span<Step> a, Span<Step> b)
+{
+	if (a.size() != b.size()) return false;
+	for (std::size_t i = 0; i < a.size(); ++i)
+	{
+		const Step &x = a[i], &y = b[i];
+		if (x.kind != y.kind || x.var != y.var || !same_steps(x.then, y.then) || !same_steps(x.orelse, y.orelse)) return false;
+		if (x.kind != Step::end_turn && !same_expr(x.expr, y.expr)) return false;
+	}
+	return true;
+}
+bool same_program(const Program& a, const Program& b) { return same_steps(a.steps, b.steps); }
+
 std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std::size_t n, const double* nums, std::size_t nnums,
 												  const char* const* bytes_hex, std::size_t nbytes)
 {
 	auto prog = std::make_shared<Program>();
-	prog->pool.reserve(n);
+	prog->exprs.reset(new Expr[n]);
+	prog->step_pool.reset(new Step[n]);
+	prog->strings.reserve(nbytes);
 	Parser p{ code, n, 0, nums, nnums, bytes_hex, nbytes };
-	p.pool = &prog->pool;
+	p.exprs = prog->exprs.get();
+	p.step_pool = prog->step_pool.get();
+	p.strings = &prog->strings;
+	std::unique_ptr<Step[]> scratch(new Step[n]);
+	p.scratch = scratch.get();
 	prog->steps = p.steps();
 	if (p.pos != n) throw std::runtime_error("policy: trailing tokens");
 	return prog;
@@ -414,7 +448,7 @@ static void check_calibrated(const Program& prog)
 		need(e.op, false);
 		for (const Expr& a : e.args) expr(a);
 	};
-	std::function<void(const std::vector<Step>&)> steps = [&](const std::vector<Step>& ss)
+	std::function<void(Span<Step>)> steps = [&](Span<Step> ss)
 	{
 		for (const Step& s : ss)
 		{
@@ -655,11 +689,12 @@ struct Interp
 	void turn()
 	{
 		++turn_no;
-		// The deploy bot's one-off start-up (map, camp layout, allocator; bot/src/main.cpp) on a
-		// champion's first turn, measured on 24 cambc games of v3 / fs-1 as first-turn fuel minus
-		// the simulator's charge for that turn (docs/FUEL.md): mae 1.8k on a mean of 83k.
+		// The deploy bot's one-off start-up (map, camp layout, allocator; the policy is embedded
+		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 24 cambc games of
+		// v5d / fs-1 as first-turn fuel minus the simulator's charge for that turn (docs/FUEL.md):
+		// mae 1.3k on a mean of 43k.
 		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
-			api.compute(57890 + 2249 * m().W * m().H / 1000 + 240 * static_cast<std::int64_t>(m().camps.size()) +
+			api.compute(17890 + 2207 * m().W * m().H / 1000 + 245 * static_cast<std::int64_t>(m().camps.size()) +
 						417 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
@@ -677,7 +712,7 @@ struct Interp
 	}
 
 	// Returns false when END_TURN was reached.
-	bool run(const std::vector<Step>& steps)
+	bool run(Span<Step> steps)
 	{
 		for (const Step& s : steps)
 		{
