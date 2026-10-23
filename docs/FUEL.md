@@ -153,10 +153,15 @@ pre-parsed; parsing it had cost ~170 fuel per program node, ~40k for v3. Re-fit 
 start-up changes with the scratch comparison of first turns (cambc vs `fuel_turns`): first
 turns now match within 1% (v5d 83.3k vs 83.0k mean, fs-1 73.6k vs 74.2k). It is not in the profile, so it is charged from a hand fit in `interp`.
 
-Current calibration (deploy/v0 after a3d1f0b, interp/v0 4f525b2):
+Current calibration (deploy/v0, Oct 23 refit on the bot with the dash check; `real = 0.970·model − 135.4·blocks − 38.6·API
+calls + 110·turns`, 4668 rounds):
 - coverage.policy (EVERY=1, 400 rounds) on 00collision, 00elkring, 00lanes, 00monolith,
   01big-world and 01hooks;
-- v3 and fs-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows and 01starvation.
+- fs-1, v7zg-cast and tune-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows
+  and 01starvation;
+- tune-1 vs v7zg-cast on 01big-world, the full game (EVERY=10), for heavy big-map searches.
+Runs from different bot builds list their API scopes differently; `fuel_calibrate.py` maps
+them by name.
 
 Largest items, in profile fuel before the scale (fuel; mean and mean absolute error over the
 samples):
@@ -212,14 +217,64 @@ Known weak spots:
   walls-changed proof costs more than a same-walls hit, and the profile does not separate
   them. Per round this averages out.
 - `or`/`and` are bimodal (short-circuit or not), charged at their mean (MAE ~100).
-- The simulator's memo miss rate ran 5-10 points above the bot's in comparable (not
-  identical) games. The memo code is shared and the BFS matches the host exactly, so this is
-  probably game differences; it is not verified on an identical game.
+- `nearest_by_walk`'s history (bot_api.cpp: after a dear reachable mask, a capped
+  origin-rooted search on memo misses) is mirrored in `Api::nearest_by_walk`. The bot decides
+  on the mask's *measured* fuel; the simulator uses an estimate, max(190 + 1.7 per tile reached,
+  0.9·chunks·D) (the bot session's measurements: compact regions vs long open walks),
+  so its choice of path can differ on a few turns.
 - The model is for this bot build: re-run `run_bot_profile.sh` (coverage, v2 and fs-1) and
   `fuel_calibrate.py` whenever `bot/` or the interpreter changes (a run takes ~30 minutes
   on 4 cores), then refit the start-up constants in `Interp::turn` from full cambc games.
 - The simulator's bot pricing costs speed: 200 games of v2 vs starter take ~6.9 s against
   ~5.4 s with raw prices (the memo runs its own searches on misses).
+
+**Exact per-turn check.** Policy-vs-policy games reproduce cambc exactly when the simulator
+seeds policies as the bot does (docs/ENGINE_FINDINGS.md, "Match seeding"), so fuel can be
+compared turn by turn on the identical game:
+`interp/tools/fuel_turns A.pol MAP --enforce --bot-seeds --opp B.pol` against team A's `.fuel`
+in the bundle of `cambc run botA botB` (skip the draft turns, one per draft round). The
+built-in starter does not play exactly like starter-cpp, so games against it diverge.
+
+v7zg-cast vs fs-1, 12 maps (00ambush to 00interlock), deploy/v0 with interp/v0 d9b8cde. All 12
+games are identical (same end round and gems):
+
+| | value |
+| --- | --- |
+| turns compared | 75,713 |
+| total fuel, simulator / cambc | 1.044 (per map 1.008-1.078) |
+| per-turn error (turns > 3k), median | +3.5% |
+| 10-90% / 1-99% | [−6.1%, +14.3%] / [−17.1%, +27.5%] |
+| heaviest turns | within 1% (e.g. 153.9k vs 153.0k, 142.0k vs 142.0k) |
+
+On the same games fs-1 (team B, `--side b`) comes out at 1.008 in total (median −0.8%,
+10-90% [−9.0%, +11.8%]), so the +4% is specific to v7zg-cast, not a global offset. (Re-run on
+d3f0df8 with the refined mask estimate below: v7zg-cast 1.045.)
+
+**Running total.** The per-turn correction (`INTERP_TURN_COST`: per block and per API call,
+negative on balance) is charged after every block, not once at the end of the turn, so the
+running total under `--enforce` follows the real meter. Charged at the end, a 93.9k turn
+(cambc 88.0k) peaked near 105k mid-turn and was suspended; that was the whole 00ambush
+divergence below. Turn totals are unchanged.
+
+tune-1 vs v7zg-cast, 40 maps × 2 sides, `--bot-seeds` against `cambc run-batch`: **80/80 games
+end identically** (winner and end round; tie-broken round-2000 draws included), with no
+suspensions in either. Before the enemy-spawn dash rule (docs/ENGINE_FINDINGS.md) and the
+running total, 75/80. The last one (01big-world, tune-1 as team A) needed the refit with
+tune-1 profiles: three turns cambc measured at ~95.7k came out at ~103.5k because
+`api:nearest_by_walk` was fitted high on big maps (measured / model median 0.92 on 01big-world,
+0.84 for the largest calls; its per-candidate term fell from 2.18 to 1.34 fuel with big-map
+samples in the pool). On the same refit, v7zg-cast vs fs-1 (12 maps, all still identical):
+total 1.028 (was 1.044), per-turn median +1.6%, 10-90% [−7.8%, +12.7%].
+
+Diagnostics for this kind of check:
+- `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
+  trace build): per champion turn, `@@ST` (state seen at turn start), `@@SE` (the `end_turn()`
+  reached, move target and step, end position, dash target and result), `@@SP` (priority).
+  `STATE_TRACE_ROUNDS=a-b` adds `@@SB` counts and order-free hashes of the blocked set, camp
+  set and vision; `STATE_TRACE_TILES=r` adds that round's vision as `@@SV` row masks. Printing
+  is metered in the bot, so keep the windows short.
+- `FUEL_TURN_DETAIL=ROUND:CHAMP` (fuel_turns): that turn's charges by block (`@@DTB`) and API
+  call (`@@DTC`, by `cbs::Call`), its total and its correction.
 
 **Outcome check.** With the current table, the simulator gives 0 suspensions per game for v3
 and fs-1 against starter (40 maps × 5 seeds). Win rates: v3 196/200 = 98%, fs-1 195/200 =

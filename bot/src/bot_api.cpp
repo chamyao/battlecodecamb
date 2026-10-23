@@ -237,6 +237,7 @@ Err Api::recall() { return E(sdk_recall()); }
 Err Api::submit_gems(Vec2 altar) { return E(sdk_submit_gems(altar.x, altar.y)); }
 Err Api::place_ward(Vec2 p, std::int32_t* ok) { return E(sdk_place_ward(p.x, p.y, ok)); }
 Err Api::set_priority(std::int32_t p) { return E(sdk_set_priority(p)); }
+Err Api::champion_priority(std::uint32_t h, bool next, std::int32_t* out) { return E(sdk_bc_champion_priority(h, next ? 1 : 0, out)); }
 
 Err Api::draft_get(std::int32_t team, std::uint32_t round, std::int32_t* out) { return E(sdk_draft_get(team, round, out)); }
 Err Api::draft_champion(std::int32_t choice) { return E(sdk_draft_champion(choice)); }
@@ -287,6 +288,9 @@ struct HostOps
 						  Board& visited) const
 	{
 		std::uint16_t count = 0;
+#ifdef BOT_PROF2
+		struct HT { long long f0 = PROF_T; ~HT() { bot_prof[1] += f0 - PROF_T; } } ht_;
+#endif
 		if (dests)
 			sdk_DistanceField_ComputeToWithExpansionCount(walls.w, roots.w, dests->w, visited.w, field, maxd, &count);
 		else
@@ -300,7 +304,7 @@ field_memo::Memo<HostOps>* memo = nullptr;
 // `me` is the champion's tile (have_me false for the draft bot). The caller reads the answer
 // only at dests and at open tiles within Chebyshev `qr` of `me` (qr > 2: no walls-changed reuse).
 FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, bool have_me, Vec2 me,
-						int qr, int W, int H)
+						int qr, int W, int H, bool compute = true)
 {
 #ifdef BOT_PROF2
 	struct FT { long long f0 = PROF_T; ~FT() { bot_prof[0] += f0 - PROF_T; } } ft_;
@@ -312,8 +316,15 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		memo->reference = true;
 #endif
 	}
-	const FieldAnswer ans = memo->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
+#ifdef BOT_QTRACE
+	const long long qt0 = sdk_fuel_remaining();
+#endif
+	const FieldAnswer ans = memo->query(walls, roots, dests, max_distance, have_me, me, qr, W, H, compute);
+#ifdef BOT_QTRACE
+	std::printf("@@Q path=%d miss=%d layers=%d qr=%d nroots=%d ndests=%d fuel=%lld\n", ans.path, ans.miss, ans.layers, qr, roots.count(H), dests ? dests->count(H) : -1, qt0 - (long long)sdk_fuel_remaining());
+#endif
 #ifdef BOT_VERIFY
+	if (ans.f)
 	{
 		const auto maxd = static_cast<std::uint16_t>(std::clamp(max_distance, 0, 0xFFFF));
 		// A fresh search with the simulator's semantics (stop at the first layer touching a
@@ -377,11 +388,19 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	struct QT { long long q0 = PROF_T; ~QT() { bot_prof[6] += q0 - PROF_T; } } qt_;
 #endif
 	const int r = std::min(qr, 2);
+	// ans.at, inlined (it costs ~100 fuel a tile through the generic accessors).
+	const std::uint16_t* f = ans.f;
+	const int lim = ans.limit < 0 ? 0xFFFF : ans.limit, cw = static_cast<int>(md.chunked_width), st = hostbb::stride;
+	auto at = [&](int x, int y) -> std::uint16_t {
+		const int b = (y & 7) * 8 + (x & 7);
+		const std::uint16_t v = f[((y >> 3) * cw + (x >> 3)) * 64 + b];
+		return v > lim || ((walls.w[(y >> 3) * st + (x >> 3)] >> b) & 1) ? kUnreachable : v;
+	};
 	if (have_me)
 		for (int y = std::max(0, me.y - r); y <= std::min(H - 1, me.y + r); ++y)
-			for (int x = std::max(0, me.x - r); x <= std::min(W - 1, me.x + r); ++x) dist[y * W + x] = ans.at(x, y);
+			for (int x = std::max(0, me.x - r); x <= std::min(W - 1, me.x + r); ++x) dist[y * W + x] = at(x, y);
 	for (std::uint32_t i = 0; i < nd; ++i)
-		if (!have_me || cheb(dpos[i].x, dpos[i].y, me) > r) dist[dpos[i].y * W + dpos[i].x] = ans.at(dpos[i].x, dpos[i].y);
+		if (!have_me || cheb(dpos[i].x, dpos[i].y, me) > r) dist[dpos[i].y * W + dpos[i].x] = at(dpos[i].x, dpos[i].y);
 	return ans.count;
 }
 
@@ -415,23 +434,89 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 #endif
 	champion_info ci{};
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0 && ci.x == origin.x && ci.y == origin.y;
+	bool found = false;
+	// Per candidate set (keyed by its first tile): the last D and what the reachable mask cost.
+	// The mask's cost depends on the map (a few k in a compact region, ~a search for long walks
+	// across an open map), so after a memo miss, when the last mask was dear, the simulator's
+	// own algorithm runs instead on one search rooted at origin, capped at the last D + 2 per turn since: the
+	// nearest candidate and the row-major tie-break come straight from it, with no
+	// candidate-rooted search and no mask. Past the cap (the walls changed) it falls back.
+	struct Hist
+	{
+		Vec2 root0{ -1, -1 };
+		int D = 0;
+		std::uint32_t round = 0;
+		long long mask = 0;
+		std::uint64_t used = 0;
+	};
+	static Hist hist[4];
+	static std::uint64_t hist_clock = 0;
+	Vec2 root0{ -1, -1 };
+	cand.first(H, root0);
+	Hist* h = nullptr;
+	for (Hist& e : hist)
+		if (e.root0 == root0) h = &e;
+	const int chunks = static_cast<int>(md.chunked_width * md.chunked_height);
+	std::uint32_t round = 0;
+	sdk_bc_round_number(&round);
+	// D changes by at most 2 per turn (a dash) unless the walls change.
+	const int cap = h ? h->D + 2 + 2 * static_cast<int>(std::min<std::uint32_t>(round - h->round, 8)) : 0;
+	const bool origin_on_miss = have_me && h && cap <= h->D + 6 && h->mask > (cap - h->D) * chunks + 2500; // the extra layers + the candidate scan
 	Bitboard o;
 	o.set(origin);
-	const FieldAnswer ans = field_query(walls, cand, &o, kUnreachable, have_me, origin, 0, W, H); // reads only origin
-	const int D = ans.at(origin.x, origin.y);
-	bool found = false;
-	if (D != kUnreachable)
+	FieldAnswer ans = field_query(walls, cand, &o, kUnreachable, have_me, origin, 0, W, H, !origin_on_miss); // reads only origin
+	if (!ans.f)
 	{
-		// Candidates within D of origin: a reachable mask (measured ~4k at D ~ 46 on 100x100,
-		// against ~18k for an origin-rooted field cut at D; it costs per tile reached, at most
-		// ~16k for a whole 100x100 map).
+		static std::uint16_t f[kFieldWords];
+		Bitboard v;
+		std::uint16_t c = 0;
+		sdk_DistanceField_ComputeWithExpansionCount(walls.w, o.w, v.w, f, static_cast<std::uint16_t>(cap), &c);
+		int bd = cap + 1;
+		Vec2 best{};
+		cand.for_each_unordered(H, [&](int x, int y) {
+			const int d = f[fidx(x, y)];
+			if (d < bd || (d == bd && (y < best.y || (y == best.y && x < best.x)))) bd = d, best = { x, y };
+		});
+		h->used = ++hist_clock;
+		if (bd <= cap)
+		{
+			h->D = bd;
+			h->round = round;
+			out = best;
+			found = true;
+		}
+		else
+			ans = field_query(walls, cand, &o, kUnreachable, have_me, origin, 0, W, H);
+	}
+	if (!found)
+	{
+		const int D = ans.at(origin.x, origin.y);
+		if (D != kUnreachable)
+		{
+			// Candidates within D of origin: a reachable mask (~1 chunk per layer, like a search).
 #ifdef BOT_PROF2
-		struct IT { long long f0 = PROF_T; ~IT() { bot_prof[3] += f0 - PROF_T; } } it_;
+			struct IT { long long f0 = PROF_T; ~IT() { bot_prof[3] += f0 - PROF_T; } } it_;
 #endif
-		Bitboard near;
-		sdk_Bitboard_ReachableMask(walls.w, origin.x, origin.y, near.w, D);
-		near &= cand;
-		found = near.first(H, out);
+			Bitboard near;
+			const long long m0 = sdk_fuel_remaining();
+			sdk_Bitboard_ReachableMask(walls.w, origin.x, origin.y, near.w, D);
+			if (have_me)
+			{
+				if (!h)
+				{
+					h = &hist[0];
+					for (Hist& e : hist)
+						if (e.used < h->used) h = &e;
+					h->root0 = root0;
+				}
+				h->D = D;
+				h->round = round;
+				h->mask = m0 - static_cast<long long>(sdk_fuel_remaining());
+				h->used = ++hist_clock;
+			}
+			near &= cand;
+			found = near.first(H, out);
+		}
 	}
 #ifdef BOT_VERIFY
 	{
@@ -447,7 +532,7 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 		if (found != (want.x >= 0) || (found && !(out == want)))
 		{
 			++verify_fails;
-			std::printf("@@VERIFY nearest mismatch got %d,%d (%d) want %d,%d D=%d\n", found ? out.x : -1, found ? out.y : -1, found, want.x, want.y, D);
+			std::printf("@@VERIFY nearest mismatch got %d,%d (%d) want %d,%d d=%d\n", found ? out.x : -1, found ? out.y : -1, found, want.x, want.y, bd);
 		}
 	}
 #endif

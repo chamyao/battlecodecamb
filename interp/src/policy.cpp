@@ -77,7 +77,9 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")    \
 	X(in_danger, "in_danger()") X(move_away_from, "move_away_from(Tile)") X(allies_within, "allies_within(Num)")          \
 	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")   \
-	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")
+	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")                \
+	X(rich_spawns, "rich_spawns(Num)") X(group_tiles, "group_tiles(TileSet)") X(group_gems, "group_gems(TileSet)")       \
+	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")
 
 enum class Op : std::uint16_t
 {
@@ -641,10 +643,32 @@ struct Interp
 		}
 	};
 	std::int64_t blocks_this_turn = 0;
+	// The per-turn correction (INTERP_TURN_COST: per block, per API call, may be negative) is
+	// charged as the turn goes, after every block, so the running total follows the real meter:
+	// charged only at the end, its negative part let a turn's running total pass the budget
+	// (and suspend the bot) when the real bot stayed well under it. The turn's total is the
+	// same either way; the turn as a whole and its running total never go below zero.
+	std::uint64_t turn_calls0 = 0;
+	std::int64_t turn_spent0 = 0, turn_adj = 0;
+	void charge_turn_cost(bool final)
+	{
+		const auto target = static_cast<std::int64_t>(
+			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0)));
+		const std::int64_t raw = api.spent - turn_spent0 - turn_adj; // charges other than the correction
+		const std::int64_t want = std::max<std::int64_t>(target, -std::max<std::int64_t>(0, raw));
+		const std::int64_t d = want - turn_adj;
+		turn_adj = want;
+		if (d != 0 || final) api.compute(d);
+	}
 	void charge_block(Op op, bool exec)
 	{
 		if (!api.count_charges) return; // real bot: the engine meters fuel, skip the bookkeeping
 		++blocks_this_turn;
+		charge_block_cost(op, exec);
+		charge_turn_cost(false);
+	}
+	void charge_block_cost(Op op, bool exec)
+	{
 		const std::int64_t* c = block_costs().row[exec ? 1 : 0][static_cast<int>(op)];
 		const Work w = work;
 		work = {};
@@ -687,8 +711,37 @@ struct Interp
 	}
 	std::uint32_t self() { return static_cast<std::uint32_t>(api.my_champion()); }
 
+	void print_state()
+	{
+		const bool counting = api.count_charges;
+		api.count_charges = false; // diagnostics are free in the simulator
+		std::uint32_t r = 0, gems = 0, gold = 0;
+		api.round_number(&r);
+		ChampionInfo ci{};
+		const std::uint32_t me_h = self();
+		const Err e = api.champion(me_h, &ci);
+		api.champion_gems(me_h, &gems);
+		api.champion_gold(me_h, &gold);
+		std::int32_t c0 = 0, c1 = 0;
+		api.champion_cooldown(me_h, 0, &c0);
+		api.champion_cooldown(me_h, 1, &c1);
+		std::printf("@@ST r=%u champ=%u e=%d pos=%d,%d hp=%.2f/%.2f str=%.2f foc=%.2f st=%u gems=%u gold=%u cd=%d,%d en=", r, me_h,
+					static_cast<int>(e), ci.x, ci.y, static_cast<double>(ci.health), static_cast<double>(ci.max_health),
+					static_cast<double>(ci.strength), static_cast<double>(ci.focus), ci.state, gems, gold, c0, c1);
+		std::uint32_t ids[16], n = 0;
+		api.enemies(ids, 16, &n);
+		for (std::uint32_t i = 0; i < n && i < 16; ++i)
+		{
+			ChampionInfo ei{};
+			if (api.champion(ids[i], &ei) == Err::success) std::printf("%u:%d,%d:%.2f;", ids[i], ei.x, ei.y, static_cast<double>(ei.health));
+		}
+		std::printf("\n");
+		api.count_charges = counting;
+	}
+
 	void turn()
 	{
+		if (state_trace && api.champ() >= 0) print_state();
 		++turn_no;
 		// The deploy bot's one-off start-up (map, camp layout, allocator; the policy is embedded
 		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 24 cambc games of
@@ -699,20 +752,101 @@ struct Interp
 						394 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
+		turn_calls0 = calls0;
+		turn_spent0 = spent0;
+		turn_adj = 0;
+		// Simulator diagnostics (FUEL_TURN_DETAIL=ROUND:CHAMP, with memo_stats enabled): that turn's
+		// charges by block and by API call.
+		static const char* detail_env = std::getenv("FUEL_TURN_DETAIL");
+		bool detail = false;
+		std::uint32_t round_now = 0;
+		if (detail_env && cbs::memo_stats().enabled && api.champ() >= 0)
+		{
+			int dr = -1, dc = -1;
+			std::sscanf(detail_env, "%d:%d", &dr, &dc);
+			const bool counting = api.count_charges;
+			api.count_charges = false;
+			api.round_number(&round_now);
+			api.count_charges = counting;
+			detail = static_cast<int>(round_now) == dr && static_cast<int>(self()) == dc;
+		}
+		static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> blocks0;
+		static cbs::MemoStats memo0;
+		if (detail) blocks0 = charge_stats_table(), memo0 = cbs::memo_stats();
 		last_end = last_do = nullptr;
-		trace_target = trace_step = kNoTile;
+		trace_target = trace_step = trace_dash = kNoTile;
+		trace_dash_ok = -3;
 		trace_dist = -1;
 		blocks_this_turn = 0;
 		run(prog.steps);
+		if (state_trace && api.champ() >= 0)
+		{
+			int k1 = 0;
+			ChampionInfo after{};
+			me(after);
+			std::int32_t pr0 = 0, pr1 = 0;
+			api.champion_priority(self(), false, &pr0);
+			api.champion_priority(self(), true, &pr1);
+			std::printf("@@SP champ=%u prio=%d next=%d\n", self(), pr0, pr1);
+			std::printf("@@SE champ=%u end#%d target=%d,%d step=%d,%d dist=%d pos=%d,%d dash=%d,%d:%d\n", self(),
+						last_end ? ordinal(prog.steps, last_end, Step::end_turn, k1) : 0, trace_target.x, trace_target.y, trace_step.x,
+						trace_step.y, trace_dist, after.x, after.y, trace_dash.x, trace_dash.y, trace_dash_ok);
+			// what pathing saw this turn: the blocked tiles, the camp set and our vision, as tile lists
+			std::uint32_t rr = 0;
+			api.round_number(&rr);
+			if (static_cast<int>(rr) >= state_trace_r0 && static_cast<int>(rr) <= state_trace_r1)
+			{
+			const bool counting = api.count_charges;
+			api.count_charges = false;
+			Bitboard vis;
+			api.vision(vis);
+			auto dump = [&](const char* tag, const Bitboard& b) { // count and an order-free hash (printing every tile costs too much fuel)
+				std::uint64_t h = 0;
+				int n = 0;
+				b.for_each_unordered(m().H, [&](int x, int y) {
+					std::uint64_t v = static_cast<std::uint64_t>(y * 128 + x + 1) * 0x9E3779B97F4A7C15ull;
+					h += v ^ (v >> 29);
+					++n;
+				});
+				std::printf("@@SB %s n=%d h=%llx\n", tag, n, static_cast<unsigned long long>(h));
+			};
+			dump("dyn", dyn_block);
+			dump("camps", camps_cache);
+			dump("vis", vis);
+			if (static_cast<int>(rr) == state_trace_tiles)
+			{
+				std::uint64_t rows[2][100] = {}; // per row, x < 64 and x >= 64
+				vis.for_each_unordered(m().H, [&](int x, int y) { rows[x >> 6][y] |= 1ull << (x & 63); });
+				for (int y = 0; y < m().H; ++y)
+					if (rows[0][y] | rows[1][y])
+						std::printf("@@SV %d %llx %llx\n", y, static_cast<unsigned long long>(rows[1][y]), static_cast<unsigned long long>(rows[0][y]));
+			}
+			api.count_charges = counting;
+			}
+		}
 		// The step loop itself (Value temporaries etc. between blocks) and the calibration's
 		// per-block / per-call corrections (block_costs_gen.inc), which may be negative; never
 		// below zero for the turn as a whole.
 		if (api.count_charges)
 		{
-			const auto adj = static_cast<std::int64_t>(
-				INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - calls0)));
-			api.compute(std::max<std::int64_t>(adj, -std::max<std::int64_t>(0, api.spent - spent0)));
+			charge_turn_cost(true);
+			const std::int64_t adj = turn_adj;
 			trace_turn();
+			if (detail)
+			{
+				std::printf("@@DT r=%u champ=%u total=%lld blocks=%d calls=%llu adj=%lld\n", round_now, self(),
+							static_cast<long long>(api.spent - spent0), blocks_this_turn,
+							static_cast<unsigned long long>(api.api_calls - calls0), static_cast<long long>(adj));
+				for (int e = 0; e < 2; ++e)
+					for (int i = 0; i < kNumBlocks; ++i)
+						if (const long long n = charge_stats_table()[e][i][0] - blocks0[e][i][0])
+							std::printf("@@DTB %s%s %lld %lld\n", e ? "exec:" : "", kBlockTable[i].key, n,
+										charge_stats_table()[e][i][1] - blocks0[e][i][1]);
+				const cbs::MemoStats& ms = cbs::memo_stats();
+				for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
+					if (const long long n = ms.call_n[c] - memo0.call_n[c])
+						std::printf("@@DTC %d %lld %lld\n", c, n, ms.call_fuel[c] - memo0.call_fuel[c]);
+			}
 		}
 	}
 
@@ -721,7 +855,8 @@ struct Interp
 	// effect step run, as their ordinals in source order.
 	const Step* last_end = nullptr;
 	const Step* last_do = nullptr;
-	Vec2 trace_target = kNoTile, trace_step = kNoTile;
+	Vec2 trace_target = kNoTile, trace_step = kNoTile, trace_dash = kNoTile;
+	int trace_dash_ok = -3;
 	int trace_dist = -1;
 	static int ordinal(Span<Step> steps, const Step* want, Step::Kind kind, int& k)
 	{
@@ -789,7 +924,7 @@ struct Interp
 				}
 				break;
 			case Step::if_:
-				if (eval(s.expr).n != 0)
+				if (evaln(s.expr) != 0)
 				{
 					if (!run(s.then)) return false;
 				}
@@ -929,13 +1064,27 @@ struct Interp
 			{
 				const Vec2 p{ me.x + dx, me.y + dy };
 				if (!m().in_bounds(p) || blocked.test(p) || p == me) continue;
-				if (field[m().idx(p)] < bd)
+				if (field[m().idx(p)] < bd && dash_path_ok(me, p))
 				{
 					bd = field[m().idx(p)];
 					best = p;
 				}
 			}
 		return best;
+	}
+	// A 2-step dash needs an intermediate tile next to both ends that is neither a wall nor an
+	// enemy spawn tile (cambc error 32 otherwise; docs/ENGINE_FINDINGS.md).
+	bool dash_path_ok(Vec2 me, Vec2 p)
+	{
+		if (cbs::chebyshev(me, p) <= 1) return true;
+		const Bitboard& enemy_spawn = m().spawn_mask[1 - api.team()];
+		for (int dy = -1; dy <= 1; ++dy)
+			for (int dx = -1; dx <= 1; ++dx)
+			{
+				const Vec2 q{ me.x + dx, me.y + dy };
+				if (m().in_bounds(q) && cbs::chebyshev(q, p) <= 1 && !m().walls.test(q) && !enemy_spawn.test(q)) return true;
+			}
+		return false;
 	}
 
 	// Nearest tile of `set` by walking distance (same seeding rule as move_towards_goals).
@@ -1001,6 +1150,66 @@ struct Interp
 		return r;
 	}
 
+	// eval(e).n without building Values: numeric and boolean operators evaluate their operands
+	// here (same order, same charges), so a condition like `a > b and not c` makes no
+	// temporaries (a Value carries three shared_ptrs and a string, costly to make and destroy
+	// in the wasm bot). Anything else goes through eval.
+	double evaln(const Expr& e)
+	{
+		switch (e.op)
+		{
+		case Op::const_num: return e.num;
+		case Op::var: return vars[e.var].n;
+		case Op::add:
+		case Op::sub:
+		case Op::mul:
+		case Op::div:
+		case Op::lt:
+		case Op::le:
+		case Op::gt:
+		case Op::ge:
+		case Op::eq:
+		case Op::ne:
+		case Op::true_:
+		case Op::false_:
+		case Op::and_:
+		case Op::or_:
+		case Op::not_:
+		case Op::floor_: break;
+		default: return eval(e).n;
+		}
+		Charge charge{ *this, e.op, false };
+		const auto& a = e.args;
+		switch (e.op)
+		{
+		case Op::add: return evaln(a[0]) + evaln(a[1]);
+		case Op::sub: return evaln(a[0]) - evaln(a[1]);
+		case Op::mul: return evaln(a[0]) * evaln(a[1]);
+		case Op::div:
+		{
+			const double x = evaln(a[0]), y = evaln(a[1]);
+			return y == 0 ? 0 : x / y;
+		}
+		case Op::lt: return evaln(a[0]) < evaln(a[1]);
+		case Op::le: return evaln(a[0]) <= evaln(a[1]);
+		case Op::gt: return evaln(a[0]) > evaln(a[1]);
+		case Op::ge: return evaln(a[0]) >= evaln(a[1]);
+		case Op::eq: return evaln(a[0]) == evaln(a[1]);
+		case Op::ne: return evaln(a[0]) != evaln(a[1]);
+		case Op::true_: return 1;
+		case Op::false_: return 0;
+		case Op::and_: return evaln(a[0]) != 0 && evaln(a[1]) != 0;
+		case Op::or_: return evaln(a[0]) != 0 || evaln(a[1]) != 0;
+		case Op::not_: return evaln(a[0]) == 0;
+		default: return std::floor(evaln(a[0])); // floor_
+		}
+	}
+
+	// eval(e).tile / .unit / .set, without copying a variable's whole Value.
+	Vec2 evalt(const Expr& e) { return e.op == Op::var ? vars[e.var].tile : eval(e).tile; }
+	Unit evalu(const Expr& e) { return e.op == Op::var ? vars[e.var].unit : eval(e).unit; }
+	std::shared_ptr<Bitboard> evals(const Expr& e) { return e.op == Op::var ? vars[e.var].set : eval(e).set; }
+
 	Value eval(const Expr& e)
 	{
 		if (e.op == Op::const_num) return num(e.num);
@@ -1020,26 +1229,26 @@ struct Interp
 		case Op::stat_strength: return num(0);
 		case Op::stat_focus: return num(1);
 		case Op::stat_health: return num(2);
-		case Op::add: return num(eval(a[0]).n + eval(a[1]).n);
-		case Op::sub: return num(eval(a[0]).n - eval(a[1]).n);
-		case Op::mul: return num(eval(a[0]).n * eval(a[1]).n);
+		case Op::add: return num(evaln(a[0]) + evaln(a[1]));
+		case Op::sub: return num(evaln(a[0]) - evaln(a[1]));
+		case Op::mul: return num(evaln(a[0]) * evaln(a[1]));
 		case Op::div:
 		{
-			const double x = eval(a[0]).n, y = eval(a[1]).n;
+			const double x = evaln(a[0]), y = evaln(a[1]);
 			return num(y == 0 ? 0 : x / y);
 		}
-		case Op::lt: return num(eval(a[0]).n < eval(a[1]).n);
-		case Op::le: return num(eval(a[0]).n <= eval(a[1]).n);
-		case Op::gt: return num(eval(a[0]).n > eval(a[1]).n);
-		case Op::ge: return num(eval(a[0]).n >= eval(a[1]).n);
-		case Op::eq: return num(eval(a[0]).n == eval(a[1]).n);
-		case Op::ne: return num(eval(a[0]).n != eval(a[1]).n);
+		case Op::lt: return num(evaln(a[0]) < evaln(a[1]));
+		case Op::le: return num(evaln(a[0]) <= evaln(a[1]));
+		case Op::gt: return num(evaln(a[0]) > evaln(a[1]));
+		case Op::ge: return num(evaln(a[0]) >= evaln(a[1]));
+		case Op::eq: return num(evaln(a[0]) == evaln(a[1]));
+		case Op::ne: return num(evaln(a[0]) != evaln(a[1]));
 		case Op::true_: return num(1);
 		case Op::false_: return num(0);
-		case Op::and_: return num(eval(a[0]).n != 0 && eval(a[1]).n != 0);
-		case Op::or_: return num(eval(a[0]).n != 0 || eval(a[1]).n != 0);
-		case Op::not_: return num(eval(a[0]).n == 0);
-		case Op::floor_: return num(std::floor(eval(a[0]).n));
+		case Op::and_: return num(evaln(a[0]) != 0 && evaln(a[1]) != 0);
+		case Op::or_: return num(evaln(a[0]) != 0 || evaln(a[1]) != 0);
+		case Op::not_: return num(evaln(a[0]) == 0);
+		case Op::floor_: return num(std::floor(evaln(a[0])));
 		case Op::is_draft: return num(api.champ() < 0);
 		case Op::unpicked_champions:
 		{
@@ -1130,7 +1339,7 @@ struct Interp
 		case Op::spawn_region:
 		{
 			api.charge(cbs::Call::spawn_region);
-			const int t = static_cast<int>(eval(a[0]).n);
+			const int t = static_cast<int>(evaln(a[0]));
 			return set_of(m().spawn_mask[t == 0 ? 0 : 1]);
 		}
 		case Op::enemies_visible: return champions(true);
@@ -1153,6 +1362,77 @@ struct Interp
 			for (std::uint32_t i = 0; i < n && i < 16; ++i) b.set(locks[i].x, locks[i].y);
 			return set_of(b);
 		}
+		case Op::rich_spawns:
+		{
+			// spawn tiles of every camp whose group rewards at least n gems when captured (static
+			// map fact: the sum of its camps' gem rewards)
+			const double n = eval(a[0]).n;
+			Bitboard b;
+			for (const auto& grp : m().groups)
+			{
+				int g = 0;
+				for (int c : grp.camps) g += cbs::camp_design(m().camps[c].type).gems;
+				if (g >= n)
+					for (int c : grp.camps) b.set(m().camps[c].pos);
+			}
+			return set_of(b);
+		}
+		case Op::group_tiles:
+		{
+			// spawn tiles of every camp in a group that has a camp on one of the given tiles (static:
+			// e.g. group_tiles(monolith_tiles()) is everything that wakes a monolith when hit)
+			const Value in = eval(a[0]);
+			Bitboard b;
+			if (in.set)
+				for (const auto& grp : m().groups)
+				{
+					bool hit = false;
+					for (int c : grp.camps) hit = hit || in.set->test(m().camps[c].pos.x, m().camps[c].pos.y);
+					if (hit)
+						for (int c : grp.camps) b.set(m().camps[c].pos);
+				}
+			return set_of(b);
+		}
+		case Op::group_gems:
+		{
+			// total gems of the groups with a camp on one of the given tiles (static)
+			const Value in = eval(a[0]);
+			int g = 0;
+			if (in.set)
+				for (const auto& grp : m().groups)
+				{
+					bool hit = false;
+					for (int c : grp.camps) hit = hit || in.set->test(m().camps[c].pos.x, m().camps[c].pos.y);
+					if (hit)
+						for (int c : grp.camps) g += cbs::camp_design(m().camps[c].type).gems;
+				}
+			return num(g);
+		}
+		case Op::group_threat:
+		case Op::group_hp:
+		{
+			// summed strength (health) of the living camps in the group of the camp spawning on the
+			// tile; a camp out of vision counts as alive at its design values. 0 off a spawn tile.
+			const Vec2 t = evalt(a[0]);
+			if (!has_tile(t)) return num(0);
+			int k = -1; // Map::camp_at is not filled in the bot
+			for (std::size_t c = 0; c < m().camps.size() && k < 0; ++c)
+				if (m().camps[c].pos == t) k = static_cast<int>(c);
+			if (k < 0) return num(0);
+			double sum = 0;
+			for (int c : m().groups[m().camps[k].group].camps)
+			{
+				cbs::CampRecord cr{};
+				const Err err = api.camp(static_cast<std::uint32_t>(c), &cr);
+				if (err == Err::success) sum += e.op == Op::group_threat ? cr.strength : cr.health;
+				else if (err == Err::api_not_in_vision)
+				{
+					const auto& d = cbs::camp_design(m().camps[c].type);
+					sum += e.op == Op::group_threat ? d.base_strength : d.base_health;
+				}
+			}
+			return num(sum);
+		}
 		case Op::respawning_visible_spawns:
 		{
 			Bitboard b;
@@ -1167,7 +1447,7 @@ struct Interp
 		}
 		case Op::read_shared:
 		{
-			const int off = std::clamp(static_cast<int>(eval(a[0]).n), 0, 7);
+			const int off = std::clamp(static_cast<int>(evaln(a[0])), 0, 7);
 			std::uint8_t v = 0;
 			api.read_shared_memory(off, &v, 1);
 			return num(v);
@@ -1175,27 +1455,32 @@ struct Interp
 		case Op::union_:
 		case Op::minus:
 		{
-			const Value x = eval(a[0]), y = eval(a[1]);
-			Bitboard b = *x.set;
-			if (e.op == Op::union_) b |= *y.set;
-			else b.andnot(*y.set);
-			return set_of(b);
+			std::shared_ptr<Bitboard> x = evals(a[0]);
+			const std::shared_ptr<Bitboard> y = evals(a[1]);
+			// A result nothing else holds (not a variable's) is updated in place.
+			if (x.use_count() != 1) x = std::make_shared<Bitboard>(*x);
+			if (e.op == Op::union_) *x |= *y;
+			else x->andnot(*y);
+			Value r;
+			r.set = std::move(x);
+			return r;
 		}
 		case Op::contains:
 		{
-			const Value s = eval(a[0]), t = eval(a[1]);
-			return num(has_tile(t.tile) && s.set->test(t.tile));
+			const std::shared_ptr<Bitboard> s = evals(a[0]);
+			const Vec2 t = evalt(a[1]);
+			return num(has_tile(t) && s->test(t));
 		}
 		case Op::ring:
 		{
 			const Value s = eval(a[0]);
-			const float r = static_cast<float>(std::clamp(eval(a[1]).n, 0.0, 10.0));
+			const float r = static_cast<float>(std::clamp(evaln(a[1]), 0.0, 10.0));
 			if (api.count_charges) work.bits += s.set->count(m().H);
 			Bitboard b;
 			s.set->for_each_unordered(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
 			return set_of(b);
 		}
-		case Op::closest: return tile(closest(*eval(a[0]).set));
+		case Op::closest: return tile(closest(*evals(a[0])));
 		case Op::filter_tiles:
 		{
 			const Value s = eval(a[0]), p = eval(a[1]);
@@ -1214,22 +1499,22 @@ struct Interp
 			Vec2 p;
 			return tile(s.set->first(m().H, p) ? p : kNoTile);
 		}
-		case Op::exists_tile: return num(has_tile(eval(a[0]).tile));
+		case Op::exists_tile: return num(has_tile(evalt(a[0])));
 		case Op::count_tiles:
 		{
-			const int n = eval(a[0]).set->count(m().H);
+			const int n = evals(a[0])->count(m().H);
 			work.bits += n;
 			return num(n);
 		}
 		case Op::within:
 		{
-			Value r = tile(eval(a[1]).tile);
-			r.n = eval(a[0]).n;
+			Value r = tile(evalt(a[1]));
+			r.n = evaln(a[0]);
 			return r;
 		}
 		case Op::distance:
 		{
-			const Vec2 p = eval(a[0]).tile, q = eval(a[1]).tile;
+			const Vec2 p = evalt(a[0]), q = evalt(a[1]);
 			return num(has_tile(p) && has_tile(q) ? cbs::chebyshev(p, q) : 1e9);
 		}
 		case Op::filter_units:
@@ -1256,21 +1541,21 @@ struct Interp
 			if (!l.units->empty()) r.unit = l.units->front();
 			return r;
 		}
-		case Op::exists_unit: return num(eval(a[0]).unit.kind != EntityKind::none);
+		case Op::exists_unit: return num(evalu(a[0]).kind != EntityKind::none);
 		case Op::count_units: return num(static_cast<double>(eval(a[0]).units->size()));
 		case Op::unit_position:
 		case Op::unit_health:
 		{
 			Vec2 pos = kNoTile;
 			double hp = 0;
-			const bool ok = unit_info(eval(a[0]).unit, pos, hp);
+			const bool ok = unit_info(evalu(a[0]), pos, hp);
 			if (e.op == Op::unit_position) return tile(ok ? pos : kNoTile);
 			return num(ok ? hp : 0);
 		}
 		case Op::in_attack_range: return Value{};
 		case Op::random_int:
 		{
-			const double n = std::floor(eval(a[0]).n);
+			const double n = std::floor(evaln(a[0]));
 			return num(n >= 1 ? rng.next(static_cast<std::uint32_t>(std::min(n, 1e9))) : 0);
 		}
 		case Op::random_stat: return num(rng.next(3));
@@ -1289,12 +1574,12 @@ struct Interp
 		case Op::available:
 		{
 			const Value l = eval(a[0]);
-			const int c = static_cast<int>(eval(a[1]).n);
+			const int c = static_cast<int>(evaln(a[1]));
 			return num(l.champs && std::find(l.champs->begin(), l.champs->end(), c) != l.champs->end());
 		}
 		case Op::i_am:
 		{
-			const int c = static_cast<int>(eval(a[0]).n);
+			const int c = static_cast<int>(evaln(a[0]));
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			// ChampionType order: ryth, vesper_vale, vendetta, cassi, issac, stellar, ... (Issac shares Cassi's pick)
@@ -1303,7 +1588,7 @@ struct Interp
 		}
 		case Op::ability_ready:
 		{
-			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
+			const int slot = std::clamp(static_cast<int>(evaln(a[0])), 0, 1);
 			ChampionInfo ci{};
 			if (!me(ci) || !(ci.state & state_bit::can_cast)) return num(0);
 			std::int32_t cd = 1;
@@ -1320,8 +1605,8 @@ struct Interp
 		case Op::shard_of:
 		{
 			// item id = 6 * family + 2 * stat (strength, focus, health); +1 would be the emblem
-			const int fam = std::clamp(static_cast<int>(eval(a[0]).n), 0, 6);
-			const int st = std::clamp(static_cast<int>(eval(a[1]).n), 0, 2);
+			const int fam = std::clamp(static_cast<int>(evaln(a[0])), 0, 6);
+			const int st = std::clamp(static_cast<int>(evaln(a[1])), 0, 2);
 			return num(6 * fam + 2 * st);
 		}
 		case Op::has_altar_lock:
@@ -1345,7 +1630,7 @@ struct Interp
 		case Op::slot_is_shield:
 		case Op::slot_is_reset:
 		{
-			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
+			const int slot = std::clamp(static_cast<int>(evaln(a[0])), 0, 1);
 			if (api.champ() < 0) return num(0);
 			cbs::AbilityProps ap{};
 			if (api.champion_ability_props(self(), static_cast<std::uint32_t>(slot), &ap) != Err::success) return num(0);
@@ -1409,7 +1694,7 @@ struct Interp
 		}
 		case Op::claim_count:
 		{
-			const int g = group_at(eval(a[0]).tile);
+			const int g = group_at(evalt(a[0]));
 			std::uint8_t mem[kClaimBytes] = {};
 			api.read_shared_memory(0, mem, kClaimBytes);
 			const int mine = my_slot();
@@ -1452,7 +1737,7 @@ struct Interp
 		}
 		case Op::allies_within:
 		{
-			const double r = eval(a[0]).n;
+			const double r = evaln(a[0]);
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			const Value l = champions(false);
@@ -1467,7 +1752,7 @@ struct Interp
 		}
 		case Op::enemies_within:
 		{
-			const double r = eval(a[0]).n;
+			const double r = evaln(a[0]);
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			std::uint32_t ids[16], n = 0;
@@ -1487,7 +1772,7 @@ struct Interp
 			// (total health x total damage) of us and visible allies within r, over the same for
 			// visible enemy champions within r (Lanchester square law); damage per unit is
 			// strength + focus / 2. 100 when no enemy is within r.
-			const double r = eval(a[0]).n;
+			const double r = evaln(a[0]);
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			double hp[2] = { ci.health, 0 }, dmg[2] = { ci.strength + 0.5 * ci.focus, 0 };
@@ -1511,7 +1796,7 @@ struct Interp
 		}
 		case Op::unit_health_frac:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			if (u.kind == EntityKind::champion)
 			{
 				ChampionInfo ei{};
@@ -1551,7 +1836,7 @@ struct Interp
 		}
 		case Op::unit_gems:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			std::uint32_t g = 0;
 			if (u.kind == EntityKind::champion) api.champion_gems(u.h, &g);
 			return num(g);
@@ -1559,13 +1844,13 @@ struct Interp
 		case Op::team_score:
 		{
 			std::uint32_t g = 0;
-			api.submitted_gems(static_cast<std::uint32_t>(eval(a[0]).n), &g);
+			api.submitted_gems(static_cast<std::uint32_t>(evaln(a[0])), &g);
 			return num(g);
 		}
 		case Op::map_width: return num(m().W);
 		case Op::map_height: return num(m().H);
 		case Op::camp_count: return num(static_cast<double>(m().camps.size()));
-		case Op::shard: return num(6 + 2 * std::clamp(static_cast<int>(eval(a[0]).n), 0, 2)); // power shard
+		case Op::shard: return num(6 + 2 * std::clamp(static_cast<int>(evaln(a[0])), 0, 2)); // power shard
 		default: break;
 		}
 		exec(e); // an effect used as a value (cannot happen in well-typed policies)
@@ -1582,7 +1867,7 @@ struct Interp
 		{
 		case Op::pick:
 		{
-			const int c = static_cast<int>(eval(a[0]).n);
+			const int c = static_cast<int>(evaln(a[0]));
 			if (c >= 0) api.draft_champion(c);
 			break;
 		}
@@ -1594,14 +1879,14 @@ struct Interp
 		}
 		case Op::write_shared:
 		{
-			const int off = std::clamp(static_cast<int>(eval(a[0]).n), 0, 7);
-			const std::uint8_t v = static_cast<std::uint8_t>(std::clamp(std::lround(eval(a[1]).n), 0l, 255l));
+			const int off = std::clamp(static_cast<int>(evaln(a[0])), 0, 7);
+			const std::uint8_t v = static_cast<std::uint8_t>(std::clamp(std::lround(evaln(a[1])), 0l, 255l));
 			api.write_shared_memory(off, &v, 1);
 			break;
 		}
 		case Op::move_towards:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			Bitboard goals;
@@ -1612,14 +1897,14 @@ struct Interp
 		}
 		case Op::attack:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			if (u.kind != EntityKind::none) api.attack(static_cast<std::uint32_t>(u.kind), u.h);
 			break;
 		}
 		case Op::cast_at_unit:
 		{
-			const int slot = static_cast<int>(eval(a[0]).n);
-			const Unit u = eval(a[1]).unit;
+			const int slot = static_cast<int>(evaln(a[0]));
+			const Unit u = evalu(a[1]);
 			Vec2 pos = kNoTile;
 			double hp;
 			if (u.kind != EntityKind::none && unit_info(u, pos, hp))
@@ -1628,14 +1913,14 @@ struct Interp
 		}
 		case Op::cast_at_tile:
 		{
-			const int slot = static_cast<int>(eval(a[0]).n);
-			const Vec2 t = eval(a[1]).tile;
+			const int slot = static_cast<int>(evaln(a[0]));
+			const Vec2 t = evalt(a[1]);
 			if (has_tile(t)) api.cast(static_cast<std::uint32_t>(std::clamp(slot, 0, 1)), 0, 0, t, &ok);
 			break;
 		}
 		case Op::cast_self:
 		{
-			const int slot = static_cast<int>(eval(a[0]).n);
+			const int slot = static_cast<int>(evaln(a[0]));
 			ChampionInfo ci{};
 			if (me(ci))
 				api.cast(static_cast<std::uint32_t>(std::clamp(slot, 0, 1)), static_cast<std::uint32_t>(EntityKind::champion), self(),
@@ -1644,20 +1929,20 @@ struct Interp
 		}
 		case Op::place_ward:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			if (has_tile(t)) api.place_ward(t, &ok);
 			break;
 		}
 		case Op::tribute:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			if (has_tile(t)) api.submit_gems(t);
 			break;
 		}
 		case Op::recall: api.recall(); break;
 		case Op::move_away_from:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			const Vec2 pos{ ci.x, ci.y };
@@ -1682,7 +1967,7 @@ struct Interp
 		case Op::claim:
 		case Op::unclaim:
 		{
-			const int g = e.op == Op::claim ? group_at(eval(a[0]).tile) : -1;
+			const int g = e.op == Op::claim ? group_at(evalt(a[0])) : -1;
 			const int slot = my_slot();
 			if (slot < 0) break;
 			const std::uint8_t v = static_cast<std::uint8_t>(g < 0 || g > 254 ? 0 : g + 1);
@@ -1691,7 +1976,7 @@ struct Interp
 		}
 		case Op::set_team_target:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			const std::uint8_t v = static_cast<std::uint8_t>(u.kind == EntityKind::champion && u.h < 255 ? u.h + 1 : 0);
 			api.write_shared_memory(kTargetByte, &v, 1);
 			break;
@@ -1701,33 +1986,35 @@ struct Interp
 		case Op::place_altar_lock:
 		case Op::teleport_to:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			const int type = e.op == Op::place_altar_lock ? cbs::consumable::altar_lock : cbs::consumable::tp_crystal;
 			if (has_tile(t)) api.use_consumable(type, t, &ok);
 			break;
 		}
 		case Op::dash_towards:
 		{
-			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
-			const Vec2 t = eval(a[1]).tile;
+			const int slot = std::clamp(static_cast<int>(evaln(a[0])), 0, 1);
+			const Vec2 t = evalt(a[1]);
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			const Vec2 d = dash_target(t, { ci.x, ci.y });
+			if (state_trace) trace_dash = d, trace_dash_ok = -2;
 			if (has_tile(d))
 			{
-				api.cast(static_cast<std::uint32_t>(slot), 0, 0, d, &ok);
+				const Err err = api.cast(static_cast<std::uint32_t>(slot), 0, 0, d, &ok);
+				if (state_trace) trace_dash_ok = err == Err::success ? ok : -1 - static_cast<int>(err);
 				++epoch;
 			}
 			break;
 		}
 		case Op::buy:
 		{
-			const int item = static_cast<int>(eval(a[0]).n);
-			const double n = std::floor(eval(a[1]).n);
+			const int item = static_cast<int>(evaln(a[0]));
+			const double n = std::floor(evaln(a[1]));
 			if (n >= 1) api.buy_item(static_cast<std::uint32_t>(item), static_cast<std::uint32_t>(std::min(n, 1000.0)));
 			break;
 		}
-		case Op::set_priority: api.set_priority(static_cast<std::int32_t>(std::clamp(eval(a[0]).n, -1e6, 1e6))); break;
+		case Op::set_priority: api.set_priority(static_cast<std::int32_t>(std::clamp(evaln(a[0]), -1e6, 1e6))); break;
 		default: // a pure block used as a step: evaluate it (eval charges it)
 			charge.skip = true;
 			eval(e);

@@ -1,5 +1,6 @@
 // Per-turn fuel the simulator charges a policy, for comparison with real bot fuel.
-// Usage: fuel_turns POLICY.pol MAP [--seed S] [--max-rounds R] [--side a|b] [--enforce]
+// Usage: fuel_turns POLICY.pol MAP [--seed S] [--max-rounds R] [--side a|b] [--enforce] [--bot-seeds] [--opp POLICY.pol]
+// --bot-seeds: the policy seeded as the deploy bot is (the same game as cambc, if the opponent matches).
 // Plays the policy against builtin:starter with unlimited fuel (charges still counted; --enforce
 // applies the real per-turn budget and suspension) and
 // prints one line per champion turn of the policy's team: "<turn index> <fuel>".
@@ -20,18 +21,21 @@ int main(int argc, char** argv)
 	}
 	std::uint64_t seed = 1;
 	int max_rounds = 0, side = 0;
-	bool enforce = false;
+	bool enforce = false, bot_seeds = false;
+	const char* opp = nullptr;
 	for (int i = 3; i < argc; ++i)
 	{
 		if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[++i], nullptr, 10);
 		else if (!std::strcmp(argv[i], "--max-rounds")) max_rounds = std::atoi(argv[++i]);
 		else if (!std::strcmp(argv[i], "--side")) side = argv[++i][0] == 'b';
 		else if (!std::strcmp(argv[i], "--enforce")) enforce = true;
+		else if (!std::strcmp(argv[i], "--bot-seeds")) bot_seeds = true;
+		else if (!std::strcmp(argv[i], "--opp")) opp = argv[++i];
 	}
 	cbs::memo_stats().enabled = true; // single-threaded: collect diagnostics
 	auto prog = interp::load_program_file(argv[1]);
-	auto pol = interp::make_policy_player(prog, seed);
-	auto st = cbs::make_player("starter", seed + 1);
+	auto pol = interp::make_policy_player(prog, seed, bot_seeds);
+	auto st = opp ? interp::make_policy_player(interp::load_program_file(opp), seed + 1, bot_seeds) : cbs::make_player("starter", seed + 1);
 	cbs::MatchOptions o;
 	o.seed = seed;
 	o.unlimited_fuel = !enforce;
