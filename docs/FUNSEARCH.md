@@ -30,3 +30,15 @@ python3 -m funsearch.run --run test --proposer mutate --max-programs 40  # no AP
 and 0.48 on 400 fresh ones (starter: 0.50). So every candidate that screens
 within `--confirm-margin` of the best is re-scored on `--confirm-games` (160)
 fresh games, and that confirmed score is what is stored and compared.
+
+## Self-play league
+
+`python3 -m funsearch.league --name league --budget 15 --members policies/fs-1.policy,policies/v2.policy`
+runs FunSearch generations (`runs/league-g<k>`) against our own policies: starter at weight 0.25
+(sanity floor), the current best at weight 3, and up to 3 older bests. Every `--round` programs
+the top 3 distinct programs are validated on fresh seeds (2 x 400 games per opponent); one that
+beats the current best by 5+ points head to head without dropping more than 3 points against any
+older member becomes `policies/fs-<n>.policy` (committed) and the new best. State:
+`runs/league.json`, log: `runs/league.log`; `touch runs/league-g<k>/STOP` pauses it.
+Children that play identically to an already-confirmed program (same deterministic screening
+results) reuse its confirmation, so comment-only or dead-code edits cost no extra games.
