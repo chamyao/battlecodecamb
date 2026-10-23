@@ -163,6 +163,14 @@ _b("claim_count", "Tile", "Num")
 _b("set_team_target", "Unit", VOID)
 _b("team_target", "", "Unit")
 
+# Safety and situation (from the ladder-loss analysis)
+_b("in_danger", "", "Bool")
+_b("move_away_from", "Tile", VOID)
+_b("allies_within", "Num", "Num")
+_b("unit_health_frac", "Unit", "Num")
+_b("capturable_spawns", "", "TileSet")
+_b("turns_idle", "", "Num")
+
 # Effects
 _b("move_towards", "Tile", VOID)
 _b("attack", "Unit", VOID)
