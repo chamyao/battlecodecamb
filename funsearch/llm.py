@@ -37,8 +37,9 @@ Diagnosed from real ranked games against stronger teams (we lost 2-13):
   gems, disengage toward an altar.
 - Spend gold on more item families: Treasure first (more gold), then Jungle (30% less camp
   damage) or Bruiser. Our champions bought only Power shards; opponents bought 6-10 kinds.
-- Draft deterministically from the meta (Vesper Vale, Heart of Ruin, Marcella, Vendetta, Ryth)
-  instead of random picks.
+- The draft matters a lot: a fixed pick order (vesper_vale, tavi, marcella, stellar, ren) beat
+  the same policy with random picks 59%. Write the draft as a deliberate chain of
+  `elif available(pool, champ_x()): pick(champ_x())` checks, never random_champion.
 - Idle champions: ours stood still off spawn for long stretches (e.g. holding a half-cleared
   camp). turns_idle() can detect that and switch goals.
 
