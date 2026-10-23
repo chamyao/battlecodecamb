@@ -65,7 +65,7 @@ class Proposer:
         return (tokens_in * pin + usage.output_tokens * pout) / 1e6
 
     def propose(self, parents):
-        """parents: list of (text, score), worst first. Returns (policy text or None, model, cost)."""
+        """parents: list of (text, score), worst first. Returns (policy text or None, model, cost, proposals)."""
         with self.lock:
             if self.spent >= self.budget:
                 raise BudgetExceeded(f"spent ${self.spent:.2f} of ${self.budget:.2f}")
@@ -90,7 +90,9 @@ class Proposer:
         with self.lock:
             self.spent += cost
         if response.stop_reason == "refusal":
-            return None, model, cost
+            return None, model, cost, []
         text = "".join(b.text for b in response.content if b.type == "text")
         m = re.search(r"```policy\n(.*?)```", text, re.S)
-        return (m.group(1) if m else None), model, cost
+        # block proposals may sit inside or outside the code block
+        proposals = [x.strip() for x in re.findall(r"#\s*PROPOSE:\s*(.+)", text)]
+        return (m.group(1) if m else None), model, cost, list(dict.fromkeys(proposals))

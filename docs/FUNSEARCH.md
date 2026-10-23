@@ -18,7 +18,9 @@ python3 -m funsearch.run --run test --proposer mutate --max-programs 40  # no AP
   Claude Opus 5.5 (with server-side refusal fallback). **Hard budget cap**: no
   new call once `--budget` USD is spent (cost from response usage).
 - `funsearch/tune.py`: constant mutation ((1+1)-ES); also the LLM-free proposer.
-- Output: `runs/<name>/programs.jsonl` (append-only, resumable), `best.policy`.
+- Output: `runs/<name>/programs.jsonl` (append-only, resumable), `best.policy`, and `proposals.jsonl`
+  (`# PROPOSE:` block wishes from replies; summarise with `python3 -m funsearch.proposals <run>`).
+- `python3 -m funsearch.validate --run <name> --top 3`: re-score the top programs on fresh seeds before naming a new best.
 
 ## Noise
 

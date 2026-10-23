@@ -7,6 +7,7 @@ Results go to runs/<name>/programs.jsonl (append-only; a rerun resumes) and
 runs/<name>/best.policy. The Claude proposer needs FUNSEARCH_ANTHROPIC_KEY, FUNSEARCH_API_KEY or ANTHROPIC_API_KEY.
 """
 import argparse
+import json
 import random
 import threading
 import time
@@ -67,6 +68,16 @@ def main():
     if args.proposer == "claude":
         from .llm import BudgetExceeded, Proposer
         proposer = Proposer(args.budget, opus_every=args.opus_every)
+    proposals_lock = threading.Lock()
+
+    def log_proposals(pid, score, model, proposals):
+        """Block wishes (# PROPOSE: lines) go to proposals.jsonl for the language owner."""
+        if not proposals:
+            return
+        with proposals_lock, open(out / "proposals.jsonl", "a") as f:
+            for text in proposals:
+                f.write(json.dumps({"program": pid, "score": score, "model": model, "proposal": text}) + "\n")
+
     rng = random.Random(len(db.all))
     stop = threading.Event()
     started = len(db.all)
@@ -80,21 +91,23 @@ def main():
             return
         if proposer:
             try:
-                text, model, cost = proposer.propose([(p.text, p.score) for p in parents])
+                text, model, cost, proposals = proposer.propose([(p.text, p.score) for p in parents])
             except BudgetExceeded as e:
                 print(e)
                 stop.set()
                 return
         else:
-            text, model, cost = mutate_constants(parents[-1].text, rng, n_changes=2), "mutate", 0.0
+            text, model, cost, proposals = mutate_constants(parents[-1].text, rng, n_changes=2), "mutate", 0.0, []
         if text is None:
-            db.add(Program(0, island, "", float("-inf"), [p.id for p in parents], model, "no policy in reply",
-                           {"cost": cost}))
+            pid = db.add(Program(0, island, "", float("-inf"), [p.id for p in parents], model, "no policy in reply",
+                                 {"cost": cost}))
+            log_proposals(pid, None, model, proposals)
             return
         r = score(text)
         r.per_opponent["cost"] = cost
         p = Program(0, island, text, r.score, [p.id for p in parents], model, r.error, r.per_opponent)
         pid = db.add(p)
+        log_proposals(pid, r.score if r.ok else None, model, proposals)
         best = db.best()[0]
         spent = f" ${proposer.spent:.2f}" if proposer else ""
         status = f"error: {r.error[:80]}" if r.error else f"score {r.score:.3f}"

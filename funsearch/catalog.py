@@ -28,13 +28,13 @@ draft bot and each champion). Steps:
   end_turn()                       stop for this turn
 Expressions nest blocks, variables and numeric/string constants. Operators + - * / < <= > >=
 == != and or not, unary minus, and True/False are allowed on Num/Bool. Every value is typed; a block's arguments must have
-exactly the listed types. No loops, no functions, no other Python. Names must be defined
+exactly the listed types. No loops, no functions except macros (below), no other Python. Names must be defined
 (let/keep) before use; a let inside an if-branch is only visible in that branch.
 A name cannot be redefined in the same scope (use a new name, e.g. camp2); the two branches of
 one if may each define the same name. elif is fine.
 Not supported (each one makes the policy invalid): %, //, **, None (test with exists(...)),
 is / in, chained comparisons like 1 < x < 3 (use and), keyword arguments, attribute access
-like .x, indexing, lists/tuples, def/for/while/return.
+like .x, indexing, lists/tuples, for/while, def inside a block, return outside a macro.
 Comments start with #.
 """
 
