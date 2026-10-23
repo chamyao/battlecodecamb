@@ -62,3 +62,36 @@ def test_python_habits():
     for bad in ("set_priority(gems() % 2)", "if 1 < gems() < 3:\n    recall()\n"):
         with pytest.raises(SyntaxError):
             parse(bad)
+
+
+MACROS = """
+def low_health(frac):
+    return health() < frac * max_health()
+
+def go_home():
+    let home = closest(spawn_region(ally()))
+    move_towards(home)
+    end_turn()
+
+if low_health(0.3):
+    go_home()
+if low_health(0.5) and gems() > 0:
+    go_home()
+recall()
+"""
+
+
+def test_macros_expand_inline():
+    steps = parse(MACROS)
+    text = format_policy(steps)
+    assert "def " not in text and text.count("move_towards") == 2
+    assert format_policy(parse(text)) == text  # the expansion is an ordinary policy
+
+
+def test_macro_errors():
+    with pytest.raises(SyntaxError):
+        parse("def f():\n    f()\nf()\n")
+    with pytest.raises(TypeError):
+        parse("def f(x):\n    return x\nrecall()\nset_priority(f())\n")
+    with pytest.raises(TypeError):
+        parse("def g():\n    recall()\nif g():\n    recall()\n")

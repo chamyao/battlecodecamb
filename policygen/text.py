@@ -4,6 +4,7 @@ The format is Python-shaped, so parsing reuses Python's own parser after
 rewriting `let x = ...` and `keep x = ...` into assignments.
 """
 import ast as pyast
+import copy
 import re
 
 from .blocks import BY_NAME, resolve
@@ -30,21 +31,97 @@ def _preprocess(text):
 
 
 def parse(text):
-    """Parse policy text into a list of steps, type-checking as it goes."""
+    """Parse policy text into a list of steps, type-checking as it goes.
+
+    Top-level `def` macros are expanded inline where they are called: a macro
+    whose body is a single `return <expr>` is used as an expression, any other
+    is used as a step. Arguments are substituted as expressions (re-evaluated at
+    each use; bind them with let first to pay once). Names a macro assigns are
+    renamed per expansion. Macros may call other macros but not themselves.
+    """
     module = pyast.parse(_preprocess(text))
-    return _Parser().steps(module.body, {})
+    macros, body = {}, []
+    for node in module.body:
+        if isinstance(node, pyast.FunctionDef):
+            a = node.args
+            if a.vararg or a.kwarg or a.kwonlyargs or a.defaults or node.decorator_list:
+                raise SyntaxError(f"line {node.lineno}: macros take plain positional parameters only")
+            if node.name in macros:
+                raise NameError(f"line {node.lineno}: macro {node.name} defined twice")
+            macros[node.name] = node
+        else:
+            body.append(node)
+    return _Parser(macros).steps(body, {})
+
+
+class _Inline(pyast.NodeTransformer):
+    """Substitute macro arguments and rename the macro's own variables."""
+
+    def __init__(self, args, renames):
+        self.args, self.renames = args, renames
+
+    def visit_Name(self, node):
+        if node.id in self.args:
+            return copy.deepcopy(self.args[node.id])
+        if node.id in self.renames:
+            return pyast.copy_location(pyast.Name(self.renames[node.id], node.ctx), node)
+        return node
 
 
 class _Parser:
+    MAX_EXPANSION_DEPTH = 16
+
+    def __init__(self, macros=None):
+        self.macros = macros or {}
+        self.expanding = []
+        self.n_expansions = 0
+
+    def _expand(self, call):
+        """The body of macro `call` with arguments substituted (a list of nodes)."""
+        name = call.func.id
+        fdef = self.macros[name]
+        params = [a.arg for a in fdef.args.args]
+        if call.keywords or len(call.args) != len(params):
+            raise TypeError(f"line {call.lineno}: macro {name} takes {len(params)} argument(s)")
+        if name in self.expanding or len(self.expanding) >= self.MAX_EXPANSION_DEPTH:
+            raise SyntaxError(f"line {call.lineno}: macro {name} is recursive")
+        self.n_expansions += 1
+        assigned = {t.id for n in pyast.walk(fdef) if isinstance(n, pyast.Assign)
+                    for t in n.targets if isinstance(t, pyast.Name)}
+        renames = {v: f"{v}__{name}{self.n_expansions}" for v in assigned}
+        body = copy.deepcopy(fdef.body)
+        inline = _Inline(dict(zip(params, call.args)), renames)
+        return [inline.visit(n) for n in body]
+
+    def _is_macro_call(self, node):
+        return (isinstance(node, pyast.Call) and isinstance(node.func, pyast.Name)
+                and node.func.id in self.macros)
+
     def steps(self, body, scope):
         scope = dict(scope)
         out = []
         for node in body:
-            if not isinstance(node, pyast.Pass):
-                out.append(self.step(node, scope))
+            if isinstance(node, pyast.Pass):
+                continue
+            if isinstance(node, pyast.Expr) and self._is_macro_call(node.value):
+                expanded = self._expand(node.value)
+                if any(isinstance(n, pyast.Return) for n in expanded):
+                    raise TypeError(f"line {node.lineno}: macro {node.value.func.id} returns a value; use it in an expression")
+                self.expanding.append(node.value.func.id)
+                try:
+                    # the macro's steps run in the caller's scope (its own names are renamed)
+                    for n in expanded:
+                        if not isinstance(n, pyast.Pass):
+                            out.append(self.step(n, scope))
+                finally:
+                    self.expanding.pop()
+                continue
+            out.append(self.step(node, scope))
         return out
 
     def step(self, node, scope):
+        if isinstance(node, pyast.Return):
+            raise SyntaxError(f"line {node.lineno}: return is only allowed as a macro's whole body")
         if isinstance(node, pyast.Expr) and isinstance(node.value, pyast.Call):
             if isinstance(node.value.func, pyast.Name) and node.value.func.id == "end_turn":
                 return EndTurn()
@@ -84,7 +161,17 @@ class _Parser:
             if node.id in scope:
                 return Var(node.id, scope[node.id])
             return self.call(node.id, [])
-        elif isinstance(node, pyast.Call):
+        elif self._is_macro_call(node):
+            expanded = self._expand(node)
+            if len(expanded) != 1 or not isinstance(expanded[0], pyast.Return) or expanded[0].value is None:
+                raise TypeError(f"line {node.lineno}: macro {node.func.id} is a step; only a macro whose body is "
+                                f"'return <expr>' can be used as a value")
+            self.expanding.append(node.func.id)
+            try:
+                return self.expr(expanded[0].value, scope)
+            finally:
+                self.expanding.pop()
+        elif isinstance(node, pyast.Call) and isinstance(node.func, pyast.Name):
             return self.call(node.func.id, [self.expr(a, scope) for a in node.args])
         elif isinstance(node, pyast.BinOp) and type(node.op) in _BINOP:
             return self.call(_BINOP[type(node.op)], [self.expr(node.left, scope), self.expr(node.right, scope)])
