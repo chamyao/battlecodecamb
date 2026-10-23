@@ -150,11 +150,11 @@ Each rule below was needed to make full games replay with zero differences.
   order**. Camps ignore walls/bushes for targeting.
 - Sleep is a timer: set to `camp_sleep_time` (2) when the camp is woken and
   whenever a champion is in range at its turn (even while stunned); decremented
-  at the end of every camp turn. An awake, non-stunned camp with no champion
-  in range and a zero timer falls asleep (keeping its health).
+  at the end of every camp turn. An awake camp with no champion in range and
+  a zero timer falls asleep (keeping its health), **even while stunned**.
 - Any damage to a camp wakes every sleeping member of its group (and sets
   their timers to 2); it does **not** refresh already-awake camps' timers.
-- Stunned camps do not attack and cannot fall asleep. Buff timers: expire at
+- Stunned camps do not attack. Buff timers: expire at
   camp turn start when 0, decrement at camp turn end (a 1-turn stun applied
   during the champion phase blocks the next camp turn).
 - Gem/gold clusters (strength 0) never deal damage but do keep themselves
@@ -170,12 +170,17 @@ Each rule below was needed to make full games replay with zero differences.
   at capture phases.
 - Rewards are split equally among the capturing team's champions standing on
   the region at completion; the lowest id gets the remainder.
+- Group respawn is delayed while any of its spawn tiles holds a champion **or
+  is the destination of an in-flight teleport** (wards on the tiles do not
+  block).
 
 ### Gold
-- Gold is stored fractionally; bonus multipliers (Vesper Vale +33%, Treasure
-  +20%, additive) are applied as `amount * (100 + pct) / 100` in float, and
-  queries report `floor(gold)`. E.g. 36 base gold gives 47.88 (reported 47);
-  the fraction carries into later gains.
+- Gold is stored **exactly in hundredths** (fixed point); bonus multipliers
+  (Vesper Vale +33%, Treasure +20%, additive) give `amount * (100 + pct)`
+  hundredths, and queries report `floor(gold)`. E.g. 36 base gold gives 47.88
+  (reported 47); the fraction carries into later gains. Float or double
+  storage both drift by 1 gold over long games (00rows seed 11: 27.30 + 137.70
+  must read 165).
 
 ### Combat
 - Basic attack damage = strength, then attacker modifiers applied
@@ -185,7 +190,8 @@ Each rule below was needed to make full games replay with zero differences.
   the primary target; splash damage does not trigger Ren's retaliation.
 - Ren's retaliation (0.2 x focus) triggers on any direct hit, including
   zero-damage hits such as Cassi's stun, and against camps; retaliation damage
-  does not itself trigger retaliation.
+  does not itself trigger retaliation. Ren's outgoing modifiers apply to it
+  (Monster emblem x1.1 against camps).
 - Ground-targeted abilities (AoE, dash) cast with a unit target use the unit's
   tile as the destination.
 - Dash path: the destination is validated like a landing tile; a 2-step dash
@@ -210,7 +216,9 @@ Each rule below was needed to make full games replay with zero differences.
   viewer is the caster; `channel_type` is 4.
 - Camp-group state (`camp_group_state`): alive/reward states need a visible
   group tile; a champion that has seen a group respawning (including at the
-  moment it was captured) keeps getting state 3 until it respawns.
+  moment it was captured) keeps getting state 3 while the respawn timer is
+  above 0. Once the timer reaches 0 but the group is still blocked, only
+  champions currently seeing a group tile get state 3.
 
 ### Altars, locks, tribute
 - Each team may hold one lock per altar (both teams can lock the same altar).
@@ -228,8 +236,11 @@ Each rule below was needed to make full games replay with zero differences.
   attack-reset precondition 26 -> moved/exclusive 126 -> targeting.
 - buy: stun 33 -> channel -> not on spawn 49 -> invalid/unpurchasable 50 ->
   count 51 -> gold 52.
-- sell (Tavi): not Tavi -> channel -> invalid -> not owned 130 -> not on spawn
+- sell (Tavi): not Tavi -> channel -> stun 33 -> invalid -> not owned 130 -> not on spawn
   133 -> already sold 131.
 - ward: stun 63 -> channel -> no charge 62 -> bad tile 64 (out of map, wall,
-  hole, altar) -> range 65 -> any allied ward (own included) on tile 117.
+  hole, altar, **enemy spawn zone**) -> range 65 -> any allied ward (own
+  included) on tile 117 if the tile is visible; an allied ward on a tile the
+  champion cannot see acts like a hidden occupant (rc 0, nothing placed, the
+  tile is revealed).
 - teleport crystal: validated like a move (bad destination 22).
