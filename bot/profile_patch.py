@@ -1,6 +1,6 @@
 """Patch a copy of the deploy bot (bot/) into a fuel-profiling build.
 
-Usage: python3 bot/profile_patch.py BOT_COPY_DIR   (run bot/sync.sh first; never patch bot/ itself)
+Usage: python3 bot/profile_patch.py BOT_COPY_DIR [EVERY]   (run bot/sync.sh first; never patch bot/ itself)
 Logs every 10th turn of each instance: "@@S id self exp dbits cexp cdbits occ" per interpreter block
 (id < 256 eval, 256 + op exec) and per API call (id >= 1000, names in "@@APINAMES"); self
 excludes children, API calls and the profiler's own cost ("@@OVH overhead inner"). "@@TURN total".
@@ -8,7 +8,8 @@ excludes children, API calls and the profiler's own cost ("@@OVH overhead inner"
 import re
 import sys
 src=sys.argv[1] + '/src'
-open(f'{src}/sprof.h','w').write(r'''#pragma once
+every = sys.argv[2] if len(sys.argv) > 2 else '10'
+open(f'{src}/sprof.h','w').write(f'#define SPROF_EVERY {every}\n' + r'''#pragma once
 #include <cambc.h>
 #include <cstdio>
 namespace sprof
@@ -22,6 +23,9 @@ inline Rec rec[8192];
 inline int nrec = 0;
 inline long long overhead = 0, inner = 0, last_incl = 0;
 inline long long now() { return cambc::detail::sdk_fuel_remaining(); }
+#ifndef SPROF_EVERY
+#define SPROF_EVERY 10 // log every N-th turn of each champion instance
+#endif
 struct Scope
 {
 	Scope(int op) { stack[depth++] = { op, now(), 0, 0, 0, 0, 0, 0, 0 }; }
@@ -70,7 +74,7 @@ s=s.replace(a,"""		blocks_this_turn = 0;
 			sprof::nrec = 0;
 			std::printf("@@OVH %lld inner %lld\\n", sprof::overhead, sprof::inner);
 		}
-		sprof::logging = turn_no % 10 == 0;
+		sprof::logging = api.champ() < 0 || turn_no % SPROF_EVERY == 0; // draft turns: always
 		sprof::nrec = 0;
 		const long long f0 = sprof::now();
 		run(prog.steps);

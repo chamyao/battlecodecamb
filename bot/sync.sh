@@ -1,11 +1,11 @@
 #!/bin/bash
 # Vendor the simulator/interpreter sources into bot/src (the platform compiles only the
 # bot folder, with just the SDK on the include path) and embed a compiled policy.
-# Usage: bot/sync.sh [POLICY]   (default policies/v2.policy)
+# Usage: bot/sync.sh [POLICY] [BOT_DIR]   (default policies/v2.policy, bot/ itself)
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
-src=$repo/bot/src
-policy=${1:-$repo/policies/v2.policy}
+policy=$(realpath "${1:-$repo/policies/v2.policy}")
+src=$(realpath "${2:-$repo/bot}")/src
 rm -rf "$src/cbs" "$src/interp" "$src"/vendor_*.cpp "$src"/*_gen.inc
 mkdir -p "$src/cbs" "$src/interp"
 for h in "$repo"/sim/include/cbs/*.h; do

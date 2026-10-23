@@ -2,34 +2,77 @@
 # so the deploy-bot profiler (oracle/run_bot_profile.sh) can calibrate all blocks.
 # Not meant to play well.
 
+# Every probe is its own `let`: `and`/`or` short-circuit, so a chain would skip blocks.
 if is_draft():
     let pool = unpicked_champions()
     let n = map_width() + map_height() + camp_count()
     write_draft("cov")
-    if available(pool, champ_vesper_vale()) and n > 0:
+    let c0 = available(pool, champ_vesper_vale())
+    if available(pool, champ_ren()):
+        set_priority(1)
+    if available(pool, champ_ryth()):
+        set_priority(1)
+    if available(pool, champ_vendetta()):
+        set_priority(1)
+    if available(pool, champ_cassi_issac()):
+        set_priority(1)
+    if available(pool, champ_stellar()):
+        set_priority(1)
+    if available(pool, champ_prism()):
+        set_priority(1)
+    if available(pool, champ_marcella()):
+        set_priority(1)
+    if available(pool, champ_willow()):
+        set_priority(1)
+    if available(pool, champ_varg()):
+        set_priority(1)
+    if available(pool, champ_tavi()):
+        set_priority(1)
+    if c0 and n > 0:
         pick(champ_vesper_vale())
     else:
-        if available(pool, champ_ren()) or available(pool, champ_ryth()) or available(pool, champ_vendetta()):
-            pick( random_champion(pool) )
-        else:
-            if available(pool, champ_cassi_issac()) or available(pool, champ_stellar()) or available(pool, champ_prism()):
-                pick( random_champion(pool) )
-            else:
-                if available(pool, champ_marcella()) or available(pool, champ_willow()) or available(pool, champ_varg()) or available(pool, champ_tavi()):
-                    pick( random_champion(pool) )
-                else:
-                    pick( random_champion(pool) )
+        pick( random_champion(pool) )
     end_turn()
 
 keep camp_spawns = camp_spawn_tiles()
-keep terrain = union( union( walls(), holes() ), bushes() )
+let terrain = union( union( walls(), holes() ), bushes() )
 
 # ---- calibration probes (results mostly unused) ----
 let r = round_number()
 let f = fuel_remaining()
 let probe_n = count(terrain) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy())
-let flags = i_am_ranged() or slot_is_damage(0) or slot_is_aoe(0) or slot_is_stun(1) or slot_is_heal(0) or slot_is_shield(1) or slot_is_reset(0)
-let who = i_am(champ_vesper_vale()) or i_am(champ_ren())
+if i_am_ranged():
+    set_priority(1)
+if slot_is_damage(0):
+    set_priority(1)
+if slot_is_aoe(0):
+    set_priority(1)
+if slot_is_stun(1):
+    set_priority(1)
+if slot_is_heal(0):
+    set_priority(1)
+if slot_is_shield(1):
+    set_priority(1)
+if slot_is_reset(0):
+    set_priority(1)
+if i_am(champ_vesper_vale()):
+    set_priority(1)
+if i_am(champ_ren()):
+    set_priority(1)
+if has_altar_lock():
+    set_priority(1)
+if has_teleport():
+    set_priority(1)
+if True:
+    set_priority(1)
+if not False:
+    set_priority(1)
+if r != 0:
+    set_priority(1)
+if can_attack():
+    set_priority(1)
+if contains(walls(), unit_position(first(enemies_visible()))):
+    set_priority(1)
 let allies = allies_visible()
 let foes = enemies_visible()
 let a1 = weakest(foes)
@@ -38,8 +81,15 @@ let a3 = nearest(allies)
 let probe_u = count(allies) + unit_health(a1) + unit_gems(a2) + count(foes)
 let tt = team_target()
 let claimed = claimed_by_allies()
-let lockflag = (has_altar_lock() or has_teleport()) and (True or not False)
-if r - 2 * floor(r / 2) == 0 and (probe_n >= 0 or flags or who or lockflag):
+let st = random_stat()
+buy(shard_of(family_power(), stat_strength()), 0)
+buy(shard_of(family_monster(), stat_focus()), 0)
+buy(shard_of(family_durability(), stat_health()), 0)
+buy(shard_of(family_treasure(), stat_health()), 0)
+buy(shard_of(family_jungle(), stat_health()), 0)
+buy(shard_of(family_home(), stat_health()), 0)
+buy(shard_of(family_bruiser(), stat_health()), 0)
+if r - 2 * floor(r / 2) == 0 and probe_n >= 0:
     write_shared(7, r - 256 * floor(r / 256))
     if exists(a3):
         set_team_target(a1)
@@ -51,20 +101,11 @@ if not alive() or channeling() or (not can_move() and not can_attack()):
 
 let at_spawn = contains( spawn_region(ally()), position() )
 if at_spawn:
-    let st = random_stat()
-    if r < 50:
-        buy_altar_lock()
-        buy_teleport()
-    if r == 0 or r != 0 or r <= 0 or r >= 0:
-        buy( shard_of(family_power(), stat_strength()), floor( gold() / 60 ) )
+    buy_altar_lock()
+    buy_teleport()
+    buy( shard_of(family_power(), stat_strength()), floor( gold() / 60 ) )
     buy( shard(st), 0 )
     buy( shard_of(family_monster(), stat_focus()), floor( gold() / 60 ) )
-    buy( shard_of(family_durability(), stat_health()), 0 )
-    buy( shard_of(family_treasure(), stat_health()), 0 )
-    buy( shard_of(family_jungle(), stat_health()), 0 )
-    buy( shard_of(family_home(), stat_health()), 0 )
-    buy( shard_of(family_bruiser(), stat_health()), 0 )
-    buy( shard(stat_health()), 0 )
 
 if not at_spawn and health() < 0.2 * max_health():
     recall()
@@ -76,6 +117,7 @@ if exists(enemy):
         cast_at_unit(0, enemy)
     if ability_ready(1):
         cast_at_tile(1, unit_position(enemy))
+    cast_at_tile(0, position())
     attack(enemy)
     end_turn()
 
@@ -105,10 +147,12 @@ let goals = minus( camp_spawns, respawning_visible_spawns() )
 let camp_goal = closest(goals)
 if exists(camp_goal):
     claim(camp_goal)
-if has_teleport() and r > 100:
+# unguarded so the blocks always run; without the consumable the engine call just fails
+if r > 100:
     teleport_to(camp_goal)
-if r - 50 * floor(r / 50) == 0:
+if r - 10 * floor(r / 10) == 0:
     place_ward(position())
+place_altar_lock(position())
 if slot_is_dash(1) and ability_ready(1):
     dash_towards(1, camp_goal)
 move_towards( camp_goal )
