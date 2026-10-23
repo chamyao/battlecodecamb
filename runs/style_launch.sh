@@ -4,7 +4,7 @@
 cd "$(dirname "$0")/.." || exit 1
 case "$1" in
   a) dir=funsearch/styles/a_lockdown.txt; req=buy_altar_lock,place_altar_lock ;;
-  b) dir=funsearch/styles/b_teamfight.txt; req=set_team_target,team_target,claim_count ;;
+  b) dir=funsearch/styles/b_teamfight.txt; req=set_team_target,team_target ;;
   c) dir=funsearch/styles/c_monolith.txt; req=monolith_tiles,claim_count ;;
   *) echo "usage: $0 <a|b|c> <budget>"; exit 1 ;;
 esac
