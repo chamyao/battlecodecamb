@@ -1,0 +1,9 @@
+[append to c_monolith.txt at the next boundary, after merging interp/v0 with rich_spawns/group_tiles]
+Our scoring rate is the real gap (docs/LADDER_LOSSES_V7.md): captures yield ~15 gems vs 21-60
+for teams beating us, 27% of ours are gold-only, median bag 14 vs 30-39. One winner took both
+monoliths on 01big_world, worth its 456-gem margin. rich_spawns(n) gives camp spawns of groups
+worth >= n gems (strict rich preference lost; value-vs-distance trade-off is the likely win).
+Monolith deaths: 13 per game on 01big_world for v7 (v8/v7zg-monozone avoid monoliths: 77.5% on
+big-world but 7.5% on gold-rush). group_tiles(monolith_tiles()) gives every camp group touching a
+monolith: avoid those zones only where they are not the main income, and take the monolith as a
+team when they are.
