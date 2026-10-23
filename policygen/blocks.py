@@ -159,6 +159,7 @@ _b("camp_count", "", "Num")
 _b("claim", "Tile", VOID)
 _b("unclaim", "", VOID)
 _b("claimed_by_allies", "", "TileSet")
+_b("claim_count", "Tile", "Num")
 _b("set_team_target", "Unit", VOID)
 _b("team_target", "", "Unit")
 
