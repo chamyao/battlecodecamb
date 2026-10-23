@@ -193,14 +193,29 @@ std::vector<std::string> supported_blocks()
 
 // ---- program ---------------------------------------------------------------
 
+struct Expr;
+// A node's arguments: a contiguous run in the Program's expression pool (one allocation for the
+// whole program instead of one vector per node: allocation and moves are costly in a wasm bot).
+struct ExprSpan
+{
+	const Expr* p = nullptr;
+	std::uint32_t n = 0;
+	const Expr& operator[](std::size_t i) const;
+	const Expr* begin() const { return p; }
+	const Expr* end() const;
+	std::size_t size() const { return n; }
+};
+
 struct Expr
 {
 	Op op = Op::const_num;
 	int var = -1;
 	double num = 0;
 	std::string bytes;
-	std::vector<Expr> args;
+	ExprSpan args;
 };
+inline const Expr& ExprSpan::operator[](std::size_t i) const { return p[i]; }
+inline const Expr* ExprSpan::end() const { return p + n; }
 
 struct Step
 {
@@ -212,6 +227,7 @@ struct Step
 
 struct Program
 {
+	std::vector<Expr> pool; // every argument node; reserved up front, never reallocated
 	std::vector<Step> steps;
 };
 
@@ -259,16 +275,23 @@ struct Parser
 	const char* const* bytes;
 	std::size_t nbytes;
 	int counts[kNumTypes] = {};
+	std::vector<Expr>* pool = nullptr; // capacity >= n (every node takes a code): never reallocates
 
 	std::uint16_t take()
 	{
 		if (pos >= n) throw std::runtime_error("policy: unexpected end of input");
 		return c[pos++];
 	}
+	// Builds in place (no Expr/Step temporaries to move: each move is costly in a wasm bot).
 	Expr expr()
 	{
-		const std::uint16_t t = take();
 		Expr e;
+		expr_into(e);
+		return e;
+	}
+	void expr_into(Expr& e)
+	{
+		const std::uint16_t t = take();
 		if (t == codes::kNum)
 		{
 			const std::uint16_t k = take();
@@ -292,12 +315,14 @@ struct Parser
 		{
 			const BlockInfo& b = kBlockTable[t];
 			e.op = b.op;
-			e.args.reserve(static_cast<std::size_t>(b.arity));
-			for (int i = 0; i < b.arity; ++i) e.args.push_back(expr());
+			const std::size_t k = pool->size();
+			if (k + static_cast<std::size_t>(b.arity) > pool->capacity()) throw std::runtime_error("policy: expression pool overflow");
+			pool->resize(k + static_cast<std::size_t>(b.arity));
+			e.args = { pool->data() + k, static_cast<std::uint32_t>(b.arity) };
+			for (int i = 0; i < b.arity; ++i) expr_into((*pool)[k + static_cast<std::size_t>(i)]);
 		}
 		else
 			throw std::runtime_error("policy: bad code in expression");
-		return e;
 	}
 	std::vector<Step> steps()
 	{
@@ -307,12 +332,12 @@ struct Parser
 		{
 			const std::uint16_t t = take();
 			if (t == codes::kEnd) return out;
-			Step s;
+			Step& s = out.emplace_back(); // filled in place; `out` grows only at the next emplace_back
 			if (t == codes::kEndTurn) s.kind = Step::end_turn;
 			else if (t == codes::kIf)
 			{
 				s.kind = Step::if_;
-				s.expr = expr();
+				expr_into(s.expr);
 				s.then = steps();
 				if (pos < n && c[pos] == codes::kElse)
 				{
@@ -325,7 +350,7 @@ struct Parser
 				const int ty = t & 0xFF;
 				if (ty >= kNumTypes) throw std::runtime_error("policy: bad type code");
 				s.kind = (t & 0xFF00) == codes::kKeep ? Step::keep_ : Step::let_;
-				s.expr = expr();
+				expr_into(s.expr);
 				if (counts[ty] >= kMaxVars) throw std::runtime_error("policy: too many variables");
 				s.var = ty * kMaxVars + counts[ty]++;
 			}
@@ -333,9 +358,8 @@ struct Parser
 			{
 				--pos;
 				s.kind = Step::do_;
-				s.expr = expr();
+				expr_into(s.expr);
 			}
-			out.push_back(std::move(s));
 		}
 	}
 };
@@ -344,8 +368,10 @@ struct Parser
 std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std::size_t n, const double* nums, std::size_t nnums,
 												  const char* const* bytes_hex, std::size_t nbytes)
 {
-	Parser p{ code, n, 0, nums, nnums, bytes_hex, nbytes };
 	auto prog = std::make_shared<Program>();
+	prog->pool.reserve(n);
+	Parser p{ code, n, 0, nums, nnums, bytes_hex, nbytes };
+	p.pool = &prog->pool;
 	prog->steps = p.steps();
 	if (p.pos != n) throw std::runtime_error("policy: trailing tokens");
 	return prog;
@@ -549,12 +575,14 @@ struct Interp
 		Op op;
 		bool exec;
 		bool skip = false;
-		int unwinding = std::uncaught_exceptions();
+		// Only the simulator charges (the real bot's engine meters fuel itself, and the
+		// uncaught_exceptions() calls cost fuel there on every block).
+		int unwinding = in.api.count_charges ? std::uncaught_exceptions() : 0;
 		// May throw: a charge can suspend the bot, and cancelling a suspended bot resumes it with
 		// an exception. Never charges while already unwinding.
 		~Charge() noexcept(false)
 		{
-			if (!skip && std::uncaught_exceptions() == unwinding) in.charge_block(op, exec);
+			if (!skip && in.api.count_charges && std::uncaught_exceptions() == unwinding) in.charge_block(op, exec);
 		}
 	};
 	std::int64_t blocks_this_turn = 0;

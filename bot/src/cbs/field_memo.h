@@ -41,8 +41,8 @@ namespace cbs::field_memo
 {
 constexpr int kFieldWords = 13 * 13 * 64; // u16 entries: 100x100 in 8x8 chunks
 constexpr int kSlots = 4;
-// Many changed tiles rarely pass box_unaffected and cost ~100-200 fuel each to examine.
-constexpr int kMaxDelta = 16;
+// Many changed tiles rarely pass box_unaffected; each removed one costs ~300 fuel to examine.
+constexpr int kMaxDelta = 24;
 constexpr std::uint16_t kFar = 0xFFFF; // unreached (kUnreachable)
 
 template <class Board>
@@ -217,24 +217,10 @@ private:
 			const int v = sl.field[ops_.fidx(x, y)];
 			return v <= L ? v : L + 1;
 		};
-		// Q and the targets: D_q if D_q <= S, else S + 1 (filled on first need).
-		struct Q
-		{
-			int x, y, t;
-			bool known;
-		};
-		Q box[25];
-		int nb = -1;
-		auto fill_box = [&]() {
-			nb = 0;
-			for (int y = std::max(0, me.y - qr); y <= std::min(H - 1, me.y + qr); ++y)
-				for (int x = std::max(0, me.x - qr); x <= std::min(W - 1, me.x + qr); ++x)
-					if (!walls.test(x, y))
-					{
-						const int v = d(x, y);
-						box[nb++] = { x, y, v <= S ? v : S + 1, v <= S };
-					}
-		};
+		// Each changed tile is tested once against all of Q (cheb(t, q) >= cheb(t, me) - qr, and
+		// every target is at most S, or S + 1 for tiles beyond S). Measured on the bot: per-q
+		// loops cost ~1.3k + ~700 per tile and attempts often fail; this is cheap, and a
+		// rejection only costs a fresh search.
 		for (int i = 0; i < n; ++i)
 		{
 			const int x = delta[i].x, y = delta[i].y;
@@ -242,22 +228,17 @@ private:
 			const int c = cheb(x, y, me);
 			if (walls.test(x, y))
 			{
-				const int da = d(x, y);
-				if (da > S || da + c - qr > S) continue;
-				if (nb < 0) fill_box();
-				for (int k = 0; k < nb; ++k)
-					if (box[k].known && da + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) <= box[k].t) return false;
+				// a is excluded from Q (walls read as unreachable), so cheb(a, q) >= 1 for q in Q.
+				if (d(x, y) + std::max(1, c - qr) <= S) return false;
 			}
 			else
 			{
+				if (c - qr >= S) continue; // lb >= 1
 				int lb = 0x10000;
 				for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
 					for (int xx = std::max(0, x - 1); xx <= std::min(W - 1, x + 1); ++xx)
 						if ((xx != x || yy != y) && !sl.walls.test(xx, yy)) lb = std::min(lb, d(xx, yy) + 1);
-				if (lb + c - qr >= S + 1) continue;
-				if (nb < 0) fill_box();
-				for (int k = 0; k < nb; ++k)
-					if (lb + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) < box[k].t) return false;
+				if (lb + std::max(0, c - qr) < S + 1) return false;
 			}
 		}
 		return true;
