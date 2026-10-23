@@ -153,10 +153,15 @@ pre-parsed; parsing it had cost ~170 fuel per program node, ~40k for v3. Re-fit 
 start-up changes with the scratch comparison of first turns (cambc vs `fuel_turns`): first
 turns now match within 1% (v5d 83.3k vs 83.0k mean, fs-1 73.6k vs 74.2k). It is not in the profile, so it is charged from a hand fit in `interp`.
 
-Current calibration (deploy/v0 after a3d1f0b, interp/v0 4f525b2):
+Current calibration (deploy/v0, Oct 23 refit; `real = 0.965·model − 135.5·blocks − 35.7·API
+calls + 78·turns`, 4657 rounds):
 - coverage.policy (EVERY=1, 400 rounds) on 00collision, 00elkring, 00lanes, 00monolith,
   01big-world and 01hooks;
-- v3 and fs-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows and 01starvation.
+- fs-1, v7zg-cast and tune-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows
+  and 01starvation;
+- tune-1 vs v7zg-cast on 01big-world, the full game (EVERY=10), for heavy big-map searches.
+Runs from different bot builds list their API scopes differently; `fuel_calibrate.py` maps
+them by name.
 
 Largest items, in profile fuel before the scale (fuel; mean and mean absolute error over the
 samples):
@@ -251,13 +256,15 @@ running total under `--enforce` follows the real meter. Charged at the end, a 93
 (cambc 88.0k) peaked near 105k mid-turn and was suspended; that was the whole 00ambush
 divergence below. Turn totals are unchanged.
 
-tune-1 vs v7zg-cast, 40 maps × 2 sides, `--bot-seeds` against `cambc run-batch`: 79/80 games
-end identically (winner and end round; tie-broken round-2000 draws included). Before the
-enemy-spawn dash rule (docs/ENGINE_FINDINGS.md) and the running total, 75/80. The last one,
-01big-world with tune-1 as team A, is identical with fuel unenforced. Enforced, three turns
-that cambc measured at ~95.7k come out at ~103.5k: `api:nearest_by_walk` on big maps is fitted
-high (measured / model median 0.92 on 01big-world, 0.84 for the largest calls), and
-`api:distance_field` likewise for long searches (0.90).
+tune-1 vs v7zg-cast, 40 maps × 2 sides, `--bot-seeds` against `cambc run-batch`: **80/80 games
+end identically** (winner and end round; tie-broken round-2000 draws included), with no
+suspensions in either. Before the enemy-spawn dash rule (docs/ENGINE_FINDINGS.md) and the
+running total, 75/80. The last one (01big-world, tune-1 as team A) needed the refit with
+tune-1 profiles: three turns cambc measured at ~95.7k came out at ~103.5k because
+`api:nearest_by_walk` was fitted high on big maps (measured / model median 0.92 on 01big-world,
+0.84 for the largest calls; its per-candidate term fell from 2.18 to 1.34 fuel with big-map
+samples in the pool). On the same refit, v7zg-cast vs fs-1 (12 maps, all still identical):
+total 1.028 (was 1.044), per-turn median +1.6%, 10-90% [−7.8%, +12.7%].
 
 Diagnostics for this kind of check:
 - `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
