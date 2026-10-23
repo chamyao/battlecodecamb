@@ -127,6 +127,15 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   Stellar, Ren). Real cambc 51/80 vs v4. The draft is a large lever: the bot's
   fixed RNG seeds had been drafting one composition every game (see
   `docs/ENGINE_FINDINGS.md`, "Match seeding", on `deploy/v0`).
+  5 = v5d rebuilt with the policy pre-parsed (`deploy/v0` ee76a6e; same play,
+  first turn <= 136k of 200k). 6 = v5d-fs2 (`deploy/v0` c902789, sha256
+  97f7d5f6...): v5d + fs-2's Treasure/Jungle shards and tribute at 10+ gems,
+  the first ladder version with FunSearch-found changes (hybrid line). Sim
+  61.3% vs v5d; real cambc 50/80 vs v5d.
+- **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
+  source), pure FunSearch (only its own outputs, from fs-1), tuning + draft (no
+  LLM), style FunSearch (lockdown / team fights / late monolith). Each runs in
+  its own session; all share one opponent pool and promotion rule.
 
 ### Deployment shape (agreed so far)
 
