@@ -1,5 +1,8 @@
 // Plays a policy against an opponent and prints one JSON summary line.
-// Usage: interp_eval --a A --b B [--games N] [--threads T] [--seed S] [--max-rounds R] [--fuel-mult X] MAP...
+// Usage: interp_eval --a A --b B [--games N] [--threads T] [--seed S] [--max-rounds R] [--fuel-mult X]
+//                    [--bot-seeds] [--details] MAP...
+// --bot-seeds: policies seeded per instance as the deploy bot is (reproduces cambc games);
+// --details: one JSON line per game (map, side of A, winner, gems, end round) before the summary.
 //        interp_eval --list-blocks
 // A and B are a compiled policy file (.pol) or builtin:starter / builtin:idle.
 // Game g uses map g % #maps; A plays team A on even games and team B on odd games.
@@ -20,10 +23,10 @@ struct Side
 {
 	std::string spec;
 	std::shared_ptr<const interp::Program> prog;
-	std::unique_ptr<Player> make(std::uint64_t seed) const
+	std::unique_ptr<Player> make(std::uint64_t seed, bool bot_seeds) const
 	{
 		if (spec.rfind("builtin:", 0) == 0) return make_player(spec.substr(8), seed);
-		return interp::make_policy_player(prog, seed);
+		return interp::make_policy_player(prog, seed, bot_seeds);
 	}
 };
 
@@ -40,6 +43,7 @@ int main(int argc, char** argv)
 	std::string a_spec = "builtin:starter", b_spec = "builtin:starter";
 	int games = 10, threads = 1, max_rounds = 0;
 	double fuel_mult = 1.0; // exploration: scale every bot's per-turn fuel budget
+	bool bot_seeds = false, details = false;
 	std::uint64_t seed = 1;
 	for (int i = 1; i < argc; ++i)
 	{
@@ -55,6 +59,8 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[++i], nullptr, 10);
 		else if (!std::strcmp(argv[i], "--max-rounds")) max_rounds = std::atoi(argv[++i]);
 		else if (!std::strcmp(argv[i], "--fuel-mult")) fuel_mult = std::atof(argv[++i]);
+		else if (!std::strcmp(argv[i], "--bot-seeds")) bot_seeds = true;
+		else if (!std::strcmp(argv[i], "--details")) details = true;
 		else maps.push_back(argv[i]);
 	}
 	if (maps.empty())
@@ -88,7 +94,7 @@ int main(int argc, char** argv)
 			{
 				const bool swap = g % 2 == 1; // A plays team B
 				const std::uint64_t gs = seed * 1000003ull + static_cast<std::uint64_t>(g);
-				auto pa = a.make(2 * gs + 1), pb = b.make(2 * gs + 2);
+				auto pa = a.make(2 * gs + 1, bot_seeds), pb = b.make(2 * gs + 2, bot_seeds);
 				MatchOptions opt;
 				opt.seed = gs;
 				opt.max_rounds = max_rounds;
@@ -106,6 +112,17 @@ int main(int argc, char** argv)
 				a_fuel += static_cast<long>(match.stats.fuel_used[at]);
 				std::lock_guard<std::mutex> lk(mu);
 				per_game[g] = won;
+				if (details)
+				{
+					std::string draft;
+					for (const auto& c : match.game.champs)
+						draft += std::string(draft.empty() ? "" : ",") + std::to_string(c.team) + ":" + std::to_string(static_cast<int>(c.type));
+					std::printf("{\"game\": %d, \"map\": \"%s\", \"a_side\": \"%s\", \"winner\": %d, \"gems\": [%lld, %lld], \"rounds\": %d, "
+								"\"suspensions\": %llu, \"champs\": \"%s\"}\n",
+								g, maps[(g / 2) % maps.size()].c_str(), swap ? "B" : "A", r.winner, static_cast<long long>(match.game.teams[0].submitted),
+								static_cast<long long>(match.game.teams[1].submitted), match.game.round,
+								static_cast<unsigned long long>(match.stats.suspensions), draft.c_str());
+				}
 			}
 		});
 	for (auto& th : pool) th.join();
