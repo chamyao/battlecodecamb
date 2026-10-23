@@ -648,21 +648,38 @@ Err Api::resign()
 
 void Api::shadow_cast(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
 {
-	charge(Call::bitboard_shadow_cast);
-	cbs::shadow_cast(walls, g_.map().W, g_.map().H, origin, dist, out);
+	// Price by the tiles the shadowcaster scans (the host's cost driver).
+	std::int64_t scanned = 0;
+	out.clear();
+	const int W = g_.map().W, H = g_.map().H;
+	cbs::shadowcast(
+		W, H, origin, dist, [&](int x, int y) { return ++scanned, walls.test(x, y); }, [&](int x, int y) { out.set(x, y); });
+	charge(Call::bitboard_shadow_cast, scanned);
 }
 
 void Api::reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
 {
+	// Price by BFS layers that grew: the largest distance reached.
 	cbs::reachable(walls, g_.map().W, g_.map().H, origin, dist, out);
-	charge(Call::bitboard_reachable, out.count(g_.map().H));
+	int layers = 0;
+	if (dist > 0 && out.count(g_.map().H) > 1)
+	{
+		static thread_local std::uint16_t d[kMaxDim * kMaxDim];
+		Bitboard roots, visited;
+		roots.set(origin);
+		cbs::distance_field(walls, roots, nullptr, g_.map().W, g_.map().H, dist, d, visited);
+		for (int i = 0; i < g_.map().W * g_.map().H; ++i)
+			if (d[i] != kUnreachable) layers = std::max<int>(layers, d[i]);
+	}
+	charge(Call::bitboard_reachable, layers);
 }
 
 int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
 						Bitboard& visited)
 {
 	const int n = cbs::distance_field(walls, roots, dests, g_.map().W, g_.map().H, max_distance, dist, visited);
-	charge(Call::distance_field, visited.count(g_.map().H));
+	const std::int64_t chunks = PriceContext{ g_.map().W, g_.map().H, 0 }.chunks();
+	charge(Call::distance_field, static_cast<std::int64_t>(n) * chunks);
 	return n;
 }
 

@@ -66,9 +66,9 @@ fields, map decoding) are plain C++ with no simulator dependencies beyond
   over.
 - Every Api call is charged through a `PriceTable` (`base + per_n * n`, where
   `n` is a call-specific size such as records returned, or a custom
-  function). The current prices are **placeholders**; real prices are to be
-  measured against cambc (the replay bundles' `team-*.fuel` files are a
-  source) and plugged in without touching the rules.
+  function). Prices are **measured against cambc** (`docs/FUEL.md`):
+  most host calls cost 1-30 fuel, board-sized ones about one fuel per 8x8 chunk,
+  and host geometry is priced by its actual work.
 - A policy charges its own computation with `api.compute(fuel)` (or by using
   the priced geometry wrappers `api.distance_field`, `api.shadow_cast`,
   `api.reachable`).

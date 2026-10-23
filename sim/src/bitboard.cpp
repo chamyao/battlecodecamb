@@ -43,29 +43,40 @@ void shadow_cast(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bit
 
 void reachable(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitboard& out)
 {
+	// Layered 8-neighbour dilation over whole rows (no queue: small stack, as in a wasm bot).
 	out.clear();
 	if (walls.test(origin)) return;
-	Vec2 frontier[kMaxDim * kMaxDim];
-	int n = 0;
-	frontier[n++] = origin;
-	out.set(origin);
-	int begin = 0;
-	for (int d = 0; d < dist && begin < n; ++d)
+	using Row = unsigned __int128;
+	const Row full = W >= 128 ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
+	auto row = [](const Bitboard& b, int y) { return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64; };
+	Row seen[kMaxDim], front[kMaxDim], next[kMaxDim];
+	for (int y = 0; y < H; ++y) seen[y] = front[y] = 0;
+	seen[origin.y] = front[origin.y] = Row{ 1 } << origin.x;
+	int y0 = origin.y, y1 = origin.y;
+	for (int d = 0; d < dist; ++d)
 	{
-		const int end = n;
-		for (int i = begin; i < end; ++i)
+		const int lo = std::max(0, y0 - 1), hi = std::min(H - 1, y1 + 1);
+		int n0 = H, n1 = -1;
+		for (int y = lo; y <= hi; ++y)
 		{
-			const Vec2 p = frontier[i];
-			for (int dy = -1; dy <= 1; ++dy)
-				for (int dx = -1; dx <= 1; ++dx)
-				{
-					const int x = p.x + dx, y = p.y + dy;
-					if (x < 0 || y < 0 || x >= W || y >= H || walls.test(x, y) || out.test(x, y)) continue;
-					out.set(x, y);
-					frontier[n++] = { x, y };
-				}
+			Row h = 0;
+			for (int yy = std::max(y0, y - 1); yy <= std::min(y1, y + 1); ++yy) h |= front[yy];
+			h |= h << 1 | h >> 1;
+			next[y] = h & full & ~row(walls, y) & ~seen[y];
+			if (next[y]) n0 = std::min(n0, y), n1 = y;
 		}
-		begin = end;
+		if (n1 < 0) break;
+		for (int y = lo; y <= hi; ++y)
+		{
+			front[y] = next[y];
+			seen[y] |= next[y];
+		}
+		y0 = n0, y1 = n1;
+	}
+	for (int y = 0; y < H; ++y)
+	{
+		out.w[y][0] = static_cast<std::uint64_t>(seen[y]);
+		out.w[y][1] = static_cast<std::uint64_t>(seen[y] >> 64);
 	}
 }
 
