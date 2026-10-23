@@ -150,6 +150,13 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   v7-zerogem; 76/80 vs locker; 79/80 vs starter. Dash turns peak at ~100k fuel
   on 100x100 maps (none over; an overrun only suspends one turn); the bot
   session is cutting that cost without changing play.
+  10 = v7zg-cast rebuilt (`deploy/v0` cfcbbbb): same play, peak fuel 88k.
+  11 = tune-1 (`deploy/v0` 3730b2e, sha256 b09cd179...): v7zg-cast with the tune
+  line's draft vendetta, vesper_vale, tavi, ryth, ren (frontliner first; 233
+  orders screened, top 8 confirmed on fresh seeds). Real cambc 49/80 vs v10;
+  sim 58.9% on 800 fresh games. Peak fuel ~96k on 01big-world.
+- **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
+  13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
   source), pure FunSearch (only its own outputs, from fs-1), tuning + draft (no
   LLM), style FunSearch (lockdown / team fights / late monolith). Each runs in
