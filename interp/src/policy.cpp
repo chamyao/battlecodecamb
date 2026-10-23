@@ -64,7 +64,8 @@ constexpr int kMaxVars = 8;
 	X(slot_is_damage, "slot_is_damage(Num)") X(slot_is_aoe, "slot_is_aoe(Num)") X(slot_is_stun, "slot_is_stun(Num)")      \
 	X(slot_is_heal, "slot_is_heal(Num)") X(slot_is_shield, "slot_is_shield(Num)") X(slot_is_reset, "slot_is_reset(Num)")  \
 	X(dash_towards, "dash_towards(Num,Tile)") X(unit_gems, "unit_gems(Unit)") X(team_score, "team_score(Team)")            \
-	X(map_width, "map_width()") X(map_height, "map_height()") X(camp_count, "camp_count()")
+	X(map_width, "map_width()") X(map_height, "map_height()") X(camp_count, "camp_count()")                                \
+	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")
 
 enum class Op : std::uint16_t
 {
@@ -860,6 +861,37 @@ struct Interp
 			case Op::slot_is_shield: return num(k == K::shield);
 			default: return num(k == K::attack_reset);
 			}
+		}
+		case Op::weakest:
+		case Op::richest:
+		case Op::nearest:
+		{
+			const Value l = eval(a[0]);
+			Value r;
+			ChampionInfo ci{};
+			const bool have_me = me(ci);
+			double best = 1e18;
+			for (const Unit& u : *l.units)
+			{
+				Vec2 pos;
+				double hp;
+				if (!unit_info(u, pos, hp)) continue;
+				double key = hp;
+				if (e.op == Op::richest)
+				{
+					std::uint32_t g = 0;
+					if (u.kind == EntityKind::champion) api.champion_gems(u.h, &g);
+					key = -static_cast<double>(g);
+				}
+				else if (e.op == Op::nearest)
+					key = have_me ? cbs::chebyshev({ ci.x, ci.y }, pos) : 0;
+				if (key < best)
+				{
+					best = key;
+					r.unit = u;
+				}
+			}
+			return r;
 		}
 		case Op::unit_gems:
 		{

@@ -79,6 +79,8 @@ DOCS = {
     "slot_is_aoe": "area damage", "slot_is_stun": "stun", "slot_is_heal": "ally heal",
     "slot_is_shield": "self shield", "slot_is_reset": "attack reset",
     "dash_towards": "cast the dash in slot (0/1) up to 2 tiles along the walking path to the tile",
+    "weakest": "lowest-health member, or none", "richest": "member carrying the most gems, or none",
+    "nearest": "closest member by Chebyshev distance, or none",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
     "map_width": "", "map_height": "", "camp_count": "camps on the map",
 }

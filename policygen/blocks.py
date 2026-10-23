@@ -115,6 +115,9 @@ _b("count", "UnitList", "Num")
 _b("unit_position", "Unit", "Tile")
 _b("unit_health", "Unit", "Num")
 _b("in_attack_range", "", "UnitPred")
+_b("weakest", "UnitList", "Unit")
+_b("richest", "UnitList", "Unit")
+_b("nearest", "UnitList", "Unit")
 
 # Randomness
 _b("random_int", "Num", "Num")
