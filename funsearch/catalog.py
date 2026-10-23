@@ -94,6 +94,12 @@ Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights 
   (33-38/80); preferring elk/gem clusters, or a bag of 25, were neutral. The gain probably needs
   a value-vs-distance trade-off when choosing camps, team monolith takes, and bigger bags
   without more deaths. Treat these as directions, not rules.
+- KEY TOOL for camp choice (calibrated blocks): group_gems(set) is what a group pays,
+  group_threat(g) and group_hp(g) what it costs. Skip a goal g you cannot clear:
+      group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) > health()
+  (this is what kills us on starvation-type maps), and prefer goals by gems per turn of travel
+  and fighting, e.g. rich_spawns(n) for groups worth >= n gems, group_tiles(monolith_tiles())
+  for the monolith group. Bind static sets with keep.
 - Constant tuning around the current best finds nothing better (its thresholds are locally
   optimal). The open lever is STRUCTURAL camp choice: today the goal is simply the closest camp
   spawn. Try scoring candidate camps by gems per turn of travel and fighting (group value vs
