@@ -78,7 +78,7 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(in_danger, "in_danger()") X(move_away_from, "move_away_from(Tile)") X(allies_within, "allies_within(Num)")          \
 	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")   \
 	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")                \
-	X(rich_spawns, "rich_spawns(Num)")
+	X(rich_spawns, "rich_spawns(Num)") X(group_tiles, "group_tiles(TileSet)")
 
 enum class Op : std::uint16_t
 {
@@ -1227,6 +1227,22 @@ struct Interp
 				if (g >= n)
 					for (int c : grp.camps) b.set(m().camps[c].pos);
 			}
+			return set_of(b);
+		}
+		case Op::group_tiles:
+		{
+			// spawn tiles of every camp in a group that has a camp on one of the given tiles (static:
+			// e.g. group_tiles(monolith_tiles()) is everything that wakes a monolith when hit)
+			const Value in = eval(a[0]);
+			Bitboard b;
+			if (in.set)
+				for (const auto& grp : m().groups)
+				{
+					bool hit = false;
+					for (int c : grp.camps) hit = hit || in.set->test(m().camps[c].pos.x, m().camps[c].pos.y);
+					if (hit)
+						for (int c : grp.camps) b.set(m().camps[c].pos);
+				}
 			return set_of(b);
 		}
 		case Op::respawning_visible_spawns:
