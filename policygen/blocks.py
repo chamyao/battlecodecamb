@@ -58,12 +58,20 @@ _b("is_draft", "", "Bool")
 _b("unpicked_champions", "", "ChampList")
 _b("random_champion", "ChampList", "Champ")
 _b("pick", "Champ", VOID)
+# Champions by draft index (Cassi & Issac are one pick)
+CHAMPIONS = ("ryth", "vesper_vale", "vendetta", "cassi_issac", "stellar", "prism",
+             "marcella", "willow", "ren", "varg", "tavi")
+for _name in CHAMPIONS:
+    _b(f"champ_{_name}", "", "Champ")
+_b("available", "ChampList Champ", "Bool")
+_b("i_am", "Champ", "Bool")
 _b("write_draft", "Bytes", VOID)
 
 # Self
 for _name in ("alive", "channeling", "can_move", "can_attack"):
     _b(_name, "", "Bool")
 _b("position", "", "Tile")
+_b("ability_ready", "Num", "Bool")
 for _name in ("health", "max_health", "gems", "gold", "round_number", "fuel_remaining"):
     _b(_name, "", "Num")
 

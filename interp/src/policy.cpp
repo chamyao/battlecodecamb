@@ -50,7 +50,12 @@ constexpr int kMaxVars = 8;
 	X(random_stat, "random_stat()") X(shard, "shard(Stat)") X(move_towards, "move_towards(Tile)")                          \
 	X(attack, "attack(Unit)") X(cast_at_unit, "cast_at_unit(Num,Unit)") X(cast_at_tile, "cast_at_tile(Num,Tile)")          \
 	X(cast_self, "cast_self(Num)") X(place_ward, "place_ward(Tile)") X(tribute, "tribute(Tile)") X(recall, "recall()")     \
-	X(buy, "buy(Item,Num)") X(set_priority, "set_priority(Num)")
+	X(buy, "buy(Item,Num)") X(set_priority, "set_priority(Num)") X(champ_ryth, "champ_ryth()")                           \
+	X(champ_vesper_vale, "champ_vesper_vale()") X(champ_vendetta, "champ_vendetta()")                                       \
+	X(champ_cassi_issac, "champ_cassi_issac()") X(champ_stellar, "champ_stellar()") X(champ_prism, "champ_prism()")        \
+	X(champ_marcella, "champ_marcella()") X(champ_willow, "champ_willow()") X(champ_ren, "champ_ren()")                    \
+	X(champ_varg, "champ_varg()") X(champ_tavi, "champ_tavi()") X(available, "available(ChampList,Champ)")                 \
+	X(i_am, "i_am(Champ)") X(ability_ready, "ability_ready(Num)")
 
 enum class Op : std::uint16_t
 {
@@ -731,6 +736,41 @@ struct Interp
 			return num(n >= 1 ? rng.next(static_cast<std::uint32_t>(std::min(n, 1e9))) : 0);
 		}
 		case Op::random_stat: return num(rng.next(3));
+		case Op::champ_ryth:
+		case Op::champ_vesper_vale:
+		case Op::champ_vendetta:
+		case Op::champ_cassi_issac:
+		case Op::champ_stellar:
+		case Op::champ_prism:
+		case Op::champ_marcella:
+		case Op::champ_willow:
+		case Op::champ_ren:
+		case Op::champ_varg:
+		case Op::champ_tavi: return num(static_cast<int>(e.op) - static_cast<int>(Op::champ_ryth));
+		case Op::available:
+		{
+			const Value l = eval(a[0]);
+			const int c = static_cast<int>(eval(a[1]).n);
+			return num(l.champs && std::find(l.champs->begin(), l.champs->end(), c) != l.champs->end());
+		}
+		case Op::i_am:
+		{
+			const int c = static_cast<int>(eval(a[0]).n);
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			// ChampionType order: ryth, vesper_vale, vendetta, cassi, issac, stellar, ... (Issac shares Cassi's pick)
+			const int pick = ci.type <= 3 ? ci.type : ci.type - 1;
+			return num(pick == c);
+		}
+		case Op::ability_ready:
+		{
+			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
+			ChampionInfo ci{};
+			if (!me(ci) || !(ci.state & state_bit::can_cast)) return num(0);
+			std::int32_t cd = 1;
+			api.champion_cooldown(self(), static_cast<std::uint32_t>(slot), &cd);
+			return num(cd <= 0);
+		}
 		case Op::shard: return num(6 + 2 * std::clamp(static_cast<int>(eval(a[0]).n), 0, 2)); // power shard
 		default: break;
 		}
