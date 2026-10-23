@@ -193,6 +193,13 @@ void Api::visible_camps(std::vector<std::uint32_t>& out)
 Err Api::submitted_gems(std::uint32_t team, std::uint32_t* out) { return E(sdk_bc_submitted_gems(team, out)); }
 Err Api::round_number(std::uint32_t* out) { return E(sdk_bc_round_number(out)); }
 
+// This champion's current vision (own, wards, reveals): one host call, ~6 + chunks fuel.
+Err Api::vision(Bitboard& out)
+{
+	const Err e = E(sdk_vision(out.w));
+	if (e != Err::success) out.clear();
+	return e;
+}
 Err Api::ally_occupancy(Bitboard& out)
 {
 	const Err e = E(sdk_ally_occupancy(out.w));
