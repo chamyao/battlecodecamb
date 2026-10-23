@@ -81,6 +81,86 @@ was also rewritten to avoid an 80 KB stack array that overflowed the bot's wasm 
 The wrappers' cost is mostly allocation and per-call validation. A fuel-tight bot should
 keep preallocated raw buffers and call the imports directly.
 
+## Calibrating the simulator to the deploy bot
+
+The prices above are for raw imports. A policy run by our deploy bot (`bot/`: the grammar
+interpreter over `bot/src/bot_api.cpp`) pays much more: its own interpreter code and its
+API wrappers (board conversions, distance-field fills). The simulator originally charged
+interpreted policies a placeholder 10 fuel per block. That was **30-100x too low**: v2
+vs starter cost a mean of 0.9-6k fuel per turn in the simulator against 27-92k in cambc.
+So the simulator is now calibrated against that bot directly.
+
+**Measurement.** `oracle/run_bot_profile.sh MAP...` builds a profiling copy of the bot
+(`bot/profile_patch.py`; `bot/` itself is untouched) and plays it against starter-cpp with
+`--fuel 1e8`, so costs are never truncated. Every 10th turn it logs, for each interpreter
+block and each API wrapper call, the **self** fuel and the work it did. Self fuel excludes
+child blocks, API calls and the profiler's own cost: a scope's fixed 43-fuel window is
+subtracted, and the parent is charged the scope's remaining 38. The work logged is
+distance-field expansions, destination tiles and occupancy-cache refreshes. It also logs
+the turn total.
+
+**Model.** `oracle/tools/fuel_calibrate.py MAP...` fits each block and wrapper as a
+non-negative linear model over features the simulator can compute. The features are map
+rows H, chunks ch, expansions x chunks, destination tiles, cache refreshes (x H), camp and
+group counts, and input-set size. Each call gets only physically meaningful features. The
+script generates:
+- `sim/src/fuel_bot_gen.inc`: `PriceTable::bot_wrapper()`, the API as called through
+  `bot_api.cpp`. A `cbs::Player` may return it from `prices()`; the policy player does.
+- `interp/src/block_costs_gen.inc`: per-block self costs and the per-turn step-loop cost.
+  The interpreter charges each block when it finishes. A Charge guard counts the block's
+  own work, and blocks the calibration never exercised get 200.
+- `docs/fuel_calibration.json`: all fits with sample counts and errors.
+
+Calibration on 00elkring, 00lanes, 00monolith, 00collision, 01starvation and 01big-world.
+Largest items (fuel; mean and mean absolute error over the samples):
+
+| Block / wrapper | Model | Mean | MAE |
+| --- | --- | --- | --- |
+| `api:distance_field` | 2582 + 129·H + 126·ch + 1.04·exp·ch + 49.9·dests | 27629 | 816 |
+| `api:*_occupancy` | −224 + 46.6·H + 19.8·ch | 4256 | 243 |
+| `api:camp`, `api:champion` | 30, 42 | | 0 |
+| `closest(TileSet)` | 360 + 12.1k·refresh + 109·refresh·H + 24.6·dests | 18072 | 125 |
+| `move_towards(Tile)` | 1512 + 48·H + 4.4k·refresh + 11.3k·dests | 14422 | 294 |
+| `dash_towards(Num,Tile)` | 677 + 383·dests | 7084 | 420 |
+| `camps_visible()` | 501 + 136·camps | 8889 | 522 |
+| `respawning_visible_spawns()` | 3597 + 139·groups | 6634 | 175 |
+| `minus(TileSet,TileSet)` | 4180 + 16.3·H | 5133 | 88 |
+| `ring(TileSet,Num)` | 3841 + 22·H + 313·input tiles | 7168 | 26 |
+| `spawn_region`, `altars()` | 2132, 1960 | | ~30 |
+| simple blocks (`or`, `not`, `alive()`, arithmetic) | 150-320 | | 0-80 |
+| step loop, per turn | −739 + 73.4·blocks + 1.81·blocks·H | | 1046 |
+
+Board-valued blocks cost thousands each because a `cbs::Bitboard` is a fixed 1600 bytes,
+which costs about 1 fuel per byte to copy in wasm. Simple blocks cost ~150-300
+(interpreter dispatch plus a host call).
+
+**Validation.** `oracle/tools/fuel_validate.py MAP...` applies the model to every
+profiled turn's logged features and compares it with the turn's measured fuel (same game
+state):
+
+| Map | Predicted / actual total | Per-turn error, median | 10-90% |
+| --- | --- | --- | --- |
+| 00elkring | 0.992 | −6.6% | [−14.7%, +2.6%] |
+| 00lanes | 0.975 | −4.0% | [−14.7%, +0.9%] |
+| 00monolith | 1.023 | +1.1% | [−8.4%, +7.5%] |
+| 00collision | 0.999 | −0.8% | [−14.7%, +3.9%] |
+| 01starvation | 0.991 | −0.5% | [−1.6%, +12.7%] |
+| 01big-world | 1.016 | +18.8% | [−0.1%, +26.7%] |
+| 00rows (held out) | 1.031 | +1.9% | [−8.4%, +6.6%] |
+| 01hooks (held out) | 0.991 | −5.5% | [−14.7%, +4.3%] |
+| 00gem-fields (held out) | 1.016 | +0.7% | [−14.7%, +8.1%] |
+
+Known weak spots:
+- 01big-world over-predicts typical turns by ~19%, while its total is right.
+- Cheap turns carry ±15% error, mostly from the step-loop term.
+- Input-set sizes were only exercised through altar sets (v2 policy).
+- The model is for this bot build: re-run `run_bot_profile.sh` and
+  `fuel_calibrate.py` whenever `bot/` or the interpreter changes.
+
+**Consequence.** With realistic costs, v2 vs the simulator's starter falls from 87.5% to
+74% (80 games). It now suffers ~2,200 suspensions per game, as the real bot does when it
+exceeds 100k.
+
 ## In the simulator
 
 `PriceTable::measured()` is the default for `cbs::Api` and `MatchOptions`:
