@@ -1,5 +1,5 @@
 // Plays a policy against an opponent and prints one JSON summary line.
-// Usage: interp_eval --a A --b B [--games N] [--threads T] [--seed S] [--max-rounds R] MAP...
+// Usage: interp_eval --a A --b B [--games N] [--threads T] [--seed S] [--max-rounds R] [--fuel-mult X] MAP...
 //        interp_eval --list-blocks
 // A and B are a compiled policy file (.pol) or builtin:starter / builtin:idle.
 // Game g uses map g % #maps; A plays team A on even games and team B on odd games.
@@ -39,6 +39,7 @@ int main(int argc, char** argv)
 	std::vector<std::string> maps;
 	std::string a_spec = "builtin:starter", b_spec = "builtin:starter";
 	int games = 10, threads = 1, max_rounds = 0;
+	double fuel_mult = 1.0; // exploration: scale every bot's per-turn fuel budget
 	std::uint64_t seed = 1;
 	for (int i = 1; i < argc; ++i)
 	{
@@ -53,6 +54,7 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--threads")) threads = std::atoi(argv[++i]);
 		else if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[++i], nullptr, 10);
 		else if (!std::strcmp(argv[i], "--max-rounds")) max_rounds = std::atoi(argv[++i]);
+		else if (!std::strcmp(argv[i], "--fuel-mult")) fuel_mult = std::atof(argv[++i]);
 		else maps.push_back(argv[i]);
 	}
 	if (maps.empty())
@@ -90,6 +92,7 @@ int main(int argc, char** argv)
 				MatchOptions opt;
 				opt.seed = gs;
 				opt.max_rounds = max_rounds;
+				opt.fuel.per_turn = static_cast<std::int64_t>(static_cast<double>(opt.fuel.per_turn) * fuel_mult);
 				Match match(loaded[(g / 2) % loaded.size()], swap ? *pb : *pa, swap ? *pa : *pb, opt);
 				const GameResult r = match.run();
 				const int at = swap ? 1 : 0;
