@@ -46,9 +46,10 @@ def name(op):
     if op>=1000: return "api:"+APIN[op-1000]
     return ("exec:" if op>=256 else "")+BLOCKS[op%256]
 FEATS={'1':lambda f,e,d,o:1,'H':lambda f,e,d,o:f['H'],'ch':lambda f,e,d,o:f['ch'],'camps':lambda f,e,d,o:f['camps'],'groups':lambda f,e,d,o:f['groups'],
-       'altars':lambda f,e,d,o:f['altars'],'exp*ch':lambda f,e,d,o:e*f['ch'],'exp':lambda f,e,d,o:e,'dbits':lambda f,e,d,o:d,'occ':lambda f,e,d,o:o,'occ*H':lambda f,e,d,o:o*f['H']}
+       'altars':lambda f,e,d,o:f['altars'],'exp*ch':lambda f,e,d,o:e*f['ch'],'exp':lambda f,e,d,o:e,'dbits':lambda f,e,d,o:d,'occ':lambda f,e,d,o:o,'occ*H':lambda f,e,d,o:o*f['H'],'occ*ch':lambda f,e,d,o:o*f['ch']}
 def allowed(nm):
-    if nm=='api:distance_field': return ['1','H','ch','exp*ch','dbits']
+    # memoised in the bot (bot_api.cpp field_query): occ = memo misses, exp = layers searched
+    if nm in ('api:distance_field','api:nearest_by_walk'): return ['1','ch','occ','occ*ch','exp*ch','dbits']
     if nm.endswith('_occupancy'): return ['1','H','ch']
     if nm.startswith('api:'): return ['1']
     if nm=='camps_visible()': return ['1','camps']
@@ -63,7 +64,7 @@ for op,v in samples.items():
     for k in (1,2,3,4,5):
         for sub in itertools.combinations(allowed(name(op)),k):
             if sub[0]!='1': continue
-            if not hasx and any(x in ('exp*ch','exp','dbits','occ','occ*H') for x in sub): continue
+            if not hasx and any(x in ('exp*ch','exp','dbits','occ','occ*H','occ*ch') for x in sub): continue
             A=np.array([[FEATS[n](F[mp],e,d,o) for n in sub] for mp,_,e,d,o in v],float)
             coef,*_=np.linalg.lstsq(A,y,rcond=None)
             if (coef[1:]<-1e-6).any(): continue
@@ -81,7 +82,7 @@ API_CALL={'champion':'champion','allies':'allies','enemies':'enemies','champion_
  'write_shared_memory':'write_shared_memory','read_draft_memory':'read_draft_memory','submit_draft_memory':'submit_draft_memory',
  'move_to':'move_to','attack':'attack','cast':'cast','buy_item':'buy_item','buy_consumable':'buy_consumable','use_consumable':'use_consumable',
  'recall':'recall','submit_gems':'submit_gems','place_ward':'place_ward','set_priority':'set_priority','draft_get':'draft_get',
- 'draft_champion':'draft_champion','distance_field':'distance_field'}
+ 'draft_champion':'draft_champion','distance_field':'distance_field','nearest_by_walk':'nearest_by_walk'}
 API_TERM={'1':'base','H':'per_row','ch':'per_chunk'}
 BLOCK_TERMS=['1','H','ch','occ','occ*H','dbits','exp*ch','camps','groups','altars']
 
@@ -100,11 +101,13 @@ def generate():
     out.append(f"for (int i = 0; i < static_cast<int>(Call::count); ++i) p.base[i] += {round(oh)};")
     for c,r in sorted(by_call.items()):
         idx=f"static_cast<int>(Call::{c})"
-        vals={'base':0,'per_row':0,'per_chunk':0,'per_n_milli':0,'per_n_chunk_milli':0,'per_n2_milli':0}
+        vals={'base':0,'per_row':0,'per_chunk':0,'per_n_milli':0,'per_n_chunk_milli':0,'per_n2_milli':0,'per_n3_milli':0,'per_n3_chunk_milli':0}
         for f,v in zip(r['feats'],r['coef']):
             if f=='exp*ch': vals['per_n_chunk_milli']=round(v*1000)
             elif f=='exp': vals['per_n_milli']=round(v*1000)
             elif f=='dbits': vals['per_n2_milli']=round(v*1000)
+            elif f=='occ': vals['per_n3_milli']=round(v*1000)  # memo misses (sim: field_memo.h)
+            elif f=='occ*ch': vals['per_n3_chunk_milli']=round(v*1000)
             else: vals[API_TERM[f]]=round(v)
         out.append(f"// {r['name']}: n={r['n']} mean={r['mean']:.0f} mae={r['mae']:.0f}")
         out.append(" ".join(f"p.{k}[{idx}] = {v};" for k,v in vals.items()))

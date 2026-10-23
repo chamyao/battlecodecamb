@@ -134,3 +134,11 @@
 { "within(Num,Tile)", false, { 326000, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=3442 mean=326 mae=0
 // step loop outside blocks, per turn: mae 1415 on mean 10985
 #define INTERP_TURN_COST(BLOCKS, H) (-19 + 95.59 * (BLOCKS) + 0.039 * (BLOCKS) * (H))
+{ "wolf_tiles()", false, { 4886377, 0, 13594, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from camp_spawn_tiles() until re-profiled
+{ "elk_tiles()", false, { 4886377, 0, 13594, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from camp_spawn_tiles() until re-profiled
+{ "gem_cluster_tiles()", false, { 4886377, 0, 13594, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from camp_spawn_tiles() until re-profiled
+{ "gold_cluster_tiles()", false, { 4886377, 0, 13594, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from camp_spawn_tiles() until re-profiled
+{ "monolith_tiles()", false, { 4886377, 0, 13594, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from camp_spawn_tiles() until re-profiled
+{ "golem_tiles()", false, { 4886377, 0, 13594, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from camp_spawn_tiles() until re-profiled
+{ "champ_heart_of_ruin()", false, { 36000, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from champ_tavi() until re-profiled
+{ "claim_count(Tile)", false, { 3859272, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from claimed_by_allies() until re-profiled

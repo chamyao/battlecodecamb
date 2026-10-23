@@ -63,7 +63,7 @@ _b("random_champion", "ChampList", "Champ")
 _b("pick", "Champ", VOID)
 # Champions by draft index (Cassi & Issac are one pick)
 CHAMPIONS = ("ryth", "vesper_vale", "vendetta", "cassi_issac", "stellar", "prism",
-             "marcella", "willow", "ren", "varg", "tavi")
+             "marcella", "willow", "ren", "varg", "tavi", "heart_of_ruin")
 for _name in CHAMPIONS:
     _b(f"champ_{_name}", "", "Champ")
 _b("available", "ChampList Champ", "Bool")
@@ -82,6 +82,10 @@ for _name in ("health", "max_health", "gems", "gold", "round_number", "fuel_rema
 for _name in ("altars", "walls", "holes", "bushes", "camp_spawn_tiles"):
     _b(_name, "", "TileSet")
 _b("spawn_region", "Team", "TileSet")
+# Spawn tiles of every camp of one type (static map facts)
+CAMP_TYPES = ("wolf", "elk", "gem_cluster", "gold_cluster", "monolith", "golem")
+for _name in CAMP_TYPES:
+    _b(f"{_name}_tiles", "", "TileSet")
 
 # Vision
 _b("enemies_visible", "", "UnitList")
@@ -155,6 +159,7 @@ _b("camp_count", "", "Num")
 _b("claim", "Tile", VOID)
 _b("unclaim", "", VOID)
 _b("claimed_by_allies", "", "TileSet")
+_b("claim_count", "Tile", "Num")
 _b("set_team_target", "Unit", VOID)
 _b("team_target", "", "Unit")
 

@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include "cbs/api.h"
 #include "cbs/bots.h"
 #include "interp/policy.h"
 
@@ -40,4 +41,6 @@ int main(int argc, char** argv)
 	for (std::size_t i = 0; i < v.size(); ++i) std::printf("%zu %lld\n", i, static_cast<long long>(v[i]));
 	std::fprintf(stderr, "winner %d rounds %d turns %zu suspensions %llu\n", r.winner, m.game.round, v.size(),
 				 static_cast<unsigned long long>(m.stats.suspensions));
+	const auto& ms = cbs::memo_stats();
+	std::fprintf(stderr, "memo calls %lld misses %lld layers %lld\n", ms.calls, ms.misses, ms.layers);
 }

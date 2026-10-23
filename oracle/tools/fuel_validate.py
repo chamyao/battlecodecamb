@@ -22,7 +22,7 @@ def model(name, f, exp, dbits, occ):
     if r is None:
         return 0 if name.startswith("api:") else 200, False
     val = {"1": 1, "H": f["H"], "ch": f["ch"], "camps": f["camps"], "groups": f["groups"], "altars": f["altars"], "exp*ch": exp * f["ch"],
-           "exp": exp, "dbits": dbits, "occ": occ, "occ*H": occ * f["H"]}
+           "exp": exp, "dbits": dbits, "occ": occ, "occ*H": occ * f["H"], "occ*ch": occ * f["ch"]}
     return sum(c * val[t] for c, t in zip(r["coef"], r["feats"])), True
 
 for run in sys.argv[1:]:
