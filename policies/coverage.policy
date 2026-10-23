@@ -43,7 +43,7 @@ let camp_kinds = union( union( union( wolf_tiles(), elk_tiles() ), union( gem_cl
 # ---- calibration probes (results mostly unused) ----
 let r = round_number()
 let f = fuel_remaining()
-let probe_n = count(terrain) + count(camp_kinds) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy())
+let probe_n = count(terrain) + count(camp_kinds) + claim_count(position()) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy())
 if i_am_ranged():
     set_priority(1)
 if slot_is_damage(0):

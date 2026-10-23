@@ -46,6 +46,20 @@ like .x, indexing, lists/tuples, for/while, def inside a block, return outside a
 Comments start with #.
 """
 
+GAME += """\
+Observations from today's top-12 ladder games (current rules), for inspiration, not rules:
+- Long games (median ~1,100 rounds); more gems captured predicts the winner 92%, more gold 86%,
+  more kills 79%, fewer deaths 76%. Wards, altar locks and teleports show no effect.
+- Monoliths: the team capturing more wins ~80% where they exist. Top teams never go alone
+  (success 0% solo, 29% with 2, 49% with 3, 69% with 4 attackers), start after ~round 1,000,
+  commit ~30 rounds, recall individually at low health and return, abandon below 2 attackers.
+  (In our tests a plain "3 allies go to the monolith after round 1,000" rule lost badly, so it
+  probably needs more damage/sustain first.)
+- Drafts: Vesper Vale, Heart of Ruin, Marcella, Vendetta, Ryth. Heart of Ruin plays normally
+  (recall ~40-45% health, shield on cooldown in fights, dash toward goals or onto camps).
+- Builds: Treasure shards early, then Bruiser (Power Strength for Vesper Vale).
+"""
+
 GRAMMAR += """\
 Macros (the one exception to "no functions"): top-level `def name(a, b):` definitions are
 expanded inline where called. A macro whose whole body is `return <expr>` is used as a
@@ -112,6 +126,7 @@ DOCS = {
     "nearest": "closest member by Chebyshev distance, or none",
     "claim": "tell allies you are taking the camp group whose spawn tile this is (replaces your previous claim)",
     "unclaim": "drop your camp claim",
+    "claim_count": "how many other allies currently claim the camp group whose spawn tile this is (use to commit together)",
     "claimed_by_allies": "spawn tiles of camp groups other allies have claimed",
     "set_team_target": "name an enemy champion as the team's focus target",
     "team_target": "the team's focus target, or none",

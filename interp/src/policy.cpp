@@ -69,7 +69,7 @@ constexpr int kMaxVars = 8;
 	X(dash_towards, "dash_towards(Num,Tile)") X(unit_gems, "unit_gems(Unit)") X(team_score, "team_score(Team)")            \
 	X(map_width, "map_width()") X(map_height, "map_height()") X(camp_count, "camp_count()")                                \
 	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")                       \
-	X(claim, "claim(Tile)") X(unclaim, "unclaim()") X(claimed_by_allies, "claimed_by_allies()")                           \
+	X(claim, "claim(Tile)") X(unclaim, "unclaim()") X(claimed_by_allies, "claimed_by_allies()") X(claim_count, "claim_count(Tile)")                           \
 	X(set_team_target, "set_team_target(Unit)") X(team_target, "team_target()")                                          \
 	X(wolf_tiles, "wolf_tiles()") X(elk_tiles, "elk_tiles()") X(gem_cluster_tiles, "gem_cluster_tiles()")                \
 	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")
@@ -1211,6 +1211,17 @@ struct Interp
 				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
 			}
 			return set_of(b);
+		}
+		case Op::claim_count:
+		{
+			const int g = group_at(eval(a[0]).tile);
+			std::uint8_t mem[kClaimBytes] = {};
+			api.read_shared_memory(0, mem, kClaimBytes);
+			const int mine = my_slot();
+			int n = 0;
+			for (int i = 0; i < kClaimBytes; ++i)
+				if (i != mine && g >= 0 && mem[i] == g + 1) ++n;
+			return num(n);
 		}
 		case Op::team_target:
 		{
