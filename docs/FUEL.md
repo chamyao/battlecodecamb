@@ -81,36 +81,104 @@ was also rewritten to avoid an 80 KB stack array that overflowed the bot's wasm 
 The wrappers' cost is mostly allocation and per-call validation. A fuel-tight bot should
 keep preallocated raw buffers and call the imports directly.
 
-## In the simulator
+## Calibrating the simulator to the deploy bot
 
-`PriceTable::measured()` is the default for `cbs::Api` and `MatchOptions`:
-`price = base + per_chunk * chunks + per_n_milli * n / 1000`, with the values above.
-Geometry through `Api::distance_field`, `Api::shadow_cast` and `Api::reachable` is priced
-by its actual work (expansions x chunks, tiles scanned, layers). Unmeasured calls default
-to 8. Successful actions were mostly probed on failing paths; their success paths may cost
-a few fuel more (RULE?).
+The prices above are for raw imports. A policy run by our deploy bot (`bot/`: the grammar
+interpreter over `bot/src/bot_api.cpp`) pays much more: its own interpreter code and its
+API wrappers (board conversions, distance-field fills). The simulator originally charged
+interpreted policies a placeholder 10 fuel per block. That was **30-100x too low**: v2
+vs starter cost a mean of 0.9-6k fuel per turn in the simulator against 27-92k in cambc.
+So the simulator is now calibrated against that bot directly.
 
-A policy's own computation is not visible to the simulator. It must be charged
-explicitly (`Api::compute`, or the block prices of the policy interpreter) using guest
-costs like those above. The built-in `starter` port charges only its API calls, so in the
-simulator it uses far less than the 38-50k per turn the real one spends.
+**Measurement.** `[POLICY=policies/x.policy] [EVERY=10] oracle/run_bot_profile.sh MAP...`
+builds a profiling copy of the bot running POLICY (`bot/profile_patch.py`; `bot/` itself is
+untouched) and plays it against starter-cpp with `--fuel 1e8`, so costs are never
+truncated. Output goes to `/tmp/prof/<policy>/<map>/`. Every EVERY-th turn, and every draft
+turn, it logs the **self** fuel and the work done for each interpreter block and each API
+wrapper call. Self fuel excludes child blocks, API calls and the profiler's own cost: a
+scope's fixed 43-fuel window is subtracted, and the parent is charged the scope's remaining
+38. The work logged is distance-field expansions, destination tiles and occupancy-cache
+refreshes. It also logs the turn total.
 
-## Replay `.fuel` files
+**Coverage.** `policies/coverage.policy` plays v2 but also evaluates every block that v2 and
+fs-1 never reach: draft probes, terrain sets, shop and consumables, team memory and unit
+queries. Each probe is a separate `let` or `if` so that short-circuiting cannot skip it.
+The interpreter allows only 8 variables per type, so most probes are `if` statements or
+`buy(x, 0)` calls that bind no variable. Profiled with `EVERY=1`, it exercises all 131 blocks.
 
-Each team's `team-*.fuel` in a replay bundle is a 13-byte header (`a62leuf\0` plus 5
-bytes) followed by little-endian u64s: first the per-instance budgets (draft 10x, then
-1x/2x per champion instance), then the fuel each instance used per turn. They give
-per-turn totals only, not per-call costs.
+**Model.** `oracle/tools/fuel_calibrate.py /tmp/prof/*/*` pools every profiled run across
+policies. It fits each block and wrapper as a non-negative linear model over features the
+simulator can compute: map rows H, chunks ch, expansions x chunks, destination tiles, cache
+refreshes (x H), camp and group counts, and input-set size. Each call gets only physically
+meaningful features. The per-turn step-loop fit is weighted for relative error, and each run
+counts equally. Without that, the many expensive coverage turns set its constant and cheap
+turns are over-predicted. The script generates:
+- `sim/src/fuel_bot_gen.inc`: `PriceTable::bot_wrapper()`, the API as called through
+  `bot_api.cpp`. A `cbs::Player` may return it from `prices()`; the policy player does.
+- `interp/src/block_costs_gen.inc`: per-block self costs and the per-turn step-loop cost.
+  The interpreter charges each block when it finishes, and a Charge guard counts the
+  block's own work. `interp::load_program` (the simulator's text loader) **refuses a policy
+  that uses a block with no measured row**, so an unmeasured block is never silently
+  guessed. If a new block is added, extend coverage.policy and re-profile.
+- `docs/fuel_calibration.json`: all fits with sample counts and errors.
 
-## Other engine limits found while probing
+Current calibration: coverage.policy (EVERY=1, 400 rounds) on 00collision, 00elkring,
+00lanes, 00monolith, 01big-world and 01hooks. v2 and fs-1 (EVERY=10, 800 rounds) on those
+maps plus 00gem-fields, 00rows and 01starvation. Largest items (fuel; mean and mean absolute
+error over the samples):
 
-- **Bot memory survives death.** A champion's bot instance is not restarted when the
-  champion dies and respawns (`oracle/bots/persist`: `main()` runs once and a static
-  turn counter keeps counting). It keeps being called every turn while dead (dead
-  champions can still shop and read memory).
-- **Linear memory cap:** 256 MiB per bot instance (4096 wasm pages; `oracle/bots/memtest`
-  grows memory 4 MiB at a time and is refused after 252 MiB).
-- **Submission size:** submissions are source ZIPs compiled on the platform. cambc
-  rejects a bot whose compressed source exceeds **5 MB** ("compressed source exceeds the
-  platform's 5 MB limit"), uncompressed source over 64 MB, or too many source files, and
-  stops builds whose log exceeds 16 MiB (strings in the cambc 3.0.5 binary; not exercised).
+| Block / wrapper | Model | Mean | MAE |
+| --- | --- | --- | --- |
+| `api:distance_field` | 3330 + 79.6·H + 149·ch + 1.04·exp·ch + 50.6·dests | 20775 | 580 |
+| `api:*_occupancy` | 111 + 28.6·H + 27.8·ch | 3023 | 117 |
+| `api:camp`, `api:champion` | 30, 42 | | 0 |
+| `closest(TileSet)` | 360 + 11.8k·refresh + 113·refresh·H + 27.3·dests | 17076 | 292 |
+| `move_towards(Tile)` | 563 + 45·H + 1.6k·refresh + 40·refresh·H + 12.4k·dests | 14012 | 450 |
+| `dash_towards(Num,Tile)` | 776 + 3.7k·refresh + 21·refresh·H + 356·dests | 8351 | 731 |
+| `camps_visible()` | 1028 + 133·camps | 8967 | 634 |
+| `respawning_visible_spawns()` | 3794 + 131·groups | 6832 | 177 |
+| `camp_spawn_tiles()` | 4886 + 13.6·ch | 5574 | 548 |
+| `union`, `minus` (TileSet) | ~4.2-4.3k + 17·H | ~5000 | 61-112 |
+| `ring(TileSet,Num)` | 3653 + 24·H + 308·input tiles | 6527 | 146 |
+| `spawn_region`, `altars()`, `walls()` | 2168, 1947, 1948 | | ~25 |
+| consumables, ward (`place_altar_lock`, `teleport_to`, `place_ward`) | 372, 298, 355 | | 0-1 |
+| simple blocks (`and`, `or`, `not`, `alive()`, arithmetic) | 150-390 | | 0-110 |
+| step loop, per turn | −19 + 95.6·blocks + 0.039·blocks·H | | 1415 |
+
+Board-valued blocks cost thousands each because a `cbs::Bitboard` is a fixed 1600 bytes,
+which costs about 1 fuel per byte to copy in wasm. Simple blocks cost ~150-400
+(interpreter dispatch plus a host call).
+
+**Validation.** `oracle/tools/fuel_validate.py /tmp/prof/*/*` applies the model to every
+profiled turn's logged features and compares it with the turn's measured fuel (same game
+state). Over all 28 runs:
+
+| Runs | Predicted / actual total | Per-turn error, median | 10-90% |
+| --- | --- | --- | --- |
+| coverage (9 runs) | 0.985-0.994 | −1.4% to +0.8% | within [−5.2%, +2.9%] |
+| fs-1 (9 maps) | 0.953-0.997 | −4.5% to +1.0% | within [−5.4%, +18.0%] |
+| v2 (9 maps) | 0.952-0.997 | −4.2% to +5.6% | within [−6.3%, +18.0%] |
+
+Known weak spots:
+- The +17% tail is v2/fs-1's dead or stunned turns, which cost ~1.5k. `or`/`and` are bimodal:
+  ~250 when they short-circuit and ~480 when both sides run. The model charges the mean
+  (MAE ~100). Fixing it needs an "evaluated both arguments" feature in the profiler and a
+  re-profile.
+- 01starvation under-predicts by ~5% in total.
+- The model is for this bot build: re-run `run_bot_profile.sh` (coverage, v2 and fs-1) and
+  `fuel_calibrate.py` whenever `bot/` or the interpreter changes.
+
+**Consequence and outcome check.** With realistic costs v2 suffers ~2,000 suspensions per
+game. On 40 maps with default fuel, the real bot (pre-merge build) had 2,066 turns per game at
+the 100k budget. The simulator, with the current table, gives 2,162 suspensions. Win rates
+of v2 (team A) vs starter on all 40 maps:
+
+| | Win rate |
+| --- | --- |
+| cambc, default fuel (deploy bot vs starter-cpp) | 33/40 = 82.5% |
+| simulator, fuel enforced (5 seeds), current table | 157/200 = 78.5% |
+| simulator, fuel enforced (5 seeds), previous v2-only table | 139/200 = 69.5% |
+| simulator, unlimited fuel (3 seeds) | 109/120 = 91% |
+| simulator before calibration (both sides, 80 games) | 87.5% |
+
+The remaining 4-point gap is within one standard error.

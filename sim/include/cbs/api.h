@@ -101,10 +101,12 @@ public:
 	std::int64_t spent = 0;
 	std::int64_t budget = 0;
 	bool unlimited = true; // no runner: charges are only counted
+	bool count_charges = true; // false in the real bot, where the engine meters fuel itself
 	std::uint64_t suspensions = 0;
-	void charge(Call c, std::int64_t n = 0)
+	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0)
 	{
-		PriceContext ctx{ g_.map().W, g_.map().H, n };
+		if (!count_charges) return;
+		PriceContext ctx{ g_.map().W, g_.map().H, n, n2 };
 		spent += prices_->price(c, ctx);
 		if (!unlimited && !coro_ && spent > budget) throw FuelExhausted{};
 		if (!unlimited && coro_)
@@ -204,6 +206,11 @@ public:
 	void reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out);
 	int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
 					   Bitboard& visited);
+	// Nearest tile of `cand` from `origin` by walking distance over non-`walls` tiles (ties: first
+	// in row-major order); false if none is reachable. Priced as the distance field it runs
+	// (origin-rooted, stopping at the first layer touching `cand`; its expansion count goes to
+	// *expansions); a real bot may compute it any cheaper exact way.
+	bool nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions = nullptr);
 
 	// ---- draft ----
 	Err draft_num_rounds(std::uint8_t* out);

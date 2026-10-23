@@ -34,7 +34,8 @@ Match::~Match() = default;
 
 std::unique_ptr<Match::Instance> Match::make_instance(int team, int champ)
 {
-	auto inst = std::make_unique<Instance>(game, team, champ, opt_.prices, opt_.stack_size);
+	const PriceTable* prices = players_[team]->prices() ? players_[team]->prices() : opt_.prices;
+	auto inst = std::make_unique<Instance>(game, team, champ, prices, opt_.stack_size);
 	inst->api.unlimited = opt_.unlimited_fuel;
 	if (players_[team]->is_inline()) return inst;
 	inst->body = players_[team]->make_bot(team, champ);
@@ -60,6 +61,7 @@ void Match::run_turn(Instance& inst)
 			++stats.truncations;
 		}
 		stats.fuel_used[inst.team] += inst.api.spent;
+		if (opt_.record_turn_fuel && inst.champ >= 0) stats.turn_fuel[inst.team].push_back(inst.api.spent);
 		++inst.turns;
 		++stats.turns;
 		return;
@@ -80,6 +82,7 @@ void Match::run_turn(Instance& inst)
 	inst.coro.resume();
 	stats.suspensions += inst.api.suspensions - susp;
 	stats.fuel_used[inst.team] += inst.api.spent;
+	if (opt_.record_turn_fuel && inst.champ >= 0) stats.turn_fuel[inst.team].push_back(inst.api.spent);
 	++inst.turns;
 	++stats.turns;
 }
