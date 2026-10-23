@@ -174,6 +174,9 @@ _b("enemies_within", "Num", "Num")
 _b("local_strength", "Num", "Num")
 _b("rich_spawns", "Num", "TileSet")
 _b("group_tiles", "TileSet", "TileSet")
+_b("group_gems", "TileSet", "Num")
+_b("group_threat", "Tile", "Num")
+_b("group_hp", "Tile", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)
