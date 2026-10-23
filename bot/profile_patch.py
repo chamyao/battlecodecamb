@@ -4,6 +4,8 @@ Usage: python3 bot/profile_patch.py BOT_COPY_DIR [EVERY]   (run bot/sync.sh firs
 Logs every 10th turn of each instance: "@@S id self exp dbits cexp cdbits occ" per interpreter block
 (id < 256 eval, 256 + op exec) and per API call (id >= 1000, names in "@@APINAMES"); self
 excludes children, API calls and the profiler's own cost ("@@OVH overhead inner"). "@@TURN total".
+API records of distance_field / nearest_by_walk: exp = layers of host searches actually run
+(memo misses), dbits = dest tiles queried, occ = number of memo misses.
 """
 import re
 import sys
@@ -96,7 +98,7 @@ s=s.replace('#include "bot_api.h"','#include "bot_api.h"\n#include "sprof.h"',1)
 lines=s.split('\n'); out=[]; names=[]; i=0
 while i < len(lines):
     l=lines[i]
-    m=re.match(r'^(Err|int) Api::(\w+)\(', l)
+    m=re.match(r'^(Err|int|bool) Api::(\w+)\(', l)
     if m:
         nm=m.group(2); idx=1000+len(names); names.append(nm)
         # find opening brace of body
@@ -108,16 +110,37 @@ while i < len(lines):
         i=j+1; continue
     out.append(l); i+=1
 s='\n'.join(out)
-a="""	if (dests) dests->for_each(H, put);
-	return count;"""
+# field_query's memo: log host-search layers and misses, and the dests queried
+a="""	if (use)
+		ans.count = ans.limit >= 0 ? ans.limit : use->depth;
+	else
+	{"""
 assert a in s
-s=s.replace(a,"""	if (dests) dests->for_each(H, put);
-	{
+s=s.replace(a,a+"""
+		{
+			const long long t0 = sprof::now();
+			sprof::occ();
+			sprof::exclude(t0);
+		}""")
+a="""		ans.count = ans.limit >= 0 ? ans.limit : count;
+	}"""
+assert a in s
+s=s.replace(a,"""		ans.count = ans.limit >= 0 ? ans.limit : count;
+		{
+			const long long t0 = sprof::now();
+			sprof::feat(count, 0);
+			sprof::exclude(t0);
+		}
+	}""")
+a="""	use->used = ++slot_clock;
+	ans.f = use->field;"""
+assert a in s
+s=s.replace(a,"""	{
 		const long long t0 = sprof::now();
-		sprof::feat(count, dests ? dests->count(H) : 0);
+		sprof::feat(0, dests ? dests->count(H) : 0);
 		sprof::exclude(t0);
 	}
-	return count;""")
+"""+a)
 open(p,'w').write(s)
 p=f'{src}/main.cpp';s=open(p).read()
 names_str=','.join(names)
