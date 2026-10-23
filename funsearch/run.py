@@ -37,6 +37,8 @@ def main():
     ap.add_argument("--eval-threads", type=int, default=2)
     ap.add_argument("--opponents", default=f"builtin:starter,{ROOT / 'policies' / 'v1.policy'}")
     ap.add_argument("--seed-policy", default=str(ROOT / "policies" / "v1.policy"))
+    ap.add_argument("--inject", default="", help="policy paths added as parents (one island each, scored with "
+                                                 "the run's opponents) unless already in the database")
     ap.add_argument("--eval-seed", type=int, default=0, help="same games for every program (fair comparison)")
     ap.add_argument("--islands", type=int, default=4)
     args = ap.parse_args()
@@ -102,6 +104,17 @@ def main():
         db.seed(seed_text, r.score, r.per_opponent)
         confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
         print(f"seed score {r.score:.3f}")
+    have = {p.text for p in db.all}
+    for k, path in enumerate(x for x in args.inject.split(",") if x):
+        text = Path(path).read_text()
+        if text in have:
+            continue
+        r = score(text, confirm=True)
+        if r.ok:
+            pid = db.add(Program(0, k % args.islands, text, r.score, [], f"inject:{Path(path).stem}", None,
+                                 r.per_opponent))
+            confirmed.setdefault(r.per_opponent["screen_fp"], db.all[-1])
+            print(f"injected {path} as #{pid} (island {k % args.islands}): score {r.score:.3f}", flush=True)
 
     proposer = None
     if args.proposer == "claude":

@@ -21,6 +21,8 @@ Every block a bot runs costs fuel; each bot gets 100,000 fuel per turn, and a bo
 out is suspended mid-turn (the rest of that turn is lost). Typical policies use ~15k per turn,
 so fuel rarely binds: gains come from better play. Each block's typical price is listed below;
 keep an eye on it only when adding expensive board-scanning blocks (thousands of fuel each).
+dash_towards is the exception to watch: on 100x100 maps a turn with dashes can approach the
+100,000 limit, so guard repeated dash attempts (check slot_is_dash and ability_ready first).
 """
 
 GRAMMAR = """\
@@ -35,6 +37,10 @@ Expressions nest blocks, variables and numeric/string constants. Operators + - *
 == != and or not, unary minus, and True/False are allowed on Num/Bool. Every value is typed; a block's arguments must have
 exactly the listed types. No loops, no functions except macros (below), no other Python. Names must be defined
 (let/keep) before use; a let inside an if-branch is only visible in that branch.
+At most 16 let/keep statements per value type (Num, Bool, Tile, TileSet, Unit, ...) in the whole
+program, counting every statement, including both branches of an if: the policy is invalid
+beyond that. Macros are expanded at every call, so each call of a macro containing lets uses
+that many slots again. Inline a value used once instead of naming it, and reuse names across branches.
 A name cannot be redefined in the same scope (use a new name, e.g. camp2); the two branches of
 one if may each define the same name. elif is fine.
 Not supported (each one makes the policy invalid): %, //, **, None (test with exists(...)),
@@ -68,6 +74,17 @@ Observations from our own v3 ladder losses (13-22 over 35 games):
   fights (1v1 deaths: 121 ours vs 41 theirs). So improve fight quality (target choice,
   ability use and timing, focus fire, items) rather than avoiding fights; make any
   engagement or retreat threshold a named constant so it can be tuned.
+- Simple threshold rules on local_strength lost in our tests (retreat when below a ratio:
+  32-53% vs a 51% mirror; chase when above: 20-28%). The gains are in how to fight (ability
+  timing, target choice, staying with allies), not whether to engage. local_strength(r) is 100
+  when no enemy is within r: pair it with enemies_within(r) > 0.
+Observations from our v6 ladder losses (we are ~23-12 since v5d):
+- Our main loss is to melee stun/dive teams, who kill us 21-34 times per game: our ranged
+  champions trade in place when a melee enemy is adjacent. Ideas: kite (i_am_ranged(): step
+  move_away_from the adjacent melee enemy, then attack from range) and stay near allies.
+- Gem camps in contested middles: on one map we made 157 captures and 0 gems because we only
+  farmed edge gold clusters. Gems, not gold, win games; go for gem camps (gem_cluster_tiles(),
+  wolves, elks), with allies when they are contested.
 """
 
 GRAMMAR += """\
