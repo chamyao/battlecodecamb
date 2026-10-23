@@ -50,8 +50,12 @@ def _compiled_opponent(spec):
         return _OPP_CACHE[spec]
 
 
-def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, maps=None, timeout=600):
-    """Parse, compile and play `text`; games alternate sides, maps sampled by seed."""
+def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, maps=None, timeout=600,
+             fuel_mult=1.0):
+    """Parse, compile and play `text`; games alternate sides, maps sampled by seed.
+
+    fuel_mult scales every bot's per-turn fuel budget (exploration only: anything
+    named best or submitted must be scored at 1.0, the real game)."""
     try:
         steps = parse(text)
         prefix = to_prefix(steps)
@@ -69,7 +73,7 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         for opp in opponents:
             out = subprocess.run(
                 [str(EVAL_BIN), "--a", pol, "--b", opp, "--games", str(games), "--threads", str(threads),
-                 "--seed", str(seed), *chosen],
+                 "--seed", str(seed), "--fuel-mult", str(fuel_mult), *chosen],
                 capture_output=True, text=True, timeout=timeout)
             stats = json.loads(out.stdout)
             if "error" in stats:
