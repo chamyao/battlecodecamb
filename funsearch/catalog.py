@@ -72,6 +72,10 @@ Observations from our own v3 ladder losses (13-22 over 35 games):
   fights (1v1 deaths: 121 ours vs 41 theirs). So improve fight quality (target choice,
   ability use and timing, focus fire, items) rather than avoiding fights; make any
   engagement or retreat threshold a named constant so it can be tuned.
+- Simple threshold rules on local_strength lost in our tests (retreat when below a ratio:
+  32-53% vs a 51% mirror; chase when above: 20-28%). The gains are in how to fight (ability
+  timing, target choice, staying with allies), not whether to engage. local_strength(r) is 100
+  when no enemy is within r: pair it with enemies_within(r) > 0.
 """
 
 GRAMMAR += """\
