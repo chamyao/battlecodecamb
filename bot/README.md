@@ -37,12 +37,13 @@ coordinator's go-ahead.
   against a fresh host search and prints `@@VERIFY` lines.
 - `bot/tools/bbtest.sh MAP...`: self-test of the host Bitboard against a plain reference.
 
-## Status (Oct 23 16:00 UTC, cambc 3.0.5, all 40 maps, normal fuel)
+## Status (Oct 23 ~17:00 UTC, cambc 3.0.5, all 40 maps, normal fuel)
 
-| policy | vs starter-cpp as A | as B | peak turn (not first), A / B | p99 | mean | first (2x) turn |
+| policy | vs starter-cpp as A | as B | peak turn (not first), A / B | p99 (max over maps) | mean by map | first (2x) turn |
 | --- | --- | --- | --- | --- | --- | --- |
-| fs-1 | 37/40 | 40/40 | 63k / 62k | <= 57k | 9-22k | <= 175k / 200k |
-| v2 | 38/40 | 37/40 | 80k / 84k (01big-world, dash turns) | <= 57k | 8-21k | <= 185k / 200k |
+| fs-1 | 37/40 | 40/40 | 61k / 61k | 55k | 7-21k | <= 160k / 200k |
+| v2 | 38/40 | 37/40 | 79k / 83k (01big-world dash turns) | 56k | 6-21k | <= 170k / 200k |
 
-fs-1 beats v2 35/40 head to head. No crashes or bot errors in any run. Optimised and
-reference builds give identical games on all 40 maps for both policies.
+fs-1 beats v2 35/40 head to head; both beat starter-rust on 01big-world. No crashes or bot
+errors in any run. Optimised and reference builds give identical games on all 40 maps for
+both policies (`bot/tools/exactness.sh`).
