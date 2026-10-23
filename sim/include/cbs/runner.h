@@ -17,6 +17,12 @@ class Player
 public:
 	virtual ~Player() = default;
 	virtual BotBody make_bot(int team, int champ) = 0;
+	// Inline players are called once per turn on the runner's own stack instead of running as
+	// coroutines (used for Python policies, which cannot be suspended mid-call). For them a
+	// fuel overrun cannot suspend: the overrunning call throws FuelExhausted, which ends the
+	// turn (the call does not take effect) and the next turn starts with a fresh budget.
+	virtual bool is_inline() const { return false; }
+	virtual void inline_turn(Api& api) {}
 };
 
 // Adapter for policies written as one call per turn (no mid-turn suspension needed).
@@ -40,7 +46,7 @@ struct MatchOptions
 
 struct MatchStats
 {
-	std::uint64_t turns = 0, suspensions = 0, crashes = 0;
+	std::uint64_t turns = 0, suspensions = 0, crashes = 0, truncations = 0;
 	std::int64_t fuel_used[2] = {};
 };
 

@@ -35,14 +35,35 @@ Match::~Match() = default;
 std::unique_ptr<Match::Instance> Match::make_instance(int team, int champ)
 {
 	auto inst = std::make_unique<Instance>(game, team, champ, opt_.prices, opt_.stack_size);
-	inst->body = players_[team]->make_bot(team, champ);
 	inst->api.unlimited = opt_.unlimited_fuel;
+	if (players_[team]->is_inline()) return inst;
+	inst->body = players_[team]->make_bot(team, champ);
 	inst->api.attach(&inst->coro);
 	return inst;
 }
 
 void Match::run_turn(Instance& inst)
 {
+	Player& player = *players_[inst.team];
+	if (player.is_inline())
+	{
+		std::int64_t budget = opt_.fuel.per_turn;
+		if (inst.turns == 0) budget *= inst.champ < 0 ? opt_.fuel.draft_first_turn_multiplier : opt_.fuel.play_first_turn_multiplier;
+		inst.api.budget = budget;
+		inst.api.spent = 0;
+		try
+		{
+			player.inline_turn(inst.api);
+		}
+		catch (const FuelExhausted&)
+		{
+			++stats.truncations;
+		}
+		stats.fuel_used[inst.team] += inst.api.spent;
+		++inst.turns;
+		++stats.turns;
+		return;
+	}
 	if (inst.needs_start || inst.coro.done())
 	{
 		// First turn, or the bot crashed/returned: (re)start a fresh body. RULE? restart policy

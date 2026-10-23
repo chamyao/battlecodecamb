@@ -78,6 +78,12 @@ struct AbilityProps
 	std::uint32_t enhanced_attack;
 };
 
+// Thrown by a charge that overruns the budget when no coroutine is attached (inline players).
+struct FuelExhausted
+{
+	const char* what() const noexcept { return "fuel exhausted"; }
+};
+
 class Api
 {
 public:
@@ -100,6 +106,7 @@ public:
 	{
 		PriceContext ctx{ g_.map().W, g_.map().H, n };
 		spent += prices_->price(c, ctx);
+		if (!unlimited && !coro_ && spent > budget) throw FuelExhausted{};
 		if (!unlimited && coro_)
 			while (spent > budget)
 			{
