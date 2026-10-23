@@ -138,6 +138,12 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   --bot-seeds` predicted. v6 (freeze fixes) was not uploaded: 38/80 in cambc
   despite 54.5% in the per-game-seed sim. Use `--bot-seeds` (all 40 maps x 2
   sides) as the pre-build check for the ladder bar.
+  8 = v7-zerogem (`deploy/v0` 8913cb8, sha256 c9826988...): v7 + fixes for the
+  three maps where our mirror scored 0 gems (`docs/ZERO_GEM_MAPS.md` on
+  `deploy/v0`). Real cambc 43/80 vs v7: wins both sides on 00reverse-spiral,
+  01elk-arena, 01shortcut, loses both sides on none (bar for concentrated
+  fixes: >= 52% and no map lost on both sides). Next builds include the
+  fog-camps pathing fix (interp/v0 6297d62; neutral head to head, +3-5% gems).
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
   source), pure FunSearch (only its own outputs, from fs-1), tuning + draft (no
   LLM), style FunSearch (lockdown / team fights / late monolith). Each runs in
