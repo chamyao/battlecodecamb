@@ -119,7 +119,7 @@ game is identical; the script checks this on the opponent's per-turn fuel.
 fs-1 never reach: draft probes, terrain and camp-type sets, shop and consumables, team memory
 and unit queries. Each probe is a separate `let` or `if` so that short-circuiting cannot skip
 it. The interpreter allows only 8 variables per type, so most probes are `if` statements or
-`buy(x, 0)` calls that bind no variable. Profiled with `EVERY=1`, it exercises all 139 blocks.
+`buy(x, 0)` calls that bind no variable. Profiled with `EVERY=1`, it exercises all 145 blocks.
 
 **Model.** `oracle/tools/fuel_calibrate.py /tmp/prof/*/*` pools every profiled run across
 policies. It fits each block and wrapper as a non-negative linear model over features the
@@ -133,7 +133,7 @@ subtracts: its fuel probes around every block and API call get in the way of the
 Uncorrected, the model over-predicted the plain bot's real fuel by 25-56% on every run. Every
 champion logs on the same turns, so each logged round pairs with the plain bot's real fuel
 for that round, and the script fits
-`real ≈ 0.956·model − 91·blocks − 64·API calls − 70·turns` (3836 rounds). The generated
+`real ≈ 0.943·model − 102·blocks − 52·API calls − 75·turns` (3825 rounds). The generated
 tables carry the scale on every fitted charge and the rest in the per-turn term.
 
 The script generates:
@@ -147,34 +147,36 @@ The script generates:
 - `docs/fuel_calibration.json`: all fits with sample counts and errors, and the correction.
 
 The bot's start-up (map, camp layout, policy load, allocator) costs each champion's first turn
-about 55k + 2.3·W·H + 249·camps + 393·groups more (24 cambc games, MAE 2.7k, against the 200k
-first-turn budget). It is not in the profile, so it is charged from a hand fit in `interp`.
+about 58k + 2.2·W·H + 240·camps + 417·groups more (24 cambc games of v3 and fs-1, MAE 1.8k,
+against the 200k first-turn budget). It is not in the profile, so it is charged from a hand fit in `interp`.
 
-Current calibration (deploy/v0 after 1253c6b):
+Current calibration (deploy/v0 after a3d1f0b, interp/v0 4f525b2):
 - coverage.policy (EVERY=1, 400 rounds) on 00collision, 00elkring, 00lanes, 00monolith,
   01big-world and 01hooks;
-- v2 and fs-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows and 01starvation.
+- v3 and fs-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows and 01starvation.
 
 Largest items, in profile fuel before the scale (fuel; mean and mean absolute error over the
 samples):
 
 | Block / wrapper | Model | Mean | MAE |
 | --- | --- | --- | --- |
-| `api:distance_field` | 2035 + 9.7·ch + 18.5·miss·ch + 1.00·layers·ch + 163·dests | 4019 | 701 |
-| `api:nearest_by_walk` | 1329 + 15.3·ch + 11.6·miss·ch + 1.42·layers·ch + 2.1·tiles | 4096 | 881 |
-| `api:visible_camps` | 196 + 168·occupied camp tiles | 732 | 139 |
-| `move_towards(Tile)` | −39 + 11.3·ch + 15·refresh·H + 1519·dests | 2151 | 111 |
-| `dash_towards(Num,Tile)` | 522 + 1198·refresh + 73·dests | 2099 | 466 |
-| `closest(TileSet)` | −122 + 12.5·ch + 1288·refresh | 1875 | 69 |
+| `api:distance_field` | 2178 + 4.4·ch + 20.5·miss·ch + 1.05·layers·ch + 204·dests | 3667 | 641 |
+| `api:nearest_by_walk` | 1779 + 10.8·ch + 15.3·miss·ch + 1.51·layers·ch + 2.1·tiles | 3581 | 769 |
+| `api:visible_camps` | 186 + 162·occupied camp tiles | 682 | 131 |
+| `in_danger()` | 311 + 92·camps (early exits: MAE ~30%) | 5957 | 1772 |
+| `capturable_spawns()` | 83 + 125·groups + 5.8·camps | 3124 | 44 |
+| `move_towards(Tile)` | 1467 + 11.7·ch + 12.6·refresh·H | 2459 | 81 |
+| `dash_towards(Num,Tile)` | 1375 + 10.6·ch + 43·dests + 1.06·layers·ch | 2777 | 293 |
+| `closest(TileSet)` | 1095 + 13.1·ch | 1804 | 22 |
 | `respawning_visible_spawns()` | 501 + 132·groups | 3383 | 189 |
 | `camp_spawn_tiles()` | 1964 + 17.5·ch | 2989 | 629 |
-| `filter(UnitList,UnitPred)` | 1094 | 1094 | 411 |
+| `filter(UnitList,UnitPred)` | 1039 | 1039 | 348 |
 | `union`, `minus` (TileSet) | 595-661 + 3-4·ch | 837-855 | 0-56 |
 | `ring(TileSet,Num)` | 235 + 6.4·H + 30·input tiles | 732 | 16 |
 | `spawn_region`, `altars()`, `walls()` | 133-352 + ch | 192-410 | 0 |
 | `api:camp`, `api:champion`, `api:my_champion`, `api:*_occupancy` | 30, 42, 10, 14 + ch | | 0 |
 | simple blocks (`and`, `or`, `not`, arithmetic) | 150-400 | | 0-110 |
-| step loop, per turn | 21 + 73.4·blocks + 0.062·blocks·H | | 339 |
+| step loop, per turn | 30 + 69.2·blocks + 0.079·blocks·H | | 481 |
 
 Board work now goes through host imports (~6 + chunks fuel per board operation), so
 board-valued blocks cost hundreds rather than thousands.
@@ -185,9 +187,9 @@ in-sample for the correction.
 
 | Runs | Predicted / real total | Per-round error, median | 10-90% |
 | --- | --- | --- | --- |
-| coverage (6 maps, every round) | 0.927-1.030 | −6.5% to +4.1% | within [−9.3%, +7.7%] |
-| fs-1 (9 maps) | 0.966-1.032 | −0.7% to +4.1% | within [−8.8%, +10.8%] |
-| v2 (9 maps) | 0.960-1.018 | −2.3% to +2.3% | within [−10.6%, +10.9%] |
+| coverage (6 maps, every round) | 0.953-1.018 | −4.3% to +2.7% | within [−6.2%, +4.5%] |
+| fs-1 (9 maps) | 0.956-1.025 | −2.3% to +3.3% | within [−10.5%, +10.3%] |
+| v3 (9 maps) | 0.986-1.046 | −1.4% to +5.1% | within [−8.1%, +10.4%] |
 
 Out of sample, the simulator itself (`interp/tools/fuel_turns --enforce`) was compared with
 full cambc games at default fuel on 12 maps (00ambush to 00interlock; different games, since
@@ -195,10 +197,10 @@ the drafts differ). Champion turns after the first, in fuel per turn, and first 
 
 | | mean | p50 | p90 | p99 | max | capped | first turns: mean, max |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| fs-1, cambc | 14683 | 12840 | 27425 | 40005 | 61223 | 0 | 112421, 156583 |
-| fs-1, simulator | 14290 | 12285 | 27928 | 41071 | 61098 | 0 suspensions | 111266, 156361 |
-| v2, cambc | 12001 | 10364 | 27013 | 41470 | 78520 | 0 | 114049, 165553 |
-| v2, simulator | 11982 | 9960 | 27157 | 41021 | 78233 | 0 suspensions | 114723, 166615 |
+| v3, cambc | 19921 | 19837 | 33452 | 46783 | 67005 | 0 | 120786, 166300 |
+| v3, simulator | 19865 | 19650 | 34333 | 47825 | 70944 | 0 suspensions | 119133, 165861 |
+| fs-1, cambc | 14631 | 12770 | 27356 | 39930 | 61126 | 0 | 112342, 156510 |
+| fs-1, simulator | 13998 | 11901 | 26985 | 40539 | 60900 | 0 suspensions | 113533, 158273 |
 
 Known weak spots:
 - Per call, `distance_field` and `nearest_by_walk` carry ~17-21% MAE. A memo hit through the
@@ -214,8 +216,9 @@ Known weak spots:
 - The simulator's bot pricing costs speed: 200 games of v2 vs starter take ~6.9 s against
   ~5.4 s with raw prices (the memo runs its own searches on misses).
 
-**Outcome check.** With the current table, the simulator gives 0 suspensions per game for v2
-and fs-1 against starter (40 maps × 5 seeds). Win rates: v2 186/200 = 93%, fs-1 195/200 =
-97.5%. cambc, default fuel, current bot: v2 and fs-1 each won 12/12 on the maps above.
+**Outcome check.** With the current table, the simulator gives 0 suspensions per game for v3
+and fs-1 against starter (40 maps × 5 seeds). Win rates: v3 196/200 = 98%, fs-1 195/200 =
+97.5%, v3 vs fs-1 173/200 = 86.5%. cambc, default fuel, current bot: v3 and fs-1 each won 12/12
+against starter-cpp on the maps above.
 Earlier tables (old bot, before the host-backed Bitboard) gave v2 ~2,000 suspensions per
 game, matching that bot in cambc at the time.
