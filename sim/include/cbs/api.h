@@ -85,9 +85,11 @@ struct FuelExhausted
 	const char* what() const noexcept { return "fuel exhausted"; }
 };
 
-// Totals of the bot distance-field memo as run by the simulator (diagnostics; not thread-safe).
+// Totals of the bot distance-field memo as run by the simulator. Diagnostics: collected only
+// while `enabled` is set (interp/tools/fuel_turns does), single-threaded use only.
 struct MemoStats
 {
+	bool enabled = false;
 	long long calls = 0, misses = 0, layers = 0;
 	long long call_n[static_cast<int>(Call::count)] = {}, call_fuel[static_cast<int>(Call::count)] = {}; // by Call, all charges
 };
@@ -131,7 +133,7 @@ public:
 		const std::int64_t p = prices_->price(c, ctx);
 		spent += p;
 		if (c != Call::compute && c != Call::yield) ++api_calls;
-		if (prices_->bot_memo)
+		if (memo_stats().enabled && prices_->bot_memo)
 		{
 			MemoStats& ms = memo_stats();
 			++ms.call_n[static_cast<int>(c)];

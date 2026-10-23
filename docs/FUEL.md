@@ -133,7 +133,7 @@ subtracts: its fuel probes around every block and API call get in the way of the
 Uncorrected, the model over-predicted the plain bot's real fuel by 25-56% on every run. Every
 champion logs on the same turns, so each logged round pairs with the plain bot's real fuel
 for that round, and the script fits
-`real ≈ 0.945·model − 83·blocks − 66·API calls − 136·turns` (3836 rounds). The generated
+`real ≈ 0.956·model − 91·blocks − 64·API calls − 70·turns` (3836 rounds). The generated
 tables carry the scale on every fitted charge and the rest in the per-turn term.
 
 The script generates:
@@ -146,11 +146,11 @@ The script generates:
   guessed. If a new block is added, extend coverage.policy and re-profile.
 - `docs/fuel_calibration.json`: all fits with sample counts and errors, and the correction.
 
-The bot's start-up (map, camp layout, allocator) costs each champion's first turn about
-67k + 2.3·W·H + 253·camps + 390·groups more (24 cambc games, MAE 2.8k, against the 200k
+The bot's start-up (map, camp layout, policy load, allocator) costs each champion's first turn
+about 55k + 2.3·W·H + 249·camps + 393·groups more (24 cambc games, MAE 2.7k, against the 200k
 first-turn budget). It is not in the profile, so it is charged from a hand fit in `interp`.
 
-Current calibration (deploy/v0 after c88e4b8):
+Current calibration (deploy/v0 after 1253c6b):
 - coverage.policy (EVERY=1, 400 rounds) on 00collision, 00elkring, 00lanes, 00monolith,
   01big-world and 01hooks;
 - v2 and fs-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows and 01starvation.
@@ -160,21 +160,21 @@ samples):
 
 | Block / wrapper | Model | Mean | MAE |
 | --- | --- | --- | --- |
-| `api:distance_field` | 3080 + 7.9·ch + 20.9·miss·ch + 1.03·layers·ch + 174·dests | 5007 | 1372 |
-| `api:nearest_by_walk` | 1906 + 15.6·ch + 9.0·miss·ch + 1.49·layers·ch + 1.8·tiles | 4522 | 1226 |
+| `api:distance_field` | 2035 + 9.7·ch + 18.5·miss·ch + 1.00·layers·ch + 163·dests | 4019 | 701 |
+| `api:nearest_by_walk` | 1329 + 15.3·ch + 11.6·miss·ch + 1.42·layers·ch + 2.1·tiles | 4096 | 881 |
 | `api:visible_camps` | 196 + 168·occupied camp tiles | 732 | 139 |
-| `move_towards(Tile)` | −41 + 11.3·ch + 15·refresh·H + 1528·dests | 2154 | 115 |
-| `dash_towards(Num,Tile)` | 520 + 1196·refresh + 73·dests | 2094 | 464 |
-| `closest(TileSet)` | −125 + 12.5·ch + 1301·refresh | 1885 | 81 |
+| `move_towards(Tile)` | −39 + 11.3·ch + 15·refresh·H + 1519·dests | 2151 | 111 |
+| `dash_towards(Num,Tile)` | 522 + 1198·refresh + 73·dests | 2099 | 466 |
+| `closest(TileSet)` | −122 + 12.5·ch + 1288·refresh | 1875 | 69 |
 | `respawning_visible_spawns()` | 501 + 132·groups | 3383 | 189 |
 | `camp_spawn_tiles()` | 1964 + 17.5·ch | 2989 | 629 |
-| `filter(UnitList,UnitPred)` | 1152 | 1152 | 410 |
+| `filter(UnitList,UnitPred)` | 1094 | 1094 | 411 |
 | `union`, `minus` (TileSet) | 595-661 + 3-4·ch | 837-855 | 0-56 |
 | `ring(TileSet,Num)` | 235 + 6.4·H + 30·input tiles | 732 | 16 |
 | `spawn_region`, `altars()`, `walls()` | 133-352 + ch | 192-410 | 0 |
 | `api:camp`, `api:champion`, `api:my_champion`, `api:*_occupancy` | 30, 42, 10, 14 + ch | | 0 |
 | simple blocks (`and`, `or`, `not`, arithmetic) | 150-400 | | 0-110 |
-| step loop, per turn | 25 + 84.4·blocks + 0.066·blocks·H | | 330 |
+| step loop, per turn | 21 + 73.4·blocks + 0.062·blocks·H | | 339 |
 
 Board work now goes through host imports (~6 + chunks fuel per board operation), so
 board-valued blocks cost hundreds rather than thousands.
@@ -185,23 +185,23 @@ in-sample for the correction.
 
 | Runs | Predicted / real total | Per-round error, median | 10-90% |
 | --- | --- | --- | --- |
-| coverage (6 maps, every round) | 0.924-1.027 | −6.6% to +3.8% | within [−9.7%, +8.1%] |
-| fs-1 (9 maps) | 0.961-1.047 | −1.6% to +4.6% | within [−11.3%, +13.9%] |
-| v2 (9 maps) | 0.964-1.007 | −3.2% to +0.8% | within [−11.8%, +12.9%] |
+| coverage (6 maps, every round) | 0.927-1.030 | −6.5% to +4.1% | within [−9.3%, +7.7%] |
+| fs-1 (9 maps) | 0.966-1.032 | −0.7% to +4.1% | within [−8.8%, +10.8%] |
+| v2 (9 maps) | 0.960-1.018 | −2.3% to +2.3% | within [−10.6%, +10.9%] |
 
 Out of sample, the simulator itself (`interp/tools/fuel_turns --enforce`) was compared with
 full cambc games at default fuel on 12 maps (00ambush to 00interlock; different games, since
-the drafts differ). Champion turns after the first, in fuel per turn:
+the drafts differ). Champion turns after the first, in fuel per turn, and first turns:
 
-| | mean | p50 | p90 | p99 | capped turns |
-| --- | --- | --- | --- | --- | --- |
-| fs-1, cambc | 16205 | 13925 | 29635 | 42452 | 0 |
-| fs-1, simulator | 15763 | 13396 | 30211 | 43007 | 0 suspensions |
-| v2, cambc | 13228 | 11341 | 29664 | 44371 | 0 |
-| v2, simulator | 13142 | 10832 | 29604 | 43525 | 0 suspensions |
+| | mean | p50 | p90 | p99 | max | capped | first turns: mean, max |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| fs-1, cambc | 14683 | 12840 | 27425 | 40005 | 61223 | 0 | 112421, 156583 |
+| fs-1, simulator | 14290 | 12285 | 27928 | 41071 | 61098 | 0 suspensions | 111266, 156361 |
+| v2, cambc | 12001 | 10364 | 27013 | 41470 | 78520 | 0 | 114049, 165553 |
+| v2, simulator | 11982 | 9960 | 27157 | 41021 | 78233 | 0 suspensions | 114723, 166615 |
 
 Known weak spots:
-- Per call, `distance_field` and `nearest_by_walk` carry ~27% MAE. A memo hit through the
+- Per call, `distance_field` and `nearest_by_walk` carry ~17-21% MAE. A memo hit through the
   walls-changed proof costs more than a same-walls hit, and the profile does not separate
   them. Per round this averages out.
 - `or`/`and` are bimodal (short-circuit or not), charged at their mean (MAE ~100).
@@ -209,8 +209,10 @@ Known weak spots:
   identical) games. The memo code is shared and the BFS matches the host exactly, so this is
   probably game differences; it is not verified on an identical game.
 - The model is for this bot build: re-run `run_bot_profile.sh` (coverage, v2 and fs-1) and
-  `fuel_calibrate.py` whenever `bot/` or the interpreter changes. A run takes ~20 minutes on
-  4 cores.
+  `fuel_calibrate.py` whenever `bot/` or the interpreter changes (a run takes ~30 minutes
+  on 4 cores), then refit the start-up constants in `Interp::turn` from full cambc games.
+- The simulator's bot pricing costs speed: 200 games of v2 vs starter take ~6.9 s against
+  ~5.4 s with raw prices (the memo runs its own searches on misses).
 
 **Outcome check.** With the current table, the simulator gives 0 suspensions per game for v2
 and fs-1 against starter (40 maps × 5 seeds). Win rates: v2 186/200 = 93%, fs-1 195/200 =

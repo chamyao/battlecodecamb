@@ -740,10 +740,12 @@ Api::MemoCharge Api::memo_query(const Bitboard& walls, const Bitboard& roots, co
 	const int W = g_.map().W, H = g_.map().H;
 	if (!field_memo_) field_memo_ = std::make_shared<SimMemo>(SimFieldOps{ W, H, (W + 7) / 8 });
 	const auto ans = static_cast<SimMemo*>(field_memo_.get())->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
-	MemoStats& st = memo_stats();
-	++st.calls;
-	st.misses += ans.miss;
-	st.layers += ans.layers;
+	if (MemoStats& st = memo_stats(); st.enabled)
+	{
+		++st.calls;
+		st.misses += ans.miss;
+		st.layers += ans.layers;
+	}
 	return { ans.layers, ans.miss ? 1 : 0 };
 }
 
