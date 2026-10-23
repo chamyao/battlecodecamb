@@ -15,7 +15,7 @@ if is_draft():
             if available(pool, champ_cassi_issac()) or available(pool, champ_stellar()) or available(pool, champ_prism()):
                 pick( random_champion(pool) )
             else:
-                if available(pool, champ_marcella()) or available(pool, champ_willow()) or available(pool, champ_varg()) or available(pool, champ_tavi()):
+                if available(pool, champ_marcella()) or available(pool, champ_heart_of_ruin()) or available(pool, champ_willow()) or available(pool, champ_varg()) or available(pool, champ_tavi()):
                     pick( random_champion(pool) )
                 else:
                     pick( random_champion(pool) )
@@ -23,11 +23,12 @@ if is_draft():
 
 keep camp_spawns = camp_spawn_tiles()
 keep terrain = union( union( walls(), holes() ), bushes() )
+keep camp_kinds = union( union( union( wolf_tiles(), elk_tiles() ), union( gem_cluster_tiles(), gold_cluster_tiles() ) ), union( monolith_tiles(), golem_tiles() ) )
 
 # ---- calibration probes (results mostly unused) ----
 let r = round_number()
 let f = fuel_remaining()
-let probe_n = count(terrain) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy())
+let probe_n = count(terrain) + count(camp_kinds) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy())
 let flags = i_am_ranged() or slot_is_damage(0) or slot_is_aoe(0) or slot_is_stun(1) or slot_is_heal(0) or slot_is_shield(1) or slot_is_reset(0)
 let who = i_am(champ_vesper_vale()) or i_am(champ_ren())
 let allies = allies_visible()

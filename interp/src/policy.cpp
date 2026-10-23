@@ -56,7 +56,7 @@ constexpr int kMaxVars = 8;
 	X(champ_vesper_vale, "champ_vesper_vale()") X(champ_vendetta, "champ_vendetta()")                                       \
 	X(champ_cassi_issac, "champ_cassi_issac()") X(champ_stellar, "champ_stellar()") X(champ_prism, "champ_prism()")        \
 	X(champ_marcella, "champ_marcella()") X(champ_willow, "champ_willow()") X(champ_ren, "champ_ren()")                    \
-	X(champ_varg, "champ_varg()") X(champ_tavi, "champ_tavi()") X(available, "available(ChampList,Champ)")                 \
+	X(champ_varg, "champ_varg()") X(champ_tavi, "champ_tavi()") X(champ_heart_of_ruin, "champ_heart_of_ruin()") X(available, "available(ChampList,Champ)")                 \
 	X(i_am, "i_am(Champ)") X(ability_ready, "ability_ready(Num)") X(family_monster, "family_monster()")                  \
 	X(family_power, "family_power()") X(family_durability, "family_durability()") X(family_treasure, "family_treasure()") \
 	X(family_jungle, "family_jungle()") X(family_home, "family_home()") X(family_bruiser, "family_bruiser()")              \
@@ -69,7 +69,9 @@ constexpr int kMaxVars = 8;
 	X(map_width, "map_width()") X(map_height, "map_height()") X(camp_count, "camp_count()")                                \
 	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")                       \
 	X(claim, "claim(Tile)") X(unclaim, "unclaim()") X(claimed_by_allies, "claimed_by_allies()")                           \
-	X(set_team_target, "set_team_target(Unit)") X(team_target, "team_target()")
+	X(set_team_target, "set_team_target(Unit)") X(team_target, "team_target()")                                          \
+	X(wolf_tiles, "wolf_tiles()") X(elk_tiles, "elk_tiles()") X(gem_cluster_tiles, "gem_cluster_tiles()")                \
+	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")
 
 enum class Op : std::uint16_t
 {
@@ -804,7 +806,7 @@ struct Interp
 		{
 			Value r;
 			r.champs = std::make_shared<std::vector<int>>();
-			for (int i = 0; i < 11; ++i)
+			for (int i = 0; i < 12; ++i)
 			{
 				bool used = false;
 				std::int32_t pick = -1;
@@ -865,6 +867,20 @@ struct Interp
 		case Op::walls: api.charge(cbs::Call::map_mask); return set_of(m().walls);
 		case Op::holes: api.charge(cbs::Call::map_mask); return set_of(m().holes);
 		case Op::bushes: api.charge(cbs::Call::map_mask); return set_of(m().bushes);
+		case Op::wolf_tiles:
+		case Op::elk_tiles:
+		case Op::gem_cluster_tiles:
+		case Op::gold_cluster_tiles:
+		case Op::monolith_tiles:
+		case Op::golem_tiles:
+		{
+			// order matches cbs::CampType: wolf, elk, gem_cluster, gold_cluster, monolith, golem
+			const int want = static_cast<int>(e.op) - static_cast<int>(Op::wolf_tiles);
+			Bitboard b;
+			for (auto& c : m().camps)
+				if (static_cast<int>(c.type) == want) b.set(c.pos);
+			return set_of(b);
+		}
 		case Op::camp_spawn_tiles:
 		{
 			api.charge(cbs::Call::map_camp_query, static_cast<std::int64_t>(m().camps.size()));
@@ -1031,7 +1047,8 @@ struct Interp
 		case Op::champ_willow:
 		case Op::champ_ren:
 		case Op::champ_varg:
-		case Op::champ_tavi: return num(static_cast<int>(e.op) - static_cast<int>(Op::champ_ryth));
+		case Op::champ_tavi:
+		case Op::champ_heart_of_ruin: return num(static_cast<int>(e.op) - static_cast<int>(Op::champ_ryth));
 		case Op::available:
 		{
 			const Value l = eval(a[0]);
