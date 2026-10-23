@@ -117,6 +117,9 @@ if not at_spawn and health() < 0.2 * max_health():
     recall()
     end_turn()
 
+# cast_at_tile runs every turn (on cooldown the engine call just fails), not only with an enemy in range
+if not ability_ready(0):
+    cast_at_tile(0, position())
 let enemy = first( filter( enemies_visible(), in_attack_range() ) )
 if exists(enemy):
     if ability_ready(0):
