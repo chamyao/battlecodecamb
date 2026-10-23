@@ -31,7 +31,7 @@ constexpr int kMaxVars = 8;
 	X(ally, "ally()") X(enemy, "enemy()") X(stat_strength, "stat_strength()") X(stat_focus, "stat_focus()")                \
 	X(stat_health, "stat_health()") X(add, "add(Num,Num)") X(sub, "sub(Num,Num)") X(mul, "mul(Num,Num)")                    \
 	X(div, "div(Num,Num)") X(lt, "lt(Num,Num)") X(le, "le(Num,Num)") X(gt, "gt(Num,Num)") X(ge, "ge(Num,Num)")              \
-	X(eq, "eq(Num,Num)") X(and_, "and(Bool,Bool)") X(or_, "or(Bool,Bool)") X(not_, "not(Bool)") X(floor_, "floor(Num)")     \
+	X(eq, "eq(Num,Num)") X(ne, "ne(Num,Num)") X(true_, "true()") X(false_, "false()") X(and_, "and(Bool,Bool)") X(or_, "or(Bool,Bool)") X(not_, "not(Bool)") X(floor_, "floor(Num)")     \
 	X(is_draft, "is_draft()") X(unpicked_champions, "unpicked_champions()") X(random_champion, "random_champion(ChampList)") \
 	X(pick, "pick(Champ)") X(write_draft, "write_draft(Bytes)") X(alive, "alive()") X(channeling, "channeling()")          \
 	X(can_move, "can_move()") X(can_attack, "can_attack()") X(position, "position()") X(health, "health()")                \
@@ -507,6 +507,9 @@ struct Interp
 		case Op::gt: return num(eval(a[0]).n > eval(a[1]).n);
 		case Op::ge: return num(eval(a[0]).n >= eval(a[1]).n);
 		case Op::eq: return num(eval(a[0]).n == eval(a[1]).n);
+		case Op::ne: return num(eval(a[0]).n != eval(a[1]).n);
+		case Op::true_: return num(1);
+		case Op::false_: return num(0);
 		case Op::and_: return num(eval(a[0]).n != 0 && eval(a[1]).n != 0);
 		case Op::or_: return num(eval(a[0]).n != 0 || eval(a[1]).n != 0);
 		case Op::not_: return num(eval(a[0]).n == 0);

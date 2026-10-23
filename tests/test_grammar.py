@@ -54,3 +54,11 @@ def test_samples_are_valid(seed):
     text = format_policy(steps)
     reparsed = parse(text)  # type-checks again from text
     assert encode(reparsed, VOCAB) == (ids, consts)
+
+
+def test_python_habits():
+    steps = parse("if gems() != 0 and True:\n    let x = -gems()\n    set_priority(x)\n")
+    assert format_policy(steps)
+    for bad in ("set_priority(gems() % 2)", "if 1 < gems() < 3:\n    recall()\n"):
+        with pytest.raises(SyntaxError):
+            parse(bad)
