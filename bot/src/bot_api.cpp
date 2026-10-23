@@ -387,11 +387,19 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	struct QT { long long q0 = PROF_T; ~QT() { bot_prof[6] += q0 - PROF_T; } } qt_;
 #endif
 	const int r = std::min(qr, 2);
+	// ans.at, inlined (it costs ~100 fuel a tile through the generic accessors).
+	const std::uint16_t* f = ans.f;
+	const int lim = ans.limit < 0 ? 0xFFFF : ans.limit, cw = static_cast<int>(md.chunked_width), st = hostbb::stride;
+	auto at = [&](int x, int y) -> std::uint16_t {
+		const int b = (y & 7) * 8 + (x & 7);
+		const std::uint16_t v = f[((y >> 3) * cw + (x >> 3)) * 64 + b];
+		return v > lim || ((walls.w[(y >> 3) * st + (x >> 3)] >> b) & 1) ? kUnreachable : v;
+	};
 	if (have_me)
 		for (int y = std::max(0, me.y - r); y <= std::min(H - 1, me.y + r); ++y)
-			for (int x = std::max(0, me.x - r); x <= std::min(W - 1, me.x + r); ++x) dist[y * W + x] = ans.at(x, y);
+			for (int x = std::max(0, me.x - r); x <= std::min(W - 1, me.x + r); ++x) dist[y * W + x] = at(x, y);
 	for (std::uint32_t i = 0; i < nd; ++i)
-		if (!have_me || cheb(dpos[i].x, dpos[i].y, me) > r) dist[dpos[i].y * W + dpos[i].x] = ans.at(dpos[i].x, dpos[i].y);
+		if (!have_me || cheb(dpos[i].x, dpos[i].y, me) > r) dist[dpos[i].y * W + dpos[i].x] = at(dpos[i].x, dpos[i].y);
 	return ans.count;
 }
 
