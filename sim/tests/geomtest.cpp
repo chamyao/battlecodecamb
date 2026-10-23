@@ -25,8 +25,8 @@ int main(int argc, char** argv)
 	const int W = map->W, H = map->H;
 	std::vector<std::string> L;
 	for (std::string line; std::getline(std::cin, line);) L.push_back(line);
-	int ok[8] = {}, bad[8] = {};
-	const char* names[8] = { "shadow", "reach", "field", "circle", "cheb", "cv", "wv", "cv8" };
+	int ok[9] = {}, bad[9] = {};
+	const char* names[9] = { "shadow", "reach", "field", "circle", "cheb", "cv", "wv", "cv8", "wv6" };
 	auto word = [](const std::string& s, int i) {
 		std::istringstream is(s);
 		std::string w;
@@ -112,11 +112,14 @@ int main(int argc, char** argv)
 				Bitboard got;
 				map->vision({ x, y }, 6, got);
 				(got == exp ? ok : bad)[6]++;
+				Bitboard got6;
+				map->add_window(map->vision6({ x, y }), { x, y }, got6);
+				(got6 == exp ? ok : bad)[8]++;
 			}
 		}
 	}
 	int total_bad = 0;
-	for (int k = 0; k < 8; ++k)
+	for (int k = 0; k < 9; ++k)
 	{
 		std::printf("%-7s ok=%d bad=%d\n", names[k], ok[k], bad[k]);
 		total_bad += bad[k];

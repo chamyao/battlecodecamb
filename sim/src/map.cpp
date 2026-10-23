@@ -146,19 +146,23 @@ std::shared_ptr<const Map> decode_map(const std::uint8_t* data, std::size_t size
 	for (int y = 0; y < H; ++y)
 		for (int x = 0; x < W; ++x)
 			if (m->altars.test(x, y)) m->altar_list.push_back({ x, y });
-	m->vision_cache_.resize(static_cast<std::size_t>(W) * H);
-	for (int y = 0; y < H; ++y)
-		for (int x = 0; x < W; ++x)
-		{
-			Map::Window w{};
-			const Vec2 from{ x, y };
-			const std::uint16_t own = m->bushes.test(from) ? m->cluster[m->idx(from)] : 0;
-			shadowcast(
-				W, H, from, 8,
-				[&](int bx, int by) { return m->walls.test(bx, by) || (m->bushes.test(bx, by) && !(own && m->cluster[by * W + bx] == own)); },
-				[&](int vx, int vy) { w.rows[vy - y + 8] |= 1u << (vx - x + 8); });
-			m->vision_cache_[m->idx(from)] = w;
-		}
+	auto fill = [&](std::vector<Map::Window>& cache, int radius) {
+		cache.resize(static_cast<std::size_t>(W) * H);
+		for (int y = 0; y < H; ++y)
+			for (int x = 0; x < W; ++x)
+			{
+				Map::Window w{};
+				const Vec2 from{ x, y };
+				const std::uint16_t own = m->bushes.test(from) ? m->cluster[m->idx(from)] : 0;
+				shadowcast(
+					W, H, from, radius,
+					[&](int bx, int by) { return m->walls.test(bx, by) || (m->bushes.test(bx, by) && !(own && m->cluster[by * W + bx] == own)); },
+					[&](int vx, int vy) { w.rows[vy - y + 8] |= 1u << (vx - x + 8); });
+				cache[m->idx(from)] = w;
+			}
+	};
+	fill(m->vision_cache_, 8);
+	fill(m->ward_vision_cache_, 6);
 	return m;
 }
 
@@ -181,20 +185,19 @@ void Map::vision(Vec2 from, int radius, Bitboard& out) const
 		[&](int x, int y) { out.set(x, y); });
 }
 
-const Map::Window& Map::vision8(Vec2 from) const { return vision_cache_[idx(from)]; }
-
 void Map::add_window(const Window& w, Vec2 from, Bitboard& out) const
 {
-	for (int r = 0; r < 17; ++r)
+	// Window bits are in-map only, so each row is one shifted OR into the 128-bit board row.
+	const int sx = from.x - 8;
+	const int r0 = std::max(0, 8 - from.y), r1 = std::min(16, H - 1 - from.y + 8);
+	for (int r = r0; r <= r1; ++r)
 	{
-		std::uint32_t bits = w.rows[r];
-		const int y = from.y - 8 + r;
-		while (bits)
-		{
-			const int c = std::countr_zero(bits);
-			bits &= bits - 1;
-			out.set(from.x - 8 + c, y);
-		}
+		if (!w.rows[r]) continue;
+		const unsigned __int128 bits = static_cast<unsigned __int128>(w.rows[r]);
+		const unsigned __int128 v = sx >= 0 ? bits << sx : bits >> -sx;
+		std::uint64_t* row = out.w[from.y - 8 + r];
+		row[0] |= static_cast<std::uint64_t>(v);
+		row[1] |= static_cast<std::uint64_t>(v >> 64);
 	}
 }
 } // namespace cbs

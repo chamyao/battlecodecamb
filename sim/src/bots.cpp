@@ -50,15 +50,12 @@ struct Starter
 		api.camp_occupancy(camps, 0);
 		if (goals.test(me)) return false;
 		// Only free goals or occupied camp tiles can seed the field.
-		Bitboard free_goals;
-		for (int y = 0; y < m().H; ++y)
-			for (int x = 0; x < m().W; ++x)
-				if (goals.test(x, y) && (!blocked.test(x, y) || camps.test(x, y))) free_goals.set(x, y);
+		Bitboard free_goals = goals, taken = blocked;
+		taken.andnot(camps);
+		free_goals.andnot(taken);
 		if (!free_goals.any(m().H)) return false;
 		Bitboard walls = blocked, dest, visited;
-		for (int y = 0; y < m().H; ++y)
-			for (int x = 0; x < m().W; ++x)
-				if (free_goals.test(x, y)) walls.reset(x, y);
+		walls.andnot(free_goals);
 		dest.set(me);
 		field.resize(static_cast<std::size_t>(m().W) * m().H);
 		api.distance_field(walls, free_goals, &dest, kUnreachable, field.data(), visited);

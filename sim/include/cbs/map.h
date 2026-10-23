@@ -47,15 +47,17 @@ struct Map
 
 	// Champion vision from a tile (radius 8): walls and bushes outside the viewer's cluster block.
 	void vision(Vec2 from, int radius, Bitboard& out) const;
-	// Cached radius-8 champion vision as a 17x17 window around `from`.
+	// Cached vision as a 17x17 window centred on `from` (bit 8 of row 8 is `from`): radius 8
+	// (champions) and radius 6 (wards). Only in-map tiles are set.
 	struct Window
 	{
 		std::uint32_t rows[17];
 	};
-	const Window& vision8(Vec2 from) const;
+	const Window& vision8(Vec2 from) const { return vision_cache_[idx(from)]; }
+	const Window& vision6(Vec2 from) const { return ward_vision_cache_[idx(from)]; }
 	void add_window(const Window& w, Vec2 from, Bitboard& out) const;
 
-	std::vector<Window> vision_cache_; // filled at load
+	std::vector<Window> vision_cache_, ward_vision_cache_; // filled at load
 };
 
 // Throws std::runtime_error on malformed data.

@@ -1,7 +1,17 @@
+#include <algorithm>
 #include "cbs/bitboard.h"
 
 namespace cbs
 {
+namespace
+{
+inline int ctz128(unsigned __int128 v)
+{
+	const auto lo = static_cast<std::uint64_t>(v);
+	return lo ? std::countr_zero(lo) : 64 + std::countr_zero(static_cast<std::uint64_t>(v >> 64));
+}
+} // namespace
+
 void to_linear(const Bitboard& b, int W, int H, std::uint8_t* out)
 {
 	std::memset(out, 0, (static_cast<std::size_t>(W) * H + 7) / 8);
@@ -62,46 +72,67 @@ void reachable(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitbo
 int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int W, int H, int max_distance,
 				   std::uint16_t* dist, Bitboard& visited)
 {
+	// Layered BFS over whole rows (128-bit), matching the engine's queue BFS layer by layer.
+	using Row = unsigned __int128;
+	auto load = [](const Bitboard& b, int y) { return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64; };
+	const Row full = W >= 128 ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
+	Row open[kMaxDim], seen[kMaxDim], front[kMaxDim], next[kMaxDim];
 	visited.clear();
 	for (int i = 0; i < W * H; ++i) dist[i] = kUnreachable;
-	static thread_local Vec2 queue[kMaxDim * kMaxDim];
-	int n = 0;
+	bool reached = false, any = false;
+	int y0 = H, y1 = -1; // rows spanned by the frontier
 	for (int y = 0; y < H; ++y)
-		for (int x = 0; x < W; ++x)
-			if (roots.test(x, y) && !walls.test(x, y))
-			{
-				dist[y * W + x] = 0;
-				visited.set(x, y);
-				queue[n++] = { x, y };
-			}
-	bool reached = false;
-	auto check_dest = [&](int x, int y) {
-		if (dests && dests->test(x, y)) reached = true;
-	};
-	for (int i = 0; i < n; ++i) check_dest(queue[i].x, queue[i].y);
-	int count = 0, begin = 0, depth = 0;
-	while (begin < n)
+	{
+		open[y] = ~load(walls, y) & full;
+		front[y] = load(roots, y) & open[y];
+		seen[y] = front[y];
+		if (front[y])
+		{
+			any = true;
+			y0 = std::min(y0, y), y1 = y;
+			if (dests && (front[y] & load(*dests, y))) reached = true;
+			for (Row b = front[y]; b; b &= b - 1) dist[y * W + ctz128(b)] = 0;
+		}
+	}
+	int count = 0, depth = 0;
+	while (any)
 	{
 		if (dests && reached) break;
 		if (depth >= max_distance) break;
-		const int end = n;
-		for (int i = begin; i < end; ++i)
+		any = false;
+		const int lo = std::max(0, y0 - 1), hi = std::min(H - 1, y1 + 1);
+		int n0 = H, n1 = -1;
+		for (int y = lo; y <= hi; ++y)
 		{
-			const Vec2 p = queue[i];
-			for (int dy = -1; dy <= 1; ++dy)
-				for (int dx = -1; dx <= 1; ++dx)
-				{
-					const int x = p.x + dx, y = p.y + dy;
-					if (x < 0 || y < 0 || x >= W || y >= H || walls.test(x, y) || dist[y * W + x] != kUnreachable) continue;
-					dist[y * W + x] = static_cast<std::uint16_t>(depth + 1);
-					visited.set(x, y);
-					queue[n++] = { x, y };
-					check_dest(x, y);
-				}
+			Row h = 0;
+			for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
+				if (yy >= y0 && yy <= y1) h |= front[yy];
+			h |= h << 1 | h >> 1;
+			next[y] = h & open[y] & ~seen[y];
+			if (next[y])
+			{
+				any = true;
+				n0 = std::min(n0, y), n1 = y;
+			}
 		}
-		begin = end;
+		const std::uint16_t d = static_cast<std::uint16_t>(depth + 1);
+		for (int y = lo; y <= hi; ++y)
+		{
+			front[y] = next[y];
+			if (!next[y]) continue;
+			seen[y] |= next[y];
+			if (dests && (next[y] & load(*dests, y))) reached = true;
+			for (Row b = next[y]; b; b &= b - 1) dist[y * W + ctz128(b)] = d;
+		}
+		// Rows of the old frontier outside [lo, hi] cannot exist; clear stale rows outside the new span.
+		y0 = n0, y1 = n1;
 		++depth;
 		++count;
+	}
+	for (int y = 0; y < H; ++y)
+	{
+		visited.w[y][0] = static_cast<std::uint64_t>(seen[y]);
+		visited.w[y][1] = static_cast<std::uint64_t>(seen[y] >> 64);
 	}
 	return count;
 }
@@ -119,8 +150,18 @@ void draw_circle(Bitboard& b, int W, int H, Vec2 c, float r)
 
 void draw_chebyshev(Bitboard& b, int W, int H, Vec2 c, float r)
 {
-	for (int y = 0; y < H; ++y)
-		for (int x = 0; x < W; ++x)
-			if (chebyshev({ x, y }, c) <= r) b.set(x, y);
+	// Integer distances: d <= r  <=>  d <= floor(r). One row mask over the clamped box.
+	if (!(r >= 0)) return;
+	const int k = r >= 2 * kMaxDim ? 2 * kMaxDim : static_cast<int>(r);
+	const int x0 = std::max(0, c.x - k), x1 = std::min(W - 1, c.x + k);
+	const int y0 = std::max(0, c.y - k), y1 = std::min(H - 1, c.y + k);
+	if (x0 > x1 || y0 > y1) return;
+	using Row = unsigned __int128;
+	const Row mask = ((x1 - x0 + 1 >= 128 ? ~Row{ 0 } : (Row{ 1 } << (x1 - x0 + 1)) - 1)) << x0;
+	for (int y = y0; y <= y1; ++y)
+	{
+		b.w[y][0] |= static_cast<std::uint64_t>(mask);
+		b.w[y][1] |= static_cast<std::uint64_t>(mask >> 64);
+	}
 }
 } // namespace cbs

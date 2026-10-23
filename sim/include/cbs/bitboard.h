@@ -45,6 +45,12 @@ struct Bitboard
 		for (int y = 0; y < kMaxDim; ++y) w[y][0] &= o.w[y][0], w[y][1] &= o.w[y][1];
 		return *this;
 	}
+	// this &= ~o
+	Bitboard& andnot(const Bitboard& o)
+	{
+		for (int y = 0; y < kMaxDim; ++y) w[y][0] &= ~o.w[y][0], w[y][1] &= ~o.w[y][1];
+		return *this;
+	}
 	bool operator==(const Bitboard& o) const { return std::memcmp(w, o.w, sizeof w) == 0; }
 };
 

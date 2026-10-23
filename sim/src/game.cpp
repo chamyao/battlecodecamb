@@ -228,7 +228,7 @@ void Game::champion_vision(int c, Bitboard& out) const
 {
 	const Champion& ch = champs[c];
 	if (ch.alive) map_->add_window(map_->vision8(ch.pos), ch.pos, out);
-	if (ch.ward_active) map_->vision(ch.ward_pos, static_cast<int>(settings().ward_vision_radius), out);
+	if (ch.ward_active) map_->add_window(map_->vision6(ch.ward_pos), ch.ward_pos, out); // ward_vision_radius == 6
 	for (int i = 0; i < ch.revealed_n; ++i) out.set(ch.revealed[i]);
 }
 

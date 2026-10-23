@@ -8,6 +8,17 @@ Api::Api(Game& g, int team, int champ, const PriceTable* prices) : g_(g), team_(
 
 const Bitboard& Api::vis()
 {
+	// Vision depends only on these fields (reveals are append-only within a round).
+	std::uint64_t key = 0;
+	if (playing())
+	{
+		const Champion& c = g_.champs[champ_];
+		key = static_cast<std::uint64_t>(g_.round) << 40 | static_cast<std::uint64_t>(c.revealed_n) << 32 |
+			  static_cast<std::uint64_t>(c.alive ? 1 + c.pos.x + 101 * c.pos.y : 0) << 16 |
+			  static_cast<std::uint64_t>(c.ward_active ? 1 + c.ward_pos.x + 101 * c.ward_pos.y : 0);
+	}
+	if (key == vis_stamp_) return vis_;
+	vis_stamp_ = key;
 	vis_.clear();
 	if (playing()) g_.champion_vision(champ_, vis_);
 	return vis_;
