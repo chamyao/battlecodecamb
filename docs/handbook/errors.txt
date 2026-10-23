@@ -1,0 +1,192 @@
+◇
+Game handbook
+Patch notes ↗
+Find a rule or champion
+Handbook home
+Game rules
+12
+Champions
+13
+Guides
+4
+Bot API
+3
+Bot API reference
+WASM API reference
+Errors
+Reference
+2
+Code language
+C++
+Python
+Rust
+OCaml
+Handbook
+/
+Bot API
+Errors
+
+ON THIS PAGE
+
+Engine error codes
+
+Engine errors appear as error codes. These can be caught and translated to text:
+
+Error messages and code names
+try {
+    // Call the engine here.
+} catch (const cambc::error& e) {
+    std::cerr << e.message() << '\n';
+}
+
+auto code = cambc::error_code::api_not_in_vision;
+auto text = cambc::to_string(code);
+
+auto text_from_number = cambc::to_string(static_cast<cambc::error_code>(97));
+Engine error codes#
+Find an error code
+
+134 of 134 error codes
+
+Enum name	Value	Description
+success	0	No error.
+invalid_handle	1	A handle does not refer to a live engine object.
+out_of_memory	2	The engine could not allocate memory.
+file_not_found	3	A requested file does not exist.
+null_pointer	4	A required pointer argument was null.
+invalid_argument	5	An argument was invalid, misaligned or overlapping.
+map_parse_error	6	A map file could not be parsed.
+invalid_map_file	7	A map file is malformed.
+invalid_map_version	8	A map file has an unsupported version.
+replay_parse_error	9	A replay file could not be parsed.
+invalid_replay_file	10	A replay file is malformed.
+invalid_replay_version	11	A replay file has an unsupported version.
+invalid_draft	12	The draft request is invalid.
+draft_not_drafting	13	The draft is not in progress.
+draft_duplicate_champion	14	The champion has already been picked.
+draft_invalid_round	15	The draft request does not belong to the current pick round.
+draft_unavailable	16	Draft information is unavailable in the current phase.
+already_initialized	17	The object has already been initialised.
+invalid_action	18	The action is not allowed.
+invalid_action_memory_bad_range	19	A memory write falls outside the buffer.
+invalid_action_memory_draft_frozen	20	Draft memory is read-only after the draft.
+invalid_action_move_cant_move	21	The champion cannot move this turn.
+invalid_action_move_bad_destination	22	The destination is not a legal landing tile.
+invalid_action_spell_cast_invalid_source	23	The caster cannot cast spells.
+invalid_action_spell_cast_invalid_slot	24	The ability slot does not exist.
+invalid_action_spell_cast_no_ability	25	The slot has no ability.
+invalid_action_spell_cast_cant_cast	26	The champion cannot cast this turn.
+invalid_action_spell_cast_already_cast	27	The champion has already cast a spell this turn.
+invalid_action_spell_cast_on_cooldown	28	The ability is on cooldown.
+invalid_action_spell_cast_no_charges	29	The ability has no charges left.
+invalid_action_spell_cast_bad_target	30	The target is not valid for this ability.
+invalid_action_spell_cast_out_of_range	31	The target is out of the ability's range.
+invalid_action_spell_cast_bad_destination	32	The ability's destination tile is not legal.
+invalid_action_cant_act	33	The champion cannot act, for example while stunned.
+invalid_action_is_recalling	34	The action is not allowed while recalling.
+invalid_action_is_submitting_gems	35	The action is not allowed while tributing gems.
+invalid_action_move_already_moved	36	The champion has already moved this turn.
+invalid_action_move_out_of_range	37	The destination is beyond the champion's movement range.
+invalid_action_move_unreachable	38	No legal path reaches the destination.
+invalid_action_attack_invalid_source	39	The attacker cannot attack.
+invalid_action_attack_cant_attack	40	The champion cannot attack this turn.
+invalid_action_attack_already_attacked	41	The champion has already attacked this turn.
+invalid_action_attack_bad_target	42	The target cannot be attacked.
+invalid_action_attack_out_of_range	43	The target is out of attack range.
+invalid_action_recall_cant_channel	44	The champion cannot start a recall now.
+invalid_action_submit_gems_cant_channel	45	The champion cannot start a tribute now.
+invalid_action_submit_gems_no_gems	46	The champion carries no gems.
+invalid_action_submit_gems_bad_altar	47	The position is not an altar.
+invalid_action_submit_gems_out_of_range	48	The altar is out of tribute range.
+invalid_action_buy_item_not_on_spawn	49	Items can only be bought on spawn or while dead.
+invalid_action_buy_item_invalid_item	50	The item does not exist.
+invalid_action_buy_item_invalid_count	51	The purchase count is invalid.
+invalid_action_buy_item_not_enough_gold	52	The champion cannot afford the purchase.
+invalid_action_buy_item_inventory_full	53	The inventory has no room for the item.
+invalid_action_buy_item_stats_overflow	54	The purchase would overflow a stat.
+invalid_action_buy_consumable_not_on_spawn	55	Consumables can only be bought on spawn or while dead.
+invalid_action_buy_consumable_invalid_type	56	The consumable does not exist.
+invalid_action_buy_consumable_invalid_count	57	The purchase count is invalid.
+invalid_action_buy_consumable_inventory_full	58	The champion already carries that consumable.
+invalid_action_buy_consumable_not_enough_gold	59	The champion cannot afford the consumable.
+invalid_action_use_consumable_invalid_type	60	The consumable does not exist.
+invalid_action_use_consumable_not_owned	61	The champion does not carry that consumable.
+invalid_action_place_ward_no_charges	62	The ward trinket has no charge.
+invalid_action_place_ward_cant_place	63	The champion cannot place a ward now.
+invalid_action_place_ward_bad_destination	64	The ward tile is not legal.
+invalid_action_place_ward_out_of_range	65	The ward tile is out of placement range.
+map_set_team_aspawn_area_bad_position	66	Map editing: bad spawn-area position.
+map_add_bush_bad_position	67	Map editing: bad bush position.
+map_remove_bush_bad_position	68	Map editing: bad bush position.
+map_add_wall_bad_position	69	Map editing: bad wall position.
+map_remove_wall_bad_position	70	Map editing: bad wall position.
+map_add_hole_bad_position	71	Map editing: bad hole position.
+map_remove_hole_bad_position	72	Map editing: bad hole position.
+map_add_altar_bad_position	73	Map editing: bad altar position.
+map_remove_altar_bad_position	74	Map editing: bad altar position.
+map_get_bush_bad_position	75	The bush query position is outside the map.
+map_get_wall_bad_position	76	The wall query position is outside the map.
+map_get_hole_bad_position	77	The hole query position is outside the map.
+map_get_altar_bad_position	78	The altar query position is outside the map.
+map_get_camp_handle_at_bad_position	79	The camp query position is outside the map.
+map_add_camp_bad_position	80	Map editing: bad camp position.
+map_set_camp_bad_position	81	Map editing: bad camp position.
+invalid_action_champion_teleport_bad_destination	82	The teleport destination is not a legal landing tile.
+invalid_action_respawn_group_blocked_spawn	83	A camp group's respawn tiles are blocked.
+invalid_action_camp_teleport_bad_destination	84	A camp teleport destination is not legal.
+timeline_bad_seek_position	85	Replay timeline: bad seek position.
+timeline_bad_seek_substep	86	Replay timeline: bad seek substep.
+api_no_map	87	No map is loaded.
+managed_resources_bad_position	88	A bitboard or distance-field position is outside the map.
+managed_resources_bad_radius	89	A radius argument is invalid.
+managed_resources_aliasing	90	Input and output buffers alias where they must not.
+managed_resources_metadata_mismatch	91	A buffer was built for different map dimensions.
+managed_resources_opaque_origin	92	A buffer was not created by the engine.
+api_invalid_team	93	The team is invalid.
+api_invalid_perspective	94	The query is not allowed from this bot's perspective.
+api_not_initialized	95	The API is not initialised.
+api_bad_position	96	The position is outside the map.
+api_not_in_vision	97	The target is not in this champion's vision.
+api_not_found	98	Nothing matches the query.
+api_invalid_camp_group	99	The camp group is invalid.
+api_invalid_camp_info	100	The camp information is invalid.
+api_invalid_camp	101	The camp is invalid.
+api_invalid_champion	102	The champion is invalid.
+api_invalid_ward	103	The ward is invalid.
+api_invalid_ability	104	The ability is invalid.
+api_not_teammate	105	The champion is not on this bot's team.
+api_camp_group_not_waiting_to_respawn	106	The camp group is not waiting to respawn.
+api_champion_alive	107	The champion is alive, so it has no respawn timer.
+api_invalid_champion_type	108	The champion type is invalid.
+api_invalid_camp_type	109	The camp type is invalid.
+api_value_out_of_range	110	A value is out of range.
+api_buffer_too_small	111	The output buffer is too small.
+api_not_owner	112	Only the champion running this bot may act for it.
+invalid_action_recall_already_used	113	A recall has already been started this turn.
+invalid_action_submit_gems_already_used	114	A tribute has already been started this turn.
+invalid_action_cancel_channel_not_channeling	115	The champion is not channelling.
+invalid_action_cancel_channel_already_used	116	A channel has already been cancelled this turn.
+invalid_action_place_ward_ally_ward_present	117	An allied ward already occupies the tile.
+invalid_action_altar_lock_bad_altar	118	The position is not an altar.
+invalid_action_altar_lock_out_of_range	119	The altar is out of altar-lock range.
+invalid_action_altar_lock_already_locked	120	The altar is already locked.
+invalid_action_is_teleporting	123	The action is not allowed while teleporting.
+invalid_action_cancel_channel_not_cancellable	124	This channel cannot be cancelled.
+invalid_action_submit_gems_altar_locked	125	The altar is locked by the enemy.
+invalid_action_spell_cast_already_moved	126	This ability cannot be cast after moving.
+invalid_action_move_exclusive_spell_cast	127	The champion cannot move after casting this ability.
+invalid_action_sell_not_tavi	128	Only Tavi can sell items.
+invalid_action_sell_invalid_item	129	The item does not exist.
+invalid_action_sell_not_owned	130	The champion does not own that item.
+invalid_action_sell_already_sold	131	An item has already been sold this turn.
+invalid_action_sell_gold_overflow	132	The sale would overflow gold.
+invalid_action_sell_not_on_spawn	133	Items can only be sold on spawn.
+draft_already_picked	134	A champion has already been selected this draft turn.
+draft_no_champion_selected	135	Select a champion before ending the draft turn.
+← Previous
+WASM API reference
+←
+→
+turn pages
+Next → · Reference
+Agents.md

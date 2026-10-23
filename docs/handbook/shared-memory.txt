@@ -1,0 +1,48 @@
+◇
+Game handbook
+Patch notes ↗
+Find a rule or champion
+Handbook home
+Game rules
+12
+The game
+Drafting
+A champion turn
+Maps & movement
+Camps & capture
+Gems & altars
+Combat & abilities
+Items & gold
+Vision & wards
+Death, recall & recovery
+Fuel
+Shared memory
+Champions
+13
+Guides
+4
+Bot API
+3
+Reference
+2
+Handbook
+/
+Game rules
+Shared memory
+1 min read · Current game rules
+
+ON THIS PAGE
+
+Each champion has its own bot instance, but there is a team memory buffer that is shared by your team, which cannot be read by the opponent.
+
+Each team has 8 bytes of shared memory, that is readable and writable throughout the match.
+
+In addition, there is the 1024 bytes of draft memory, that is writable during the draft phase, that becomes read-only for your champions during the match itself.
+
+← Previous
+Fuel
+←
+→
+turn pages
+Next → · Champions
+Champion roster

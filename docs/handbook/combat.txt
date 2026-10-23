@@ -1,0 +1,108 @@
+◇
+Game handbook
+Patch notes ↗
+Find a rule or champion
+Handbook home
+Game rules
+12
+The game
+Drafting
+A champion turn
+Maps & movement
+Camps & capture
+Gems & altars
+Combat & abilities
+Items & gold
+Vision & wards
+Death, recall & recovery
+Fuel
+Shared memory
+Champions
+13
+Guides
+4
+Bot API
+3
+Reference
+2
+Handbook
+/
+Game rules
+Combat & abilities
+2 min read · Current game rules
+
+ON THIS PAGE
+
+Basic attacks
+Abilities scale with focus 
+Channels
+Basic attacks#
+
+Every turn champions can attack using their basic attack, melees can hit targets within 1 tile, and ranged within 3. Depending on whether you are the melee or ranged class will determine whether you can move and attack on the same turn or not:
+
+Melee
+Range 1
+AND
+Walk and attack in one turn
+Ranged
+Range 3
+OR
+Walk or attack, not both
+A basic attack deals your Strength  as damage, before modifiers. Diagonals count as one tile, and the target must be visible.
+Abilities scale with focus #
+
+Abilities scale with focus  by taking the champion's focus  value, and multiplying by the ability multiplier.
+
+For example, Stellar starts with 85 focus , and has an ability dealing 2x focus  damage. Therefore she can cast the ability on her turn dealing a burst of 170 damage, starting its 8 turn cooldown. After 8 turns, she can cast the ability again.
+
+THIS TURN
+SLOT 0
+Cast
+SLOT 1
+Not this turn
+→
+AFTERWARDS
+8
+SLOT 0
+8-round cooldown
+SLOT 1
+Ready
+One successful cast per turn, from either slot. Spell damage scales with Focus : 2 × Focus  at 85 Focus  is 170 damage before modifiers.
+
+Ability details such as the range, targeting system, and whether you can cast and move are detailed on each champion's individual page
+
+Targets
+Channels#
+
+Channels are actions that take several turns to complete, such as recall, tribute and teleport. Their timers tick down at your turn end, then execute at your next turn start when the timer is zero. The below table shows the channel actions in the game, and how and when they can be cancelled.
+
+Channels are cancelled by...
+Channel	
+Damage	
+Stun	
+Cancel yourself
+
+Recall
+5 turn ends · 3 with Home
+	
+Cancels	
+Cancels	Yes
+
+Tribute gems
+Gems ÷ 10 turn ends, rounded up (minimum 1)
+	
+Continues	
+Cancels	Yes
+
+Teleport crystal
+3 turn ends
+	
+Continues	
+Cancels	No
+← Previous
+Gems & altars
+←
+→
+turn pages
+Next →
+Items & gold

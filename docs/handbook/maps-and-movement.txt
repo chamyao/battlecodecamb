@@ -1,0 +1,102 @@
+◇
+Game handbook
+Patch notes ↗
+Find a rule or champion
+Handbook home
+Game rules
+12
+The game
+Drafting
+A champion turn
+Maps & movement
+Camps & capture
+Gems & altars
+Combat & abilities
+Items & gold
+Vision & wards
+Death, recall & recovery
+Fuel
+Shared memory
+Champions
+13
+Guides
+4
+Bot API
+3
+Reference
+2
+Handbook
+/
+Game rules
+Maps & movement
+2 min read · Current game rules
+
+ON THIS PAGE
+
+Map features
+Ways to move
+Map features#
+
+The map is a grid, between 30*30 to 100*100, built from 5 different tiles as shown below:
+
+Feature	Description
+
+Wall
+	Blocks line of sight, cannot be moved onto nor can it be dashed over. TP Crystal can reach walls.
+
+Holes
+	Can be seen over, cannot be moved onto but can be dashed over.
+
+Bush
+	Blocks line of sight, can be moved onto. If you are within a bush, you can see out of the bush.
+
+Altar
+	Cannot be moved onto, used to submit gems.
+
+Spawn Tile
+	Cannot be moved onto by opponents. Your team's champions spawns onto these tiles. While standing on these tiles you are healed.
+
+The map also is populated with camps/monsters as outlined in the next section.
+
+Ways to move#
+
+To traverse the map, a champion can move 1 step every turn with their basic move action. Dashes move up to 2 steps, including diagonals, along a legal dash path. Teleport crystals reach up to 3 tiles horizontally and vertically, including diagonals, and ignore terrain between you and the destination.
+
+Walk
+range 1
+Dash
+range 2
+Teleport crystal
+range 3
+Wall
+Hole
+Bush
+Altar
+Can land · 4
+Walk one tile in any of eight directions. Walls, holes and the altar block it; bushes do not.
+
+Ranges use Chebyshev distance. Units you can see also block landing; you can walk through allies but not land on them.
+
+Ask the SDK for your movement mask rather than recomputing walking yourself; it already accounts for the units you can see.
+
+An unseen enemy blocks a step
+Illustrated example
+?
+Play
+Hidden blocker
+Unseen occupant
+Before
+Attempt
+Retry
+Unseen occupant. The bush hides an enemy. Your observed movement mask includes its tile because you cannot see the occupant.
+Hidden enemies still block
+
+If an otherwise legal destination has an unseen occupant, the action returns false without throwing. The blocked tile is revealed to your champion for the rest of the round, and the attempt does not consume your movement allowance, ability cooldown or consumable, so you can try another destination. A destination already known to be occupied raises an error (cambc::error in C++). A successful action returns true. These rules also apply to dashes and teleport crystals; for a crystal, true means its channel started successfully.
+
+← Previous
+A champion turn
+←
+→
+turn pages
+Next →
+Camps & capture
