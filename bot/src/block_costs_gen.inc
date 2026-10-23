@@ -52,6 +52,7 @@
 { "cast_self(Num)", true, { 471968, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4 mean=496 mae=0 (profile fuel)
 { "claim(Tile)", true, { 232178, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=5746 mean=244 mae=0 (profile fuel)
 { "dash_towards(Num,Tile)", true, { 398855, 0, 4584, 0, 29865, 54808, 0, 0, 0, 0 } }, // n=492 mean=2970 mae=378 (profile fuel)
+{ "group_tiles(TileSet)", false, { 1860998, 0, 16526, 0, 0, 0, 0, 2000, 0, 0 } }, // PROVISIONAL (as rich_spawns) until calibrated
 { "move_away_from(Tile)", true, { 1545852, 0, 8628, 0, 5253, 0, 0, 0, 0, 0 } }, // n=4580 mean=2357 mae=53 (profile fuel)
 { "move_towards(Tile)", true, { 1278067, 0, 12037, 0, 21546, 0, 0, 0, 0, 0 } }, // n=8824 mean=2692 mae=111 (profile fuel)
 { "pick(Champ)", true, { 323526, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=109 mean=340 mae=0 (profile fuel)

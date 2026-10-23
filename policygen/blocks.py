@@ -173,6 +173,7 @@ _b("turns_idle", "", "Num")
 _b("enemies_within", "Num", "Num")
 _b("local_strength", "Num", "Num")
 _b("rich_spawns", "Num", "TileSet")
+_b("group_tiles", "TileSet", "TileSet")
 
 # Effects
 _b("move_towards", "Tile", VOID)
