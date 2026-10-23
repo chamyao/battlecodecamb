@@ -6,6 +6,7 @@
 // runner suspends the bot (see runner.h).
 #pragma once
 #include <cstdint>
+#include <memory>
 #include "cbs/coro.h"
 #include "cbs/fuel.h"
 #include "cbs/game.h"
@@ -84,6 +85,13 @@ struct FuelExhausted
 	const char* what() const noexcept { return "fuel exhausted"; }
 };
 
+// Totals of the bot distance-field memo as run by the simulator (diagnostics; not thread-safe).
+struct MemoStats
+{
+	long long calls = 0, misses = 0, layers = 0;
+};
+MemoStats& memo_stats();
+
 class Api
 {
 public:
@@ -103,10 +111,17 @@ public:
 	bool unlimited = true; // no runner: charges are only counted
 	bool count_charges = true; // false in the real bot, where the engine meters fuel itself
 	std::uint64_t suspensions = 0;
-	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0)
+	// Sizes of the last distance_field / nearest_by_walk call as priced (simulator only): BFS
+	// layers searched (bot memo: on a miss only) and tiles queried (nearest_by_walk under the bot
+	// memo: 1 + the reachable mask's tiles). The interpreter charges its blocks on these.
+	struct FieldWork
+	{
+		std::int64_t layers = 0, dests = 0;
+	} last_field;
+	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0, std::int64_t n3 = 0)
 	{
 		if (!count_charges) return;
-		PriceContext ctx{ g_.map().W, g_.map().H, n, n2 };
+		PriceContext ctx{ g_.map().W, g_.map().H, n, n2, n3 };
 		spent += prices_->price(c, ctx);
 		if (!unlimited && !coro_ && spent > budget) throw FuelExhausted{};
 		if (!unlimited && coro_)
@@ -238,5 +253,13 @@ private:
 	bool champion_visible(int h);
 	Bitboard vis_;
 	std::uint64_t vis_stamp_ = ~0ull;
+	// Simulator only: the deploy bot's distance-field memo (cbs/field_memo.h), run to price
+	// distance_field / nearest_by_walk when prices_->bot_memo. Opaque here (api.cpp).
+	std::shared_ptr<void> field_memo_;
+	struct MemoCharge
+	{
+		std::int64_t layers, misses;
+	};
+	MemoCharge memo_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, Vec2 me, bool have_me, int qr);
 };
 } // namespace cbs

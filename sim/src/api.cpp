@@ -1,7 +1,10 @@
 #include "cbs/api.h"
 #include "cbs/coverage.h"
+#include "cbs/field_memo.h"
 #include <algorithm>
+#include <bit>
 #include <cstring>
+#include <vector>
 
 namespace cbs
 {
@@ -684,28 +687,94 @@ void Api::reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
 	charge(Call::bitboard_reachable, layers);
 }
 
+namespace
+{
+// field_memo Ops over the simulator's BFS, with the host's ComputeTo semantics (all dests).
+struct SimFieldOps
+{
+	using Board = Bitboard;
+	int W, H, cw;
+	int fidx(int x, int y) const { return ((y >> 3) * cw + (x >> 3)) * 64 + (y & 7) * 8 + (x & 7); }
+	int delta(const Board& a, const Board& b, Vec2* out) const
+	{
+		int n = 0;
+		for (int y = 0; y < H; ++y)
+			for (int k = 0; k < 2; ++k)
+				for (std::uint64_t d = a.w[y][k] ^ b.w[y][k]; d; d &= d - 1)
+				{
+					if (n < 64) out[n] = { k * 64 + std::countr_zero(d), y };
+					++n;
+				}
+		return n;
+	}
+	std::uint16_t compute(const Board& walls, const Board& roots, const Board* dests, std::uint16_t maxd, std::uint16_t* field,
+						  Board& visited) const
+	{
+		std::vector<std::uint16_t> d(static_cast<std::size_t>(W) * H);
+		const int n = distance_field(walls, roots, dests, W, H, maxd, d.data(), visited, true);
+		for (int y = 0; y < H; ++y)
+			for (int x = 0; x < W; ++x) field[fidx(x, y)] = d[y * W + x];
+		return static_cast<std::uint16_t>(n);
+	}
+};
+using SimMemo = field_memo::Memo<SimFieldOps>;
+} // namespace
+
+MemoStats& memo_stats()
+{
+	static MemoStats s;
+	return s;
+}
+
+Api::MemoCharge Api::memo_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, Vec2 me,
+								bool have_me, int qr)
+{
+	const int W = g_.map().W, H = g_.map().H;
+	if (!field_memo_) field_memo_ = std::make_shared<SimMemo>(SimFieldOps{ W, H, (W + 7) / 8 });
+	const auto ans = static_cast<SimMemo*>(field_memo_.get())->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
+	MemoStats& st = memo_stats();
+	++st.calls;
+	st.misses += ans.miss;
+	st.layers += ans.layers;
+	return { ans.layers, ans.miss ? 1 : 0 };
+}
+
 int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
 						Bitboard& visited)
 {
-	const int n = cbs::distance_field(walls, roots, dests, g_.map().W, g_.map().H, max_distance, dist, visited);
-	charge(Call::distance_field, n, dests ? dests->count(g_.map().H) : 0);
+	const int H = g_.map().H;
+	const int n = cbs::distance_field(walls, roots, dests, g_.map().W, H, max_distance, dist, visited);
+	const std::int64_t nd = dests ? dests->count(H) : 0;
+	if (!prices_->bot_memo || !count_charges)
+	{
+		last_field = { n, nd };
+		charge(Call::distance_field, n, nd);
+		return n;
+	}
+	// As bot_api.cpp: the request as the memo sees it (reads within qr of the champion).
+	const bool have_me = playing() && champion_visible(champ_);
+	const Vec2 me = have_me ? g_.champs[champ_].pos : Vec2{};
+	int qr = 1;
+	if (dests && have_me) dests->for_each(H, [&](int x, int y) { qr = std::max(qr, field_memo::cheb(x, y, me)); });
+	const MemoCharge mc = memo_query(walls, roots, dests, max_distance, me, have_me, std::min(qr, 3));
+	last_field = { mc.layers, nd };
+	charge(Call::distance_field, mc.layers, nd, mc.misses);
 	return n;
 }
 
 bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions)
 {
-	// Per call, not static: the charge inside distance_field can suspend this bot while others
-	// run on the same thread.
-	std::vector<std::uint16_t> field(static_cast<std::size_t>(g_.map().W) * g_.map().H);
+	const int W = g_.map().W, H = g_.map().H;
+	// Per call, not static: a charge can suspend this bot while others run on the same thread.
+	std::vector<std::uint16_t> field(static_cast<std::size_t>(W) * H);
 	std::uint16_t* d = field.data();
 	Bitboard roots, visited;
 	roots.set(origin);
-	const int n = distance_field(walls, roots, &cand, kUnreachable, d, visited);
+	const int n = cbs::distance_field(walls, roots, &cand, W, H, kUnreachable, d, visited);
 	if (expansions) *expansions = n;
-	const int W = g_.map().W;
 	std::uint16_t bd = kUnreachable;
 	bool found = false;
-	cand.for_each(g_.map().H, [&](int x, int y) {
+	cand.for_each(H, [&](int x, int y) {
 		if (d[y * W + x] < bd)
 		{
 			bd = d[y * W + x];
@@ -713,6 +782,23 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 			found = true;
 		}
 	});
+	if (!prices_->bot_memo || !count_charges)
+	{
+		last_field = { n, cand.count(H) };
+		charge(Call::nearest_by_walk, n, last_field.dests);
+	}
+	else
+	{
+		// As bot_api.cpp: a candidate-rooted field read only at origin (memoised), then a
+		// reachable mask out to the nearest candidate's distance: the tiles this search saw.
+		const bool have_me = playing() && champion_visible(champ_) && g_.champs[champ_].pos == origin;
+		Bitboard o;
+		o.set(origin);
+		const MemoCharge mc = memo_query(walls, cand, &o, kUnreachable, origin, have_me, 0);
+		const std::int64_t reach = found ? visited.count(H) : 0;
+		last_field = { mc.layers, 1 + reach };
+		charge(Call::nearest_by_walk, mc.layers, last_field.dests, mc.misses);
+	}
 	return found;
 }
 

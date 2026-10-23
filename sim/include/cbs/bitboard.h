@@ -111,9 +111,11 @@ void shadow_cast(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bit
 // Engine Bitboard::reachable_tiles: 8-neighbour BFS over non-walls up to `dist` steps.
 void reachable(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitboard& out);
 // Engine DistanceField compute / compute_to. `dests` may be null. Returns the expansion count.
+// The search stops after the first layer that reaches a dest; with `all_dests`, only once every
+// dest is reached (the host's ComputeTo, which the deploy bot calls; see field_memo.h).
 constexpr std::uint16_t kUnreachable = 0xFFFF;
 int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int W, int H, int max_distance,
-				   std::uint16_t* dist /* W*H row-major */, Bitboard& visited);
+				   std::uint16_t* dist /* W*H row-major */, Bitboard& visited, bool all_dests = false);
 void draw_circle(Bitboard& b, int W, int H, Vec2 c, float r);
 void draw_chebyshev(Bitboard& b, int W, int H, Vec2 c, float r);
 

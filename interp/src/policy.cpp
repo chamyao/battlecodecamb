@@ -584,8 +584,8 @@ struct Interp
 		const int n = api.distance_field(walls, roots, dests, cbs::kUnreachable, field.data(), visited);
 		if (api.count_charges)
 		{
-			work.exp += n;
-			if (dests) work.dests += dests->count(m().H);
+			work.exp += api.last_field.layers;
+			work.dests += api.last_field.dests;
 		}
 		return n;
 	}
@@ -763,8 +763,8 @@ struct Interp
 		if (!api.nearest_by_walk(walls, pos, cand, best, &n)) best = kNoTile;
 		if (api.count_charges)
 		{
-			work.exp += n;
-			work.dests += cand.count(m().H);
+			work.exp += api.last_field.layers;
+			work.dests += api.last_field.dests;
 		}
 		return best;
 	}
