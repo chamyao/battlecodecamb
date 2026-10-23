@@ -14,6 +14,7 @@
 namespace interp
 {
 struct Program;
+struct Step;
 
 // Throws std::runtime_error on malformed input or unknown blocks.
 std::shared_ptr<const Program> load_program(const std::string& text);
@@ -22,6 +23,12 @@ std::shared_ptr<const Program> load_program_file(const std::string& path);
 // all string work, for bots.
 std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std::size_t n, const double* nums, std::size_t nnums,
 												  const char* const* bytes_hex, std::size_t nbytes);
+
+// Constant data from bot/encode_policy.py (the same program load_program_codes would build):
+// no parsing at all. The arrays must outlive the program.
+std::shared_ptr<const Program> load_program_static(const Step* steps, std::size_t n);
+// Structural equality (ops, variables, constants, nesting), for checking a static program.
+bool same_program(const Program& a, const Program& b);
 
 // bot_seeds: seed each instance as the deploy bot does (bot/src/main.cpp) instead of from `seed`,
 // so a simulated game reproduces the bot's random choices in the same cambc game.
