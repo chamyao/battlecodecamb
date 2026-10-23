@@ -113,6 +113,35 @@ int main()
 		print_board("circle", c);
 		print_board("cheb", k);
 	}
+	// 5. ComputeTo with several dests (some may be walls or unreachable): when does it stop?
+	for (int t = 0; t < 60; ++t)
+	{
+		auto walls = random_walls(static_cast<int>(rnd() % 40));
+		bitboard roots, dests, visited;
+		roots.set({ static_cast<int>(rnd() % W), static_cast<int>(rnd() % H) });
+		const int ndests = 2 + static_cast<int>(rnd() % 4);
+		for (int i = 0; i < ndests; ++i) dests.set({ static_cast<int>(rnd() % W), static_cast<int>(rnd() % H) });
+		const std::uint16_t maxd = (rnd() % 3 == 0) ? static_cast<std::uint16_t>(rnd() % 30) : distance_field::unreachable;
+		distance_field f;
+		std::uint16_t count{};
+		int rc = sdk_DistanceField_ComputeToWithExpansionCount(walls.ptr(), roots.ptr(), dests.ptr(), visited.ptr(), f.ptr(), maxd, &count);
+		std::printf("@@rc %d\n", rc);
+		print_board("walls", walls);
+		print_board("roots", roots);
+		print_board("dests", dests);
+		std::printf("@@fieldm %u %u ", maxd, count);
+		for (auto v : f.export_linear_buffer()) std::printf("%x,", v);
+		std::printf("\n");
+		print_board("visited", visited);
+	}
+	// 6. GetSetBits with more set bits than the output holds: is n the total or the number written?
+	{
+		auto b = random_walls(30);
+		vec2 pos[64];
+		std::uint32_t n = 0;
+		const int rc = sdk_Bitboard_GetSetBits(b.ptr(), pos, 64, &n);
+		std::printf("@@setbits %d %u %d\n", rc, n, static_cast<int>(b.count()));
+	}
 	std::printf("@@done\n");
 	draft::pick(champion_draft::ryth);
 	for (;;)

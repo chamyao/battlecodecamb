@@ -6,6 +6,7 @@
 // runner suspends the bot (see runner.h).
 #pragma once
 #include <cstdint>
+#include <memory>
 #include "cbs/coro.h"
 #include "cbs/fuel.h"
 #include "cbs/game.h"
@@ -84,6 +85,20 @@ struct FuelExhausted
 	const char* what() const noexcept { return "fuel exhausted"; }
 };
 
+// Totals of the bot distance-field memo as run by the simulator. Diagnostics: collected only
+// while `enabled` is set (interp/tools/fuel_turns does), single-threaded use only.
+struct MemoStats
+{
+	bool enabled = false;
+	long long calls = 0, misses = 0, layers = 0;
+	long long call_n[static_cast<int>(Call::count)] = {}, call_fuel[static_cast<int>(Call::count)] = {}; // by Call, all charges
+};
+inline MemoStats& memo_stats()
+{
+	static MemoStats s;
+	return s;
+}
+
 class Api
 {
 public:
@@ -103,11 +118,27 @@ public:
 	bool unlimited = true; // no runner: charges are only counted
 	bool count_charges = true; // false in the real bot, where the engine meters fuel itself
 	std::uint64_t suspensions = 0;
-	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0)
+	std::uint64_t api_calls = 0; // charged engine calls (not compute / yield), for per-call overheads
+	// Sizes of the last distance_field / nearest_by_walk call as priced (simulator only): BFS
+	// layers searched (bot memo: on a miss only) and tiles queried (nearest_by_walk under the bot
+	// memo: 1 + the reachable mask's tiles). The interpreter charges its blocks on these.
+	struct FieldWork
+	{
+		std::int64_t layers = 0, dests = 0;
+	} last_field;
+	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0, std::int64_t n3 = 0)
 	{
 		if (!count_charges) return;
-		PriceContext ctx{ g_.map().W, g_.map().H, n, n2 };
-		spent += prices_->price(c, ctx);
+		PriceContext ctx{ g_.map().W, g_.map().H, n, n2, n3 };
+		const std::int64_t p = prices_->price(c, ctx);
+		spent += p;
+		if (c != Call::compute && c != Call::yield) ++api_calls;
+		if (memo_stats().enabled && prices_->bot_memo)
+		{
+			MemoStats& ms = memo_stats();
+			++ms.call_n[static_cast<int>(c)];
+			ms.call_fuel[static_cast<int>(c)] += p;
+		}
 		if (!unlimited && !coro_ && spent > budget) throw FuelExhausted{};
 		if (!unlimited && coro_)
 			while (spent > budget)
@@ -176,6 +207,9 @@ public:
 	Err wards(WardRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err teleports(TeleportRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* count);
+	// Handles of the visible living camps (camp() succeeds with health > 0), ascending. Priced
+	// as camp() on every camp handle; a real bot may find them any cheaper exact way.
+	void visible_camps(std::vector<std::uint32_t>& out);
 	Err submitted_gems(std::uint32_t team, std::uint32_t* out);
 	Err round_number(std::uint32_t* out);
 
@@ -235,5 +269,13 @@ private:
 	bool champion_visible(int h);
 	Bitboard vis_;
 	std::uint64_t vis_stamp_ = ~0ull;
+	// Simulator only: the deploy bot's distance-field memo (cbs/field_memo.h), run to price
+	// distance_field / nearest_by_walk when prices_->bot_memo. Opaque here (api.cpp).
+	std::shared_ptr<void> field_memo_;
+	struct MemoCharge
+	{
+		std::int64_t layers, misses;
+	};
+	MemoCharge memo_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, Vec2 me, bool have_me, int qr);
 };
 } // namespace cbs

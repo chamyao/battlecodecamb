@@ -10,6 +10,10 @@ inline int ctz128(unsigned __int128 v)
 	const auto lo = static_cast<std::uint64_t>(v);
 	return lo ? std::countr_zero(lo) : 64 + std::countr_zero(static_cast<std::uint64_t>(v >> 64));
 }
+inline int popcount128(unsigned __int128 v)
+{
+	return std::popcount(static_cast<std::uint64_t>(v)) + std::popcount(static_cast<std::uint64_t>(v >> 64));
+}
 } // namespace
 
 void to_linear(const Bitboard& b, int W, int H, std::uint8_t* out)
@@ -81,7 +85,7 @@ void reachable(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitbo
 }
 
 int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int W, int H, int max_distance,
-				   std::uint16_t* dist, Bitboard& visited)
+				   std::uint16_t* dist, Bitboard& visited, bool all_dests)
 {
 	// Layered BFS over whole rows (128-bit), matching the engine's queue BFS layer by layer.
 	using Row = unsigned __int128;
@@ -91,6 +95,15 @@ int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard*
 	visited.clear();
 	for (int i = 0; i < W * H; ++i) dist[i] = kUnreachable;
 	bool reached = false, any = false;
+	int left = 0; // all_dests: dests not yet reached
+	if (dests && all_dests)
+		for (int y = 0; y < H; ++y) left += popcount128(load(*dests, y) & full);
+	auto arrive = [&](Row layer, int y) {
+		const Row hit = layer & load(*dests, y);
+		if (!hit) return;
+		if (!all_dests) reached = true;
+		else if ((left -= popcount128(hit)) == 0) reached = true;
+	};
 	int y0 = H, y1 = -1; // rows spanned by the frontier
 	for (int y = 0; y < H; ++y)
 	{
@@ -101,7 +114,7 @@ int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard*
 		{
 			any = true;
 			y0 = std::min(y0, y), y1 = y;
-			if (dests && (front[y] & load(*dests, y))) reached = true;
+			if (dests) arrive(front[y], y);
 			for (Row b = front[y]; b; b &= b - 1) dist[y * W + ctz128(b)] = 0;
 		}
 	}
@@ -132,7 +145,7 @@ int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard*
 			front[y] = next[y];
 			if (!next[y]) continue;
 			seen[y] |= next[y];
-			if (dests && (next[y] & load(*dests, y))) reached = true;
+			if (dests) arrive(next[y], y);
 			for (Row b = next[y]; b; b &= b - 1) dist[y * W + ctz128(b)] = d;
 		}
 		// Rows of the old frontier outside [lo, hi] cannot exist; clear stale rows outside the new span.

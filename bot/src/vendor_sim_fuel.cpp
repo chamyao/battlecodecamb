@@ -12,7 +12,7 @@ PriceTable::PriceTable()
 	for (int i = 0; i < static_cast<int>(Call::count); ++i)
 	{
 		base[i] = 8; // unmeasured calls: a typical small host call
-		per_row[i] = per_chunk[i] = per_n_milli[i] = per_n_chunk_milli[i] = per_n2_milli[i] = 0;
+		per_row[i] = per_chunk[i] = per_n_milli[i] = per_n_chunk_milli[i] = per_n2_milli[i] = per_n3_milli[i] = per_n3_chunk_milli[i] = 0;
 	}
 	auto set = [&](Call c, std::int64_t b, std::int64_t chunk = 0, std::int64_t n_milli = 0) {
 		base[static_cast<int>(c)] = b;
@@ -108,6 +108,9 @@ PriceTable::PriceTable()
 	set(Call::bitboard_reachable, 0, 1, 11000); // n = BFS layers that grew (fit, +-~90)
 	set(Call::distance_field, 9, 16);			// + expansions x chunks (exact); n = expansions
 	per_n_chunk_milli[static_cast<int>(Call::distance_field)] = 1000;
+	set(Call::nearest_by_walk, 9, 16); // the same field, rooted at the origin
+	per_n_chunk_milli[static_cast<int>(Call::nearest_by_walk)] = 1000;
+	set(Call::visible_camps, 0); // raw: charged as one camp call per camp instead
 	set(Call::draw_shape, 16, 0, 1000);			// n = chunks covered by the shape's bounding box (+-~2)
 	// misc
 	set(Call::fuel_remaining, 1);
@@ -127,6 +130,7 @@ const PriceTable& PriceTable::bot_wrapper()
 	static const PriceTable t = [] {
 		PriceTable p;
 #include "fuel_bot_gen.inc"
+		p.bot_memo = true;
 		return p;
 	}();
 	return t;

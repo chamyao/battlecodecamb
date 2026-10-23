@@ -149,6 +149,23 @@ int main()
 		std::printf("@@BB computeTo cnt=%u maxv=%d mindest=%d visited_mismatch=%d\n", cnt, maxv, mind, bad);
 		if (bad) ++fails;
 	}
+	{
+		// Does ComputeTo overwrite every entry of the output field, or only the tiles it reaches?
+		static std::uint16_t field[13 * 14 * 64];
+		for (auto& v : field) v = 5;
+		Bitboard walls, roots, dests, vis;
+		roots.set(W / 2, H / 2);
+		dests.set(W / 2 + 3, H / 2);
+		std::uint16_t cnt = 0;
+		cambc::detail::sdk_DistanceField_ComputeToWithExpansionCount(walls.w, roots.w, dests.w, vis.w, field, 0xFFFF, &cnt);
+		int stale = 0, unreached = 0;
+		for (int y = 0; y < H; ++y) for (int x = 0; x < W; ++x)
+		{
+			std::uint16_t v = field[((y >> 3) * (int)hostbb::md.chunked_width + (x >> 3)) * 64 + (y & 7) * 8 + (x & 7)];
+			if (!vis.test(x, y)) { stale += v == 5; unreached += v == 65535; }
+		}
+		std::printf("@@BB stale-check cnt=%u unvisited: stale=%d unreachable=%d\n", cnt, stale, unreached);
+	}
 	std::printf("@@BB done W=%d H=%d stride=%d words=%d fails=%d\n", W, H, hostbb::stride, hostbb::words, fails);
 	for (int i = 0;; ++i) { try { cambc::draft::pick(static_cast<cambc::champion_draft>(i % 11)); } catch (...) {} cambc::end_turn(); }
 }
