@@ -68,6 +68,22 @@ monoliths).
   without finishing them.
 - `01starvation`: 42 elk deaths (v7-zerogem), as in every version so far.
 
+### V4.1 Flash is a different story (v7-zerogem, 1-4)
+
+Camp value was not the problem against V4.1 Flash: in 3 of the 4 losses our gems per capture
+were 15-30 with almost no gold-only captures. Per game:
+
+| map | result | what happened |
+|---|---|---|
+| 00quadrants | 817-1028, 808 rounds | Close tempo race, 3 deaths. Our bag 21 vs their 39.5 (33 tributes vs 26), and they cleared the golem group twice (240 gems) to our once (120). |
+| 01the_farm | 48-1023 | We did almost nothing: 4 captures in 1,664 rounds vs their 41. Third straight loss on this map, a map-specific failure. |
+| 01big_world | 629-1017 | 15 deaths to monoliths (we don't target them, but we fight or path in their range). They had 2 deaths, no monolith captures, more captures (54 vs 41) and more gold (8.5k vs 6.5k). |
+| 01starvation | 451-492 | 42 deaths to the elk x4 group. We made 18 captures vs their 76, with 974 gold vs 6,166, so no items, so we can't clear. Same failure on this map in every version. |
+
+So against V4.1 Flash the losses are mostly map-specific failures (`01the_farm`,
+`01starvation`, monolith deaths on `01big_world`) plus one tempo race on quadrants. The
+value-blind camp choice applies to the DeepSleep games (and TrueCoders), not to these.
+
 ## Opponents
 
 | opponent | our W-L | their draft | deaths us/them per game | their median bag |
