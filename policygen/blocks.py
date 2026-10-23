@@ -48,6 +48,9 @@ for _name, _op in (("add", "+"), ("sub", "-"), ("mul", "*"), ("div", "/")):
     _b(_name, "Num Num", "Num", _op)
 for _name, _op in (("lt", "<"), ("le", "<="), ("gt", ">"), ("ge", ">="), ("eq", "==")):
     _b(_name, "Num Num", "Bool", _op)
+_b("ne", "Num Num", "Bool", "!=")
+_b("true", "", "Bool")
+_b("false", "", "Bool")
 _b("and", "Bool Bool", "Bool", "and")
 _b("or", "Bool Bool", "Bool", "or")
 _b("not", "Bool", "Bool")

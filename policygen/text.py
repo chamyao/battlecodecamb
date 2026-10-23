@@ -12,7 +12,7 @@ from .tree import Call, Const, Do, EndTurn, If, Let, Var, type_of
 _KEEP = re.compile(r"^(\s*)keep\s+(\w+)\s*=\s*(.*)$")
 _LET = re.compile(r"^(\s*)let\s+(\w+)\s*=")
 _BINOP = {pyast.Add: "add", pyast.Sub: "sub", pyast.Mult: "mul", pyast.Div: "div"}
-_CMP = {pyast.Lt: "lt", pyast.LtE: "le", pyast.Gt: "gt", pyast.GtE: "ge", pyast.Eq: "eq"}
+_CMP = {pyast.Lt: "lt", pyast.LtE: "le", pyast.Gt: "gt", pyast.GtE: "ge", pyast.Eq: "eq", pyast.NotEq: "ne"}
 _BOOL = {pyast.And: "and", pyast.Or: "or"}
 
 
@@ -74,6 +74,8 @@ class _Parser:
 
     def expr(self, node, scope):
         if isinstance(node, pyast.Constant):
+            if isinstance(node.value, bool):
+                return self.call("true" if node.value else "false", [])
             if isinstance(node.value, str):
                 return Const("Bytes", node.value.encode())
             if isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
@@ -84,9 +86,9 @@ class _Parser:
             return self.call(node.id, [])
         elif isinstance(node, pyast.Call):
             return self.call(node.func.id, [self.expr(a, scope) for a in node.args])
-        elif isinstance(node, pyast.BinOp):
+        elif isinstance(node, pyast.BinOp) and type(node.op) in _BINOP:
             return self.call(_BINOP[type(node.op)], [self.expr(node.left, scope), self.expr(node.right, scope)])
-        elif isinstance(node, pyast.Compare) and len(node.ops) == 1:
+        elif isinstance(node, pyast.Compare) and len(node.ops) == 1 and type(node.ops[0]) in _CMP:
             return self.call(_CMP[type(node.ops[0])],
                              [self.expr(node.left, scope), self.expr(node.comparators[0], scope)])
         elif isinstance(node, pyast.BoolOp):
@@ -97,8 +99,10 @@ class _Parser:
         elif isinstance(node, pyast.UnaryOp):
             if isinstance(node.op, pyast.Not):
                 return self.call("not", [self.expr(node.operand, scope)])
-            if isinstance(node.op, pyast.USub) and isinstance(node.operand, pyast.Constant):
-                return Const("Num", -node.operand.value)
+            if isinstance(node.op, pyast.USub):
+                if isinstance(node.operand, pyast.Constant) and not isinstance(node.operand.value, bool):
+                    return Const("Num", -node.operand.value)
+                return self.call("sub", [Const("Num", 0), self.expr(node.operand, scope)])
         raise SyntaxError(f"line {node.lineno}: unsupported expression {pyast.unparse(node)}")
 
 
