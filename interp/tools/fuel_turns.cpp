@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--side")) side = argv[++i][0] == 'b';
 		else if (!std::strcmp(argv[i], "--enforce")) enforce = true;
 	}
+	cbs::memo_stats().enabled = true; // single-threaded: collect diagnostics
 	auto prog = interp::load_program_file(argv[1]);
 	auto pol = interp::make_policy_player(prog, seed);
 	auto st = cbs::make_player("starter", seed + 1);
