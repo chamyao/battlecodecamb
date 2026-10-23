@@ -43,9 +43,6 @@ constexpr int kFieldWords = 13 * 13 * 64; // u16 entries: 100x100 in 8x8 chunks
 constexpr int kSlots = 4;
 // Many changed tiles rarely pass box_unaffected; each removed one costs ~300 fuel to examine.
 constexpr int kMaxDelta = 24;
-// Chain steps box_unaffected may take to show that new walls leave Q's distances unchanged
-// (each scans 8 neighbours).
-constexpr int kChainSteps = 8;
 constexpr std::uint16_t kFar = 0xFFFF; // unreached (kUnreachable)
 
 template <class Board>
@@ -56,6 +53,7 @@ struct Slot
 	int depth = -1;		   // last layer expanded; -1 = empty slot
 	bool complete = false; // the search ran out of tiles (every reachable tile is exact)
 	int maxd = 0;
+	Vec2 root0{ -1, -1 }; // first root in row-major order: a cheap mismatch test before roots ==
 	std::uint64_t used = 0;
 };
 
@@ -92,9 +90,10 @@ public:
 
 	// `me` is the champion's tile (have_me false for the draft bot). The caller reads the
 	// answer only at dests and at open tiles within Chebyshev `qr` of `me` (qr > 2: no
-	// walls-changed reuse).
+	// walls-changed reuse). With compute false a miss runs no search and returns f == nullptr
+	// (miss set, no slot touched).
 	Answer<Ops> query(const Board& walls, const Board& roots, const Board* dests, int max_distance, bool have_me, Vec2 me, int qr,
-					  int W, int H)
+					  int W, int H, bool compute = true)
 	{
 		if (!slots_) slots_.reset(new Slot<Board>[kSlots]);
 		const auto maxd = static_cast<std::uint16_t>(std::clamp(max_distance, 0, 0xFFFF));
@@ -117,11 +116,13 @@ public:
 		};
 		Answer<Ops> ans{ &ops_, nullptr, &walls, -1, 0, false, 0, 0, -1, -1 };
 		Slot<Board>*use = nullptr, *same_roots = nullptr;
+		Vec2 root0{ -1, -1 };
+		if (!roots.first(H, root0)) root0 = { -1, -1 };
 		for (int i = 0; i < kSlots && !use; ++i)
 		{
 			Slot<Board>& sl = slots_[i];
 			if (reference) continue;
-			if (sl.depth < 0 || sl.maxd != maxd || !(sl.roots == roots)) continue;
+			if (sl.depth < 0 || sl.maxd != maxd || !(sl.root0 == root0) || !(sl.roots == roots)) continue;
 			same_roots = &sl;
 			if (sl.walls == walls)
 			{
@@ -147,6 +148,11 @@ public:
 			ans.depth = use->depth;
 			ans.complete = use->complete;
 		}
+		else if (!compute)
+		{
+			ans.miss = true;
+			return ans;
+		}
 		else
 		{
 			// Replace the stale field with the same roots, else the least recently used one.
@@ -168,6 +174,7 @@ public:
 			const std::uint16_t count = ops_.compute(walls, roots, sd, maxd, use->field, visited_);
 			use->walls = walls;
 			use->roots = roots;
+			use->root0 = root0;
 			use->maxd = maxd;
 			use->depth = count;
 			// Stopped early only if a dest was reached (visited = every reached tile) or at maxd.
@@ -203,19 +210,13 @@ private:
 	// dests are in Q)? Every q in Q must keep its cached distance D_q if D_q <= S, and stay
 	// farther than S otherwise. (Tiles that are walls in the request read as unreachable, which
 	// is exact: see Answer.) Let A be the tiles that became walls and R those that opened.
-	//  - An old shortest path to q passes through a in A only if d(a) + cheb(a, q) <= D_q
-	//    (cheb(a, q) >= max(1, cheb(a, me) - qr)); other a are irrelevant. With relevant ones, q
-	//    keeps D_q if a chain of open tiles descends one layer per step from q to a tile x that
-	//    no relevant a can be on a shortest path to (d(a) + cheb(a, x) > d(x) for all of them):
-	//    x keeps an old shortest path, and the chain extends it to q. (An irrelevant a cannot be
-	//    on a shortest path to a chain tile either: the chain tile is on one to q.) Walls only
-	//    remove paths, so nothing gets closer through A.
+	//  - An old shortest path to q passes through a in A only if d(a) + cheb(a, q) <= D_q. If no
+	//    a qualifies, an old shortest path survives, so q gets no farther. (Walls only removed
+	//    paths, so tiles farther than S stay so.)
 	//  - A new path that uses R enters its first r in R from a neighbour n reached without R, so
 	//    it is at least lb(r) + cheb(r, q) long, lb(r) = min_n d(n) + 1 over old-open n. If that
 	//    is at least D_q (or S + 1 for tiles farther than S), q gets no closer.
 	// Unknown distances (beyond L) are taken as L + 1: a lower bound, so the test stays sound.
-	// Changes that cannot matter anywhere in Q are skipped with one test each (the bounds above
-	// over all of Q at once); only the rest are checked per tile of Q.
 	bool box_unaffected(const Slot<Board>& sl, const Board& walls, const Board& roots, Vec2 me, int S, int qr, int W, int H)
 	{
 		Vec2 delta[kMaxDelta];
@@ -226,8 +227,10 @@ private:
 			const int v = sl.field[ops_.fidx(x, y)];
 			return v <= L ? v : L + 1;
 		};
-		Vec2 ra[kMaxDelta], rr[kMaxDelta];
-		int da[kMaxDelta], lbr[kMaxDelta], na = 0, nr = 0;
+		// Each changed tile is tested once against all of Q (cheb(t, q) >= cheb(t, me) - qr, and
+		// every target is at most S, or S + 1 for tiles beyond S). Measured on the bot: per-q
+		// loops cost ~1.3k + ~700 per tile and attempts often fail; this is cheap, and a
+		// rejection only costs a fresh search.
 		for (int i = 0; i < n; ++i)
 		{
 			const int x = delta[i].x, y = delta[i].y;
@@ -236,8 +239,7 @@ private:
 			if (walls.test(x, y))
 			{
 				// a is excluded from Q (walls read as unreachable), so cheb(a, q) >= 1 for q in Q.
-				const int da0 = d(x, y);
-				if (da0 + std::max(1, c - qr) <= S) ra[na] = delta[i], da[na++] = da0;
+				if (d(x, y) + std::max(1, c - qr) <= S) return false;
 			}
 			else
 			{
@@ -246,60 +248,9 @@ private:
 				for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
 					for (int xx = std::max(0, x - 1); xx <= std::min(W - 1, x + 1); ++xx)
 						if ((xx != x || yy != y) && !sl.walls.test(xx, yy)) lb = std::min(lb, d(xx, yy) + 1);
-				if (lb + std::max(0, c - qr) < S + 1) rr[nr] = delta[i], lbr[nr++] = lb;
+				if (lb + std::max(0, c - qr) < S + 1) return false;
 			}
 		}
-		if (!na && !nr) return true;
-		// Tiles shown to keep their distance, shared by the tiles of Q; chain steps left.
-		Vec2 ok[kChainSteps + 1];
-		int nok = 0, steps = kChainSteps;
-		// How far x is from having a relevant a on a shortest path (> 0: none can be).
-		auto margin = [&](int x, int y, int dx) {
-			int m = 0x10000;
-			for (int k = 0; k < na; ++k) m = std::min(m, da[k] + cheb(x, y, ra[k]) - dx);
-			return m;
-		};
-		auto known = [&](int x, int y) {
-			for (int k = 0; k < nok; ++k)
-				if (ok[k].x == x && ok[k].y == y) return true;
-			return false;
-		};
-		// Greedy chain from q: step to the open neighbour one layer down with the largest
-		// margin (each step down raises the margin by 1 + the change in cheb(a, .)).
-		auto certify = [&](int qx, int qy, int dq) {
-			int x = qx, y = qy, v = dq, n0 = nok;
-			for (int m; (m = margin(x, y, v)) <= 0 && !known(x, y);)
-			{
-				// each step raises the margin by at most 2
-				if ((2 - m) / 2 > steps || nok == kChainSteps + 1) return false;
-				--steps;
-				ok[nok++] = { x, y };
-				int bx = -1, by = -1, bm = -0x10000;
-				for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
-					for (int xx = std::max(0, x - 1); xx <= std::min(W - 1, x + 1); ++xx)
-						if (d(xx, yy) == v - 1 && !walls.test(xx, yy))
-						{
-							const int mz = margin(xx, yy, v - 1);
-							if (mz > bm) bm = mz, bx = xx, by = yy;
-						}
-				if (bx < 0)
-				{
-					nok = n0;
-					return false;
-				}
-				x = bx, y = by, --v;
-			}
-			return true;
-		};
-		for (int y = std::max(0, me.y - qr); y <= std::min(H - 1, me.y + qr); ++y)
-			for (int x = std::max(0, me.x - qr); x <= std::min(W - 1, me.x + qr); ++x)
-			{
-				if (walls.test(x, y)) continue;
-				const int dq = d(x, y), target = dq <= S ? dq : S + 1;
-				for (int k = 0; k < nr; ++k)
-					if (lbr[k] + cheb(x, y, rr[k]) < target) return false;
-				if (na && dq <= S && !certify(x, y, dq)) return false;
-			}
 		return true;
 	}
 

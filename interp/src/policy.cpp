@@ -789,7 +789,7 @@ struct Interp
 				}
 				break;
 			case Step::if_:
-				if (eval(s.expr).n != 0)
+				if (evaln(s.expr) != 0)
 				{
 					if (!run(s.then)) return false;
 				}
@@ -1001,6 +1001,66 @@ struct Interp
 		return r;
 	}
 
+	// eval(e).n without building Values: numeric and boolean operators evaluate their operands
+	// here (same order, same charges), so a condition like `a > b and not c` makes no
+	// temporaries (a Value carries three shared_ptrs and a string, costly to make and destroy
+	// in the wasm bot). Anything else goes through eval.
+	double evaln(const Expr& e)
+	{
+		switch (e.op)
+		{
+		case Op::const_num: return e.num;
+		case Op::var: return vars[e.var].n;
+		case Op::add:
+		case Op::sub:
+		case Op::mul:
+		case Op::div:
+		case Op::lt:
+		case Op::le:
+		case Op::gt:
+		case Op::ge:
+		case Op::eq:
+		case Op::ne:
+		case Op::true_:
+		case Op::false_:
+		case Op::and_:
+		case Op::or_:
+		case Op::not_:
+		case Op::floor_: break;
+		default: return eval(e).n;
+		}
+		Charge charge{ *this, e.op, false };
+		const auto& a = e.args;
+		switch (e.op)
+		{
+		case Op::add: return evaln(a[0]) + evaln(a[1]);
+		case Op::sub: return evaln(a[0]) - evaln(a[1]);
+		case Op::mul: return evaln(a[0]) * evaln(a[1]);
+		case Op::div:
+		{
+			const double x = evaln(a[0]), y = evaln(a[1]);
+			return y == 0 ? 0 : x / y;
+		}
+		case Op::lt: return evaln(a[0]) < evaln(a[1]);
+		case Op::le: return evaln(a[0]) <= evaln(a[1]);
+		case Op::gt: return evaln(a[0]) > evaln(a[1]);
+		case Op::ge: return evaln(a[0]) >= evaln(a[1]);
+		case Op::eq: return evaln(a[0]) == evaln(a[1]);
+		case Op::ne: return evaln(a[0]) != evaln(a[1]);
+		case Op::true_: return 1;
+		case Op::false_: return 0;
+		case Op::and_: return evaln(a[0]) != 0 && evaln(a[1]) != 0;
+		case Op::or_: return evaln(a[0]) != 0 || evaln(a[1]) != 0;
+		case Op::not_: return evaln(a[0]) == 0;
+		default: return std::floor(evaln(a[0])); // floor_
+		}
+	}
+
+	// eval(e).tile / .unit / .set, without copying a variable's whole Value.
+	Vec2 evalt(const Expr& e) { return e.op == Op::var ? vars[e.var].tile : eval(e).tile; }
+	Unit evalu(const Expr& e) { return e.op == Op::var ? vars[e.var].unit : eval(e).unit; }
+	std::shared_ptr<Bitboard> evals(const Expr& e) { return e.op == Op::var ? vars[e.var].set : eval(e).set; }
+
 	Value eval(const Expr& e)
 	{
 		if (e.op == Op::const_num) return num(e.num);
@@ -1020,26 +1080,26 @@ struct Interp
 		case Op::stat_strength: return num(0);
 		case Op::stat_focus: return num(1);
 		case Op::stat_health: return num(2);
-		case Op::add: return num(eval(a[0]).n + eval(a[1]).n);
-		case Op::sub: return num(eval(a[0]).n - eval(a[1]).n);
-		case Op::mul: return num(eval(a[0]).n * eval(a[1]).n);
+		case Op::add: return num(evaln(a[0]) + evaln(a[1]));
+		case Op::sub: return num(evaln(a[0]) - evaln(a[1]));
+		case Op::mul: return num(evaln(a[0]) * evaln(a[1]));
 		case Op::div:
 		{
-			const double x = eval(a[0]).n, y = eval(a[1]).n;
+			const double x = evaln(a[0]), y = evaln(a[1]);
 			return num(y == 0 ? 0 : x / y);
 		}
-		case Op::lt: return num(eval(a[0]).n < eval(a[1]).n);
-		case Op::le: return num(eval(a[0]).n <= eval(a[1]).n);
-		case Op::gt: return num(eval(a[0]).n > eval(a[1]).n);
-		case Op::ge: return num(eval(a[0]).n >= eval(a[1]).n);
-		case Op::eq: return num(eval(a[0]).n == eval(a[1]).n);
-		case Op::ne: return num(eval(a[0]).n != eval(a[1]).n);
+		case Op::lt: return num(evaln(a[0]) < evaln(a[1]));
+		case Op::le: return num(evaln(a[0]) <= evaln(a[1]));
+		case Op::gt: return num(evaln(a[0]) > evaln(a[1]));
+		case Op::ge: return num(evaln(a[0]) >= evaln(a[1]));
+		case Op::eq: return num(evaln(a[0]) == evaln(a[1]));
+		case Op::ne: return num(evaln(a[0]) != evaln(a[1]));
 		case Op::true_: return num(1);
 		case Op::false_: return num(0);
-		case Op::and_: return num(eval(a[0]).n != 0 && eval(a[1]).n != 0);
-		case Op::or_: return num(eval(a[0]).n != 0 || eval(a[1]).n != 0);
-		case Op::not_: return num(eval(a[0]).n == 0);
-		case Op::floor_: return num(std::floor(eval(a[0]).n));
+		case Op::and_: return num(evaln(a[0]) != 0 && evaln(a[1]) != 0);
+		case Op::or_: return num(evaln(a[0]) != 0 || evaln(a[1]) != 0);
+		case Op::not_: return num(evaln(a[0]) == 0);
+		case Op::floor_: return num(std::floor(evaln(a[0])));
 		case Op::is_draft: return num(api.champ() < 0);
 		case Op::unpicked_champions:
 		{
@@ -1130,7 +1190,7 @@ struct Interp
 		case Op::spawn_region:
 		{
 			api.charge(cbs::Call::spawn_region);
-			const int t = static_cast<int>(eval(a[0]).n);
+			const int t = static_cast<int>(evaln(a[0]));
 			return set_of(m().spawn_mask[t == 0 ? 0 : 1]);
 		}
 		case Op::enemies_visible: return champions(true);
@@ -1167,7 +1227,7 @@ struct Interp
 		}
 		case Op::read_shared:
 		{
-			const int off = std::clamp(static_cast<int>(eval(a[0]).n), 0, 7);
+			const int off = std::clamp(static_cast<int>(evaln(a[0])), 0, 7);
 			std::uint8_t v = 0;
 			api.read_shared_memory(off, &v, 1);
 			return num(v);
@@ -1175,27 +1235,32 @@ struct Interp
 		case Op::union_:
 		case Op::minus:
 		{
-			const Value x = eval(a[0]), y = eval(a[1]);
-			Bitboard b = *x.set;
-			if (e.op == Op::union_) b |= *y.set;
-			else b.andnot(*y.set);
-			return set_of(b);
+			std::shared_ptr<Bitboard> x = evals(a[0]);
+			const std::shared_ptr<Bitboard> y = evals(a[1]);
+			// A result nothing else holds (not a variable's) is updated in place.
+			if (x.use_count() != 1) x = std::make_shared<Bitboard>(*x);
+			if (e.op == Op::union_) *x |= *y;
+			else x->andnot(*y);
+			Value r;
+			r.set = std::move(x);
+			return r;
 		}
 		case Op::contains:
 		{
-			const Value s = eval(a[0]), t = eval(a[1]);
-			return num(has_tile(t.tile) && s.set->test(t.tile));
+			const std::shared_ptr<Bitboard> s = evals(a[0]);
+			const Vec2 t = evalt(a[1]);
+			return num(has_tile(t) && s->test(t));
 		}
 		case Op::ring:
 		{
 			const Value s = eval(a[0]);
-			const float r = static_cast<float>(std::clamp(eval(a[1]).n, 0.0, 10.0));
+			const float r = static_cast<float>(std::clamp(evaln(a[1]), 0.0, 10.0));
 			if (api.count_charges) work.bits += s.set->count(m().H);
 			Bitboard b;
 			s.set->for_each_unordered(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
 			return set_of(b);
 		}
-		case Op::closest: return tile(closest(*eval(a[0]).set));
+		case Op::closest: return tile(closest(*evals(a[0])));
 		case Op::filter_tiles:
 		{
 			const Value s = eval(a[0]), p = eval(a[1]);
@@ -1214,22 +1279,22 @@ struct Interp
 			Vec2 p;
 			return tile(s.set->first(m().H, p) ? p : kNoTile);
 		}
-		case Op::exists_tile: return num(has_tile(eval(a[0]).tile));
+		case Op::exists_tile: return num(has_tile(evalt(a[0])));
 		case Op::count_tiles:
 		{
-			const int n = eval(a[0]).set->count(m().H);
+			const int n = evals(a[0])->count(m().H);
 			work.bits += n;
 			return num(n);
 		}
 		case Op::within:
 		{
-			Value r = tile(eval(a[1]).tile);
-			r.n = eval(a[0]).n;
+			Value r = tile(evalt(a[1]));
+			r.n = evaln(a[0]);
 			return r;
 		}
 		case Op::distance:
 		{
-			const Vec2 p = eval(a[0]).tile, q = eval(a[1]).tile;
+			const Vec2 p = evalt(a[0]), q = evalt(a[1]);
 			return num(has_tile(p) && has_tile(q) ? cbs::chebyshev(p, q) : 1e9);
 		}
 		case Op::filter_units:
@@ -1256,21 +1321,21 @@ struct Interp
 			if (!l.units->empty()) r.unit = l.units->front();
 			return r;
 		}
-		case Op::exists_unit: return num(eval(a[0]).unit.kind != EntityKind::none);
+		case Op::exists_unit: return num(evalu(a[0]).kind != EntityKind::none);
 		case Op::count_units: return num(static_cast<double>(eval(a[0]).units->size()));
 		case Op::unit_position:
 		case Op::unit_health:
 		{
 			Vec2 pos = kNoTile;
 			double hp = 0;
-			const bool ok = unit_info(eval(a[0]).unit, pos, hp);
+			const bool ok = unit_info(evalu(a[0]), pos, hp);
 			if (e.op == Op::unit_position) return tile(ok ? pos : kNoTile);
 			return num(ok ? hp : 0);
 		}
 		case Op::in_attack_range: return Value{};
 		case Op::random_int:
 		{
-			const double n = std::floor(eval(a[0]).n);
+			const double n = std::floor(evaln(a[0]));
 			return num(n >= 1 ? rng.next(static_cast<std::uint32_t>(std::min(n, 1e9))) : 0);
 		}
 		case Op::random_stat: return num(rng.next(3));
@@ -1289,12 +1354,12 @@ struct Interp
 		case Op::available:
 		{
 			const Value l = eval(a[0]);
-			const int c = static_cast<int>(eval(a[1]).n);
+			const int c = static_cast<int>(evaln(a[1]));
 			return num(l.champs && std::find(l.champs->begin(), l.champs->end(), c) != l.champs->end());
 		}
 		case Op::i_am:
 		{
-			const int c = static_cast<int>(eval(a[0]).n);
+			const int c = static_cast<int>(evaln(a[0]));
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			// ChampionType order: ryth, vesper_vale, vendetta, cassi, issac, stellar, ... (Issac shares Cassi's pick)
@@ -1303,7 +1368,7 @@ struct Interp
 		}
 		case Op::ability_ready:
 		{
-			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
+			const int slot = std::clamp(static_cast<int>(evaln(a[0])), 0, 1);
 			ChampionInfo ci{};
 			if (!me(ci) || !(ci.state & state_bit::can_cast)) return num(0);
 			std::int32_t cd = 1;
@@ -1320,8 +1385,8 @@ struct Interp
 		case Op::shard_of:
 		{
 			// item id = 6 * family + 2 * stat (strength, focus, health); +1 would be the emblem
-			const int fam = std::clamp(static_cast<int>(eval(a[0]).n), 0, 6);
-			const int st = std::clamp(static_cast<int>(eval(a[1]).n), 0, 2);
+			const int fam = std::clamp(static_cast<int>(evaln(a[0])), 0, 6);
+			const int st = std::clamp(static_cast<int>(evaln(a[1])), 0, 2);
 			return num(6 * fam + 2 * st);
 		}
 		case Op::has_altar_lock:
@@ -1345,7 +1410,7 @@ struct Interp
 		case Op::slot_is_shield:
 		case Op::slot_is_reset:
 		{
-			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
+			const int slot = std::clamp(static_cast<int>(evaln(a[0])), 0, 1);
 			if (api.champ() < 0) return num(0);
 			cbs::AbilityProps ap{};
 			if (api.champion_ability_props(self(), static_cast<std::uint32_t>(slot), &ap) != Err::success) return num(0);
@@ -1409,7 +1474,7 @@ struct Interp
 		}
 		case Op::claim_count:
 		{
-			const int g = group_at(eval(a[0]).tile);
+			const int g = group_at(evalt(a[0]));
 			std::uint8_t mem[kClaimBytes] = {};
 			api.read_shared_memory(0, mem, kClaimBytes);
 			const int mine = my_slot();
@@ -1452,7 +1517,7 @@ struct Interp
 		}
 		case Op::allies_within:
 		{
-			const double r = eval(a[0]).n;
+			const double r = evaln(a[0]);
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			const Value l = champions(false);
@@ -1467,7 +1532,7 @@ struct Interp
 		}
 		case Op::enemies_within:
 		{
-			const double r = eval(a[0]).n;
+			const double r = evaln(a[0]);
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			std::uint32_t ids[16], n = 0;
@@ -1487,7 +1552,7 @@ struct Interp
 			// (total health x total damage) of us and visible allies within r, over the same for
 			// visible enemy champions within r (Lanchester square law); damage per unit is
 			// strength + focus / 2. 100 when no enemy is within r.
-			const double r = eval(a[0]).n;
+			const double r = evaln(a[0]);
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			double hp[2] = { ci.health, 0 }, dmg[2] = { ci.strength + 0.5 * ci.focus, 0 };
@@ -1511,7 +1576,7 @@ struct Interp
 		}
 		case Op::unit_health_frac:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			if (u.kind == EntityKind::champion)
 			{
 				ChampionInfo ei{};
@@ -1551,7 +1616,7 @@ struct Interp
 		}
 		case Op::unit_gems:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			std::uint32_t g = 0;
 			if (u.kind == EntityKind::champion) api.champion_gems(u.h, &g);
 			return num(g);
@@ -1559,13 +1624,13 @@ struct Interp
 		case Op::team_score:
 		{
 			std::uint32_t g = 0;
-			api.submitted_gems(static_cast<std::uint32_t>(eval(a[0]).n), &g);
+			api.submitted_gems(static_cast<std::uint32_t>(evaln(a[0])), &g);
 			return num(g);
 		}
 		case Op::map_width: return num(m().W);
 		case Op::map_height: return num(m().H);
 		case Op::camp_count: return num(static_cast<double>(m().camps.size()));
-		case Op::shard: return num(6 + 2 * std::clamp(static_cast<int>(eval(a[0]).n), 0, 2)); // power shard
+		case Op::shard: return num(6 + 2 * std::clamp(static_cast<int>(evaln(a[0])), 0, 2)); // power shard
 		default: break;
 		}
 		exec(e); // an effect used as a value (cannot happen in well-typed policies)
@@ -1582,7 +1647,7 @@ struct Interp
 		{
 		case Op::pick:
 		{
-			const int c = static_cast<int>(eval(a[0]).n);
+			const int c = static_cast<int>(evaln(a[0]));
 			if (c >= 0) api.draft_champion(c);
 			break;
 		}
@@ -1594,14 +1659,14 @@ struct Interp
 		}
 		case Op::write_shared:
 		{
-			const int off = std::clamp(static_cast<int>(eval(a[0]).n), 0, 7);
-			const std::uint8_t v = static_cast<std::uint8_t>(std::clamp(std::lround(eval(a[1]).n), 0l, 255l));
+			const int off = std::clamp(static_cast<int>(evaln(a[0])), 0, 7);
+			const std::uint8_t v = static_cast<std::uint8_t>(std::clamp(std::lround(evaln(a[1])), 0l, 255l));
 			api.write_shared_memory(off, &v, 1);
 			break;
 		}
 		case Op::move_towards:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			Bitboard goals;
@@ -1612,14 +1677,14 @@ struct Interp
 		}
 		case Op::attack:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			if (u.kind != EntityKind::none) api.attack(static_cast<std::uint32_t>(u.kind), u.h);
 			break;
 		}
 		case Op::cast_at_unit:
 		{
-			const int slot = static_cast<int>(eval(a[0]).n);
-			const Unit u = eval(a[1]).unit;
+			const int slot = static_cast<int>(evaln(a[0]));
+			const Unit u = evalu(a[1]);
 			Vec2 pos = kNoTile;
 			double hp;
 			if (u.kind != EntityKind::none && unit_info(u, pos, hp))
@@ -1628,14 +1693,14 @@ struct Interp
 		}
 		case Op::cast_at_tile:
 		{
-			const int slot = static_cast<int>(eval(a[0]).n);
-			const Vec2 t = eval(a[1]).tile;
+			const int slot = static_cast<int>(evaln(a[0]));
+			const Vec2 t = evalt(a[1]);
 			if (has_tile(t)) api.cast(static_cast<std::uint32_t>(std::clamp(slot, 0, 1)), 0, 0, t, &ok);
 			break;
 		}
 		case Op::cast_self:
 		{
-			const int slot = static_cast<int>(eval(a[0]).n);
+			const int slot = static_cast<int>(evaln(a[0]));
 			ChampionInfo ci{};
 			if (me(ci))
 				api.cast(static_cast<std::uint32_t>(std::clamp(slot, 0, 1)), static_cast<std::uint32_t>(EntityKind::champion), self(),
@@ -1644,20 +1709,20 @@ struct Interp
 		}
 		case Op::place_ward:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			if (has_tile(t)) api.place_ward(t, &ok);
 			break;
 		}
 		case Op::tribute:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			if (has_tile(t)) api.submit_gems(t);
 			break;
 		}
 		case Op::recall: api.recall(); break;
 		case Op::move_away_from:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			const Vec2 pos{ ci.x, ci.y };
@@ -1682,7 +1747,7 @@ struct Interp
 		case Op::claim:
 		case Op::unclaim:
 		{
-			const int g = e.op == Op::claim ? group_at(eval(a[0]).tile) : -1;
+			const int g = e.op == Op::claim ? group_at(evalt(a[0])) : -1;
 			const int slot = my_slot();
 			if (slot < 0) break;
 			const std::uint8_t v = static_cast<std::uint8_t>(g < 0 || g > 254 ? 0 : g + 1);
@@ -1691,7 +1756,7 @@ struct Interp
 		}
 		case Op::set_team_target:
 		{
-			const Unit u = eval(a[0]).unit;
+			const Unit u = evalu(a[0]);
 			const std::uint8_t v = static_cast<std::uint8_t>(u.kind == EntityKind::champion && u.h < 255 ? u.h + 1 : 0);
 			api.write_shared_memory(kTargetByte, &v, 1);
 			break;
@@ -1701,15 +1766,15 @@ struct Interp
 		case Op::place_altar_lock:
 		case Op::teleport_to:
 		{
-			const Vec2 t = eval(a[0]).tile;
+			const Vec2 t = evalt(a[0]);
 			const int type = e.op == Op::place_altar_lock ? cbs::consumable::altar_lock : cbs::consumable::tp_crystal;
 			if (has_tile(t)) api.use_consumable(type, t, &ok);
 			break;
 		}
 		case Op::dash_towards:
 		{
-			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
-			const Vec2 t = eval(a[1]).tile;
+			const int slot = std::clamp(static_cast<int>(evaln(a[0])), 0, 1);
+			const Vec2 t = evalt(a[1]);
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			const Vec2 d = dash_target(t, { ci.x, ci.y });
@@ -1722,12 +1787,12 @@ struct Interp
 		}
 		case Op::buy:
 		{
-			const int item = static_cast<int>(eval(a[0]).n);
-			const double n = std::floor(eval(a[1]).n);
+			const int item = static_cast<int>(evaln(a[0]));
+			const double n = std::floor(evaln(a[1]));
 			if (n >= 1) api.buy_item(static_cast<std::uint32_t>(item), static_cast<std::uint32_t>(std::min(n, 1000.0)));
 			break;
 		}
-		case Op::set_priority: api.set_priority(static_cast<std::int32_t>(std::clamp(eval(a[0]).n, -1e6, 1e6))); break;
+		case Op::set_priority: api.set_priority(static_cast<std::int32_t>(std::clamp(evaln(a[0]), -1e6, 1e6))); break;
 		default: // a pure block used as a step: evaluate it (eval charges it)
 			charge.skip = true;
 			eval(e);
