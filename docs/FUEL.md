@@ -153,8 +153,8 @@ pre-parsed; parsing it had cost ~170 fuel per program node, ~40k for v3. Re-fit 
 start-up changes with the scratch comparison of first turns (cambc vs `fuel_turns`): first
 turns now match within 1% (v5d 83.3k vs 83.0k mean, fs-1 73.6k vs 74.2k). It is not in the profile, so it is charged from a hand fit in `interp`.
 
-Current calibration (deploy/v0, Oct 23 refit; `real = 0.965·model − 135.5·blocks − 35.7·API
-calls + 78·turns`, 4657 rounds):
+Current calibration (deploy/v0, Oct 23 refit on the bot with the dash check; `real = 0.970·model − 135.4·blocks − 38.6·API
+calls + 110·turns`, 4668 rounds):
 - coverage.policy (EVERY=1, 400 rounds) on 00collision, 00elkring, 00lanes, 00monolith,
   01big-world and 01hooks;
 - fs-1, v7zg-cast and tune-1 (EVERY=10, 800 rounds) on those maps plus 00gem-fields, 00rows
