@@ -29,7 +29,8 @@ namespace state_bit = cbs::state_bit;
 static const char* const kTypes[] = { "Num", "Bool", "Tile", "TileSet", "Unit", "UnitList", "UnitPred",
 									  "TilePred", "Stat", "Item", "Team", "Champ", "ChampList", "Bytes", "Family" };
 constexpr int kNumTypes = sizeof kTypes / sizeof *kTypes;
-constexpr int kMaxVars = 8;
+constexpr int kMaxVars = 16;
+static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code band");
 
 #define INTERP_BLOCKS(X)                                                                                                    \
 	X(ally, "ally()") X(enemy, "enemy()") X(stat_strength, "stat_strength()") X(stat_focus, "stat_focus()")                \
