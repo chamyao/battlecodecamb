@@ -23,7 +23,7 @@ constexpr std::int64_t kScanDivisor = 16; // a full-map scan costs W*H/16
 
 // Same order as policygen.blocks.TYPES: variable slot = type * kMaxVars + index.
 static const char* const kTypes[] = { "Num", "Bool", "Tile", "TileSet", "Unit", "UnitList", "UnitPred",
-									  "TilePred", "Stat", "Item", "Team", "Champ", "ChampList", "Bytes" };
+									  "TilePred", "Stat", "Item", "Team", "Champ", "ChampList", "Bytes", "Family" };
 constexpr int kNumTypes = sizeof kTypes / sizeof *kTypes;
 constexpr int kMaxVars = 8;
 
@@ -55,7 +55,17 @@ constexpr int kMaxVars = 8;
 	X(champ_cassi_issac, "champ_cassi_issac()") X(champ_stellar, "champ_stellar()") X(champ_prism, "champ_prism()")        \
 	X(champ_marcella, "champ_marcella()") X(champ_willow, "champ_willow()") X(champ_ren, "champ_ren()")                    \
 	X(champ_varg, "champ_varg()") X(champ_tavi, "champ_tavi()") X(available, "available(ChampList,Champ)")                 \
-	X(i_am, "i_am(Champ)") X(ability_ready, "ability_ready(Num)")
+	X(i_am, "i_am(Champ)") X(ability_ready, "ability_ready(Num)") X(family_monster, "family_monster()")                  \
+	X(family_power, "family_power()") X(family_durability, "family_durability()") X(family_treasure, "family_treasure()") \
+	X(family_jungle, "family_jungle()") X(family_home, "family_home()") X(family_bruiser, "family_bruiser()")              \
+	X(shard_of, "shard_of(Family,Stat)") X(buy_altar_lock, "buy_altar_lock()") X(buy_teleport, "buy_teleport()")          \
+	X(has_altar_lock, "has_altar_lock()") X(has_teleport, "has_teleport()") X(place_altar_lock, "place_altar_lock(Tile)") \
+	X(teleport_to, "teleport_to(Tile)") X(i_am_ranged, "i_am_ranged()") X(slot_is_dash, "slot_is_dash(Num)")             \
+	X(slot_is_damage, "slot_is_damage(Num)") X(slot_is_aoe, "slot_is_aoe(Num)") X(slot_is_stun, "slot_is_stun(Num)")      \
+	X(slot_is_heal, "slot_is_heal(Num)") X(slot_is_shield, "slot_is_shield(Num)") X(slot_is_reset, "slot_is_reset(Num)")  \
+	X(dash_towards, "dash_towards(Num,Tile)") X(unit_gems, "unit_gems(Unit)") X(team_score, "team_score(Team)")            \
+	X(map_width, "map_width()") X(map_height, "map_height()") X(camp_count, "camp_count()")                                \
+	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")
 
 enum class Op : std::uint16_t
 {
@@ -405,6 +415,32 @@ struct Interp
 		if (best == me) return;
 		std::int32_t ok = 0;
 		api.move_to(best, &ok);
+	}
+
+	// Landing tile within 2 steps that is closest (by walking distance) to `goal`, or none.
+	Vec2 dash_target(Vec2 goal, Vec2 me)
+	{
+		if (goal == me) return kNoTile;
+		Bitboard blocked = blocked_tiles(me), root, visited;
+		Bitboard walls = blocked;
+		walls.reset(goal);
+		root.set(goal);
+		field.resize(static_cast<std::size_t>(m().W) * m().H);
+		api.distance_field(walls, root, nullptr, cbs::kUnreachable, field.data(), visited);
+		Vec2 best = kNoTile;
+		std::uint16_t bd = field[m().idx(me)];
+		for (int dy = -2; dy <= 2; ++dy)
+			for (int dx = -2; dx <= 2; ++dx)
+			{
+				const Vec2 p{ me.x + dx, me.y + dy };
+				if (!m().in_bounds(p) || blocked.test(p) || p == me) continue;
+				if (field[m().idx(p)] < bd)
+				{
+					bd = field[m().idx(p)];
+					best = p;
+				}
+			}
+		return best;
 	}
 
 	// Nearest tile of `set` by walking distance (same seeding rule as move_towards_goals).
@@ -774,6 +810,105 @@ struct Interp
 			api.champion_cooldown(self(), static_cast<std::uint32_t>(slot), &cd);
 			return num(cd <= 0);
 		}
+		case Op::family_monster:
+		case Op::family_power:
+		case Op::family_durability:
+		case Op::family_treasure:
+		case Op::family_jungle:
+		case Op::family_home:
+		case Op::family_bruiser: return num(static_cast<int>(e.op) - static_cast<int>(Op::family_monster));
+		case Op::shard_of:
+		{
+			// item id = 6 * family + 2 * stat (strength, focus, health); +1 would be the emblem
+			const int fam = std::clamp(static_cast<int>(eval(a[0]).n), 0, 6);
+			const int st = std::clamp(static_cast<int>(eval(a[1]).n), 0, 2);
+			return num(6 * fam + 2 * st);
+		}
+		case Op::has_altar_lock:
+		case Op::has_teleport:
+		{
+			if (api.champ() < 0) return num(0);
+			std::uint32_t c[4] = {};
+			api.champion_consumables(self(), c);
+			return num(c[e.op == Op::has_altar_lock ? cbs::consumable::altar_lock : cbs::consumable::tp_crystal] > 0);
+		}
+		case Op::i_am_ranged:
+		{
+			ChampionInfo ci{};
+			return num(me(ci) && ci.attack_range > 1);
+		}
+		case Op::slot_is_dash:
+		case Op::slot_is_damage:
+		case Op::slot_is_aoe:
+		case Op::slot_is_stun:
+		case Op::slot_is_heal:
+		case Op::slot_is_shield:
+		case Op::slot_is_reset:
+		{
+			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
+			if (api.champ() < 0) return num(0);
+			cbs::AbilityProps ap{};
+			if (api.champion_ability_props(self(), static_cast<std::uint32_t>(slot), &ap) != Err::success) return num(0);
+			using K = cbs::AbilityKind;
+			const K k = static_cast<K>(ap.kind);
+			switch (e.op)
+			{
+			case Op::slot_is_dash: return num(k == K::dash);
+			case Op::slot_is_damage: return num(k == K::damage);
+			case Op::slot_is_aoe: return num(k == K::aoe_damage);
+			case Op::slot_is_stun: return num(k == K::cc);
+			case Op::slot_is_heal: return num(k == K::heal);
+			case Op::slot_is_shield: return num(k == K::shield);
+			default: return num(k == K::attack_reset);
+			}
+		}
+		case Op::weakest:
+		case Op::richest:
+		case Op::nearest:
+		{
+			const Value l = eval(a[0]);
+			Value r;
+			ChampionInfo ci{};
+			const bool have_me = me(ci);
+			double best = 1e18;
+			for (const Unit& u : *l.units)
+			{
+				Vec2 pos;
+				double hp;
+				if (!unit_info(u, pos, hp)) continue;
+				double key = hp;
+				if (e.op == Op::richest)
+				{
+					std::uint32_t g = 0;
+					if (u.kind == EntityKind::champion) api.champion_gems(u.h, &g);
+					key = -static_cast<double>(g);
+				}
+				else if (e.op == Op::nearest)
+					key = have_me ? cbs::chebyshev({ ci.x, ci.y }, pos) : 0;
+				if (key < best)
+				{
+					best = key;
+					r.unit = u;
+				}
+			}
+			return r;
+		}
+		case Op::unit_gems:
+		{
+			const Unit u = eval(a[0]).unit;
+			std::uint32_t g = 0;
+			if (u.kind == EntityKind::champion) api.champion_gems(u.h, &g);
+			return num(g);
+		}
+		case Op::team_score:
+		{
+			std::uint32_t g = 0;
+			api.submitted_gems(static_cast<std::uint32_t>(eval(a[0]).n), &g);
+			return num(g);
+		}
+		case Op::map_width: return num(m().W);
+		case Op::map_height: return num(m().H);
+		case Op::camp_count: return num(static_cast<double>(m().camps.size()));
 		case Op::shard: return num(6 + 2 * std::clamp(static_cast<int>(eval(a[0]).n), 0, 2)); // power shard
 		default: break;
 		}
@@ -862,6 +997,26 @@ struct Interp
 			break;
 		}
 		case Op::recall: api.recall(); break;
+		case Op::buy_altar_lock: api.buy_consumable(cbs::consumable::altar_lock); break;
+		case Op::buy_teleport: api.buy_consumable(cbs::consumable::tp_crystal); break;
+		case Op::place_altar_lock:
+		case Op::teleport_to:
+		{
+			const Vec2 t = eval(a[0]).tile;
+			const int type = e.op == Op::place_altar_lock ? cbs::consumable::altar_lock : cbs::consumable::tp_crystal;
+			if (has_tile(t)) api.use_consumable(type, t, &ok);
+			break;
+		}
+		case Op::dash_towards:
+		{
+			const int slot = std::clamp(static_cast<int>(eval(a[0]).n), 0, 1);
+			const Vec2 t = eval(a[1]).tile;
+			ChampionInfo ci{};
+			if (!has_tile(t) || !me(ci)) break;
+			const Vec2 d = dash_target(t, { ci.x, ci.y });
+			if (has_tile(d)) api.cast(static_cast<std::uint32_t>(slot), 0, 0, d, &ok);
+			break;
+		}
 		case Op::buy:
 		{
 			const int item = static_cast<int>(eval(a[0]).n);

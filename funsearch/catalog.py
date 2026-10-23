@@ -75,6 +75,19 @@ DOCS = {
     "place_ward": "place your ward (within 2 tiles)", "tribute": "start tributing at an adjacent altar",
     "recall": "start the 5-turn recall home", "buy": "buy n of an item (on spawn or while dead)",
     "set_priority": "turn order among your champions next round (higher first)",
+    "shard_of": "a shard of the given emblem family and stat (30 gold; 5 identical make the emblem)",
+    "buy_altar_lock": "buy an altar lock (10 gold, on spawn)", "buy_teleport": "buy a teleport crystal (10 gold, on spawn)",
+    "place_altar_lock": "lock an altar within 2 tiles (blocks enemy tributes until broken by 5 attacks)",
+    "teleport_to": "teleport crystal: 3-turn channel, then jump up to 3 tiles ignoring terrain",
+    "i_am_ranged": "basic attack range 3 (else melee range 1); e.g. Cassi is ranged, Issac melee",
+    "slot_is_dash": "ability slot (0/1) is a dash", "slot_is_damage": "single-target damage",
+    "slot_is_aoe": "area damage", "slot_is_stun": "stun", "slot_is_heal": "ally heal",
+    "slot_is_shield": "self shield", "slot_is_reset": "attack reset",
+    "dash_towards": "cast the dash in slot (0/1) up to 2 tiles along the walking path to the tile",
+    "weakest": "lowest-health member, or none", "richest": "member carrying the most gems, or none",
+    "nearest": "closest member by Chebyshev distance, or none",
+    "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
+    "map_width": "", "map_height": "", "camp_count": "camps on the map",
 }
 
 
