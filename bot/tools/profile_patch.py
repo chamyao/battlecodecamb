@@ -10,7 +10,7 @@ Not for submission builds (bot/sync.sh restores the plain copy).
 import re, sys
 p = sys.argv[1]
 s = open(p).read()
-s = s.replace('#include "interp/policy.h"', '#include "interp/policy.h"\n#include <cambc.h>\n#include <cstdio>', 1)
+s = s.replace('#include "interp/policy.h"', '#include "interp/policy.h"\n#include <cambc.h>\n#include <cstdio>\n#if __has_include("prof2.h")\n#include "prof2.h"\n#endif', 1)
 hook = r'''
 	struct Prof { std::uint64_t n = 0, tot = 0, mx = 0; };
 	Prof prof[2][512];
@@ -53,6 +53,9 @@ s = re.sub(r'(\t\t\+\+turn_no;\n(?:.*\n)*?)(\t\trun\(prog\.steps\);)', lambda m:
 		if (t0 - cambc::detail::sdk_fuel_remaining() > 50000)
 		{
 			std::printf("@@HEAVY %d %llu", api.champ(), (unsigned long long)turn_no);
+#ifdef BOT_PROF2
+			std::printf(" [fq=%lld host=%lld nbw=%lld ident=%lld df=%lld]", ::bot_prof[0], ::bot_prof[1], ::bot_prof[2], ::bot_prof[3], ::bot_prof[4]);
+#endif
 			for (int k = 0; k < 2; ++k)
 				for (int i = 0; i < 512; ++i)
 					if (turn_tot[k][i] > 3000)
@@ -61,6 +64,9 @@ s = re.sub(r'(\t\t\+\+turn_no;\n(?:.*\n)*?)(\t\trun\(prog\.steps\);)', lambda m:
 		}
 		for (int k = 0; k < 2; ++k)
 			for (int i = 0; i < 512; ++i) turn_tot[k][i] = 0;
+#ifdef BOT_PROF2
+		for (auto& v : ::bot_prof) v = 0;
+#endif
 		if (turn_no % 200 == 0) prof_dump();''', s, count=1)
 assert s.count('eval_(') == 2 and 'exec_(' in s and '@@T' in s
 open(p, 'w').write(s)

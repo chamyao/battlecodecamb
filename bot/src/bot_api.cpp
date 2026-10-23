@@ -224,6 +224,13 @@ Err Api::set_priority(std::int32_t p) { return E(sdk_set_priority(p)); }
 Err Api::draft_get(std::int32_t team, std::uint32_t round, std::int32_t* out) { return E(sdk_draft_get(team, round, out)); }
 Err Api::draft_champion(std::int32_t choice) { return E(sdk_draft_champion(choice)); }
 
+#ifdef BOT_PROF2
+} // namespace cbs
+long long bot_prof[8];
+namespace cbs
+{
+#define PROF_T sdk_fuel_remaining()
+#endif
 // ---- distance fields ----------------------------------------------------------
 //
 // Host fields cost 16 * chunks + chunks per BFS layer (2.7k + 169 per layer on 100x100), and
@@ -373,6 +380,9 @@ struct FieldAnswer
 FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, bool have_me, Vec2 me,
 						int qr, int W, int H)
 {
+#ifdef BOT_PROF2
+	struct FT { long long f0 = PROF_T; ~FT() { bot_prof[0] += f0 - PROF_T; } } ft_;
+#endif
 	if (!slots) slots = new FieldSlot[kSlots];
 #ifdef BOT_DF_PROFILE
 	const auto pf0 = sdk_fuel_remaining();
@@ -465,6 +475,10 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 			sd = &me_only;
 		}
 		std::uint16_t count = 0;
+#ifdef BOT_PROF2
+		const long long h0 = PROF_T;
+		struct HT { long long h0; ~HT() { bot_prof[1] += h0 - PROF_T; } } ht_{ h0 };
+#endif
 		if (sd)
 			sdk_DistanceField_ComputeToWithExpansionCount(walls.w, roots.w, sd->w, visited.w, use->field, maxd, &count);
 		else
@@ -529,6 +543,9 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
 						Bitboard& visited)
 {
+#ifdef BOT_PROF2
+	struct DT { long long f0 = PROF_T; ~DT() { bot_prof[4] += f0 - PROF_T; } } dt_;
+#endif
 	const int W = g_.map().W, H = g_.map().H;
 	champion_info ci{};
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0;
@@ -555,6 +572,9 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 // are all exactly D away, and the first of them in row-major order.
 bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions)
 {
+#ifdef BOT_PROF2
+	struct NT { long long f0 = PROF_T; ~NT() { bot_prof[2] += f0 - PROF_T; } } nt_;
+#endif
 	if (expansions) *expansions = 0; // only the simulator prices it
 	const int W = g_.map().W, H = g_.map().H;
 	champion_info ci{};
@@ -566,27 +586,16 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	bool found = false;
 	if (D != kUnreachable)
 	{
-		// Candidates within D: a reachable mask (~190 + 1.7 per tile reached) or a field
-		// rooted at origin cut at D (16 * chunks + D * chunks), whichever is expected cheaper.
-		const int chunks = static_cast<int>(md.chunked_width * md.chunked_height);
-		const long area = std::min<long>(static_cast<long>(W) * H, static_cast<long>(2 * D + 1) * (2 * D + 1));
+		// Candidates within D of origin: a reachable mask (measured ~4k at D ~ 46 on 100x100,
+		// against ~18k for an origin-rooted field cut at D; it costs per tile reached, at most
+		// ~16k for a whole 100x100 map).
+#ifdef BOT_PROF2
+		struct IT { long long f0 = PROF_T; ~IT() { bot_prof[3] += f0 - PROF_T; } } it_;
+#endif
 		Bitboard near;
-		if (190 + area * 17 / 10 <= (16 + D) * chunks)
-		{
-			sdk_Bitboard_ReachableMask(walls.w, origin.x, origin.y, near.w, D);
-			near &= cand;
-			found = near.first(H, out);
-		}
-		else
-		{
-			const FieldAnswer a2 = field_query(walls, o, &cand, D, have_me, origin, 0, W, H);
-			Vec2 best{ W, H };
-			cand.for_each_unordered(H, [&](int x, int y) {
-				if (a2.at(x, y) <= D && (y < best.y || (y == best.y && x < best.x))) best = { x, y };
-			});
-			found = best.y < H;
-			if (found) out = best;
-		}
+		sdk_Bitboard_ReachableMask(walls.w, origin.x, origin.y, near.w, D);
+		near &= cand;
+		found = near.first(H, out);
 	}
 #ifdef BOT_VERIFY
 	{
