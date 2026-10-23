@@ -4,7 +4,7 @@
     python3 -m funsearch.run --run test --proposer mutate --max-programs 40   # no API calls
 
 Results go to runs/<name>/programs.jsonl (append-only; a rerun resumes) and
-runs/<name>/best.policy. The Claude proposer needs FUNSEARCH_ANTHROPIC_KEY (or ANTHROPIC_API_KEY).
+runs/<name>/best.policy. The Claude proposer needs FUNSEARCH_ANTHROPIC_KEY, FUNSEARCH_API_KEY or ANTHROPIC_API_KEY.
 """
 import argparse
 import random
