@@ -30,7 +30,7 @@ import sys
 import time
 from pathlib import Path
 
-from .evaluate import ROOT, evaluate
+from .evaluate import EVAL_BIN, ROOT, evaluate
 
 FRESH_SEEDS = (5_000_011, 6_000_011)  # validation only; the runs use eval seeds 0 and 1
 MORE_SEEDS = (7_000_011, 8_000_011)  # second batch for borderline head-to-head results
@@ -67,17 +67,41 @@ def top_distinct(run, k):
     return out
 
 
+CACHE = ROOT / "runs" / "validation_cache.jsonl"  # survives container restarts
+
+
+def _cached_eval(text, opp, games, threads, seed):
+    """(wins, games) of text vs one opponent, cached on disk by content: validation is long, and a
+    container restart in the middle of it should only lose the evaluation in flight."""
+    import hashlib
+    key = hashlib.sha256("\0".join([text, opp, Path(ROOT / opp).read_text() if opp.endswith(".policy") else "",
+                                    str(games), str(seed), str(EVAL_BIN.stat().st_mtime)]).encode()).hexdigest()
+    if CACHE.exists():
+        for line in open(CACHE):
+            row = json.loads(line)
+            if row["key"] == key:
+                return row["wins"], row["games"]
+    r = evaluate(text, opponents=(opp,), games=games, threads=threads, seed=seed)
+    if not r.ok:
+        return None
+    m = next(iter(r.per_opponent.values()))
+    with open(CACHE, "a") as f:
+        f.write(json.dumps({"key": key, "wins": m["a_wins"], "games": m["games"]}) + "\n")
+    return m["a_wins"], m["games"]
+
+
 def win_rates(text, opponents, games, threads, seeds=FRESH_SEEDS, counts=False):
     """Win rate per opponent over the fresh seeds (games per opponent per seed); with counts,
     (wins, games) pairs instead."""
     totals = {}
     for seed in seeds:
-        r = evaluate(text, opponents=tuple(opponents), games=games, threads=threads, seed=seed)
-        if not r.ok:
-            return None
-        for name, m in r.per_opponent.items():
+        for opp in opponents:
+            res = _cached_eval(text, opp, games, threads, seed)
+            if res is None:
+                return None
+            name = Path(opp).stem if opp.endswith(".policy") else opp
             w, n = totals.get(name, (0.0, 0))
-            totals[name] = (w + m["a_wins"], n + m["games"])
+            totals[name] = (w + res[0], n + res[1])
     return totals if counts else {name: w / n for name, (w, n) in totals.items()}
 
 
@@ -168,9 +192,15 @@ def main():
             log(f"budget spent (${spent(args.name):.2f})", logfile)
             break
         opponents = [f"builtin:starter@{args.starter_weight}", f"{best}@{args.best_weight}", *older]
-        log(f"{run}: +{args.round} programs, best {best}, league {older}, ${left:.2f} left", logfile)
+        # round boundaries are multiples of --round programs in the run, so a restart (container
+        # reboot) resumes the current round instead of starting a new one
+        db_file = ROOT / "runs" / run / "programs.jsonl"
+        done = max(0, sum(1 for _ in open(db_file)) - 4) if db_file.exists() else 0
+        todo = args.round - done % args.round
+        log(f"{run}: +{todo} programs to the next boundary ({done} so far), best {best}, league {older}, "
+            f"${left:.2f} left", logfile)
         subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
-                        "--max-programs", str(args.round), "--seed-policy", best,
+                        "--max-programs", str(todo), "--seed-policy", best,
                         "--opponents", ",".join(opponents),
                         *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
                        cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
@@ -189,8 +219,12 @@ def main():
         cfile = ROOT / "runs" / f"{args.name}.challengers"
         queued = [c.strip() for c in cfile.read_text().splitlines() if c.strip()] if cfile.exists() else []
         queued = [c for c in queued if c not in state.get("challengers", []) and c != best]
-        if queued:
-            cfile.write_text("")
+        missing = [c for c in queued if not (ROOT / c).exists()]
+        if missing:  # not merged yet: keep them queued for the next boundary
+            log(f"  challengers not found yet, kept queued: {missing}", logfile)
+            queued = [c for c in queued if c not in missing]
+        if queued or missing:
+            cfile.write_text("".join(f"{c}\n" for c in missing))
             state.setdefault("challengers", []).extend(queued)
             state_path.write_text(json.dumps(state))
             log(f"  challengers: {queued}", logfile)
