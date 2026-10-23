@@ -12,6 +12,7 @@ starts from it. Without a promotion the generation continues. Spend is summed ov
 generations and capped at --budget.
 """
 import argparse
+import fcntl
 import json
 import subprocess
 import sys
@@ -66,6 +67,20 @@ def win_rates(text, opponents, games, threads):
     return {name: w / n for name, (w, n) in totals.items()}
 
 
+def commit(path, message):
+    """Commit and push one file; a lock keeps parallel leagues from racing on the git index."""
+    with open(ROOT / "runs" / ".git.lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        subprocess.run(["git", "add", str(path)], cwd=ROOT)
+        subprocess.run(["git", "commit", "-qm", message + "\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
+                        "Claude-Session: https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj", "--", str(path)],
+                       cwd=ROOT)
+        for attempt in range(4):
+            if subprocess.run(["git", "push", "-q", "origin", "HEAD"], cwd=ROOT).returncode == 0:
+                break
+            time.sleep(2 ** (attempt + 1))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", default="league")
@@ -84,6 +99,8 @@ def main():
     ap.add_argument("--fixed", default="", help="opponents always in the league (e.g. a style the bests "
                                                 "lack, like altar locking); never dropped or promoted")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
+    ap.add_argument("--prefix", default="fs-", help="promoted policies are policies/<prefix><n>.policy")
+    ap.add_argument("--line", default="", help="line tag written into promoted policies' headers")
     args, run_args = ap.parse_known_args()  # anything else goes to funsearch.run
 
     members = args.members.split(",")
@@ -129,21 +146,19 @@ def main():
             continue
 
         p, h2h, rates = promoted
-        n = 1 + max(int(f.stem.split("-")[1]) for f in (ROOT / "policies").glob("fs-*.policy")
-                    if f.stem.split("-")[1].isdigit())
-        out = ROOT / "policies" / f"fs-{n}.policy"
-        header = (f"# fs-{n}: league {run} #{p['id']}; beat {Path(best).stem} {h2h:.1%} head to head on "
+        taken = [f.stem[len(args.prefix):] for f in (ROOT / "policies").glob(f"{args.prefix}*.policy")]
+        n = 1 + max([int(t) for t in taken if t.isdigit()], default=0)
+        name = f"{args.prefix}{n}"
+        out = ROOT / "policies" / f"{name}.policy"
+        tag = f" [{args.line} line]" if args.line else ""
+        header = (f"# {name}{tag}: league {run} #{p['id']}; beat {Path(best).stem} {h2h:.1%} head to head on "
                   f"{2 * args.val_games} fresh games.\n")
         out.write_text(header + p["text"])
         summary = ", ".join(f"{k} {v:.1%}" for k, v in rates.items())
         log(f"  PROMOTED {out.name}: {summary}", logfile)
         if not args.no_commit:
-            subprocess.run(["git", "add", str(out)], cwd=ROOT)
-            subprocess.run(["git", "commit", "-qm", f"policies/fs-{n}: league promotion ({run} #{p['id']})\n\n"
-                            f"Fresh-seed win rates ({2 * args.val_games} games each): {summary}\n\n"
-                            "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
-                            "Claude-Session: https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj"], cwd=ROOT)
-            subprocess.run(["git", "push", "-q", "origin", "HEAD"], cwd=ROOT)
+            commit(out, f"policies/{name}: league promotion{tag} ({run} #{p['id']})\n\n"
+                        f"Fresh-seed win rates ({2 * args.val_games} games each): {summary}")
         members = [str(out.relative_to(ROOT)), *(m for m in league if m not in fixed)][: 1 + args.keep]
         state = {"gen": state["gen"] + 1, "members": members}
         state_path.write_text(json.dumps(state))
