@@ -206,6 +206,11 @@ public:
 	void reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out);
 	int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
 					   Bitboard& visited);
+	// Nearest tile of `cand` from `origin` by walking distance over non-`walls` tiles (ties: first
+	// in row-major order); false if none is reachable. Priced as the distance field it runs
+	// (origin-rooted, stopping at the first layer touching `cand`; its expansion count goes to
+	// *expansions); a real bot may compute it any cheaper exact way.
+	bool nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions = nullptr);
 
 	// ---- draft ----
 	Err draft_num_rounds(std::uint8_t* out);

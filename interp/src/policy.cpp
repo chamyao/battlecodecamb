@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -158,7 +159,8 @@ struct BlockCost
 static const BlockCost kCalibrated[] = {
 #include "block_costs_gen.inc"
 };
-// Blocks the calibration did not exercise: the median measured cost of a simple block.
+// Blocks the calibration did not exercise (load_program refuses such policies; only the bot's
+// pre-encoded programs, which skip the charge anyway, can reach this): a simple block's cost.
 constexpr std::int64_t kUncalibratedBlockMilli = 200000;
 
 struct BlockCostTable
@@ -348,6 +350,47 @@ std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std
 	return prog;
 }
 
+// Simulated fuel is only trustworthy if every block has a measured cost: a policy using a block
+// the calibration never exercised is refused (re-profile with policies/coverage.policy, see
+// docs/FUEL.md). An effect step is charged its exec row; a pure block used as a step, and every
+// argument, its eval row.
+static void check_calibrated(const Program& prog)
+{
+	std::vector<std::string> missing;
+	auto need = [&](Op op, bool exec)
+	{
+		const auto& t = block_costs();
+		const int i = static_cast<int>(op);
+		if (op >= Op::const_num || t.row[exec ? 1 : 0][i] || (exec && t.row[0][i])) return;
+		const std::string k = kBlockTable[i].key;
+		if (std::find(missing.begin(), missing.end(), k) == missing.end()) missing.push_back(k);
+	};
+	std::function<void(const Expr&)> expr = [&](const Expr& e)
+	{
+		need(e.op, false);
+		for (const Expr& a : e.args) expr(a);
+	};
+	std::function<void(const std::vector<Step>&)> steps = [&](const std::vector<Step>& ss)
+	{
+		for (const Step& s : ss)
+		{
+			if (s.kind == Step::do_)
+			{
+				need(s.expr.op, true);
+				for (const Expr& a : s.expr.args) expr(a);
+			}
+			else if (s.kind != Step::end_turn) expr(s.expr);
+			steps(s.then);
+			steps(s.orelse);
+		}
+	};
+	steps(prog.steps);
+	if (missing.empty()) return;
+	std::string msg = "policy: no calibrated fuel cost for";
+	for (const auto& k : missing) msg += " " + k;
+	throw std::runtime_error(msg);
+}
+
 std::shared_ptr<const Program> load_program(const std::string& text)
 {
 	const std::size_t nl = text.find('\n');
@@ -394,7 +437,9 @@ std::shared_ptr<const Program> load_program(const std::string& text)
 	}
 	std::vector<const char*> hp;
 	for (auto& h : hex) hp.push_back(h.c_str());
-	return load_program_codes(code.data(), code.size(), nums.data(), nums.size(), hp.data(), hp.size());
+	auto prog = load_program_codes(code.data(), code.size(), nums.data(), nums.size(), hp.data(), hp.size());
+	check_calibrated(*prog);
+	return prog;
 }
 
 std::shared_ptr<const Program> load_program_file(const std::string& path)
@@ -709,19 +754,16 @@ struct Interp
 		taken.andnot(camps);
 		cand.andnot(taken);
 		if (!cand.any(m().H)) return kNoTile;
-		Bitboard walls = blocked, root, visited;
+		Bitboard walls = blocked;
 		walls.andnot(cand);
-		root.set(pos);
-		distance_field(walls, root, &cand, visited);
 		Vec2 best = kNoTile;
-		std::uint16_t bd = cbs::kUnreachable;
-		cand.for_each(m().H, [&](int x, int y) {
-			if (field[m().idx({ x, y })] < bd)
-			{
-				bd = field[m().idx({ x, y })];
-				best = { x, y };
-			}
-		});
+		int n = 0;
+		if (!api.nearest_by_walk(walls, pos, cand, best, &n)) best = kNoTile;
+		if (api.count_charges)
+		{
+			work.exp += n;
+			work.dests += cand.count(m().H);
+		}
 		return best;
 	}
 
@@ -955,7 +997,7 @@ struct Interp
 			const float r = static_cast<float>(std::clamp(eval(a[1]).n, 0.0, 10.0));
 			if (api.count_charges) work.bits += s.set->count(m().H);
 			Bitboard b;
-			s.set->for_each(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
+			s.set->for_each_unordered(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
 			return set_of(b);
 		}
 		case Op::closest: return tile(closest(*eval(a[0]).set));
@@ -965,7 +1007,7 @@ struct Interp
 			if (api.count_charges) work.bits += s.set->count(m().H);
 			Bitboard b;
 			if (has_tile(p.tile))
-				s.set->for_each(m().H, [&](int x, int y) {
+				s.set->for_each_unordered(m().H, [&](int x, int y) {
 					if (cbs::chebyshev({ x, y }, p.tile) <= p.n) b.set(x, y);
 				});
 			return set_of(b);
