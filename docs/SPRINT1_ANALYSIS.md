@@ -89,10 +89,60 @@ wards 53%, altar locks 45%, teleports 48% (no signal).
   75-83%).
 - Prism and Stellar AoE aimed at empty ground 67% of the time.
 
-**Recall is transport.** The top 4's median health when starting a recall is 57-100%. 32-56%
-of their recalls start at >=90% health, typically carrying gems (50-66%) or 100+ gold, i.e.
-going home to shop and heal. Four teams (:3, Pantheon, Noobot, NEETCoders) re-issue and cancel
-recall thousands of times per game, a cheap bot idiom.
+**Recall.** The top 4's median health when starting a recall is 41-73% (Fish 41%, procless
+45%, prism best girl 46%, policy wonk 73%); 12-23% of their recalls start at <=25% health.
+11-33% start at >=90% health, usually carrying gems (55-66%) or ~100 gold: going home to shop.
+Four teams (:3, Pantheon, Noobot, NEETCoders) re-issue and cancel recall thousands of times
+per game, a cheap bot idiom. (Health fractions use current max health, including Health shards.)
+
+### Follow-up: how top teams take monoliths, and how Heart of Ruin plays
+
+`analysis/ladder_followup.py`, output in `analysis/ladder_followup.md`. An attempt is a run of
+champion damage on one monolith with no gap over 20 rounds and at least 2,000 damage.
+Success means the same team captures it within 30 rounds of the last hit.
+
+**Monoliths** (top 4: 183 attempts, 57 captured, 31%; all 12 teams: 316 and 107, 34%):
+- **Never solo.** Top-4 success by attackers: 1: 0% (of 50), 2: 29%, 3: 49%, 4: 69%. Captured
+  attempts had 2-4 attackers (median 3); failed attempts are mostly 1-2 champions.
+- **Late.** Success rises with the start round: 25% before round 1,000, 37% at 1,000-1,400,
+  46% after 1,400. Median start of a captured attempt is round 1,010, and no top-4 attempt
+  started before 400.
+- **Not gated on items or health.** Shards per attacker were *lower* in successes (11.5)
+  than in failures (15.0), and the lowest attacker health at the start was 80% vs 96%. The
+  number of champions is what matters.
+- **It takes ~27 rounds** and ~20k damage (the monolith's HP). Deaths are rare (0.09 per
+  captured attempt), and about 2 recalls per attempt (attackers rotate out and back).
+- **Contested about half the time.** Enemies hit the attackers in 42% of captured attempts
+  and 25% of failed ones. Fights at monoliths are normal, not a reason to abort.
+- Failed attempts stop early (median 17 rounds, ~5k damage): they are mostly lone champions
+  poking and leaving.
+- The team that captured a monolith won 77% of those games.
+- Champions in successful takes: Vesper Vale, Marcella, Vendetta, Heart of Ruin, then Tavi,
+  Ryth, Prism.
+
+Rules a policy could follow:
+1. Go for a monolith only when >= 3 allies can commit (shared-memory claim); 2 at most as a
+   fallback. Never alone.
+2. Start after round ~1,000 (or once camps nearby are on cooldown). Don't wait for full health
+   or more items.
+3. Commit for ~30 rounds. Recall individually at low health and come back; don't abort the
+   attempt because enemies show up.
+4. Abandon when fewer than 2 attackers remain.
+
+**Heart of Ruin** (top 4, ~50 games):
+- **Does not fight at low health**, despite the low-health damage passive: median health 78%
+  when attacking champions, 88% when attacking camps; only 5% of its attacks on champions
+  come below 30% health (16% below 50%).
+- **Recalls around 43% health** (28% of its recalls below 30%, 59% below 50%), earlier than our
+  20% rule. Lower-ranked teams spam recall at full health.
+- **Shield on cooldown in combat** (median health 87% when cast), not saved for emergencies.
+- **Dash is mostly movement**: 61% of dashes hit nothing, 32% land on camps (stunning them),
+  7% hit enemy champions.
+- Attacks: 82% on camps, 18% on champions.
+
+Rules: treat HoR like the other fighters; shield whenever a target is in range; dash toward
+the goal, or onto a camp group to stun it; recall at ~40-45% health. Its passive is not
+something top teams play around.
 
 **Policies.** `policies/ladder_meta.policy`, `prism_best_girl.policy`, `policy_wonk.policy`,
 `procless.policy` (Heart of Ruin cannot be drafted in our grammar yet). 200 games each in our
@@ -209,8 +259,8 @@ E=mc^2 5.5. Fish bought ~4 teleport crystals per game (3.6 used), Sloppy Joe ~8.
 - Fish had the best kill/death ratio (8.6/6.4) and lost the fewest gems dying (62/game).
 - Wards were placed constantly (v0_0_3 recharge was 1 turn; 115-650 per game) and are
   not predictive (61%). Altar locks are not predictive either (52%).
-- Recall: median health at recall start 44-69% for the top teams; 8-26% of their recalls
-  start at <=25% health and 26-38% at >=90% (going home to shop or after a tribute).
+- Recall: median health at recall start 34-55% for the top teams (Fish 34%); 12-33% of their
+  recalls start at <=25% health and 12-19% at >=90% (going home to shop or after a tribute).
   Fewer recall starts go with winning (91 vs 155 per game, inflated by one team that
   re-issues recall every turn).
 

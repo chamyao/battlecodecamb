@@ -52,7 +52,7 @@ Bag size at tribute (gems), distribution
 | who | tributes | median | 1-10 | 11-20 | 21-30 | 31-50 | 51-80 | 81-120 | 121+ |
 |---|---|---|---|---|---|---|---|---|---|
 | top-4 teams | 2899 | 44 | 0% | 0% | 33% | 32% | 16% | 12% | 7% |
-| other 12 | 3205 | 44 | 0% | 0% | 35% | 31% | 19% | 11% | 4% |
+| other teams | 3205 | 44 | 0% | 0% | 35% | 31% | 19% | 11% | 4% |
 | game winners | 4000 | 44.00 | 0% | 0% | 33% | 33% | 17% | 12% | 6% |
 | game losers | 2104 | 44.00 | 0% | 0% | 38% | 28% | 20% | 10% | 5% |
 
@@ -61,7 +61,7 @@ Captures (with gems) by the tributing champion since its previous tribute or dea
 | who | tributes | mean | 0 (stolen/shared gems) | 1 | 2 | 3 | 4+ |
 |---|---|---|---|---|---|---|---|
 | top-4 teams | 2899 | 1.17 | 5% | 79% | 12% | 3% | 1% |
-| other 12 | 3205 | 1.15 | 3% | 83% | 11% | 3% | 0% |
+| other teams | 3205 | 1.15 | 3% | 83% | 11% | 3% | 0% |
 | game winners | 4000 | 1.14 | 4% | 82% | 11% | 2% | 1% |
 | game losers | 2104 | 1.20 | 3% | 79% | 13% | 4% | 1% |
 | Intercontinental Fish | 794 | 1.18 | 5% | 77% | 14% | 4% | 1% |
@@ -75,7 +75,7 @@ Stellar 21%/23%, Ren 20%/21%, Issac 19%/16%, Cassi 17%/16%, Varg 9%/10%, Ryth 8%
 
 Tributed gems by round (median over games; winners vs losers)
 
-| round | winners | losers | Fish | Nyx |
+| round | winners | losers | Intercontinental Fish | Nyx |
 |---|---|---|---|---|
 | 100 | 36.00 | 0.00 | 44.00 | 0.00 |
 | 200 | 153.00 | 107.00 | 130.00 | 113.00 |
@@ -190,29 +190,29 @@ Recall: health fraction at the end of the round before a recall starts
 
 | team | recall starts | channel cancels | at <=25% hp | at >=90% hp | median hp |
 |---|---|---|---|---|---|
-| Nyx | 42.50 | 3.60 | 18% | 35% | 0.64 |
-| Intercontinental Fish | 29.20 | 1.90 | 26% | 31% | 0.49 |
-| Univardisty of Shingtonwash | 22.60 | 0.80 | 22% | 26% | 0.44 |
-| hello | 34.80 | 0.50 | 8% | 38% | 0.69 |
-| Tartarus | 31.60 | 0.00 | 7% | 38% | 0.72 |
-| Sneaky Bush Campers | 32.20 | 0.70 | 16% | 26% | 0.57 |
-| procless | 33.30 | 0.30 | 26% | 18% | 0.46 |
-| EMPEROR Tung | 33.40 | 0.00 | 18% | 28% | 0.56 |
-| Mite | 38.70 | 2.10 | 20% | 40% | 0.67 |
-| new team(4) | 31.10 | 3.90 | 13% | 22% | 0.54 |
-| Boost | 24.40 | 2.30 | 17% | 15% | 0.42 |
-| Pantheon | 2748.00 | 2300.40 | 2% | 69% | 1.00 |
-| E=mc^2+AI^3 | 24.60 | 12.00 | 21% | 28% | 0.39 |
-| print dont int | 23.90 | 0.70 | 16% | 24% | 0.56 |
-| Shawn | 26.60 | 0.00 | 19% | 29% | 0.56 |
-| Sloppy Joe Pirates | 38.20 | 1.10 | 14% | 60% | 1.00 |
+| Nyx | 42.50 | 3.60 | 24% | 19% | 0.49 |
+| Intercontinental Fish | 29.20 | 1.90 | 33% | 17% | 0.34 |
+| Univardisty of Shingtonwash | 22.60 | 0.80 | 28% | 12% | 0.39 |
+| hello | 34.80 | 0.50 | 12% | 15% | 0.55 |
+| Tartarus | 31.60 | 0.00 | 10% | 20% | 0.52 |
+| Sneaky Bush Campers | 32.20 | 0.70 | 19% | 13% | 0.47 |
+| procless | 33.30 | 0.30 | 31% | 7% | 0.40 |
+| EMPEROR Tung | 33.40 | 0.00 | 22% | 12% | 0.47 |
+| Mite | 38.70 | 2.10 | 22% | 34% | 0.64 |
+| new team(4) | 31.10 | 3.90 | 17% | 13% | 0.45 |
+| Boost | 24.40 | 2.30 | 21% | 5% | 0.37 |
+| Pantheon | 2748.00 | 2300.40 | 2% | 62% | 1.00 |
+| E=mc^2+AI^3 | 24.60 | 12.00 | 25% | 19% | 0.34 |
+| print dont int | 23.90 | 0.70 | 18% | 7% | 0.48 |
+| Shawn | 26.60 | 0.00 | 21% | 17% | 0.44 |
+| Sloppy Joe Pirates | 38.20 | 1.10 | 25% | 48% | 0.87 |
 
 Recalls started at >=90% hp (top-4 teams): what the champion carried (end of previous round)
 
-- Intercontinental Fish: 510 recalls; gold >=150 in 26%, carrying gems in 42%, median gold 20.0
-- Nyx: 834 recalls; gold >=150 in 16%, carrying gems in 31%, median gold 18.0
-- Univardisty of Shingtonwash: 242 recalls; gold >=150 in 39%, carrying gems in 57%, median gold 20.0
-- hello: 551 recalls; gold >=150 in 6%, carrying gems in 30%, median gold 10
+- Intercontinental Fish: 279 recalls; gold >=150 in 23%, carrying gems in 40%, median gold 20
+- Nyx: 448 recalls; gold >=150 in 16%, carrying gems in 29%, median gold 12.0
+- Univardisty of Shingtonwash: 115 recalls; gold >=150 in 30%, carrying gems in 52%, median gold 20
+- hello: 224 recalls; gold >=150 in 6%, carrying gems in 20%, median gold 10.0
 
 ## Abilities (all teams): casts per champion-game and target class
 
@@ -265,21 +265,21 @@ Recalls started at >=90% hp (top-4 teams): what the champion carried (end of pre
 | gold_spent | 4392.20 | 2775.20 |
 
 Games reaching round 2000: 15, maps: Counter({'1b8ddaecdb': 14, '42afe633c7': 1})
-  - w10-0/06 Nyx 0 vs Intercontinental Fish 0; gold earned 2707 vs 4980; kills 0 vs 0; winner Intercontinental Fish
-  - w7-0/04 Intercontinental Fish 0 vs print dont int 0; gold earned 4455 vs 2580; kills 4 vs 0; winner Intercontinental Fish
-  - w7-0/06 Intercontinental Fish 0 vs print dont int 970; gold earned 0 vs 4350; kills 0 vs 0; winner print dont int
+  - w10-0/6 Nyx 0 vs Intercontinental Fish 0; gold earned 2707 vs 4980; kills 0 vs 0; winner Intercontinental Fish
+  - w7-0/4 Intercontinental Fish 0 vs print dont int 0; gold earned 4455 vs 2580; kills 4 vs 0; winner Intercontinental Fish
+  - w7-0/6 Intercontinental Fish 0 vs print dont int 970; gold earned 0 vs 4350; kills 0 vs 0; winner print dont int
   - w7-1/14 Tartarus 0 vs Sloppy Joe Pirates 0; gold earned 2175 vs 2997; kills 0 vs 0; winner Sloppy Joe Pirates
-  - w7-2/03 Univardisty of Shingtonwash 0 vs Pantheon 0; gold earned 23618 vs 15610; kills 34 vs 10; winner Univardisty of Shingtonwash
-  - w7-3/05 Boost 0 vs procless 522; gold earned 13780 vs 15070; kills 20 vs 6; winner procless
-  - w7-4/01 Mite 0 vs EMPEROR Tung 0; gold earned 8620 vs 66285; kills 11 vs 1; winner EMPEROR Tung
+  - w7-2/3 Univardisty of Shingtonwash 0 vs Pantheon 0; gold earned 23618 vs 15610; kills 34 vs 10; winner Univardisty of Shingtonwash
+  - w7-3/5 Boost 0 vs procless 522; gold earned 13780 vs 15070; kills 20 vs 6; winner procless
+  - w7-4/1 Mite 0 vs EMPEROR Tung 0; gold earned 8620 vs 66285; kills 11 vs 1; winner EMPEROR Tung
   - w7-5/13 hello 0 vs new team(4) 0; gold earned 9155 vs 4745; kills 8 vs 5; winner hello
-  - w7-6/07 Shawn 0 vs Nyx 0; gold earned 2040 vs 2744; kills 0 vs 0; winner Nyx
-  - w8-0/06 Intercontinental Fish 0 vs Tartarus 0; gold earned 4390 vs 1710; kills 0 vs 0; winner Intercontinental Fish
+  - w7-6/7 Shawn 0 vs Nyx 0; gold earned 2040 vs 2744; kills 0 vs 0; winner Nyx
+  - w8-0/6 Intercontinental Fish 0 vs Tartarus 0; gold earned 4390 vs 1710; kills 0 vs 0; winner Intercontinental Fish
   - w8-1/13 procless 0 vs Univardisty of Shingtonwash 0; gold earned 17170 vs 14667; kills 6 vs 36; winner procless
   - w8-2/11 EMPEROR Tung 0 vs hello 0; gold earned 57945 vs 14470; kills 3 vs 15; winner EMPEROR Tung
   - w8-3/12 Nyx 0 vs Sneaky Bush Campers 0; gold earned 3327 vs 2915; kills 0 vs 0; winner Nyx
-  - w9-0/07 Intercontinental Fish 384 vs Univardisty of Shingtonwash 646; gold earned 17280 vs 30230; kills 53 vs 19; winner Univardisty of Shingtonwash
-  - w9-1/05 Nyx 0 vs hello 0; gold earned 2474 vs 2150; kills 0 vs 0; winner Nyx
+  - w9-0/7 Intercontinental Fish 384 vs Univardisty of Shingtonwash 646; gold earned 17280 vs 30230; kills 53 vs 19; winner Univardisty of Shingtonwash
+  - w9-1/5 Nyx 0 vs hello 0; gold earned 2474 vs 2150; kills 0 vs 0; winner Nyx
 
 Does the leader in tributed gems at round N win? (decided games)
 

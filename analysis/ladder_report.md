@@ -33,8 +33,8 @@ Team sizes: {5: 356, 4: 120, 3: 94} (team-games)
 | team | games | wins | gems tributed | gold earned | captures | gems/capture | shared captures | tributes | median bag | mean bag | median 1st capture rd | median 1st tribute rd |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | policy wonk | 45 | 32 | 832 | 8408 | 49.10 | 19.00 | 10% | 17.20 | 36 | 48.30 | 32 | 157 |
-| procless | 45 | 28 | 855 | 8396 | 62.50 | 14.70 | 4% | 23.60 | 22.00 | 36.20 | 25 | 162 |
 | prism best girl | 50 | 28 | 800 | 7606 | 44.70 | 21.90 | 8% | 14.20 | 37.00 | 56.30 | 26.00 | 121 |
+| procless | 45 | 28 | 855 | 8396 | 62.50 | 14.70 | 4% | 23.60 | 22.00 | 36.20 | 25 | 162 |
 | Intercontinental Fish | 50 | 27 | 830 | 7098 | 44.40 | 20.20 | 6% | 21.20 | 29.00 | 39.10 | 41.00 | 97.00 |
 | Univardisty of Shingtonwash | 50 | 26 | 780 | 7513 | 58.80 | 14.20 | 2% | 24.30 | 22 | 32.10 | 27.50 | 89 |
 | Trzy Kwaterki | 50 | 24 | 703 | 6609 | 52.10 | 15.10 | 2% | 25.20 | 22 | 27.90 | 25.00 | 67.50 |
@@ -146,8 +146,8 @@ Consumables and spending (mean per game)
 | team | altar locks bought | altar locks placed | teleports bought | teleports used | gold spent |
 |---|---|---|---|---|---|
 | policy wonk | 4.60 | 1.13 | 3.11 | 2.31 | 7966 |
-| procless | 0.00 | 0.00 | 0.44 | 0.40 | 7599 |
 | prism best girl | 0.00 | 0.00 | 5.92 | 5.40 | 7208 |
+| procless | 0.00 | 0.00 | 0.44 | 0.40 | 7599 |
 | Intercontinental Fish | 4.48 | 2.54 | 4.04 | 3.50 | 6768 |
 | Univardisty of Shingtonwash | 0.62 | 0.48 | 6.88 | 6.56 | 7121 |
 | Trzy Kwaterki | 0.00 | 0.00 | 7.56 | 6.44 | 6169 |
@@ -163,8 +163,8 @@ Consumables and spending (mean per game)
 | team | basic attacks on champs | on camps | champ share | dmg to champs | dmg to camps | kills | deaths | deaths to camps | gems stolen | gems lost dying | wards | altar locks |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | policy wonk | 173 | 928 | 16% | 31455 | 132591 | 8.40 | 9.50 | 1.00 | 61.10 | 100.00 | 120 | 1.13 |
-| procless | 251 | 978 | 20% | 32047 | 128415 | 8.00 | 7.70 | 0.80 | 253.00 | 195.40 | 98 | 0.00 |
 | prism best girl | 133 | 921 | 13% | 22268 | 136849 | 8.20 | 8.10 | 1.40 | 142.40 | 147.90 | 153 | 0.00 |
+| procless | 251 | 978 | 20% | 32047 | 128415 | 8.00 | 7.70 | 0.80 | 253.00 | 195.40 | 98 | 0.00 |
 | Intercontinental Fish | 135 | 1083 | 11% | 16907 | 122631 | 7.60 | 10.20 | 1.80 | 122.70 | 148.90 | 137 | 2.54 |
 | Univardisty of Shingtonwash | 220 | 983 | 18% | 23421 | 116474 | 8.10 | 9.30 | 1.10 | 64.60 | 55.90 | 296 | 0.48 |
 | Trzy Kwaterki | 155 | 869 | 15% | 21928 | 105021 | 7.00 | 6.40 | 0.40 | 174.10 | 203.00 | 185 | 0.00 |
@@ -179,25 +179,25 @@ Recall: health fraction at the end of the round before a recall starts
 
 | team | recall starts | channel cancels | at <=25% hp | at >=90% hp | median hp |
 |---|---|---|---|---|---|
-| policy wonk | 39.90 | 0.80 | 8% | 56% | 1.00 |
-| procless | 53.00 | 0.40 | 15% | 45% | 0.77 |
-| prism best girl | 58.10 | 5.90 | 9% | 44% | 0.78 |
-| Intercontinental Fish | 56.80 | 3.80 | 11% | 32% | 0.57 |
-| Univardisty of Shingtonwash | 45.20 | 0.50 | 11% | 51% | 0.92 |
-| Trzy Kwaterki | 48.00 | 0.50 | 11% | 60% | 1.02 |
-| :3 | 3802.80 | 3119.50 | 1% | 83% | 1.35 |
-| print dont int | 56.60 | 2.00 | 12% | 46% | 0.79 |
-| Pantheon | 3984.10 | 3365.90 | 0% | 80% | 1.00 |
-| Noobot | 4051.80 | 3365.70 | 1% | 81% | 1.21 |
-| new team(4) | 46.50 | 2.60 | 7% | 50% | 0.90 |
-| NEETCoders | 4229.80 | 3507.00 | 1% | 83% | 1.07 |
+| policy wonk | 39.90 | 0.80 | 12% | 33% | 0.73 |
+| prism best girl | 58.10 | 5.90 | 16% | 14% | 0.46 |
+| procless | 53.00 | 0.40 | 23% | 14% | 0.45 |
+| Intercontinental Fish | 56.80 | 3.80 | 18% | 11% | 0.41 |
+| Univardisty of Shingtonwash | 45.20 | 0.50 | 16% | 27% | 0.51 |
+| Trzy Kwaterki | 48.00 | 0.50 | 16% | 35% | 0.73 |
+| :3 | 3802.80 | 3119.50 | 1% | 65% | 0.99 |
+| print dont int | 56.60 | 2.00 | 17% | 23% | 0.59 |
+| Pantheon | 3984.10 | 3365.90 | 1% | 67% | 1.00 |
+| Noobot | 4051.80 | 3365.70 | 1% | 66% | 0.98 |
+| new team(4) | 46.50 | 2.60 | 12% | 26% | 0.62 |
+| NEETCoders | 4229.80 | 3507.00 | 2% | 69% | 1.00 |
 
 Recalls started at >=90% hp (top-4 teams): what the champion carried (end of previous round)
 
-- prism best girl: 1287 recalls; gold >=150 in 33%, carrying gems in 58%, median gold 100
-- Intercontinental Fish: 904 recalls; gold >=150 in 37%, carrying gems in 56%, median gold 97.0
-- policy wonk: 1012 recalls; gold >=150 in 42%, carrying gems in 66%, median gold 132.0
-- procless: 1071 recalls; gold >=150 in 23%, carrying gems in 50%, median gold 24
+- prism best girl: 418 recalls; gold >=150 in 32%, carrying gems in 62%, median gold 106.5
+- Intercontinental Fish: 316 recalls; gold >=150 in 39%, carrying gems in 56%, median gold 104.0
+- policy wonk: 599 recalls; gold >=150 in 35%, carrying gems in 66%, median gold 116
+- procless: 334 recalls; gold >=150 in 17%, carrying gems in 55%, median gold 20.0
 
 ## Abilities (all teams): casts per champion-game and target class
 

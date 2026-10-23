@@ -24,7 +24,7 @@ function main(inp, outp) {
     const k = STEPS[s.step.kind];
     if (prev && s.round !== prev.round && prev.champions.length) {
       rounds.push([prev.round, prev.submittedGems[0], prev.submittedGems[1],
-        prev.champions.map(c => [c.gold, c.gems, +c.alive, c.kills, ...pos(c), Math.round(c.health)])]);
+        prev.champions.map(c => [c.gold, c.gems, +c.alive, c.kills, ...pos(c), Math.round(c.health), Math.round(c.maxHealth)])]);
     }
     if (prev && prev.champions.length === s.champions.length) {
       const diffs = [];
@@ -63,7 +63,7 @@ function main(inp, outp) {
     prev = s; last = s;
   });
   rounds.push([last.round, last.submittedGems[0], last.submittedGems[1],
-    last.champions.map(c => [c.gold, c.gems, +c.alive, c.kills, ...pos(c), Math.round(c.health)])]);
+    last.champions.map(c => [c.gold, c.gems, +c.alive, c.kills, ...pos(c), Math.round(c.health), Math.round(c.maxHealth)])]);
   const out = {
     file: inp, rounds_played: last.round, outcome: last.outcome, submitted: last.submittedGems,
     drafts: last.drafts, draftCounts: last.draftCounts,

@@ -77,7 +77,7 @@ def game_stats(d, side_names):
     for r, sa, sb, cs in rounds:
         for i, c in enumerate(cs):
             gold_at[(r, i)], gems_at[(r, i)] = c[0], c[1]
-            hp_at[(r, i)] = c[6] / champ[i]['maxHealth'] if champ[i]['maxHealth'] else 0
+            hp_at[(r, i)] = c[6] / c[7] if len(c) > 7 and c[7] else 0
     for e in d['events']:
         k, (ak, ai) = e['k'], e['a']
         actor_team = team_of.get(ai) if ak == 1 else None
