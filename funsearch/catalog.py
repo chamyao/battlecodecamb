@@ -76,6 +76,13 @@ Observations from our own v3 ladder losses (13-22 over 35 games):
   32-53% vs a 51% mirror; chase when above: 20-28%). The gains are in how to fight (ability
   timing, target choice, staying with allies), not whether to engage. local_strength(r) is 100
   when no enemy is within r: pair it with enemies_within(r) > 0.
+Observations from our v6 ladder losses (we are ~23-12 since v5d):
+- Our main loss is to melee stun/dive teams, who kill us 21-34 times per game: our ranged
+  champions trade in place when a melee enemy is adjacent. Ideas: kite (i_am_ranged(): step
+  move_away_from the adjacent melee enemy, then attack from range) and stay near allies.
+- Gem camps in contested middles: on one map we made 157 captures and 0 gems because we only
+  farmed edge gold clusters. Gems, not gold, win games; go for gem camps (gem_cluster_tiles(),
+  wolves, elks), with allies when they are contested.
 """
 
 GRAMMAR += """\
