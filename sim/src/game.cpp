@@ -136,13 +136,13 @@ void Game::grant_gold(Champion& ch, std::uint32_t amount, bool earned)
 	int pct = 0;
 	if (champion_design(ch.type).passive == Passive::bonus_gold) pct += 33;
 	if (ch.has_passive(ItemPassive::treasure)) pct += 20;
-	// Bonus gold is kept fractionally (RULE? float precision of the multiplier).
-	const float total = static_cast<float>(amount) * (static_cast<float>(100 + pct) / 100.0f);
-	ch.gold += total;
+	// Bonus gold is kept exactly in hundredths: amount * (100 + pct) / 100.
+	const std::int64_t total = static_cast<std::int64_t>(amount) * (100 + pct);
+	ch.gold_cents += total;
 	if (earned)
 	{
-		ch.earned_gold += total;
-		teams[ch.team].earned_gold += total;
+		ch.earned_gold_cents += total;
+		teams[ch.team].earned_gold_cents += total;
 	}
 }
 
@@ -412,7 +412,9 @@ void Game::process_respawns()
 		if (G.respawn_timer > 0) --G.respawn_timer; // RULE? decrement before check
 		if (G.respawn_timer > 0) continue;
 		bool blocked = false;
-		for (int h : map_->groups[g].camps) blocked |= champion_at(map_->camps[h].pos) >= 0;
+		// A champion on a spawn tile, or a teleport heading there, delays the whole group.
+		for (int h : map_->groups[g].camps)
+			blocked |= champion_at(map_->camps[h].pos) >= 0 || tile_reserved_by_teleport(map_->camps[h].pos);
 		if (blocked) continue;
 		for (int h : map_->groups[g].camps)
 		{
@@ -738,7 +740,7 @@ void Game::end_round()
 	result.rounds = round;
 	const TeamState &a = teams[0], &b = teams[1];
 	if (a.submitted != b.submitted) result.winner = a.submitted > b.submitted ? 0 : 1;
-	else if (a.earned_gold != b.earned_gold) result.winner = a.earned_gold > b.earned_gold ? 0 : 1;
+	else if (a.earned_gold_cents != b.earned_gold_cents) result.winner = a.earned_gold_cents > b.earned_gold_cents ? 0 : 1;
 	else if (a.kills != b.kills) result.winner = a.kills > b.kills ? 0 : 1;
 	else result.winner = 1;
 }
@@ -1089,8 +1091,8 @@ Err Game::buy_item(int c, int item, int count)
 	if (count <= 0) return Err::buy_invalid_count;
 	const auto& it = item_design(item);
 	const std::uint64_t cost = static_cast<std::uint64_t>(it.cost) * static_cast<std::uint64_t>(count);
-	if (static_cast<float>(cost) > ch.gold) return Err::buy_not_enough_gold;
-	ch.gold -= static_cast<float>(cost);
+	if (static_cast<std::int64_t>(cost) * 100 > ch.gold_cents) return Err::buy_not_enough_gold;
+	ch.gold_cents -= static_cast<std::int64_t>(cost) * 100;
 	ch.spent_gold += cost;
 	const float old_max = ch.max_hp;
 	ch.items[item] += count;
@@ -1112,8 +1114,8 @@ Err Game::buy_consumable(int c, int type)
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
 	if (!can_shop(c, true)) return Err::buyc_not_on_spawn;
 	if (ch.cons[type] >= consumable_design(type).carry_limit) return Err::buyc_inventory_full;
-	if (ch.gold < static_cast<float>(consumable_design(type).cost)) return Err::buyc_not_enough_gold;
-	ch.gold -= static_cast<float>(consumable_design(type).cost);
+	if (ch.gold_cents < static_cast<std::int64_t>(consumable_design(type).cost) * 100) return Err::buyc_not_enough_gold;
+	ch.gold_cents -= static_cast<std::int64_t>(consumable_design(type).cost) * 100;
 	ch.spent_gold += static_cast<std::uint64_t>(consumable_design(type).cost);
 	ch.cons[type]++;
 	return Err::success;
@@ -1129,7 +1131,7 @@ Err Game::sell(int c, int item)
 	if (!can_sell(c)) return Err::sell_not_on_spawn;
 	if (ch.sold) return Err::sell_already_sold;
 	ch.items[item]--;
-	ch.gold += static_cast<float>(item_design(item).cost);
+	ch.gold_cents += static_cast<std::int64_t>(item_design(item).cost) * 100;
 	ch.sold = true;
 	recompute_stats(ch);
 	ch.hp = std::min(ch.hp, ch.max_hp);

@@ -406,7 +406,7 @@ int main(int argc, char** argv)
 		std::fprintf(stderr, "usage: replay MAP SCRIPT [--max-diffs N] [--quiet] [--rounds N]\n");
 		return 2;
 	}
-	int max_diffs = 20, max_rounds = 1 << 30, watch_camp = -1, watch_from = 0, watch_to = 0, watch_group = -1;
+	int max_diffs = 20, max_rounds = 1 << 30, watch_camp = -1, watch_from = 0, watch_to = 0, watch_group = -1, watch_champ = -1;
 	bool quiet = false;
 	for (int i = 3; i < argc; ++i)
 	{
@@ -416,6 +416,12 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--watch-group"))
 		{
 			watch_group = std::atoi(argv[++i]);
+			watch_from = std::atoi(argv[++i]);
+			watch_to = std::atoi(argv[++i]);
+		}
+		else if (!std::strcmp(argv[i], "--watch-champ"))
+		{
+			watch_champ = std::atoi(argv[++i]);
 			watch_from = std::atoi(argv[++i]);
 			watch_to = std::atoi(argv[++i]);
 		}
@@ -494,6 +500,12 @@ int main(int argc, char** argv)
 			for (int h : g.map().groups[watch_group].camps)
 				std::printf(" %d:%d@%d,%d(occ %d)", h, static_cast<int>(g.camps[h].life), g.camps[h].pos.x, g.camps[h].pos.y, g.champion_at(g.camps[h].pos));
 			std::printf("\n");
+		}
+		if (watch_champ >= 0 && g.round >= watch_from && g.round <= watch_to)
+		{
+			const Champion& c = g.champs[watch_champ];
+			std::printf("WATCHC r%d champ %d alive=%d pos=%d,%d hp=%.9g gold=%.9g gems=%u\n", g.round, watch_champ, c.alive ? 1 : 0, c.pos.x, c.pos.y,
+						static_cast<double>(c.hp), c.gold(), static_cast<unsigned>(c.gems));
 		}
 		if (watch_camp >= 0 && g.round >= watch_from && g.round <= watch_to)
 		{

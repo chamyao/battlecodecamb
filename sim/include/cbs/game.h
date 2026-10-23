@@ -59,12 +59,13 @@ struct Champion
 	int health_pts = 0, strength_pts = 0, focus_pts = 0;
 	std::uint32_t passives = 0; // bit per ItemPassive
 	float max_hp = 0, strength = 0, focus = 0;
-	// Gold is fractional in the engine (bonus gold accumulates fractions); the API reports floor(gold).
-	float gold = 0;
+	// Gold is kept exactly in hundredths (bonus gold accumulates fractions); the API reports floor(gold).
+	std::int64_t gold_cents = 0;
 	std::uint32_t gems = 0;
-	float earned_gold = 0;
+	std::int64_t earned_gold_cents = 0;
 	std::uint64_t spent_gold = 0;
-	std::uint32_t gold_int() const { return static_cast<std::uint32_t>(gold); }
+	std::uint32_t gold_int() const { return static_cast<std::uint32_t>(gold_cents / 100); }
+	double gold() const { return static_cast<double>(gold_cents) / 100.0; }
 	int cons[kNumConsumables] = {};
 	int cooldown[2] = {};
 	BuffList buffs;
@@ -131,7 +132,7 @@ struct AltarLock
 struct TeamState
 {
 	std::uint32_t submitted = 0;
-	double earned_gold = 0;
+	std::int64_t earned_gold_cents = 0;
 	int kills = 0;
 	std::uint8_t shared[kSharedMemory] = {};
 	std::uint8_t draft_mem[kDraftMemory] = {};
