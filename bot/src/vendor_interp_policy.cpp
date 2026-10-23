@@ -1064,13 +1064,27 @@ struct Interp
 			{
 				const Vec2 p{ me.x + dx, me.y + dy };
 				if (!m().in_bounds(p) || blocked.test(p) || p == me) continue;
-				if (field[m().idx(p)] < bd)
+				if (field[m().idx(p)] < bd && dash_path_ok(me, p))
 				{
 					bd = field[m().idx(p)];
 					best = p;
 				}
 			}
 		return best;
+	}
+	// A 2-step dash needs an intermediate tile next to both ends that is neither a wall nor an
+	// enemy spawn tile (cambc error 32 otherwise; docs/ENGINE_FINDINGS.md).
+	bool dash_path_ok(Vec2 me, Vec2 p)
+	{
+		if (cbs::chebyshev(me, p) <= 1) return true;
+		const Bitboard& enemy_spawn = m().spawn_mask[1 - api.team()];
+		for (int dy = -1; dy <= 1; ++dy)
+			for (int dx = -1; dx <= 1; ++dx)
+			{
+				const Vec2 q{ me.x + dx, me.y + dy };
+				if (m().in_bounds(q) && cbs::chebyshev(q, p) <= 1 && !m().walls.test(q) && !enemy_spawn.test(q)) return true;
+			}
+		return false;
 	}
 
 	// Nearest tile of `set` by walking distance (same seeding rule as move_towards_goals).
