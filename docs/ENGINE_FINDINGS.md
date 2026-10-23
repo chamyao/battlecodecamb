@@ -113,3 +113,123 @@ following match the engine exactly on every sample (thousands per primitive).
   iterations executed (including the final one that finds no new tiles).
 - **draw_circle**: tiles with `dx^2 + dy^2 <= r^2`; **draw_chebyshev**:
   `max(|dx|,|dy|) <= r` (fractional radii allowed).
+
+## Rules established by differential replay
+
+Source: `oracle/bots/tracer` (seeded semi-random policy exercising every action,
+logging full observations at each turn start/end and every raw call's result)
+replayed through the simulator by `sim/build/replay` (`oracle/run_trace.py`).
+Each rule below was needed to make full games replay with zero differences.
+
+### Turn structure and order
+- Rounds start at 1. Team A acts first in odd rounds, team B in even rounds;
+  the teams alternate turn by turn (A1 B1 A2 B2 ...).
+- Within a team: higher priority first, ties by champion id. `set_priority`
+  takes effect at the next round start.
+- Per-turn allowances (moved/attacked/cast flags) reset for *every* champion
+  at round start, so an ally that has not acted yet shows fresh allowances; after
+  its turn the flags persist (plus `completed_turn`) until the next round.
+  The `recall_started`/`tribute_started`/`*_cancelled` bits clear at turn end.
+- Champion turn start: respawn (if timer done), ward recharge (also while
+  dead), expire zero-duration buffs, then complete channels whose timer is 0.
+  Turn end: decrement cooldowns, buffs, channel timer, ward cooldown and (when
+  dead) respawn timer; then spawn healing (full heal on own spawn).
+- The game can end at a turn *start* (a tribute completing); the engine then
+  stops before that bot runs. `roundsCompleted` is then the previous round.
+
+### Spawning and placement
+- Team A's champions take spawn-box slots in row-major order (x fastest);
+  team B's slot *i* is the mirror image of team A's slot *i* under the map
+  symmetry. Recall and respawn land on the first free slot in that order;
+  tiles reserved by a teleport crystal count as occupied.
+
+### Camps
+- Camp turns happen at round start (after respawns and captures).
+  A camp targets the **nearest champion by Chebyshev distance** within its
+  attack range; ties go to the champion earliest in **this round's turn
+  order**. Camps ignore walls/bushes for targeting.
+- Sleep is a timer: set to `camp_sleep_time` (2) when the camp is woken and
+  whenever a champion is in range at its turn (even while stunned); decremented
+  at the end of every camp turn. An awake, non-stunned camp with no champion
+  in range and a zero timer falls asleep (keeping its health).
+- Any damage to a camp wakes every sleeping member of its group (and sets
+  their timers to 2); it does **not** refresh already-awake camps' timers.
+- Stunned camps do not attack and cannot fall asleep. Buff timers: expire at
+  camp turn start when 0, decrement at camp turn end (a 1-turn stun applied
+  during the champion phase blocks the next camp turn).
+- Gem/gold clusters (strength 0) never deal damage but do keep themselves
+  awake by having champions in range (range 3).
+
+### Capture
+- When all camps of a group are dead the group becomes "reward available".
+  At each capture phase (round start): if exactly one team occupies any of the
+  group's spawn tiles, a timer starts at 5 (`capture_time`) or counts down; on
+  reaching 0 the reward is paid and the group starts respawning. Progress
+  resets **the moment** the region becomes empty or contested, checked after
+  every position change (walks, dashes, recalls, teleports, deaths), not only
+  at capture phases.
+- Rewards are split equally among the capturing team's champions standing on
+  the region at completion; the lowest id gets the remainder.
+
+### Gold
+- Gold is stored fractionally; bonus multipliers (Vesper Vale +33%, Treasure
+  +20%, additive) are applied as `amount * (100 + pct) / 100` in float, and
+  queries report `floor(gold)`. E.g. 36 base gold gives 47.88 (reported 47);
+  the fraction carries into later gains.
+
+### Combat
+- Basic attack damage = strength, then attacker modifiers applied
+  sequentially in float: Heart of Ruin `x(1 + 0.5 * (1 - hp/max_hp))`, then
+  Monster emblem `x1.1` vs camps (order matters for float rounding).
+- Varg's splash hits other enemy champions and camps within Chebyshev 1 of
+  the primary target; splash damage does not trigger Ren's retaliation.
+- Ren's retaliation (0.2 x focus) triggers on any direct hit, including
+  zero-damage hits such as Cassi's stun, and against camps; retaliation damage
+  does not itself trigger retaliation.
+- Ground-targeted abilities (AoE, dash) cast with a unit target use the unit's
+  tile as the destination.
+- Dash path: the destination is validated like a landing tile; a 2-step dash
+  needs an intermediate tile that is not a wall and holds no camp or enemy
+  champion (allies can be passed; holes can be crossed). No path -> error 32.
+- Attack resets require that the basic attack was already used this turn
+  (otherwise 26); for ranged champions a reset restores the attack only, not
+  the walk.
+- Death resets ability cooldowns immediately; the ward cooldown keeps ticking.
+
+### Stun
+- A stunned champion's restriction mask is 0x3f (move, attack, cast, shop,
+  consumable, ward) and its `can_*` state bits clear. Errors while stunned:
+  move 21, attack 40, cast 26, consumable 33, ward 63, buy 33, tribute 45.
+
+### Vision-dependent queries
+- Allies need vision just like enemies (E97 otherwise). A dead champion sees
+  only through its ward.
+- Wards are listed (both teams) when the ward's tile is in the viewer's
+  vision, in placement order; re-placing a ward keeps its list slot.
+- Teleport reservations are listed when the destination is visible or the
+  viewer is the caster; `channel_type` is 4.
+- Camp-group state (`camp_group_state`): alive/reward states need a visible
+  group tile; a champion that has seen a group respawning (including at the
+  moment it was captured) keeps getting state 3 until it respawns.
+
+### Altars, locks, tribute
+- Each team may hold one lock per altar (both teams can lock the same altar).
+- Placing a lock cancels every tribute channel at that altar, allies included.
+- A tribute at an enemy-locked altar is converted into a basic attack on the
+  lock when an attack is possible (returns success); otherwise error 125.
+
+### Validation order (first failing check wins)
+- move: [stun 21] channel (34/35/123) -> already moved / ranged attacked ->
+  destination legality 22 -> reach 38 (no 37 observed). Hidden occupant: ok=0,
+  tile revealed for the round.
+- attack: stun 40 -> channel -> target validity 42 -> already attacked 41 ->
+  ranged moved 40 -> range 43.
+- cast: stun 26 -> channel -> slot/ability -> already cast -> cooldown 28 ->
+  attack-reset precondition 26 -> moved/exclusive 126 -> targeting.
+- buy: stun 33 -> channel -> not on spawn 49 -> invalid/unpurchasable 50 ->
+  count 51 -> gold 52.
+- sell (Tavi): not Tavi -> channel -> invalid -> not owned 130 -> not on spawn
+  133 -> already sold 131.
+- ward: stun 63 -> channel -> no charge 62 -> bad tile 64 (out of map, wall,
+  hole, altar) -> range 65 -> any allied ward (own included) on tile 117.
+- teleport crystal: validated like a move (bad destination 22).
