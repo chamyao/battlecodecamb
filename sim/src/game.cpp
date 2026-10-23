@@ -184,6 +184,8 @@ bool Game::tile_reserved_by_teleport(Vec2 p) const
 }
 
 bool Game::is_stunned(int c) const { return champs[c].buffs.has(BuffType::stun); }
+// Dead champions get the same per-action errors as stunned ones (shopping aside).
+bool Game::incapacitated(int c) const { return !champs[c].alive || is_stunned(c); }
 
 std::uint8_t Game::restrictions(int c) const
 {
@@ -202,7 +204,7 @@ std::uint32_t Game::state_bits(int c) const
 	if (ch.alive && ch.channel == Channel::none && !ch.buffs.has(BuffType::stun))
 	{
 		if (!ch.moved && !(ranged && (ch.attacked || ch.attack_reset)) && !ch.cast_exclusive) s |= state_bit::can_move;
-		if (!ch.attacked && !(ranged && ch.moved)) s |= state_bit::can_attack;
+		if (!ch.attacked && !(ranged && ch.moved && !ch.attack_reset)) s |= state_bit::can_attack;
 		if (!ch.cast) s |= state_bit::can_cast;
 	}
 	if (ch.completed_turn) s |= state_bit::completed_turn;
@@ -780,11 +782,7 @@ void Game::resign(int team)
 
 Err Game::common_action_checks(const Champion& ch) const
 {
-	if (!ch.alive)
-	{
-		CBS_RULE_HIT("dead_champion_action");
-		return Err::cant_act; // RULE?
-	}
+	if (!ch.alive) return Err::cant_act; // unreachable from actions: they check incapacitated() first
 	if (ch.channel == Channel::recall) return Err::is_recalling;
 	if (ch.channel == Channel::tribute) return Err::is_submitting_gems;
 	if (ch.channel == Channel::teleport) return Err::is_teleporting;
@@ -811,7 +809,7 @@ Err Game::move(int c, Vec2 to, bool& ok)
 {
 	ok = false;
 	Champion& ch = champs[c];
-	if (is_stunned(c)) return Err::move_cant_move;
+	if (incapacitated(c)) return Err::move_cant_move;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	if (ch.moved) return Err::move_already_moved;
 	if (ch.cast_exclusive) return Err::move_exclusive_spell_cast;
@@ -875,7 +873,7 @@ void Game::apply_basic_attack(int c, EntityKind kind, int handle)
 Err Game::attack(int c, EntityKind kind, int handle)
 {
 	Champion& ch = champs[c];
-	if (is_stunned(c)) return Err::attack_cant_attack;
+	if (incapacitated(c)) return Err::attack_cant_attack;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	const bool ranged = champion_design(ch.type).ranged;
 	Bitboard vis;
@@ -906,8 +904,8 @@ Err Game::attack(int c, EntityKind kind, int handle)
 	}
 	else
 		return Err::attack_bad_target;
-	if (ch.attacked) return Err::attack_already_attacked;
-	if (ranged && ch.moved) return Err::attack_cant_attack;
+	// A ranged champion's move spends its attack (41) until an attack reset restores it.
+	if (ch.attacked || (ranged && ch.moved && !ch.attack_reset)) return Err::attack_already_attacked;
 	if (chebyshev(ch.pos, tp) > champion_design(ch.type).attack_range) return Err::attack_out_of_range;
 	ch.attacked = true;
 	ch.attack_reset = false;
@@ -924,28 +922,32 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 {
 	ok = false;
 	Champion& ch = champs[c];
-	if (is_stunned(c)) return Err::cast_cant_cast;
+	if (incapacitated(c)) return Err::cast_cant_cast;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	if (slot < 0 || slot > 1) return Err::cast_invalid_slot;
 	const auto& d = champion_design(ch.type);
 	const AbilityDesign& a = d.abilities[slot];
 	if (a.kind == AbilityKind::none) return Err::cast_no_ability;
-	if (ch.cast) return Err::cast_already_cast;
 	if (ch.cooldown[slot] > 0) return Err::cast_on_cooldown;
-	// An attack reset needs a spent basic attack to restore.
-	if (a.kind == AbilityKind::attack_reset && !ch.attacked) return Err::cast_cant_cast;
+	if (ch.cast) return Err::cast_already_cast;
+	// An attack reset needs a spent basic attack to restore; a ranged champion's move spends it.
+	if (a.kind == AbilityKind::attack_reset && !ch.attacked && !(d.ranged && ch.moved)) return Err::cast_cant_cast;
 	if (a.exclusive_with_movement && ch.moved) return Err::cast_already_moved;
 	Bitboard vis;
 	champion_vision(c, vis);
-	// Unit-targeted casts of ground abilities land on the target's tile.
+	// Unit-targeted casts of ground abilities land on the target's tile. An invalid unit target
+	// is error 30 for an AoE; a dash instead falls back to the given destination (and ignores
+	// allied champions).
 	if ((a.kind == AbilityKind::aoe_damage || a.kind == AbilityKind::dash) && kind != EntityKind::none)
 	{
-		if (kind == EntityKind::champion && handle >= 0 && handle < static_cast<int>(champs.size()) && champs[handle].alive && vis.test(champs[handle].pos))
+		const bool dash = a.kind == AbilityKind::dash;
+		if (kind == EntityKind::champion && handle >= 0 && handle < static_cast<int>(champs.size()) && champs[handle].alive &&
+			!(dash && champs[handle].team == ch.team) && vis.test(champs[handle].pos))
 			dest = champs[handle].pos;
 		else if (kind == EntityKind::camp && handle >= 0 && handle < static_cast<int>(camps.size()) && camps[handle].life != CampLife::dead &&
 				 vis.test(camps[handle].pos))
 			dest = camps[handle].pos;
-		else
+		else if (!dash)
 			return Err::cast_bad_target;
 	}
 	auto finish = [&]() {
@@ -1140,14 +1142,11 @@ Err Game::buy_item(int c, int item, int count)
 Err Game::buy_consumable(int c, int type)
 {
 	Champion& ch = champs[c];
-	if (type < 0 || type >= kNumConsumables || consumable_design(type).carry_limit == 0)
-	{
-		if (ch.alive && is_stunned(c)) CBS_RULE_HIT("stunned_buyc_invalid");
-		return Err::buyc_invalid_type; // RULE? order vs stun
-	}
-	if (ch.alive && is_stunned(c)) return Err::cant_act; // order vs invalid type: see RULEHIT stunned_buyc_invalid
+	// Channel errors first; ids with no carry allowance are valid but always "inventory full".
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
+	if (ch.alive && is_stunned(c)) return Err::cant_act;
 	if (!can_shop(c, true)) return Err::buyc_not_on_spawn;
+	if (type < 0 || type >= kNumConsumables) return Err::buyc_invalid_type;
 	if (ch.cons[type] >= consumable_design(type).carry_limit) return Err::buyc_inventory_full;
 	if (ch.gold_cents < static_cast<std::int64_t>(consumable_design(type).cost) * 100) return Err::buyc_not_enough_gold;
 	ch.gold_cents -= static_cast<std::int64_t>(consumable_design(type).cost) * 100;
@@ -1159,9 +1158,9 @@ Err Game::buy_consumable(int c, int type)
 Err Game::sell(int c, int item)
 {
 	Champion& ch = champs[c];
-	if (champion_design(ch.type).passive != Passive::remote_shop) return Err::sell_not_tavi;
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
-	if (is_stunned(c)) return Err::cant_act; // RULE? order vs the Tavi/channel checks
+	if (champion_design(ch.type).passive != Passive::remote_shop) return Err::sell_not_tavi;
+	if (is_stunned(c)) return Err::cant_act; // RULE? order vs the Tavi check
 	if (item < 0 || item >= kNumItems) return Err::sell_invalid_item;
 	if (ch.items[item] <= 0) return Err::sell_not_owned;
 	if (!can_sell(c)) return Err::sell_not_on_spawn;
@@ -1178,9 +1177,9 @@ Err Game::use_consumable(int c, int type, Vec2 dest, bool& ok)
 {
 	ok = false;
 	Champion& ch = champs[c];
-	if (type < 0 || type >= kNumConsumables || consumable_design(type).carry_limit == 0) return Err::use_invalid_type;
-	if (is_stunned(c)) return Err::cant_act;
+	if (incapacitated(c)) return Err::cant_act;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
+	if (type < 0 || type >= kNumConsumables || consumable_design(type).carry_limit == 0) return Err::use_invalid_type;
 	if (ch.cons[type] <= 0) return Err::use_not_owned;
 	if (type == consumable::altar_lock)
 	{
@@ -1222,13 +1221,13 @@ Err Game::use_consumable(int c, int type, Vec2 dest, bool& ok)
 Err Game::recall(int c)
 {
 	Champion& ch = champs[c];
-	if (ch.recall_started) return Err::recall_already_used;
-	if (is_stunned(c))
+	if (incapacitated(c))
 	{
 		CBS_RULE_HIT("stunned_recall");
 		return Err::recall_cant_channel; // confirmed by replay
 	}
-	if (Err e = common_action_checks(ch); e != Err::success) return e == Err::is_recalling ? Err::recall_cant_channel : e;
+	if (Err e = common_action_checks(ch); e != Err::success) return e;
+	if (ch.recall_started) return Err::recall_already_used;
 	ch.channel = Channel::recall;
 	const int t = settings().recall_time;
 	ch.channel_timer = ch.has_passive(ItemPassive::home) ? (t + 1) / 2 : t;
@@ -1253,18 +1252,19 @@ Err Game::cancel_channel(int c)
 Err Game::submit_gems(int c, Vec2 altar)
 {
 	Champion& ch = champs[c];
-	if (ch.submit_started) return Err::submit_already_used;
+	if (!ch.alive) return Err::submit_cant_channel;
+	if (ch.submit_started) return Err::submit_already_used; // RULE? order vs channel checks
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
+	if (ch.gems == 0) return Err::submit_no_gems;
 	if (!map_->in_bounds(altar) || !map_->altars.test(altar)) return Err::submit_bad_altar;
 	if (chebyshev(ch.pos, altar) > settings().submit_gems_range) return Err::submit_out_of_range;
-	if (ch.gems == 0) return Err::submit_no_gems;
 	const int li = lock_at(altar, 1 - ch.team);
 	if (li >= 0)
 	{
 		// A tribute against an enemy lock becomes a basic attack on the lock when one is possible.
 		return attack(c, EntityKind::altar_lock, locks[li].handle) == Err::success ? Err::success : Err::submit_altar_locked;
 	}
-	if (is_stunned(c)) return Err::submit_cant_channel;
+	if (is_stunned(c)) return Err::submit_cant_channel; // after the lock check: a stunned tribute at a locked altar is 125
 	ch.channel = Channel::tribute;
 	const double raw = std::ceil(settings().submit_gem_duration_multiplier * ch.gems) + settings().submit_gem_base_duration;
 	ch.channel_timer = std::max(settings().submit_gem_minimum_duration, static_cast<int>(raw));
@@ -1277,7 +1277,7 @@ Err Game::place_ward(int c, Vec2 dest, bool& ok)
 {
 	ok = false;
 	Champion& ch = champs[c];
-	if (is_stunned(c)) return Err::ward_cant_place;
+	if (incapacitated(c)) return Err::ward_cant_place;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	if (ch.ward_charges <= 0) return Err::ward_no_charges;
 	if (!map_->in_bounds(dest) || map_->walls.test(dest) || map_->holes.test(dest) || map_->altars.test(dest) ||

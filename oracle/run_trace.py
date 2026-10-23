@@ -22,7 +22,7 @@ def make_bot(ws, seed):
     if not os.path.islink(main):
         os.symlink(os.path.join(REPO, "oracle", "bots", "tracer", "src", "main.cpp"), main)
     cfg = os.path.join(src, "config.h")
-    text = f"#pragma once\n#define TRACER_SEED {seed}ull\n#define TRACER_DRAFT_MEMORY 1\n"
+    text = f"#pragma once\n#define TRACER_SEED {seed}ull\n#define TRACER_DRAFT_MEMORY 1\n#define TRACER_FUZZ {1 if seed >= 100 else 0}\n"  # seeds >= 100 fuzz
     if not os.path.exists(cfg) or open(cfg).read() != text:
         open(cfg, "w").write(text)
     return name

@@ -213,6 +213,7 @@ public:
 	std::uint32_t state_bits(int c) const;
 	std::uint8_t restrictions(int c) const;
 	bool is_stunned(int c) const;
+	bool incapacitated(int c) const; // dead or stunned
 	void champion_vision(int c, Bitboard& out) const; // own vision + ward + reveals
 	int champion_at(Vec2 p) const;					   // living champion on tile, or -1
 	int camp_at(Vec2 p) const;						   // living camp on tile, or -1

@@ -10,6 +10,9 @@
 #include <cstring>
 #include <vector>
 #include "config.h"
+#ifndef TRACER_FUZZ
+#define TRACER_FUZZ 0
+#endif
 
 using namespace cambc;
 using namespace cambc::detail;
@@ -414,6 +417,32 @@ void play_turn(std::uint32_t round)
 		if (chance(3)) act_buy(static_cast<std::uint32_t>(rint(0, 43)), static_cast<std::uint32_t>(rint(0, 2)));
 		if (ci.type == 11 && chance(10)) act_sell(static_cast<std::uint32_t>(rint(0, 41)));
 	}
+#if TRACER_FUZZ
+	// Random actions with random arguments in every state (dead, stunned, channelling) to probe
+	// validation orders.
+	if (chance(6))
+		for (int k = rint(1, 3); k > 0; --k)
+		{
+			const vec2 p{ ci.x + rint(-4, 4), ci.y + rint(-4, 4) };
+			switch (rint(0, 10))
+			{
+			case 0: act_move(p); break;
+			case 1: act_attack(static_cast<std::uint32_t>(rint(0, 7)), static_cast<std::uint32_t>(rint(0, 12))); break;
+			case 2:
+				act_cast(static_cast<std::uint32_t>(rint(0, 2)), static_cast<std::uint32_t>(rint(0, 2)), static_cast<std::uint32_t>(rint(0, 12)),
+						 chance(50) ? p : vec2{ -1, -1 });
+				break;
+			case 3: act_buyc(static_cast<std::uint32_t>(rint(0, 5))); break;
+			case 4: act_use(static_cast<std::uint32_t>(rint(0, 4)), p); break;
+			case 5: act_recall(); break;
+			case 6: act_cancel(); break;
+			case 7: act_submit(p); break;
+			case 8: act_ward(p); break;
+			case 9: act_sell(static_cast<std::uint32_t>(rint(0, 43))); break;
+			default: act_buy(static_cast<std::uint32_t>(rint(0, 43)), static_cast<std::uint32_t>(rint(0, 3))); break;
+			}
+		}
+#endif
 	if (!alive) return;
 
 	const bool channeling = ci.state & (2 | 4 | 4096);
