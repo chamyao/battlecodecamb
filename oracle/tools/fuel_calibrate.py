@@ -58,6 +58,8 @@ def allowed(nm):
     if nm=='api:visible_camps': return ['1','dbits']  # dbits = occupied camp tiles
     if nm.startswith('api:'): return ['1']
     if nm=='camps_visible()': return ['1','camps']
+    if nm=='in_danger()': return ['1','camps']  # guest loop over every map camp (API calls are their own scopes)
+    if nm=='capturable_spawns()': return ['1','groups','camps']
     if nm=='respawning_visible_spawns()': return ['1','groups']
     if nm in ('ring(TileSet,Num)','filter(TileSet,TilePred)','first(TileSet)','count(TileSet)'): return ['1','H','altars']
     return ['1','H','ch','occ','occ*H','dbits','exp*ch']
@@ -88,7 +90,7 @@ API_CALL={'champion':'champion','allies':'allies','enemies':'enemies','champion_
  'move_to':'move_to','attack':'attack','cast':'cast','buy_item':'buy_item','buy_consumable':'buy_consumable','use_consumable':'use_consumable',
  'recall':'recall','submit_gems':'submit_gems','place_ward':'place_ward','set_priority':'set_priority','draft_get':'draft_get',
  'draft_champion':'draft_champion','distance_field':'distance_field','nearest_by_walk':'nearest_by_walk',
- 'visible_camps':'visible_camps','my_champion':'my_champion','my_team':'my_team'}
+ 'visible_camps':'visible_camps','camp_state':'camp_state','my_champion':'my_champion','my_team':'my_team'}
 API_TERM={'1':'base','H':'per_row','ch':'per_chunk'}
 BLOCK_TERMS=['1','H','ch','occ','occ*H','dbits','exp*ch','camps','groups','altars']
 
