@@ -12,6 +12,7 @@ for h in "$repo"/sim/include/cbs/*.h; do
 	sed -E 's|#include "cbs/([a-z_]+\.h)"|#include "\1"|' "$h" > "$src/cbs/$(basename "$h")"
 done
 sed -E 's|#include "cbs/([a-z_]+\.h)"|#include "../cbs/\1"|' "$repo/interp/include/interp/policy.h" > "$src/interp/policy.h"
+cp "$repo/interp/include/interp/program.h" "$src/interp/program.h"
 # The bot's Bitboard is host-backed (engine chunked layout, host imports for board-wide work).
 cp "$repo/bot/bitboard_host.h" "$src/cbs/bitboard.h"
 # Simulator pieces the interpreter links against (no api.cpp/coro.cpp/runner.cpp/bots.cpp/
