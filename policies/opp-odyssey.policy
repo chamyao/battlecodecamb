@@ -1,4 +1,7 @@
-# opp-odyssey: test opponent = v7 with only the draft changed to cassi_issac, varg, ryth, stellar (ladder team draft, docs/LADDER_LOSSES_V6.md).
+# opp-odyssey: test opponent = v7-zerogem with only the draft changed to cassi_issac, varg, ryth, stellar (ladder team draft, docs/LADDER_LOSSES_V6.md).
+# v7-zerogem: v7 + fixes for the three maps where a v7 mirror tributes nothing (docs/ZERO_GEM_MAPS.md):
+# no fighting enemies on their own spawn, fight a camp that is the only way to an altar, and go
+# for monoliths when nothing is tributed by round 300. Proposal from the sim-calibration session.
 # v7: v5d-fs2 + idle fix (docs/FARM_DIAGNOSIS.md on deploy/v0): when standing on a dead camp of an
 # uncleared group, walk to the nearest living camp instead of idling.
 # v5d-fs2 [hybrid line]: v5d plus fs-2's league finds (Treasure/Jungle shards; tribute at >= 10 gems, when hurt, or after round 1500).
@@ -63,7 +66,8 @@ if not at_spawn and gems() > 0 and health() < 0.5 * max_health() and not in_dang
     end_turn()
 
 let enemy = weakest( filter( enemies_visible(), in_attack_range() ) )
-if exists(enemy):
+# an enemy on its own spawn is healed every turn: fighting it there never ends (00reverse-spiral)
+if exists(enemy) and not contains( spawn_region(enemy()), unit_position(enemy) ):
     if ability_ready(0):
         cast_at_unit(0, enemy)
     if ability_ready(1):
@@ -88,7 +92,14 @@ if gems() > 0 and bag_ready:
     if exists(target2):
         move_towards(target2)
         end_turn()
-    move_towards( closest(altar_ring) )
+    let altar_goal = closest(altar_ring)
+    # every altar-adjacent tile is taken by a camp (01boss-battle: holes and a monolith): fight it
+    if contains(camp_spawns, altar_goal):
+        let blocker = first( filter( camps_visible(), in_attack_range() ) )
+        if exists(blocker):
+            attack(blocker)
+            end_turn()
+    move_towards( altar_goal )
     end_turn()
 
 # one camps_visible() query per turn, reused for both attack checks
@@ -103,6 +114,10 @@ if exists(camp):
     attack(camp)
     end_turn()
 
+# nothing tributed by round 300 (00contest: only monoliths carry gems): go for monoliths too
+if team_score(ally()) == 0 and round_number() > 300:
+    move_towards( closest( minus( minus( camp_spawns, respawning_visible_spawns() ), golem_tiles() ) ) )
+    end_turn()
 let goals = minus( minus( minus( camp_spawns, respawning_visible_spawns() ), monolith_tiles() ), golem_tiles() )
 
 # already standing on a cleared camp spawn: hold here so the capture timer keeps running
