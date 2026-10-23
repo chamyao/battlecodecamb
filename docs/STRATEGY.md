@@ -66,6 +66,21 @@ then fit it to fuel."
 - **Simulator must compute fuel correctly** (it is a rule of the game).
 - Iterate later: building-block set, policy grammar, fuel safety margin.
 
+### Training pipeline (agreed)
+
+1. **FunSearch phase** (Romera-Paredes et al., Nature 2023): a language model
+   proposes policies in our grammar (prompted with the best so far), the
+   simulator scores them, a database keeps the best. Model mix: mostly
+   Claude Haiku 5.5 for volume, occasional Claude Opus 5.5 for bigger
+   structural changes. Budget: $100 of Claude credits.
+2. **Pre-train** the generator network on the FunSearch library.
+3. **Deep Symbolic Regression phase**: risk-seeking policy gradient from there.
+
+Shared by both phases: simulator, interpreter, fuel accounting, grammar
+check, constant tuning (inner loop: best constants per structure; method
+open). Opponents: starter bot and hand-written bots first, then self-play.
+Grammar code: `policygen/` (branch `grammar/v0`).
+
 ### Deployment shape (agreed so far)
 
 - No model runs on the bots. The network lives offline and outputs
