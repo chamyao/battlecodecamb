@@ -1,0 +1,138 @@
+# fs-p1: league pure4-g1 #155; beat fs-1 87.0% head to head on 800 fresh games.
+# line: pure
+# lineage: fs-1 -> pure4-g1 #155 = fs-p1
+# v2: v1 plus Jungle shards after round 400. Treasure shards still come first for gold;
+# later, the health share of gold goes to Jungle emblem shards (less camp damage) while
+# the strength share stays Power. Everything else (ability targeting, outnumbered
+# disengage, retreat gate, kiting, gem routing, camp hunting) is unchanged from v1.
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    elif available(pool, champ_tavi()):
+        pick(champ_tavi())
+    elif available(pool, champ_marcella()):
+        pick(champ_marcella())
+    elif available(pool, champ_stellar()):
+        pick(champ_stellar())
+    elif available(pool, champ_ren()):
+        pick(champ_ren())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+keep home = spawn_region(ally())
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( home, position() )
+if at_spawn:
+    let shards_bought = floor( gold() / 30 )
+    let strength_shards = floor( shards_bought / 2 )
+    # early game: Treasure shards for more gold; later: Jungle shards for camp durability
+    if round_number() < 400:
+        buy( shard_of(family_treasure(), stat_health()), shards_bought - strength_shards )
+    else:
+        buy( shard_of(family_jungle(), stat_health()), shards_bought - strength_shards )
+    buy( shard(stat_strength()), strength_shards )
+    # heal on spawn before heading back out, unless an enemy is already in reach
+    if health() < max_health() and not exists(first(filter(enemies_visible(), in_attack_range()))):
+        end_turn()
+
+# retreat at 20% health normally, but at 50% when carrying gems.
+# While something can hit us, walk toward spawn (recall would be cancelled); recall once clear.
+if not at_spawn and (health() < 0.2 * max_health() or (gems() > 0 and health() < 0.5 * max_health())):
+    if in_danger():
+        move_towards( closest(home) )
+        let chaser = first( filter( enemies_visible(), in_attack_range() ) )
+        if exists(chaser):
+            attack(chaser)
+        end_turn()
+    recall()
+    end_turn()
+
+# fight: focus the weakest enemy champion in attack range
+let enemy = weakest( filter( enemies_visible(), in_attack_range() ) )
+if exists(enemy):
+    # outnumbered and hurt: disengage toward spawn rather than trade into a losing fight
+    if health() < 0.5 * max_health() and enemies_within(4) > 1 and local_strength(4) < 0.6:
+        move_towards( closest(home) )
+        end_turn()
+    # self-shield when hurt
+    if health() < 0.5 * max_health():
+        if ability_ready(0) and slot_is_shield(0):
+            cast_self(0)
+        elif ability_ready(1) and slot_is_shield(1):
+            cast_self(1)
+    # stun first so the target loses its turn, then damage abilities
+    if ability_ready(0) and slot_is_stun(0):
+        cast_at_unit(0, enemy)
+    elif ability_ready(1) and slot_is_stun(1):
+        cast_at_unit(1, enemy)
+    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0):
+        cast_at_unit(0, enemy)
+    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1):
+        cast_at_unit(1, enemy)
+    # ranged champions step away from an adjacent enemy instead of trading in place
+    if i_am_ranged() and distance( unit_position(enemy), position() ) <= 1 and can_move():
+        move_away_from( unit_position(enemy) )
+        end_turn()
+    attack(enemy)
+    end_turn()
+
+if gems() > 0:
+    let all_altars = altars()
+    let open_altars = minus( all_altars, locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    let dest = closest( ring(open_altars, 1) )
+    if exists(dest):
+        move_towards( dest )
+        end_turn()
+    # every known altar is locked: go to one anyway; tributing there attacks the lock
+    let locked_altar = first( filter( all_altars, within(1, position()) ) )
+    if exists(locked_altar):
+        tribute(locked_altar)
+        end_turn()
+    move_towards( closest( ring(all_altars, 1) ) )
+    end_turn()
+
+# one camps_visible() query per turn, reused for both attack checks
+let camps = camps_visible()
+
+let camp = first( filter( camps, in_attack_range() ) )
+if exists(camp):
+    if ability_ready(0):
+        cast_at_unit(0, camp)
+    if ability_ready(1):
+        cast_at_unit(1, camp)
+    attack(camp)
+    end_turn()
+
+let goals = minus( camp_spawns, respawning_visible_spawns() )
+
+# already standing on a cleared camp spawn: hold here so the capture timer keeps running
+if contains(goals, position()):
+    end_turn()
+
+# prefer gem clusters and elk groups (gems win games); fall back to any camp
+keep gem_goals_all = union( gem_cluster_tiles(), elk_tiles() )
+let gem_goals = minus( gem_goals_all, respawning_visible_spawns() )
+let gem_target = closest( gem_goals )
+if exists(gem_target):
+    move_towards( gem_target )
+else:
+    move_towards( closest(goals) )
+
+let camp2 = first( filter( camps, in_attack_range() ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
