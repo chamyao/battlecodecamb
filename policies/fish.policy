@@ -1,0 +1,87 @@
+# Intercontinental Fish (Sprint 1 winner), approximated from 60 replays (docs/SPRINT1_ANALYSIS.md).
+# Draft Stellar > Ren > Cassi&Issac > Ryth > Varg; casters buy Focus, melee buy Strength;
+# tribute right after each capture; spells on camps and enemies, self-casts on cooldown;
+# dash as movement; recall around 30% health. Note: Sprint 1 ran the older v0_0_3 rules.
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_stellar()):
+        pick(champ_stellar())
+    else:
+        if available(pool, champ_ren()):
+            pick(champ_ren())
+        else:
+            if available(pool, champ_cassi_issac()):
+                pick(champ_cassi_issac())
+            else:
+                if available(pool, champ_ryth()):
+                    pick(champ_ryth())
+                else:
+                    if available(pool, champ_varg()):
+                        pick(champ_varg())
+                    else:
+                        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+keep caster = i_am(champ_stellar()) or i_am(champ_ren())
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally), position() )
+if at_spawn:
+    if caster:
+        buy( shard(stat_focus()), floor( gold() / 30 ) )
+    else:
+        buy( shard(stat_strength()), floor( gold() / 30 ) )
+
+if not at_spawn and health() < 0.3 * max_health():
+    recall()
+    end_turn()
+
+# self-casts (attack resets, Varg shield) whenever something is in range
+let target_near = exists( first( filter( enemies_visible(), in_attack_range ) ) ) or exists( first( filter( camps_visible(), in_attack_range ) ) )
+if target_near and (i_am(champ_varg()) or i_am(champ_cassi_issac()) or i_am(champ_ryth())):
+    if ability_ready(0):
+        cast_self(0)
+    if i_am(champ_varg()) and ability_ready(1):
+        cast_self(1)
+
+let enemy = first( filter( enemies_visible(), in_attack_range ) )
+if exists(enemy):
+    if ability_ready(0):
+        cast_at_unit(0, enemy)
+    if ability_ready(1):
+        cast_at_unit(1, enemy)
+    attack(enemy)
+    end_turn()
+
+if gems() > 0:
+    let open_altars = minus( altars(), locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    move_towards( closest( ring(open_altars, 1) ) )
+    end_turn()
+
+let camp = first( filter( camps_visible(), in_attack_range ) )
+if exists(camp):
+    if ability_ready(0):
+        cast_at_unit(0, camp)
+    if ability_ready(1):
+        cast_at_unit(1, camp)
+    attack(camp)
+    end_turn()
+let goals = minus( camp_spawns, respawning_visible_spawns() )
+let goal = closest(goals)
+if i_am(champ_ren()) and ability_ready(1) and distance(position(), goal) > 3:
+    cast_at_tile(1, first( filter( ring(goals, distance(position(), goal) - 2), within(2, position()) ) ))
+move_towards(goal)
+let camp2 = first( filter( camps_visible(), in_attack_range ) )
+if exists(camp2):
+    attack(camp2)
+end_turn()

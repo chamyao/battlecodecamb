@@ -44,9 +44,11 @@ class Replay {
     this.args = X.Engine_Malloc(128);
     const p = X.Engine_Malloc(bytes.length);
     new Uint8Array(X.memory.buffer, p, bytes.length).set(bytes);
-    this.check(X.Game_FromReplayFileBytes(p, bytes.length, this.out));
+    const isMap = bytes.readUInt32LE(0) === 0x70323677; // 'w62p': a .map26a, not a replay
+    this.check(isMap ? X.Game_FromMapFileBytes(p, bytes.length, this.out, 0) : X.Game_FromReplayFileBytes(p, bytes.length, this.out));
     this.h = this.dv.getBigUint64(this.out, true);
     X.Engine_Free(p);
+    if (isMap) return;
     if (X.Game_Visualiser_TimelineSnapshotSize() !== 40152) throw new Error('snapshot layout');
     this.snap = X.Engine_Malloc(40152);
     this.check(X.Game_Visualiser_Timeline_GetMain(this.h, this.out));
