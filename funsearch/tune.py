@@ -10,8 +10,14 @@ from policygen.text import format_policy, parse
 from policygen.tree import Call, Const, Do, If, Let
 
 
+# Numeric arguments that are indices, not tunable quantities: (block name, argument position).
+_INDEX_ARGS = {("ability_ready", 0), ("cast_at_unit", 0), ("cast_at_tile", 0), ("cast_self", 0),
+               ("dash_towards", 0), ("read_shared", 0), ("write_shared", 0)} | {
+               (f"slot_is_{k}", 0) for k in ("dash", "damage", "aoe", "stun", "heal", "shield", "reset")}
+
+
 def _consts(steps):
-    """Every numeric Const node in a policy, in order."""
+    """Every tunable numeric Const node in a policy, in order (slot/offset indices excluded)."""
     out = []
 
     def expr(e):
@@ -19,7 +25,9 @@ def _consts(steps):
             if e.type == "Num":
                 out.append(e)
         elif isinstance(e, Call):
-            for a in e.args:
+            for i, a in enumerate(e.args):
+                if (e.block.name, i) in _INDEX_ARGS and isinstance(a, Const):
+                    continue
                 expr(a)
 
     def block(steps):

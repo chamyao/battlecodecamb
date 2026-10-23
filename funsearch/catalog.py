@@ -118,6 +118,12 @@ DOCS = {
     "set_team_target": "name an enemy champion as the team's focus target",
     "team_target": "the team's focus target, or none",
     "read_shared": "read shared-memory byte i (only byte 7 is free; 0-6 are used by claims and team target)",
+    "in_danger": "an awake camp or a visible enemy champion can hit you where you stand (uses THEIR ranges: wolf 3, elk/golem 4, monolith 5; enemy attack range + 1)",
+    "move_away_from": "step one tile to increase distance from the tile",
+    "allies_within": "number of living allies you can see within Chebyshev distance r",
+    "unit_health_frac": "unit's health / max health (0 if not visible)",
+    "capturable_spawns": "spawn tiles of visible camp groups that are fully cleared with reward available (stand here to capture)",
+    "turns_idle": "consecutive turns (counted each time you check) your position has not changed",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
     "map_width": "", "map_height": "", "camp_count": "camps on the map",
 }
