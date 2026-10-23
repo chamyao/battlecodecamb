@@ -151,6 +151,7 @@ Err Api::camp(std::uint32_t h, CampRecord* out)
 	std::memcpy(out, &cs, sizeof cs);
 	return E(rc);
 }
+Err Api::camp_state(std::uint32_t h, std::uint32_t* out) { return E(sdk_camp_state(h, out)); }
 Err Api::camp_group_state(std::uint32_t g, std::uint32_t* out) { return E(sdk_camp_group_state(g, out)); }
 Err Api::altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* count)
 {

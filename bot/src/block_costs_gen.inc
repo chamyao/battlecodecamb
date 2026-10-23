@@ -143,3 +143,9 @@
 // Per turn: the step loop outside blocks (profile fit 21 + 73.43*blocks + 0.062*blocks*H, mae 339),
 // scaled by 0.956, plus the profiler-distortion terms per block, per API call and per turn.
 #define INTERP_TURN_COST(BLOCKS, H, API) (-50 + -20.76 * (BLOCKS) + 0.059 * (BLOCKS) * (H) + -63.92 * (API))
+{ "in_danger()", false, { 387502, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from camps_visible() until re-profiled
+{ "allies_within(Num)", false, { 1434149, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from allies_visible() until re-profiled
+{ "unit_health_frac(Unit)", false, { 227665, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from unit_health(Unit) until re-profiled
+{ "capturable_spawns()", false, { 481241, 0, 0, 0, 0, 0, 0, 0, 125814, 0 } }, // provisional: copied from respawning_visible_spawns() until re-profiled
+{ "turns_idle()", false, { 247613, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: copied from position() until re-profiled
+{ "move_away_from(Tile)", true, { -37289, 0, 10791, 0, 14543, 1452389, 0, 0, 0, 0 } }, // provisional: copied from move_towards(Tile) until re-profiled
