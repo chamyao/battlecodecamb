@@ -81,6 +81,8 @@ def main():
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--max-generations", type=int, default=20)
     ap.add_argument("--keep", type=int, default=3, help="older members kept besides the best")
+    ap.add_argument("--fixed", default="", help="opponents always in the league (e.g. a style the bests "
+                                                "lack, like altar locking); never dropped or promoted")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     args, run_args = ap.parse_known_args()  # anything else goes to funsearch.run
 
@@ -91,7 +93,8 @@ def main():
     members = state["members"]
 
     while state["gen"] <= args.max_generations:
-        best, older = members[0], members[1:]
+        fixed = [f for f in args.fixed.split(",") if f]
+        best, older = members[0], members[1:] + [f for f in fixed if f not in members]
         run = f"{args.name}-g{state['gen']}"
         left = args.budget - spent(args.name)
         if left <= 0.01:
@@ -141,7 +144,7 @@ def main():
                             "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
                             "Claude-Session: https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj"], cwd=ROOT)
             subprocess.run(["git", "push", "-q", "origin", "HEAD"], cwd=ROOT)
-        members = [str(out.relative_to(ROOT)), *league][: 1 + args.keep]
+        members = [str(out.relative_to(ROOT)), *(m for m in league if m not in fixed)][: 1 + args.keep]
         state = {"gen": state["gen"] + 1, "members": members}
         state_path.write_text(json.dumps(state))
 
