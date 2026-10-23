@@ -67,7 +67,9 @@ constexpr int kMaxVars = 8;
 	X(slot_is_heal, "slot_is_heal(Num)") X(slot_is_shield, "slot_is_shield(Num)") X(slot_is_reset, "slot_is_reset(Num)")  \
 	X(dash_towards, "dash_towards(Num,Tile)") X(unit_gems, "unit_gems(Unit)") X(team_score, "team_score(Team)")            \
 	X(map_width, "map_width()") X(map_height, "map_height()") X(camp_count, "camp_count()")                                \
-	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")
+	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")                       \
+	X(claim, "claim(Tile)") X(unclaim, "unclaim()") X(claimed_by_allies, "claimed_by_allies()")                           \
+	X(set_team_target, "set_team_target(Unit)") X(team_target, "team_target()")
 
 enum class Op : std::uint16_t
 {
@@ -467,6 +469,30 @@ struct Interp
 	std::vector<std::uint16_t> field;
 
 	const cbs::Map& m() const { return api.map(); }
+
+	// Shared-memory layout used by the team-communication blocks.
+	static constexpr int kClaimBytes = 6, kTargetByte = 6;
+	int slot_ = -2; // this champion's index among its team's champion ids (-1: none)
+	int my_slot()
+	{
+		if (slot_ != -2) return slot_;
+		slot_ = -1;
+		if (api.champ() < 0) return slot_;
+		std::uint32_t ids[16], n = 0;
+		api.allies(ids, 16, &n);
+		const std::uint32_t me_id = self();
+		int rank = 0;
+		for (std::uint32_t i = 0; i < n && i < 16; ++i)
+			if (ids[i] < me_id) ++rank;
+		slot_ = rank < kClaimBytes ? rank : -1;
+		return slot_;
+	}
+	int group_at(Vec2 p) const
+	{
+		if (!m().in_bounds(p)) return -1;
+		const int c = m().camp_at[m().idx(p)];
+		return c < 0 ? -1 : m().camps[c].group;
+	}
 	Work work;
 	struct Charge
 	{
@@ -1113,6 +1139,28 @@ struct Interp
 			}
 			return r;
 		}
+		case Op::claimed_by_allies:
+		{
+			std::uint8_t mem[kClaimBytes] = {};
+			api.read_shared_memory(0, mem, kClaimBytes);
+			const int mine = my_slot();
+			Bitboard b;
+			for (int i = 0; i < kClaimBytes; ++i)
+			{
+				const int g = static_cast<int>(mem[i]) - 1;
+				if (i == mine || g < 0 || g >= static_cast<int>(m().groups.size())) continue;
+				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
+			}
+			return set_of(b);
+		}
+		case Op::team_target:
+		{
+			std::uint8_t v = 0;
+			api.read_shared_memory(kTargetByte, &v, 1);
+			Value r;
+			if (v > 0) r.unit = { EntityKind::champion, static_cast<std::uint32_t>(v - 1) };
+			return r;
+		}
 		case Op::unit_gems:
 		{
 			const Unit u = eval(a[0]).unit;
@@ -1218,6 +1266,23 @@ struct Interp
 			break;
 		}
 		case Op::recall: api.recall(); break;
+		case Op::claim:
+		case Op::unclaim:
+		{
+			const int g = e.op == Op::claim ? group_at(eval(a[0]).tile) : -1;
+			const int slot = my_slot();
+			if (slot < 0) break;
+			const std::uint8_t v = static_cast<std::uint8_t>(g < 0 || g > 254 ? 0 : g + 1);
+			api.write_shared_memory(slot, &v, 1);
+			break;
+		}
+		case Op::set_team_target:
+		{
+			const Unit u = eval(a[0]).unit;
+			const std::uint8_t v = static_cast<std::uint8_t>(u.kind == EntityKind::champion && u.h < 255 ? u.h + 1 : 0);
+			api.write_shared_memory(kTargetByte, &v, 1);
+			break;
+		}
 		case Op::buy_altar_lock: api.buy_consumable(cbs::consumable::altar_lock); break;
 		case Op::buy_teleport: api.buy_consumable(cbs::consumable::tp_crystal); break;
 		case Op::place_altar_lock:

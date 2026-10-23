@@ -149,6 +149,15 @@ _b("map_width", "", "Num")
 _b("map_height", "", "Num")
 _b("camp_count", "", "Num")
 
+# Team communication over shared memory (fixed layout: bytes 0-5 hold each
+# ally's claimed camp group, byte 6 the team's target; raw read/write_shared
+# should only use byte 7).
+_b("claim", "Tile", VOID)
+_b("unclaim", "", VOID)
+_b("claimed_by_allies", "", "TileSet")
+_b("set_team_target", "Unit", VOID)
+_b("team_target", "", "Unit")
+
 # Effects
 _b("move_towards", "Tile", VOID)
 _b("attack", "Unit", VOID)
