@@ -33,6 +33,16 @@ exactly the listed types. No loops, no functions, no other Python. Names must be
 Comments start with #.
 """
 
+GRAMMAR += """\
+Macros (the one exception to "no functions"): top-level `def name(a, b):` definitions are
+expanded inline where called. A macro whose whole body is `return <expr>` is used as a
+value; any other macro is used as a step. Arguments are re-evaluated at each use (bind them
+with let first to pay their fuel once). No recursion. Build reusable helpers this way.
+If you need a capability that no block or macro can express, write a comment line
+`# PROPOSE: <block signature> -> <type>: <what it does and why>` above your policy; it will
+be reviewed for adding to the language. Write the policy with the existing blocks anyway.
+"""
+
 DOCS = {
     "ally": "your team", "enemy": "the other team",
     "stat_strength": "", "stat_focus": "", "stat_health": "",
