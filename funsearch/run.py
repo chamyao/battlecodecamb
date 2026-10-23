@@ -88,9 +88,11 @@ def main():
         else:
             text, model, cost = mutate_constants(parents[-1].text, rng, n_changes=2), "mutate", 0.0
         if text is None:
-            db.add(Program(0, island, "", float("-inf"), [p.id for p in parents], model, "no policy in reply"))
+            db.add(Program(0, island, "", float("-inf"), [p.id for p in parents], model, "no policy in reply",
+                           {"cost": cost}))
             return
         r = score(text)
+        r.per_opponent["cost"] = cost
         p = Program(0, island, text, r.score, [p.id for p in parents], model, r.error, r.per_opponent)
         pid = db.add(p)
         best = db.best()[0]
