@@ -85,6 +85,15 @@ Observations from our v6 ladder losses (we are ~23-12 since v5d):
 - Gem camps in contested middles: on one map we made 157 captures and 0 gems because we only
   farmed edge gold clusters. Gems, not gold, win games; go for gem camps (gem_cluster_tiles(),
   wolves, elks), with allies when they are contested.
+Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights or freezes.
+- Our captures yield ~15 gems each vs 21-60 for the teams beating us, and 27% of ours are
+  gold-only (0 gems). Our median tribute bag is 14 vs their 30-39.
+- The winners take monoliths as a team: one team took both monoliths on a big map, worth its
+  whole 456-gem margin. Try committing 3+ champions together (claim_count) to a monolith.
+- Simple fixes were neutral or worse in tests: always preferring the richest groups lost
+  (33-38/80); preferring elk/gem clusters, or a bag of 25, were neutral. The gain probably needs
+  a value-vs-distance trade-off when choosing camps, team monolith takes, and bigger bags
+  without more deaths. Treat these as directions, not rules.
 """
 
 GRAMMAR += """\
