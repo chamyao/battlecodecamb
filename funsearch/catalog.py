@@ -55,6 +55,17 @@ Observations from today's top-12 ladder games (current rules), for inspiration, 
 - Drafts: Vesper Vale, Heart of Ruin, Marcella, Vendetta, Ryth. Heart of Ruin plays normally
   (recall ~40-45% health, shield on cooldown in fights, dash toward goals or onto camps).
 - Builds: Treasure shards early, then Bruiser (Power Strength for Vesper Vale).
+Observations from our own v3 ladder losses (13-22 over 35 games):
+- Our scoring stalls: median tributed total at round 1000 is 115 in our losses vs their 899.
+  Their bags are 15-18 gems (ours 7) and they earn 2.1x our gold.
+- Enemies lock altars. Tributing at a locked altar turns into attacks on the lock (5 hits clear
+  it), so never filter locked altars out entirely: v3 did, and its gem carriers idled for
+  thousands of rounds.
+- Altars within reach of a monolith kill gem carriers: prefer altars outside
+  ring(monolith_tiles(), 5).
+- Many deaths come from fights taken while outnumbered, usually starting above 50% health:
+  avoid fights when allies_within(4) is less than the number of visible enemies, and retreat
+  from champions at about 60% health.
 """
 
 GRAMMAR += """\
