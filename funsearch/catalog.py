@@ -37,7 +37,8 @@ exactly the listed types. No loops, no functions except macros (below), no other
 (let/keep) before use; a let inside an if-branch is only visible in that branch.
 At most 16 let/keep statements per value type (Num, Bool, Tile, TileSet, Unit, ...) in the whole
 program, counting every statement, including both branches of an if: the policy is invalid
-beyond that. Inline a value used once instead of naming it, and reuse names across branches.
+beyond that. Macros are expanded at every call, so each call of a macro containing lets uses
+that many slots again. Inline a value used once instead of naming it, and reuse names across branches.
 A name cannot be redefined in the same scope (use a new name, e.g. camp2); the two branches of
 one if may each define the same name. elif is fine.
 Not supported (each one makes the policy invalid): %, //, **, None (test with exists(...)),
@@ -71,6 +72,10 @@ Observations from our own v3 ladder losses (13-22 over 35 games):
   fights (1v1 deaths: 121 ours vs 41 theirs). So improve fight quality (target choice,
   ability use and timing, focus fire, items) rather than avoiding fights; make any
   engagement or retreat threshold a named constant so it can be tuned.
+- Simple threshold rules on local_strength lost in our tests (retreat when below a ratio:
+  32-53% vs a 51% mirror; chase when above: 20-28%). The gains are in how to fight (ability
+  timing, target choice, staying with allies), not whether to engage. local_strength(r) is 100
+  when no enemy is within r: pair it with enemies_within(r) > 0.
 """
 
 GRAMMAR += """\
