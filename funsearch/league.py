@@ -166,9 +166,15 @@ def main():
             log(f"budget spent (${spent(args.name):.2f})", logfile)
             break
         opponents = [f"builtin:starter@{args.starter_weight}", f"{best}@{args.best_weight}", *older]
-        log(f"{run}: +{args.round} programs, best {best}, league {older}, ${left:.2f} left", logfile)
+        # round boundaries are multiples of --round programs in the run, so a restart (container
+        # reboot) resumes the current round instead of starting a new one
+        db_file = ROOT / "runs" / run / "programs.jsonl"
+        done = max(0, sum(1 for _ in open(db_file)) - 4) if db_file.exists() else 0
+        todo = args.round - done % args.round
+        log(f"{run}: +{todo} programs to the next boundary ({done} so far), best {best}, league {older}, "
+            f"${left:.2f} left", logfile)
         subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
-                        "--max-programs", str(args.round), "--seed-policy", best,
+                        "--max-programs", str(todo), "--seed-policy", best,
                         "--opponents", ",".join(opponents),
                         *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
                        cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
