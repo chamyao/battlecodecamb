@@ -8,9 +8,9 @@ case "$1" in
   c) dir=funsearch/styles/c_monolith.txt; req=monolith_tiles,claim_count ;;
   *) echo "usage: $0 <a|b|c> <budget>"; exit 1 ;;
 esac
-PYTHONUNBUFFERED=1 exec python3 -m funsearch.league --name "style5-$1" --budget "$2" \
-  --members policies/v7zg-cast.policy --keep 0 \
-  --fixed policies/v7-zerogem.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy \
+PYTHONUNBUFFERED=1 exec python3 -m funsearch.league --name "style6-$1" --budget "$2" \
+  --members policies/tune-1.policy --keep 0 \
+  --fixed policies/v7zg-cast.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy \
   --regress 1.0 --z 2.83 --prefix "style-$1" --line "style-$1" \
   --session https://claude.ai/code/session_01V26XD9N15L34L9j3pMnVNC \
   --fresh-seeds --directive "@$dir" --require "$req" --workers 2 --eval-threads 2

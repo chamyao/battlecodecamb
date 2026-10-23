@@ -15,3 +15,8 @@ Develop a policy whose plan is to deny the enemy altars:
 Decide how many champions lock/guard versus farm, and when (e.g. by round, gold, team_score
 lead or deficit) — name those as constants. Every version must keep buying and placing locks;
 a version that drops the style is rejected.
+Camp choice matters in every style: many of our deaths are to camps we cannot clear. Use
+group_threat(g), group_hp(g) and group_gems(...) to choose camps by value against danger and
+distance: skip a goal g when group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4)))
+> health() (that is, the damage taken while clearing it exceeds what you can absorb), and
+otherwise prefer groups with more gems per turn of walking and clearing.

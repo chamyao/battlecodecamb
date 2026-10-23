@@ -18,3 +18,4 @@ cache reads counted at 0.1x input, which overstates Opus 5.5's real 0.05x, so th
 | 2026-10-23 | hyb2-g1 (best v5d-fs2) — 16 programs, replaced when v7 went live | 16 | 0.14 | 2.82 |
 | 2026-10-23 | style-test (STYLE line smoke test, lockdown directive; 2 programs) | 2 | 0.01 | STYLE 0.01 of $10 |
 | 2026-10-23 | style-{a,b,c}-g1 (STYLE islands lockdown/teamfight/monolith, seed v5d) — 7/30/16 programs; dropped for the 9a0ac5b re-profile | 53 | 0.30 | STYLE 0.31 of $10 |
+| 2026-10-23 | style5-{a,b,c}-g1 (STYLE islands vs v7zg-cast; seed v7zg-cast) — 40/62/61 programs; ended early for tune-1 + the 340ce89 refit | 163 | 2.78 | STYLE 3.09 of $10 |

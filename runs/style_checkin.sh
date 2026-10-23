@@ -6,11 +6,11 @@ python3 -c "import anthropic" 2>/dev/null || pip install -q anthropic
 for x in a b c; do
   b=$(grep "^$x " runs/style_budgets 2>/dev/null | cut -d' ' -f2)
   [ -n "$b" ] || continue
-  if ! pgrep -f "funsearch.league --name style5-$x " >/dev/null; then
-    ls runs/style5-$x-g*/STOP >/dev/null 2>&1 || { setsid nohup runs/style_launch.sh $x $b >> runs/style5-$x.out 2>&1 & echo "restarted style-$x"; }
+  if ! pgrep -f "funsearch.league --name style6-$x " >/dev/null; then
+    ls runs/style6-$x-g*/STOP >/dev/null 2>&1 || { setsid nohup runs/style_launch.sh $x $b >> runs/style6-$x.out 2>&1 & echo "restarted style-$x"; }
   fi
-  tail -n 3 runs/style5-$x.log 2>/dev/null
-  for f in runs/style5-$x-g*.log; do [ -f "$f" ] && tail -n 1 "$f"; done
+  tail -n 3 runs/style6-$x.log 2>/dev/null
+  for f in runs/style6-$x-g*.log; do [ -f "$f" ] && tail -n 1 "$f"; done
 done
 git add -f runs/style*.log runs/style*.json runs/style*-g*/programs.jsonl runs/style*-g*/proposals.jsonl runs/SPEND.md 2>/dev/null
 git commit -qm "runs: style line progress
