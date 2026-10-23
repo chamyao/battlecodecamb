@@ -683,6 +683,26 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	return n;
 }
 
+bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out)
+{
+	static thread_local std::uint16_t d[kMaxDim * kMaxDim];
+	Bitboard roots, visited;
+	roots.set(origin);
+	distance_field(walls, roots, &cand, kUnreachable, d, visited);
+	const int W = g_.map().W;
+	std::uint16_t bd = kUnreachable;
+	bool found = false;
+	cand.for_each(g_.map().H, [&](int x, int y) {
+		if (d[y * W + x] < bd)
+		{
+			bd = d[y * W + x];
+			out = { x, y };
+			found = true;
+		}
+	});
+	return found;
+}
+
 // ---------------------------------------------------------------- draft
 
 Err Api::draft_num_rounds(std::uint8_t* out)

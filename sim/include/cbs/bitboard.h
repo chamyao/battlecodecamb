@@ -5,6 +5,7 @@
 #include <bit>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 #include "cbs/core.h"
 
 namespace cbs
@@ -72,6 +73,13 @@ struct Bitboard
 		for (int y = 0; y < h; ++y)
 			for (int k = 0; k < 2; ++k)
 				for (std::uint64_t bits = w[y][k]; bits; bits &= bits - 1) f(64 * k + std::countr_zero(bits), y);
+	}
+	// Same, for callers that do not depend on the order (the bot's host-backed Bitboard,
+	// bot/bitboard_host.h, iterates more cheaply in its own order).
+	template <class F>
+	void for_each_unordered(int h, F&& f) const
+	{
+		for_each(h, std::forward<F>(f));
 	}
 	// First set tile in row-major order; false if empty.
 	bool first(int h, Vec2& out) const

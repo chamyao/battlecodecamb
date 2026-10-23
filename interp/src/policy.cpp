@@ -597,21 +597,11 @@ struct Interp
 		taken.andnot(camps);
 		cand.andnot(taken);
 		if (!cand.any(m().H)) return kNoTile;
-		Bitboard walls = blocked, root, visited;
+		Bitboard walls = blocked;
 		walls.andnot(cand);
-		root.set(pos);
-		field.resize(static_cast<std::size_t>(m().W) * m().H);
-		api.distance_field(walls, root, &cand, cbs::kUnreachable, field.data(), visited);
-		scan_cost();
 		Vec2 best = kNoTile;
-		std::uint16_t bd = cbs::kUnreachable;
-		cand.for_each(m().H, [&](int x, int y) {
-			if (field[m().idx({ x, y })] < bd)
-			{
-				bd = field[m().idx({ x, y })];
-				best = { x, y };
-			}
-		});
+		if (!api.nearest_by_walk(walls, pos, cand, best)) best = kNoTile;
+		scan_cost();
 		return best;
 	}
 
@@ -831,7 +821,7 @@ struct Interp
 			const float r = static_cast<float>(std::clamp(eval(a[1]).n, 0.0, 10.0));
 			scan_cost();
 			Bitboard b;
-			s.set->for_each(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
+			s.set->for_each_unordered(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
 			return set_of(b);
 		}
 		case Op::closest: return tile(closest(*eval(a[0]).set));
@@ -841,7 +831,7 @@ struct Interp
 			scan_cost();
 			Bitboard b;
 			if (has_tile(p.tile))
-				s.set->for_each(m().H, [&](int x, int y) {
+				s.set->for_each_unordered(m().H, [&](int x, int y) {
 					if (cbs::chebyshev({ x, y }, p.tile) <= p.n) b.set(x, y);
 				});
 			return set_of(b);
