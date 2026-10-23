@@ -52,6 +52,7 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         prefix = to_prefix(steps)
     except Exception as e:  # syntax or type error in the policy
         return EvalResult(error=f"{type(e).__name__}: {e}")
+    names = [Path(o).stem if o.endswith(".policy") else o for o in opponents]
     opponents = [_compiled_opponent(o) for o in opponents]
     rng = random.Random(seed)
     pool = maps or MAPS
@@ -61,7 +62,7 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         pol = f.name
     try:
         result = EvalResult(score=0.0)
-        for opp in opponents:
+        for name, opp in zip(names, opponents):
             out = subprocess.run(
                 [str(EVAL_BIN), "--a", pol, "--b", opp, "--games", str(games), "--threads", str(threads),
                  "--seed", str(seed), *chosen],
@@ -70,7 +71,7 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
             if "error" in stats:
                 return EvalResult(error=stats["error"])
             stats.pop("results", None)
-            result.per_opponent[Path(opp).stem if opp.endswith(".pol") else opp] = stats
+            result.per_opponent[name] = stats
             result.score += score_of(stats) / len(opponents)
         return result
     except subprocess.TimeoutExpired:
