@@ -296,6 +296,7 @@ struct Parser
 	std::vector<Step> steps()
 	{
 		std::vector<Step> out;
+		out.reserve(16); // regrowth moves whole Step trees (costly in a wasm bot)
 		for (;;)
 		{
 			const std::uint16_t t = take();
@@ -465,6 +466,7 @@ struct Interp
 	std::vector<Value> vars = std::vector<Value>(kNumTypes * kMaxVars);
 	std::vector<char> kept = std::vector<char>(kNumTypes * kMaxVars, 0);
 	std::vector<std::uint16_t> field;
+	std::vector<std::uint32_t> camp_ids;
 
 	const cbs::Map& m() const { return api.map(); }
 	Work work;
@@ -855,11 +857,9 @@ struct Interp
 		{
 			Value r;
 			r.units = std::make_shared<std::vector<Unit>>();
-			for (std::uint32_t c = 0; c < m().camps.size(); ++c)
-			{
-				cbs::CampRecord cr{};
-				if (api.camp(c, &cr) == Err::success && cr.health > 0) r.units->push_back({ EntityKind::camp, c });
-			}
+			api.visible_camps(camp_ids);
+			r.units->reserve(camp_ids.size());
+			for (std::uint32_t c : camp_ids) r.units->push_back({ EntityKind::camp, c });
 			return r;
 		}
 		case Op::locked_altars:

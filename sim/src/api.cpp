@@ -386,6 +386,16 @@ Err Api::camp(std::uint32_t h, CampRecord* out)
 	return Err::success;
 }
 
+void Api::visible_camps(std::vector<std::uint32_t>& out)
+{
+	out.clear();
+	for (std::uint32_t c = 0; c < g_.map().camps.size(); ++c)
+	{
+		CampRecord cr{};
+		if (camp(c, &cr) == Err::success && cr.health > 0) out.push_back(c);
+	}
+}
+
 Err Api::camp_state(std::uint32_t h, std::uint32_t* out)
 {
 	charge(Call::camp_state);

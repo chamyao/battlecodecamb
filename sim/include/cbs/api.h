@@ -176,6 +176,9 @@ public:
 	Err wards(WardRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err teleports(TeleportRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* count);
+	// Handles of the visible living camps (camp() succeeds with health > 0), ascending. Priced
+	// as camp() on every camp handle; a real bot may find them any cheaper exact way.
+	void visible_camps(std::vector<std::uint32_t>& out);
 	Err submitted_gems(std::uint32_t team, std::uint32_t* out);
 	Err round_number(std::uint32_t* out);
 

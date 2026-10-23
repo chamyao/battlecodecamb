@@ -37,7 +37,7 @@ Game::Game(std::shared_ptr<const Map> map) : map_(std::move(map)) {}
 std::shared_ptr<const Map> build_map_from_engine()
 {
 	hostbb::init();
-	auto m = std::make_shared<Map>();
+	std::shared_ptr<Map> m(new Map); // default-init: make_shared would zero all ~14 KB first (1 fuel/byte)
 	m->W = md.width;
 	m->H = md.height;
 	Bitboard* masks[4] = { &m->walls, &m->bushes, &m->holes, &m->altars };
@@ -51,27 +51,60 @@ std::shared_ptr<const Map> build_map_from_engine()
 		for (int y = a.min_y; y < a.max_y; ++y)
 			for (int x = a.min_x; x < a.max_x; ++x) m->spawn_mask[t].set(x, y);
 	}
-	m->camp_at.assign(static_cast<std::size_t>(m->W) * m->H, -1);
-	std::uint32_t ng = 0;
-	sdk_map_num_camp_groups(&ng);
-	m->groups.resize(ng);
-	std::vector<std::uint32_t> hs(512);
-	for (std::uint32_t g = 0; g < ng; ++g)
+	// Map::camp_at is left empty: nothing in the bot reads it (filling 10k ints costs 40k fuel).
+	// The whole static camp layout in one call (per group: id, gold, gems, max respawn, camp
+	// count, then per camp: id, design, x, y); per-camp queries cost ~300 fuel each here.
+	std::uint32_t nw = 0;
+	sdk_map_camp_layout(nullptr, 0, &nw);
+	std::vector<std::uint32_t> lay(nw);
+	if (nw && sdk_map_camp_layout(lay.data(), nw, &nw) == 0)
 	{
-		std::uint32_t n = 0;
-		if (sdk_map_camp_group_camps(g, hs.data(), static_cast<std::uint32_t>(hs.size()), &n) != 0) continue;
-		for (std::uint32_t i = 0; i < n; ++i)
+		std::uint32_t ng = 0, nc = 0;
+		for (std::uint32_t i = 0; i + 5 <= lay.size(); i += 5 + 4 * lay[i + 4])
 		{
-			const std::uint32_t h = hs[i];
-			camp_info ci{};
-			if (sdk_map_camp_info(h, &ci) != 0) continue;
-			if (m->camps.size() <= h) m->camps.resize(h + 1);
-			m->camps[h] = { static_cast<CampType>(ci.type), { ci.x, ci.y }, static_cast<int>(g) };
-			m->groups[g].camps.push_back(static_cast<int>(h));
-			if (m->in_bounds({ ci.x, ci.y })) m->camp_at[m->idx({ ci.x, ci.y })] = static_cast<int>(h);
+			ng = std::max(ng, lay[i] + 1);
+			for (std::uint32_t k = 0; k < lay[i + 4]; ++k) nc = std::max(nc, lay[i + 5 + 4 * k] + 1);
 		}
-		std::sort(m->groups[g].camps.begin(), m->groups[g].camps.end());
+		m->groups.resize(ng);
+		m->camps.resize(nc);
+		for (std::uint32_t i = 0; i + 5 <= lay.size(); i += 5 + 4 * lay[i + 4])
+		{
+			const std::uint32_t g = lay[i];
+			for (std::uint32_t k = 0; k < lay[i + 4]; ++k)
+			{
+				const std::uint32_t* c = &lay[i + 5 + 4 * k];
+				m->camps[c[0]] = { static_cast<CampType>(c[1]), { static_cast<int>(c[2]), static_cast<int>(c[3]) }, static_cast<int>(g) };
+				m->groups[g].camps.push_back(static_cast<int>(c[0]));
+			}
+			auto& v = m->groups[g].camps;
+			for (std::size_t a = 1; a < v.size(); ++a)
+				for (std::size_t b = a; b > 0 && v[b - 1] > v[b]; --b) std::swap(v[b - 1], v[b]);
+		}
 	}
+#ifdef BOT_VERIFY
+	{
+		std::uint32_t ng = 0;
+		sdk_map_num_camp_groups(&ng);
+		bool ok = ng == m->groups.size();
+		std::vector<std::uint32_t> hs(512);
+		for (std::uint32_t g = 0; g < ng && ok; ++g)
+		{
+			std::uint32_t n = 0;
+			sdk_map_camp_group_camps(g, hs.data(), 512, &n);
+			std::vector<int> want(hs.begin(), hs.begin() + n);
+			std::sort(want.begin(), want.end());
+			ok &= want == m->groups[g].camps;
+			for (std::uint32_t i = 0; i < n && ok; ++i)
+			{
+				camp_info ci{};
+				sdk_map_camp_info(hs[i], &ci);
+				const auto& c = m->camps[hs[i]];
+				ok &= c.pos.x == ci.x && c.pos.y == ci.y && static_cast<int>(c.type) == ci.type && c.group == static_cast<int>(g);
+			}
+		}
+		std::printf("@@VERIFY camp layout %s (%zu groups, %zu camps)\n", ok ? "ok" : "MISMATCH", m->groups.size(), m->camps.size());
+	}
+#endif
 	m->altars.for_each(m->H, [&](int x, int y) { m->altar_list.push_back({ x, y }); });
 	return m;
 }
@@ -122,6 +155,30 @@ Err Api::altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* cou
 {
 	static_assert(sizeof(AltarLockRecord) == sizeof(altar_lock_info));
 	return E(sdk_altar_locks(reinterpret_cast<altar_lock_info*>(out), cap, count));
+}
+// Visible camps are exactly the camp-occupied tiles in vision: look their handles up there
+// (~10 fuel per visible camp) instead of querying every camp on the map.
+void Api::visible_camps(std::vector<std::uint32_t>& out)
+{
+	out.clear();
+	Bitboard occ;
+	if (sdk_camp_occupancy(occ.w) == 0)
+		occ.for_each_unordered(g_.map().H, [&](int x, int y) {
+			std::uint32_t h = 0;
+			cambc::detail::camp_state cs{};
+			if (sdk_camp_at(x, y, &h) == 0 && sdk_camp(h, &cs) == 0 && cs.health > 0) out.push_back(h);
+		});
+	for (std::size_t i = 1; i < out.size(); ++i)
+		for (std::size_t j = i; j > 0 && out[j - 1] > out[j]; --j) std::swap(out[j - 1], out[j]);
+#ifdef BOT_VERIFY
+	std::vector<std::uint32_t> want;
+	for (std::uint32_t c = 0; c < g_.map().camps.size(); ++c)
+	{
+		cambc::detail::camp_state cs{};
+		if (sdk_camp(c, &cs) == 0 && cs.health > 0) want.push_back(c);
+	}
+	if (want != out) std::printf("@@VERIFY visible_camps mismatch got %zu want %zu\n", out.size(), want.size());
+#endif
 }
 Err Api::submitted_gems(std::uint32_t team, std::uint32_t* out) { return E(sdk_bc_submitted_gems(team, out)); }
 Err Api::round_number(std::uint32_t* out) { return E(sdk_bc_round_number(out)); }
@@ -198,7 +255,7 @@ struct FieldSlot
 	int maxd = 0;
 	std::uint64_t used = 0;
 };
-constexpr int kSlots = 6;
+constexpr int kSlots = 4;
 FieldSlot* slots = nullptr;
 std::uint64_t slot_clock = 0;
 alignas(16) std::uint64_t delta_w[hostbb::kWords];
@@ -211,34 +268,72 @@ long verify_checks = 0, verify_fails = 0;
 inline int fidx(int x, int y) { return ((y >> 3) * static_cast<int>(md.chunked_width) + (x >> 3)) * 64 + (y & 7) * 8 + (x & 7); }
 inline int cheb(int x, int y, Vec2 p) { return std::max(std::abs(x - p.x), std::abs(y - p.y)); }
 
-// Can the walls of `sl` be replaced by `walls` without changing the distance of any tile in
-// the 5x5 box around `me` that the cached field knows (<= L), or making any other box tile
-// closer than L + 1? Let A be the tiles that became walls and R the tiles that opened.
-//  - An old shortest path to q passes through a in A only if d(a) + cheb(a, q) <= d(q) <= L.
-//    So d(a) + cheb(a, me) - 2 > L rules a out for every q in the box: old paths survive.
-//  - A new path that uses R enters its first r in R from a neighbour n reached without R,
-//    so it is at least min_n d(n) + 1 + cheb(r, q) long. min_n d(n) + 1 + cheb(r, me) - 2
-//    >= L + 1 rules every such path out of beating the old value (or L + 1).
+// Can the walls of `sl` be replaced by `walls` for a request that stops at layer S <= L (its
+// nearest dest, all dests being in the 5x5 box around `me`)? Every box tile q must keep its
+// cached distance D_q if D_q <= S, and stay farther than S otherwise. Let A be the tiles
+// that became walls and R the tiles that opened.
+//  - An old shortest path to q passes through a in A only if d(a) + cheb(a, q) <= D_q. If no
+//    a qualifies, an old shortest path survives, so q gets no farther. (Walls only removed
+//    paths, so tiles farther than S stay so.)
+//  - A new path that uses R enters its first r in R from a neighbour n reached without R, so
+//    it is at least lb(r) + cheb(r, q) long, lb(r) = min_n d(n) + 1 over old-open n. If that
+//    is at least D_q (or S + 1 for tiles farther than S), q gets no closer.
 // Unknown distances (beyond L) are taken as L + 1: a lower bound, so the test stays sound.
-bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int W, int H)
+bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& roots, Vec2 me, int S, int W, int H)
 {
 	sdk_Bitboard_Xor(sl.walls.w, walls.w, delta_w);
 	std::uint32_t n = 0;
 	sdk_Bitboard_GetSetBits(delta_w, delta_pos, 64, &n);
+#ifdef BOT_DF_PROFILE
+	std::printf("@@NDELTA %u\n", n);
+#endif
 	if (n > 64) return false;
 	const int L = sl.depth;
 	auto d = [&](int x, int y) {
 		const int v = sl.field[fidx(x, y)];
 		return v <= L ? v : L + 1;
 	};
+	// Box tiles and their targets: D_q if D_q <= S, else S + 1 (filled on first need).
+	struct Q
+	{
+		int x, y, t;
+		bool known;
+	};
+	Q box[25];
+	int nb = -1;
+	auto fill_box = [&]() {
+		nb = 0;
+		for (int y = std::max(0, me.y - 2); y <= std::min(H - 1, me.y + 2); ++y)
+			for (int x = std::max(0, me.x - 2); x <= std::min(W - 1, me.x + 2); ++x)
+			{
+				const int v = d(x, y);
+				box[nb++] = { x, y, v <= S ? v : S + 1, v <= S };
+			}
+	};
 	for (std::uint32_t i = 0; i < n; ++i)
 	{
 		const int x = delta_pos[i].x, y = delta_pos[i].y;
-		if (roots.test(x, y)) return false;
+		if (roots.test(x, y))
+		{
+#ifdef BOT_DF_PROFILE
+			std::printf("@@FAIL root n=%u\n", n);
+#endif
+			return false;
+		}
 		const int c = cheb(x, y, me);
 		if (walls.test(x, y))
 		{
-			if (d(x, y) + c - 2 <= L) return false;
+			const int da = d(x, y);
+			if (da > S || da + c - 2 > S) continue;
+			if (nb < 0) fill_box();
+			for (int k = 0; k < nb; ++k)
+				if (box[k].known && da + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) <= box[k].t)
+				{
+#ifdef BOT_DF_PROFILE
+					std::printf("@@FAIL + n=%u c=%d da=%d S=%d L=%d\n", n, c, da, S, L);
+#endif
+					return false;
+				}
 		}
 		else
 		{
@@ -246,7 +341,16 @@ bool box_unaffected(const FieldSlot& sl, const Bitboard& walls, const Bitboard& 
 			for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
 				for (int xx = std::max(0, x - 1); xx <= std::min(W - 1, x + 1); ++xx)
 					if ((xx != x || yy != y) && !sl.walls.test(xx, yy)) lb = std::min(lb, d(xx, yy) + 1);
-			if (lb + c - 2 < L + 1) return false;
+			if (lb + c - 2 >= S + 1) continue;
+			if (nb < 0) fill_box();
+			for (int k = 0; k < nb; ++k)
+				if (lb + std::max(std::abs(x - box[k].x), std::abs(y - box[k].y)) < box[k].t)
+				{
+#ifdef BOT_DF_PROFILE
+					std::printf("@@FAIL - n=%u c=%d lb=%d S=%d L=%d\n", n, c, lb, S, L);
+#endif
+					return false;
+				}
 		}
 	}
 	return true;
@@ -269,6 +373,18 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 						int W, int H)
 {
 	if (!slots) slots = new FieldSlot[kSlots];
+#ifdef BOT_DF_PROFILE
+	const auto pf0 = sdk_fuel_remaining();
+	int pf_hit = 0;
+	struct PfTail
+	{
+		decltype(pf0) f0;
+		int& hit;
+		const Bitboard* d;
+		int H;
+		~PfTail() { std::printf("@@DF %lld %d %d\n", static_cast<long long>(f0 - sdk_fuel_remaining()), hit, d ? d->count(H) : -1); }
+	} pf_tail{ pf0, pf_hit, dests, H };
+#endif
 	const auto maxd = static_cast<std::uint16_t>(std::clamp(max_distance, 0, 0xFFFF));
 	// Nearest dest in a cached field (0x10000 if none within its depth); -1 if need_box and
 	// some dest lies outside the box around the champion.
@@ -288,11 +404,15 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		return best;
 	};
 	FieldAnswer ans{ nullptr, -1, 0 };
-	FieldSlot* use = nullptr;
+	FieldSlot *use = nullptr, *same_roots = nullptr;
 	for (int i = 0; i < kSlots && !use; ++i)
 	{
 		FieldSlot& sl = slots[i];
 		if (sl.depth < 0 || sl.maxd != maxd || !(sl.roots == roots)) continue;
+		same_roots = &sl;
+#ifdef BOT_DF_PROFILE
+		pf_hit = 3;
+#endif
 		if (sl.walls == walls)
 		{
 			if (!dests)
@@ -307,16 +427,26 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		else if (dests && have_me)
 		{
 			const int best = nearest(sl, true);
-			if (best >= 0 && best <= sl.depth && box_unaffected(sl, walls, roots, me, W, H)) use = &sl, ans.limit = best;
+			if (best >= 0 && best <= sl.depth && box_unaffected(sl, walls, roots, me, best, W, H)) use = &sl, ans.limit = best;
 		}
 	}
 	if (use)
+	{
 		ans.count = ans.limit >= 0 ? ans.limit : use->depth;
+#ifdef BOT_DF_PROFILE
+		pf_hit = use->walls == walls ? 1 : 2;
+#endif
+	}
 	else
 	{
-		use = &slots[0];
-		for (int i = 1; i < kSlots; ++i)
-			if (slots[i].used < use->used) use = &slots[i];
+		// Replace the stale field with the same roots, else the least recently used one.
+		use = same_roots;
+		if (!use)
+		{
+			use = &slots[0];
+			for (int i = 1; i < kSlots; ++i)
+				if (slots[i].used < use->used) use = &slots[i];
+		}
 		Bitboard visited, me_only;
 		const Bitboard* sd = dests;
 		if (dests && have_me && dests->test(me))

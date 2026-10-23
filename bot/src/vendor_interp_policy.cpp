@@ -14,6 +14,7 @@
 
 namespace interp
 {
+long long prof_fuel();
 using cbs::Api;
 using cbs::Bitboard;
 using cbs::ChampionInfo;
@@ -296,6 +297,7 @@ struct Parser
 	std::vector<Step> steps()
 	{
 		std::vector<Step> out;
+		out.reserve(16); // regrowth moves whole Step trees (costly in a wasm bot)
 		for (;;)
 		{
 			const std::uint16_t t = take();
@@ -337,9 +339,11 @@ struct Parser
 std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std::size_t n, const double* nums, std::size_t nnums,
 												  const char* const* bytes_hex, std::size_t nbytes)
 {
+	long long f0 = prof_fuel();
 	Parser p{ code, n, 0, nums, nnums, bytes_hex, nbytes };
 	auto prog = std::make_shared<Program>();
 	prog->steps = p.steps();
+	std::printf("@@P parse %lld\n", f0 - prof_fuel());
 	if (p.pos != n) throw std::runtime_error("policy: trailing tokens");
 	return prog;
 }
@@ -465,6 +469,7 @@ struct Interp
 	std::vector<Value> vars = std::vector<Value>(kNumTypes * kMaxVars);
 	std::vector<char> kept = std::vector<char>(kNumTypes * kMaxVars, 0);
 	std::vector<std::uint16_t> field;
+	std::vector<std::uint32_t> camp_ids;
 
 	const cbs::Map& m() const { return api.map(); }
 	Work work;
@@ -855,11 +860,9 @@ struct Interp
 		{
 			Value r;
 			r.units = std::make_shared<std::vector<Unit>>();
-			for (std::uint32_t c = 0; c < m().camps.size(); ++c)
-			{
-				cbs::CampRecord cr{};
-				if (api.camp(c, &cr) == Err::success && cr.health > 0) r.units->push_back({ EntityKind::camp, c });
-			}
+			api.visible_camps(camp_ids);
+			r.units->reserve(camp_ids.size());
+			for (std::uint32_t c : camp_ids) r.units->push_back({ EntityKind::camp, c });
 			return r;
 		}
 		case Op::locked_altars:
