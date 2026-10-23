@@ -311,7 +311,8 @@ void Game::damage_champion(int target, const Hit& hit)
 		Hit back;
 		back.src_champ = target;
 		back.retaliation = true;
-		back.amount = 0.2f * t.focus;
+		// Outgoing modifiers apply (Monster's x1.1 against camps).
+		back.amount = apply_outgoing(t, 0.2f * t.focus, hit.src_camp >= 0);
 		if (hit.src_champ >= 0) damage_champion(hit.src_champ, back);
 		else damage_camp(hit.src_camp, back);
 	}
@@ -554,8 +555,7 @@ void Game::camp_turn(int k)
 			}
 			return best;
 		};
-		// A champion in range resets the sleep timer even while stunned; a stunned camp just cannot attack
-		// (or fall asleep).
+		// A champion in range resets the sleep timer even while stunned; a stunned camp just cannot attack.
 		const bool stunned = c.buffs.has(BuffType::stun);
 		const int target = nearest();
 		if (target >= 0)
@@ -570,7 +570,7 @@ void Game::camp_turn(int k)
 				damage_champion(target, h);
 			}
 		}
-		else if (c.sleep_timer <= 0 && !stunned)
+		else if (c.sleep_timer <= 0)
 			c.life = CampLife::asleep; // RULE? health is kept
 	}
 	if (c.sleep_timer > 0) --c.sleep_timer;
@@ -1234,7 +1234,9 @@ Err Game::place_ward(int c, Vec2 dest, bool& ok)
 	if (is_stunned(c)) return Err::ward_cant_place;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	if (ch.ward_charges <= 0) return Err::ward_no_charges;
-	if (!map_->in_bounds(dest) || map_->walls.test(dest) || map_->holes.test(dest) || map_->altars.test(dest)) return Err::ward_bad_destination;
+	if (!map_->in_bounds(dest) || map_->walls.test(dest) || map_->holes.test(dest) || map_->altars.test(dest) ||
+		map_->spawn_mask[1 - ch.team].test(dest))
+		return Err::ward_bad_destination;
 	if (chebyshev(ch.pos, dest) > settings().ward_placement_radius) return Err::ward_out_of_range;
 	for (const auto& w : wards)
 		if (w.team == ch.team && w.pos == dest) return Err::ward_ally_ward_present;

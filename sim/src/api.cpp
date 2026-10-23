@@ -407,8 +407,11 @@ Err Api::camp_group_state(std::uint32_t g, std::uint32_t* out)
 	if (g_.groups[g].state == GroupState::respawning)
 	{
 		g_.update_group_memory(champ_);
-		if (g_.champs[champ_].seen_respawning[g]) *out = static_cast<std::uint32_t>(GroupState::respawning);
-		return Err::success;
+		if (g_.champs[champ_].seen_respawning[g] && g_.groups[g].respawn_timer > 0)
+		{
+			*out = static_cast<std::uint32_t>(GroupState::respawning);
+			return Err::success;
+		}
 	}
 	for (int h : g_.map().groups[g].camps)
 		if (sees(g_.map().camps[h].pos))
