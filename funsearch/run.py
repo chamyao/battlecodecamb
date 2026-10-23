@@ -31,6 +31,9 @@ def main():
     ap.add_argument("--confirm-games", type=int, default=160,
                     help="re-score candidates near the top on this many fresh games; stored score")
     ap.add_argument("--confirm-margin", type=float, default=0.1)
+    ap.add_argument("--early-stop", type=float, default=0.08,
+                    help="drop a candidate whose first quarter of confirmation games scores this far below "
+                         "the best (0 = always play the full confirmation)")
     ap.add_argument("--eval-threads", type=int, default=2)
     ap.add_argument("--opponents", default=f"builtin:starter,{ROOT / 'policies' / 'v1.policy'}")
     ap.add_argument("--seed-policy", default=str(ROOT / "policies" / "v1.policy"))
@@ -69,6 +72,17 @@ def main():
         if confirm or not best or r.score >= best[0].score - args.confirm_margin:
             # screening passed: the stored score comes from a larger, separate sample
             screen = r.score
+            if not confirm and best and args.early_stop:
+                # first quarter of the confirmation games (interp_eval's games are a prefix of a
+                # longer run with the same seed): a candidate clearly below the best stops here
+                quarter = max(2, args.confirm_games // 8 * 2)
+                q = evaluate(text, opponents=opponents, games=quarter, threads=args.eval_threads,
+                             seed=args.eval_seed + 1)
+                if q.ok and q.score < best[0].score - args.early_stop:
+                    q.per_opponent["screen_score"] = screen
+                    q.per_opponent["screen_fp"] = fp
+                    q.per_opponent["confirm_stopped"] = quarter
+                    return q
             r = evaluate(text, opponents=opponents, games=args.confirm_games, threads=args.eval_threads,
                          seed=args.eval_seed + 1)
             if not r.ok:
