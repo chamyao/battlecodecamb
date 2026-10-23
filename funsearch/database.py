@@ -74,11 +74,14 @@ class Database:
             pop = self.islands[island]
             if not pop:
                 return island, []
-            # keep the best version of each distinct text
+            # keep one version of each distinct behaviour (screening fingerprint, else text): the
+            # best-scoring, then the shortest, so parent slots are not spent on look-alikes
             best = {}
             for p in pop:
-                if p.text not in best or p.score > best[p.text].score:
-                    best[p.text] = p
+                key = p.metrics.get("screen_fp") or p.text
+                q = best.get(key)
+                if q is None or (p.score, -len(p.text)) > (q.score, -len(q.text)):
+                    best[key] = p
             pop = list(best.values())
             top = max(p.score for p in pop)
             weights = [math.exp((p.score - top) / self.temperature) for p in pop]

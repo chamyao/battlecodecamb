@@ -44,16 +44,40 @@ def main():
     db.load()
     opponents = tuple(args.opponents.split(","))
 
+    def fingerprint(per_opponent):
+        """Screening outcome; games are deterministic, so equal fingerprints mean equal play."""
+        return json.dumps({k: {f: v for f, v in m.items() if f != "seconds"}
+                           for k, m in sorted(per_opponent.items()) if isinstance(m, dict)}, sort_keys=True)
+
+    # confirmed results by screening fingerprint: a child that plays exactly like a confirmed
+    # program (a comment or dead-code edit) reuses its confirmation instead of replaying it
+    confirmed = {p.metrics["screen_fp"]: p for p in db.all
+                 if p.metrics.get("confirmed") and "screen_fp" in p.metrics}
+
     def score(text, confirm=False):
         r = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed)
+        if not r.ok:
+            return r
+        fp = fingerprint(r.per_opponent)
+        twin = confirmed.get(fp)
+        if twin is not None:
+            r.score = twin.score
+            r.per_opponent = {k: v for k, v in twin.metrics.items() if k != "cost"}
+            r.per_opponent["same_play_as"] = twin.id
+            return r
         best = db.best()
-        if r.ok and (confirm or not best or r.score >= best[0].score - args.confirm_margin):
+        if confirm or not best or r.score >= best[0].score - args.confirm_margin:
             # screening passed: the stored score comes from a larger, separate sample
             screen = r.score
             r = evaluate(text, opponents=opponents, games=args.confirm_games, threads=args.eval_threads,
                          seed=args.eval_seed + 1)
+            if not r.ok:
+                return r
             r.per_opponent["screen_score"] = screen
             r.per_opponent["confirmed"] = True
+            r.per_opponent["screen_fp"] = fp
+        else:
+            r.per_opponent["screen_fp"] = fp
         return r
 
     if not db.all:
@@ -62,6 +86,7 @@ def main():
         if not r.ok:
             raise SystemExit(f"seed policy failed: {r.error}")
         db.seed(seed_text, r.score, r.per_opponent)
+        confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
         print(f"seed score {r.score:.3f}")
 
     proposer = None
@@ -109,6 +134,8 @@ def main():
         r.per_opponent["cost"] = cost
         p = Program(0, island, text, r.score, [p.id for p in parents], model, r.error, r.per_opponent)
         pid = db.add(p)
+        if r.ok and r.per_opponent.get("confirmed") and "same_play_as" not in r.per_opponent:
+            confirmed.setdefault(r.per_opponent["screen_fp"], p)
         log_proposals(pid, r.score if r.ok else None, model, proposals)
         best = db.best()[0]
         spent = f" ${proposer.spent:.2f}" if proposer else ""
