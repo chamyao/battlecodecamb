@@ -43,6 +43,9 @@ struct MatchOptions
 	FuelBudget fuel;
 	const PriceTable* prices = &PriceTable::measured();
 	bool unlimited_fuel = false;
+	// No fuel bookkeeping at all (implies unlimited fuel): fastest, for policies that never
+	// approach the budget. Results match a fuel-enforced run only when that run has no suspensions.
+	bool no_fuel = false;
 	std::uint64_t seed = 1;	 // fills missed draft picks
 	int max_rounds = 0;		 // 0 = settings().max_rounds
 	std::size_t stack_size = 256 * 1024;
