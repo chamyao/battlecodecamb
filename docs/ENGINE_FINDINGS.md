@@ -306,3 +306,17 @@ the altar was the only path).
 - `cambc run` has no seed option, and reruns of the same two bots on the same map produce
   the same `match.seed` and the same game. For more samples vary the map, the side or the
   bots' own seeds.
+- The simulator reproduces whole cambc games of the deploy bot exactly when its policy players
+  are seeded as the bot seeds itself (`interp_eval --bot-seeds`; bot/src/main.cpp:
+  `0x5eed0000 + team*64 + champ + 1` per instance). v5 vs v4 (deploy/v0 b39ac4d) on all 40 maps,
+  both sides: 80/80 games identical in winner, both teams' tributed gems and end round. Note
+  that cambc's `roundsCompleted` is one less than the round the game ended in, when it ended
+  mid-round. Policy RNG was the only source of divergence. The engine's own randomness
+  (`match.seed`) did not show up in these games: the draft random fill is never reached when
+  every bot picks.
+- Consequence: with the bot's fixed seeds, `random_champion` makes the same choices in every
+  game, so a near-mirror always drafts the same two compositions (v4/v5: A Vesper Vale, Tavi,
+  Marcella, Stellar, Ren; B Vesper Vale, Willow, Ryth, Stellar, Heart of Ruin, truncated on
+  maps with fewer picks). That composition, not the side, is cambc's "A advantage". v4 mirror:
+  team A wins 60/80 with bot seeds (identical to cambc) against 199/400 with per-game seeds.
+  cambc's 80 games are 80 samples of one draft per pick count; per-game seeds sample drafts.
