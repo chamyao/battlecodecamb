@@ -12,7 +12,7 @@ def cambc(*args, tries=20):
         p = subprocess.run(['cambc', *args], capture_output=True, text=True)
         if p.returncode == 0:
             return p.stdout
-        if '429' in p.stderr or 'busy' in p.stderr:
+        if any(k in p.stderr for k in ('429', '503', 'busy', 'retry after', 'unavailable')):
             time.sleep(min(60, 3 * (k + 1)))
             continue
         raise RuntimeError(f"cambc {' '.join(args)}: {p.stderr.strip()}")
@@ -32,7 +32,9 @@ def main(out, top_n=16, per_team=60):
     os.makedirs(os.path.join(out, 'replays'), exist_ok=True)
     top = ladder(top_n)
     ids = {t['id'] for t in top}
-    matches = {}
+    prev = os.path.join(out, 'matches.json')
+    matches = {m['matchId']: m for m in json.load(open(prev))['matches']} if os.path.exists(prev) else {}
+    done = set()
     for t in top:
         cursor, got = None, 0
         while got < per_team:
