@@ -37,7 +37,8 @@ exactly the listed types. No loops, no functions except macros (below), no other
 (let/keep) before use; a let inside an if-branch is only visible in that branch.
 At most 16 let/keep statements per value type (Num, Bool, Tile, TileSet, Unit, ...) in the whole
 program, counting every statement, including both branches of an if: the policy is invalid
-beyond that. Inline a value used once instead of naming it, and reuse names across branches.
+beyond that. Macros are expanded at every call, so each call of a macro containing lets uses
+that many slots again. Inline a value used once instead of naming it, and reuse names across branches.
 A name cannot be redefined in the same scope (use a new name, e.g. camp2); the two branches of
 one if may each define the same name. elif is fine.
 Not supported (each one makes the policy invalid): %, //, **, None (test with exists(...)),
