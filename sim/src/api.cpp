@@ -1,4 +1,5 @@
 #include "cbs/api.h"
+#include "cbs/coverage.h"
 #include <algorithm>
 #include <cstring>
 
@@ -541,7 +542,8 @@ Err Api::submit_draft_memory(const std::uint8_t* in, std::uint32_t n)
 	charge(Call::submit_draft_memory, n);
 	if (playing() || g_.draft.done) return Err::memory_draft_frozen;
 	if (n > kDraftMemory) return Err::memory_bad_range;
-	std::memcpy(g_.teams[team_].draft_mem, in, n); // RULE? later submissions overwrite the prefix
+	if (g_.teams[team_].draft_mem_size > 0) CBS_RULE_HIT("draft_memory_resubmit");
+	std::memcpy(g_.teams[team_].draft_mem, in, n); // later submissions overwrite the prefix (confirmed by replay)
 	g_.teams[team_].draft_mem_size = std::max(g_.teams[team_].draft_mem_size, n);
 	return Err::success;
 }

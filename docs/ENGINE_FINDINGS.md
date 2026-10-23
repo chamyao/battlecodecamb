@@ -245,3 +245,35 @@ Each rule below was needed to make full games replay with zero differences.
   champion cannot see acts like a hidden occupant (rc 0, nothing placed, the
   tile is revealed).
 - teleport crystal: validated like a move (bad destination 22).
+
+## Rule coverage
+
+`sim/build/replay_cov` is the replayer built with `CBS_RULE_COVERAGE`: it
+counts every time a replayed game reaches a situation decided by a rule that
+was first inferred rather than observed (`CBS_RULE_HIT` in the code). Over
+124 traced games (seeds 11-13 on all 40 maps, 00elkring seeds 1-4), all with
+zero diffs, these were reached and are therefore confirmed:
+
+| Rule | Hits (games) |
+| --- | --- |
+| Any channel blocks shopping, even on spawn | 14144 (124) |
+| Camps keep their health when they fall asleep | 15522 (124) |
+| Teleport crystal beyond 3 tiles -> error 37 (`move_out_of_range`) | 3224 (124) |
+| Durability (x0.9) is applied before Jungle (x0.7) on camp hits | 10012 (58) |
+| Health-to-strength passive: `strength += (max_hp - base_hp) * 0.01` in float | 3303 (75) |
+| Re-stunning keeps the longer remaining duration (camps) | 211 (92) |
+| Re-stunning keeps the longer remaining duration (champions) | 35 (10) |
+| Stunned recall -> error 44 (`recall_cant_channel`) | 202 (59) |
+| A second draft-memory submission overwrites the prefix (size = max) | 872 (124) |
+| Enhanced-attack buff lasts only for the casting turn | 7 (6) |
+| Ren's retaliation does not trigger another Ren's retaliation | 1 (1) |
+
+Never reached (still `RULE?`): the engine's random pick for a bot that does
+not draft (our fill uses our own RNG and cannot match), a teleport whose
+destination is occupied at completion, action calls by a dead champion that
+reach the common checks, stunned purchase of an invalid consumable (order of
+the two errors), Tavi selling while stunned and channelling, a dash past a
+camp the caster cannot see, and whether a dash may pass over an altar (29
+dashes had an altar among the candidate intermediate tiles and replayed
+correctly treating altars as passable, but the counter does not show whether
+the altar was the only path).

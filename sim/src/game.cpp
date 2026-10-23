@@ -1,6 +1,7 @@
 // Game rules. Comments tagged "RULE?" mark behaviour inferred from the handbook that is not
 // yet confirmed against the engine; confirmed behaviour is documented in docs/ENGINE_FINDINGS.md.
 #include "cbs/game.h"
+#include "cbs/coverage.h"
 #include <algorithm>
 #include <cmath>
 
@@ -58,6 +59,7 @@ void Game::draft_end_round(std::uint64_t& rng)
 		if (choice < 0)
 		{
 			// RULE?: the engine's own random fill cannot be reproduced; use our RNG.
+			CBS_RULE_HIT("draft_random_fill");
 			int avail[kNumDraftChoices], n = 0;
 			for (int k = 0; k < kNumDraftChoices; ++k)
 			{
@@ -127,7 +129,11 @@ void Game::recompute_stats(Champion& ch)
 	ch.max_hp = d.base_health + d.health_growth * static_cast<float>(ch.health_pts);
 	ch.strength = d.base_strength + d.strength_growth * static_cast<float>(ch.strength_pts);
 	ch.focus = d.base_focus + d.focus_growth * static_cast<float>(ch.focus_pts);
-	if (d.passive == Passive::health_strength) ch.strength += (ch.max_hp - d.base_health) * 0.01f; // RULE? rounding order
+	if (d.passive == Passive::health_strength)
+	{
+		if (ch.health_pts > 0) CBS_RULE_HIT("health_strength_rounding");
+		ch.strength += (ch.max_hp - d.base_health) * 0.01f; // confirmed by replay
+	}
 	if (d.passive == Passive::gem_focus) ch.focus += 1.5f * static_cast<float>(ch.gems);
 }
 
@@ -211,7 +217,11 @@ bool Game::can_shop(int c, bool consumables) const
 {
 	const Champion& ch = champs[c];
 	if (!ch.alive) return true;
-	if (ch.channel != Channel::none) return false; // RULE? all channels block shopping
+	if (ch.channel != Channel::none)
+	{
+		if (on_spawn(ch)) CBS_RULE_HIT("channel_blocks_shop_on_spawn");
+		return false; // all channels block shopping (confirmed by replay)
+	}
 	if (ch.buffs.has(BuffType::stun)) return false;
 	if (on_spawn(ch)) return true;
 	return !consumables && champion_design(ch.type).passive == Passive::remote_shop;
@@ -281,8 +291,9 @@ void Game::damage_champion(int target, const Hit& hit)
 	Champion& t = champs[target];
 	if (!t.alive) return;
 	float amount = hit.amount;
-	if (t.has_passive(ItemPassive::durability)) amount *= 0.9f;			   // RULE? order
-	if (hit.src_camp >= 0 && t.has_passive(ItemPassive::jungle)) amount *= 0.7f; // RULE? order
+	if (hit.src_camp >= 0 && t.has_passive(ItemPassive::durability) && t.has_passive(ItemPassive::jungle)) CBS_RULE_HIT("durability_jungle_order");
+	if (t.has_passive(ItemPassive::durability)) amount *= 0.9f;			   // durability before jungle (confirmed by replay)
+	if (hit.src_camp >= 0 && t.has_passive(ItemPassive::jungle)) amount *= 0.7f;
 	// Shields absorb first, earliest-expiring first.
 	while (amount > 0)
 	{
@@ -311,6 +322,7 @@ void Game::damage_champion(int target, const Hit& hit)
 		Hit back;
 		back.src_champ = target;
 		back.retaliation = true;
+		if (hit.src_champ >= 0 && champion_design(champs[hit.src_champ].type).passive == Passive::retaliation) CBS_RULE_HIT("ren_vs_ren");
 		// Outgoing modifiers apply (Monster's x1.1 against camps).
 		back.amount = apply_outgoing(t, 0.2f * t.focus, hit.src_camp >= 0);
 		if (hit.src_champ >= 0) damage_champion(hit.src_champ, back);
@@ -387,7 +399,8 @@ void Game::stun_champion(int target, int duration)
 	Champion& t = champs[target];
 	if (!t.alive || champion_design(t.type).passive == Passive::stun_immunity) return;
 	const int i = t.buffs.find(BuffType::stun);
-	if (i >= 0) t.buffs.b[i].duration = std::max(t.buffs.b[i].duration, duration); // RULE? refresh
+	if (i >= 0 && t.buffs.b[i].duration != duration) CBS_RULE_HIT("stun_refresh_champion");
+	if (i >= 0) t.buffs.b[i].duration = std::max(t.buffs.b[i].duration, duration); // longest wins (confirmed by replay)
 	else t.buffs.add({ BuffType::stun, duration, 0 });
 	interrupt_channel(t, false);
 }
@@ -397,6 +410,7 @@ void Game::stun_camp(int k, int duration)
 	Camp& c = camps[k];
 	if (c.life == CampLife::dead) return;
 	const int i = c.buffs.find(BuffType::stun);
+	if (i >= 0 && c.buffs.b[i].duration != duration) CBS_RULE_HIT("stun_refresh_camp");
 	if (i >= 0) c.buffs.b[i].duration = std::max(c.buffs.b[i].duration, duration);
 	else c.buffs.add({ BuffType::stun, duration, 0 });
 }
@@ -409,7 +423,7 @@ void Game::process_respawns()
 	{
 		Group& G = groups[g];
 		if (G.state != GroupState::respawning) continue;
-		if (G.respawn_timer > 0) --G.respawn_timer; // RULE? decrement before check
+		if (G.respawn_timer > 0) --G.respawn_timer; // decrement before check (confirmed by replay)
 		if (G.respawn_timer > 0) continue;
 		bool blocked = false;
 		// A champion on a spawn tile, or a teleport heading there, delays the whole group.
@@ -573,7 +587,10 @@ void Game::camp_turn(int k)
 			}
 		}
 		else if (c.sleep_timer <= 0)
-			c.life = CampLife::asleep; // RULE? health is kept
+		{
+			if (c.hp < c.max_hp) CBS_RULE_HIT("sleep_keeps_health");
+			c.life = CampLife::asleep; // health is kept (confirmed by replay)
+		}
 	}
 	if (c.sleep_timer > 0) --c.sleep_timer;
 	// Turn end: decrement cooldowns and buffs.
@@ -682,6 +699,7 @@ void Game::complete_channel(int c)
 		break;
 	}
 	case Channel::teleport:
+		if (champion_at(ch.channel_target) >= 0 || camp_at(ch.channel_target) >= 0) CBS_RULE_HIT("teleport_destination_blocked");
 		if (champion_at(ch.channel_target) < 0 && camp_at(ch.channel_target) < 0) ch.pos = ch.channel_target; // RULE?
 		on_position_changed(c);
 		break;
@@ -697,7 +715,11 @@ void Game::begin_turn(int c)
 	if (ch.ward_charges < settings().ward_charges && ch.ward_cooldown <= 0) ch.ward_charges++; // also while dead
 	if (!ch.alive) return;
 	for (int i = ch.buffs.n - 1; i >= 0; --i)
-		if (ch.buffs.b[i].duration <= 0) ch.buffs.remove(i);
+		if (ch.buffs.b[i].duration <= 0)
+		{
+			if (ch.buffs.b[i].type == BuffType::enhanced_attack) CBS_RULE_HIT("enhanced_attack_expires_next_turn");
+			ch.buffs.remove(i);
+		}
 	if (ch.channel != Channel::none && ch.channel_timer <= 0) complete_channel(c);
 }
 
@@ -758,7 +780,11 @@ void Game::resign(int team)
 
 Err Game::common_action_checks(const Champion& ch) const
 {
-	if (!ch.alive) return Err::cant_act; // RULE?
+	if (!ch.alive)
+	{
+		CBS_RULE_HIT("dead_champion_action");
+		return Err::cant_act; // RULE?
+	}
 	if (ch.channel == Channel::recall) return Err::is_recalling;
 	if (ch.channel == Channel::tribute) return Err::is_submitting_gems;
 	if (ch.channel == Channel::teleport) return Err::is_teleporting;
@@ -785,7 +811,7 @@ Err Game::move(int c, Vec2 to, bool& ok)
 {
 	ok = false;
 	Champion& ch = champs[c];
-	if (is_stunned(c)) return Err::move_cant_move; // RULE?
+	if (is_stunned(c)) return Err::move_cant_move;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	if (ch.moved) return Err::move_already_moved;
 	if (ch.cast_exclusive) return Err::move_exclusive_spell_cast;
@@ -939,7 +965,7 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 		{
 			const int i = ch.buffs.find(BuffType::enhanced_attack);
 			if (i >= 0) ch.buffs.remove(i);
-			ch.buffs.add({ BuffType::enhanced_attack, 1, 0 }); // RULE? duration
+			ch.buffs.add({ BuffType::enhanced_attack, 1, 0 }); // usable this turn only (confirmed by replay)
 		}
 		return finish();
 	case AbilityKind::shield:
@@ -1026,8 +1052,8 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 		bool hidden = false;
 		if (!landing_ok(ch, dest, hidden, true)) return Err::cast_bad_destination;
 		// Legal dash path: one intermediate king step that is not a wall and holds no camp or
-		// enemy champion the caster can see (holes may be crossed, allies and unseen enemies passed
-		// through). RULE? unseen camps, altars
+		// enemy champion the caster can see (holes may be crossed, allies and unseen enemies
+		// passed through). RULE? unseen camps; altars are treated as passable
 		bool path = chebyshev(ch.pos, dest) <= 1;
 		Bitboard vis;
 		if (!path) champion_vision(c, vis);
@@ -1036,6 +1062,8 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 			{
 				const Vec2 mid{ ch.pos.x + dx, ch.pos.y + dy };
 				const int occ = champion_at(mid);
+				if (map_->in_bounds(mid) && chebyshev(mid, dest) <= 1 && camp_at(mid) >= 0 && !vis.test(mid)) CBS_RULE_HIT("dash_past_unseen_camp");
+				if (map_->in_bounds(mid) && chebyshev(mid, dest) <= 1 && map_->altars.test(mid)) CBS_RULE_HIT("dash_over_altar");
 				if (map_->in_bounds(mid) && !map_->walls.test(mid) && chebyshev(mid, dest) <= 1 &&
 					(occ < 0 || champs[occ].team == ch.team || !vis.test(mid)) && camp_at(mid) < 0)
 					path = true;
@@ -1112,8 +1140,12 @@ Err Game::buy_item(int c, int item, int count)
 Err Game::buy_consumable(int c, int type)
 {
 	Champion& ch = champs[c];
-	if (type < 0 || type >= kNumConsumables || consumable_design(type).carry_limit == 0) return Err::buyc_invalid_type;
-	if (ch.alive && is_stunned(c)) return Err::cant_act; // RULE? order vs invalid type
+	if (type < 0 || type >= kNumConsumables || consumable_design(type).carry_limit == 0)
+	{
+		if (ch.alive && is_stunned(c)) CBS_RULE_HIT("stunned_buyc_invalid");
+		return Err::buyc_invalid_type; // RULE? order vs stun
+	}
+	if (ch.alive && is_stunned(c)) return Err::cant_act; // order vs invalid type: see RULEHIT stunned_buyc_invalid
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
 	if (!can_shop(c, true)) return Err::buyc_not_on_spawn;
 	if (ch.cons[type] >= consumable_design(type).carry_limit) return Err::buyc_inventory_full;
@@ -1169,7 +1201,11 @@ Err Game::use_consumable(int c, int type, Vec2 dest, bool& ok)
 	// Teleport crystal: validated like a move (codes 22 / 37).
 	bool hidden = false;
 	if (!landing_ok(ch, dest, hidden, true)) return Err::move_bad_destination;
-	if (chebyshev(ch.pos, dest) > 3) return Err::move_out_of_range; // RULE? code
+	if (chebyshev(ch.pos, dest) > 3)
+	{
+		CBS_RULE_HIT("teleport_out_of_range_code");
+		return Err::move_out_of_range; // confirmed by replay
+	}
 	if (hidden)
 	{
 		if (ch.revealed_n < 8) ch.revealed[ch.revealed_n++] = dest;
@@ -1187,7 +1223,11 @@ Err Game::recall(int c)
 {
 	Champion& ch = champs[c];
 	if (ch.recall_started) return Err::recall_already_used;
-	if (is_stunned(c)) return Err::recall_cant_channel; // RULE?
+	if (is_stunned(c))
+	{
+		CBS_RULE_HIT("stunned_recall");
+		return Err::recall_cant_channel; // confirmed by replay
+	}
 	if (Err e = common_action_checks(ch); e != Err::success) return e == Err::is_recalling ? Err::recall_cant_channel : e;
 	ch.channel = Channel::recall;
 	const int t = settings().recall_time;

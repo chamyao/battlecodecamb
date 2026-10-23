@@ -12,6 +12,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "cbs/coverage.h"
 #include "cbs/api.h"
 
 using namespace cbs;
@@ -564,5 +565,8 @@ int main(int argc, char** argv)
 	for (auto& [k, v] : r.diff_kinds) kinds.push_back({ v, k });
 	std::sort(kinds.rbegin(), kinds.rend());
 	for (std::size_t i = 0; i < kinds.size() && i < 15; ++i) std::printf("  %6d %s\n", kinds[i].first, kinds[i].second.c_str());
+#ifdef CBS_RULE_COVERAGE
+	cbs::cov::dump(stdout);
+#endif
 	return (r.diffs || result_diff) ? 1 : 0;
 }

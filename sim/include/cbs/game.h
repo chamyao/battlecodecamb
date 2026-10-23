@@ -243,7 +243,7 @@ private:
 		float amount = 0;
 		bool basic = false;
 		bool splash = false;	   // Varg splash: does not trigger retaliation
-		bool retaliation = false; // Ren's retaliation: does not trigger retaliation (RULE?)
+		bool retaliation = false; // Ren's retaliation: does not trigger retaliation (confirmed by replay)
 	};
 	void damage_champion(int target, const Hit& hit);
 	void damage_camp(int camp, const Hit& hit);
