@@ -693,10 +693,10 @@ struct Interp
 		// The deploy bot's one-off start-up (map, camp layout, allocator; the policy is embedded
 		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 24 cambc games of
 		// v5d / fs-1 as first-turn fuel minus the simulator's charge for that turn (docs/FUEL.md):
-		// mae 1.3k on a mean of 43k.
+		// mae 1.3k on a mean of 47k.
 		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
-			api.compute(17890 + 2207 * m().W * m().H / 1000 + 245 * static_cast<std::int64_t>(m().camps.size()) +
-						417 * static_cast<std::int64_t>(m().groups.size()));
+			api.compute(21662 + 2281 * m().W * m().H / 1000 + 247 * static_cast<std::int64_t>(m().camps.size()) +
+						387 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
 		blocks_this_turn = 0;
