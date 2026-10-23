@@ -1,0 +1,69 @@
+# v2: v1 + dash towards the next camp or altar when a dash is ready.
+# Hand-written; every change measured over 400 games against the previous version.
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally), position() )
+if at_spawn:
+    buy( shard(stat_strength()), floor( gold() / 30 ) )
+
+if not at_spawn and health() < 0.2 * max_health():
+    recall()
+    end_turn()
+
+let enemy = first( filter( enemies_visible(), in_attack_range ) )
+if exists(enemy):
+    if ability_ready(0):
+        cast_at_unit(0, enemy)
+    if ability_ready(1):
+        cast_at_unit(1, enemy)
+    attack(enemy)
+    end_turn()
+
+if gems() > 0:
+    let open_altars = minus( altars(), locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    let altar_goal = closest( ring(open_altars, 1) )
+    if slot_is_dash(0) and ability_ready(0):
+        dash_towards(0, altar_goal)
+    if slot_is_dash(1) and ability_ready(1):
+        dash_towards(1, altar_goal)
+    move_towards( altar_goal )
+    end_turn()
+
+let camp = first( filter( camps_visible(), in_attack_range ) )
+if exists(camp):
+    if ability_ready(0):
+        cast_at_unit(0, camp)
+    if ability_ready(1):
+        cast_at_unit(1, camp)
+    attack(camp)
+    end_turn()
+let goals = minus( camp_spawns, respawning_visible_spawns() )
+let camp_goal = closest(goals)
+if slot_is_dash(0) and ability_ready(0):
+    dash_towards(0, camp_goal)
+if slot_is_dash(1) and ability_ready(1):
+    dash_towards(1, camp_goal)
+move_towards( camp_goal )
+let camp2 = first( filter( camps_visible(), in_attack_range ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 TYPES = (
     "Num", "Bool", "Tile", "TileSet", "Unit", "UnitList", "UnitPred",
-    "TilePred", "Stat", "Item", "Team", "Champ", "ChampList", "Bytes",
+    "TilePred", "Stat", "Item", "Team", "Champ", "ChampList", "Bytes", "Family",
 )
 VOID = "Void"
 
@@ -120,8 +120,31 @@ _b("in_attack_range", "", "UnitPred")
 _b("random_int", "Num", "Num")
 _b("random_stat", "", "Stat")
 
-# Items
+# Items: shard(stat) is a Power shard; shard_of picks the emblem family.
 _b("shard", "Stat", "Item")
+FAMILIES = ("monster", "power", "durability", "treasure", "jungle", "home", "bruiser")
+for _name in FAMILIES:
+    _b(f"family_{_name}", "", "Family")
+_b("shard_of", "Family Stat", "Item")
+_b("buy_altar_lock", "", VOID)
+_b("buy_teleport", "", VOID)
+_b("has_altar_lock", "", "Bool")
+_b("has_teleport", "", "Bool")
+_b("place_altar_lock", "Tile", VOID)
+_b("teleport_to", "Tile", VOID)
+
+# Abilities and class
+_b("i_am_ranged", "", "Bool")
+for _name in ("dash", "damage", "aoe", "stun", "heal", "shield", "reset"):
+    _b(f"slot_is_{_name}", "Num", "Bool")
+_b("dash_towards", "Num Tile", VOID)
+
+# Scores and map facts (also usable in the draft)
+_b("unit_gems", "Unit", "Num")
+_b("team_score", "Team", "Num")
+_b("map_width", "", "Num")
+_b("map_height", "", "Num")
+_b("camp_count", "", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)

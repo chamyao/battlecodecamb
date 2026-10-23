@@ -1,8 +1,10 @@
 """Score a policy by playing it in the simulator (interp/build/interp_eval)."""
 import json
+import os
 import random
 import subprocess
 import tempfile
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -32,17 +34,20 @@ def score_of(stats):
 
 
 _OPP_CACHE = {}
+_OPP_LOCK = threading.Lock()
 
 
 def _compiled_opponent(spec):
     """A .policy opponent is compiled once to a .pol file; other specs pass through."""
     if not spec.endswith(".policy"):
         return spec
-    if spec not in _OPP_CACHE:
-        out = Path(tempfile.gettempdir()) / f"opp-{abs(hash(spec))}.pol"
-        out.write_text(to_prefix(parse(Path(spec).read_text())))
-        _OPP_CACHE[spec] = str(out)
-    return _OPP_CACHE[spec]
+    with _OPP_LOCK:
+        if spec not in _OPP_CACHE:
+            fd, out = tempfile.mkstemp(suffix=".pol", prefix="opp-")
+            with os.fdopen(fd, "w") as f:
+                f.write(to_prefix(parse(Path(spec).read_text())))
+            _OPP_CACHE[spec] = out
+        return _OPP_CACHE[spec]
 
 
 def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, maps=None, timeout=600):
