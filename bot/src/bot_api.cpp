@@ -237,6 +237,7 @@ Err Api::recall() { return E(sdk_recall()); }
 Err Api::submit_gems(Vec2 altar) { return E(sdk_submit_gems(altar.x, altar.y)); }
 Err Api::place_ward(Vec2 p, std::int32_t* ok) { return E(sdk_place_ward(p.x, p.y, ok)); }
 Err Api::set_priority(std::int32_t p) { return E(sdk_set_priority(p)); }
+Err Api::champion_priority(std::uint32_t h, bool next, std::int32_t* out) { return E(sdk_bc_champion_priority(h, next ? 1 : 0, out)); }
 
 Err Api::draft_get(std::int32_t team, std::uint32_t round, std::int32_t* out) { return E(sdk_draft_get(team, round, out)); }
 Err Api::draft_champion(std::int32_t choice) { return E(sdk_draft_champion(choice)); }
