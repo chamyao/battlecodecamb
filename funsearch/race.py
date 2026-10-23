@@ -17,7 +17,7 @@ from policygen.text import parse
 ROOT = Path(__file__).resolve().parent.parent
 EVAL_BIN = ROOT / "interp" / "build" / "interp_eval"
 MAPS = sorted(str(p) for p in (ROOT / "maps").glob("*.map26a"))
-GAUNTLET = ("v4", "locker", "fs-2", "starter")
+GAUNTLET = ("v4", "locker", "fs-2", "starter", "v5d-fs2", "opp-icecream", "opp-odyssey")
 
 
 def compile_text(text):
@@ -32,10 +32,14 @@ def compile_file(path):
     return compile_text(Path(path).read_text())
 
 
-def h2h(a_pol, b_pol, games, seed, threads=4):
-    """Win rate of A vs B over `games` games cycling the map list (pairs swap sides)."""
+def h2h(a_pol, b_pol, games, seed, threads=4, bot_seeds=False):
+    """Win rate of A vs B over `games` games cycling the map list (pairs swap sides).
+
+    bot_seeds seeds policies as the deploy bot is, so 80 games at the default seed 1 reproduce cambc
+    (the coordinator's acceptance check)."""
     out = subprocess.run([str(EVAL_BIN), "--a", a_pol, "--b", b_pol, "--games", str(games),
-                          "--threads", str(threads), "--seed", str(seed), *MAPS],
+                          "--threads", str(threads), "--seed", str(seed), *(["--bot-seeds"] if bot_seeds else []),
+                          *MAPS],
                          capture_output=True, text=True, timeout=3600)
     stats = json.loads(out.stdout.strip().splitlines()[-1])
     if "error" in stats:
@@ -61,17 +65,24 @@ def screen(cands, base_pol, games=200, seed=11, workers=1, threads=4, log=print)
     return sorted(res, reverse=True)
 
 
+_BASE_GAUNTLET = {}
+
+
 def confirm(text, base_pol, seeds=(9001, 9002), games=400, gauntlet=GAUNTLET, base_text=None, log=print):
     """Head to head vs base on fresh seeds, plus the gauntlet delta against the base's own scores."""
     pol = compile_text(text)
     try:
         hh = [h2h(pol, base_pol, games, s)["win_rate"] for s in seeds]
-        out = {"h2h": hh, "h2h_mean": sum(hh) / len(hh), "gauntlet": {}}
+        out = {"h2h": hh, "h2h_mean": sum(hh) / len(hh), "gauntlet": {},
+               "cambc_check": h2h(pol, base_pol, 80, 1, bot_seeds=True)["win_rate"]}
         bpol = compile_text(base_text) if base_text else None
         for g in gauntlet:
             gp = compile_file(ROOT / "policies" / f"{g}.policy")
             mine = sum(h2h(pol, gp, games, s)["win_rate"] for s in seeds) / len(seeds)
-            theirs = sum(h2h(bpol, gp, games, s)["win_rate"] for s in seeds) / len(seeds) if bpol else None
+            key = (base_text, g, seeds, games)
+            if bpol and key not in _BASE_GAUNTLET:
+                _BASE_GAUNTLET[key] = sum(h2h(bpol, gp, games, s)["win_rate"] for s in seeds) / len(seeds)
+            theirs = _BASE_GAUNTLET.get(key)
             out["gauntlet"][g] = (mine, theirs)
             Path(gp).unlink(missing_ok=True)
         if bpol:
