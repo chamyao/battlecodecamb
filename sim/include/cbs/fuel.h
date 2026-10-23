@@ -1,8 +1,8 @@
 // Fuel accounting. Fuel is a game rule: every bot call is priced, the per-turn budget is
 // enforced by the runner, and exhausting it suspends the bot until its next turn.
 //
-// Prices are placeholders until measured against cambc (see docs/SIMULATOR.md, "Fuel"). A price may
-// depend on the call's inputs (map size, unit count, search size...) via PriceContext.
+// Prices are measured against cambc 3.0.5 with oracle/bots/fuelprobe (see docs/FUEL.md). A price may
+// depend on the map's 8x8 chunk count and on a call-specific size n via PriceContext.
 #pragma once
 #include <cstdint>
 #include <functional>
@@ -43,13 +43,17 @@ struct PriceContext
 {
 	int map_w = 0, map_h = 0;
 	std::int64_t n = 0; // call-specific size: units returned, tiles expanded, bytes copied...
+	// Bitboards are stored as one 64-bit word per 8x8 chunk; board-sized calls cost ~1 fuel per word.
+	std::int64_t chunks() const { return static_cast<std::int64_t>((map_w + 7) / 8) * ((map_h + 7) / 8); }
 };
 
-// Maps a call (and its context) to fuel. Default: placeholder constants.
+// Maps a call (and its context) to fuel. Default: measured prices.
 struct PriceTable
 {
+	// price = base + per_chunk * chunks + (per_n_milli * n) / 1000
 	std::int64_t base[static_cast<int>(Call::count)];
-	std::int64_t per_n[static_cast<int>(Call::count)];
+	std::int64_t per_chunk[static_cast<int>(Call::count)];
+	std::int64_t per_n_milli[static_cast<int>(Call::count)];
 	// Optional override for prices that are not affine in n.
 	std::function<std::int64_t(Call, const PriceContext&)> custom;
 
@@ -58,9 +62,12 @@ struct PriceTable
 	{
 		if (custom) return custom(c, ctx);
 		const int i = static_cast<int>(c);
-		return base[i] + per_n[i] * ctx.n;
+		return base[i] + per_chunk[i] * ctx.chunks() + per_n_milli[i] * ctx.n / 1000;
 	}
-	static const PriceTable& placeholder();
+	// Prices measured against cambc (the default).
+	static const PriceTable& measured();
+	// Kept for callers of the old name; same as measured().
+	static const PriceTable& placeholder() { return measured(); }
 };
 
 struct FuelBudget

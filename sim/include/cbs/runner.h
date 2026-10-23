@@ -37,7 +37,7 @@ public:
 struct MatchOptions
 {
 	FuelBudget fuel;
-	const PriceTable* prices = &PriceTable::placeholder();
+	const PriceTable* prices = &PriceTable::measured();
 	bool unlimited_fuel = false;
 	std::uint64_t seed = 1;	 // fills missed draft picks
 	int max_rounds = 0;		 // 0 = settings().max_rounds

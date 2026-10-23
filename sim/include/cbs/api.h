@@ -88,7 +88,7 @@ class Api
 {
 public:
 	// champ = -1 for a draft bot.
-	Api(Game& g, int team, int champ, const PriceTable* prices = &PriceTable::placeholder());
+	Api(Game& g, int team, int champ, const PriceTable* prices = &PriceTable::measured());
 
 	Game& game() { return g_; }
 	int team() const { return team_; }
