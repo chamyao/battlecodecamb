@@ -699,6 +699,9 @@ struct Interp
 						387 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
+		last_end = last_do = nullptr;
+		trace_target = trace_step = kNoTile;
+		trace_dist = -1;
 		blocks_this_turn = 0;
 		run(prog.steps);
 		// The step loop itself (Value temporaries etc. between blocks) and the calibration's
@@ -709,18 +712,74 @@ struct Interp
 			const auto adj = static_cast<std::int64_t>(
 				INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - calls0)));
 			api.compute(std::max<std::int64_t>(adj, -std::max<std::int64_t>(0, api.spent - spent0)));
+			trace_turn();
 		}
 	}
 
 	// Returns false when END_TURN was reached.
+	// Simulator diagnostics (INTERP_TRACE=1): the END_TURN that ended the turn and the last
+	// effect step run, as their ordinals in source order.
+	const Step* last_end = nullptr;
+	const Step* last_do = nullptr;
+	Vec2 trace_target = kNoTile, trace_step = kNoTile;
+	int trace_dist = -1;
+	static int ordinal(Span<Step> steps, const Step* want, Step::Kind kind, int& k)
+	{
+		for (const Step& s : steps)
+		{
+			if (s.kind == kind && ++k && &s == want) return k;
+			if (s.kind == Step::if_)
+			{
+				if (const int r = ordinal(s.then, want, kind, k)) return r;
+				if (const int r = ordinal(s.orelse, want, kind, k)) return r;
+			}
+		}
+		return 0;
+	}
+	void trace_turn()
+	{
+		static const bool on = std::getenv("INTERP_TRACE") != nullptr;
+		if (!on || api.champ() < 0) return;
+		const cbs::Game& g = api.game();
+		const cbs::Champion& c = g.champs[api.champ()];
+		int k1 = 0, k2 = 0;
+		const int e = last_end ? ordinal(prog.steps, last_end, Step::end_turn, k1) : 0;
+		const int d = last_do ? ordinal(prog.steps, last_do, Step::do_, k2) : 0;
+		const char* act = last_do ? kBlockTable[static_cast<int>(last_do->expr.op)].key : "-";
+		std::printf("@@TR r=%d team=%d champ=%d alive=%d pos=%d,%d hp=%.0f/%.0f gems=%u gold=%u submitted=%lld end_turn#%d last_do#%d %s\n",
+					g.round, api.team(), api.champ(), c.alive ? 1 : 0, c.pos.x, c.pos.y, static_cast<double>(c.hp),
+					static_cast<double>(c.max_hp), c.gems, c.gold_int(), static_cast<long long>(g.teams[api.team()].submitted), e, d, act);
+		if (trace_target.x >= 0)
+			std::printf("@@TRM   move_towards target %d,%d step %d,%d field %d\n", trace_target.x, trace_target.y, trace_step.x, trace_step.y, trace_dist);
+		if (const char* tl = std::getenv("INTERP_TRACE_TILES")) // "x,y;x,y": blocked as this champion sees it
+		{
+			const Bitboard& b = blocked_tiles(c.pos);
+			std::printf("@@TRB  ");
+			for (const char* q = tl; *q;)
+			{
+				int x = 0, y = 0, n = 0;
+				if (std::sscanf(q, "%d,%d%n", &x, &y, &n) < 2) break;
+				std::printf(" %d,%d:%d", x, y, b.test(x, y) ? 1 : 0);
+				q += n;
+				if (*q == ';') ++q;
+			}
+			std::printf("\n");
+		}
+		if (const char* rc = std::getenv("INTERP_TRACE_CAMPS"))
+			for (const auto& cp : g.camps)
+				if (cbs::chebyshev(cp.pos, c.pos) <= std::max(1, std::atoi(rc)))
+					std::printf("@@TRC   camp %d,%d group %d life %d hp %.0f\n", cp.pos.x, cp.pos.y, cp.group, static_cast<int>(cp.life),
+								static_cast<double>(cp.hp));
+	}
+
 	bool run(Span<Step> steps)
 	{
 		for (const Step& s : steps)
 		{
 			switch (s.kind)
 			{
-			case Step::end_turn: return false;
-			case Step::do_: exec(s.expr); break;
+			case Step::end_turn: last_end = &s; return false;
+			case Step::do_: last_do = &s; exec(s.expr); break;
 			case Step::let_: vars[s.var] = eval(s.expr); break;
 			case Step::keep_:
 				if (!kept[s.var])
@@ -762,7 +821,24 @@ struct Interp
 		dyn_block |= occ;
 		api.camp_occupancy(camps_cache, 0);
 		dyn_block |= camps_cache;
+		// Camp spawn tiles are static map data: one we cannot see is assumed occupied, so a path
+		// does not flip between "through the camp" and "around it" as the tile enters and leaves
+		// vision (the 01the-farm livelock, docs/FARM_DIAGNOSIS.md). Such tiles join the camp set,
+		// which move_towards_goals and closest keep as valid goals.
+		if (!camp_tiles_ready)
+		{
+			for (const auto& cp : m().camps) camp_tiles.set(cp.pos);
+			camp_tiles_ready = true;
+		}
+		Bitboard vis, unseen = camp_tiles;
+		api.vision(vis);
+		unseen.andnot(vis);
+		unseen.reset(me);
+		dyn_block |= unseen;
+		camps_cache |= unseen;
 	}
+	Bitboard camp_tiles;
+	bool camp_tiles_ready = false;
 	const Bitboard& camp_occupancy(Vec2 me)
 	{
 		refresh_occupancy(me);
@@ -824,6 +900,8 @@ struct Interp
 					best = p;
 				}
 			}
+		trace_step = best;
+		trace_dist = bd;
 		if (best == me) return;
 		std::int32_t ok = 0;
 		api.move_to(best, &ok);
@@ -1528,6 +1606,7 @@ struct Interp
 			if (!has_tile(t) || !me(ci)) break;
 			Bitboard goals;
 			goals.set(t);
+			trace_target = t;
 			move_towards_goals(goals, { ci.x, ci.y });
 			break;
 		}

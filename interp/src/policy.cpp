@@ -821,7 +821,24 @@ struct Interp
 		dyn_block |= occ;
 		api.camp_occupancy(camps_cache, 0);
 		dyn_block |= camps_cache;
+		// Camp spawn tiles are static map data: one we cannot see is assumed occupied, so a path
+		// does not flip between "through the camp" and "around it" as the tile enters and leaves
+		// vision (the 01the-farm livelock, docs/FARM_DIAGNOSIS.md). Such tiles join the camp set,
+		// which move_towards_goals and closest keep as valid goals.
+		if (!camp_tiles_ready)
+		{
+			for (const auto& cp : m().camps) camp_tiles.set(cp.pos);
+			camp_tiles_ready = true;
+		}
+		Bitboard vis, unseen = camp_tiles;
+		api.vision(vis);
+		unseen.andnot(vis);
+		unseen.reset(me);
+		dyn_block |= unseen;
+		camps_cache |= unseen;
 	}
+	Bitboard camp_tiles;
+	bool camp_tiles_ready = false;
 	const Bitboard& camp_occupancy(Vec2 me)
 	{
 		refresh_occupancy(me);
