@@ -1,5 +1,10 @@
 #include "interp/policy.h"
 #include <algorithm>
+#include <string_view>
+#include <charconv>
+#include <array>
+#include <cctype>
+#include <cstdlib>
 #include <cmath>
 #include <fstream>
 #include <sstream>
@@ -84,23 +89,57 @@ struct BlockInfo
 	int arity;
 };
 
-static const std::vector<BlockInfo>& block_table()
+// Arity of a block key such as "add(Num,Num)", computed at compile time (string work is
+// expensive inside a wasm bot).
+constexpr int key_arity(const char* k)
 {
-	static const std::vector<BlockInfo> table = [] {
-		std::vector<BlockInfo> t;
-#define X(id, key) t.push_back({ Op::id, key, 0 });
-		INTERP_BLOCKS(X)
+	int i = 0;
+	while (k[i] != '(') ++i;
+	if (k[i + 1] == ')') return 0;
+	int n = 1;
+	for (; k[i] != ')'; ++i) n += k[i] == ',';
+	return n;
+}
+
+constexpr BlockInfo kBlockTable[] = {
+#define X(id, key) { Op::id, key, key_arity(key) },
+	INTERP_BLOCKS(X)
 #undef X
-		for (auto& b : t)
+};
+constexpr int kNumBlocks = sizeof kBlockTable / sizeof *kBlockTable;
+
+struct BlockTableView
+{
+	const BlockInfo* begin() const { return kBlockTable; }
+	const BlockInfo* end() const { return kBlockTable + kNumBlocks; }
+};
+static BlockTableView block_table() { return {}; }
+
+constexpr std::uint32_t fnv1a(std::string_view s)
+{
+	std::uint32_t h = 2166136261u;
+	for (char c : s) h = (h ^ static_cast<unsigned char>(c)) * 16777619u;
+	return h;
+}
+
+// Open-addressing table from block key to block, built once.
+static const BlockInfo* find_block(std::string_view key)
+{
+	constexpr int kSlots = 512; // power of two, > 2 * kNumBlocks
+	static_assert(kSlots > 2 * kNumBlocks);
+	static const auto slots = [] {
+		std::array<const BlockInfo*, kSlots> t{};
+		for (const BlockInfo& b : kBlockTable)
 		{
-			const std::string k = b.key;
-			const auto open = k.find('(');
-			const std::string args = k.substr(open + 1, k.size() - open - 2);
-			b.arity = args.empty() ? 0 : 1 + static_cast<int>(std::count(args.begin(), args.end(), ','));
+			std::uint32_t i = fnv1a(b.key) & (kSlots - 1);
+			while (t[i]) i = (i + 1) & (kSlots - 1);
+			t[i] = &b;
 		}
 		return t;
 	}();
-	return table;
+	for (std::uint32_t i = fnv1a(key) & (kSlots - 1); slots[i]; i = (i + 1) & (kSlots - 1))
+		if (key == slots[i]->key) return slots[i];
+	return nullptr;
 }
 
 std::vector<std::string> supported_blocks()
@@ -134,65 +173,88 @@ struct Program
 	std::vector<Step> steps;
 };
 
+// Programs are parsed from a compact code stream (one code per token) so that a bot can embed
+// a pre-encoded policy and skip all string work (expensive inside wasm). Text input is
+// encoded first. Codes: < kNumBlocks block index; kEnd, kEndTurn, kIf, kElse; kLet+t /
+// kKeep+t (bind a new variable of type t); kNum then an index into the number table;
+// kBytes then an index into the hex-string table; kVar + t*kMaxVars + i.
+namespace codes
+{
+constexpr std::uint16_t kEnd = 0xFF00, kEndTurn = 0xFF01, kIf = 0xFF02, kElse = 0xFF03, kLet = 0xFE00, kKeep = 0xFD00, kNum = 0xFC00,
+						kBytes = 0xFB00, kVar = 0xFA00;
+}
+
 namespace
 {
+int to_int(std::string_view s, int base = 10)
+{
+	int v = 0;
+	if (std::from_chars(s.data(), s.data() + s.size(), v, base).ec != std::errc{}) throw std::runtime_error("policy: bad number " + std::string(s));
+	return v;
+}
+
+int type_index(std::string_view name)
+{
+	for (int i = 0; i < kNumTypes; ++i)
+		if (name == kTypes[i]) return i;
+	throw std::runtime_error("policy: unknown type " + std::string(name));
+}
+
+std::string unhex(std::string_view s)
+{
+	std::string out;
+	if (s == "-") return out;
+	for (std::size_t i = 0; i + 1 < s.size(); i += 2) out.push_back(static_cast<char>(to_int(s.substr(i, 2), 16)));
+	return out;
+}
+
 struct Parser
 {
-	std::vector<std::string> toks;
-	std::size_t pos = 0;
+	const std::uint16_t* c;
+	std::size_t n, pos = 0;
+	const double* nums;
+	std::size_t nnums;
+	const char* const* bytes;
+	std::size_t nbytes;
 	int counts[kNumTypes] = {};
-	std::unordered_map<std::string, const BlockInfo*> blocks;
 
-	Parser()
+	std::uint16_t take()
 	{
-		for (auto& b : block_table()) blocks[b.key] = &b;
-	}
-	const std::string& take()
-	{
-		if (pos >= toks.size()) throw std::runtime_error("policy: unexpected end of input");
-		return toks[pos++];
-	}
-	static int type_index(const std::string& name)
-	{
-		for (int i = 0; i < kNumTypes; ++i)
-			if (name == kTypes[i]) return i;
-		throw std::runtime_error("policy: unknown type " + name);
-	}
-	static std::vector<std::uint8_t> unhex(const std::string& s)
-	{
-		std::vector<std::uint8_t> out;
-		if (s == "-") return out;
-		for (std::size_t i = 0; i + 1 < s.size(); i += 2) out.push_back(static_cast<std::uint8_t>(std::stoi(s.substr(i, 2), nullptr, 16)));
-		return out;
+		if (pos >= n) throw std::runtime_error("policy: unexpected end of input");
+		return c[pos++];
 	}
 	Expr expr()
 	{
-		const std::string tok = take();
+		const std::uint16_t t = take();
 		Expr e;
-		if (tok == "CONST:Num")
+		if (t == codes::kNum)
 		{
+			const std::uint16_t k = take();
+			if (k >= nnums) throw std::runtime_error("policy: bad number index");
 			e.op = Op::const_num;
-			e.num = std::stod(take());
+			e.num = nums[k];
 		}
-		else if (tok == "CONST:Bytes")
+		else if (t == codes::kBytes)
 		{
+			const std::uint16_t k = take();
+			if (k >= nbytes) throw std::runtime_error("policy: bad bytes index");
 			e.op = Op::const_bytes;
-			const auto b = unhex(take());
-			e.bytes.assign(b.begin(), b.end());
+			e.bytes = unhex(bytes[k]);
 		}
-		else if (tok.rfind("VAR:", 0) == 0)
+		else if (t >= codes::kVar && t < codes::kVar + kNumTypes * kMaxVars)
 		{
-			const auto c2 = tok.find(':', 4);
 			e.op = Op::var;
-			e.var = type_index(tok.substr(4, c2 - 4)) * kMaxVars + std::stoi(tok.substr(c2 + 1));
+			e.var = t - codes::kVar;
+		}
+		else if (t < kNumBlocks)
+		{
+			const BlockInfo& b = kBlockTable[t];
+			e.op = b.op;
+			e.args.reserve(static_cast<std::size_t>(b.arity));
+			for (int i = 0; i < b.arity; ++i) e.args.push_back(expr());
 		}
 		else
-		{
-			const auto it = blocks.find(tok);
-			if (it == blocks.end()) throw std::runtime_error("policy: unknown block " + tok);
-			e.op = it->second->op;
-			for (int i = 0; i < it->second->arity; ++i) e.args.push_back(expr());
-		}
+			throw std::runtime_error("policy: bad code in expression");
 		return e;
 	}
 	std::vector<Step> steps()
@@ -200,29 +262,29 @@ struct Parser
 		std::vector<Step> out;
 		for (;;)
 		{
-			const std::string tok = take();
-			if (tok == "END") return out;
+			const std::uint16_t t = take();
+			if (t == codes::kEnd) return out;
 			Step s;
-			if (tok == "END_TURN") s.kind = Step::end_turn;
-			else if (tok == "IF")
+			if (t == codes::kEndTurn) s.kind = Step::end_turn;
+			else if (t == codes::kIf)
 			{
 				s.kind = Step::if_;
 				s.expr = expr();
 				s.then = steps();
-				if (pos < toks.size() && toks[pos] == "ELSE")
+				if (pos < n && c[pos] == codes::kElse)
 				{
 					++pos;
 					s.orelse = steps();
 				}
 			}
-			else if (tok.rfind("LET:", 0) == 0 || tok.rfind("KEEP:", 0) == 0)
+			else if ((t & 0xFF00) == codes::kLet || (t & 0xFF00) == codes::kKeep)
 			{
-				const bool keep = tok[0] == 'K';
-				const int t = type_index(tok.substr(keep ? 5 : 4));
-				s.kind = keep ? Step::keep_ : Step::let_;
+				const int ty = t & 0xFF;
+				if (ty >= kNumTypes) throw std::runtime_error("policy: bad type code");
+				s.kind = (t & 0xFF00) == codes::kKeep ? Step::keep_ : Step::let_;
 				s.expr = expr();
-				if (counts[t] >= kMaxVars) throw std::runtime_error("policy: too many variables");
-				s.var = t * kMaxVars + counts[t]++;
+				if (counts[ty] >= kMaxVars) throw std::runtime_error("policy: too many variables");
+				s.var = ty * kMaxVars + counts[ty]++;
 			}
 			else
 			{
@@ -236,17 +298,63 @@ struct Parser
 };
 } // namespace
 
-std::shared_ptr<const Program> load_program(const std::string& text)
+std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std::size_t n, const double* nums, std::size_t nnums,
+												  const char* const* bytes_hex, std::size_t nbytes)
 {
-	Parser p;
-	std::istringstream in(text);
-	std::string line;
-	if (!std::getline(in, line) || line != "policy v0") throw std::runtime_error("policy: missing 'policy v0' header");
-	for (std::string tok; in >> tok;) p.toks.push_back(tok);
+	Parser p{ code, n, 0, nums, nnums, bytes_hex, nbytes };
 	auto prog = std::make_shared<Program>();
 	prog->steps = p.steps();
-	if (p.pos != p.toks.size()) throw std::runtime_error("policy: trailing tokens");
+	if (p.pos != n) throw std::runtime_error("policy: trailing tokens");
 	return prog;
+}
+
+std::shared_ptr<const Program> load_program(const std::string& text)
+{
+	const std::size_t nl = text.find('\n');
+	if (text.compare(0, nl, "policy v0") != 0) throw std::runtime_error("policy: missing 'policy v0' header");
+	std::vector<std::uint16_t> code;
+	std::vector<double> nums;
+	std::vector<std::string> hex;
+	bool num_next = false, bytes_next = false;
+	std::istringstream in(nl == std::string::npos ? std::string() : text.substr(nl));
+	for (std::string tok; in >> tok;)
+	{
+		if (num_next)
+		{
+			code.push_back(static_cast<std::uint16_t>(nums.size()));
+			nums.push_back(std::strtod(tok.c_str(), nullptr));
+			num_next = false;
+		}
+		else if (bytes_next)
+		{
+			code.push_back(static_cast<std::uint16_t>(hex.size()));
+			hex.push_back(tok);
+			bytes_next = false;
+		}
+		else if (tok == "END") code.push_back(codes::kEnd);
+		else if (tok == "END_TURN") code.push_back(codes::kEndTurn);
+		else if (tok == "IF") code.push_back(codes::kIf);
+		else if (tok == "ELSE") code.push_back(codes::kElse);
+		else if (tok == "CONST:Num") code.push_back(codes::kNum), num_next = true;
+		else if (tok == "CONST:Bytes") code.push_back(codes::kBytes), bytes_next = true;
+		else if (tok.rfind("LET:", 0) == 0) code.push_back(static_cast<std::uint16_t>(codes::kLet + type_index(std::string_view(tok).substr(4))));
+		else if (tok.rfind("KEEP:", 0) == 0) code.push_back(static_cast<std::uint16_t>(codes::kKeep + type_index(std::string_view(tok).substr(5))));
+		else if (tok.rfind("VAR:", 0) == 0)
+		{
+			const std::string_view v(tok);
+			const auto c2 = v.find(':', 4);
+			code.push_back(static_cast<std::uint16_t>(codes::kVar + type_index(v.substr(4, c2 - 4)) * kMaxVars + to_int(v.substr(c2 + 1))));
+		}
+		else
+		{
+			const BlockInfo* b = find_block(tok);
+			if (!b) throw std::runtime_error("policy: unknown block " + tok);
+			code.push_back(static_cast<std::uint16_t>(b - kBlockTable));
+		}
+	}
+	std::vector<const char*> hp;
+	for (auto& h : hex) hp.push_back(h.c_str());
+	return load_program_codes(code.data(), code.size(), nums.data(), nums.size(), hp.data(), hp.size());
 }
 
 std::shared_ptr<const Program> load_program_file(const std::string& path)
@@ -335,6 +443,7 @@ struct Interp
 
 	void turn()
 	{
+		++turn_no;
 		run(prog.steps);
 	}
 
@@ -367,19 +476,46 @@ struct Interp
 		return true;
 	}
 
+	// Occupancy is cached within a turn until anything that can change it: an effect other
+	// than moving (it may kill or move units), or a move or dash attempt (our vision, and so
+	// the visible occupancy, changes; even a failed one can reveal a tile). `epoch` counts those. Whole-board work is
+	// expensive in a wasm bot (docs/FUEL.md), so this saves fuel there and charges in the sim.
+	std::uint64_t turn_no = 0, epoch = 0, cache_turn = ~0ull, cache_epoch = ~0ull;
+	bool static_ready = false;
+	Bitboard static_block, dyn_block, camps_cache;
+
+	void refresh_occupancy(Vec2 me)
+	{
+		if (cache_turn == turn_no && cache_epoch == epoch) return;
+		cache_turn = turn_no;
+		cache_epoch = epoch;
+		Bitboard occ;
+		api.ally_occupancy(dyn_block);
+		dyn_block.reset(me);
+		api.enemy_occupancy(occ);
+		dyn_block |= occ;
+		api.camp_occupancy(camps_cache, 0);
+		dyn_block |= camps_cache;
+	}
+	const Bitboard& camp_occupancy(Vec2 me)
+	{
+		refresh_occupancy(me);
+		return camps_cache;
+	}
+
 	Bitboard blocked_tiles(Vec2 me)
 	{
-		Bitboard blocked = m().walls;
-		blocked |= m().holes;
-		blocked |= m().altars;
-		blocked |= m().spawn_mask[1 - api.team()];
-		Bitboard occ;
-		api.ally_occupancy(occ);
-		blocked |= occ;
-		api.enemy_occupancy(occ);
-		blocked |= occ;
-		api.camp_occupancy(occ, 0);
-		blocked |= occ;
+		if (!static_ready)
+		{
+			static_block = m().walls;
+			static_block |= m().holes;
+			static_block |= m().altars;
+			static_block |= m().spawn_mask[1 - api.team()];
+			static_ready = true;
+		}
+		refresh_occupancy(me);
+		Bitboard blocked = static_block;
+		blocked |= dyn_block;
 		blocked.reset(me);
 		return blocked;
 	}
@@ -388,8 +524,8 @@ struct Interp
 	void move_towards_goals(Bitboard goals, Vec2 me)
 	{
 		if (goals.test(me)) return;
-		Bitboard blocked = blocked_tiles(me), camps;
-		api.camp_occupancy(camps, 0);
+		Bitboard blocked = blocked_tiles(me);
+		const Bitboard& camps = camp_occupancy(me);
 		Bitboard taken = blocked;
 		taken.andnot(camps);
 		goals.andnot(taken);
@@ -415,18 +551,23 @@ struct Interp
 		if (best == me) return;
 		std::int32_t ok = 0;
 		api.move_to(best, &ok);
+		++epoch; // our vision changed (we moved, or a failed move revealed a hidden unit)
 	}
 
 	// Landing tile within 2 steps that is closest (by walking distance) to `goal`, or none.
 	Vec2 dash_target(Vec2 goal, Vec2 me)
 	{
 		if (goal == me) return kNoTile;
-		Bitboard blocked = blocked_tiles(me), root, visited;
+		Bitboard blocked = blocked_tiles(me), root, visited, box;
 		Bitboard walls = blocked;
 		walls.reset(goal);
 		root.set(goal);
+		// Stop the search at the first layer touching the 5x5 box around us: every candidate
+		// at the minimum distance is in that layer, so the choice is unchanged.
+		cbs::draw_chebyshev(box, m().W, m().H, me, 2.0f);
+		box.reset(goal); // the root is not a candidate and must not end the search
 		field.resize(static_cast<std::size_t>(m().W) * m().H);
-		api.distance_field(walls, root, nullptr, cbs::kUnreachable, field.data(), visited);
+		api.distance_field(walls, root, &box, cbs::kUnreachable, field.data(), visited);
 		Vec2 best = kNoTile;
 		std::uint16_t bd = field[m().idx(me)];
 		for (int dy = -2; dy <= 2; ++dy)
@@ -450,8 +591,8 @@ struct Interp
 		if (!me(ci)) return kNoTile;
 		const Vec2 pos{ ci.x, ci.y };
 		if (set.test(pos)) return pos;
-		Bitboard blocked = blocked_tiles(pos), camps;
-		api.camp_occupancy(camps, 0);
+		Bitboard blocked = blocked_tiles(pos);
+		const Bitboard& camps = camp_occupancy(pos);
 		Bitboard cand = set, taken = blocked;
 		taken.andnot(camps);
 		cand.andnot(taken);
@@ -464,13 +605,13 @@ struct Interp
 		scan_cost();
 		Vec2 best = kNoTile;
 		std::uint16_t bd = cbs::kUnreachable;
-		for (int y = 0; y < m().H; ++y)
-			for (int x = 0; x < m().W; ++x)
-				if (cand.test(x, y) && field[m().idx({ x, y })] < bd)
-				{
-					bd = field[m().idx({ x, y })];
-					best = { x, y };
-				}
+		cand.for_each(m().H, [&](int x, int y) {
+			if (field[m().idx({ x, y })] < bd)
+			{
+				bd = field[m().idx({ x, y })];
+				best = { x, y };
+			}
+		});
 		return best;
 	}
 
@@ -690,9 +831,7 @@ struct Interp
 			const float r = static_cast<float>(std::clamp(eval(a[1]).n, 0.0, 10.0));
 			scan_cost();
 			Bitboard b;
-			for (int y = 0; y < m().H; ++y)
-				for (int x = 0; x < m().W; ++x)
-					if (s.set->test(x, y)) cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r);
+			s.set->for_each(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
 			return set_of(b);
 		}
 		case Op::closest: return tile(closest(*eval(a[0]).set));
@@ -702,19 +841,17 @@ struct Interp
 			scan_cost();
 			Bitboard b;
 			if (has_tile(p.tile))
-				for (int y = 0; y < m().H; ++y)
-					for (int x = 0; x < m().W; ++x)
-						if (s.set->test(x, y) && cbs::chebyshev({ x, y }, p.tile) <= p.n) b.set(x, y);
+				s.set->for_each(m().H, [&](int x, int y) {
+					if (cbs::chebyshev({ x, y }, p.tile) <= p.n) b.set(x, y);
+				});
 			return set_of(b);
 		}
 		case Op::first_tile:
 		{
 			const Value s = eval(a[0]);
 			scan_cost();
-			for (int y = 0; y < m().H; ++y)
-				for (int x = 0; x < m().W; ++x)
-					if (s.set->test(x, y)) return tile({ x, y });
-			return tile(kNoTile);
+			Vec2 p;
+			return tile(s.set->first(m().H, p) ? p : kNoTile);
 		}
 		case Op::exists_tile: return num(has_tile(eval(a[0]).tile));
 		case Op::count_tiles:
@@ -921,6 +1058,7 @@ struct Interp
 		api.compute(kBlockCost);
 		const auto& a = e.args;
 		std::int32_t ok = 0;
+		if (e.op != Op::move_towards && e.op != Op::dash_towards && e.op != Op::set_priority && e.op != Op::write_shared) ++epoch;
 		switch (e.op)
 		{
 		case Op::pick:
@@ -1014,7 +1152,11 @@ struct Interp
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			const Vec2 d = dash_target(t, { ci.x, ci.y });
-			if (has_tile(d)) api.cast(static_cast<std::uint32_t>(slot), 0, 0, d, &ok);
+			if (has_tile(d))
+			{
+				api.cast(static_cast<std::uint32_t>(slot), 0, 0, d, &ok);
+				++epoch;
+			}
 			break;
 		}
 		case Op::buy:
