@@ -735,18 +735,18 @@ using SimMemo = field_memo::Memo<SimFieldOps>;
 } // namespace
 
 Api::MemoCharge Api::memo_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, Vec2 me,
-								bool have_me, int qr)
+								bool have_me, int qr, bool compute)
 {
 	const int W = g_.map().W, H = g_.map().H;
 	if (!field_memo_) field_memo_ = std::make_shared<SimMemo>(SimFieldOps{ W, H, (W + 7) / 8 });
-	const auto ans = static_cast<SimMemo*>(field_memo_.get())->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
+	const auto ans = static_cast<SimMemo*>(field_memo_.get())->query(walls, roots, dests, max_distance, have_me, me, qr, W, H, compute);
 	if (MemoStats& st = memo_stats(); st.enabled)
 	{
 		++st.calls;
 		st.misses += ans.miss;
 		st.layers += ans.layers;
 	}
-	return { ans.layers, ans.miss ? 1 : 0 };
+	return { ans.layers, ans.miss ? 1 : 0, ans.f != nullptr };
 }
 
 int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
@@ -799,15 +799,85 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	}
 	else
 	{
-		// As bot_api.cpp: a candidate-rooted field read only at origin (memoised), then a
-		// reachable mask out to the nearest candidate's distance: the tiles this search saw.
+		// As bot_api.cpp (pricing only; the answer above is the simulator's own): per candidate
+		// set (keyed by its first tile) the last D and what the reachable mask cost. After a
+		// memo miss, when the last mask was dear, one origin-rooted search capped at the last D
+		// + 2 per turn since answers instead; past the cap it falls back to the memo query.
+		// Otherwise: the memo query read at origin, then a reachable mask out to D.
+		struct Hist
+		{
+			Vec2 root0{ -1, -1 };
+			int D = 0;
+			std::uint32_t round = 0;
+			long long mask = 0;
+			std::uint64_t used = 0;
+		};
+		struct Hists
+		{
+			Hist h[4];
+			std::uint64_t clock = 0;
+		};
+		if (!nbw_hist_) nbw_hist_ = std::make_shared<Hists>();
+		Hists& hs = *static_cast<Hists*>(nbw_hist_.get());
 		const bool have_me = playing() && champion_visible(champ_) && g_.champs[champ_].pos == origin;
+		Vec2 root0{ -1, -1 };
+		cand.first(H, root0);
+		Hist* h = nullptr;
+		for (Hist& e : hs.h)
+			if (e.root0 == root0) h = &e;
+		const int chunks = ((W + 7) / 8) * ((H + 7) / 8);
+		const auto round = static_cast<std::uint32_t>(g_.round);
+		const int cap = h ? h->D + 2 + 2 * static_cast<int>(std::min<std::uint32_t>(round - h->round, 8)) : 0;
+		const bool origin_on_miss = have_me && h && cap <= h->D + 6 && h->mask > static_cast<long long>(cap - h->D) * chunks + 2500;
 		Bitboard o;
 		o.set(origin);
-		const MemoCharge mc = memo_query(walls, cand, &o, kUnreachable, origin, have_me, 0);
-		const std::int64_t reach = found ? visited.count(H) : 0;
-		last_field = { mc.layers, 1 + reach };
-		charge(Call::nearest_by_walk, mc.layers, last_field.dests, mc.misses);
+		std::int64_t layers = 0, misses = 0, tiles = 1;
+		MemoCharge mc = memo_query(walls, cand, &o, kUnreachable, origin, have_me, 0, !origin_on_miss);
+		layers += mc.layers;
+		misses += mc.misses;
+		bool fast = false;
+		if (!mc.answered)
+		{
+			std::vector<std::uint16_t> f(static_cast<std::size_t>(W) * H);
+			Bitboard v;
+			layers += cbs::distance_field(walls, o, nullptr, W, H, cap, f.data(), v);
+			int bd = cap + 1;
+			cand.for_each(H, [&](int x, int y) { bd = std::min<int>(bd, f[y * W + x]); });
+			h->used = ++hs.clock;
+			if (bd <= cap)
+			{
+				h->D = bd;
+				h->round = round;
+				fast = true;
+			}
+			else
+			{
+				mc = memo_query(walls, cand, &o, kUnreachable, origin, have_me, 0);
+				layers += mc.layers;
+				misses += mc.misses;
+			}
+		}
+		if (!fast && found)
+		{
+			const std::int64_t reach = visited.count(H); // tiles within D of origin: the mask
+			tiles += reach;
+			if (have_me)
+			{
+				if (!h)
+				{
+					h = &hs.h[0];
+					for (Hist& e : hs.h)
+						if (e.used < h->used) h = &e;
+					h->root0 = root0;
+				}
+				h->D = bd;
+				h->round = round;
+				h->mask = 190 + reach * 17 / 10; // the bot measures it; ~190 + 1.7 per tile reached
+				h->used = ++hs.clock;
+			}
+		}
+		last_field = { layers, tiles };
+		charge(Call::nearest_by_walk, layers, tiles, misses);
 	}
 	return found;
 }

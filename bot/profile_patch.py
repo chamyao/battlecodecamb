@@ -62,7 +62,8 @@ for a,tag in [("""		Charge charge{ *this, e.op, false };
 		const auto& a = e.args;
 		std::int32_t ok = 0;""","256 + static_cast<int>(e.op)")]:
     assert a in s
-    s=s.replace(a, a.replace("		const auto& a = e.args;", f"		sprof::Scope sprof_scope_({tag});\n		const auto& a = e.args;"),1)
+    # every site: eval() and the numeric fast path evaln() both open with this guard
+    s=s.replace(a, a.replace("		const auto& a = e.args;", f"		sprof::Scope sprof_scope_({tag});\n		const auto& a = e.args;"))
 a="""		blocks_this_turn = 0;
 		run(prog.steps);"""
 assert a in s
@@ -112,7 +113,7 @@ while i < len(lines):
 s='\n'.join(out)
 # field_query (memo in cbs/field_memo.h): log host-search layers, misses and the dests queried;
 # nearest_by_walk: also the tiles of its reachable mask
-a="""	const FieldAnswer ans = memo->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
+a="""	const FieldAnswer ans = memo->query(walls, roots, dests, max_distance, have_me, me, qr, W, H, compute);
 """
 assert a in s
 s=s.replace(a,a+"""	{
@@ -121,6 +122,16 @@ s=s.replace(a,a+"""	{
 		sprof::feat(ans.layers, dests ? dests->count(H) : 0);
 		sprof::exclude(t0);
 	}
+""")
+# nearest_by_walk's capped origin-rooted search (after a no-compute memo miss): its layers
+a="""		sdk_DistanceField_ComputeWithExpansionCount(walls.w, o.w, v.w, f, static_cast<std::uint16_t>(cap), &c);
+"""
+assert a in s
+s=s.replace(a,a+"""		{
+			const long long t0 = sprof::now();
+			sprof::feat(c, 0);
+			sprof::exclude(t0);
+		}
 """)
 a="""		sdk_Bitboard_ReachableMask(walls.w, origin.x, origin.y, near.w, D);
 """
