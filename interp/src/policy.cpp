@@ -78,7 +78,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(in_danger, "in_danger()") X(move_away_from, "move_away_from(Tile)") X(allies_within, "allies_within(Num)")          \
 	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")   \
 	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")                \
-	X(rich_spawns, "rich_spawns(Num)") X(group_tiles, "group_tiles(TileSet)")
+	X(rich_spawns, "rich_spawns(Num)") X(group_tiles, "group_tiles(TileSet)") X(group_gems, "group_gems(TileSet)")       \
+	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")
 
 enum class Op : std::uint16_t
 {
@@ -1377,6 +1378,46 @@ struct Interp
 						for (int c : grp.camps) b.set(m().camps[c].pos);
 				}
 			return set_of(b);
+		}
+		case Op::group_gems:
+		{
+			// total gems of the groups with a camp on one of the given tiles (static)
+			const Value in = eval(a[0]);
+			int g = 0;
+			if (in.set)
+				for (const auto& grp : m().groups)
+				{
+					bool hit = false;
+					for (int c : grp.camps) hit = hit || in.set->test(m().camps[c].pos.x, m().camps[c].pos.y);
+					if (hit)
+						for (int c : grp.camps) g += cbs::camp_design(m().camps[c].type).gems;
+				}
+			return num(g);
+		}
+		case Op::group_threat:
+		case Op::group_hp:
+		{
+			// summed strength (health) of the living camps in the group of the camp spawning on the
+			// tile; a camp out of vision counts as alive at its design values. 0 off a spawn tile.
+			const Vec2 t = evalt(a[0]);
+			if (!has_tile(t)) return num(0);
+			int k = -1; // Map::camp_at is not filled in the bot
+			for (std::size_t c = 0; c < m().camps.size() && k < 0; ++c)
+				if (m().camps[c].pos == t) k = static_cast<int>(c);
+			if (k < 0) return num(0);
+			double sum = 0;
+			for (int c : m().groups[m().camps[k].group].camps)
+			{
+				cbs::CampRecord cr{};
+				const Err err = api.camp(static_cast<std::uint32_t>(c), &cr);
+				if (err == Err::success) sum += e.op == Op::group_threat ? cr.strength : cr.health;
+				else if (err == Err::api_not_in_vision)
+				{
+					const auto& d = cbs::camp_design(m().camps[c].type);
+					sum += e.op == Op::group_threat ? d.base_strength : d.base_health;
+				}
+			}
+			return num(sum);
 		}
 		case Op::respawning_visible_spawns:
 		{
