@@ -17,3 +17,7 @@ group:
 Keep farming, tributing and recall rules that already work. Every version must keep using
 team coordination (set_team_target/team_target and claim/claim_count); a version that drops
 the style is rejected.
+Our main ladder loss is to melee stun/dive teams that kill us 21-34 times a game while our
+ranged champions trade in place. A group fight answers this: ranged champions kite (if
+i_am_ranged() and a melee enemy is adjacent, move_away_from it toward allies, then attack from
+range) while allies converge on the diver and focus it down.
