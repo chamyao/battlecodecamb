@@ -2,7 +2,7 @@
 
 For every profiled turn (oracle/run_bot_profile.sh) the model in docs/fuel_calibration.json is
 applied to the logged block/API features and compared with the turn's measured fuel (profiler
-overhead removed). Usage: python3 oracle/tools/fuel_validate.py MAP...
+overhead removed). Usage: python3 oracle/tools/fuel_validate.py /tmp/prof/POLICY/MAP...
 """
 import json, math, os, re, sys
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -25,10 +25,11 @@ def model(name, f, exp, dbits, occ):
            "exp": exp, "dbits": dbits, "occ": occ, "occ*H": occ * f["H"]}
     return sum(c * val[t] for c, t in zip(r["coef"], r["feats"])), True
 
-for mp in sys.argv[1:]:
+for run in sys.argv[1:]:
+    run = run.rstrip("/"); mp = os.path.basename(run)
     f = mfeat(mp); ovh = None; api = None; errs = []; act_tot = pred_tot = 0
     cur_pred = 0; nsc = 0
-    for line in open(f"/tmp/prof/{mp}/prof.txt"):
+    for line in open(f"{run}/prof.txt"):
         p = line.split()
         if not p: continue
         if p[0] == "@@OVH" and ovh is None: ovh = int(p[1])
@@ -45,5 +46,5 @@ for mp in sys.argv[1:]:
             actual = int(p[1]) - nsc * ovh
             errs.append((cur_pred - actual) / max(actual, 1)); act_tot += actual; pred_tot += cur_pred
     errs.sort(); n = len(errs)
-    print(f"{mp}: {n} turns, total predicted/actual {pred_tot / act_tot:.3f}, per-turn error median {errs[n // 2]:+.1%}, "
+    print(f"{os.path.basename(os.path.dirname(run))}/{mp}: {n} turns, total predicted/actual {pred_tot / act_tot:.3f}, per-turn error median {errs[n // 2]:+.1%}, "
           f"10-90% [{errs[n // 10]:+.1%}, {errs[9 * n // 10]:+.1%}]")
