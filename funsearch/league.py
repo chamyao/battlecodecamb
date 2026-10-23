@@ -66,6 +66,14 @@ def win_rates(text, opponents, games, threads):
     return {name: w / n for name, (w, n) in totals.items()}
 
 
+def listarg(spec):
+    """Comma-separated paths, or @file (one per line or comma-separated), re-read on every call so a
+    running league picks up a change at its next generation."""
+    if spec.startswith("@"):
+        spec = (ROOT / spec[1:]).read_text().replace("\n", ",")
+    return [x.strip() for x in spec.split(",") if x.strip() and not x.strip().startswith("#")]
+
+
 def cambc_check(text, opponent, threads):
     """Win rate vs `opponent` over every map x both sides with deploy-bot seeding (--bot-seeds), which
     reproduces real cambc games exactly: the final check before a promotion is trusted."""
@@ -120,7 +128,12 @@ def main():
     members = state["members"]
 
     while state["gen"] <= args.max_generations:
-        fixed = [f for f in args.fixed.split(",") if f]
+        # the fixed opponents are frozen per generation (in the state), so a changed --fixed @file
+        # takes effect at the next generation and a resumed one keeps the opponents it started with
+        if "fixed" not in state:
+            state["fixed"] = listarg(args.fixed)
+            state_path.write_text(json.dumps(state))
+        fixed = state["fixed"]
         best, older = members[0], members[1:] + [f for f in fixed if f not in members]
         run = f"{args.name}-g{state['gen']}"
         left = args.budget - spent(args.name)
@@ -154,7 +167,7 @@ def main():
                 log(f"    cambc-exact vs {Path(best).stem} (all maps x 2 sides): {exact:.3f}", logfile)
                 if exact >= args.cambc_min:
                     rates = {**rates, f"cambc-exact vs {Path(best).stem}": exact}
-                    for o in filter(None, args.cambc_also.split(",")):
+                    for o in listarg(args.cambc_also):
                         rates[f"cambc-exact vs {Path(o).stem}"] = cambc_check(p["text"], o, args.threads)
                         log(f"    cambc-exact vs {Path(o).stem}: {rates[f'cambc-exact vs {Path(o).stem}']:.3f}", logfile)
                     promoted = (p, h2h, rates)
