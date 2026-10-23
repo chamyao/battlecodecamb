@@ -1580,11 +1580,17 @@ struct Interp
 class PolicyPlayer : public cbs::Player
 {
 public:
-	PolicyPlayer(std::shared_ptr<const Program> p, std::uint64_t seed) : prog_(std::move(p)), seed_(seed) {}
+	PolicyPlayer(std::shared_ptr<const Program> p, std::uint64_t seed, bool bot_seeds = false)
+		: prog_(std::move(p)), seed_(seed), bot_seeds_(bot_seeds)
+	{
+	}
 	const cbs::PriceTable* prices() const override { return &cbs::PriceTable::bot_wrapper(); }
 	cbs::BotBody make_bot(int team, int champ) override
 	{
-		const std::uint64_t s = (seed_ * 0x9E3779B97F4A7C15ull) ^ (static_cast<std::uint64_t>(team) << 32) ^
+		// bot_seeds: the deploy bot's seed for this instance (bot/src/main.cpp), so a simulated
+		// game makes the same random choices as the same game in cambc.
+		const std::uint64_t base = bot_seeds_ ? 0x5eed0000u + static_cast<unsigned>(team * 64 + champ + 1) : seed_;
+		const std::uint64_t s = (base * 0x9E3779B97F4A7C15ull) ^ (static_cast<std::uint64_t>(team) << 32) ^
 								static_cast<std::uint64_t>(champ + 7) * 0xBF58476D1CE4E5B9ull;
 		auto prog = prog_;
 		return [prog, s](Api& api) {
@@ -1600,11 +1606,12 @@ public:
 private:
 	std::shared_ptr<const Program> prog_;
 	std::uint64_t seed_;
+	bool bot_seeds_;
 };
 } // namespace
 
-std::unique_ptr<cbs::Player> make_policy_player(std::shared_ptr<const Program> program, std::uint64_t seed)
+std::unique_ptr<cbs::Player> make_policy_player(std::shared_ptr<const Program> program, std::uint64_t seed, bool bot_seeds)
 {
-	return std::make_unique<PolicyPlayer>(std::move(program), seed);
+	return std::make_unique<PolicyPlayer>(std::move(program), seed, bot_seeds);
 }
 } // namespace interp
