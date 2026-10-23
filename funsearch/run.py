@@ -4,7 +4,7 @@
     python3 -m funsearch.run --run test --proposer mutate --max-programs 40   # no API calls
 
 Results go to runs/<name>/programs.jsonl (append-only; a rerun resumes) and
-runs/<name>/best.policy. The Claude proposer needs FUNSEARCH_ANTHROPIC_KEY, FUNSEARCH_API_KEY or ANTHROPIC_API_KEY.
+runs/<name>/best.policy. `touch runs/<name>/STOP` pauses a run gracefully (delete it to resume). The Claude proposer needs FUNSEARCH_ANTHROPIC_KEY, FUNSEARCH_API_KEY or ANTHROPIC_API_KEY.
 """
 import argparse
 import json
@@ -89,6 +89,8 @@ def main():
     t0 = time.time()
 
     def one(_):
+        if (out / "STOP").exists():  # graceful pause: in-flight calls finish, no new ones start
+            stop.set()
         if stop.is_set() or len(db.all) - started >= args.max_programs:
             return
         island, parents = db.sample(k=2)
