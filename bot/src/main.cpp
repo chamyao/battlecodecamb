@@ -10,6 +10,8 @@
 #include "interp/policy.h"
 #include "policy_data.h"
 
+namespace interp { long long prof_fuel(); }
+long long interp::prof_fuel() { return cambc::detail::sdk_fuel_remaining(); }
 int main()
 {
 	using namespace cambc::detail;

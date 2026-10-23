@@ -25,8 +25,8 @@ int main(int argc, char** argv)
 	const int W = map->W, H = map->H;
 	std::vector<std::string> L;
 	for (std::string line; std::getline(std::cin, line);) L.push_back(line);
-	int ok[9] = {}, bad[9] = {};
-	const char* names[9] = { "shadow", "reach", "field", "circle", "cheb", "cv", "wv", "cv8", "wv6" };
+	int ok[10] = {}, bad[10] = {};
+	const char* names[10] = { "shadow", "reach", "field", "circle", "cheb", "cv", "wv", "cv8", "wv6", "field_all" };
 	auto word = [](const std::string& s, int i) {
 		std::istringstream is(s);
 		std::string w;
@@ -76,6 +76,26 @@ int main(int argc, char** argv)
 			const int c = distance_field(walls, roots, to ? &dests : nullptr, W, H, maxd, got.data(), gvis);
 			(got == exp && gvis == vis && c == cnt ? ok : bad)[2]++;
 		}
+		else if (l.rfind("fieldm ", 0) == 0 && i >= 3 && i + 1 < L.size())
+		{
+			// ComputeTo with several dests: stops only once every dest is reached
+			Bitboard walls, roots, dests, vis, gvis;
+			if (!parse_hex(word(L[i - 3], 1), W, H, walls) || !parse_hex(word(L[i - 2], 1), W, H, roots) ||
+				!parse_hex(word(L[i - 1], 1), W, H, dests) || !parse_hex(word(L[i + 1], 1), W, H, vis))
+				continue;
+			int maxd, cnt;
+			std::sscanf(l.c_str(), "fieldm %d %d", &maxd, &cnt);
+			std::vector<std::uint16_t> exp;
+			std::istringstream is(word(l, 3));
+			for (std::string v; std::getline(is, v, ',');)
+				if (!v.empty()) exp.push_back(static_cast<std::uint16_t>(std::stoi(v, nullptr, 16)));
+			if (exp.size() != static_cast<std::size_t>(W * H)) continue;
+			std::vector<std::uint16_t> got(W * H);
+			const int c = distance_field(walls, roots, &dests, W, H, maxd, got.data(), gvis, true);
+			const bool good = got == exp && gvis == vis && c == cnt;
+			if (!good && bad[9] < 3) std::printf("field_all mismatch: count %d want %d, field %s, visited %s\n", c, cnt, got == exp ? "ok" : "differs", gvis == vis ? "ok" : "differs");
+			(good ? ok : bad)[9]++;
+		}
 		else if (l.rfind("radius ", 0) == 0 && i >= 1 && L[i - 1] == "rc 0 0" && i + 2 < L.size())
 		{
 			int x, y;
@@ -119,7 +139,7 @@ int main(int argc, char** argv)
 		}
 	}
 	int total_bad = 0;
-	for (int k = 0; k < 9; ++k)
+	for (int k = 0; k < 10; ++k)
 	{
 		std::printf("%-7s ok=%d bad=%d\n", names[k], ok[k], bad[k]);
 		total_bad += bad[k];

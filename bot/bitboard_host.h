@@ -123,8 +123,9 @@ struct Bitboard
 		--hostbb::depth;
 	}
 	// First set tile in row-major order; false if empty.
-	bool first(int, Vec2& out) const
+	bool first(int h, Vec2& out) const
 	{
+		if (!any(h)) return false; // one host call instead of a scan over every chunk
 		const int ch = static_cast<int>(hostbb::md.chunked_height), cw = static_cast<int>(hostbb::md.chunked_width);
 		for (int cy = 0; cy < ch; ++cy)
 		{

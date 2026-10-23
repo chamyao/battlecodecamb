@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -56,7 +57,7 @@ constexpr int kMaxVars = 8;
 	X(champ_vesper_vale, "champ_vesper_vale()") X(champ_vendetta, "champ_vendetta()")                                       \
 	X(champ_cassi_issac, "champ_cassi_issac()") X(champ_stellar, "champ_stellar()") X(champ_prism, "champ_prism()")        \
 	X(champ_marcella, "champ_marcella()") X(champ_willow, "champ_willow()") X(champ_ren, "champ_ren()")                    \
-	X(champ_varg, "champ_varg()") X(champ_tavi, "champ_tavi()") X(available, "available(ChampList,Champ)")                 \
+	X(champ_varg, "champ_varg()") X(champ_tavi, "champ_tavi()") X(champ_heart_of_ruin, "champ_heart_of_ruin()") X(available, "available(ChampList,Champ)")                 \
 	X(i_am, "i_am(Champ)") X(ability_ready, "ability_ready(Num)") X(family_monster, "family_monster()")                  \
 	X(family_power, "family_power()") X(family_durability, "family_durability()") X(family_treasure, "family_treasure()") \
 	X(family_jungle, "family_jungle()") X(family_home, "family_home()") X(family_bruiser, "family_bruiser()")              \
@@ -67,7 +68,11 @@ constexpr int kMaxVars = 8;
 	X(slot_is_heal, "slot_is_heal(Num)") X(slot_is_shield, "slot_is_shield(Num)") X(slot_is_reset, "slot_is_reset(Num)")  \
 	X(dash_towards, "dash_towards(Num,Tile)") X(unit_gems, "unit_gems(Unit)") X(team_score, "team_score(Team)")            \
 	X(map_width, "map_width()") X(map_height, "map_height()") X(camp_count, "camp_count()")                                \
-	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")
+	X(weakest, "weakest(UnitList)") X(richest, "richest(UnitList)") X(nearest, "nearest(UnitList)")                       \
+	X(claim, "claim(Tile)") X(unclaim, "unclaim()") X(claimed_by_allies, "claimed_by_allies()") X(claim_count, "claim_count(Tile)")                           \
+	X(set_team_target, "set_team_target(Unit)") X(team_target, "team_target()")                                          \
+	X(wolf_tiles, "wolf_tiles()") X(elk_tiles, "elk_tiles()") X(gem_cluster_tiles, "gem_cluster_tiles()")                \
+	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")
 
 enum class Op : std::uint16_t
 {
@@ -154,7 +159,8 @@ struct BlockCost
 static const BlockCost kCalibrated[] = {
 #include "block_costs_gen.inc"
 };
-// Blocks the calibration did not exercise: the median measured cost of a simple block.
+// Blocks the calibration did not exercise (load_program refuses such policies; only the bot's
+// pre-encoded programs, which skip the charge anyway, can reach this): a simple block's cost.
 constexpr std::int64_t kUncalibratedBlockMilli = 200000;
 
 struct BlockCostTable
@@ -166,6 +172,12 @@ struct BlockCostTable
 			if (const BlockInfo* b = find_block(c.key)) row[c.exec ? 1 : 0][b - kBlockTable] = c.milli;
 	}
 };
+// Charges per block (count, fuel) [exec][op] while cbs::memo_stats().enabled (interp::charge_stats).
+static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2>& charge_stats_table()
+{
+	static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> t{};
+	return t;
+}
 static const BlockCostTable& block_costs()
 {
 	static const BlockCostTable t;
@@ -178,6 +190,15 @@ struct Work
 	std::int64_t occ = 0, dests = 0, exp = 0, bits = 0;
 };
 
+std::vector<BlockCharge> charge_stats()
+{
+	std::vector<BlockCharge> out;
+	for (int e = 0; e < 2; ++e)
+		for (int i = 0; i < kNumBlocks; ++i)
+			if (charge_stats_table()[e][i][0]) out.push_back({ (e ? "exec:" : "") + std::string(kBlockTable[i].key), charge_stats_table()[e][i][0], charge_stats_table()[e][i][1] });
+	return out;
+}
+
 std::vector<std::string> supported_blocks()
 {
 	std::vector<std::string> out;
@@ -187,14 +208,29 @@ std::vector<std::string> supported_blocks()
 
 // ---- program ---------------------------------------------------------------
 
+struct Expr;
+// A node's arguments: a contiguous run in the Program's expression pool (one allocation for the
+// whole program instead of one vector per node: allocation and moves are costly in a wasm bot).
+struct ExprSpan
+{
+	const Expr* p = nullptr;
+	std::uint32_t n = 0;
+	const Expr& operator[](std::size_t i) const;
+	const Expr* begin() const { return p; }
+	const Expr* end() const;
+	std::size_t size() const { return n; }
+};
+
 struct Expr
 {
 	Op op = Op::const_num;
 	int var = -1;
 	double num = 0;
 	std::string bytes;
-	std::vector<Expr> args;
+	ExprSpan args;
 };
+inline const Expr& ExprSpan::operator[](std::size_t i) const { return p[i]; }
+inline const Expr* ExprSpan::end() const { return p + n; }
 
 struct Step
 {
@@ -206,6 +242,7 @@ struct Step
 
 struct Program
 {
+	std::vector<Expr> pool; // every argument node; reserved up front, never reallocated
 	std::vector<Step> steps;
 };
 
@@ -253,16 +290,23 @@ struct Parser
 	const char* const* bytes;
 	std::size_t nbytes;
 	int counts[kNumTypes] = {};
+	std::vector<Expr>* pool = nullptr; // capacity >= n (every node takes a code): never reallocates
 
 	std::uint16_t take()
 	{
 		if (pos >= n) throw std::runtime_error("policy: unexpected end of input");
 		return c[pos++];
 	}
+	// Builds in place (no Expr/Step temporaries to move: each move is costly in a wasm bot).
 	Expr expr()
 	{
-		const std::uint16_t t = take();
 		Expr e;
+		expr_into(e);
+		return e;
+	}
+	void expr_into(Expr& e)
+	{
+		const std::uint16_t t = take();
 		if (t == codes::kNum)
 		{
 			const std::uint16_t k = take();
@@ -286,26 +330,29 @@ struct Parser
 		{
 			const BlockInfo& b = kBlockTable[t];
 			e.op = b.op;
-			e.args.reserve(static_cast<std::size_t>(b.arity));
-			for (int i = 0; i < b.arity; ++i) e.args.push_back(expr());
+			const std::size_t k = pool->size();
+			if (k + static_cast<std::size_t>(b.arity) > pool->capacity()) throw std::runtime_error("policy: expression pool overflow");
+			pool->resize(k + static_cast<std::size_t>(b.arity));
+			e.args = { pool->data() + k, static_cast<std::uint32_t>(b.arity) };
+			for (int i = 0; i < b.arity; ++i) expr_into((*pool)[k + static_cast<std::size_t>(i)]);
 		}
 		else
 			throw std::runtime_error("policy: bad code in expression");
-		return e;
 	}
 	std::vector<Step> steps()
 	{
 		std::vector<Step> out;
+		out.reserve(16); // regrowth moves whole Step trees (costly in a wasm bot)
 		for (;;)
 		{
 			const std::uint16_t t = take();
 			if (t == codes::kEnd) return out;
-			Step s;
+			Step& s = out.emplace_back(); // filled in place; `out` grows only at the next emplace_back
 			if (t == codes::kEndTurn) s.kind = Step::end_turn;
 			else if (t == codes::kIf)
 			{
 				s.kind = Step::if_;
-				s.expr = expr();
+				expr_into(s.expr);
 				s.then = steps();
 				if (pos < n && c[pos] == codes::kElse)
 				{
@@ -318,7 +365,7 @@ struct Parser
 				const int ty = t & 0xFF;
 				if (ty >= kNumTypes) throw std::runtime_error("policy: bad type code");
 				s.kind = (t & 0xFF00) == codes::kKeep ? Step::keep_ : Step::let_;
-				s.expr = expr();
+				expr_into(s.expr);
 				if (counts[ty] >= kMaxVars) throw std::runtime_error("policy: too many variables");
 				s.var = ty * kMaxVars + counts[ty]++;
 			}
@@ -326,9 +373,8 @@ struct Parser
 			{
 				--pos;
 				s.kind = Step::do_;
-				s.expr = expr();
+				expr_into(s.expr);
 			}
-			out.push_back(std::move(s));
 		}
 	}
 };
@@ -337,11 +383,54 @@ struct Parser
 std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std::size_t n, const double* nums, std::size_t nnums,
 												  const char* const* bytes_hex, std::size_t nbytes)
 {
-	Parser p{ code, n, 0, nums, nnums, bytes_hex, nbytes };
 	auto prog = std::make_shared<Program>();
+	prog->pool.reserve(n);
+	Parser p{ code, n, 0, nums, nnums, bytes_hex, nbytes };
+	p.pool = &prog->pool;
 	prog->steps = p.steps();
 	if (p.pos != n) throw std::runtime_error("policy: trailing tokens");
 	return prog;
+}
+
+// Simulated fuel is only trustworthy if every block has a measured cost: a policy using a block
+// the calibration never exercised is refused (re-profile with policies/coverage.policy, see
+// docs/FUEL.md). An effect step is charged its exec row; a pure block used as a step, and every
+// argument, its eval row.
+static void check_calibrated(const Program& prog)
+{
+	std::vector<std::string> missing;
+	auto need = [&](Op op, bool exec)
+	{
+		const auto& t = block_costs();
+		const int i = static_cast<int>(op);
+		if (op >= Op::const_num || t.row[exec ? 1 : 0][i] || (exec && t.row[0][i])) return;
+		const std::string k = kBlockTable[i].key;
+		if (std::find(missing.begin(), missing.end(), k) == missing.end()) missing.push_back(k);
+	};
+	std::function<void(const Expr&)> expr = [&](const Expr& e)
+	{
+		need(e.op, false);
+		for (const Expr& a : e.args) expr(a);
+	};
+	std::function<void(const std::vector<Step>&)> steps = [&](const std::vector<Step>& ss)
+	{
+		for (const Step& s : ss)
+		{
+			if (s.kind == Step::do_)
+			{
+				need(s.expr.op, true);
+				for (const Expr& a : s.expr.args) expr(a);
+			}
+			else if (s.kind != Step::end_turn) expr(s.expr);
+			steps(s.then);
+			steps(s.orelse);
+		}
+	};
+	steps(prog.steps);
+	if (missing.empty()) return;
+	std::string msg = "policy: no calibrated fuel cost for";
+	for (const auto& k : missing) msg += " " + k;
+	throw std::runtime_error(msg);
 }
 
 std::shared_ptr<const Program> load_program(const std::string& text)
@@ -390,7 +479,9 @@ std::shared_ptr<const Program> load_program(const std::string& text)
 	}
 	std::vector<const char*> hp;
 	for (auto& h : hex) hp.push_back(h.c_str());
-	return load_program_codes(code.data(), code.size(), nums.data(), nums.size(), hp.data(), hp.size());
+	auto prog = load_program_codes(code.data(), code.size(), nums.data(), nums.size(), hp.data(), hp.size());
+	check_calibrated(*prog);
+	return prog;
 }
 
 std::shared_ptr<const Program> load_program_file(const std::string& path)
@@ -465,8 +556,33 @@ struct Interp
 	std::vector<Value> vars = std::vector<Value>(kNumTypes * kMaxVars);
 	std::vector<char> kept = std::vector<char>(kNumTypes * kMaxVars, 0);
 	std::vector<std::uint16_t> field;
+	std::vector<std::uint32_t> camp_ids;
 
 	const cbs::Map& m() const { return api.map(); }
+
+	// Shared-memory layout used by the team-communication blocks.
+	static constexpr int kClaimBytes = 6, kTargetByte = 6;
+	int slot_ = -2; // this champion's index among its team's champion ids (-1: none)
+	int my_slot()
+	{
+		if (slot_ != -2) return slot_;
+		slot_ = -1;
+		if (api.champ() < 0) return slot_;
+		std::uint32_t ids[16], n = 0;
+		api.allies(ids, 16, &n);
+		const std::uint32_t me_id = self();
+		int rank = 0;
+		for (std::uint32_t i = 0; i < n && i < 16; ++i)
+			if (ids[i] < me_id) ++rank;
+		slot_ = rank < kClaimBytes ? rank : -1;
+		return slot_;
+	}
+	int group_at(Vec2 p) const
+	{
+		if (!m().in_bounds(p)) return -1;
+		const int c = m().camp_at[m().idx(p)];
+		return c < 0 ? -1 : m().camps[c].group;
+	}
 	Work work;
 	struct Charge
 	{
@@ -474,12 +590,14 @@ struct Interp
 		Op op;
 		bool exec;
 		bool skip = false;
-		int unwinding = std::uncaught_exceptions();
+		// Only the simulator charges (the real bot's engine meters fuel itself, and the
+		// uncaught_exceptions() calls cost fuel there on every block).
+		int unwinding = in.api.count_charges ? std::uncaught_exceptions() : 0;
 		// May throw: a charge can suspend the bot, and cancelling a suspended bot resumes it with
 		// an exception. Never charges while already unwinding.
 		~Charge() noexcept(false)
 		{
-			if (!skip && std::uncaught_exceptions() == unwinding) in.charge_block(op, exec);
+			if (!skip && in.api.count_charges && std::uncaught_exceptions() == unwinding) in.charge_block(op, exec);
 		}
 	};
 	std::int64_t blocks_this_turn = 0;
@@ -500,6 +618,12 @@ struct Interp
 									 static_cast<std::int64_t>(m().groups.size()), w.bits };
 		std::int64_t milli = 0;
 		for (int i = 0; i < 10; ++i) milli += c[i] * f[i];
+		if (cbs::memo_stats().enabled)
+		{
+			auto& st = charge_stats_table()[exec ? 1 : 0][static_cast<int>(op)];
+			++st[0];
+			st[1] += std::max<std::int64_t>(0, milli / 1000);
+		}
 		api.compute(std::max<std::int64_t>(0, milli / 1000));
 	}
 	// Distance field through the API, recording its work for the calling block's cost.
@@ -509,8 +633,8 @@ struct Interp
 		const int n = api.distance_field(walls, roots, dests, cbs::kUnreachable, field.data(), visited);
 		if (api.count_charges)
 		{
-			work.exp += n;
-			if (dests) work.dests += dests->count(m().H);
+			work.exp += api.last_field.layers;
+			work.dests += api.last_field.dests;
 		}
 		return n;
 	}
@@ -526,10 +650,25 @@ struct Interp
 	void turn()
 	{
 		++turn_no;
+		// The deploy bot's one-off start-up (map, camp layout, allocator; bot/src/main.cpp) on a
+		// champion's first turn, measured on 24 cambc games of v2 / fs-1 as first-turn fuel minus
+		// the simulator's charge for that turn (docs/FUEL.md): mae 2.7k on a mean of 81k.
+		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
+			api.compute(55221 + 2277 * m().W * m().H / 1000 + 249 * static_cast<std::int64_t>(m().camps.size()) +
+						393 * static_cast<std::int64_t>(m().groups.size()));
+		const std::uint64_t calls0 = api.api_calls;
+		const std::int64_t spent0 = api.spent;
 		blocks_this_turn = 0;
 		run(prog.steps);
-		// the step loop itself (Value temporaries etc. between blocks)
-		if (api.count_charges) api.compute(std::max<std::int64_t>(0, static_cast<std::int64_t>(INTERP_TURN_COST(blocks_this_turn, m().H))));
+		// The step loop itself (Value temporaries etc. between blocks) and the calibration's
+		// per-block / per-call corrections (block_costs_gen.inc), which may be negative; never
+		// below zero for the turn as a whole.
+		if (api.count_charges)
+		{
+			const auto adj = static_cast<std::int64_t>(
+				INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - calls0)));
+			api.compute(std::max<std::int64_t>(adj, -std::max<std::int64_t>(0, api.spent - spent0)));
+		}
 	}
 
 	// Returns false when END_TURN was reached.
@@ -589,7 +728,12 @@ struct Interp
 		return camps_cache;
 	}
 
-	Bitboard blocked_tiles(Vec2 me)
+	// Blocked tiles for the champion at `me`; rebuilt only when the occupancy is refreshed or
+	// the champion moved (both bump `epoch` or the turn).
+	std::uint64_t blocked_turn = ~0ull, blocked_epoch = ~0ull;
+	Vec2 blocked_me = kNoTile;
+	Bitboard blocked_cache;
+	const Bitboard& blocked_tiles(Vec2 me)
 	{
 		if (!static_ready)
 		{
@@ -600,17 +744,23 @@ struct Interp
 			static_ready = true;
 		}
 		refresh_occupancy(me);
-		Bitboard blocked = static_block;
-		blocked |= dyn_block;
-		blocked.reset(me);
-		return blocked;
+		if (blocked_turn != turn_no || blocked_epoch != epoch || !(blocked_me == me))
+		{
+			blocked_cache = static_block;
+			blocked_cache |= dyn_block;
+			blocked_cache.reset(me);
+			blocked_turn = turn_no;
+			blocked_epoch = epoch;
+			blocked_me = me;
+		}
+		return blocked_cache;
 	}
 
 	// The starter bot's move_towards_closest: distance field from the goals, step downhill.
 	void move_towards_goals(Bitboard goals, Vec2 me)
 	{
 		if (goals.test(me)) return;
-		Bitboard blocked = blocked_tiles(me);
+		const Bitboard& blocked = blocked_tiles(me);
 		const Bitboard& camps = camp_occupancy(me);
 		Bitboard taken = blocked;
 		taken.andnot(camps);
@@ -643,7 +793,8 @@ struct Interp
 	Vec2 dash_target(Vec2 goal, Vec2 me)
 	{
 		if (goal == me) return kNoTile;
-		Bitboard blocked = blocked_tiles(me), root, visited, box;
+		const Bitboard& blocked = blocked_tiles(me);
+		Bitboard root, visited, box;
 		Bitboard walls = blocked;
 		walls.reset(goal);
 		root.set(goal);
@@ -675,7 +826,7 @@ struct Interp
 		if (!me(ci)) return kNoTile;
 		const Vec2 pos{ ci.x, ci.y };
 		if (set.test(pos)) return pos;
-		Bitboard blocked = blocked_tiles(pos);
+		const Bitboard& blocked = blocked_tiles(pos);
 		const Bitboard& camps = camp_occupancy(pos);
 		Bitboard cand = set, taken = blocked;
 		taken.andnot(camps);
@@ -688,8 +839,8 @@ struct Interp
 		if (!api.nearest_by_walk(walls, pos, cand, best, &n)) best = kNoTile;
 		if (api.count_charges)
 		{
-			work.exp += n;
-			work.dests += cand.count(m().H);
+			work.exp += api.last_field.layers;
+			work.dests += api.last_field.dests;
 		}
 		return best;
 	}
@@ -775,7 +926,7 @@ struct Interp
 		{
 			Value r;
 			r.champs = std::make_shared<std::vector<int>>();
-			for (int i = 0; i < 11; ++i)
+			for (int i = 0; i < 12; ++i)
 			{
 				bool used = false;
 				std::int32_t pick = -1;
@@ -836,6 +987,20 @@ struct Interp
 		case Op::walls: api.charge(cbs::Call::map_mask); return set_of(m().walls);
 		case Op::holes: api.charge(cbs::Call::map_mask); return set_of(m().holes);
 		case Op::bushes: api.charge(cbs::Call::map_mask); return set_of(m().bushes);
+		case Op::wolf_tiles:
+		case Op::elk_tiles:
+		case Op::gem_cluster_tiles:
+		case Op::gold_cluster_tiles:
+		case Op::monolith_tiles:
+		case Op::golem_tiles:
+		{
+			// order matches cbs::CampType: wolf, elk, gem_cluster, gold_cluster, monolith, golem
+			const int want = static_cast<int>(e.op) - static_cast<int>(Op::wolf_tiles);
+			Bitboard b;
+			for (auto& c : m().camps)
+				if (static_cast<int>(c.type) == want) b.set(c.pos);
+			return set_of(b);
+		}
 		case Op::camp_spawn_tiles:
 		{
 			api.charge(cbs::Call::map_camp_query, static_cast<std::int64_t>(m().camps.size()));
@@ -855,11 +1020,9 @@ struct Interp
 		{
 			Value r;
 			r.units = std::make_shared<std::vector<Unit>>();
-			for (std::uint32_t c = 0; c < m().camps.size(); ++c)
-			{
-				cbs::CampRecord cr{};
-				if (api.camp(c, &cr) == Err::success && cr.health > 0) r.units->push_back({ EntityKind::camp, c });
-			}
+			api.visible_camps(camp_ids);
+			r.units->reserve(camp_ids.size());
+			for (std::uint32_t c : camp_ids) r.units->push_back({ EntityKind::camp, c });
 			return r;
 		}
 		case Op::locked_altars:
@@ -1002,7 +1165,8 @@ struct Interp
 		case Op::champ_willow:
 		case Op::champ_ren:
 		case Op::champ_varg:
-		case Op::champ_tavi: return num(static_cast<int>(e.op) - static_cast<int>(Op::champ_ryth));
+		case Op::champ_tavi:
+		case Op::champ_heart_of_ruin: return num(static_cast<int>(e.op) - static_cast<int>(Op::champ_ryth));
 		case Op::available:
 		{
 			const Value l = eval(a[0]);
@@ -1110,6 +1274,39 @@ struct Interp
 			}
 			return r;
 		}
+		case Op::claimed_by_allies:
+		{
+			std::uint8_t mem[kClaimBytes] = {};
+			api.read_shared_memory(0, mem, kClaimBytes);
+			const int mine = my_slot();
+			Bitboard b;
+			for (int i = 0; i < kClaimBytes; ++i)
+			{
+				const int g = static_cast<int>(mem[i]) - 1;
+				if (i == mine || g < 0 || g >= static_cast<int>(m().groups.size())) continue;
+				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
+			}
+			return set_of(b);
+		}
+		case Op::claim_count:
+		{
+			const int g = group_at(eval(a[0]).tile);
+			std::uint8_t mem[kClaimBytes] = {};
+			api.read_shared_memory(0, mem, kClaimBytes);
+			const int mine = my_slot();
+			int n = 0;
+			for (int i = 0; i < kClaimBytes; ++i)
+				if (i != mine && g >= 0 && mem[i] == g + 1) ++n;
+			return num(n);
+		}
+		case Op::team_target:
+		{
+			std::uint8_t v = 0;
+			api.read_shared_memory(kTargetByte, &v, 1);
+			Value r;
+			if (v > 0) r.unit = { EntityKind::champion, static_cast<std::uint32_t>(v - 1) };
+			return r;
+		}
 		case Op::unit_gems:
 		{
 			const Unit u = eval(a[0]).unit;
@@ -1215,6 +1412,23 @@ struct Interp
 			break;
 		}
 		case Op::recall: api.recall(); break;
+		case Op::claim:
+		case Op::unclaim:
+		{
+			const int g = e.op == Op::claim ? group_at(eval(a[0]).tile) : -1;
+			const int slot = my_slot();
+			if (slot < 0) break;
+			const std::uint8_t v = static_cast<std::uint8_t>(g < 0 || g > 254 ? 0 : g + 1);
+			api.write_shared_memory(slot, &v, 1);
+			break;
+		}
+		case Op::set_team_target:
+		{
+			const Unit u = eval(a[0]).unit;
+			const std::uint8_t v = static_cast<std::uint8_t>(u.kind == EntityKind::champion && u.h < 255 ? u.h + 1 : 0);
+			api.write_shared_memory(kTargetByte, &v, 1);
+			break;
+		}
 		case Op::buy_altar_lock: api.buy_consumable(cbs::consumable::altar_lock); break;
 		case Op::buy_teleport: api.buy_consumable(cbs::consumable::tp_crystal); break;
 		case Op::place_altar_lock:

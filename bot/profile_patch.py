@@ -4,8 +4,8 @@ Usage: python3 bot/profile_patch.py BOT_COPY_DIR [EVERY]   (run bot/sync.sh firs
 Logs every 10th turn of each instance: "@@S id self exp dbits cexp cdbits occ" per interpreter block
 (id < 256 eval, 256 + op exec) and per API call (id >= 1000, names in "@@APINAMES"); self
 excludes children, API calls and the profiler's own cost ("@@OVH overhead inner"). "@@TURN total".
-API records of distance_field / nearest_by_walk: exp = layers of host searches actually run
-(memo misses), dbits = dest tiles queried, occ = number of memo misses.
+API records of distance_field / nearest_by_walk: exp = layers of the host search run (memo
+miss), dbits = dest tiles queried (nearest_by_walk: 1 + tiles of its reachable mask), occ = misses.
 """
 import re
 import sys
@@ -98,7 +98,7 @@ s=s.replace('#include "bot_api.h"','#include "bot_api.h"\n#include "sprof.h"',1)
 lines=s.split('\n'); out=[]; names=[]; i=0
 while i < len(lines):
     l=lines[i]
-    m=re.match(r'^(Err|int|bool) Api::(\w+)\(', l)
+    m=re.match(r'^(Err|int|bool|void|std::int32_t) Api::(\w+)\(', l)
     if m:
         nm=m.group(2); idx=1000+len(names); names.append(nm)
         # find opening brace of body
@@ -110,34 +110,34 @@ while i < len(lines):
         i=j+1; continue
     out.append(l); i+=1
 s='\n'.join(out)
-# field_query's memo: log host-search layers and misses, and the dests queried
-a="""	if (use)
-		ans.count = ans.limit >= 0 ? ans.limit : use->depth;
-	else
-	{"""
+# field_query (memo in cbs/field_memo.h): log host-search layers, misses and the dests queried;
+# nearest_by_walk: also the tiles of its reachable mask
+a="""	const FieldAnswer ans = memo->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
+"""
 assert a in s
-s=s.replace(a,a+"""
-		{
-			const long long t0 = sprof::now();
-			sprof::occ();
-			sprof::exclude(t0);
-		}""")
-a="""		ans.count = ans.limit >= 0 ? ans.limit : count;
-	}"""
+s=s.replace(a,a+"""	{
+		const long long t0 = sprof::now();
+		if (ans.miss) sprof::occ();
+		sprof::feat(ans.layers, dests ? dests->count(H) : 0);
+		sprof::exclude(t0);
+	}
+""")
+a="""		sdk_Bitboard_ReachableMask(walls.w, origin.x, origin.y, near.w, D);
+"""
 assert a in s
-s=s.replace(a,"""		ans.count = ans.limit >= 0 ? ans.limit : count;
-		{
+s=s.replace(a,a+"""		{
 			const long long t0 = sprof::now();
-			sprof::feat(count, 0);
+			sprof::feat(0, near.count(H));
 			sprof::exclude(t0);
 		}
-	}""")
-a="""	use->used = ++slot_clock;
-	ans.f = use->field;"""
+""")
+# visible_camps: the occupied camp tiles it walks
+a="""	for (std::size_t i = 1; i < out.size(); ++i)
+		for (std::size_t j = i; j > 0 && out[j - 1] > out[j]; --j) std::swap(out[j - 1], out[j]);"""
 assert a in s
 s=s.replace(a,"""	{
 		const long long t0 = sprof::now();
-		sprof::feat(0, dests ? dests->count(H) : 0);
+		sprof::feat(0, occ.count(g_.map().H));
 		sprof::exclude(t0);
 	}
 """+a)

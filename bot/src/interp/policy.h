@@ -25,6 +25,14 @@ std::shared_ptr<const Program> load_program_codes(const std::uint16_t* code, std
 
 std::unique_ptr<cbs::Player> make_policy_player(std::shared_ptr<const Program> program, std::uint64_t seed);
 
+// Blocks charged so far in this process (simulator diagnostics; not thread-safe).
+struct BlockCharge
+{
+	std::string key;
+	long long count, fuel;
+};
+std::vector<BlockCharge> charge_stats();
+
 // Block keys the interpreter implements, e.g. "move_towards(Tile)".
 std::vector<std::string> supported_blocks();
 } // namespace interp
