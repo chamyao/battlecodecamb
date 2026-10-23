@@ -113,6 +113,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   tactics and missing blocks extracted from replays go into the prompt and the
   language. Recreating other teams' bots is out of scope.
 
+- **Ladder versions:** 1 = fs-1 (2-13). 2 = v3 (Oct 23; `deploy/v0` a3d1f0b,
+  `dist/deploy-v3.zip` sha256 d14dc314...): fs-1 plus retreat when hurt and in
+  danger, hold only capturable spawns, skip monoliths and golems. Sim: 87% vs v2,
+  81.5% vs fs-1; real cambc: 66/80 vs fs-1.
+
 ### Deployment shape (agreed so far)
 
 - No model runs on the bots. The network lives offline and outputs
