@@ -1,0 +1,17 @@
+This run explores the LOCKDOWN style, which none of our policies play yet (three of the top
+ladder teams do). Altars are shared by both teams; an altar lock (buy_altar_lock(), 10 gold,
+on spawn; one carried at a time; has_altar_lock() tells you) placed with place_altar_lock(tile)
+within 2 tiles of an altar blocks the ENEMY's tributes there (and cancels a channel in
+progress) while our own team can still tribute at it. Five basic attacks clear a lock.
+Develop a policy whose plan is to deny the enemy altars:
+- buy a lock whenever on spawn with spare gold and not carrying one;
+- place it on the altars the enemy is likely to use (closest to spawn_region(enemy()), or where
+  enemy carriers are seen), and re-lock altars whose lock was broken (an altar not in
+  locked_altars() that you can see);
+- guard: a champion near a locked altar attacks enemies trying to clear it, and enemies who
+  come to tribute carry gems (unit_gems) that drop to their killer;
+- keep enough camp farming and tributing that our own score grows (we tribute at locked altars
+  freely, so prefer altars we have locked).
+Decide how many champions lock/guard versus farm, and when (e.g. by round, gold, team_score
+lead or deficit) — name those as constants. Every version must keep buying and placing locks;
+a version that drops the style is rejected.

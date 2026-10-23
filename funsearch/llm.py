@@ -58,7 +58,7 @@ class BudgetExceeded(Exception):
 
 
 class Proposer:
-    def __init__(self, budget_usd, opus_every=10, max_tokens=16000):
+    def __init__(self, budget_usd, opus_every=10, max_tokens=16000, directive=""):
         # The cloud environment reserves ANTHROPIC_API_KEY for Claude Code's own login and does not
         # pass it to processes, so the key is stored as FUNSEARCH_ANTHROPIC_KEY (or FUNSEARCH_API_KEY) there. It may also
         # point ANTHROPIC_BASE_URL at Claude Code's endpoint, so the API URL is pinned.
@@ -71,6 +71,7 @@ class Proposer:
         self.calls = 0
         self.opus_every = opus_every
         self.max_tokens = max_tokens
+        self.directive = directive  # per-run style directive, sent after the versions (system prompt stays cached)
         self.lock = threading.Lock()
 
     def _model(self):
@@ -105,7 +106,10 @@ class Proposer:
         shown = "\n\n".join(
             f"{header(i, score, metrics)}\n```policy\n{text.strip()}\n```"
             for i, (text, score, metrics) in enumerate(parents))
-        user = f"{shown}\n\n## Version {len(parents)}\nWrite it."
+        user = f"{shown}\n\n"
+        if self.directive:
+            user += f"## Style directive for this run (overrides the usual advice where they conflict)\n{self.directive.strip()}\n\n"
+        user += f"## Version {len(parents)}\nWrite it."
         kwargs = dict(
             model=model,
             max_tokens=self.max_tokens,

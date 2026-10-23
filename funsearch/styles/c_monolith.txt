@@ -1,0 +1,20 @@
+This run explores the LATE MONOLITH style, which none of our policies play yet. On the ladder
+the team capturing more monoliths wins ~80% of games where they exist; top teams take them with
+3-4 champions after about round 1,000 (success 0% solo, 29% with 2, 49% with 3, 69% with 4),
+commit ~30 rounds, recall individually at low health and come back, and abandon below 2
+attackers. A monolith has 20k hp, 200 strength (range 5) and gives 200 gems and 300 gold, and
+must be captured by standing on its spawn tile for 5 rounds after it dies.
+Develop a policy that:
+- builds up first: farms camps and buys damage/health (e.g. Bruiser/Power strength, Jungle for
+  less camp damage) until a start condition (round number, gold or items bought, number of
+  allies alive) — name it as a constant;
+- then sends 3-4 champions together to the same monolith (coordinate with claim(tile) and
+  claim_count(tile); wait at a safe distance outside its range 5 until enough allies arrive),
+  every attacker hitting it and casting abilities each turn;
+- each champion recalls on its own at low health (recall is cancelled by damage: step out of
+  range 5 first), heals on spawn, and returns; abandon when fewer than 2 attackers remain;
+- after the kill, stands on the capturable spawn to capture, then tributes the 200 gems
+  (prefer altars outside ring(monolith_tiles(), 5)).
+A plain "go to the monolith after round 1,000" rule lost badly in our tests, so the build-up,
+grouping and sustain matter. On maps without monoliths (count(monolith_tiles()) == 0) play
+normally. Every version must keep the monolith plan; a version that drops it is rejected.

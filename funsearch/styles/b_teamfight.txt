@@ -1,0 +1,16 @@
+This run explores the TEAM FIGHT style, which none of our policies play yet. Our champions
+currently wander alone and lose even 1v1 fights. Develop a policy whose champions act as a
+group:
+- move together: commit to the same camp group with claim(tile) / claim_count(tile) (camp
+  claims are shared through memory), and wait for or walk toward allies (allies_visible(),
+  allies_within(r)) before engaging; regroup when isolated;
+- focus fire: pick one enemy (weakest, or a gem carrier via richest()/unit_gems) and name it
+  with set_team_target(unit); every champion that can reach team_target() attacks it and casts
+  its damage/stun abilities at it (slot_is_damage, slot_is_stun, slot_is_aoe);
+- contest the enemy's camps: go as a group to rich camps (gem clusters, elk groups) near the
+  enemy side or where enemies are seen, and fight there with the numbers advantage;
+- take fights when allies_within(r) >= visible enemies, disengage otherwise. Name every
+  threshold as a constant.
+Keep farming, tributing and recall rules that already work. Every version must keep using
+team coordination (set_team_target/team_target and claim/claim_count); a version that drops
+the style is rejected.

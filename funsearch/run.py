@@ -9,13 +9,14 @@ runs/<name>/best.policy. `touch runs/<name>/STOP` pauses a run gracefully (delet
 import argparse
 import json
 import random
+import re
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .database import Database, Program
-from .evaluate import ROOT, evaluate
+from .evaluate import ROOT, EvalResult, evaluate
 from .tune import mutate_constants
 
 
@@ -39,6 +40,10 @@ def main():
     ap.add_argument("--seed-policy", default=str(ROOT / "policies" / "v1.policy"))
     ap.add_argument("--eval-seed", type=int, default=0, help="same games for every program (fair comparison)")
     ap.add_argument("--islands", type=int, default=4)
+    ap.add_argument("--directive", default="", help="style directive added to every prompt (text, or @file)")
+    ap.add_argument("--require", default="", help="comma-separated blocks every child must call (style check)")
+    ap.add_argument("--fresh-seeds", action="store_true",
+                    help="every evaluation plays fresh games (new seed) instead of the same games for all programs")
     args = ap.parse_args()
 
     out = ROOT / "runs" / args.run
@@ -46,6 +51,18 @@ def main():
     db = Database(out / "programs.jsonl", islands=args.islands)
     db.load()
     opponents = tuple(args.opponents.split(","))
+    directive = Path(args.directive[1:]).read_text() if args.directive.startswith("@") else args.directive
+    required = [b for b in args.require.split(",") if b]
+    seed_lock = threading.Lock()
+    seed_counter = [len(db.all)]
+
+    def eval_seed():
+        """Screening seed; with --fresh-seeds, a new block of games per call (resumes past old ones)."""
+        if not args.fresh_seeds:
+            return args.eval_seed
+        with seed_lock:
+            seed_counter[0] += 1
+            return 20_000_000 + 10_000 * seed_counter[0]
 
     def fingerprint(per_opponent):
         """Screening outcome; games are deterministic, so equal fingerprints mean equal play."""
@@ -58,7 +75,12 @@ def main():
                  if p.metrics.get("confirmed") and "screen_fp" in p.metrics}
 
     def score(text, confirm=False):
-        r = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed)
+        if not confirm:
+            missing = [b for b in required if not re.search(rf"\b{b}\s*\(", text)]
+            if missing:
+                return EvalResult(error=f"style check: policy never calls {', '.join(missing)}")
+        seed = eval_seed()
+        r = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=seed)
         if not r.ok:
             return r
         fp = fingerprint(r.per_opponent)
@@ -77,14 +99,14 @@ def main():
                 # longer run with the same seed): a candidate clearly below the best stops here
                 quarter = max(2, args.confirm_games // 8 * 2)
                 q = evaluate(text, opponents=opponents, games=quarter, threads=args.eval_threads,
-                             seed=args.eval_seed + 1)
+                             seed=seed + 1)
                 if q.ok and q.score < best[0].score - args.early_stop:
                     q.per_opponent["screen_score"] = screen
                     q.per_opponent["screen_fp"] = fp
                     q.per_opponent["confirm_stopped"] = quarter
                     return q
             r = evaluate(text, opponents=opponents, games=args.confirm_games, threads=args.eval_threads,
-                         seed=args.eval_seed + 1)
+                         seed=seed + 1)
             if not r.ok:
                 return r
             r.per_opponent["screen_score"] = screen
@@ -106,7 +128,7 @@ def main():
     proposer = None
     if args.proposer == "claude":
         from .llm import BudgetExceeded, Proposer
-        proposer = Proposer(args.budget, opus_every=args.opus_every)
+        proposer = Proposer(args.budget, opus_every=args.opus_every, directive=directive)
     proposals_lock = threading.Lock()
 
     def log_proposals(pid, score, model, proposals):

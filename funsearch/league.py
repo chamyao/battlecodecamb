@@ -67,13 +67,13 @@ def win_rates(text, opponents, games, threads):
     return {name: w / n for name, (w, n) in totals.items()}
 
 
-def commit(path, message):
+def commit(path, message, session):
     """Commit and push one file; a lock keeps parallel leagues from racing on the git index."""
     with open(ROOT / "runs" / ".git.lock", "w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         subprocess.run(["git", "add", str(path)], cwd=ROOT)
         subprocess.run(["git", "commit", "-qm", message + "\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
-                        "Claude-Session: https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj", "--", str(path)],
+                        f"Claude-Session: {session}", "--", str(path)],
                        cwd=ROOT)
         for attempt in range(4):
             if subprocess.run(["git", "push", "-q", "origin", "HEAD"], cwd=ROOT).returncode == 0:
@@ -101,6 +101,8 @@ def main():
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     ap.add_argument("--prefix", default="fs-", help="promoted policies are policies/<prefix><n>.policy")
     ap.add_argument("--line", default="", help="line tag written into promoted policies' headers")
+    ap.add_argument("--session", default="https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj",
+                    help="Claude-Session trailer for promotion commits")
     args, run_args = ap.parse_known_args()  # anything else goes to funsearch.run
 
     members = args.members.split(",")
@@ -152,13 +154,13 @@ def main():
         out = ROOT / "policies" / f"{name}.policy"
         tag = f" [{args.line} line]" if args.line else ""
         header = (f"# {name}{tag}: league {run} #{p['id']}; beat {Path(best).stem} {h2h:.1%} head to head on "
-                  f"{2 * args.val_games} fresh games.\n")
+                  f"{2 * args.val_games} fresh games.\n" + (f"# line: {args.line}\n" if args.line else ""))
         out.write_text(header + p["text"])
         summary = ", ".join(f"{k} {v:.1%}" for k, v in rates.items())
         log(f"  PROMOTED {out.name}: {summary}", logfile)
         if not args.no_commit:
             commit(out, f"policies/{name}: league promotion{tag} ({run} #{p['id']})\n\n"
-                        f"Fresh-seed win rates ({2 * args.val_games} games each): {summary}")
+                        f"Fresh-seed win rates ({2 * args.val_games} games each): {summary}", args.session)
         members = [str(out.relative_to(ROOT)), *(m for m in league if m not in fixed)][: 1 + args.keep]
         state = {"gen": state["gen"] + 1, "members": members}
         state_path.write_text(json.dumps(state))
