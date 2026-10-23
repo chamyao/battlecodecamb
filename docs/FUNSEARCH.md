@@ -33,12 +33,24 @@ fresh games, and that confirmed score is what is stored and compared.
 
 ## Self-play league
 
-`python3 -m funsearch.league --name league --budget 15 --members policies/fs-1.policy,policies/v2.policy`
-runs FunSearch generations (`runs/league-g<k>`) against our own policies: starter at weight 0.25
-(sanity floor), the current best at weight 3, and up to 3 older bests. Every `--round` programs
-the top 3 distinct programs are validated on fresh seeds (2 x 400 games per opponent); one that
-beats the current best by 5+ points head to head without dropping more than 3 points against any
-older member becomes `policies/fs-<n>.policy` (committed) and the new best. State:
-`runs/league.json`, log: `runs/league.log`; `touch runs/league-g<k>/STOP` pauses it.
+`python3 -m funsearch.league --name hyb4 --budget 10 --members <best>,<older...> --fixed <opponents>`
+runs FunSearch generations (`runs/<name>-g<k>`) against our own policies: starter at weight 0.25
+(sanity floor), the current best at weight 3, up to 3 older bests and the fixed opponents.
+
+Promotion, at each round boundary (every `--round` programs): the run's top 3 distinct programs
+(and any queued challengers) are validated on fresh seeds. One is promoted when its head-to-head
+win rate vs the best is 2 standard errors above 50% (>= 53.5% over 800 games; a 50-53.5% result
+gets 800 more and needs >= 52.5% over 1,600) and it drops no more than 3 points against any older
+member. Promoted policies become `policies/<prefix><n>.policy` (committed). The cambc-exact check
+(all 40 maps x 2 sides with `--bot-seeds`, which reproduces real cambc) is logged; >= 55% marks a
+promotion ladder-ready, which is the bar for uploading, not for promoting inside the league.
+
+Outside changes wait for a round boundary instead of restarting the search:
+- `runs/<name>.challengers` (policy paths, one per line): judged at the next boundary by the same
+  rule as the run's own candidates; a winner becomes the best. Every challenger is injected into
+  the run as a parent and becomes a fixed opponent from the next generation.
+- `runs/<name>.hold`: the league waits at the next boundary until the file is removed (merge and
+  rebuild the simulator meanwhile).
+State: `runs/<name>.json`, log: `runs/<name>.log`; `touch runs/<name>-g<k>/STOP` pauses it.
 Children that play identically to an already-confirmed program (same deterministic screening
 results) reuse its confirmation, so comment-only or dead-code edits cost no extra games.
