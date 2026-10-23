@@ -24,8 +24,8 @@
 // Ops supplies the board type and the primitives:
 //   using Board;                       // cbs::Bitboard of the build
 //   int fidx(int x, int y) const;      // index into a field (engine chunked layout)
-//   int delta(const Board& a, const Board& b, Vec2* out) const;
-//                                      // tiles of a ^ b: total count, the first 64 in out
+//   int delta(const Board& a, const Board& b, Vec2* out, int cap) const;
+//                                      // tiles of a ^ b: total count, the first cap in out
 //   std::uint16_t compute(const Board& walls, const Board& roots, const Board* dests,
 //                         std::uint16_t maxd, std::uint16_t* field, Board& visited) const;
 //                                      // host DistanceField Compute / ComputeTo (all dests);
@@ -41,6 +41,8 @@ namespace cbs::field_memo
 {
 constexpr int kFieldWords = 13 * 13 * 64; // u16 entries: 100x100 in 8x8 chunks
 constexpr int kSlots = 4;
+// Many changed tiles rarely pass box_unaffected and cost ~100-200 fuel each to examine.
+constexpr int kMaxDelta = 16;
 constexpr std::uint16_t kFar = 0xFFFF; // unreached (kUnreachable)
 
 template <class Board>
@@ -66,6 +68,9 @@ struct Answer
 	int count;						  // the stopping layer (expansion count of an equivalent fresh search)
 	bool miss;						  // a host search ran
 	int layers;						  // its expansion count (0 on a hit)
+	int path;						  // 0 miss, 1 same walls, 2 walls changed outside the box
+	int depth;						  // depth / complete of the slot used, before this call
+	int complete;
 	std::uint16_t at(int x, int y) const
 	{
 		const std::uint16_t v = f[ops->fidx(x, y)];
@@ -80,6 +85,7 @@ public:
 	using Board = typename Ops::Board;
 	explicit Memo(Ops ops) : ops_(ops) {}
 	const Ops& ops() const { return ops_; }
+	bool reference = false; // never reuse or narrow: a fresh search each time (bot BOT_REFERENCE)
 
 	// `me` is the champion's tile (have_me false for the draft bot). The caller reads the
 	// answer only at dests and at open tiles within Chebyshev `qr` of `me` (qr > 2: no
@@ -106,11 +112,12 @@ public:
 			});
 			return best;
 		};
-		Answer<Ops> ans{ &ops_, nullptr, &walls, -1, 0, false, 0 };
+		Answer<Ops> ans{ &ops_, nullptr, &walls, -1, 0, false, 0, 0, -1, -1 };
 		Slot<Board>*use = nullptr, *same_roots = nullptr;
 		for (int i = 0; i < kSlots && !use; ++i)
 		{
 			Slot<Board>& sl = slots_[i];
+			if (reference) continue;
 			if (sl.depth < 0 || sl.maxd != maxd || !(sl.roots == roots)) continue;
 			same_roots = &sl;
 			if (sl.walls == walls)
@@ -131,7 +138,12 @@ public:
 			}
 		}
 		if (use)
+		{
 			ans.count = ans.limit >= 0 ? ans.limit : use->depth;
+			ans.path = use->walls == walls ? 1 : 2;
+			ans.depth = use->depth;
+			ans.complete = use->complete;
+		}
 		else
 		{
 			// Replace the stale field with the same roots, else the least recently used one.
@@ -142,24 +154,30 @@ public:
 				for (int i = 1; i < kSlots; ++i)
 					if (slots_[i].used < use->used) use = &slots_[i];
 			}
-			Board visited, me_only;
+			// Scratch boards: compute writes all of visited_; me_only_ is kept empty between calls.
 			const Board* sd = dests;
-			if (dests && have_me && dests->test(me))
+			const bool to_me = !reference && dests && have_me && dests->test(me);
+			if (to_me)
 			{
-				me_only.set(me);
-				sd = &me_only;
+				me_only_.set(me);
+				sd = &me_only_;
 			}
-			const std::uint16_t count = ops_.compute(walls, roots, sd, maxd, use->field, visited);
+			const std::uint16_t count = ops_.compute(walls, roots, sd, maxd, use->field, visited_);
 			use->walls = walls;
 			use->roots = roots;
 			use->maxd = maxd;
 			use->depth = count;
 			// Stopped early only if a dest was reached (visited = every reached tile) or at maxd.
 			bool reached = false;
-			if (sd)
+			if (to_me)
 			{
-				visited &= *sd;
-				reached = visited.any(H);
+				reached = visited_.test(me);
+				me_only_.reset(me);
+			}
+			else if (sd)
+			{
+				visited_ &= *sd;
+				reached = visited_.any(H);
 			}
 			use->complete = !reached && count < maxd;
 			if (dests)
@@ -191,9 +209,9 @@ private:
 	// Unknown distances (beyond L) are taken as L + 1: a lower bound, so the test stays sound.
 	bool box_unaffected(const Slot<Board>& sl, const Board& walls, const Board& roots, Vec2 me, int S, int qr, int W, int H)
 	{
-		Vec2 delta[64];
-		const int n = ops_.delta(sl.walls, walls, delta);
-		if (n > 64) return false;
+		Vec2 delta[kMaxDelta];
+		const int n = ops_.delta(sl.walls, walls, delta, kMaxDelta);
+		if (n > kMaxDelta) return false;
 		const int L = sl.depth;
 		auto d = [&](int x, int y) {
 			const int v = sl.field[ops_.fidx(x, y)];
@@ -247,6 +265,7 @@ private:
 
 	Ops ops_;
 	std::unique_ptr<Slot<Board>[]> slots_;
+	Board visited_, me_only_;
 	std::uint64_t clock_ = 0;
 };
 } // namespace cbs::field_memo

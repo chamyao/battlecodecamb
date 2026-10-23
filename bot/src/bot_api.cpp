@@ -162,6 +162,14 @@ Err Api::altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* cou
 void Api::visible_camps(std::vector<std::uint32_t>& out)
 {
 	out.clear();
+#ifdef BOT_REFERENCE
+	for (std::uint32_t c = 0; c < g_.map().camps.size(); ++c)
+	{
+		cambc::detail::camp_state cs{};
+		if (sdk_camp(c, &cs) == 0 && cs.health > 0) out.push_back(c);
+	}
+	return;
+#endif
 	Bitboard occ;
 	if (sdk_camp_occupancy(occ.w) == 0)
 		occ.for_each_unordered(g_.map().H, [&](int x, int y) {
@@ -237,11 +245,12 @@ namespace cbs
 // Answered through the memo in cbs/field_memo.h (shared with the simulator, which runs the same
 // decisions to price these calls); HostOps backs it with the host imports.
 //
-// BOT_VERIFY checks every answer against a fresh host search (debug only).
+// BOT_VERIFY checks every answer against a fresh host search (debug only). BOT_REFERENCE turns
+// the memo off (always a fresh search, no narrowing).
 namespace
 {
 alignas(16) std::uint64_t delta_w[hostbb::kWords];
-hostbb::Pos delta_pos[64];
+hostbb::Pos delta_pos[kMaxDim * kMaxDim];
 #ifdef BOT_VERIFY
 alignas(16) std::uint16_t verify_field[kFieldWords];
 long verify_checks = 0, verify_fails = 0;
@@ -254,13 +263,16 @@ struct HostOps
 {
 	using Board = Bitboard;
 	int fidx(int x, int y) const { return ::cbs::fidx(x, y); }
-	int delta(const Board& a, const Board& b, Vec2* out) const
+	int delta(const Board& a, const Board& b, Vec2* out, int cap) const
 	{
+#ifdef BOT_PROF2
+		struct BT { long long f0 = PROF_T; ~BT() { bot_prof[7] += f0 - PROF_T; } } bt_;
+#endif
 		sdk_Bitboard_Xor(a.w, b.w, delta_w);
+		// GetSetBits reports how many it wrote, capped at the capacity, so ask for all of them.
 		std::uint32_t n = 0;
-		sdk_Bitboard_GetSetBits(delta_w, delta_pos, 64, &n); // n = positions written (at most 64)
-		for (std::uint32_t i = 0; i < n; ++i) out[i] = { delta_pos[i].x, delta_pos[i].y };
-		if (n == 64) sdk_Bitboard_NumSetBits(delta_w, &n); // the memo needs the total to refuse > 64
+		sdk_Bitboard_GetSetBits(delta_w, delta_pos, kMaxDim * kMaxDim, &n);
+		for (std::uint32_t i = 0; i < n && i < static_cast<std::uint32_t>(cap); ++i) out[i] = { delta_pos[i].x, delta_pos[i].y };
 		return static_cast<int>(n);
 	}
 	std::uint16_t compute(const Board& walls, const Board& roots, const Board* dests, std::uint16_t maxd, std::uint16_t* field,
@@ -285,7 +297,13 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 #ifdef BOT_PROF2
 	struct FT { long long f0 = PROF_T; ~FT() { bot_prof[0] += f0 - PROF_T; } } ft_;
 #endif
-	if (!memo) memo = new field_memo::Memo<HostOps>(HostOps{});
+	if (!memo)
+	{
+		memo = new field_memo::Memo<HostOps>(HostOps{});
+#ifdef BOT_REFERENCE
+		memo->reference = true;
+#endif
+	}
 	const FieldAnswer ans = memo->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
 #ifdef BOT_VERIFY
 	{
@@ -316,7 +334,7 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		if (bad)
 		{
 			++verify_fails;
-			std::printf("@@VERIFY field mismatch tiles=%d limit=%d count=%d stop=%d\n", bad, ans.limit, ans.count, stop);
+			std::printf("@@VERIFY field mismatch tiles=%d limit=%d count=%d stop=%d path=%d depth=%d complete=%d qr=%d me=%d,%d nroots=%d\n", bad, ans.limit, ans.count, stop, ans.path, ans.depth, ans.complete, qr, me.x, me.y, roots.count(H));
 		}
 	}
 #endif
@@ -337,15 +355,25 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	// The interpreter reads the dests and, around the champion, its 3x3 (move_towards) or, when
 	// the dests reach that far, its 5x5 box (dash_towards); every other entry is unspecified,
 	// and `visited` is not maintained (no caller reads it).
+	static hostbb::Pos dpos[kMaxDim * kMaxDim];
+	std::uint32_t nd = 0;
 	int qr = 1;
-	if (dests && have_me)
-		dests->for_each_unordered(H, [&](int x, int y) { qr = std::max(qr, cheb(x, y, me)); });
+	if (dests)
+	{
+		sdk_Bitboard_GetSetBits(dests->w, dpos, kMaxDim * kMaxDim, &nd);
+		if (have_me)
+			for (std::uint32_t i = 0; i < nd; ++i) qr = std::max(qr, cheb(dpos[i].x, dpos[i].y, me));
+	}
 	const FieldAnswer ans = field_query(walls, roots, dests, max_distance, have_me, me, std::min(qr, 3), W, H);
-	auto put = [&](int x, int y) { dist[y * W + x] = ans.at(x, y); };
+#ifdef BOT_PROF2
+	struct QT { long long q0 = PROF_T; ~QT() { bot_prof[6] += q0 - PROF_T; } } qt_;
+#endif
+	const int r = std::min(qr, 2);
 	if (have_me)
-		for (int y = std::max(0, me.y - 2); y <= std::min(H - 1, me.y + 2); ++y)
-			for (int x = std::max(0, me.x - 2); x <= std::min(W - 1, me.x + 2); ++x) put(x, y);
-	if (dests) dests->for_each_unordered(H, put);
+		for (int y = std::max(0, me.y - r); y <= std::min(H - 1, me.y + r); ++y)
+			for (int x = std::max(0, me.x - r); x <= std::min(W - 1, me.x + r); ++x) dist[y * W + x] = ans.at(x, y);
+	for (std::uint32_t i = 0; i < nd; ++i)
+		if (!have_me || cheb(dpos[i].x, dpos[i].y, me) > r) dist[dpos[i].y * W + dpos[i].x] = ans.at(dpos[i].x, dpos[i].y);
 	return ans.count;
 }
 
@@ -361,6 +389,22 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 #endif
 	if (expansions) *expansions = 0; // only the simulator prices it
 	const int W = g_.map().W, H = g_.map().H;
+#ifdef BOT_REFERENCE
+	{
+		// The simulator's algorithm, on a fresh host search.
+		static std::uint16_t f[kFieldWords];
+		Bitboard o, v;
+		o.set(origin);
+		std::uint16_t c = 0;
+		sdk_DistanceField_ComputeToWithExpansionCount(walls.w, o.w, cand.w, v.w, f, kUnreachable, &c);
+		std::uint16_t bd = kUnreachable;
+		bool found = false;
+		cand.for_each(H, [&](int x, int y) {
+			if (f[fidx(x, y)] < bd) bd = f[fidx(x, y)], out = { x, y }, found = true;
+		});
+		return found;
+	}
+#endif
 	champion_info ci{};
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0 && ci.x == origin.x && ci.y == origin.y;
 	Bitboard o;

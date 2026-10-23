@@ -54,7 +54,7 @@ s = re.sub(r'(\t\t\+\+turn_no;\n(?:.*\n)*?)(\t\trun\(prog\.steps\);)', lambda m:
 		{
 			std::printf("@@HEAVY %d %llu", api.champ(), (unsigned long long)turn_no);
 #ifdef BOT_PROF2
-			std::printf(" [fq=%lld host=%lld nbw=%lld ident=%lld df=%lld]", ::bot_prof[0], ::bot_prof[1], ::bot_prof[2], ::bot_prof[3], ::bot_prof[4]);
+			std::printf(" [fq=%lld host=%lld nbw=%lld ident=%lld df=%lld probe=%lld dfwrap=%lld box=%lld]", ::bot_prof[0], ::bot_prof[1], ::bot_prof[2], ::bot_prof[3], ::bot_prof[4], ::bot_prof[5], ::bot_prof[6], ::bot_prof[7]);
 #endif
 			for (int k = 0; k < 2; ++k)
 				for (int i = 0; i < 512; ++i)

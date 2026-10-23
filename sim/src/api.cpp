@@ -695,14 +695,14 @@ struct SimFieldOps
 	using Board = Bitboard;
 	int W, H, cw;
 	int fidx(int x, int y) const { return ((y >> 3) * cw + (x >> 3)) * 64 + (y & 7) * 8 + (x & 7); }
-	int delta(const Board& a, const Board& b, Vec2* out) const
+	int delta(const Board& a, const Board& b, Vec2* out, int cap) const
 	{
 		int n = 0;
 		for (int y = 0; y < H; ++y)
 			for (int k = 0; k < 2; ++k)
 				for (std::uint64_t d = a.w[y][k] ^ b.w[y][k]; d; d &= d - 1)
 				{
-					if (n < 64) out[n] = { k * 64 + std::countr_zero(d), y };
+					if (n < cap) out[n] = { k * 64 + std::countr_zero(d), y };
 					++n;
 				}
 		return n;
