@@ -287,6 +287,9 @@ struct HostOps
 						  Board& visited) const
 	{
 		std::uint16_t count = 0;
+#ifdef BOT_PROF2
+		struct HT { long long f0 = PROF_T; ~HT() { bot_prof[1] += f0 - PROF_T; } } ht_;
+#endif
 		if (dests)
 			sdk_DistanceField_ComputeToWithExpansionCount(walls.w, roots.w, dests->w, visited.w, field, maxd, &count);
 		else
@@ -312,7 +315,13 @@ FieldAnswer field_query(const Bitboard& walls, const Bitboard& roots, const Bitb
 		memo->reference = true;
 #endif
 	}
+#ifdef BOT_QTRACE
+	const long long qt0 = sdk_fuel_remaining();
+#endif
 	const FieldAnswer ans = memo->query(walls, roots, dests, max_distance, have_me, me, qr, W, H);
+#ifdef BOT_QTRACE
+	std::printf("@@Q path=%d miss=%d layers=%d qr=%d nroots=%d ndests=%d fuel=%lld\n", ans.path, ans.miss, ans.layers, qr, roots.count(H), dests ? dests->count(H) : -1, qt0 - (long long)sdk_fuel_remaining());
+#endif
 #ifdef BOT_VERIFY
 	{
 		const auto maxd = static_cast<std::uint16_t>(std::clamp(max_distance, 0, 0xFFFF));
