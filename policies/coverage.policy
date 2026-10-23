@@ -1,0 +1,116 @@
+# coverage: v2 behaviour plus a call to every block that has no measured fuel cost,
+# so the deploy-bot profiler (oracle/run_bot_profile.sh) can calibrate all blocks.
+# Not meant to play well.
+
+if is_draft():
+    let pool = unpicked_champions()
+    let n = map_width() + map_height() + camp_count()
+    write_draft("cov")
+    if available(pool, champ_vesper_vale()) and n > 0:
+        pick(champ_vesper_vale())
+    else:
+        if available(pool, champ_ren()) or available(pool, champ_ryth()) or available(pool, champ_vendetta()):
+            pick( random_champion(pool) )
+        else:
+            if available(pool, champ_cassi_issac()) or available(pool, champ_stellar()) or available(pool, champ_prism()):
+                pick( random_champion(pool) )
+            else:
+                if available(pool, champ_marcella()) or available(pool, champ_willow()) or available(pool, champ_varg()) or available(pool, champ_tavi()):
+                    pick( random_champion(pool) )
+                else:
+                    pick( random_champion(pool) )
+    end_turn()
+
+keep camp_spawns = camp_spawn_tiles()
+keep terrain = union( union( walls(), holes() ), bushes() )
+
+# ---- calibration probes (results mostly unused) ----
+let r = round_number()
+let f = fuel_remaining()
+let probe_n = count(terrain) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy())
+let flags = i_am_ranged() or slot_is_damage(0) or slot_is_aoe(0) or slot_is_stun(1) or slot_is_heal(0) or slot_is_shield(1) or slot_is_reset(0)
+let who = i_am(champ_vesper_vale()) or i_am(champ_ren())
+let allies = allies_visible()
+let foes = enemies_visible()
+let a1 = weakest(foes)
+let a2 = richest(foes)
+let a3 = nearest(allies)
+let probe_u = count(allies) + unit_health(a1) + unit_gems(a2) + count(foes)
+let tt = team_target()
+let claimed = claimed_by_allies()
+let lockflag = (has_altar_lock() or has_teleport()) and (True or not False)
+if r - 2 * floor(r / 2) == 0 and (probe_n >= 0 or flags or who or lockflag):
+    write_shared(7, r - 256 * floor(r / 256))
+    if exists(a3):
+        set_team_target(a1)
+    if count(claimed) >= 0 and r <= 2000:
+        unclaim()
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally()), position() )
+if at_spawn:
+    let st = random_stat()
+    if r < 50:
+        buy_altar_lock()
+        buy_teleport()
+    if r == 0 or r != 0 or r <= 0 or r >= 0:
+        buy( shard_of(family_power(), stat_strength()), floor( gold() / 60 ) )
+    buy( shard(st), 0 )
+    buy( shard_of(family_monster(), stat_focus()), floor( gold() / 60 ) )
+    buy( shard_of(family_durability(), stat_health()), 0 )
+    buy( shard_of(family_treasure(), stat_health()), 0 )
+    buy( shard_of(family_jungle(), stat_health()), 0 )
+    buy( shard_of(family_home(), stat_health()), 0 )
+    buy( shard_of(family_bruiser(), stat_health()), 0 )
+    buy( shard(stat_health()), 0 )
+
+if not at_spawn and health() < 0.2 * max_health():
+    recall()
+    end_turn()
+
+let enemy = first( filter( enemies_visible(), in_attack_range() ) )
+if exists(enemy):
+    if ability_ready(0):
+        cast_at_unit(0, enemy)
+    if ability_ready(1):
+        cast_at_tile(1, unit_position(enemy))
+    attack(enemy)
+    end_turn()
+
+if gems() > 0:
+    let open_altars = minus( altars(), locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        if has_altar_lock():
+            place_altar_lock(altar)
+        tribute(altar)
+        end_turn()
+    let altar_goal = closest( ring(open_altars, 1) )
+    if slot_is_dash(0) and ability_ready(0):
+        dash_towards(0, altar_goal)
+    move_towards( altar_goal )
+    end_turn()
+
+let camp = first( filter( camps_visible(), in_attack_range() ) )
+if exists(camp):
+    if ability_ready(0):
+        cast_at_unit(0, camp)
+    if ability_ready(1):
+        cast_self(1)
+    attack(camp)
+    end_turn()
+let goals = minus( camp_spawns, respawning_visible_spawns() )
+let camp_goal = closest(goals)
+if exists(camp_goal):
+    claim(camp_goal)
+if has_teleport() and r > 100:
+    teleport_to(camp_goal)
+if r - 50 * floor(r / 50) == 0:
+    place_ward(position())
+if slot_is_dash(1) and ability_ready(1):
+    dash_towards(1, camp_goal)
+move_towards( camp_goal )
+set_priority( 1 + random_int(100) )
+end_turn()
