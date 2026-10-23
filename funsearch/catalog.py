@@ -63,9 +63,11 @@ Observations from our own v3 ladder losses (13-22 over 35 games):
   thousands of rounds.
 - Altars within reach of a monolith kill gem carriers: prefer altars outside
   ring(monolith_tiles(), 5).
-- Many deaths come from fights taken while outnumbered, usually starting above 50% health:
-  avoid fights when allies_within(4) is less than the number of visible enemies, and retreat
-  from champions at about 60% health.
+- Some deaths come from fights taken while outnumbered (compare allies_within(4) with the
+  number of visible enemies), but most of our deaths to champions come in even or favourable
+  fights (1v1 deaths: 121 ours vs 41 theirs). So improve fight quality (target choice,
+  ability use and timing, focus fire, items) rather than avoiding fights; make any
+  engagement or retreat threshold a named constant so it can be tuned.
 """
 
 GRAMMAR += """\
