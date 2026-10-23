@@ -30,7 +30,7 @@ import sys
 import time
 from pathlib import Path
 
-from .evaluate import ROOT, evaluate
+from .evaluate import EVAL_BIN, ROOT, evaluate
 
 FRESH_SEEDS = (5_000_011, 6_000_011)  # validation only; the runs use eval seeds 0 and 1
 MORE_SEEDS = (7_000_011, 8_000_011)  # second batch for borderline head-to-head results
@@ -67,17 +67,41 @@ def top_distinct(run, k):
     return out
 
 
+CACHE = ROOT / "runs" / "validation_cache.jsonl"  # survives container restarts
+
+
+def _cached_eval(text, opp, games, threads, seed):
+    """(wins, games) of text vs one opponent, cached on disk by content: validation is long, and a
+    container restart in the middle of it should only lose the evaluation in flight."""
+    import hashlib
+    key = hashlib.sha256("\0".join([text, opp, Path(ROOT / opp).read_text() if opp.endswith(".policy") else "",
+                                    str(games), str(seed), str(EVAL_BIN.stat().st_mtime)]).encode()).hexdigest()
+    if CACHE.exists():
+        for line in open(CACHE):
+            row = json.loads(line)
+            if row["key"] == key:
+                return row["wins"], row["games"]
+    r = evaluate(text, opponents=(opp,), games=games, threads=threads, seed=seed)
+    if not r.ok:
+        return None
+    m = next(iter(r.per_opponent.values()))
+    with open(CACHE, "a") as f:
+        f.write(json.dumps({"key": key, "wins": m["a_wins"], "games": m["games"]}) + "\n")
+    return m["a_wins"], m["games"]
+
+
 def win_rates(text, opponents, games, threads, seeds=FRESH_SEEDS, counts=False):
     """Win rate per opponent over the fresh seeds (games per opponent per seed); with counts,
     (wins, games) pairs instead."""
     totals = {}
     for seed in seeds:
-        r = evaluate(text, opponents=tuple(opponents), games=games, threads=threads, seed=seed)
-        if not r.ok:
-            return None
-        for name, m in r.per_opponent.items():
+        for opp in opponents:
+            res = _cached_eval(text, opp, games, threads, seed)
+            if res is None:
+                return None
+            name = Path(opp).stem if opp.endswith(".policy") else opp
             w, n = totals.get(name, (0.0, 0))
-            totals[name] = (w + m["a_wins"], n + m["games"])
+            totals[name] = (w + res[0], n + res[1])
     return totals if counts else {name: w / n for name, (w, n) in totals.items()}
 
 
