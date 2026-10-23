@@ -26,7 +26,7 @@ def mfeat(mp):
     return dict(H=H,W=W,ch=math.ceil(W/8)*math.ceil(H/8),camps=sum(len(g['camps']) for g in d['camp_layout']),
                 groups=len(d['camp_layout']),altars=sum(bin(b).count('1') for b in alt))
 F={mp:mfeat(mp) for mp in maps}
-APIN=None
+APIN=[]  # canonical API scope names: runs from different bot builds list them differently
 OVH={}
 samples=collections.defaultdict(list); loop=collections.defaultdict(list)
 TURNS=collections.defaultdict(list)  # run -> [(turn_no, [(op, exp, dbits, occ)], blocks, api calls)]
@@ -35,11 +35,16 @@ for run in runs:
     for l in open(f'{run}/prof.txt'):
         f=l.split()
         if not f: continue
-        if f[0]=='@@APINAMES': APIN=f[1].split(',')
+        if f[0]=='@@APINAMES':
+            remap={}
+            for i,nm in enumerate(f[1].split(',')):
+                if nm not in APIN: APIN.append(nm)
+                remap[1000+i]=1000+APIN.index(nm)
         elif f[0]=='@@T': tot=0; nsc=0; nblk=0; tno=int(f[1]); ops=[]
         elif f[0]=='@@S':
             op,sf,ex,db,cex,cdb,oc=map(int,f[1:8])
             if op in (509,510): continue  # the profiler's own calibration scopes, outside the turn
+            op=remap.get(op,op)
             samples[op].append((mp,sf,ex+cex,db+cdb,oc)); tot+=sf; nsc+=1; nblk+=op<1000
             ops.append((op,ex+cex,db+cdb,oc))
         elif f[0]=='@@TURN':
