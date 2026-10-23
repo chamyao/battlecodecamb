@@ -100,6 +100,19 @@ Grammar code: `policygen/` (branch `grammar/v0`).
 - **Sprint 1**: winner Intercontinental Fish, runner-up Nyx; top-16 replays on
   branch `analysis/sprint1`, analysed by its own session.
 
+### Training opponents (revised Oct 23, after the first ladder games)
+
+- First ranked games: fs-1 went 2-13 against mid-table teams (team "Master",
+  437th, ~1,465), although it beats everything in our sim pool. Hand-written
+  imitations of real teams are not faithful opponents.
+- Decision: **train against ourselves.** FunSearch scores against a self-play
+  league (current best plus previous validated bests; starter only as a sanity
+  floor). A new best must beat the current best head to head and not regress
+  against older league members.
+- **Real matches are a source of ideas, not opponents to copy:** policy styles,
+  tactics and missing blocks extracted from replays go into the prompt and the
+  language. Recreating other teams' bots is out of scope.
+
 ### Deployment shape (agreed so far)
 
 - No model runs on the bots. The network lives offline and outputs
