@@ -1,7 +1,7 @@
 // Fuel accounting. Fuel is a game rule: every bot call is priced, the per-turn budget is
 // enforced by the runner, and exhausting it suspends the bot until its next turn.
 //
-// Prices are placeholders until measured against cambc (see docs/FUEL.md). A price may
+// Prices are placeholders until measured against cambc (see docs/SIMULATOR.md, "Fuel"). A price may
 // depend on the call's inputs (map size, unit count, search size...) via PriceContext.
 #pragma once
 #include <cstdint>
