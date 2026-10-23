@@ -122,6 +122,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   `docs/LADDER_LOSSES_V3.md`). 3 = v4 (Oct 23; `deploy/v0` c06711d, sha256
   8381086a...): v3 + tribute through locked altars, prefer altars out of monolith
   reach. Real cambc: 39/80 vs v3, 71/80 vs locker (v3 66/80).
+  4 = v5d (Oct 23; `deploy/v0` 6ed2435, sha256 480bd75d...): v4 + focus fire on
+  the weakest enemy in range + fixed draft order (Vesper Vale, Tavi, Marcella,
+  Stellar, Ren). Real cambc 51/80 vs v4. The draft is a large lever: the bot's
+  fixed RNG seeds had been drafting one composition every game (see
+  `docs/ENGINE_FINDINGS.md`, "Match seeding", on `deploy/v0`).
 
 ### Deployment shape (agreed so far)
 
