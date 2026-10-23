@@ -214,7 +214,8 @@ Known weak spots:
 - `or`/`and` are bimodal (short-circuit or not), charged at their mean (MAE ~100).
 - `nearest_by_walk`'s history (bot_api.cpp: after a dear reachable mask, a capped
   origin-rooted search on memo misses) is mirrored in `Api::nearest_by_walk`. The bot decides
-  on the mask's *measured* fuel; the simulator uses an estimate (190 + 1.7 per tile reached),
+  on the mask's *measured* fuel; the simulator uses an estimate, max(190 + 1.7 per tile reached,
+  0.9·chunks·D) (the bot session's measurements: compact regions vs long open walks),
   so its choice of path can differ on a few turns.
 - The model is for this bot build: re-run `run_bot_profile.sh` (coverage, v2 and fs-1) and
   `fuel_calibrate.py` whenever `bot/` or the interpreter changes (a run takes ~30 minutes
@@ -240,7 +241,33 @@ games are identical (same end round and gems):
 | 10-90% / 1-99% | [−6.1%, +14.3%] / [−17.1%, +27.5%] |
 | heaviest turns | within 1% (e.g. 153.9k vs 153.0k, 142.0k vs 142.0k) |
 
-The simulator is slightly conservative (≈+4%) for this policy.
+On the same games fs-1 (team B, `--side b`) comes out at 1.008 in total (median −0.8%,
+10-90% [−9.0%, +11.8%]), so the +4% is specific to v7zg-cast, not a global offset. (Re-run on
+d3f0df8 with the refined mask estimate below: v7zg-cast 1.045.)
+
+**Running total.** The per-turn correction (`INTERP_TURN_COST`: per block and per API call,
+negative on balance) is charged after every block, not once at the end of the turn, so the
+running total under `--enforce` follows the real meter. Charged at the end, a 93.9k turn
+(cambc 88.0k) peaked near 105k mid-turn and was suspended; that was the whole 00ambush
+divergence below. Turn totals are unchanged.
+
+tune-1 vs v7zg-cast, 40 maps × 2 sides, `--bot-seeds` against `cambc run-batch`: 79/80 games
+end identically (winner and end round; tie-broken round-2000 draws included). Before the
+enemy-spawn dash rule (docs/ENGINE_FINDINGS.md) and the running total, 75/80. The last one,
+01big-world with tune-1 as team A, is identical with fuel unenforced. Enforced, three turns
+that cambc measured at ~95.7k come out at ~103.5k: `api:nearest_by_walk` on big maps is fitted
+high (measured / model median 0.92 on 01big-world, 0.84 for the largest calls), and
+`api:distance_field` likewise for long searches (0.90).
+
+Diagnostics for this kind of check:
+- `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
+  trace build): per champion turn, `@@ST` (state seen at turn start), `@@SE` (the `end_turn()`
+  reached, move target and step, end position, dash target and result), `@@SP` (priority).
+  `STATE_TRACE_ROUNDS=a-b` adds `@@SB` counts and order-free hashes of the blocked set, camp
+  set and vision; `STATE_TRACE_TILES=r` adds that round's vision as `@@SV` row masks. Printing
+  is metered in the bot, so keep the windows short.
+- `FUEL_TURN_DETAIL=ROUND:CHAMP` (fuel_turns): that turn's charges by block (`@@DTB`) and API
+  call (`@@DTC`, by `cbs::Call`), its total and its correction.
 
 **Outcome check.** With the current table, the simulator gives 0 suspensions per game for v3
 and fs-1 against starter (40 maps × 5 seeds). Win rates: v3 196/200 = 98%, fs-1 195/200 =
