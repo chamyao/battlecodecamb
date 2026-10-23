@@ -1126,6 +1126,7 @@ Err Game::sell(int c, int item)
 	Champion& ch = champs[c];
 	if (champion_design(ch.type).passive != Passive::remote_shop) return Err::sell_not_tavi;
 	if (ch.alive && ch.channel != Channel::none) return common_action_checks(ch);
+	if (is_stunned(c)) return Err::cant_act; // RULE? order vs the Tavi/channel checks
 	if (item < 0 || item >= kNumItems) return Err::sell_invalid_item;
 	if (ch.items[item] <= 0) return Err::sell_not_owned;
 	if (!can_sell(c)) return Err::sell_not_on_spawn;
@@ -1241,7 +1242,16 @@ Err Game::place_ward(int c, Vec2 dest, bool& ok)
 		return Err::ward_bad_destination;
 	if (chebyshev(ch.pos, dest) > settings().ward_placement_radius) return Err::ward_out_of_range;
 	for (const auto& w : wards)
-		if (w.team == ch.team && w.pos == dest) return Err::ward_ally_ward_present;
+		if (w.team == ch.team && w.pos == dest)
+		{
+			// An allied ward the champion cannot see behaves like a hidden occupant: success, nothing
+			// placed, the tile is revealed.
+			Bitboard vis;
+			champion_vision(c, vis);
+			if (vis.test(dest)) return Err::ward_ally_ward_present;
+			if (ch.revealed_n < 8) ch.revealed[ch.revealed_n++] = dest;
+			return Err::success;
+		}
 	bool replaced = false;
 	for (auto& w : wards)
 		if (w.owner == c)
