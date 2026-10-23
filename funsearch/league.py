@@ -83,6 +83,11 @@ def main():
     ap.add_argument("--keep", type=int, default=3, help="older members kept besides the best")
     ap.add_argument("--fixed", default="", help="opponents always in the league (e.g. a style the bests "
                                                 "lack, like altar locking); never dropped or promoted")
+    ap.add_argument("--policy-prefix", default="fs-", help="promoted policies are policies/<prefix><n>.policy")
+    ap.add_argument("--line", default="", help="line name written into promoted headers with the lineage "
+                                              "(e.g. pure: programs descend only from FunSearch outputs)")
+    ap.add_argument("--session", default="https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj",
+                    help="Claude-Session trailer for promotion commits")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     args, run_args = ap.parse_known_args()  # anything else goes to funsearch.run
 
@@ -129,20 +134,26 @@ def main():
             continue
 
         p, h2h, rates = promoted
-        n = 1 + max(int(f.stem.split("-")[1]) for f in (ROOT / "policies").glob("fs-*.policy")
-                    if f.stem.split("-")[1].isdigit())
-        out = ROOT / "policies" / f"fs-{n}.policy"
-        header = (f"# fs-{n}: league {run} #{p['id']}; beat {Path(best).stem} {h2h:.1%} head to head on "
+        pre = args.policy_prefix
+        n = 1 + max((int(f.stem[len(pre):]) for f in (ROOT / "policies").glob(f"{pre}*.policy")
+                     if f.stem[len(pre):].isdigit()), default=0)
+        out = ROOT / "policies" / f"{pre}{n}.policy"
+        header = (f"# {pre}{n}: league {run} #{p['id']}; beat {Path(best).stem} {h2h:.1%} head to head on "
                   f"{2 * args.val_games} fresh games.\n")
+        if args.line:
+            # lineage: the parent's chain (from its header) plus this generation
+            prev = next((l.split(":", 1)[1].strip() for l in Path(best).read_text().splitlines()
+                         if l.startswith("# lineage:")), Path(best).stem)
+            header += f"# line: {args.line}\n# lineage: {prev} -> {run} #{p['id']} = {pre}{n}\n"
         out.write_text(header + p["text"])
         summary = ", ".join(f"{k} {v:.1%}" for k, v in rates.items())
         log(f"  PROMOTED {out.name}: {summary}", logfile)
         if not args.no_commit:
             subprocess.run(["git", "add", str(out)], cwd=ROOT)
-            subprocess.run(["git", "commit", "-qm", f"policies/fs-{n}: league promotion ({run} #{p['id']})\n\n"
+            subprocess.run(["git", "commit", "-qm", f"policies/{pre}{n}: league promotion ({run} #{p['id']})\n\n"
                             f"Fresh-seed win rates ({2 * args.val_games} games each): {summary}\n\n"
                             "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
-                            "Claude-Session: https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj"], cwd=ROOT)
+                            f"Claude-Session: {args.session}"], cwd=ROOT)
             subprocess.run(["git", "push", "-q", "origin", "HEAD"], cwd=ROOT)
         members = [str(out.relative_to(ROOT)), *(m for m in league if m not in fixed)][: 1 + args.keep]
         state = {"gen": state["gen"] + 1, "members": members}
