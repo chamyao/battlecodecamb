@@ -216,7 +216,7 @@ def load(exdir, sides):
         code, n = key.split('/')
         d = json.load(open(os.path.join(exdir, code, v['file'])))
         for s in game_stats(d, (v['A'], v['B'])):
-            s.update(code=code, game=int(n), map=v['map'])
+            s.update(code=code, game=int(n) if n.isdigit() else n, map=v['map'])
             rows.append(s)
     return rows
 
@@ -286,7 +286,7 @@ def report(all_rows):
     P('\nBag size at tribute (gems), distribution\n')
     bins = [(1, 10), (11, 20), (21, 30), (31, 50), (51, 80), (81, 120), (121, 10000)]
     tab = []
-    for name, sel in [('top-4 teams', lambda r: r['team'] in TOP4), ('other 12', lambda r: r['team'] not in TOP4),
+    for name, sel in [('top-4 teams', lambda r: r['team'] in TOP4), ('other teams', lambda r: r['team'] not in TOP4),
                       ('game winners', lambda r: r['win']), ('game losers', lambda r: not r['win'])]:
         b = bags(sel)
         tab.append([name, len(b), med(b)] + [f"{100 * sum(1 for x in b if lo <= x <= hi) / len(b):.0f}%" for lo, hi in bins])
@@ -294,7 +294,7 @@ def report(all_rows):
     R['bags'] = tab
     P('\nCaptures (with gems) by the tributing champion since its previous tribute or death\n')
     tab = []
-    for name, sel in [('top-4 teams', lambda r: r['team'] in TOP4), ('other 12', lambda r: r['team'] not in TOP4),
+    for name, sel in [('top-4 teams', lambda r: r['team'] in TOP4), ('other teams', lambda r: r['team'] not in TOP4),
                       ('game winners', lambda r: r['win']), ('game losers', lambda r: not r['win'])] + [(t, (lambda t: lambda r: r['team'] == t)(t)) for t in TOP4]:
         c = [x[3] for r in rows if sel(r) for x in r['lists'].get('tribute', [])]
         tab.append([name, len(c), f"{mean(c):.2f}"] + [f"{100 * sum(1 for x in c if x == k) / len(c):.0f}%" for k in (0, 1, 2, 3)] + [f"{100 * sum(1 for x in c if x >= 4) / len(c):.0f}%"])
@@ -314,9 +314,9 @@ def report(all_rows):
             ks = [k for k in ks if k <= rd]
             return r['curve'][ks[-1]]['sub'] if ks else 0
         w = [at(r) for r in rows if r['win']]; l = [at(r) for r in rows if not r['win']]
-        f = [at(r) for r in rows if r['team'] == 'Intercontinental Fish']; ny = [at(r) for r in rows if r['team'] == 'Nyx']
+        f = [at(r) for r in rows if r['team'] == TOP4[0]]; ny = [at(r) for r in rows if r['team'] == TOP4[1]]
         tab.append((rd, med(w), med(l), med(f), med(ny)))
-    P(table(['round', 'winners', 'losers', 'Fish', 'Nyx'], tab))
+    P(table(['round', 'winners', 'losers', TOP4[0], TOP4[1]], tab))
     R['curve'] = tab
 
     # camps farmed
@@ -446,7 +446,7 @@ def report(all_rows):
     for r in timeout:
         if r['side'] == 'A':
             o = [x for x in timeout if x['code'] == r['code'] and x['game'] == r['game'] and x['side'] == 'B'][0]
-            P(f"  - {r['code']}/{r['game']:02d} {r['team']} {r['tributed']} vs {r['opp']} {r['opp_tributed']}; gold earned {r.get('gold_earned', 0)} vs {o.get('gold_earned', 0)}; kills {r.get('kills', 0)} vs {o.get('kills', 0)}; winner {r['team'] if r['win'] else r['opp']}")
+            P(f"  - {r['code']}/{r['game']} {r['team']} {r['tributed']} vs {r['opp']} {r['opp_tributed']}; gold earned {r.get('gold_earned', 0)} vs {o.get('gold_earned', 0)}; kills {r.get('kills', 0)} vs {o.get('kills', 0)}; winner {r['team'] if r['win'] else r['opp']}")
     # predictors: who leads at round 200/300 wins?
     P('\nDoes the leader in tributed gems at round N win? (decided games)\n')
     tab = []

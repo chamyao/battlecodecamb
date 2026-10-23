@@ -1,4 +1,4 @@
-# Sprint 1: how the top 16 played
+# How the top teams play: Sprint 1 and the current ladder
 
 Source: all 225 games of Sprint 1's round of 16 to the final (`data/sprint1/`), replayed
 through the official engine to get full state at every step (`analysis/`, see its
@@ -38,7 +38,77 @@ today's for a wolf); today camp gems are scarce, so monoliths, kills (gems stole
 better than numbers or drafts.** Checked in our simulator: imitations of the top four
 teams' policies (below) all lose to our `v1.policy` (27-37% win rate).
 
-## Findings
+## Current ladder (v1_0_3): 285 ranked games among the top 12, 23 Oct 2026
+
+Because of the ruleset change, the current ladder is the better guide. Data:
+`data/ladder-2026-10-23/` (sides and results straight from platform metadata, all 285
+engine results match the platform's); tables in `analysis/ladder_report.md`. Top 4 at fetch
+time: prism best girl, Intercontinental Fish, policy wonk, procless.
+
+**Drafts: a new meta.** Vesper Vale 92% pick rate, Heart of Ruin 78% (most first picks, 171),
+Marcella 76% (166 first picks), Vendetta 58%, Ryth 55%, Prism 26% (99 first picks), Willow
+22%, Tavi 15%, Cassi & Issac 11%, Varg 6%, Stellar 3%, Ren 2%. The Sprint 1 core has gone.
+- prism best girl: Prism > Vesper > Marcella/HoR > Vendetta (> Ryth).
+- Intercontinental Fish: Vesper > Vendetta > HoR > C&I > Ryth (26 of 50).
+- policy wonk (32-13, the best record of the top 4): Marcella > Vesper > Tavi > Willow > HoR.
+- procless: HoR > Vesper > Ryth > Marcella > Vendetta (32 of 45).
+
+**Games are long, and comebacks are common.** Median game length is 1,117 rounds (Sprint 1:
+~650). Median tributed gems for winners are 44 at round 200, 160 at 400, 335 at 600. The leader
+at round 200 wins only 57% (71% in Sprint 1); at round 400, 66%.
+
+**Economy.**
+- Gold first: double gold clusters are the most common first capture (295 of the first three
+  captures per game; next gold+wolf 165, elk+gem+gold 99).
+- Gems come from groups with elks and gem clusters (elk+gem+gold alone is 7.6% of all gems).
+- Monoliths are 7% of gems but decisive. On maps with monoliths, the side that captured more
+  of them won 45 of 56 games (80%). Median capture round: 1,040, so it is a late-game play.
+  prism best girl captured the most (31 in 50 games).
+- Gold earned per game is ~6-8.4k (Sprint 1: ~4k), and nearly all of it is spent.
+- Tribute: 59% of the top 4's tributes come after one capture, 20% after two, 18% after three
+  or more. Other teams: 70% after one. Median bag: top 4 30 gems, others 22. Banking a little
+  more than one camp is now normal for the best teams (policy wonk: only 50% after one capture).
+  Gem captures are small now (a wolf gives 4).
+- Vesper Vale receives 30% of the top teams' capture rewards and makes 31% of their tributes.
+
+**Items: Bruiser and Treasure, not Power.** Vesper: Bruiser Strength 33%, Power Strength 33%.
+Marcella: Bruiser Focus/Health/Strength 29/28/20%. HoR: Bruiser Health/Focus 25/25%, Jungle
+Focus 11%. Vendetta: Bruiser Strength 39%. Openers: procless buys **Treasure Health first on
+every champion**, then Jungle; policy wonk opens Treasure then Jungle; prism best girl opens
+Power/Durability Health. Teleport crystals are common (Noobot 8.4 used per game, prism best girl 5.4).
+
+**Fighting.** 11-20% of the top teams' basic attacks hit champions. Winners average 10.0 kills
+and 5.0 deaths per game; losers 4.2 and 10.9. Predictors over 280 decided games: more gems
+captured 92%, more gold 86%, more kills 79%, fewer deaths 76%, more attacks on champions 65%;
+wards 53%, altar locks 45%, teleports 48% (no signal).
+
+**Abilities.** Same habits as Sprint 1, at higher volume (games are longer):
+- Dashes as movement: HoR 88, Vendetta 80, Vesper 71, Issac 71 per game, all at ground tiles.
+- Resets and shields on cooldown: Varg shield 89 per game, HoR shield 54, Vesper reset 52.
+- Damage spells on camps 68-83% of the time (Marcella slot 1: camp 68%; Stellar, Prism, Cassi
+  75-83%).
+- Prism and Stellar AoE aimed at empty ground 67% of the time.
+
+**Recall is transport.** The top 4's median health when starting a recall is 57-100%. 32-56%
+of their recalls start at >=90% health, typically carrying gems (50-66%) or 100+ gold, i.e.
+going home to shop and heal. Four teams (:3, Pantheon, Noobot, NEETCoders) re-issue and cancel
+recall thousands of times per game, a cheap bot idiom.
+
+**Policies.** `policies/ladder_meta.policy`, `prism_best_girl.policy`, `policy_wonk.policy`,
+`procless.policy` (Heart of Ruin cannot be drafted in our grammar yet). 200 games each in our
+simulator:
+
+| policy | vs starter | vs v1 | vs fish (Sprint 1 imitation) |
+|---|---|---|---|
+| ladder_meta | 0.88 | 0.41 | 0.65 |
+| prism_best_girl | 0.84 | 0.35 | 0.71 |
+| policy_wonk | 0.92 | 0.48 | 0.68 |
+| procless | 0.90 | 0.48 | 0.75 |
+
+These are at parity with v1 (±0.035 standard error), so they are better training opponents
+than the Sprint 1 imitations.
+
+## Sprint 1 findings
 
 ### 1. Drafts: a two-champion core, then Ren/Varg/Ryth
 
@@ -203,7 +273,9 @@ more kills (81%), fewer deaths (75%); more basic attacks on champions (51%), mor
    where its bot did nothing. Fuel is a rule: every block must stay within budget on any
    map size (100x100 included), and the interpreter needs a cheap fallback (e.g. starter
    behaviour) whenever a step fails or fuel runs low.
-2. **Tribute after every capture.** No top team banked; confirmed by our own experiment.
+2. **Tribute after every capture or two.** Sprint 1 teams never banked; today's top 4 tribute
+   after one capture 59% of the time and after two 20% (camp gems are small now). Our own
+   experiment says delaying hurts, so keep bags small.
 3. **Spells on camps, self-casts on cooldown, dashes as movement.** Damage/stun spells
    should target camps when no enemy is in range; attack resets and shields fire whenever
    a target is in range; dash slots (Issac, Ren, Vendetta, Vesper) should be spent
@@ -211,15 +283,18 @@ more kills (81%), fewer deaths (75%); more basic attacks on champions (51%), mor
 4. **Trade kills, don't chase fights.** Kill/death difference predicts the winner (81%),
    attack volume does not. Engage when the fight calculator says we win it, and protect
    gem carriers: recall at low health (our 20% result) and avoid dying with a bag.
-5. **Draft from the map.** The same team won or lost depending on its per-map draft.
-   Draft should read map features (team size, map size, camp mix) and pick a sub-policy.
-   Under current rules re-test the meta: Vesper Vale (buffed) already beats Stellar-first
-   drafts in our simulator.
-6. **Gold tiebreak.** When altars are unreachable or blocked (monoliths in the way),
-   switch to maximising gold earned (Treasure items, gold clusters), since 0-0 games go to
-   gold. Also consider killing monoliths: 400 gems is unchanged and now worth 100 wolves.
-7. **Shards**: one family at a time to complete emblems (Power default). Treasure first
-   is a viable opener (Nyx). Re-check focus vs strength per champion with v1 numbers.
+5. **Draft the current meta, from the map.** Ladder: Vesper Vale 92%, Heart of Ruin 78%,
+   Marcella 76%, Vendetta 58%, Ryth 55%; Stellar/Ren/C&I have nearly vanished. In Sprint 1 the
+   same team won or lost depending on its per-map draft, so the draft should read map
+   features (team size, map size, camp mix, monoliths) and pick a sub-policy.
+6. **Take monoliths late; mind the gold tiebreak.** On ladder maps with monoliths, the side
+   that captured more of them won 80% (45 of 56), typically around round 1,040 once
+   champions are itemised. 400 gems is worth 100 wolves today. When altars are unreachable,
+   maximise gold earned: 0-0 games go to gold.
+7. **Shards: gold first, then Bruiser.** The ladder's top teams open double gold clusters and
+   Treasure shards (procless: Treasure Health on every champion), then build Bruiser (Vesper,
+   Marcella, HoR, Vendetta) or Power Strength (Vesper). Our interpreter can only buy Power:
+   the shard-family block is the most obvious missing piece.
 
 ## Policies written
 
@@ -243,7 +318,11 @@ self-casts: 0.81 / 0.29. ±0.035 is one standard error at 200 games.
 ### Behaviour the language cannot express yet (missing blocks)
 
 - **Shard family**: `shard(stat)` always buys Power. Needed: `shard(family, stat)`
-  (Treasure-first openers, Durability/Bruiser/Jungle).
+  (Treasure-first openers, Bruiser builds that dominate the current ladder, Durability/Jungle).
+- **Heart of Ruin pick**: no `champ_heart_of_ruin()` block, yet it is the ladder's most common
+  first pick (also Marcella/Willow/Tavi branches lack kit-specific handling).
+- **Monolith targeting**: camp-type filters (e.g. `camps_of_type(monolith)`) and a
+  "strong enough to take it" condition.
 - **Cassi vs Issac**: `i_am(champ_cassi_issac())` matches both bodies; they want different
   stats and spells.
 - **Consumables**: buy/use altar lock and teleport crystal (UoS 3.2 locks/game; Fish ~4
