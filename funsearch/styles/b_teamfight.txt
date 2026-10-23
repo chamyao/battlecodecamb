@@ -9,8 +9,11 @@ group:
   its damage/stun abilities at it (slot_is_damage, slot_is_stun, slot_is_aoe);
 - contest the enemy's camps: go as a group to rich camps (gem clusters, elk groups) near the
   enemy side or where enemies are seen, and fight there with the numbers advantage;
-- take fights when allies_within(r) >= visible enemies, disengage otherwise. Name every
-  threshold as a constant.
+- take fights with the numbers on your side: enemies_within(r) counts enemy champions near
+  you and local_strength(r) compares your group's health x damage with theirs (pair it with
+  enemies_within(r) > 0); bare retreat/chase thresholds on it lost in our tests, so use it to
+  decide WHERE and WITH WHOM to fight (wait for allies, pull back toward them), not only
+  whether. Name every threshold as a constant.
 Keep farming, tributing and recall rules that already work. Every version must keep using
 team coordination (set_team_target/team_target and claim/claim_count); a version that drops
 the style is rejected.

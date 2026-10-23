@@ -8,7 +8,7 @@ case "$1" in
   c) dir=funsearch/styles/c_monolith.txt; req=monolith_tiles,claim_count ;;
   *) echo "usage: $0 <a|b|c> <budget>"; exit 1 ;;
 esac
-exec python3 -m funsearch.league --name "style-$1" --budget "$2" \
+exec python3 -m funsearch.league --name "style2-$1" --budget "$2" \
   --members policies/v5d.policy --keep 0 \
   --fixed policies/v4.policy,policies/locker.policy,policies/fs-2.policy \
   --regress 1.0 --prefix "style-$1" --line "style-$1" \
