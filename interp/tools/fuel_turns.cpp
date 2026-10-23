@@ -4,6 +4,7 @@
 // applies the real per-turn budget and suspension) and
 // prints one line per champion turn of the policy's team: "<turn index> <fuel>".
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include "cbs/api.h"
@@ -43,4 +44,10 @@ int main(int argc, char** argv)
 				 static_cast<unsigned long long>(m.stats.suspensions));
 	const auto& ms = cbs::memo_stats();
 	std::fprintf(stderr, "memo calls %lld misses %lld layers %lld\n", ms.calls, ms.misses, ms.layers);
+	if (std::getenv("FUEL_TURNS_BREAKDOWN"))
+	{
+		for (const auto& b : interp::charge_stats()) std::fprintf(stderr, "@@B %s %lld %lld\n", b.key.c_str(), b.count, b.fuel);
+		for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
+			if (ms.call_n[c]) std::fprintf(stderr, "@@C %d %lld %lld\n", c, ms.call_n[c], ms.call_fuel[c]);
+	}
 }

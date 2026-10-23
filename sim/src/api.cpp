@@ -392,11 +392,25 @@ Err Api::camp(std::uint32_t h, CampRecord* out)
 void Api::visible_camps(std::vector<std::uint32_t>& out)
 {
 	out.clear();
+	// The deploy bot (bot_api.cpp) reads the camp occupancy and queries each occupied tile, so
+	// it is priced on those tiles; otherwise one camp call per camp.
+	const bool bot = prices_->bot_memo && count_charges;
+	if (bot)
+	{
+		Bitboard occ;
+		const bool counting = count_charges;
+		count_charges = false;
+		camp_occupancy(occ, 0);
+		count_charges = counting;
+		charge(Call::visible_camps, 0, occ.count(g_.map().H)); // n2: tiles (calibrated as dbits)
+		count_charges = false;
+	}
 	for (std::uint32_t c = 0; c < g_.map().camps.size(); ++c)
 	{
 		CampRecord cr{};
 		if (camp(c, &cr) == Err::success && cr.health > 0) out.push_back(c);
 	}
+	if (bot) count_charges = true;
 }
 
 Err Api::camp_state(std::uint32_t h, std::uint32_t* out)
@@ -719,12 +733,6 @@ struct SimFieldOps
 };
 using SimMemo = field_memo::Memo<SimFieldOps>;
 } // namespace
-
-MemoStats& memo_stats()
-{
-	static MemoStats s;
-	return s;
-}
 
 Api::MemoCharge Api::memo_query(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, Vec2 me,
 								bool have_me, int qr)

@@ -98,7 +98,7 @@ s=s.replace('#include "bot_api.h"','#include "bot_api.h"\n#include "sprof.h"',1)
 lines=s.split('\n'); out=[]; names=[]; i=0
 while i < len(lines):
     l=lines[i]
-    m=re.match(r'^(Err|int|bool) Api::(\w+)\(', l)
+    m=re.match(r'^(Err|int|bool|void|std::int32_t) Api::(\w+)\(', l)
     if m:
         nm=m.group(2); idx=1000+len(names); names.append(nm)
         # find opening brace of body
@@ -131,6 +131,16 @@ s=s.replace(a,a+"""		{
 			sprof::exclude(t0);
 		}
 """)
+# visible_camps: the occupied camp tiles it walks
+a="""	for (std::size_t i = 1; i < out.size(); ++i)
+		for (std::size_t j = i; j > 0 && out[j - 1] > out[j]; --j) std::swap(out[j - 1], out[j]);"""
+assert a in s
+s=s.replace(a,"""	{
+		const long long t0 = sprof::now();
+		sprof::feat(0, occ.count(g_.map().H));
+		sprof::exclude(t0);
+	}
+"""+a)
 open(p,'w').write(s)
 p=f'{src}/main.cpp';s=open(p).read()
 names_str=','.join(names)

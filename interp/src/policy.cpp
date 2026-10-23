@@ -172,6 +172,12 @@ struct BlockCostTable
 			if (const BlockInfo* b = find_block(c.key)) row[c.exec ? 1 : 0][b - kBlockTable] = c.milli;
 	}
 };
+// Charges per block (count, fuel) [exec][op], for diagnostics (interp::charge_stats; not thread-safe).
+static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2>& charge_stats_table()
+{
+	static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> t{};
+	return t;
+}
 static const BlockCostTable& block_costs()
 {
 	static const BlockCostTable t;
@@ -183,6 +189,15 @@ struct Work
 {
 	std::int64_t occ = 0, dests = 0, exp = 0, bits = 0;
 };
+
+std::vector<BlockCharge> charge_stats()
+{
+	std::vector<BlockCharge> out;
+	for (int e = 0; e < 2; ++e)
+		for (int i = 0; i < kNumBlocks; ++i)
+			if (charge_stats_table()[e][i][0]) out.push_back({ (e ? "exec:" : "") + std::string(kBlockTable[i].key), charge_stats_table()[e][i][0], charge_stats_table()[e][i][1] });
+	return out;
+}
 
 std::vector<std::string> supported_blocks()
 {
@@ -575,6 +590,9 @@ struct Interp
 									 static_cast<std::int64_t>(m().groups.size()), w.bits };
 		std::int64_t milli = 0;
 		for (int i = 0; i < 10; ++i) milli += c[i] * f[i];
+		auto& st = charge_stats_table()[exec ? 1 : 0][static_cast<int>(op)];
+		++st[0];
+		st[1] += std::max<std::int64_t>(0, milli / 1000);
 		api.compute(std::max<std::int64_t>(0, milli / 1000));
 	}
 	// Distance field through the API, recording its work for the calling block's cost.
@@ -601,10 +619,25 @@ struct Interp
 	void turn()
 	{
 		++turn_no;
+		// The deploy bot's one-off start-up (map, camp layout, allocator; bot/src/main.cpp) on a
+		// champion's first turn, measured on 24 cambc games of v2 / fs-1 as first-turn fuel minus
+		// the simulator's charge for that turn (docs/FUEL.md): mae 2.8k on a mean of 93k.
+		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
+			api.compute(67167 + 2324 * m().W * m().H / 1000 + 253 * static_cast<std::int64_t>(m().camps.size()) +
+						390 * static_cast<std::int64_t>(m().groups.size()));
+		const std::uint64_t calls0 = api.api_calls;
+		const std::int64_t spent0 = api.spent;
 		blocks_this_turn = 0;
 		run(prog.steps);
-		// the step loop itself (Value temporaries etc. between blocks)
-		if (api.count_charges) api.compute(std::max<std::int64_t>(0, static_cast<std::int64_t>(INTERP_TURN_COST(blocks_this_turn, m().H))));
+		// The step loop itself (Value temporaries etc. between blocks) and the calibration's
+		// per-block / per-call corrections (block_costs_gen.inc), which may be negative; never
+		// below zero for the turn as a whole.
+		if (api.count_charges)
+		{
+			const auto adj = static_cast<std::int64_t>(
+				INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - calls0)));
+			api.compute(std::max<std::int64_t>(adj, -std::max<std::int64_t>(0, api.spent - spent0)));
+		}
 	}
 
 	// Returns false when END_TURN was reached.
