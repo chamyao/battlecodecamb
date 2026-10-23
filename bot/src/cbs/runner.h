@@ -23,6 +23,10 @@ public:
 	// turn (the call does not take effect) and the next turn starts with a fresh budget.
 	virtual bool is_inline() const { return false; }
 	virtual void inline_turn(Api& api) {}
+	// Price table for this player's API calls, or null for MatchOptions::prices. A policy
+	// executed by our deploy bot uses PriceTable::bot_wrapper() (its wrappers cost more than
+	// raw imports).
+	virtual const PriceTable* prices() const { return nullptr; }
 };
 
 // Adapter for policies written as one call per turn (no mid-turn suspension needed).
@@ -42,12 +46,15 @@ struct MatchOptions
 	std::uint64_t seed = 1;	 // fills missed draft picks
 	int max_rounds = 0;		 // 0 = settings().max_rounds
 	std::size_t stack_size = 256 * 1024;
+	bool record_turn_fuel = false;
 };
 
 struct MatchStats
 {
 	std::uint64_t turns = 0, suspensions = 0, crashes = 0, truncations = 0;
 	std::int64_t fuel_used[2] = {};
+	// Fuel charged on each champion turn, per team, in play order (MatchOptions::record_turn_fuel).
+	std::vector<std::int64_t> turn_fuel[2];
 };
 
 class Match

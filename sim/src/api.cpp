@@ -678,8 +678,7 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 						Bitboard& visited)
 {
 	const int n = cbs::distance_field(walls, roots, dests, g_.map().W, g_.map().H, max_distance, dist, visited);
-	const std::int64_t chunks = PriceContext{ g_.map().W, g_.map().H, 0 }.chunks();
-	charge(Call::distance_field, static_cast<std::int64_t>(n) * chunks);
+	charge(Call::distance_field, n, dests ? dests->count(g_.map().H) : 0);
 	return n;
 }
 

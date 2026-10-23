@@ -103,10 +103,10 @@ public:
 	bool unlimited = true; // no runner: charges are only counted
 	bool count_charges = true; // false in the real bot, where the engine meters fuel itself
 	std::uint64_t suspensions = 0;
-	void charge(Call c, std::int64_t n = 0)
+	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0)
 	{
 		if (!count_charges) return;
-		PriceContext ctx{ g_.map().W, g_.map().H, n };
+		PriceContext ctx{ g_.map().W, g_.map().H, n, n2 };
 		spent += prices_->price(c, ctx);
 		if (!unlimited && !coro_ && spent > budget) throw FuelExhausted{};
 		if (!unlimited && coro_)

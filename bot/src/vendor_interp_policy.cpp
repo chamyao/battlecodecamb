@@ -1,5 +1,6 @@
 #include "interp/policy.h"
 #include <algorithm>
+#include <exception>
 #include <string_view>
 #include <charconv>
 #include <array>
@@ -21,10 +22,6 @@ using cbs::Err;
 using cbs::Vec2;
 namespace state_bit = cbs::state_bit;
 
-// Placeholder interpreter costs (fuel) until prices are measured against cambc:
-// a flat cost per block evaluated, plus per-tile costs for whole-map scans.
-constexpr std::int64_t kBlockCost = 10;
-constexpr std::int64_t kScanDivisor = 16; // a full-map scan costs W*H/16
 
 // Same order as policygen.blocks.TYPES: variable slot = type * kMaxVars + index.
 static const char* const kTypes[] = { "Num", "Bool", "Tile", "TileSet", "Unit", "UnitList", "UnitPred",
@@ -141,6 +138,45 @@ static const BlockInfo* find_block(std::string_view key)
 		if (key == slots[i]->key) return slots[i];
 	return nullptr;
 }
+
+// ---- fuel ------------------------------------------------------------------
+// Each block is charged its self cost (excluding its argument blocks and the API calls it
+// makes, which the bot-wrapper price table prices) as measured on the deploy bot in cambc and
+// fitted by oracle/tools/fuel_calibrate.py (docs/FUEL.md). Terms (milli-fuel): constant, map
+// rows, 8x8 chunks, occupancy-cache refreshes, refreshes x rows, distance-field destination
+// tiles, expansions x chunks, camps, camp groups, tiles of the input set.
+struct BlockCost
+{
+	const char* key;
+	bool exec;
+	std::int64_t milli[10];
+};
+static const BlockCost kCalibrated[] = {
+#include "block_costs_gen.inc"
+};
+// Blocks the calibration did not exercise: the median measured cost of a simple block.
+constexpr std::int64_t kUncalibratedBlockMilli = 200000;
+
+struct BlockCostTable
+{
+	const std::int64_t* row[2][kNumBlocks] = {};
+	BlockCostTable()
+	{
+		for (const BlockCost& c : kCalibrated)
+			if (const BlockInfo* b = find_block(c.key)) row[c.exec ? 1 : 0][b - kBlockTable] = c.milli;
+	}
+};
+static const BlockCostTable& block_costs()
+{
+	static const BlockCostTable t;
+	return t;
+}
+
+// Work counted while a block runs its own code (consumed when it finishes).
+struct Work
+{
+	std::int64_t occ = 0, dests = 0, exp = 0, bits = 0;
+};
 
 std::vector<std::string> supported_blocks()
 {
@@ -431,7 +467,53 @@ struct Interp
 	std::vector<std::uint16_t> field;
 
 	const cbs::Map& m() const { return api.map(); }
-	void scan_cost() { api.compute(static_cast<std::int64_t>(m().W) * m().H / kScanDivisor); }
+	Work work;
+	struct Charge
+	{
+		Interp& in;
+		Op op;
+		bool exec;
+		bool skip = false;
+		int unwinding = std::uncaught_exceptions();
+		// May throw: a charge can suspend the bot, and cancelling a suspended bot resumes it with
+		// an exception. Never charges while already unwinding.
+		~Charge() noexcept(false)
+		{
+			if (!skip && std::uncaught_exceptions() == unwinding) in.charge_block(op, exec);
+		}
+	};
+	std::int64_t blocks_this_turn = 0;
+	void charge_block(Op op, bool exec)
+	{
+		if (!api.count_charges) return; // real bot: the engine meters fuel, skip the bookkeeping
+		++blocks_this_turn;
+		const std::int64_t* c = block_costs().row[exec ? 1 : 0][static_cast<int>(op)];
+		const Work w = work;
+		work = {};
+		if (!c)
+		{
+			api.compute(kUncalibratedBlockMilli / 1000);
+			return;
+		}
+		const std::int64_t H = m().H, ch = static_cast<std::int64_t>((m().W + 7) / 8) * ((m().H + 7) / 8);
+		const std::int64_t f[10] = { 1, H, ch, w.occ, w.occ * H, w.dests, w.exp * ch, static_cast<std::int64_t>(m().camps.size()),
+									 static_cast<std::int64_t>(m().groups.size()), w.bits };
+		std::int64_t milli = 0;
+		for (int i = 0; i < 10; ++i) milli += c[i] * f[i];
+		api.compute(std::max<std::int64_t>(0, milli / 1000));
+	}
+	// Distance field through the API, recording its work for the calling block's cost.
+	int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, Bitboard& visited)
+	{
+		field.resize(static_cast<std::size_t>(m().W) * m().H);
+		const int n = api.distance_field(walls, roots, dests, cbs::kUnreachable, field.data(), visited);
+		if (api.count_charges)
+		{
+			work.exp += n;
+			if (dests) work.dests += dests->count(m().H);
+		}
+		return n;
+	}
 
 	// false for the draft bot or when the champion record is unavailable
 	bool me(ChampionInfo& ci)
@@ -444,7 +526,10 @@ struct Interp
 	void turn()
 	{
 		++turn_no;
+		blocks_this_turn = 0;
 		run(prog.steps);
+		// the step loop itself (Value temporaries etc. between blocks)
+		if (api.count_charges) api.compute(std::max<std::int64_t>(0, static_cast<std::int64_t>(INTERP_TURN_COST(blocks_this_turn, m().H))));
 	}
 
 	// Returns false when END_TURN was reached.
@@ -489,6 +574,7 @@ struct Interp
 		if (cache_turn == turn_no && cache_epoch == epoch) return;
 		cache_turn = turn_no;
 		cache_epoch = epoch;
+		++work.occ;
 		Bitboard occ;
 		api.ally_occupancy(dyn_block);
 		dyn_block.reset(me);
@@ -533,8 +619,7 @@ struct Interp
 		Bitboard walls = blocked, dest, visited;
 		walls.andnot(goals);
 		dest.set(me);
-		field.resize(static_cast<std::size_t>(m().W) * m().H);
-		api.distance_field(walls, goals, &dest, cbs::kUnreachable, field.data(), visited);
+		distance_field(walls, goals, &dest, visited);
 		Vec2 best = me;
 		std::uint16_t bd = field[m().idx(me)];
 		for (int dy = -1; dy <= 1; ++dy)
@@ -566,8 +651,7 @@ struct Interp
 		// at the minimum distance is in that layer, so the choice is unchanged.
 		cbs::draw_chebyshev(box, m().W, m().H, me, 2.0f);
 		box.reset(goal); // the root is not a candidate and must not end the search
-		field.resize(static_cast<std::size_t>(m().W) * m().H);
-		api.distance_field(walls, root, &box, cbs::kUnreachable, field.data(), visited);
+		distance_field(walls, root, &box, visited);
 		Vec2 best = kNoTile;
 		std::uint16_t bd = field[m().idx(me)];
 		for (int dy = -2; dy <= 2; ++dy)
@@ -600,9 +684,7 @@ struct Interp
 		Bitboard walls = blocked, root, visited;
 		walls.andnot(cand);
 		root.set(pos);
-		field.resize(static_cast<std::size_t>(m().W) * m().H);
-		api.distance_field(walls, root, &cand, cbs::kUnreachable, field.data(), visited);
-		scan_cost();
+		distance_field(walls, root, &cand, visited);
 		Vec2 best = kNoTile;
 		std::uint16_t bd = cbs::kUnreachable;
 		cand.for_each(m().H, [&](int x, int y) {
@@ -662,7 +744,7 @@ struct Interp
 			r.bytes = e.bytes;
 			return r;
 		}
-		api.compute(kBlockCost);
+		Charge charge{ *this, e.op, false };
 		const auto& a = e.args;
 		switch (e.op)
 		{
@@ -829,7 +911,7 @@ struct Interp
 		{
 			const Value s = eval(a[0]);
 			const float r = static_cast<float>(std::clamp(eval(a[1]).n, 0.0, 10.0));
-			scan_cost();
+			if (api.count_charges) work.bits += s.set->count(m().H);
 			Bitboard b;
 			s.set->for_each(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
 			return set_of(b);
@@ -838,7 +920,7 @@ struct Interp
 		case Op::filter_tiles:
 		{
 			const Value s = eval(a[0]), p = eval(a[1]);
-			scan_cost();
+			if (api.count_charges) work.bits += s.set->count(m().H);
 			Bitboard b;
 			if (has_tile(p.tile))
 				s.set->for_each(m().H, [&](int x, int y) {
@@ -849,15 +931,16 @@ struct Interp
 		case Op::first_tile:
 		{
 			const Value s = eval(a[0]);
-			scan_cost();
+			if (api.count_charges) work.bits += s.set->count(m().H);
 			Vec2 p;
 			return tile(s.set->first(m().H, p) ? p : kNoTile);
 		}
 		case Op::exists_tile: return num(has_tile(eval(a[0]).tile));
 		case Op::count_tiles:
 		{
-			scan_cost();
-			return num(eval(a[0]).set->count(m().H));
+			const int n = eval(a[0]).set->count(m().H);
+			work.bits += n;
+			return num(n);
 		}
 		case Op::within:
 		{
@@ -1055,7 +1138,7 @@ struct Interp
 
 	void exec(const Expr& e)
 	{
-		api.compute(kBlockCost);
+		Charge charge{ *this, e.op, true };
 		const auto& a = e.args;
 		std::int32_t ok = 0;
 		if (e.op != Op::move_towards && e.op != Op::dash_towards && e.op != Op::set_priority && e.op != Op::write_shared) ++epoch;
@@ -1167,7 +1250,10 @@ struct Interp
 			break;
 		}
 		case Op::set_priority: api.set_priority(static_cast<std::int32_t>(std::clamp(eval(a[0]).n, -1e6, 1e6))); break;
-		default: eval(e); break; // a pure block used as a step: evaluate for its cost only
+		default: // a pure block used as a step: evaluate it (eval charges it)
+			charge.skip = true;
+			eval(e);
+			break;
 		}
 	}
 };
@@ -1176,6 +1262,7 @@ class PolicyPlayer : public cbs::Player
 {
 public:
 	PolicyPlayer(std::shared_ptr<const Program> p, std::uint64_t seed) : prog_(std::move(p)), seed_(seed) {}
+	const cbs::PriceTable* prices() const override { return &cbs::PriceTable::bot_wrapper(); }
 	cbs::BotBody make_bot(int team, int champ) override
 	{
 		const std::uint64_t s = (seed_ * 0x9E3779B97F4A7C15ull) ^ (static_cast<std::uint64_t>(team) << 32) ^
