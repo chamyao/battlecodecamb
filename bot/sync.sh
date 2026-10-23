@@ -6,7 +6,7 @@ set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
 src=$repo/bot/src
 policy=${1:-$repo/policies/v2.policy}
-rm -rf "$src/cbs" "$src/interp" "$src"/vendor_*.cpp
+rm -rf "$src/cbs" "$src/interp" "$src"/vendor_*.cpp "$src"/*_gen.inc
 mkdir -p "$src/cbs" "$src/interp"
 for h in "$repo"/sim/include/cbs/*.h; do
 	sed -E 's|#include "cbs/([a-z_]+\.h)"|#include "\1"|' "$h" > "$src/cbs/$(basename "$h")"
@@ -19,6 +19,8 @@ cp "$repo/bot/bitboard_host.h" "$src/cbs/bitboard.h"
 # Bitboard is bot/bitboard_host.h).
 for f in constants_gen fuel coverage; do cp "$repo/sim/src/$f.cpp" "$src/vendor_sim_$f.cpp"; done
 cp "$repo/interp/src/policy.cpp" "$src/vendor_interp_policy.cpp"
+# Generated fuel tables included by those sources (oracle/tools/fuel_calibrate.py).
+cp "$repo/sim/src/fuel_bot_gen.inc" "$repo/interp/src/block_costs_gen.inc" "$src/"
 # Embedded policy, pre-encoded (no string parsing in the bot).
 tmp=$(mktemp)
 (cd "$repo" && python3 -m policygen.compile "$policy" "$tmp")

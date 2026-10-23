@@ -678,17 +678,20 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 						Bitboard& visited)
 {
 	const int n = cbs::distance_field(walls, roots, dests, g_.map().W, g_.map().H, max_distance, dist, visited);
-	const std::int64_t chunks = PriceContext{ g_.map().W, g_.map().H, 0 }.chunks();
-	charge(Call::distance_field, static_cast<std::int64_t>(n) * chunks);
+	charge(Call::distance_field, n, dests ? dests->count(g_.map().H) : 0);
 	return n;
 }
 
-bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out)
+bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions)
 {
-	static thread_local std::uint16_t d[kMaxDim * kMaxDim];
+	// Per call, not static: the charge inside distance_field can suspend this bot while others
+	// run on the same thread.
+	std::vector<std::uint16_t> field(static_cast<std::size_t>(g_.map().W) * g_.map().H);
+	std::uint16_t* d = field.data();
 	Bitboard roots, visited;
 	roots.set(origin);
-	distance_field(walls, roots, &cand, kUnreachable, d, visited);
+	const int n = distance_field(walls, roots, &cand, kUnreachable, d, visited);
+	if (expansions) *expansions = n;
 	const int W = g_.map().W;
 	std::uint16_t bd = kUnreachable;
 	bool found = false;

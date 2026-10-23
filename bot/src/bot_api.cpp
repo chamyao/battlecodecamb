@@ -410,8 +410,9 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 // with `origin` as its only dest (distances are symmetric; rooted at a fixed set, so the
 // memo usually answers it on later turns), then the candidates within D of `origin`, which
 // are all exactly D away, and the first of them in row-major order.
-bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out)
+bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions)
 {
+	if (expansions) *expansions = 0; // only the simulator prices it
 	const int W = g_.map().W, H = g_.map().H;
 	champion_info ci{};
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0 && ci.x == origin.x && ci.y == origin.y;
