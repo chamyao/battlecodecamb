@@ -81,6 +81,24 @@ def commit(path, message, session):
             time.sleep(2 ** (attempt + 1))
 
 
+def cambc_check(text, best, threads):
+    """Win rate vs `best` over every map x both sides with deploy-bot seeding (--bot-seeds), which
+    reproduces real cambc games exactly: the final check before a promotion is trusted."""
+    from .evaluate import EVAL_BIN, MAPS, _compiled_opponent
+    from policygen.compile import to_prefix
+    from policygen.text import parse
+    import tempfile
+    with tempfile.NamedTemporaryFile("w", suffix=".pol", delete=False) as f:
+        f.write(to_prefix(parse(text)))
+    try:
+        out = subprocess.run([str(EVAL_BIN), "--a", f.name, "--b", _compiled_opponent(best), "--games",
+                              str(2 * len(MAPS)), "--threads", str(threads), "--bot-seeds", *MAPS],
+                             capture_output=True, text=True, timeout=3600)
+        return json.loads(out.stdout)["win_rate"]
+    finally:
+        Path(f.name).unlink(missing_ok=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", default="league")
@@ -98,6 +116,8 @@ def main():
     ap.add_argument("--keep", type=int, default=3, help="older members kept besides the best")
     ap.add_argument("--fixed", default="", help="opponents always in the league (e.g. a style the bests "
                                                 "lack, like altar locking); never dropped or promoted")
+    ap.add_argument("--cambc-min", type=float, default=0.55,
+                    help="also required: win rate vs the best over all maps x 2 sides with --bot-seeds")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     ap.add_argument("--prefix", default="fs-", help="promoted policies are policies/<prefix><n>.policy")
     ap.add_argument("--line", default="", help="line tag written into promoted policies' headers")
@@ -142,7 +162,11 @@ def main():
             log(f"  #{p['id']} (run score {p['score']:.3f}): " + ", ".join(f"{k} {v:.3f}" for k, v in rates.items())
                 + f" | h2h {h2h:.3f}, worst change vs older {worst:+.3f}", logfile)
             if h2h >= 0.5 + args.margin and worst >= -args.regress and (promoted is None or h2h > promoted[1]):
-                promoted = (p, h2h, rates)
+                exact = cambc_check(p["text"], best, args.threads)
+                log(f"    cambc-exact vs {Path(best).stem} (all maps x 2 sides): {exact:.3f}", logfile)
+                if exact >= args.cambc_min:
+                    rates = {**rates, f"cambc-exact vs {Path(best).stem}": exact}
+                    promoted = (p, h2h, rates)
         if promoted is None:
             log(f"  no promotion; {run} continues", logfile)
             continue

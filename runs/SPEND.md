@@ -15,5 +15,6 @@ cache reads counted at 0.1x input, which overstates Opus 5.5's real 0.05x, so th
 | 2026-10-23 | league2-g1 (best v3; league fs-1, v2) — stopped at 14 programs for the full calibration (282d84f) | 14 | 0.10 | 1.27 |
 | 2026-10-23 | league3-g1 (best v3; league fs-1, v2) — promoted fs-2 (62.5% vs v3 on 800 fresh games); paused for v5 | 177 | 1.38 | 2.65 |
 | 2026-10-23 | hyb-g1 (best v5d-fs2) — 13 programs, cut short by container restarts and the 9a0ac5b re-profile | 13 | 0.03 | 2.68 |
+| 2026-10-23 | hyb2-g1 (best v5d-fs2) — 16 programs, replaced when v7 went live | 16 | 0.14 | 2.82 |
 | 2026-10-23 | style-test (STYLE line smoke test, lockdown directive; 2 programs) | 2 | 0.01 | STYLE 0.01 of $10 |
 | 2026-10-23 | style-{a,b,c}-g1 (STYLE islands lockdown/teamfight/monolith, seed v5d) — 7/30/16 programs; dropped for the 9a0ac5b re-profile | 53 | 0.30 | STYLE 0.31 of $10 |
