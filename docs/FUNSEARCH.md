@@ -11,6 +11,8 @@ python3 -m funsearch.run --run test --proposer mutate --max-programs 40  # no AP
 
 - `funsearch/evaluate.py`: compile + play a policy (`interp_eval`), score =
   win rate + 0.25 x gem margin/1000, averaged over opponents.
+  An opponent written `path@w` (e.g. `policies/strong.policy@3`) gets w times the games and
+  w times the weight in the score.
 - `funsearch/database.py`: islands; parents sampled by softmax on score (worst
   first in the prompt); the weaker half of islands is re-seeded every 200 programs.
 - `funsearch/llm.py`: prompt = game summary + grammar + block catalog (cached

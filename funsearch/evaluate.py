@@ -61,27 +61,34 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         prefix = to_prefix(steps)
     except Exception as e:  # syntax or type error in the policy
         return EvalResult(error=f"{type(e).__name__}: {e}")
+    # "spec@w" weights an opponent: w times the games and w times the share of the score
+    weights = [float(o.rsplit("@", 1)[1]) if "@" in o else 1.0 for o in opponents]
+    opponents = [o.rsplit("@", 1)[0] if "@" in o else o for o in opponents]
     names = [Path(o).stem if o.endswith(".policy") else o for o in opponents]
-    opponents = [_compiled_opponent(o) for o in opponents]
+    try:
+        opponents = [_compiled_opponent(o) for o in opponents]
+    except Exception as e:  # opponent policy no longer parses: a setup error, not the candidate's
+        raise RuntimeError(f"opponent failed to compile: {e}") from e
     rng = random.Random(seed)
     pool = maps or MAPS
-    chosen = [rng.choice(pool) for _ in range(max(1, games // 2))]
+    counts = [max(2, round(games * w / 2) * 2) for w in weights]  # even, so sides stay balanced
+    chosen = [rng.choice(pool) for _ in range(max(counts) // 2)]
     with tempfile.NamedTemporaryFile("w", suffix=".pol", delete=False) as f:
         f.write(prefix)
         pol = f.name
     try:
         result = EvalResult(score=0.0)
-        for name, opp in zip(names, opponents):
+        for name, opp, w, n in zip(names, opponents, weights, counts):
             out = subprocess.run(
-                [str(EVAL_BIN), "--a", pol, "--b", opp, "--games", str(games), "--threads", str(threads),
-                 "--seed", str(seed), "--fuel-mult", str(fuel_mult), *chosen],
+                [str(EVAL_BIN), "--a", pol, "--b", opp, "--games", str(n), "--threads", str(threads),
+                 "--seed", str(seed), "--fuel-mult", str(fuel_mult), *chosen[: n // 2]],
                 capture_output=True, text=True, timeout=timeout)
             stats = json.loads(out.stdout)
             if "error" in stats:
                 return EvalResult(error=stats["error"])
             stats.pop("results", None)
             result.per_opponent[name] = stats
-            result.score += score_of(stats) / len(opponents)
+            result.score += score_of(stats) * w / sum(weights)
         return result
     except subprocess.TimeoutExpired:
         return EvalResult(error="evaluation timed out")
