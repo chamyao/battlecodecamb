@@ -68,3 +68,49 @@ Champions stayed in fights holding gems and died to enemies (7.7 per game).
 So the 48-1023 loss looks like that opponent's pressure (V4.1 Flash: Heart of Ruin, Ren, Ryth),
 which a mirror cannot show. With that game's replay (.repl26a) the same tools can locate it
 turn by turn.
+
+## Telling gold-rush from big-world (v8 follow-up)
+
+v8 skips whole monolith groups (`group_tiles(monolith_tiles())`). Against v7zg-cast, 20 games
+per map, its result tracks one static number: the share of the map's gems that sits in
+monolith groups.
+
+| map | share in monolith groups | v8 wins / 20 |
+| --- | --- | --- |
+| 01gold-rush, 00rows, 00monolith, 01starvation | 75-80% | 2, 4, 9, 10 |
+| 00great-wall | 59% | 5 |
+| 01big-world, 01corridors, 00split, 01fracture, 00lost-world | 38-57% | 11-20 |
+
+Where monolith groups hold most of the gems, skipping them leaves too little to score. Whether
+the group's other camps are in the monolith's range does not separate the maps (both kinds have
+them in range). The share is computable today from static tile sets: per-type camp counts times
+the type's gems (elk 15, gem cluster 7, wolf 4, golem 36, monolith 200), with intersections
+`minus(A, minus(A, B))` against `group_tiles(monolith_tiles())`.
+
+`policies/v8-adaptive.policy` skips whole monolith groups only when the share is under 60%,
+and otherwise only the monolith tiles:
+
+| vs v7zg-cast | v8 | v8-adaptive |
+| --- | --- | --- |
+| 01gold-rush (60 games) | 6/60 | 28/60 |
+| 00rows (60 games) | 18/60 | 31/60 |
+| 01big-world (20) | 14/20 | 15/20 |
+| all maps, `--bot-seeds` | 42/80 | 43/80 |
+| all maps, per-game seeds | 219/400 | 221/400 |
+
+A block `group_gems(TileSet) -> Num` (total gems of the groups touching the set) would make
+this one short line, and cheaper than the five counts.
+
+## Proposed block for 01starvation: group threat
+
+`group_threat(Tile) -> Num`: for the camp group with a spawn on that tile (0 if none), the summed
+strength (damage per turn when awake) of its living camps. Living camps are those in vision
+and alive; an unseen camp counts as alive at full strength, as in the fog-camps rule. Elk 60,
+wolf 20, golem 120, monolith 200, clusters 0. The elk x4 group reads 240.
+
+Companion: `group_hp(Tile) -> Num`, the summed health of the same camps. The policy can then
+estimate the cost of a fight. Clearing takes about `group_hp / (our damage × helpers)` turns,
+taking `group_threat` each turn. So it can skip a goal when
+`group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) > health()`. Both are
+static camp data plus the camp records the interpreter already reads (no new engine calls
+beyond `camp()` per member).
