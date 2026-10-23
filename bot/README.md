@@ -37,12 +37,12 @@ coordinator's go-ahead.
   against a fresh host search and prints `@@VERIFY` lines.
 - `bot/tools/bbtest.sh MAP...`: self-test of the host Bitboard against a plain reference.
 
-## Status (Oct 23, cambc 3.0.5, vs starter-cpp, all 40 maps, normal fuel)
+## Status (Oct 23 16:00 UTC, cambc 3.0.5, all 40 maps, normal fuel)
 
-| policy | wins | peak turn (not first) | p99 | mean | first (2x) turn |
-| --- | --- | --- | --- | --- | --- |
-| v2 | 36/40 | 81k (00ambush, 01big-world) | <= 61k | 9-22k | <= 181k / 200k |
-| fs-1 | 38/40 | 66k (00ambush) | <= 57k | 10-24k | <= 172k / 200k |
+| policy | vs starter-cpp as A | as B | peak turn (not first), A / B | p99 | mean | first (2x) turn |
+| --- | --- | --- | --- | --- | --- | --- |
+| fs-1 | 37/40 | 40/40 | 63k / 62k | <= 57k | 9-22k | <= 175k / 200k |
+| v2 | 38/40 | 37/40 | 80k / 84k (01big-world, dash turns) | <= 57k | 8-21k | <= 185k / 200k |
 
-No crashes or bot errors. Optimised and reference builds give identical games on all 40 maps
-for both policies.
+fs-1 beats v2 35/40 head to head. No crashes or bot errors in any run. Optimised and
+reference builds give identical games on all 40 maps for both policies.
