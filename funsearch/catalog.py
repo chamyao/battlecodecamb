@@ -21,6 +21,8 @@ Every block a bot runs costs fuel; each bot gets 100,000 fuel per turn, and a bo
 out is suspended mid-turn (the rest of that turn is lost). Typical policies use ~15k per turn,
 so fuel rarely binds: gains come from better play. Each block's typical price is listed below;
 keep an eye on it only when adding expensive board-scanning blocks (thousands of fuel each).
+dash_towards is the exception to watch: on 100x100 maps a turn with dashes can approach the
+100,000 limit, so guard repeated dash attempts (check slot_is_dash and ability_ready first).
 """
 
 GRAMMAR = """\
@@ -83,6 +85,15 @@ Observations from our v6 ladder losses (we are ~23-12 since v5d):
 - Gem camps in contested middles: on one map we made 157 captures and 0 gems because we only
   farmed edge gold clusters. Gems, not gold, win games; go for gem camps (gem_cluster_tiles(),
   wolves, elks), with allies when they are contested.
+Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights or freezes.
+- Our captures yield ~15 gems each vs 21-60 for the teams beating us, and 27% of ours are
+  gold-only (0 gems). Our median tribute bag is 14 vs their 30-39.
+- The winners take monoliths as a team: one team took both monoliths on a big map, worth its
+  whole 456-gem margin. Try committing 3+ champions together (claim_count) to a monolith.
+- Simple fixes were neutral or worse in tests: always preferring the richest groups lost
+  (33-38/80); preferring elk/gem clusters, or a bag of 25, were neutral. The gain probably needs
+  a value-vs-distance trade-off when choosing camps, team monolith takes, and bigger bags
+  without more deaths. Treat these as directions, not rules.
 """
 
 GRAMMAR += """\
@@ -163,8 +174,6 @@ DOCS = {
     "capturable_spawns": "spawn tiles of visible camp groups that are fully cleared with reward available (stand here to capture)",
     "enemies_within": "number of living enemy champions you can see within Chebyshev distance r",
     "local_strength": "(health x damage) of you + visible allies within r over the same for visible enemy champions within r; >1 means the local fight favours you, 100 if no enemy in r. Use as an engagement/retreat test with a tunable threshold",
-    "rich_spawns": "spawn tiles of every camp whose group gives at least n gems when captured (static; gold-only groups give 0 gems, elk/gem-cluster groups 15-60+). Bind it with keep",
-    "group_tiles": "spawn tiles of every camp in a group that has a camp on one of the given tiles (static; hitting any camp of a group wakes the whole group, e.g. group_tiles(monolith_tiles()) wakes monoliths). Bind it with keep",
     "turns_idle": "consecutive turns (counted each time you check) your position has not changed",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
     "map_width": "", "map_height": "", "camp_count": "camps on the map",

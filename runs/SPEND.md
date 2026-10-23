@@ -17,3 +17,4 @@ cache reads counted at 0.1x input, which overstates Opus 5.5's real 0.05x, so th
 | 2026-10-23 | pure-g1 (PURE line, best fs-1; fixed v5d, v4, locker, fs-2) — stopped at 25 programs: interp/v0 9a0ac5b re-profiled all prices, so restarted as pure2 | 25 | 0.16 | — (pure line: 0.16 of $10) |
 | 2026-10-23 | pure2-g1 (PURE, fs-1 on 9a0ac5b prices) — stopped at 12 programs: v7 added to the fixed opponents, restarted as pure3 | 12 | 0.10 | 0.26 of the pure line $10 |
 | 2026-10-23 | pure3-g1 (PURE, + v7 fixed) — stopped at 9 programs: v7-zerogem live and fog-camp pathing merged, restarted as pure4 | 9 | 0.016 | 0.28 of the pure line $10 |
+| 2026-10-23 | pure4-g1 (PURE, best fs-1; fixed v7-zerogem, v5d, v4, locker, fs-2) — promoted fs-p1 (#155: 87.0% vs fs-1 on 800 fresh games; cambc-exact 0.863 vs fs-1, 0.362 vs v7zg-cast) | 169 | 1.75 | 2.03 of the pure line $10 |
