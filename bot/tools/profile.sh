@@ -8,7 +8,7 @@ bash "$repo/bot/sync.sh" "$pol" > /dev/null
 python3 "$repo/bot/tools/profile_patch.py" "$repo/bot/src/vendor_interp_policy.cpp"
 out=/tmp/prof/$m
 "$repo/bot/tools/run.sh" "$m" starter-cpp "$out" --fuel 1000000000 --log-limit 2000000000 || true
-bash "$repo/bot/sync.sh" "$pol" > /dev/null # restore the plain build
+bash "$repo/bot/sync.sh" > /dev/null # restore the plain build (default policy)
 t=team-a; [ -n "$SWAP" ] && t=team-b
 (cd "$out" && unzip -q -o *-vs-*.repl26a && tr -d '\000' < $t.stdout | grep "^@@" > prof.txt)
 python3 - "$out/prof.txt" <<'PY'
