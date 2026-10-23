@@ -23,6 +23,25 @@ SYSTEM = f"""You improve bot policies for a programming competition, written in 
 # Blocks (signature -> return type)
 {block_catalog()}
 
+# What our ladder losses taught us (ideas to try, not rules)
+Diagnosed from real ranked games against stronger teams (we lost 2-13):
+- Our champions died to camps ~3x as often as the opponents' did: they kept fighting (recall at
+  20% health is less than one monolith hit, and recall is cancelled by damage). Retreating
+  toward spawn while in_danger() and recalling only once clear won ~+15 points in our tests.
+- Opponents captured 2x as many camps, earned 1.8x the gold and carried bags of 22-58 gems per
+  tribute (ours: 5-9, many trips). Bigger bags may pay once champions stop dying; tribute early
+  when hurt or when an enemy is near.
+- Pick camps you can clear: gold clusters and single wolves early, multi-elk groups with allies
+  or later; never solo monoliths or golems (top teams take monoliths with 3-4 champions).
+- Fight champions only with at least equal numbers nearby and above ~50% health; if carrying
+  gems, disengage toward an altar.
+- Spend gold on more item families: Treasure first (more gold), then Jungle (30% less camp
+  damage) or Bruiser. Our champions bought only Power shards; opponents bought 6-10 kinds.
+- Draft deterministically from the meta (Vesper Vale, Heart of Ruin, Marcella, Vendetta, Ryth)
+  instead of random picks.
+- Idle champions: ours stood still off spawn for long stretches (e.g. holding a half-cleared
+  camp). turns_idle() can detect that and switch goals.
+
 # Your task
 You are shown earlier policy versions, worst first, with their scores (win rate against the
 reference bots, plus a small bonus for gem margin; higher is better), its win rate and gems against

@@ -164,6 +164,7 @@ def block_catalog():
         doc = DOCS.get(b.name, "")
         price = fuel.get(f"{b.name}({','.join(b.args)})")
         if price is not None:
-            doc = f"~{price} fuel" + (f"; {doc}" if doc else "")
+            cost = f"~{price} fuel" if price > 0 else "fuel not yet measured"
+            doc = cost + (f"; {doc}" if doc else "")
         lines.append(f"  {sig} -> {ret}" + (f"   # {doc}" if doc else ""))
     return "\n".join(lines)
