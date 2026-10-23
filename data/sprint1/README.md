@@ -1,12 +1,12 @@
 # Sprint 1 (Oct 2026): top-16 replays
 
 Source: https://2026a.battlecode.co.uk/game/tournaments/fb9b026b-a953-48a1-b1d2-ded1befb8cac
-(single elimination, 601 teams, 15 games per pairing).  is the
+(single elimination, 601 teams, 15 games per pairing). `tournament.json` is the
 public tournament API response (full bracket, seeds, ratings).
 
- is the match-group bundle from :
-a ZIP of 15 per-game ZIPs (each a replay bundle; open with , convert
-summaries with ). Codes: w7 = round of 16, w8 = quarterfinals,
+`replays/<code>` is the match-group bundle from `cambc match-groups download <groupId>`:
+a ZIP of 15 per-game ZIPs (each a replay bundle; open with `cambc view`, convert
+a summary with `cambc summary`). Codes: w7 = round of 16, w8 = quarterfinals,
 w9 = semifinals, w10 = final.
 
 | code | team A | score | team B | group |
