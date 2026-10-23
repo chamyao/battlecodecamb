@@ -144,6 +144,12 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   01elk-arena, 01shortcut, loses both sides on none (bar for concentrated
   fixes: >= 52% and no map lost on both sides). Next builds include the
   fog-camps pathing fix (interp/v0 6297d62; neutral head to head, +3-5% gems).
+  9 = v7zg-cast (`deploy/v0` af6ef1b, sha256 e869299c...): v7-zerogem + the
+  hybrid line's ability-type-aware casting (shield/heal on self, dash saved
+  for travel/escape) + fog-camps pathing. Real cambc 49/80 vs live
+  v7-zerogem; 76/80 vs locker; 79/80 vs starter. Dash turns peak at ~100k fuel
+  on 100x100 maps (none over; an overrun only suspends one turn); the bot
+  session is cutting that cost without changing play.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
   source), pure FunSearch (only its own outputs, from fs-1), tuning + draft (no
   LLM), style FunSearch (lockdown / team fights / late monolith). Each runs in
