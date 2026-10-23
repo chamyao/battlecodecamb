@@ -9,6 +9,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <mutex>
 #include <string>
@@ -39,6 +40,9 @@ static Side load_side(const std::string& spec)
 
 int main(int argc, char** argv)
 {
+	interp::state_trace = std::getenv("STATE_TRACE") != nullptr;
+	if (const char* tr = std::getenv("STATE_TRACE_ROUNDS")) std::sscanf(tr, "%d-%d", &interp::state_trace_r0, &interp::state_trace_r1);
+	if (const char* tt = std::getenv("STATE_TRACE_TILES")) interp::state_trace_tiles = std::atoi(tt);
 	std::vector<std::string> maps;
 	std::string a_spec = "builtin:starter", b_spec = "builtin:starter";
 	int games = 10, threads = 1, max_rounds = 0;

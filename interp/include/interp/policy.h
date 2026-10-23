@@ -42,6 +42,12 @@ struct BlockCharge
 };
 std::vector<BlockCharge> charge_stats();
 
+// Diagnostics: print each champion's own state at the start of its turn ("@@ST" lines, through
+// the Api, so the simulator and a trace build of the bot print the same thing). Off by default.
+inline bool state_trace = false;
+inline int state_trace_r0 = 0, state_trace_r1 = 1 << 30;
+inline int state_trace_tiles = -1; // round whose vision tiles are listed // rounds that also dump the tile sets pathing saw
+
 // Block keys the interpreter implements, e.g. "move_towards(Tile)".
 std::vector<std::string> supported_blocks();
 } // namespace interp
