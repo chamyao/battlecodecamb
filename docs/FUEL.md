@@ -157,9 +157,26 @@ Known weak spots:
 - The model is for this bot build: re-run `run_bot_profile.sh` and
   `fuel_calibrate.py` whenever `bot/` or the interpreter changes.
 
-**Consequence.** With realistic costs, v2 vs the simulator's starter falls from 87.5% to
-74% (80 games). It now suffers ~2,200 suspensions per game, as the real bot does when it
-exceeds 100k.
+**Consequence and outcome check.** With realistic costs v2 suffers ~2,000 suspensions per
+game in the simulator, matching cambc: on 40 maps with default fuel, the real bot's turns at
+the 100k budget average 2,066 per game against 2,051 simulated suspensions. Win rates of v2
+(team A) vs starter on all 40 maps:
+
+| | Win rate |
+| --- | --- |
+| cambc, default fuel (deploy bot vs starter-cpp) | 33/40 = 82.5% |
+| simulator, fuel enforced (5 seeds) | 139/200 = 69.5% |
+| simulator, unlimited fuel (3 seeds) | 109/120 = 91% |
+| simulator before calibration (both sides, 80 games) | 87.5% |
+
+The remaining ~13-point gap is about 2 standard errors. It is concentrated on 00stampede
+(both teams 0 gems, decided by tiebreak) and 00expanse.
+- Candidate causes: the simulator's starter port is not starter-cpp; and when a suspension
+  lands, the simulator charges a block's cost when the block finishes (after its action),
+  while real fuel runs out part-way through.
+- Not yet investigated further.
+- cambc seeds each match deterministically from the matchup and map (`match.seed` is
+  identical across reruns), so repeated cambc runs are not independent samples.
 
 ## In the simulator
 

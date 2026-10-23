@@ -301,3 +301,8 @@ camp the caster cannot see, and whether a dash may pass over an altar (29
 dashes had an altar among the candidate intermediate tiles and replayed
 correctly treating altars as passable, but the counter does not show whether
 the altar was the only path).
+
+## Match seeding
+- `cambc run` has no seed option, and reruns of the same two bots on the same map produce
+  the same `match.seed` and the same game. For more samples vary the map, the side or the
+  bots' own seeds.
