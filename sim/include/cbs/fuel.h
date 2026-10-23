@@ -34,6 +34,8 @@ enum class Call : std::uint16_t
 	bitboard_op, bitboard_shadow_cast, bitboard_reachable, distance_field, draw_shape,
 	// Api::nearest_by_walk (raw: one distance field; the deploy bot: field_memo.h + a reachable mask)
 	nearest_by_walk,
+	// Api::visible_camps as the deploy bot does it (camp occupancy, then each occupied tile); n2 = those tiles
+	visible_camps,
 	// misc
 	fuel_remaining, debug_draw, yield,
 	// a policy's own computation (building blocks) charged explicitly
