@@ -6,6 +6,7 @@
 // runner suspends the bot (see runner.h).
 #pragma once
 #include <cstdint>
+#include "cbs/coro.h"
 #include "cbs/fuel.h"
 #include "cbs/game.h"
 
@@ -87,14 +88,36 @@ public:
 	int team() const { return team_; }
 	int champ() const { return champ_; }
 
-	// Fuel spent since the last reset (the runner reads and resets this).
+	// ---- fuel ----
+	// `spent` counts fuel used this turn against `budget`. Under a runner (coroutine attached),
+	// a charge that overruns the budget suspends the bot inside the call; it resumes at its
+	// next turn with the overrun carried over, and only then does the call take effect.
 	std::int64_t spent = 0;
-	std::int64_t remaining = 0; // set by the runner each turn
+	std::int64_t budget = 0;
+	bool unlimited = true; // no runner: charges are only counted
+	std::uint64_t suspensions = 0;
 	void charge(Call c, std::int64_t n = 0)
 	{
 		PriceContext ctx{ g_.map().W, g_.map().H, n };
 		spent += prices_->price(c, ctx);
+		if (!unlimited && coro_)
+			while (spent > budget)
+			{
+				const std::int64_t over = spent - budget;
+				++suspensions;
+				coro_->yield(); // runner refills `budget` and zeroes `spent` for the next turn
+				spent += over;
+			}
 	}
+	// Charge a policy's own computation (building blocks) explicitly.
+	void compute(std::int64_t fuel) { charge(Call::compute, fuel); }
+	// Yield the rest of this turn.
+	void end_turn()
+	{
+		charge(Call::yield);
+		if (coro_) coro_->yield();
+	}
+	void attach(Coroutine* c) { coro_ = c; }
 
 	// ---- identity, roster, occupancy ----
 	std::int32_t my_champion();
@@ -168,19 +191,29 @@ public:
 	Err set_priority(std::int32_t p);
 	Err resign();
 
+	// ---- static map (cached by real bots at startup) and priced geometry primitives ----
+	const Map& map() const { return g_.map(); }
+	void shadow_cast(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out);
+	void reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out);
+	int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
+					   Bitboard& visited);
+
 	// ---- draft ----
 	Err draft_num_rounds(std::uint8_t* out);
 	Err draft_get(std::int32_t team, std::uint32_t round, std::int32_t* out);
 	Err draft_champion(std::int32_t choice);
 
-	// ---- fuel ----
-	std::int64_t fuel_remaining() { return remaining - spent; }
+	std::int64_t fuel_remaining()
+	{
+		charge(Call::fuel_remaining);
+		return unlimited ? (std::int64_t{ 1 } << 40) : budget - spent;
+	}
 
 private:
 	Game& g_;
 	int team_, champ_;
 	const PriceTable* prices_;
-	bool draft_mem_submitted_ = false;
+	Coroutine* coro_ = nullptr;
 
 	bool playing() const { return champ_ >= 0; }
 	const Bitboard& vis();	  // cached vision for the current game state

@@ -628,6 +628,28 @@ Err Api::resign()
 	return Err::success;
 }
 
+// ---------------------------------------------------------------- geometry
+
+void Api::shadow_cast(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
+{
+	charge(Call::bitboard_shadow_cast);
+	cbs::shadow_cast(walls, g_.map().W, g_.map().H, origin, dist, out);
+}
+
+void Api::reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
+{
+	cbs::reachable(walls, g_.map().W, g_.map().H, origin, dist, out);
+	charge(Call::bitboard_reachable, out.count(g_.map().H));
+}
+
+int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int max_distance, std::uint16_t* dist,
+						Bitboard& visited)
+{
+	const int n = cbs::distance_field(walls, roots, dests, g_.map().W, g_.map().H, max_distance, dist, visited);
+	charge(Call::distance_field, visited.count(g_.map().H));
+	return n;
+}
+
 // ---------------------------------------------------------------- draft
 
 Err Api::draft_num_rounds(std::uint8_t* out)

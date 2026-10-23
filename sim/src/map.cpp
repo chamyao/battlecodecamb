@@ -64,6 +64,7 @@ std::shared_ptr<const Map> decode_map(const std::uint8_t* data, std::size_t size
 	auto m = std::make_shared<Map>();
 	m->name = std::move(name);
 	m->symmetry = static_cast<Symmetry>(data[72]);
+	m->draft_rounds = data[73];
 	Reader r{ data, size, 74 };
 	m->W = r.u16();
 	m->H = r.u16();

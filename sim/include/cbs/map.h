@@ -31,6 +31,7 @@ struct Map
 	std::string name;
 	int W = 0, H = 0;
 	Symmetry symmetry = Symmetry::rotational180;
+	int draft_rounds = 5; // champions picked per team (header byte 73)
 	Bitboard walls, bushes, holes, altars;
 	std::vector<std::uint16_t> cluster; // bush cluster id per tile (0 = not a bush), row-major
 	Box spawn[2];
