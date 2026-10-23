@@ -83,3 +83,33 @@ See the module docstring for the byte layout. Key points:
 - Champion ids: team A's champions are 0..n-1 in pick order, then team B's.
   (Cassi & Issac id layout: not yet verified.)
 - Initial positions fill the spawn box row-major (x fastest) in id order.
+
+## Geometry primitives and vision
+
+Source: `oracle/bots/geom` fuzzes the engine's own host functions on random
+wall masks and real maps (fixtures in `oracle/fixtures/geom/`). All of the
+following match the engine exactly on every sample (thousands per primitive).
+
+- **Shadowcast** (`Bitboard::shadow_cast`): Albert Ford's symmetric
+  shadowcasting (four quadrants, slopes `(2col-1)/2depth`, round-ties-up /
+  round-ties-down column bounds), limited to **Chebyshev** radius `dist`
+  (rows deeper than `dist` are not scanned). A tile is revealed only if it is
+  symmetric-visible **and not blocking**: walls themselves are never marked
+  visible. The origin is always visible. Out-of-map tiles do not block.
+- **Champion vision**: shadowcast radius 8 from the champion's tile, blocking
+  set = walls + bushes not in the viewer's own bush cluster (cluster ids come
+  from the map file). So bush tiles of other clusters are never visible, and
+  one's own cluster is transparent (and visible where in line of sight).
+- **Ward vision**: same rule with radius 6, using the ward tile's bush
+  cluster.
+- **Reachable tiles**: plain 8-neighbour BFS up to `dist` steps over
+  non-wall tiles; diagonal steps may cut corners. If the origin is a wall the
+  result is empty.
+- **Distance fields**: multi-source 8-neighbour BFS from non-wall roots
+  (roots on walls are dropped), walls impassable, stops when the next depth
+  would exceed `max_distance`; `compute_to` stops before expanding once any
+  destination has a distance. Unreached tiles hold 0xFFFF. `visited` = tiles
+  that received a distance. The expansion count is the number of BFS
+  iterations executed (including the final one that finds no new tiles).
+- **draw_circle**: tiles with `dx^2 + dy^2 <= r^2`; **draw_chebyshev**:
+  `max(|dx|,|dy|) <= r` (fractional radii allowed).
