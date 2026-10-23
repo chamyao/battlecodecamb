@@ -245,6 +245,30 @@ On the same games fs-1 (team B, `--side b`) comes out at 1.008 in total (median 
 10-90% [−9.0%, +11.8%]), so the +4% is specific to v7zg-cast, not a global offset. (Re-run on
 d3f0df8 with the refined mask estimate below: v7zg-cast 1.045.)
 
+**Running total.** The per-turn correction (`INTERP_TURN_COST`: per block and per API call,
+negative on balance) is charged after every block, not once at the end of the turn, so the
+running total under `--enforce` follows the real meter. Charged at the end, a 93.9k turn
+(cambc 88.0k) peaked near 105k mid-turn and was suspended; that was the whole 00ambush
+divergence below. Turn totals are unchanged.
+
+tune-1 vs v7zg-cast, 40 maps × 2 sides, `--bot-seeds` against `cambc run-batch`: 79/80 games
+end identically (winner and end round; tie-broken round-2000 draws included). Before the
+enemy-spawn dash rule (docs/ENGINE_FINDINGS.md) and the running total, 75/80. The last one,
+01big-world with tune-1 as team A, is identical with fuel unenforced. Enforced, three turns
+that cambc measured at ~95.7k come out at ~103.5k: `api:nearest_by_walk` on big maps is fitted
+high (measured / model median 0.92 on 01big-world, 0.84 for the largest calls), and
+`api:distance_field` likewise for long searches (0.90).
+
+Diagnostics for this kind of check:
+- `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
+  trace build): per champion turn, `@@ST` (state seen at turn start), `@@SE` (the `end_turn()`
+  reached, move target and step, end position, dash target and result), `@@SP` (priority).
+  `STATE_TRACE_ROUNDS=a-b` adds `@@SB` counts and order-free hashes of the blocked set, camp
+  set and vision; `STATE_TRACE_TILES=r` adds that round's vision as `@@SV` row masks. Printing
+  is metered in the bot, so keep the windows short.
+- `FUEL_TURN_DETAIL=ROUND:CHAMP` (fuel_turns): that turn's charges by block (`@@DTB`) and API
+  call (`@@DTC`, by `cbs::Call`), its total and its correction.
+
 **Outcome check.** With the current table, the simulator gives 0 suspensions per game for v3
 and fs-1 against starter (40 maps × 5 seeds). Win rates: v3 196/200 = 98%, fs-1 195/200 =
 97.5%, v3 vs fs-1 173/200 = 86.5%. cambc, default fuel, current bot: v3 and fs-1 each won 12/12

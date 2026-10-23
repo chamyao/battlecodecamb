@@ -642,10 +642,32 @@ struct Interp
 		}
 	};
 	std::int64_t blocks_this_turn = 0;
+	// The per-turn correction (INTERP_TURN_COST: per block, per API call, may be negative) is
+	// charged as the turn goes, after every block, so the running total follows the real meter:
+	// charged only at the end, its negative part let a turn's running total pass the budget
+	// (and suspend the bot) when the real bot stayed well under it. The turn's total is the
+	// same either way; the turn as a whole and its running total never go below zero.
+	std::uint64_t turn_calls0 = 0;
+	std::int64_t turn_spent0 = 0, turn_adj = 0;
+	void charge_turn_cost(bool final)
+	{
+		const auto target = static_cast<std::int64_t>(
+			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0)));
+		const std::int64_t raw = api.spent - turn_spent0 - turn_adj; // charges other than the correction
+		const std::int64_t want = std::max<std::int64_t>(target, -std::max<std::int64_t>(0, raw));
+		const std::int64_t d = want - turn_adj;
+		turn_adj = want;
+		if (d != 0 || final) api.compute(d);
+	}
 	void charge_block(Op op, bool exec)
 	{
 		if (!api.count_charges) return; // real bot: the engine meters fuel, skip the bookkeeping
 		++blocks_this_turn;
+		charge_block_cost(op, exec);
+		charge_turn_cost(false);
+	}
+	void charge_block_cost(Op op, bool exec)
+	{
 		const std::int64_t* c = block_costs().row[exec ? 1 : 0][static_cast<int>(op)];
 		const Work w = work;
 		work = {};
@@ -688,8 +710,37 @@ struct Interp
 	}
 	std::uint32_t self() { return static_cast<std::uint32_t>(api.my_champion()); }
 
+	void print_state()
+	{
+		const bool counting = api.count_charges;
+		api.count_charges = false; // diagnostics are free in the simulator
+		std::uint32_t r = 0, gems = 0, gold = 0;
+		api.round_number(&r);
+		ChampionInfo ci{};
+		const std::uint32_t me_h = self();
+		const Err e = api.champion(me_h, &ci);
+		api.champion_gems(me_h, &gems);
+		api.champion_gold(me_h, &gold);
+		std::int32_t c0 = 0, c1 = 0;
+		api.champion_cooldown(me_h, 0, &c0);
+		api.champion_cooldown(me_h, 1, &c1);
+		std::printf("@@ST r=%u champ=%u e=%d pos=%d,%d hp=%.2f/%.2f str=%.2f foc=%.2f st=%u gems=%u gold=%u cd=%d,%d en=", r, me_h,
+					static_cast<int>(e), ci.x, ci.y, static_cast<double>(ci.health), static_cast<double>(ci.max_health),
+					static_cast<double>(ci.strength), static_cast<double>(ci.focus), ci.state, gems, gold, c0, c1);
+		std::uint32_t ids[16], n = 0;
+		api.enemies(ids, 16, &n);
+		for (std::uint32_t i = 0; i < n && i < 16; ++i)
+		{
+			ChampionInfo ei{};
+			if (api.champion(ids[i], &ei) == Err::success) std::printf("%u:%d,%d:%.2f;", ids[i], ei.x, ei.y, static_cast<double>(ei.health));
+		}
+		std::printf("\n");
+		api.count_charges = counting;
+	}
+
 	void turn()
 	{
+		if (state_trace && api.champ() >= 0) print_state();
 		++turn_no;
 		// The deploy bot's one-off start-up (map, camp layout, allocator; the policy is embedded
 		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 24 cambc games of
@@ -700,20 +751,101 @@ struct Interp
 						394 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
+		turn_calls0 = calls0;
+		turn_spent0 = spent0;
+		turn_adj = 0;
+		// Simulator diagnostics (FUEL_TURN_DETAIL=ROUND:CHAMP, with memo_stats enabled): that turn's
+		// charges by block and by API call.
+		static const char* detail_env = std::getenv("FUEL_TURN_DETAIL");
+		bool detail = false;
+		std::uint32_t round_now = 0;
+		if (detail_env && cbs::memo_stats().enabled && api.champ() >= 0)
+		{
+			int dr = -1, dc = -1;
+			std::sscanf(detail_env, "%d:%d", &dr, &dc);
+			const bool counting = api.count_charges;
+			api.count_charges = false;
+			api.round_number(&round_now);
+			api.count_charges = counting;
+			detail = static_cast<int>(round_now) == dr && static_cast<int>(self()) == dc;
+		}
+		static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> blocks0;
+		static cbs::MemoStats memo0;
+		if (detail) blocks0 = charge_stats_table(), memo0 = cbs::memo_stats();
 		last_end = last_do = nullptr;
-		trace_target = trace_step = kNoTile;
+		trace_target = trace_step = trace_dash = kNoTile;
+		trace_dash_ok = -3;
 		trace_dist = -1;
 		blocks_this_turn = 0;
 		run(prog.steps);
+		if (state_trace && api.champ() >= 0)
+		{
+			int k1 = 0;
+			ChampionInfo after{};
+			me(after);
+			std::int32_t pr0 = 0, pr1 = 0;
+			api.champion_priority(self(), false, &pr0);
+			api.champion_priority(self(), true, &pr1);
+			std::printf("@@SP champ=%u prio=%d next=%d\n", self(), pr0, pr1);
+			std::printf("@@SE champ=%u end#%d target=%d,%d step=%d,%d dist=%d pos=%d,%d dash=%d,%d:%d\n", self(),
+						last_end ? ordinal(prog.steps, last_end, Step::end_turn, k1) : 0, trace_target.x, trace_target.y, trace_step.x,
+						trace_step.y, trace_dist, after.x, after.y, trace_dash.x, trace_dash.y, trace_dash_ok);
+			// what pathing saw this turn: the blocked tiles, the camp set and our vision, as tile lists
+			std::uint32_t rr = 0;
+			api.round_number(&rr);
+			if (static_cast<int>(rr) >= state_trace_r0 && static_cast<int>(rr) <= state_trace_r1)
+			{
+			const bool counting = api.count_charges;
+			api.count_charges = false;
+			Bitboard vis;
+			api.vision(vis);
+			auto dump = [&](const char* tag, const Bitboard& b) { // count and an order-free hash (printing every tile costs too much fuel)
+				std::uint64_t h = 0;
+				int n = 0;
+				b.for_each_unordered(m().H, [&](int x, int y) {
+					std::uint64_t v = static_cast<std::uint64_t>(y * 128 + x + 1) * 0x9E3779B97F4A7C15ull;
+					h += v ^ (v >> 29);
+					++n;
+				});
+				std::printf("@@SB %s n=%d h=%llx\n", tag, n, static_cast<unsigned long long>(h));
+			};
+			dump("dyn", dyn_block);
+			dump("camps", camps_cache);
+			dump("vis", vis);
+			if (static_cast<int>(rr) == state_trace_tiles)
+			{
+				std::uint64_t rows[2][100] = {}; // per row, x < 64 and x >= 64
+				vis.for_each_unordered(m().H, [&](int x, int y) { rows[x >> 6][y] |= 1ull << (x & 63); });
+				for (int y = 0; y < m().H; ++y)
+					if (rows[0][y] | rows[1][y])
+						std::printf("@@SV %d %llx %llx\n", y, static_cast<unsigned long long>(rows[1][y]), static_cast<unsigned long long>(rows[0][y]));
+			}
+			api.count_charges = counting;
+			}
+		}
 		// The step loop itself (Value temporaries etc. between blocks) and the calibration's
 		// per-block / per-call corrections (block_costs_gen.inc), which may be negative; never
 		// below zero for the turn as a whole.
 		if (api.count_charges)
 		{
-			const auto adj = static_cast<std::int64_t>(
-				INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - calls0)));
-			api.compute(std::max<std::int64_t>(adj, -std::max<std::int64_t>(0, api.spent - spent0)));
+			charge_turn_cost(true);
+			const std::int64_t adj = turn_adj;
 			trace_turn();
+			if (detail)
+			{
+				std::printf("@@DT r=%u champ=%u total=%lld blocks=%d calls=%llu adj=%lld\n", round_now, self(),
+							static_cast<long long>(api.spent - spent0), blocks_this_turn,
+							static_cast<unsigned long long>(api.api_calls - calls0), static_cast<long long>(adj));
+				for (int e = 0; e < 2; ++e)
+					for (int i = 0; i < kNumBlocks; ++i)
+						if (const long long n = charge_stats_table()[e][i][0] - blocks0[e][i][0])
+							std::printf("@@DTB %s%s %lld %lld\n", e ? "exec:" : "", kBlockTable[i].key, n,
+										charge_stats_table()[e][i][1] - blocks0[e][i][1]);
+				const cbs::MemoStats& ms = cbs::memo_stats();
+				for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
+					if (const long long n = ms.call_n[c] - memo0.call_n[c])
+						std::printf("@@DTC %d %lld %lld\n", c, n, ms.call_fuel[c] - memo0.call_fuel[c]);
+			}
 		}
 	}
 
@@ -722,7 +854,8 @@ struct Interp
 	// effect step run, as their ordinals in source order.
 	const Step* last_end = nullptr;
 	const Step* last_do = nullptr;
-	Vec2 trace_target = kNoTile, trace_step = kNoTile;
+	Vec2 trace_target = kNoTile, trace_step = kNoTile, trace_dash = kNoTile;
+	int trace_dash_ok = -3;
 	int trace_dist = -1;
 	static int ordinal(Span<Step> steps, const Step* want, Step::Kind kind, int& k)
 	{
@@ -1810,9 +1943,11 @@ struct Interp
 			ChampionInfo ci{};
 			if (!has_tile(t) || !me(ci)) break;
 			const Vec2 d = dash_target(t, { ci.x, ci.y });
+			if (state_trace) trace_dash = d, trace_dash_ok = -2;
 			if (has_tile(d))
 			{
-				api.cast(static_cast<std::uint32_t>(slot), 0, 0, d, &ok);
+				const Err err = api.cast(static_cast<std::uint32_t>(slot), 0, 0, d, &ok);
+				if (state_trace) trace_dash_ok = err == Err::success ? ok : -1 - static_cast<int>(err);
 				++epoch;
 			}
 			break;

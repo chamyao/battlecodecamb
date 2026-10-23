@@ -563,7 +563,7 @@ void Game::process_captures()
 		std::sort(who, who + n);
 		const auto& info = map_->groups[g];
 		if (events_on())
-			std::printf("@@EV r=%d capture group=%d team=%d gems=%d gold=%d champs=%d\n", round, g, n ? champs[who[0]].team : -1,
+			std::printf("@@EV r=%d capture group=%d team=%d gems=%d gold=%d champs=%d\n", round, static_cast<int>(g), n ? champs[who[0]].team : -1,
 						static_cast<int>(info.gems), static_cast<int>(info.gold), n);
 		for (int i = 0; i < n; ++i)
 		{
@@ -1092,9 +1092,9 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 		if (chebyshev(ch.pos, dest) > a.range) return Err::cast_out_of_range;
 		bool hidden = false;
 		if (!landing_ok(ch, dest, hidden, true)) return Err::cast_bad_destination;
-		// Legal dash path: one intermediate king step that is not a wall and holds no camp or
-		// enemy champion the caster can see (holes may be crossed, allies and unseen enemies
-		// passed through). RULE? unseen camps; altars are treated as passable
+		// Legal dash path: one intermediate king step that is not a wall or an enemy spawn tile
+		// and holds no camp or enemy champion the caster can see (holes may be crossed, allies
+		// and unseen enemies passed through). RULE? unseen camps; altars are treated as passable
 		bool path = chebyshev(ch.pos, dest) <= 1;
 		Bitboard vis;
 		if (!path) champion_vision(c, vis);
@@ -1105,7 +1105,8 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 				const int occ = champion_at(mid);
 				if (map_->in_bounds(mid) && chebyshev(mid, dest) <= 1 && camp_at(mid) >= 0 && !vis.test(mid)) CBS_RULE_HIT("dash_past_unseen_camp");
 				if (map_->in_bounds(mid) && chebyshev(mid, dest) <= 1 && map_->altars.test(mid)) CBS_RULE_HIT("dash_over_altar");
-				if (map_->in_bounds(mid) && !map_->walls.test(mid) && chebyshev(mid, dest) <= 1 &&
+				if (map_->in_bounds(mid) && chebyshev(mid, dest) <= 1 && map_->spawn[1 - ch.team].contains(mid)) CBS_RULE_HIT("dash_over_enemy_spawn");
+				if (map_->in_bounds(mid) && !map_->walls.test(mid) && !map_->spawn[1 - ch.team].contains(mid) && chebyshev(mid, dest) <= 1 &&
 					(occ < 0 || champs[occ].team == ch.team || !vis.test(mid)) && camp_at(mid) < 0 && !tile_reserved_by_teleport(mid))
 					path = true;
 			}

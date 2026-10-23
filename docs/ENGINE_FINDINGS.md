@@ -195,9 +195,12 @@ Each rule below was needed to make full games replay with zero differences.
 - Ground-targeted abilities (AoE, dash) cast with a unit target use the unit's
   tile as the destination.
 - Dash path: the destination is validated like a landing tile; a 2-step dash
-  needs an intermediate tile that is not a wall and holds no camp or enemy
-  champion **visible to the caster** (allies and unseen enemies, e.g. in a
-  bush, can be passed; holes can be crossed). No path -> error 32.
+  needs an intermediate tile that is not a wall or an enemy spawn tile and
+  holds no camp or enemy champion **visible to the caster** (allies and unseen
+  enemies, e.g. in a bush, can be passed; holes can be crossed). No path ->
+  error 32. (Enemy spawn: 01elk-arena round 630, tune-1 as team B, Vesper Vale
+  at (14,27) dashing to (16,25), whose only intermediate (15,26) is in team A's
+  spawn box: cambc 32, the simulator had let it through.)
 - Attack resets require that the basic attack was already used this turn
   (otherwise 26); for ranged champions a reset restores the attack only, not
   the walk.
