@@ -172,7 +172,7 @@ struct BlockCostTable
 			if (const BlockInfo* b = find_block(c.key)) row[c.exec ? 1 : 0][b - kBlockTable] = c.milli;
 	}
 };
-// Charges per block (count, fuel) [exec][op], for diagnostics (interp::charge_stats; not thread-safe).
+// Charges per block (count, fuel) [exec][op] while cbs::memo_stats().enabled (interp::charge_stats).
 static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2>& charge_stats_table()
 {
 	static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> t{};
@@ -618,9 +618,12 @@ struct Interp
 									 static_cast<std::int64_t>(m().groups.size()), w.bits };
 		std::int64_t milli = 0;
 		for (int i = 0; i < 10; ++i) milli += c[i] * f[i];
-		auto& st = charge_stats_table()[exec ? 1 : 0][static_cast<int>(op)];
-		++st[0];
-		st[1] += std::max<std::int64_t>(0, milli / 1000);
+		if (cbs::memo_stats().enabled)
+		{
+			auto& st = charge_stats_table()[exec ? 1 : 0][static_cast<int>(op)];
+			++st[0];
+			st[1] += std::max<std::int64_t>(0, milli / 1000);
+		}
 		api.compute(std::max<std::int64_t>(0, milli / 1000));
 	}
 	// Distance field through the API, recording its work for the calling block's cost.
@@ -649,10 +652,10 @@ struct Interp
 		++turn_no;
 		// The deploy bot's one-off start-up (map, camp layout, allocator; bot/src/main.cpp) on a
 		// champion's first turn, measured on 24 cambc games of v2 / fs-1 as first-turn fuel minus
-		// the simulator's charge for that turn (docs/FUEL.md): mae 2.8k on a mean of 93k.
+		// the simulator's charge for that turn (docs/FUEL.md): mae 2.7k on a mean of 81k.
 		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
-			api.compute(67167 + 2324 * m().W * m().H / 1000 + 253 * static_cast<std::int64_t>(m().camps.size()) +
-						390 * static_cast<std::int64_t>(m().groups.size()));
+			api.compute(55221 + 2277 * m().W * m().H / 1000 + 249 * static_cast<std::int64_t>(m().camps.size()) +
+						393 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
 		blocks_this_turn = 0;
