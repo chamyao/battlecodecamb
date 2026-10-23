@@ -89,8 +89,13 @@ struct FuelExhausted
 struct MemoStats
 {
 	long long calls = 0, misses = 0, layers = 0;
+	long long call_n[static_cast<int>(Call::count)] = {}, call_fuel[static_cast<int>(Call::count)] = {}; // by Call, all charges
 };
-MemoStats& memo_stats();
+inline MemoStats& memo_stats()
+{
+	static MemoStats s;
+	return s;
+}
 
 class Api
 {
@@ -111,6 +116,7 @@ public:
 	bool unlimited = true; // no runner: charges are only counted
 	bool count_charges = true; // false in the real bot, where the engine meters fuel itself
 	std::uint64_t suspensions = 0;
+	std::uint64_t api_calls = 0; // charged engine calls (not compute / yield), for per-call overheads
 	// Sizes of the last distance_field / nearest_by_walk call as priced (simulator only): BFS
 	// layers searched (bot memo: on a miss only) and tiles queried (nearest_by_walk under the bot
 	// memo: 1 + the reachable mask's tiles). The interpreter charges its blocks on these.
@@ -122,7 +128,15 @@ public:
 	{
 		if (!count_charges) return;
 		PriceContext ctx{ g_.map().W, g_.map().H, n, n2, n3 };
-		spent += prices_->price(c, ctx);
+		const std::int64_t p = prices_->price(c, ctx);
+		spent += p;
+		if (c != Call::compute && c != Call::yield) ++api_calls;
+		if (prices_->bot_memo)
+		{
+			MemoStats& ms = memo_stats();
+			++ms.call_n[static_cast<int>(c)];
+			ms.call_fuel[static_cast<int>(c)] += p;
+		}
 		if (!unlimited && !coro_ && spent > budget) throw FuelExhausted{};
 		if (!unlimited && coro_)
 			while (spent > budget)
