@@ -77,7 +77,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(gold_cluster_tiles, "gold_cluster_tiles()") X(monolith_tiles, "monolith_tiles()") X(golem_tiles, "golem_tiles()")    \
 	X(in_danger, "in_danger()") X(move_away_from, "move_away_from(Tile)") X(allies_within, "allies_within(Num)")          \
 	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")   \
-	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")
+	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")                \
+	X(rich_spawns, "rich_spawns(Num)")
 
 enum class Op : std::uint16_t
 {
@@ -1151,6 +1152,21 @@ struct Interp
 			api.altar_locks(locks, 16, &n);
 			Bitboard b;
 			for (std::uint32_t i = 0; i < n && i < 16; ++i) b.set(locks[i].x, locks[i].y);
+			return set_of(b);
+		}
+		case Op::rich_spawns:
+		{
+			// spawn tiles of every camp whose group rewards at least n gems when captured (static
+			// map fact: the sum of its camps' gem rewards)
+			const double n = eval(a[0]).n;
+			Bitboard b;
+			for (const auto& grp : m().groups)
+			{
+				int g = 0;
+				for (int c : grp.camps) g += cbs::camp_design(m().camps[c].type).gems;
+				if (g >= n)
+					for (int c : grp.camps) b.set(m().camps[c].pos);
+			}
 			return set_of(b);
 		}
 		case Op::respawning_visible_spawns:

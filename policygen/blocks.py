@@ -172,6 +172,7 @@ _b("capturable_spawns", "", "TileSet")
 _b("turns_idle", "", "Num")
 _b("enemies_within", "Num", "Num")
 _b("local_strength", "Num", "Num")
+_b("rich_spawns", "Num", "TileSet")
 
 # Effects
 _b("move_towards", "Tile", VOID)
