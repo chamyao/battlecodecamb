@@ -13,6 +13,8 @@ FAM = ['Monster', 'Power', 'Durability', 'Treasure', 'Jungle', 'Home', 'Bruiser'
 STAT = ['Str', 'Foc', 'HP']
 CONS = {0: 'teleport', 2: 'altar_lock'}
 TOP4 = ['Intercontinental Fish', 'Nyx', 'Univardisty of Shingtonwash', 'hello']
+if os.environ.get('TOP4'):  # comma-separated team names, e.g. the current ladder top 4
+    TOP4 = os.environ['TOP4'].split(',')
 # Single altar walled in behind two monoliths: 14/15 games reach round 2000, mostly 0-0,
 # decided on lifetime gold. Excluded from per-game averages, reported separately.
 LOCKED_MAP = '1b8ddaecdb'
@@ -464,7 +466,7 @@ def report(all_rows):
     P(table(['round', 'games with a leader', 'leader wins'], tab))
 
     # ---- close series
-    for code in ('w9-0', 'w10-0'):
+    for code in [c for c in ('w9-0', 'w10-0') if any(r['code'] == c for r in rows)]:
         P(f'\n## Series {code}\n')
         rs = sorted([r for r in rows if r['code'] == code and r['team'] == 'Intercontinental Fish'], key=lambda r: r['game'])
         tab = [(r['game'], r['map'], 'W' if r['win'] else 'L', f"{r['tributed']}-{r['opp_tributed']}", r['rounds'],
