@@ -1,0 +1,15 @@
+if is_draft():
+    pick(champ_vendetta())
+    end_turn()
+let k = nearest(enemy_locks())
+if exists(k):
+    if lock_hits_left(unit_position(k)) > 0:
+        unclaim()
+    let l = first(filter(enemy_locks(), in_attack_range()))
+    if exists(l):
+        attack(l)
+        end_turn()
+    move_towards(unit_position(k))
+    end_turn()
+move_towards(closest(ring(altars(), 1)))
+end_turn()

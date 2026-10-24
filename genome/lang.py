@@ -17,6 +17,8 @@ turn, the only gene that may assign keep variables or call write_shared).
 import ast
 import hashlib
 import json
+import re
+import unicodedata
 from dataclasses import dataclass, field
 
 TYPES = {"Num", "Bool", "Tile", "Unit", "Units", "Tiles", "Option", "Field", "None"}
@@ -109,6 +111,7 @@ PRIMS = {
     "exists": (("Unit",), "Bool", "{0}.valid()"),
     "field": (("Tiles",), "Field", "X.field({0})"),
     "field_avoid": (("Tiles", "Tiles", "Tiles"), "Field", "X.field_avoid({0}, {1}, {2})"),
+    "box_field": (("Tiles", "Tiles"), "Field", "X.box_field({0}, {1})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
@@ -131,6 +134,9 @@ PRIMS = {
     "write_shared": (("Num", "Num"), "None", "X.write_shared({0}, {1})"),
     # turn order (takes effect next round)
     "set_priority": (("Num",), "None", "X.set_priority({0})"),
+    # what the loop did this turn (for after(): e.g. announce a claim in shared memory)
+    "acted": (("Num",), "Bool", "X.acted({0})"),
+    "acted_tile": (("Num",), "Tile", "X.acted_tile({0})"),
     # draft
     "picked_by_us": (("Num",), "Bool", "X.picked(false, {0})"),
     "picked_by_them": (("Num",), "Bool", "X.picked(true, {0})"),
@@ -140,7 +146,8 @@ PRIMS = {
     "sqrt": (("Num",), "Num", "std::sqrt(std::max(0.0, {0}))"),
     "rand": (("Num",), "Num", "X.rand({0})"),
 }
-EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update()
+EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
+MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
 FIELDS = {
     "Unit": {"pos": ("Tile", "{0}.pos"), "health": ("Num", "double({0}.health)"),
@@ -209,10 +216,35 @@ class Genome:
 
 # ---------------------------------------------------------------- parsing
 
+_ID_RE = re.compile(r"[A-Za-z0-9_.-]{1,64}")
+
+
 def _const_str(node, what):
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return node.value
     raise GenomeError(f"{what} must be a string literal")
+
+
+def _gene_id(node, what):
+    s = _const_str(node, what)
+    if not _ID_RE.fullmatch(s):
+        raise GenomeError(f"{what} {s!r}: letters, digits, '_', '.', '-' only (1-64)")
+    return s
+
+
+def _one_line(node, what):
+    # descriptions land in C++ // comments: a line break of any kind (\r, \n, U+2028, ...) would end the
+    # comment, so control, format and separator characters are rejected; a backslash could splice lines
+    s = _const_str(node, what)
+    bad = [c for c in s if unicodedata.category(c) in ("Cc", "Cf", "Zl", "Zp") or c == "\\"]
+    if bad:
+        raise GenomeError(f"{what}: one plain line, no control characters or backslashes (found {bad[0]!r})")
+    return s
+
+
+def _comment(s):
+    """Defensive: printable text only, so nothing can leave a // comment."""
+    return "".join(c if c.isprintable() and c != "\\" else " " for c in s)
 
 
 def _ann(node, what):
@@ -245,12 +277,12 @@ def parse(source):
             d = st.decorator_list[0]
             if len(d.args) != 2:
                 raise GenomeError(f"line {st.lineno}: @gene takes (id, description)")
-            gid, desc = _const_str(d.args[0], "gene id"), _const_str(d.args[1], "gene description")
+            gid, desc = _gene_id(d.args[0], "gene id"), _one_line(d.args[1], "gene description")
             parents = []
             for kw in d.keywords:
                 if kw.arg != "parents" or not isinstance(kw.value, ast.List):
                     raise GenomeError(f"line {st.lineno}: @gene keywords: parents=[...] only")
-                parents = [_const_str(e, "parent id") for e in kw.value.elts]
+                parents = [_gene_id(e, "parent id") for e in kw.value.elts]
             if st.name in genes or st.name in PRIMS or st.name in CONSTANTS or st.name in keeps:
                 raise GenomeError(f"line {st.lineno}: gene {st.name} redefined or shadows a builtin")
             a = st.args
@@ -273,8 +305,12 @@ def parse(source):
         raise GenomeError("score must be score(o: Option) -> Num")
     if "consider" in genes and ([t for _, t in genes["consider"].params] != ["Num"] or genes["consider"].ret != "Bool"):
         raise GenomeError("consider must be consider(kind: Num) -> Bool")
+    if "after" in genes and (genes["after"].params or genes["after"].ret != "None"):
+        raise GenomeError("after must be after() -> None")
     if "update" in genes and (genes["update"].params or genes["update"].ret != "None"):
         raise GenomeError("update must be update() -> None")
+    if "reserve" in genes and (genes["reserve"].params or genes["reserve"].ret != "Num"):
+        raise GenomeError("reserve must be reserve() -> Num")
     g = Genome(genes, keeps, source)
     Checker(g).run()
     return g
@@ -360,7 +396,7 @@ class Checker:
             self.locals[var] = et
             body = self.block(st.body, ind + 1)
             del self.locals[var]  # the loop variable does not outlive the loop
-            return [f"{p}{hdr} {{", f"{p}\tF(1);"] + body + [f"{p}}}"]
+            return [f"{p}{hdr} {{", f"{p}\t{_fl(et)}(1);"] + body + [f"{p}}}"]
         if isinstance(st, ast.Expr) and isinstance(st.value, ast.Call):
             t, c, ops = self.expr(st.value, effect_ok=True)
             return [f"{p}F({ops});", f"{p}{c};"]
@@ -387,8 +423,8 @@ class Checker:
             self.err(st, f"cannot assign to parameter {name}")
         t, c, ops = self.expr(value)
         if name in self.g.keeps:
-            if self.cur.name != "update":
-                self.err(st, f"keep {name} can only be assigned in update()")
+            if self.cur.name not in MEMORY_GENES:
+                self.err(st, f"keep {name} can only be assigned in update() or after()")
             kt = self.g.keeps[name][0]
             t = self.coerce(st, t, kt)
             self.cur.keep_writes.add(name)
@@ -546,7 +582,7 @@ class Checker:
             gene = self.g.genes[n]
             if [t for _, t in gene.params] != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(t for _, t in gene.params)})")
-            if n in ("score", "update", "consider"):
+            if n in ("score", "update", "consider", "after", "reserve"):
                 self.err(e, f"entry gene {n} cannot be called")
             self.cur.calls.add(n)
             return gene.ret, f"{n}(" + ", ".join(c for _, c, _ in args) + ")", ops + 1
@@ -555,8 +591,8 @@ class Checker:
             if list(sig) != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(sig)})")
             if n in EFFECT_PRIMS:
-                if not effect_ok or self.cur.name != "update":
-                    self.err(e, f"{n} only as a statement in update()")
+                if not effect_ok or self.cur.name not in MEMORY_GENES:
+                    self.err(e, f"{n} only as a statement in update() or after()")
             if n == "write_shared":
                 off = e.args[0]
                 self.cur.shared_writes.add(str(int(off.value)) if isinstance(off, ast.Constant) else "*")
@@ -587,23 +623,24 @@ class Checker:
     def reduce(self, n, e):
         gen = e.args[0]
         var, hdr, conds, cops = self.comp(gen)
+        et = self.locals[var]
         t, c, o = self.expr(gen.elt)
         del self.locals[var]
         guard = f"if (!({' && '.join(conds)})) continue; " if conds else ""
         per = 1 + cops + o
         if n == "sum":
             self.need(gen.elt, t, "Num")
-            body = f"double acc = 0; {hdr} {{ F({per}); {guard}acc += {c}; }} return acc;"
+            body = f"double acc = 0; {hdr} {{ {_fl(et)}({per}); {guard}acc += {c}; }} return acc;"
             rt = "Num"
         elif n == "count":
             self.need(gen.elt, t, "Bool")
-            body = f"double acc = 0; {hdr} {{ F({per}); {guard}if ({c}) acc += 1; }} return acc;"
+            body = f"double acc = 0; {hdr} {{ {_fl(et)}({per}); {guard}if ({c}) acc += 1; }} return acc;"
             rt = "Num"
         elif n in ("any", "all"):
             self.need(gen.elt, t, "Bool")
             hit = "true" if n == "any" else "false"
             test = c if n == "any" else f"!({c})"
-            body = f"{hdr} {{ F({per}); {guard}if ({test}) return {hit}; }} return {'false' if n == 'any' else 'true'};"
+            body = f"{hdr} {{ {_fl(et)}({per}); {guard}if ({test}) return {hit}; }} return {'false' if n == 'any' else 'true'};"
             rt = "Bool"
         else:
             self.need(gen.elt, t, "Num")
@@ -615,7 +652,7 @@ class Checker:
                 self.need(kw.value, dt, "Num")
                 default = dc
             cmp = ">" if n == "max" else "<"
-            body = (f"bool seen = false; double acc = {default}; {hdr} {{ F({per}); {guard}double v = {c}; "
+            body = (f"bool seen = false; double acc = {default}; {hdr} {{ {_fl(et)}({per}); {guard}double v = {c}; "
                     f"if (!seen || v {cmp} acc) {{ acc = v; seen = true; }} }} return acc;")
             rt = "Num"
         return rt, f"[&]() {{ {body} }}()", 1
@@ -636,7 +673,7 @@ class Checker:
         del self.locals[var]
         self.need(lam.body, t, "Num")
         it = f"const Unit& {var} : {sc}" if et == "Unit" else f"const Tile& {var} : X.tiles_of({sc})"
-        body = (f"{CPP[et]} arg{{}}; bool seen = false; double acc = 0; for ({it}) {{ F({1 + o}); double v = {c}; "
+        body = (f"{CPP[et]} arg{{}}; bool seen = false; double acc = 0; for ({it}) {{ {_fl(et)}({1 + o}); double v = {c}; "
                 f"if (!seen || v > acc) {{ acc = v; arg = {var}; seen = true; }} }} return arg;")
         return et, f"[&]() {{ {body} }}()", so + 1
 
@@ -682,10 +719,13 @@ def to_cpp(genome):
         lines.append(f"\t{CPP[g.ret]} {n}({params});")
     for n in order:
         g = genome.genes[n]
-        if not g.params and g.ret != "None" and n != "update":
+        if not g.params and g.ret != "None" and n not in ("update", "after"):
             lines.append(f"\tstd::uint64_t stamp_{n} = ~0ull; {CPP[g.ret]} val_{n}{{}};")
     lines += ["\tdouble score_option(const Option& o) override { return score(o); }",
-              f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}"]
+              f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}",
+              f"\tvoid run_after() override {{ {'after();' if 'after' in genome.genes else ''} }}"]
+    if "reserve" in genome.genes:
+        lines += ["\tdouble reserve_fuel() override { return reserve(); }"]
     if "consider" in genome.genes:
         p = genome.genes["consider"].params[0][0]
         lines += ["\tbool consider_kind(int k) override { return consider(double(k)); }",
@@ -694,14 +734,16 @@ def to_cpp(genome):
     for n in order:
         g = genome.genes[n]
         params = ", ".join(_param(p, t) for p, t in g.params)
-        lines.append(f"// gene {g.id}: {g.desc.replace(chr(10), ' ')}")
+        lines.append(f"// gene {_comment(g.id)}: {_comment(g.desc)}")
         body = ch.cpp[n]
-        memo = not g.params and g.ret not in ("None",) and n != "update"
+        memo = not g.params and g.ret not in ("None",) and n not in ("update", "after")
         lines.append(f"{CPP[g.ret]} Genes::{n}({params}) {{")
         lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:
             # zero-argument genes are pure within a pass: computed once per pass, cached on this instance
-            lines += [f"\tif (stamp_{n} == X.pass_id) return val_{n};",
+            # a hit costs ~73 fuel in the bot for a scalar, ~78 for a shared set or field (fitted per turn on identical games)
+            hit = 78 if g.ret in ("Tiles", "Field", "Units") else 73
+            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({hit}); return val_{n}; }}",
                       f"\t{CPP[g.ret]} v = [&]() -> {CPP[g.ret]} {{"]
             lines += ["\t" + l for l in body]
             lines += ["\t}();", f"\tstamp_{n} = X.pass_id; val_{n} = v;", "\treturn v;"]
@@ -711,6 +753,11 @@ def to_cpp(genome):
     lines += ["} // namespace genome_gen", "", "extern \"C\" genome::GenesBase* genome_make(genome::Ctx& X) "
               "{ return new genome_gen::Genes(X); }", ""]
     return "\n".join(lines)
+
+
+def _fl(et):
+    """Loop-iteration charge macro: iterating units costs ~11 more per step in the bot than a range or tiles."""
+    return "FLU" if et == "Unit" else "FL"
 
 
 def _param(name, t):

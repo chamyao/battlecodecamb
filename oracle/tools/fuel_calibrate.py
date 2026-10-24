@@ -31,7 +31,7 @@ OVH={}
 samples=collections.defaultdict(list); loop=collections.defaultdict(list)
 TURNS=collections.defaultdict(list)  # run -> [(turn_no, [(op, exp, dbits, occ)], blocks, api calls)]
 for run in runs:
-    mp=os.path.basename(run); tot=0
+    mp=os.path.basename(run); tot=0; cov_run=os.path.basename(os.path.dirname(run))=='coverage'
     for l in open(f'{run}/prof.txt'):
         f=l.split()
         if not f: continue
@@ -45,7 +45,11 @@ for run in runs:
             op,sf,ex,db,cex,cdb,oc=map(int,f[1:8])
             if op in (509,510): continue  # the profiler's own calibration scopes, outside the turn
             op=remap.get(op,op)
-            samples[op].append((mp,sf,ex+cex,db+cdb,oc)); tot+=sf; nsc+=1; nblk+=op<1000
+            # the memoised field queries are priced on real policies only: the coverage probes'
+            # synthetic closest()/ring() calls are numerous and skew their fit (heavy big-world turns)
+            if not (cov_run and op>=1000 and APIN[op-1000] in ('distance_field','nearest_by_walk')):
+                samples[op].append((mp,sf,ex+cex,db+cdb,oc))
+            tot+=sf; nsc+=1; nblk+=op<1000
             ops.append((op,ex+cex,db+cdb,oc))
         elif f[0]=='@@TURN':
             loop[run].append((int(f[1])-tot-nsc*OVH[run], nblk, int(f[1])-nsc*OVH[run]))
@@ -72,6 +76,7 @@ def allowed(nm):
     if nm=='respawning_visible_spawns()': return ['1','groups']
     if nm in ('wolf_tiles()','elk_tiles()','gem_cluster_tiles()','gold_cluster_tiles()','monolith_tiles()','golem_tiles()'): return ['1','ch','camps']  # loop over every map camp
     if nm=='camp_spawn_tiles()': return ['1','ch','camps']
+    if nm in ('monolith_threat(Tile)','in_monolith_zone(Tile)','altar_safe_tiles()','camp_threat(Tile)'): return ['1','dbits']  # dbits = camps looked at (note_list)
     if nm in ('filter(UnitList,UnitPred)','weakest(UnitList)','richest(UnitList)','nearest(UnitList)'): return ['1','dbits']  # dbits = list length (note_list)
     if nm in ('ring(TileSet,Num)','filter(TileSet,TilePred)','first(TileSet)','count(TileSet)'): return ['1','H','altars']
     return ['1','H','ch','occ','occ*H','dbits','exp*ch']
