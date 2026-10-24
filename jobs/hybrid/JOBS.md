@@ -376,3 +376,9 @@ minus 1 when the screen win rate vs v21 is below 0.34 - 2 standard errors. Islan
 v21 must stay a screen opponent (it is: the league's members include it). Programs already in runs/hyb5-g3 are
 rescaled in memory at startup. Check: hyb5.log prints "yield term: N logged programs rescaled"; new children carry
 metrics.yield {gpc_diff, term, raw_score, ref_win, below_floor}. Promotion is unchanged (h2h vs the best).
+
+## Job H19 (2026-10-24 16:05 UTC, hybrid line session; per the FunSearch lead): group_rate sensor
+Fold into the H17/H18 pull if it has not happened (one pull), else the next boundary. Require funsearch/runs fce1ade or
+later (contains fc797d0). It merges deploy/v0 ec9778c: group_rate(Tile) with its calibrated cost row (~564 + 29/camp;
+16 sensors, 0 provisional rows). interp/ and sim/ CHANGED: rebuild interp_eval + fuel_turns, pytest (2029). Same
+command line as H17/H18; group_rate joins the vocab-variant list automatically.
