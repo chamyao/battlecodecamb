@@ -121,7 +121,8 @@ fi
 # One-shot (pure line, 14:30 UTC, asked by Cham): restart the league on TUNE_REV (per-child; gap blocks ON HOLD pending Cham's decision; per-child hill-climb, helpers-pure,
 # league tuning stage). The current generation RESUMES from runs/ (no state edits); only in-flight programs are lost.
 TUNE_REV=f27e0e2
-if [ "$phase" = g4 ] && [ -f runs/ec2-g6build ] && [ ! -f runs/ec2-tune ]; then
+TUNE_ARMED=0   # disarmed 14:35 UTC: Cham reframed pure as a testbed for the loop; g5 runs unchanged as the baseline
+if [ "$TUNE_ARMED" = 1 ] && [ "$phase" = g4 ] && [ -f runs/ec2-g6build ] && [ ! -f runs/ec2-tune ]; then
   gen=$(python3 -c "import json; print(json.load(open('runs/pure4.json'))['gen'])")
   if running "league --name pure4"; then
     [ -f "runs/pure4-g$gen/STOP" ] || { touch "runs/pure4-g$gen/STOP"; log "tune restart: STOP requested (gen $gen)"; }
