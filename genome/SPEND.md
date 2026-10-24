@@ -7,3 +7,4 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-24 | genome/search g-live1 | 10 | 0.06 | 0.06 |
 | 2026-10-24 | genome/search p-live1 | 7 | 0.02 | 0.08 |
 | 2026-10-24 | genome/search g-seed-smoke | 8 | 0.01 | 0.09 |
+| 2026-10-24 | genome/search s-smoke (strength loop test, starter.genome) | 24 | 0.01 | 0.10 |
