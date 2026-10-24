@@ -13,3 +13,5 @@ seed style-gconv1 score 0.731 (islands [0, 1, 2, 3])
 [11] claude-haiku-5-5 island 2: error: TypeError: no block goal() | best 0.763 (#10) $0.04 | 663s
 [12] claude-opus-5-5 island 2: error: KeyError: 'VAR:Num:16' | best 0.763 (#10) $0.24 | 701s
 [13] claude-haiku-5-5 island 3: error: KeyError: 'VAR:Num:16' | best 0.763 (#10) $0.24 | 721s
+[14] claude-haiku-5-5 island 1: score 0.733 | best 0.763 (#10) $0.25 | 911s
+[15] claude-haiku-5-5 island 1: score 0.736 | best 0.763 (#10) $0.25 | 937s
