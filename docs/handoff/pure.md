@@ -23,7 +23,7 @@ fs-1 -> pure4-g1 #155 = fs-p1 -> pure4-g2 #140 = fs-p2 -> (g3: no promotion) -> 
 -> (g5: no promotion). Round robin on 0af36c4 (400 fresh games): fs-p1 vs fs-1 86.8%; fs-p2 vs fs-p1
 67.7%; fs-p3 vs fs-p2 66.2%, vs fs-p1 76.7%, vs fs-1 93.2%. vs v21: 12.0 / 14.2 / 21.5%; vs hunter3:
 23.3 / 31.0 / 42.0%. fs-p3 cambc-exact vs v21 0.175. fs-p3 is registered in the arena as `fs-p3`
-(engine deploy/v0 545c7b1).
+(engines deploy/v0 545c7b1 and 2e1ff7e; the live comparison league is `main2` on 2e1ff7e).
 
 ## Loop A/B results so far (PR #2)
 
@@ -49,7 +49,8 @@ equal $ per arm, same parent/seeds/opponents; the stratified screen as default i
 - **Arena** (Cham, 24 Oct; replaces the remote/pure -> jobs/pure PR channel and JOBS.md): matches, batches,
   leagues now (`X-Arena-Client: pure`, leagues at priority -1). FunSearch runs there need a pure
   ARENA_TOKEN from Cham (asked for via the coordinator); never put it in the repo or a message. Until a
-  token exists, FunSearch runs stay on EC2.
+  token exists, FunSearch runs stay on EC2, and the A/B does not start (coordinator). After g5's extension, pure's runs
+  move to the arena on a pure engine built from a pinned funsearch/pure commit (POST /engines), both arms on it.
 
 ## Budget
 
