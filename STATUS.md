@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 06:22 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 1.01 0.25 0.09 on 16 threads.
+Updated 2026-10-24 06:27 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 5.33 3.31 1.47 on 16 threads.
 Disk: 2.8G used of 38G.
 
 ## python3 processes
@@ -13,4 +13,8 @@ Disk: 2.8G used of 38G.
 [06:22:26] tune: cloned tune/runs at d390cb1
 [06:22:34] tune: started job C: python3 funsearch/t5_mapfix.py > runs/tune/t5mapfix.out 2>&1
 [06:22:34] tune: started job D: python3 funsearch/draft_meta.py m1 9411 > runs/tune/draftmeta.out 2>&1
+remote: 
+remote: Create a pull request for 'ec2/status' on GitHub by visiting:        
+remote:      https://github.com/chamyao/battlecodecamb/pull/new/ec2/status        
+remote: 
 ```
