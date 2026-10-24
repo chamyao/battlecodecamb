@@ -23,25 +23,11 @@ SYSTEM = f"""You improve bot policies for a programming competition, written in 
 # Blocks (signature -> return type)
 {block_catalog()}
 
-# What our ladder losses taught us (ideas to try, not rules)
-Diagnosed from real ranked games against stronger teams (we lost 2-13):
-- Our champions died to camps ~3x as often as the opponents' did: they kept fighting (recall at
-  20% health is less than one monolith hit, and recall is cancelled by damage). Retreating
-  toward spawn while in_danger() and recalling only once clear won ~+15 points in our tests.
-- Opponents captured 2x as many camps, earned 1.8x the gold and carried bags of 22-58 gems per
-  tribute (ours: 5-9, many trips). Bigger bags may pay once champions stop dying; tribute early
-  when hurt or when an enemy is near.
-- Pick camps you can clear: gold clusters and single wolves early, multi-elk groups with allies
-  or later; never solo monoliths or golems (top teams take monoliths with 3-4 champions).
-- Fight champions only with at least equal numbers nearby and above ~50% health; if carrying
-  gems, disengage toward an altar.
-- Spend gold on more item families: Treasure first (more gold), then Jungle (30% less camp
-  damage) or Bruiser. Our champions bought only Power shards; opponents bought 6-10 kinds.
-- The draft matters a lot: a fixed pick order (vesper_vale, tavi, marcella, stellar, ren) beat
-  the same policy with random picks 59%. Write the draft as a deliberate chain of
-  `elif available(pool, champ_x()): pick(champ_x())` checks, never random_champion.
-- Idle champions: ours stood still off spawn for long stretches (e.g. holding a half-cleared
-  camp). turns_idle() can detect that and switch goals.
+# Already in the current best (do not re-add; improve on them only with a new idea)
+Retreat toward spawn below 30% health while in_danger() and recall once clear; skip monoliths and
+golems; Treasure then Jungle shards; a fixed draft order; tribute with 25+ gem bags (or when hurt or
+late); walk off dead camps of uncleared groups; ability-type-aware casting; monolith fallback only on
+maps whose only gems are monoliths. Constant tuning around these is exhausted (see Observations).
 
 # Your task
 You are shown earlier policy versions, worst first, with their scores (win rate against the
