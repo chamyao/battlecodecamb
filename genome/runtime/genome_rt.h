@@ -160,7 +160,7 @@ struct Field
 	std::shared_ptr<std::uint16_t[]> d;
 	// box_field: only the 3 x 3 box around (bx, by) is stored (d[(dy + 1) * 3 + dx + 1]); reads elsewhere,
 	// or above the centre's own distance, are unreachable
-	int bx = -1, by = -1;
+	int bx = -1, by = -1, br = 1; // dash_field: the 5 x 5 box (br = 2), d[(dy + br) * (2 br + 1) + dx + br]
 	bool rm = false; // computed in guest code (wfield): padded row-major (W + 2) x (H + 2), bot and simulator
 };
 #ifdef GENOME_BOT
@@ -948,6 +948,44 @@ public:
 	// answers it across turns while the goals stay and the walls do not affect my box). Readable only
 	// in my 3 x 3 box and up to my own distance (the part the bot fills and the simulator's search
 	// stopped at my tile reaches); elsewhere unreachable, identically in the bot and the simulator.
+	// Walking field to one `goal` tile over tiles not in `walls` (the goal always allowed), through the
+	// memoised distance field the interpreter's dash_towards uses (root = the goal, dests = my 5 x 5 box
+	// without the goal). The search stops at the first layer reaching the box, so only the box tiles at
+	// that distance (the box's nearest to the goal) read their distance; every other tile is unreachable,
+	// identically in the bot and the simulator. For choosing a dash landing.
+	Field dash_field(Tile goal, const Tiles& walls)
+	{
+		const Unit& u = me_u();
+		const Tile c = u.pos;
+		if (!in_bounds(goal) || !in_bounds(c) || !(u.state & cbs::state_bit::alive) || goal == c) return empty_field();
+		Bitboard blocked, root, box, visited;
+		if (walls.b) blocked = *walls.b;
+		blocked.reset(goal.v());
+		root.set(goal.v());
+		cbs::draw_chebyshev(box, m.W, m.H, c.v(), 2.0f);
+		box.reset(goal.v());
+		if (!box_buf_) box_buf_.reset(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
+		std::uint16_t* buf = box_buf_.get();
+		api.distance_field(blocked, root, &box, cbs::kUnreachable, buf, visited);
+		extra(DASH_FIELD_BASE + DASH_FIELD_CHUNK * chunks());
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[25]);
+		std::uint16_t lo = cbs::kUnreachable;
+		for (int dy = -2; dy <= 2; ++dy)
+			for (int dx = -2; dx <= 2; ++dx)
+			{
+				const Vec2 q{ c.x + dx, c.y + dy };
+				const bool in = m.in_bounds(q) && !blocked.test(q) && !(q.x == goal.x && q.y == goal.y);
+				const std::uint16_t v = in ? buf[m.idx(q)] : cbs::kUnreachable;
+				d[(dy + 2) * 5 + dx + 2] = v;
+				if (v < lo) lo = v;
+			}
+		for (int i = 0; i < 25; ++i)
+			if (d[i] != lo) d[i] = cbs::kUnreachable;
+		Field f{ d };
+		f.bx = c.x, f.by = c.y, f.br = 2;
+		return f;
+	}
+	static constexpr double DASH_FIELD_BASE = 1206, DASH_FIELD_CHUNK = 8.5; // the wrapper beyond the Api's memo price (cambc probes)
 	Field box_field(const Tiles& goals, const Tiles& walls)
 	{
 		const Unit& u = me_u();
@@ -1009,9 +1047,9 @@ public:
 		}
 		if (f.bx >= 0)
 		{
-			const int dx = t.x - f.bx, dy = t.y - f.by;
-			if (dx < -1 || dx > 1 || dy < -1 || dy > 1) return 1e9;
-			const std::uint16_t v = f.d[(dy + 1) * 3 + dx + 1];
+			const int dx = t.x - f.bx, dy = t.y - f.by, r = f.br;
+			if (dx < -r || dx > r || dy < -r || dy > r) return 1e9;
+			const std::uint16_t v = f.d[(dy + r) * (2 * r + 1) + dx + r];
 			return v == cbs::kUnreachable ? 1e9 : v;
 		}
 #ifdef GENOME_BOT
