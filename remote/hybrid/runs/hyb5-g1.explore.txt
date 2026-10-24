@@ -1,38 +1,38 @@
-== hyb5-g1: 94 programs, 90 valid, $1.84; distinct drafts 5; blocks present 121/143, EXECUTED 128/143; behaviour cells 43; best 0.736 (#11)
-  curve (programs:best/executed blocks): 25:0.736/101  50:0.736/115  75:0.736/128  94:0.736/128
+== hyb5-g1: 124 programs, 119 valid, $2.47; distinct drafts 5; blocks present 124/143, EXECUTED 132/143; behaviour cells 56; best 0.736 (#11)
+  curve (programs:best/executed blocks): 25:0.736/101  50:0.736/115  75:0.736/128  100:0.736/130  124:0.736/132
   all:
-    all            n  90  valid  96%  mean 0.484  max 0.736  new cell  46%  new block  72%  new draft   3%
+    all            n 120  valid  96%  mean 0.473  max 0.736  new cell  45%  new block  72%  new draft   2%
   model:
-    claude-haiku-5-5 n  81  valid  95%  mean 0.480  max 0.736  new cell  46%  new block  70%  new draft   4%
-    claude-opus-5-5 n   9  valid 100%  mean 0.517  max 0.705  new cell  44%  new block  89%  new draft   0%
+    claude-haiku-5-5 n 108  valid  95%  mean 0.470  max 0.736  new cell  44%  new block  70%  new draft   3%
+    claude-opus-5-5 n  12  valid 100%  mean 0.497  max 0.705  new cell  50%  new block  92%  new draft   0%
   axis:
-    team           n  14  valid  93%  mean 0.508  max 0.717  new cell  43%  new block  86%  new draft   0%
-    combat         n  11  valid 100%  mean 0.511  max 0.705  new cell  27%  new block  82%  new draft   0%
-    pairs          n  10  valid 100%  mean 0.147  max 0.642  new cell  80%  new block 100%  new draft   0%
-    roles          n  10  valid  80%  mean 0.552  max 0.715  new cell   0%  new block  60%  new draft   0%
-    abilities      n   9  valid  89%  mean 0.541  max 0.736  new cell  22%  new block  33%  new draft   0%
-    macro          n   9  valid 100%  mean 0.523  max 0.695  new cell  67%  new block  78%  new draft   0%
-    draft          n   7  valid 100%  mean 0.446  max 0.562  new cell 100%  new block  86%  new draft  43%
-    teleport       n   7  valid 100%  mean 0.556  max 0.710  new cell  57%  new block  71%  new draft   0%
-    items          n   7  valid 100%  mean 0.502  max 0.711  new cell  29%  new block  86%  new draft   0%
-    vision         n   6  valid 100%  mean 0.657  max 0.727  new cell  50%  new block  17%  new draft   0%
+    team           n  22  valid  95%  mean 0.505  max 0.731  new cell  41%  new block  91%  new draft   0%
+    combat         n  15  valid 100%  mean 0.489  max 0.705  new cell  33%  new block  80%  new draft   0%
+    pairs          n  11  valid 100%  mean 0.125  max 0.642  new cell  82%  new block  91%  new draft   0%
+    roles          n  11  valid  82%  mean 0.541  max 0.715  new cell   9%  new block  64%  new draft   0%
+    teleport       n  11  valid 100%  mean 0.525  max 0.710  new cell  45%  new block  55%  new draft   0%
+    items          n  11  valid  91%  mean 0.485  max 0.711  new cell  18%  new block  82%  new draft   0%
+    macro          n  11  valid 100%  mean 0.522  max 0.695  new cell  55%  new block  82%  new draft   0%
+    draft          n  10  valid 100%  mean 0.436  max 0.622  new cell 100%  new block  80%  new draft  30%
+    abilities      n  10  valid  90%  mean 0.556  max 0.736  new cell  20%  new block  40%  new draft   0%
+    vision         n   8  valid 100%  mean 0.562  max 0.727  new cell  62%  new block  25%  new draft   0%
   change:
-    edit           n  59  valid  98%  mean 0.521  max 0.736  new cell  44%  new block  69%  new draft   2%
-    plan           n  31  valid  90%  mean 0.408  max 0.693  new cell  48%  new block  77%  new draft   6%
+    edit           n  73  valid  99%  mean 0.504  max 0.736  new cell  44%  new block  70%  new draft   1%
+    plan           n  47  valid  91%  mean 0.422  max 0.693  new cell  47%  new block  77%  new draft   4%
   framing:
-    champion       n  53  valid  98%  mean 0.519  max 0.736  new cell  47%  new block  74%  new draft   4%
-    captain        n  37  valid  92%  mean 0.430  max 0.717  new cell  43%  new block  70%  new draft   3%
+    champion       n  70  valid  97%  mean 0.503  max 0.736  new cell  47%  new block  73%  new draft   3%
+    captain        n  50  valid  94%  mean 0.430  max 0.731  new cell  42%  new block  72%  new draft   2%
   catalog:
-    full           n  46  valid  98%  mean 0.517  max 0.721  new cell  46%  new block  74%  new draft   2%
-    lean           n  44  valid  93%  mean 0.447  max 0.736  new cell  45%  new block  70%  new draft   5%
+    full           n  65  valid  97%  mean 0.502  max 0.731  new cell  45%  new block  72%  new draft   2%
+    lean           n  55  valid  95%  mean 0.439  max 0.736  new cell  45%  new block  73%  new draft   4%
   evidence:
-    none           n  28  valid  93%  mean 0.483  max 0.727  new cell  32%  new block  64%  new draft   0%
-    block          n  26  valid  96%  mean 0.468  max 0.721  new cell  65%  new block  88%  new draft   8%
-    rule           n  18  valid  94%  mean 0.492  max 0.736  new cell  44%  new block  72%  new draft   6%
-    worst          n  18  valid 100%  mean 0.501  max 0.715  new cell  39%  new block  61%  new draft   0%
+    none           n  36  valid  94%  mean 0.457  max 0.727  new cell  36%  new block  61%  new draft   0%
+    block          n  33  valid  94%  mean 0.483  max 0.721  new cell  55%  new block  88%  new draft   6%
+    worst          n  26  valid 100%  mean 0.509  max 0.731  new cell  38%  new block  73%  new draft   0%
+    rule           n  25  valid  96%  mean 0.445  max 0.736  new cell  52%  new block  68%  new draft   4%
   parents:
-    single         n  63  valid  97%  mean 0.482  max 0.736  new cell  46%  new block  73%  new draft   5%
-    crossover      n  27  valid  93%  mean 0.490  max 0.721  new cell  44%  new block  70%  new draft   0%
+    single         n  88  valid  97%  mean 0.476  max 0.736  new cell  45%  new block  74%  new draft   3%
+    crossover      n  32  valid  94%  mean 0.466  max 0.721  new cell  44%  new block  69%  new draft   0%
   source:
-    island         n  68  valid  96%  mean 0.476  max 0.736  new cell  47%  new block  72%  new draft   4%
-    archive        n  22  valid  95%  mean 0.509  max 0.721  new cell  41%  new block  73%  new draft   0%
+    island         n  87  valid  97%  mean 0.468  max 0.736  new cell  46%  new block  74%  new draft   3%
+    archive        n  33  valid  94%  mean 0.488  max 0.731  new cell  42%  new block  70%  new draft   0%

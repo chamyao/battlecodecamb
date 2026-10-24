@@ -122,3 +122,7 @@ done: 30 programs (0 invalid), spent $0.61; best #11 score 0.736 -> /root/bc/hyb
 [118] claude-haiku-5-5 island 2: error: NameError: line 225: goal already defined | best 0.736 (#11) $0.45 | 782s
 [119] claude-haiku-5-5 island 3: score 0.410 | best 0.736 (#11) $0.45 | 796s
 [120] claude-haiku-5-5 island 1: score 0.667 | best 0.736 (#11) $0.46 | 842s
+[121] claude-haiku-5-5 island 1: score 0.608 | best 0.736 (#11) $0.63 | 922s
+[122] claude-opus-5-5 island 0: score 0.373 | best 0.736 (#11) $0.63 | 948s
+[123] claude-haiku-5-5 island 2: score 0.731 | best 0.736 (#11) $0.63 | 1043s
+done: 30 programs (1 invalid), spent $0.63; best #11 score 0.736 -> /root/bc/hybrid/runs/hyb5-g1/best.policy
