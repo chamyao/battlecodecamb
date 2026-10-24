@@ -107,6 +107,25 @@ in the vocabulary. So:
   cost formula / worst-case bound (propagated bottom-up through the call graph) is computable and used for
   prompts and early rejection, not for scoring.
 
+## The search: a survival arena (Cham, Oct 24)
+
+The genome line is an independent effort aimed at strength; it is not compared with the old format.
+The main search is a population evolving against itself:
+- Population (~24) of genomes descended from the seed. Fitness is a rating (Elo/TrueSkill) from
+  continuous sampled matches inside the population; the lowest-rated die, births come from
+  rating-weighted parents by edge mutation, crossover and constant tuning (fixed mix per run).
+- Species by gene-ID overlap (homology by descent); crossover mostly within a species; species keep a
+  minimum size and new species a protection period, so new ideas can mature.
+- Anchors (hall of fame) never die: the original v23, older ladder versions and frozen past champions.
+  They keep the arena from cycling away from real opponents (the top genomes' record vs the anchors
+  is the check).
+- The ladder gate is separate from selection: a long-time top genome must beat the original and the
+  anchors head to head (>= 53.5% over 800 games, no drop > 3 points), then pass real-cambc safety
+  checks; Cham decides uploads.
+- The search logs every child and match. Evolvability (which operators, sizes, genes and edges
+  produce gains; behaviour vs fuel gains via a 10x-fuel re-score) is evaluated between runs, not
+  inside the search.
+
 ## Open points
 
 1. Compile time per child, and the per-operation price table (or the metered-wasm route).
