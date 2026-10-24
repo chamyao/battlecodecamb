@@ -39,10 +39,11 @@ class Result:
 
 class Scorer:
     def __init__(self, opponents, screen_games=40, confirm_games=120, screen_seed=0, confirm_seed=1,
-                 threads=2, maps=None, timeout=900):
+                 threads=2, maps=None, timeout=900, fuel_mult=1.0):
         self.screen_games, self.confirm_games = screen_games, confirm_games
         self.screen_seed, self.confirm_seed = screen_seed, confirm_seed
         self.threads, self.maps, self.timeout = threads, maps or MAPS, timeout
+        self.fuel_mult = fuel_mult  # scales every bot's per-turn fuel (both sides); 1.0 = the real game
         self.lock = threading.Lock()
         self.cache = {}
         self.tmp = Path(tempfile.mkdtemp(prefix="gsearch-"))
@@ -86,7 +87,8 @@ class Scorer:
         try:
             for opp, name in zip(self.opponents, self.opp_names):
                 out = subprocess.run([str(EVAL), "--a", a, "--b", opp, "--games", str(games), "--threads",
-                                      str(self.threads), "--seed", str(seed), *self._games(seed, games)],
+                                      str(self.threads), "--seed", str(seed), "--fuel-mult", str(self.fuel_mult),
+                                      *self._games(seed, games)],
                                      capture_output=True, text=True, timeout=self.timeout)
                 if out.returncode != 0:
                     return Result(error=f"genome_eval exit {out.returncode}: {out.stderr[-300:]}")

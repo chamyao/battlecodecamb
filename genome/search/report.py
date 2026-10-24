@@ -4,7 +4,7 @@
 
 Per run and operator: children, invalid rate, behavioural twins, share beating the parent by a confirmed
 margin (paired, confirm seed), crossover children beating both parents, spend and cost per confirmed
-improvement; and the edit-size breakdown (lines changed, edges per child).
+improvement (behavioural vs fuel-only gains when fuel10.py has run); and the edit-size breakdown (lines changed, edges per child).
 """
 import argparse
 import json
@@ -25,7 +25,7 @@ def _share(k, n):
     return f"{k}/{n} = {100 * k / n:.1f}% (±{100 * se:.1f})"
 
 
-def rows(progs, beat_margin):
+def rows(progs, beat_margin, fuel10=None):
     groups = defaultdict(list)
     for p in progs:
         groups[p["metrics"]["op"]].append(p)
@@ -41,10 +41,16 @@ def rows(progs, beat_margin):
         two = [p for p in valid if len(p["metrics"].get("parent_ids", [])) == 2]
         both = sum(1 for p in two if p["metrics"].get("delta_confirm", -1) > beat_margin)
         cost = sum(p["metrics"].get("cost", 0.0) for p in ps)
+        f10 = {}
+        if fuel10 is not None:
+            gains = [str(p["id"]) for p in valid if p["metrics"].get("delta_confirm", -1) > beat_margin]
+            beh = sum(1 for i in gains if fuel10.get(i, {}).get("behavioural"))
+            f10 = {"behavioural_gains": _share(beh, n), "fuel_only_gains": _share(len(gains) - beh, n),
+                   "cost_per_behavioural_gain": f"${cost / beh:.2f}" if beh else "-"}
         out.append({"op": op, "children": n, "invalid": _share(bad, n), "twins": _share(twins, len(valid)),
                     "screen_up": _share(up, len(valid)), "beats_parent": _share(beat, n),
                     "two_parent_beats_both": _share(both, len(two)) if two else "-",
-                    "cost": f"${cost:.2f}", "cost_per_gain": f"${cost / beat:.2f}" if beat else "-"})
+                    "cost": f"${cost:.2f}", "cost_per_gain": f"${cost / beat:.2f}" if beat else "-", **f10})
     return out
 
 
@@ -94,8 +100,10 @@ def main():
         seed = next(p for p in all_progs if p["metrics"].get("op") == "seed")
         best = max((p for p in all_progs if not p["error"] and "confirm" in p["metrics"]),
                    key=lambda p: p["metrics"]["confirm"])
+        f10 = Path(run) / "fuel10.json"
+        fuel10 = json.loads(f10.read_text()) if f10.exists() else None
         parts.append(f"## {Path(run).name}\n\nseed confirm {seed['metrics']['confirm']:.3f}; best confirmed "
-                     f"#{best['id']} {best['metrics']['confirm']:.3f}\n\n{table(rows(progs, args.beat_margin))}\n\n"
+                     f"#{best['id']} {best['metrics']['confirm']:.3f}\n\n{table(rows(progs, args.beat_margin, fuel10))}\n\n"
                      f"Edit size (Claude children):\n\n{table(size_rows(progs, args.beat_margin))}\n")
     text = "\n".join(parts)
     print(text)
