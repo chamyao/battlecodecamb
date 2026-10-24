@@ -45,7 +45,8 @@ def main(argv=None):
     ap.add_argument("--run", required=True)
     ap.add_argument("--out", default="", help="results directory (default runs/<run>)")
     ap.add_argument("--arm", choices=["genome", "policy"], required=True)
-    ap.add_argument("--seed", required=True, help="seed program (.genome or .policy)")
+    ap.add_argument("--seed", required=True, help="seed program (.genome or .policy); a comma list puts seed i on "
+                                                   "island i mod --islands")
     ap.add_argument("--opponents", required=True, help="comma list: builtin:x, .policy, .pol or .genome")
     ap.add_argument("--budget", type=float, default=1.0, help="hard cap on Claude spend, USD")
     ap.add_argument("--opus-every", type=int, default=10)
@@ -64,6 +65,11 @@ def main(argv=None):
                          "gains (Laplace-smoothed gain rate per edge count, clipped to 0.1-0.6)")
     ap.add_argument("--islands", type=int, default=4)
     ap.add_argument("--no-llm", action="store_true", help="tuning and ID crossover only (testing)")
+    ap.add_argument("--bot-seeds", action="store_true",
+                    help="policies seeded as deployed: every game is fixed by map and side, so screen and confirm "
+                         "both play the 2 x maps distinct games (set --screen-games/--confirm-games to 80)")
+    ap.add_argument("--fitness", choices=["score", "wins"], default="score",
+                    help="score: win rate + gem-margin bonus; wins: win rate only")
     args = ap.parse_args(argv)
 
     out = Path(args.out) if args.out else ROOT / "runs" / args.run
@@ -71,20 +77,30 @@ def main(argv=None):
     db = Database(out / "programs.jsonl", islands=args.islands)
     db.load()
     kind = args.arm
-    scorer = Scorer(args.opponents.split(","), args.screen_games, args.confirm_games, threads=args.eval_threads)
+    scorer = Scorer(args.opponents.split(","), args.screen_games, args.confirm_games, threads=args.eval_threads,
+                    bot_seeds=args.bot_seeds, fitness=args.fitness,
+                    **({"confirm_seed": 0} if args.bot_seeds else {}))  # same games: confirm reuses the screen
     claude = None if args.no_llm else Claude(args.budget, opus_every=args.opus_every)
     spent0 = sum(p.metrics.get("cost", 0.0) for p in db.all)
     if claude:
         claude.spent = spent0
 
     if not db.all:
-        text = Path(args.seed).read_text()
-        s, c = scorer.screen(text, kind), scorer.confirm(text, kind)
-        if not c.ok:
-            raise SystemExit(f"seed failed: {c.error}")
-        db.seed(text, c.score, {"screen": s.score, "confirm": c.score, "op": "seed",
-                                "per_opponent": c.per_opponent})
-        print(f"seed screen {s.score:.3f} confirm {c.score:.3f} ({brief(c)})", flush=True)
+        seeds = args.seed.split(",")
+        for i, path in enumerate(seeds):
+            text = Path(path).read_text()
+            s, c = scorer.screen(text, kind), scorer.confirm(text, kind)
+            if not c.ok:
+                raise SystemExit(f"seed {path} failed: {c.error}")
+            m = {"screen": s.score, "confirm": c.score, "op": "seed", "per_opponent": c.per_opponent,
+                 "seed_file": Path(path).name}
+            if len(seeds) == 1:
+                db.seed(text, c.score, m)
+            else:
+                for isl in range(i % args.islands, args.islands, len(seeds)) if len(seeds) < args.islands else \
+                        [i % args.islands]:
+                    db.add(Program(0, isl, text, c.score, model="seed", metrics=m))
+            print(f"seed {Path(path).name} screen {s.score:.3f} confirm {c.score:.3f} ({brief(c)})", flush=True)
 
     rng = random.Random(len(db.all) * 7919 + 1)
     rng_lock = threading.Lock()

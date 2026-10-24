@@ -39,12 +39,13 @@ class Result:
 
 class Scorer:
     def __init__(self, opponents, screen_games=40, confirm_games=120, screen_seed=0, confirm_seed=1,
-                 threads=2, maps=None, timeout=900, fuel_mult=1.0, bot_seeds=False):
+                 threads=2, maps=None, timeout=900, fuel_mult=1.0, bot_seeds=False, fitness="score"):
         self.screen_games, self.confirm_games = screen_games, confirm_games
         self.screen_seed, self.confirm_seed = screen_seed, confirm_seed
         self.threads, self.maps, self.timeout = threads, maps or MAPS, timeout
         self.bot_seeds = bot_seeds  # policies seeded per instance as deployed (then every game is fixed by map and side)
         self.fuel_mult = fuel_mult  # scales every bot's per-turn fuel (both sides); 1.0 = the real game
+        self.fitness = fitness  # "score": win rate + gem-margin bonus; "wins": win rate only
         self.lock = threading.Lock()
         self.cache = {}
         self.tmp = Path(tempfile.mkdtemp(prefix="gsearch-"))
@@ -83,6 +84,8 @@ class Scorer:
         return str(out)
 
     def _games(self, seed, games):
+        if self.bot_seeds and games >= 2 * len(self.maps):  # every game is fixed by map and side: all of them, once
+            return sorted(self.maps)
         rng = random.Random(seed)
         return [rng.choice(self.maps) for _ in range(max(1, games // 2))]
 
@@ -104,7 +107,8 @@ class Scorer:
                     return Result(error=stats["error"])
                 outcomes.append((stats.pop("results", None), stats["a_gems"], stats["b_gems"]))
                 res.per_opponent[name] = stats
-                res.score += w * score_of(stats) / sum(self.weights)
+                fit = stats["win_rate"] if self.fitness == "wins" else score_of(stats)
+                res.score += w * fit / sum(self.weights)
         except subprocess.TimeoutExpired:
             return Result(error="evaluation timed out")
         res.fingerprint = hashlib.sha256(json.dumps(outcomes).encode()).hexdigest()[:16]
