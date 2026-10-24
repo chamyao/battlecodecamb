@@ -1,6 +1,6 @@
 # Prompt experiment 1: link-change enforcement and context (Arena A, Oct 24)
 
-Draft for Cham's approval. Nothing here runs until approved.
+Approved by Cham (Oct 24, ~22:30 UTC).
 
 ## Question
 
@@ -28,26 +28,20 @@ Median per call: ~10,000 input tokens (5,175 cached system + 4,850 user), ~900 o
 Observed behaviour (371 one-link mutations, arenaA-1/3): 88% change one gene only, 11% both, 0.5% add a
 gene. Bench round 1 (8 task paragraphs): new genes ~1 per 30-40 children under every wording.
 
-## Arms (one factor at a time, all on the same cells)
+## Arms (approved by Cham, 22:3x)
 
-- **A0 control**: today's prompt and rules (the round-1 "default" arm, re-run on these cells).
-- **A1 enforced**: A0 + the link rule. Task paragraph replaced by:
-  > Change how `{A}` uses `{B}`. Your change must alter the interaction between these two genes:
-  > change both genes so that what `{B}` computes and how `{A}` uses it change together, or insert a
-  > new gene between them that `{A}` calls instead of, or as well as, `{B}`. A change to only one of
-  > the two genes is rejected.
-  Checked mechanically: accepted only if both editable genes' bodies change or a new gene is called by
-  `{A}`; otherwise one retry with the rejection message, then counted as a failure.
-- **A2 enforced + minimal context**: A1's task and check, with the context cut to what an edit needs:
-  role + fixed loop; types and primitive signatures (no prose); the two genes' code; signatures and
-  descriptions of their callers, of the genes they call, and of the genes one step further down; the
-  keep declarations they use. Removed: game summary, ladder observations, fuel sentence, entry-gene
-  notes, stats line, the rest of the genome.
-- **A3 enforced + minimal + game rules**: A2 plus the game rules summary (no ladder observations, no fuel
-  sentence). Tells us whether game knowledge helps once the rest is gone.
+- **A0 control**: today's mutation prompt and rules (genome/search 7e40b6f, default paragraph), one link.
+- **A1 typed explicit**: the prompt in arenaa/prompts/mutate_link_v1.md: minimal system (role + language
+  reference without the fuel bullet), the link's two genes in full, signatures + descriptions of the
+  genes they call and of the callee's other callers, the explicit Task rules 1-7 and 9-10, the type's own
+  instruction and check (T1 both / T2 insert / T3 helper / T4 replace / T5 specialise, drawn per cell
+  with equal probability, fixed seed), and the explicit Reply section. No game summary, ladder
+  observations, fuel advice, goal sentence, entry-gene notes, stats line or rest of the genome.
+  Decisions on the open questions: neighbour descriptions kept; no call path; no example.
+  A reply failing its type's check gets one retry with the check's message, then counts as a failure.
 
-Links: A1-A3 skip links whose callee is a primitive-wrapper with no logic (e.g. `here`, `at_spawn`);
-A0 keeps today's link draw. Same model (Haiku), temperature and parser for all arms.
+Links: drawn per parent with a fixed seed among links whose callee is not a trivial wrapper (here,
+at_spawn, my tile ...); A0 and A1 use the same links. Same model (Haiku), temperature, parser.
 
 ## Cells
 
@@ -67,15 +61,15 @@ A0 keeps today's link draw. Same model (Haiku), temperature and parser for all a
 
 ## Decision rule (fixed before running)
 
-- A1 vs A0, then A2 vs A1, then A3 vs A2: paired on cells, exact McNemar test on "better", one-sided,
-  alpha 0.05. An arm replaces the previous one only if it is significantly better, or equal on the
-  primary and cheaper ($ per child) with no worse invalid rate.
-- If nothing beats A0, the next arena run is the plain resume (no prompt change) and the finding is that
+- A1 vs A0: paired on cells, exact McNemar test on "better", one-sided, alpha 0.05. A1 replaces A0
+  only if significantly better, or equal on the primary and cheaper ($ per child) with no worse invalid
+  rate. Per-type rates are reported (descriptive; 24 cells per type is too few to test).
+- If A1 does not beat A0, the next arena run is the plain resume (no prompt change) and the finding is that
   neither enforcement nor context changes the yield.
 - Any arm whose winner goes into an arena run is re-tested on fresh parents first (as in round 1).
 
 ## Cost
 
-480 children (with retries ~600 calls): ~$0.5 at Haiku rates (A2/A3 calls are ~3x shorter). Scoring:
-480 x (80 + 480) games ~ 270k games on 648bafd: ~1 h on EC2/arena service. Against Arena A's $8
+240 children (with retries ~300 calls): ~$0.3 at Haiku rates. Scoring:
+240 x (80 + 480) games + 40 nulls ~ 160k games on 648bafd: ~1 h on EC2/arena service. Against Arena A's $8
 (spent $4.44 + benches <= $2.00).
