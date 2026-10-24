@@ -79,7 +79,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")   \
 	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")                \
 	X(rich_spawns, "rich_spawns(Num)") X(group_tiles, "group_tiles(TileSet)") X(group_gems, "group_gems(TileSet)")       \
-	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")
+	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")                                 \
+	X(strength, "strength()") X(focus, "focus()")
 
 enum class Op : std::uint16_t
 {
@@ -568,6 +569,12 @@ Value tile(Vec2 p)
 	r.tile = p;
 	return r;
 }
+Value set_ptr(std::shared_ptr<Bitboard> b)
+{
+	Value r;
+	r.set = std::move(b);
+	return r;
+}
 Value set_of(const Bitboard& b)
 {
 	Value r;
@@ -643,17 +650,38 @@ struct Interp
 		}
 	};
 	std::int64_t blocks_this_turn = 0;
+	std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> blocks0{};
+	cbs::MemoStats memo0;
+	bool gate_pending = false;
+	// Charges by block and API call since the turn's snapshot (blocks0, memo0).
+	void print_charges_since(const char* bt, const char* ct)
+	{
+		for (int e = 0; e < 2; ++e)
+			for (int i = 0; i < kNumBlocks; ++i)
+				if (const long long n = charge_stats_table()[e][i][0] - blocks0[e][i][0])
+					std::printf("%s %s%s %lld %lld\n", bt, e ? "exec:" : "", kBlockTable[i].key, n, charge_stats_table()[e][i][1] - blocks0[e][i][1]);
+		const cbs::MemoStats& ms = cbs::memo_stats();
+		for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
+			if (const long long n = ms.call_n[c] - memo0.call_n[c]) std::printf("%s %d %lld %lld\n", ct, c, n, ms.call_fuel[c] - memo0.call_fuel[c]);
+	}
 	// The per-turn correction (INTERP_TURN_COST: per block, per API call, may be negative) is
 	// charged as the turn goes, after every block, so the running total follows the real meter:
 	// charged only at the end, its negative part let a turn's running total pass the budget
 	// (and suspend the bot) when the real bot stayed well under it. The turn's total is the
 	// same either way; the turn as a whole and its running total never go below zero.
+	// Mid-turn, kGateDeferMilli per block run so far is also held back and charged at the end:
+	// the fitted charges price the turn's total, but the real bot pays part of it after the
+	// policy runs. Measured at fuel_remaining() reads (21.5k first reads per turn, tune-3 with
+	// its gate always passing vs tune-2, 4 maps x 2 sides): without it the simulator read the
+	// gate a median 1.8k low; with it, 0.
+	static constexpr std::int64_t kGateDeferMilli = 24000;
 	std::uint64_t turn_calls0 = 0;
 	std::int64_t turn_spent0 = 0, turn_adj = 0;
 	void charge_turn_cost(bool final)
 	{
 		const auto target = static_cast<std::int64_t>(
-			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0)));
+			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0))) -
+			(final ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
 		const std::int64_t raw = api.spent - turn_spent0 - turn_adj; // charges other than the correction
 		const std::int64_t want = std::max<std::int64_t>(target, -std::max<std::int64_t>(0, raw));
 		const std::int64_t d = want - turn_adj;
@@ -770,9 +798,11 @@ struct Interp
 			api.count_charges = counting;
 			detail = static_cast<int>(round_now) == dr && static_cast<int>(self()) == dc;
 		}
-		static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> blocks0;
-		static cbs::MemoStats memo0;
-		if (detail) blocks0 = charge_stats_table(), memo0 = cbs::memo_stats();
+		// FUEL_GATE_DETAIL (with memo_stats enabled): the same breakdown up to the turn's first
+		// fuel_remaining() read, with what it returned (to price the part of a turn before a gate).
+		static const bool gate_env = std::getenv("FUEL_GATE_DETAIL") != nullptr;
+		gate_pending = gate_env && cbs::memo_stats().enabled && api.champ() >= 0;
+		if (detail || gate_pending) blocks0 = charge_stats_table(), memo0 = cbs::memo_stats();
 		last_end = last_do = nullptr;
 		trace_target = trace_step = trace_dash = kNoTile;
 		trace_dash_ok = -3;
@@ -837,15 +867,7 @@ struct Interp
 				std::printf("@@DT r=%u champ=%u total=%lld blocks=%d calls=%llu adj=%lld\n", round_now, self(),
 							static_cast<long long>(api.spent - spent0), blocks_this_turn,
 							static_cast<unsigned long long>(api.api_calls - calls0), static_cast<long long>(adj));
-				for (int e = 0; e < 2; ++e)
-					for (int i = 0; i < kNumBlocks; ++i)
-						if (const long long n = charge_stats_table()[e][i][0] - blocks0[e][i][0])
-							std::printf("@@DTB %s%s %lld %lld\n", e ? "exec:" : "", kBlockTable[i].key, n,
-										charge_stats_table()[e][i][1] - blocks0[e][i][1]);
-				const cbs::MemoStats& ms = cbs::memo_stats();
-				for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
-					if (const long long n = ms.call_n[c] - memo0.call_n[c])
-						std::printf("@@DTC %d %lld %lld\n", c, n, ms.call_fuel[c] - memo0.call_fuel[c]);
+				print_charges_since("@@DTB", "@@DTC");
 			}
 		}
 	}
@@ -1205,6 +1227,17 @@ struct Interp
 		}
 	}
 
+	// Static map masks, shared instead of copied per evaluation (nothing writes to a set that
+	// is shared: minus/union copy unless they hold the only reference).
+	std::shared_ptr<Bitboard> map_sets[6];
+	Value map_set(int k, const Bitboard& b)
+	{
+		if (!map_sets[k]) map_sets[k] = std::make_shared<Bitboard>(b);
+		Value r;
+		r.set = map_sets[k];
+		return r;
+	}
+
 	// eval(e).tile / .unit / .set, without copying a variable's whole Value.
 	Vec2 evalt(const Expr& e) { return e.op == Op::var ? vars[e.var].tile : eval(e).tile; }
 	Unit evalu(const Expr& e) { return e.op == Op::var ? vars[e.var].unit : eval(e).unit; }
@@ -1296,6 +1329,14 @@ struct Interp
 			if (!me(ci)) return num(0);
 			return num(e.op == Op::health ? ci.health : ci.max_health);
 		}
+		case Op::strength:
+		case Op::focus:
+		{
+			// this champion's current Strength (basic attack damage) / Focus (ability scaling), items included
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			return num(e.op == Op::strength ? ci.strength : ci.focus);
+		}
 		case Op::gems:
 		case Op::gold:
 		{
@@ -1310,11 +1351,28 @@ struct Interp
 			api.round_number(&r);
 			return num(r);
 		}
-		case Op::fuel_remaining: return num(static_cast<double>(api.fuel_remaining()));
-		case Op::altars: api.charge(cbs::Call::map_mask); return set_of(m().altars);
-		case Op::walls: api.charge(cbs::Call::map_mask); return set_of(m().walls);
-		case Op::holes: api.charge(cbs::Call::map_mask); return set_of(m().holes);
-		case Op::bushes: api.charge(cbs::Call::map_mask); return set_of(m().bushes);
+		case Op::fuel_remaining:
+		{
+			const auto v = api.fuel_remaining();
+			if (gate_pending)
+			{
+				gate_pending = false;
+				const bool c = api.count_charges;
+				api.count_charges = false;
+				std::uint32_t rr = 0;
+				api.round_number(&rr);
+				api.count_charges = c;
+				std::printf("@@GD r=%u champ=%u rem=%lld blocks=%lld calls=%llu turn_adj=%lld\n", rr, self(), static_cast<long long>(v),
+							static_cast<long long>(blocks_this_turn), static_cast<unsigned long long>(api.api_calls - turn_calls0),
+							static_cast<long long>(turn_adj));
+				print_charges_since("@@GDB", "@@GDC");
+			}
+			return num(static_cast<double>(v));
+		}
+		case Op::altars: api.charge(cbs::Call::map_mask); return map_set(0, m().altars);
+		case Op::walls: api.charge(cbs::Call::map_mask); return map_set(1, m().walls);
+		case Op::holes: api.charge(cbs::Call::map_mask); return map_set(2, m().holes);
+		case Op::bushes: api.charge(cbs::Call::map_mask); return map_set(3, m().bushes);
 		case Op::wolf_tiles:
 		case Op::elk_tiles:
 		case Op::gem_cluster_tiles:
@@ -1324,23 +1382,25 @@ struct Interp
 		{
 			// order matches cbs::CampType: wolf, elk, gem_cluster, gold_cluster, monolith, golem
 			const int want = static_cast<int>(e.op) - static_cast<int>(Op::wolf_tiles);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (auto& c : m().camps)
 				if (static_cast<int>(c.type) == want) b.set(c.pos);
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::camp_spawn_tiles:
 		{
 			api.charge(cbs::Call::map_camp_query, static_cast<std::int64_t>(m().camps.size()));
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (auto& c : m().camps) b.set(c.pos);
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::spawn_region:
 		{
 			api.charge(cbs::Call::spawn_region);
 			const int t = static_cast<int>(evaln(a[0]));
-			return set_of(m().spawn_mask[t == 0 ? 0 : 1]);
+			return t == 0 ? map_set(4, m().spawn_mask[0]) : map_set(5, m().spawn_mask[1]);
 		}
 		case Op::enemies_visible: return champions(true);
 		case Op::allies_visible: return champions(false);
@@ -1358,16 +1418,18 @@ struct Interp
 			cbs::AltarLockRecord locks[16];
 			std::uint32_t n = 0;
 			api.altar_locks(locks, 16, &n);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (std::uint32_t i = 0; i < n && i < 16; ++i) b.set(locks[i].x, locks[i].y);
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::rich_spawns:
 		{
 			// spawn tiles of every camp whose group rewards at least n gems when captured (static
 			// map fact: the sum of its camps' gem rewards)
 			const double n = eval(a[0]).n;
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (const auto& grp : m().groups)
 			{
 				int g = 0;
@@ -1375,14 +1437,15 @@ struct Interp
 				if (g >= n)
 					for (int c : grp.camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::group_tiles:
 		{
 			// spawn tiles of every camp in a group that has a camp on one of the given tiles (static:
 			// e.g. group_tiles(monolith_tiles()) is everything that wakes a monolith when hit)
 			const Value in = eval(a[0]);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			if (in.set)
 				for (const auto& grp : m().groups)
 				{
@@ -1391,7 +1454,7 @@ struct Interp
 					if (hit)
 						for (int c : grp.camps) b.set(m().camps[c].pos);
 				}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::group_gems:
 		{
@@ -1435,7 +1498,8 @@ struct Interp
 		}
 		case Op::respawning_visible_spawns:
 		{
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (std::size_t g = 0; g < m().groups.size(); ++g)
 			{
 				std::uint32_t gs = 0;
@@ -1443,7 +1507,7 @@ struct Interp
 				if (gs != static_cast<std::uint32_t>(cbs::GroupState::respawning)) continue;
 				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::read_shared:
 		{
@@ -1476,21 +1540,23 @@ struct Interp
 			const Value s = eval(a[0]);
 			const float r = static_cast<float>(std::clamp(evaln(a[1]), 0.0, 10.0));
 			if (api.count_charges) work.bits += s.set->count(m().H);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			s.set->for_each_unordered(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::closest: return tile(closest(*evals(a[0])));
 		case Op::filter_tiles:
 		{
 			const Value s = eval(a[0]), p = eval(a[1]);
 			if (api.count_charges) work.bits += s.set->count(m().H);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			if (has_tile(p.tile))
 				s.set->for_each_unordered(m().H, [&](int x, int y) {
 					if (cbs::chebyshev({ x, y }, p.tile) <= p.n) b.set(x, y);
 				});
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::first_tile:
 		{
@@ -1683,14 +1749,15 @@ struct Interp
 			std::uint8_t mem[kClaimBytes] = {};
 			api.read_shared_memory(0, mem, kClaimBytes);
 			const int mine = my_slot();
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (int i = 0; i < kClaimBytes; ++i)
 			{
 				const int g = static_cast<int>(mem[i]) - 1;
 				if (i == mine || g < 0 || g >= static_cast<int>(m().groups.size())) continue;
 				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::claim_count:
 		{
@@ -1811,7 +1878,8 @@ struct Interp
 		}
 		case Op::capturable_spawns:
 		{
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (std::size_t g = 0; g < m().groups.size(); ++g)
 			{
 				std::uint32_t gs = 0;
@@ -1819,7 +1887,7 @@ struct Interp
 				if (gs != static_cast<std::uint32_t>(cbs::GroupState::reward)) continue;
 				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::turns_idle:
 		{

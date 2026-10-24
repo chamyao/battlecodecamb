@@ -75,7 +75,7 @@ for _name in ("alive", "channeling", "can_move", "can_attack"):
     _b(_name, "", "Bool")
 _b("position", "", "Tile")
 _b("ability_ready", "Num", "Bool")
-for _name in ("health", "max_health", "gems", "gold", "round_number", "fuel_remaining"):
+for _name in ("health", "max_health", "gems", "gold", "round_number", "fuel_remaining", "strength", "focus"):
     _b(_name, "", "Num")
 
 # Static map
