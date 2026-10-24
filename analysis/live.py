@@ -7,7 +7,8 @@ Usage: python3 live.py LIVEDIR EXDIR SINCE_ISO [--min-new N] [--interval S] [--m
 - EXDIR: extracted JSON in EXDIR/ladder/ (analysis/extract.js), same layout as the other tools.
 - Version tags: our deploy timeline parsed from docs/STRATEGY.md on origin/main ("N = name (...; ~HH:MM UTC)").
   A match gets the latest version deployed before its group was created; within 5 minutes of a deploy
-  it is tagged ambiguous ("17?18"). Overrides: LIVEDIR/version_overrides.json {"18": "2026-10-24T07:27"}.
+  it is tagged ambiguous ("17?18"). Overrides: LIVEDIR/version_overrides.json {"18": "2026-10-24T07:27"}
+  (times verified from replays, e.g. first ward or lock; no ambiguity window).
 - Exits (printing the new matches) after >= N new finished matches (default 5, one group), or after
   --max-wait seconds (default 3600) with whatever arrived.
 """
@@ -32,7 +33,7 @@ def timeline(livedir, day='2026-10-24'):
     ov = os.path.join(livedir, 'version_overrides.json')
     if os.path.exists(ov):
         for n, iso in json.load(open(ov)).items():
-            tl[n] = (iso, tl.get(n, (None, n))[1])
+            tl[n] = (iso, tl.get(n, (None, n))[1] + '!')     # '!' = time verified from replays: no ambiguity window
     return sorted((iso, f'v{n}', name) for n, (iso, name) in tl.items())
 
 
@@ -46,7 +47,7 @@ def tag(created, tl):
     if cur is None:
         return 'pre-' + tl[0][1] if tl else '?'
     v = tl[cur][1]
-    if mins(created, tl[cur][0]) < 5 and cur > 0:
+    if mins(created, tl[cur][0]) < 5 and cur > 0 and not tl[cur][2].endswith('!'):
         return f'{tl[cur - 1][1]}?{v[1:]}'
     return v
 
