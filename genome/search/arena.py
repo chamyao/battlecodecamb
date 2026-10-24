@@ -137,6 +137,7 @@ class Arena:
                 if not m.get("calibrating"):
                     m["sigma"] = args.anchor_sigma
             self.log("fixed anchors: " + ", ".join(f"{m['name']} {m['mu']:.2f}" for m in self.anchors()))
+        self.anchor_weights = {k: float(v) for k, _, v in (x.partition("=") for x in args.anchor_weight)}
         self.rng = random.Random(self.s["births"] * 7919 + self.s["matches"] + 1)
         self.gaps, self.gaps_t = [], 0.0
 
@@ -285,8 +286,9 @@ class Arena:
         for _ in range(50):
             a = self.rng.choices(gs, [m["sigma"] for m in gs])[0]
             others = [m for m in self.players() if m["name"] != a["name"] and not self.exhausted(a["name"], m["name"])]
-            if others:
-                return a["name"], self.rng.choice(others)["name"]
+            if others:  # anchors can be drawn more often (--anchor-weight NAME=W)
+                w = [self.anchor_weights.get(m["name"], 1.0) if m["kind"] == "anchor" else 1.0 for m in others]
+                return a["name"], self.rng.choices(others, w)[0]["name"]
         return None
 
     def play_match(self, an, bn, seed, maps):
@@ -689,6 +691,8 @@ def main(argv=None):
     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
     ap.add_argument("--anchor-sigma", type=float, default=1.0)
+    ap.add_argument("--anchor-weight", action="append", default=[],
+                    help="NAME=W: draw this anchor W times as often as others as a random opponent (repeatable)")
     ap.add_argument("--add-anchors", default="", help="anchors to add to a resumed arena (comma list of path or NAME=path)")
     ap.add_argument("--calibrate-games", type=int, default=200, help="games a new anchor is rated before it is frozen")
     ap.add_argument("--recalibrate-anchors", action="store_true",

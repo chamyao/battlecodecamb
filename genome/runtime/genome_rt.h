@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 #include "cbs/api.h"
 #include "cbs/runner.h"
@@ -44,6 +45,11 @@
 
 namespace genome
 {
+#ifdef GENOME_BOT
+#define GENOME_TRACE_FILE stdout
+#else
+#define GENOME_TRACE_FILE stderr
+#endif
 #ifdef GENOME_PROF
 // Inclusive fuel and calls per gene (real fuel in the bot), printed every GENOME_PROF_GENES rounds.
 struct GeneStat
@@ -73,7 +79,15 @@ struct GeneScope
 		top = parent;
 	}
 };
+// (simulator: only team 0's champion 0 is profiled, as the bot's printed stats are champion 0's own)
+#ifdef GENOME_BOT
 #define GENE_PROF(i, nm) genome::gene_stats[i].name = nm; genome::GeneScope gene_scope_(genome::gene_stats[i], X.api, X.prof_top)
+#else
+#define GENE_PROF(i, nm) \
+	genome::gene_stats[i].name = nm; \
+	std::optional<genome::GeneScope> gene_scope_; \
+	if (X.api.team() == 0 && X.api.champ() == 0) gene_scope_.emplace(genome::gene_stats[i], X.api, X.prof_top)
+#endif
 // The first distance-field searches: expansions and the fuel of the search call alone (printed with @@GENE).
 struct FieldRec
 {
@@ -81,6 +95,14 @@ struct FieldRec
 	long long fuel;
 };
 inline FieldRec field_recs[400];
+// Guest primitives (wfield, path_*): fuel of each call with its own work counters (printed as @@PRIM).
+struct PrimRec
+{
+	int prim;
+	long long fuel, n[4];
+};
+inline PrimRec prim_recs[600];
+inline int n_prim_recs = 0;
 // First-turn checkpoints (fuel remaining): main start, map built, Api ready, genes made, then per phase
 // of the first play_turn; printed on the second turn with the per-gene totals of turn 1 (@@T1).
 inline std::int64_t t1_marks[16];
@@ -88,11 +110,17 @@ inline int n_t1_marks = 0;
 inline void t1_mark(std::int64_t f) { if (n_t1_marks < 16) t1_marks[n_t1_marks++] = f; }
 inline int n_field_recs = 0;
 #define FIELD_PROF_BEGIN const std::int64_t fp0_ = api.fuel_remaining()
+#define PRIM_PROF_BEGIN const std::int64_t pp0_ = api.fuel_remaining()
+#define PRIM_PROF_END(id) \
+	if (genome::n_prim_recs < 600 && api.team() == 0 && api.champ() == 0) \
+	genome::prim_recs[genome::n_prim_recs++] = { id, pp0_ - api.fuel_remaining(), { last_work.tiles, last_work.pops, last_work.relax, last_work.scans } }
 #define FIELD_PROF_END(n, st) \
 	if (genome::n_field_recs < 400) genome::field_recs[genome::n_field_recs++] = { static_cast<int>(n), (st) ? 1 : 0, fp0_ - api.fuel_remaining() }
 #else
 #define FIELD_PROF_BEGIN ((void)0)
 #define FIELD_PROF_END(n, st) ((void)0)
+#define PRIM_PROF_BEGIN ((void)0)
+#define PRIM_PROF_END(id) ((void)0)
 #define GENE_PROF(i, nm) ((void)0)
 #endif
 using cbs::Api;
@@ -133,6 +161,7 @@ struct Field
 	// box_field: only the 3 x 3 box around (bx, by) is stored (d[(dy + 1) * 3 + dx + 1]); reads elsewhere,
 	// or above the centre's own distance, are unreachable
 	int bx = -1, by = -1;
+	bool rm = false; // computed in guest code (wfield): padded row-major (W + 2) x (H + 2), bot and simulator
 };
 #ifdef GENOME_BOT
 constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map (100 x 100)
@@ -624,6 +653,245 @@ public:
 #endif
 	}
 	Field empty_field() { return {}; }
+
+	// ---- guest pathfinding: plain C++ run as wasm in the bot, the same code in the simulator. Each counts
+	// its own work; the simulator charges the bot's measured fuel per unit of it (genome/FUEL.md).
+	struct GuestWork
+	{
+		long long tiles = 0, pops = 0, relax = 0, scans = 0;
+	};
+	GuestWork last_work;
+	std::unique_ptr<std::int32_t[]> gnext_, gprev_, gaux_;
+	std::unique_ptr<std::uint32_t[]> gstamp_;
+	std::unique_ptr<std::uint16_t[]> gcost_;
+	std::uint32_t gen_ = 0;
+	void guest_scratch()
+	{
+		if (gnext_) return;
+		const std::size_t n = static_cast<std::size_t>(m.W) * m.H;
+		extra(5.0 * n); // once per instance: the scratch arrays (the stamps zeroed)
+		gnext_.reset(new std::int32_t[n]), gprev_.reset(new std::int32_t[n]), gaux_.reset(new std::int32_t[n]);
+		gcost_.reset(new std::uint16_t[n]), gstamp_.reset(new std::uint32_t[n]());
+	}
+	// Weighted walking field to `goals`: stepping onto a tile costs 1, or 1 + k on a `slow` tile (k
+	// clamped to 0..8); `walls` cannot be entered (goal tiles can). Dijkstra over a bucket queue (Dial:
+	// 10 circular buckets of doubly linked tiles, no heap). Distances above 65534 read unreachable.
+	Field wfield(const Tiles& goals, const Tiles& walls, const Tiles& slow, double k)
+	{
+		PRIM_PROF_BEGIN;
+		Field f = wfield_(goals, walls, slow, k);
+		PRIM_PROF_END(1);
+		return f;
+	}
+	Field wfield_(const Tiles& goals, const Tiles& walls, const Tiles& slow, double k)
+	{
+		last_work = {};
+		if (!goals.b) return empty_field();
+		const int W = m.W, H = m.H, P = W + 2; // padded rows: a border of blocked tiles, no bounds tests
+		const int NP = P * (H + 2);
+		const int kk = static_cast<int>(std::clamp(std::floor(k), 0.0, 8.0));
+		if (!wf_cost_) wf_cost_.reset(new std::uint8_t[NP]), wf_next_.reset(new std::int32_t[NP]), wf_prev_.reset(new std::int32_t[NP]);
+		std::uint8_t* cost = wf_cost_.get();
+		std::int32_t *nx = wf_next_.get(), *pv = wf_prev_.get();
+		std::shared_ptr<std::uint16_t[]> dd(new std::uint16_t[NP]);
+		std::uint16_t* d = dd.get();
+		std::fill(d, d + NP, cbs::kUnreachable);
+		std::fill(cost, cost + P, 0), std::fill(cost + NP - P, cost + NP, 0);
+		const Bitboard* wb = walls.b.get();
+		const Bitboard* sb = slow.b.get();
+		std::int32_t head[10];
+		for (int& h : head) h = -1;
+		long long queued = 0;
+		GuestWork wk;
+		// the cost of stepping onto each tile (0: blocked), and the goals at distance 0
+		for (int y = 0; y < H; ++y)
+		{
+			std::uint8_t* row = cost + (y + 1) * P;
+			row[0] = row[P - 1] = 0;
+			for (int x = 0; x < W; ++x)
+			{
+				const int v = (y + 1) * P + x + 1;
+				row[x + 1] = wb && wb->test(x, y) ? 0 : static_cast<std::uint8_t>(1 + (sb && sb->test(x, y) ? kk : 0));
+				if (goals.b->test(x, y))
+				{
+					d[v] = 0, nx[v] = head[0], pv[v] = -1;
+					if (head[0] >= 0) pv[head[0]] = v;
+					head[0] = v, ++queued;
+				}
+			}
+		}
+		wk.tiles = static_cast<long long>(W) * H;
+		const int off[8] = { -P - 1, -P, -P + 1, -1, 1, P - 1, P, P + 1 };
+		for (int cur = 0, empty = 0; queued > 0;)
+		{
+			const int b = cur % 10;
+			int v = head[b];
+			if (v < 0)
+			{
+				++cur, ++wk.scans;
+				if (++empty > 10) break;
+				continue;
+			}
+			empty = 0;
+			head[b] = nx[v];
+			if (nx[v] >= 0) pv[nx[v]] = -1;
+			--queued, ++wk.pops;
+			const int dv = d[v];
+			for (int i = 0; i < 8; ++i)
+			{
+				const int u = v + off[i];
+				const int c = cost[u];
+				if (!c) continue;
+				++wk.relax;
+				const int nd = dv + c;
+				if (nd >= d[u] || nd > 65534) continue;
+				if (d[u] != cbs::kUnreachable)
+				{
+					const int ob = d[u] % 10;
+					if (pv[u] >= 0) nx[pv[u]] = nx[u];
+					else head[ob] = nx[u];
+					if (nx[u] >= 0) pv[nx[u]] = pv[u];
+				}
+				else ++queued;
+				const int nb = nd % 10;
+				d[u] = static_cast<std::uint16_t>(nd), nx[u] = head[nb], pv[u] = -1;
+				if (head[nb] >= 0) pv[head[nb]] = u;
+				head[nb] = u;
+			}
+		}
+		last_work = wk;
+		extra(WF_BASE + WF_TILE * wk.tiles + WF_POP * wk.pops + WF_RELAX * wk.relax + WF_SCAN * wk.scans);
+		Field f{ dd };
+		f.rm = true;
+		return f;
+	}
+	std::unique_ptr<std::uint8_t[]> wf_cost_;
+	std::unique_ptr<std::int32_t[]> wf_next_, wf_prev_;
+	// fitted on cambc probes (genome/FUEL.md)
+	static constexpr double WF_BASE = 20194, WF_TILE = 85.7, WF_POP = 414.7, WF_RELAX = 0, WF_SCAN = 32.3;
+
+	// A* from `from` to `to` (8 neighbours, unit steps, Chebyshev heuristic), over tiles not in `walls`
+	// (`to` is always allowed), expanding at most `budget` tiles. The open set is a bucket queue on
+	// (f, h): f never drops and rises by at most 2 per step, so 4 levels of f, each with one doubly
+	// linked list per h; the lowest (f, h) goes first (ties: the tile reached last). A parent changes
+	// only on a strictly shorter path, neighbours scanned row-major. Returns the length (-1 if not found
+	// within the budget) and the first step.
+	int astar(Tile from, Tile to, const Tiles& walls, double budget, Tile* step)
+	{
+		last_work = {};
+		if (step) *step = {};
+		if (!in_bounds(from) || !in_bounds(to)) return -1;
+		if (from == to) return 0;
+		const int W = m.W, H = m.H, N = W * H, HM = std::max(W, H) + 1;
+		guest_scratch();
+		if (!as_head_) as_head_.reset(new std::int32_t[4 * HM]);
+		const long long cap = static_cast<long long>(std::clamp(std::floor(budget), 0.0, static_cast<double>(N)));
+		// stamps per search: 2 gen = open (g, par, list links valid), 2 gen + 1 = expanded; no per-call clearing
+		if (++gen_ >= 0x7FFFFFFFu) std::fill(gstamp_.get(), gstamp_.get() + N, 0u), gen_ = 1;
+		std::uint32_t* st = gstamp_.get();
+		const std::uint32_t OPEN = 2 * gen_, DONE = 2 * gen_ + 1;
+		std::uint16_t* g = gcost_.get();
+		std::int32_t *par = gaux_.get(), *nx = gnext_.get(), *pv = gprev_.get(), *head = as_head_.get();
+		std::fill(head, head + 4 * HM, -1);
+		int minh[4] = { HM, HM, HM, HM }; // per f level, a lower bound of the non-empty h lists
+		auto hcost = [&](int x, int y) { return std::max(std::abs(x - to.x), std::abs(y - to.y)); };
+		auto link = [&](int v, int f, int h) {
+			const int bi = (f & 3) * HM + h;
+			nx[v] = head[bi], pv[v] = -1;
+			if (head[bi] >= 0) pv[head[bi]] = v;
+			head[bi] = v;
+			if (h < minh[f & 3]) minh[f & 3] = h;
+		};
+		auto unlink = [&](int v, int f, int h) {
+			const int bi = (f & 3) * HM + h;
+			if (pv[v] >= 0) nx[pv[v]] = nx[v];
+			else head[bi] = nx[v];
+			if (nx[v] >= 0) pv[nx[v]] = pv[v];
+		};
+		const int s = from.y * W + from.x, t = to.y * W + to.x;
+		const int h0 = hcost(from.x, from.y);
+		st[s] = OPEN, g[s] = 0, par[s] = -1;
+		link(s, h0, h0);
+		long long open = 1;
+		GuestWork wk;
+		const Bitboard* wb = walls.b.get();
+		int found = -1;
+		for (int f = h0, idle = 0; open > 0 && wk.pops < cap;)
+		{
+			const int L = f & 3;
+			int h = minh[L];
+			while (h < HM && head[L * HM + h] < 0) ++h, ++wk.scans;
+			if (h >= HM)
+			{
+				minh[L] = HM, ++f, ++wk.scans;
+				if (++idle > 4) break;
+				continue;
+			}
+			idle = 0, minh[L] = h;
+			const int v = head[L * HM + h];
+			unlink(v, f, h), --open;
+			st[v] = DONE, ++wk.pops;
+			if (v == t)
+			{
+				found = g[v];
+				break;
+			}
+			const int vx = v % W, vy = v / W, ng = g[v] + 1;
+			for (int y = std::max(0, vy - 1); y <= std::min(H - 1, vy + 1); ++y)
+				for (int x = std::max(0, vx - 1); x <= std::min(W - 1, vx + 1); ++x)
+				{
+					const int u = y * W + x;
+					if (u == v || st[u] == DONE || (u != t && wb && wb->test(x, y))) continue;
+					++wk.relax;
+					const int hu = hcost(x, y);
+					if (st[u] == OPEN)
+					{
+						if (ng >= g[u]) continue;
+						unlink(u, g[u] + hu, hu);
+					}
+					else ++open;
+					st[u] = OPEN, g[u] = static_cast<std::uint16_t>(ng), par[u] = v;
+					link(u, ng + hu, hu);
+				}
+		}
+		if (found > 0 && step)
+		{
+			int v = t;
+			while (par[v] != s) v = par[v], ++wk.tiles; // tiles: steps walked back along the path
+			*step = { v % W, v / W };
+		}
+		last_work = wk;
+#ifdef GENOME_TRACE_ASTAR
+		{
+			std::uint64_t hw = 0;
+			if (wb)
+				for (int y = 0; y < H; ++y)
+					for (int x = 0; x < W; ++x)
+						if (wb->test(x, y)) hw = hw * 1000003u + static_cast<std::uint64_t>(y * W + x + 1);
+			std::fprintf(GENOME_TRACE_FILE, "@@AS r%d c%d from %d,%d to %d,%d walls %llx pops %lld relax %lld found %d step %d,%d\n", static_cast<int>(round()), api.champ(), from.x, from.y,
+						 to.x, to.y, static_cast<unsigned long long>(hw), wk.pops, wk.relax, found, step ? step->x : -9, step ? step->y : -9);
+		}
+#endif
+		extra(AS_BASE + AS_POP * wk.pops + AS_RELAX * wk.relax + AS_SCAN * wk.scans + AS_BACK * wk.tiles);
+		return found;
+	}
+	std::unique_ptr<std::int32_t[]> as_head_;
+	static constexpr double AS_BASE = 1427, AS_POP = 380.9, AS_RELAX = 134.1, AS_SCAN = 27.3, AS_BACK = 15.2;
+	Tile path_step(Tile from, Tile to, const Tiles& walls, double budget)
+	{
+		PRIM_PROF_BEGIN;
+		Tile s;
+		astar(from, to, walls, budget, &s);
+		PRIM_PROF_END(2);
+		return s;
+	}
+	double path_len(Tile from, Tile to, const Tiles& walls, double budget)
+	{
+		PRIM_PROF_BEGIN;
+		const int n = astar(from, to, walls, budget, nullptr);
+		PRIM_PROF_END(3);
+		return n < 0 ? 1e9 : n;
+	}
 	// Walking field to `goals` over tiles not in `walls` (goal tiles always allowed), through the
 	// memoised distance field the interpreter's move_towards uses (dests = my tile: the bot's memo
 	// answers it across turns while the goals stay and the walls do not affect my box). Readable only
@@ -679,6 +947,11 @@ public:
 	{
 		extra(70); // the read costs ~70 in the bot (bounds, chunked index; measured per scored option)
 		if (!f.d || !in_bounds(t)) return 1e9;
+		if (f.rm)
+		{
+			const std::uint16_t v = f.d[(t.y + 1) * (m.W + 2) + t.x + 1]; // padded row-major (wfield)
+			return v == cbs::kUnreachable ? 1e9 : v;
+		}
 		if (f.bx >= 0)
 		{
 			const int dx = t.x - f.bx, dy = t.y - f.by;
@@ -1331,7 +1604,13 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 		for (const auto& gs : gene_stats)
 			if (gs.name) std::printf("@@GENE r%d %s calls %lld fuel %lld per %.0f self %lld kids %lld\n", static_cast<int>(X.round()), gs.name, gs.calls, gs.fuel, gs.calls ? double(gs.fuel) / gs.calls : 0.0, gs.self, gs.kids);
 	// the field records, a few per turn from round 600 (a long print can be suspended and lost)
-	static int field_printed = 0;
+	static int field_printed = 0, prim_printed = 0;
+	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) >= 600)
+		for (int i = 0; i < 4 && prim_printed < n_prim_recs; ++i, ++prim_printed)
+		{
+			const PrimRec& r = prim_recs[prim_printed];
+			std::printf("@@PRIM %d fuel %lld tiles %lld pops %lld relax %lld scans %lld chunks %.0f\n", r.prim, r.fuel, r.n[0], r.n[1], r.n[2], r.n[3], X.chunks());
+		}
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) >= 600)
 		for (int i = 0; i < 4 && field_printed < n_field_recs; ++i, ++field_printed)
 			std::printf("@@FIELD %d stop %d fuel %lld chunks %.0f\n", field_recs[field_printed].expansions, field_recs[field_printed].stopped,

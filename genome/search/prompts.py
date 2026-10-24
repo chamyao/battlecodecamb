@@ -25,6 +25,10 @@ kinds it rejects are neither listed nor scored, which saves the fuel of listing 
 Expensive sets and distance fields can be computed once per turn into a Tiles/Field keep in update()
 instead of in a zero-argument gene (recomputed every pass of the loop). A mutation may add consider(),
 update() or after() if the genome has none.
+Pathfinding in our own code is expensive, so use it rarely or locally: wfield() over a whole 100x100 map costs
+~4.5M fuel (~45 turns of budget; 90x30 ~1.3M), so cache it in a Field keep from update() every N turns; path_step()
+/ path_len() (A*) cost ~1.4k + 380 per tile expanded: ~10-20k for a local path with budget ~400 near a camp or
+altar, 1-4.5M across the map.
 Team coordination: the 8 shared bytes (read_shared anywhere; write_shared in update() or after()) are the only
 channel between allies; vision is not shared. after() can announce what this champion just did."""
 

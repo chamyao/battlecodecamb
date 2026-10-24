@@ -22,3 +22,11 @@ Re-gate on the fuel runtime (genome/v0 77da39c: cheaper turn 1, reserve()), vs t
 Note: with --bot-seeds (as deployed) a genome match does not depend on --seed: each pair has exactly 80 distinct games.
 Deploy-faithful sim, B318 vs tune-v20-L1c: 38/80 (db3f945), 43/80 (77da39c). Earlier "800-game" gates at bot seeds
 are these 80 games repeated; gates without bot seeds play the policy with random seeds, not as deployed.
+
+## B792 (Arena B, arena run 13 lineage; candidate for ladder version 26)
+
+genome/candidates/B792.genome, sha256 fa178e513757224a... (from remote/genome gatekeeper-api/candidates/run13-B792.genome).
+Built on genome/v0 212a505 (fuel runtime + simspeed + deploy/v0 7ea42c7 interp).
+- Sim, arena engine 212a505, bot seeds, 80 distinct games: 47/80 vs B318 (live v25). Anchors, B792 vs B318's own /80:
+  tune-v20-L1c 52/45, style-gconv1 50/51, v7 78/76, tune-v20-L1 49/47, rall2 55/52, metadraft 72/69 (worst -1). Fuel x10: 44/80.
+- Real cambc 3.0.5 --release vs the v25 build (genome/v0 2013533 B318), 40 maps x 2 sides: 43/80, 0 crashes either side.

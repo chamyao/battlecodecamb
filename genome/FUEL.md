@@ -135,6 +135,29 @@ sim: a far fixed goal 2.0k / 2.2k (00lanes), 3.3k / 3.7k (01big-world), against 
 and 19.2k; nearby goals (camp spawns) 3.4k / 3.2k and 4.9k / 4.6k, dearer than field_avoid (1.7k,
 4.5k), whose search is short then. Priced as the Api's memo price plus 300 + 6.5 x chunks.
 
+## Guest pathfinding: wfield, path_step, path_len (Oct 24)
+
+Plain C++ in `genome_rt.h`, the same code in the bot (wasm) and the simulator; each call counts its
+own work and the simulator charges the bot's measured fuel per unit (fitted on `@@PRIM` records:
+per-call fuel and counters, `examples/calib3.genome` at 1e8 fuel on 00ambush, 01big-world, 00lanes;
+`tools/test_guest` checks wfield (k = 0) against the engine's field and path_len / path_step against
+field distances: 465k checks, 0 mismatches).
+- `wfield` (Dijkstra, 10 circular buckets of doubly linked tiles over a padded cost grid): 20194 +
+  85.7 per map tile + 414.7 per tile settled + 32.3 per empty bucket; per call within 0.1%. A full
+  100x100 field is ~4.5M fuel (~45 turns of budget), 90x30 ~1.3M: in guest code every wasm
+  operation, local reads and writes included, costs fuel. (A first version testing bitboards per
+  neighbour cost 2x that.)
+- `path_step` / `path_len` (A*, a bucket queue on (f, h): f rises by at most 2 per step, so 4 levels
+  of h lists; a binary heap cost ~2x): 1427 + 380.9 per tile expanded + 134.1 per neighbour opened or
+  improved + 27.3 per empty bucket scanned + 15.2 per step walked back (path_step); once per
+  instance 5 per map tile for the scratch arrays. Per call p50 2.5%, p90 6%; per probe 0.93-1.06.
+Acceptance: per probe sim/real 0.93-1.06 (wfield 0.99-1.00); a test genome using both
+(`/tmp`-style walker: weighted field every 40 turns, A* near camps and to the altar) takes the same
+actions in the bot and the simulator on 00lanes, 01big-world, 00ambush, 00rows (2674 actions on
+00lanes; against the interpreted v23: games against starter-cpp diverge from builtin:starter,
+whatever the genome); whole games at the normal budget, turns at the 100k cap real / sim: 2050 /
+1984, 5076 / 4685, 4833 / 4691, 2706 / 2703; at 1e8 fuel mean fuel per turn sim / real 0.96-0.99.
+
 ## Listing the options (task 3, Oct 24)
 
 The bot used to pay ~160-170 fuel per listed option (default-constructing an Option, copying it into
