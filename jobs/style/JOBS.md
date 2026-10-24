@@ -47,6 +47,7 @@ WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gyield 
   >> runs/style8-gyield.out 2>&1 &
 ```
 Same run name and total (recorded spend carries over). Its first lines then show the gap baselines measured on v23.
+Use funsearch/style 1babf5a or later for that relaunch: the launcher then turns the per-child climb off (lead, 16:42).
 
 ## Job S12 (16:05 UTC): gconv -> gyield (two-term gap), and b -> b2 (bar v21) after b's boundary verdict
 
