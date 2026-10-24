@@ -113,9 +113,11 @@ Proof that it resumed and did not restart:
    the PROMOTED line in the message. Do not commit `runs/` state files from EC2 unless the pure
    line asks.
 3. Rebuild only if `interp/` changed between 81ab84b and the tip.
-4. Relaunch with `runs/pure_launch.sh` (no `--max-generations`, no `--no-commit`). g4 then uses the new
+4. Relaunch with `runs/pure_launch.sh` (no `--max-generations`, no `--no-commit`). It carries
+   `--budget 18.10` (pure line cap raised to $20 at 06:35 UTC; funsearch/pure c44a0a3). g3 keeps 8.09:
+   it needs only ~$1.6 of its $2.95, and the cap change takes effect at g4 without a restart. g4 then uses the new
    prompt and fixed = tune-5. Its first log line must read `pure4-g4: +150 programs (to 151), best
-   policies/fs-p3.policy, league ['policies/tune-5.policy', ...]`.
+   policies/fs-p3.policy, league ['policies/tune-5.policy', ...], $<about 11> left`.
 5. Report the promotion (all PROMOTED rates, incl. cambc-exact vs tune-5) on PR #2.
 
 If the spot instance is reclaimed mid-g3, redo steps 2-4 from the runner's own last `runs/`. Never
