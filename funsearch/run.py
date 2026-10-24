@@ -89,6 +89,8 @@ def main():
     ap.add_argument("--helpers-budget", type=int, default=2500, help="characters of helper source in the prompt")
     ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu, each optionally "
                                              "name:weight (default: all axes, equal weights)")
+    ap.add_argument("--protect-islands", default="", help="comma-separated island indices kept out of island resets "
+                                                        "(never re-seeded, never donors)")
     ap.add_argument("--vocab-share", type=float, default=0.2,
                     help="with --explore: share of calls whose prompt lists the newest blocks (llm.NEW_BLOCKS)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
@@ -104,6 +106,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     db = Database(out / "programs.jsonl", islands=args.islands, temperature=temperature, reset_every=reset_every)
     db.novelty_lambda = args.novelty_lambda if args.explore else 0.0
+    db.protected = {int(x) for x in args.protect_islands.split(",") if x}
     refreshed = None
     if args.explore and (out / "programs.jsonl").exists():
         # novelty counts on one footing: re-measure children logged vs builtin:idle (cached per run)

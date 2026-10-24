@@ -42,3 +42,14 @@ def test_refresh_exec_blocks_uses_marker_and_cache(tmp_path):
         assert json.loads(cache.read_text())["1"] == ["move_to"]
     finally:
         evaluate.executed_blocks = orig
+
+
+def test_protected_island_not_reset(tmp_path):
+    from funsearch.database import Database, Program
+    db = Database(tmp_path / "p.jsonl", islands=4, reset_every=10 ** 9)
+    db.protected = {3}
+    for i, s in enumerate([0.9, 0.8, 0.7, 0.1]):
+        db.add(Program(0, i, f"t{i}", s))
+    db._reset_islands()
+    assert db.islands[3][0].text == "t3"  # lowest, but protected
+    assert db.islands[2][0].model == "reset" and db.islands[2][0].text in ("t0", "t1")

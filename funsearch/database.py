@@ -73,6 +73,9 @@ class Database:
         self.block_counts = {}
         self.n_exec = 0
         self.rare_archive = {}
+        # islands kept out of resets (neither re-seeded nor donors): a seeded line of play that should evolve on
+        # its own before its score competes with the main islands
+        self.protected = set()
 
     # ---- persistence ----
     def load(self, exec_blocks=None):
@@ -193,8 +196,11 @@ class Database:
         """Re-seed the worse half of the islands with the best program of a better one."""
         def island_best(i):
             return max((p.score for p in self.islands[i]), default=float("-inf"))
-        order = sorted(range(self.n_islands), key=island_best)
-        keep = order[self.n_islands // 2:]
-        for i in order[: self.n_islands // 2]:
+        free = [i for i in range(self.n_islands) if i not in self.protected]
+        order = sorted(free, key=island_best)
+        keep = order[len(free) // 2:]
+        if not keep:
+            return
+        for i in order[: len(free) // 2]:
             donor = max(self.islands[self.rng.choice(keep)], key=lambda p: p.score)
             self.islands[i] = [Program(donor.id, i, donor.text, donor.score, [donor.id], "reset", None, donor.metrics)]
