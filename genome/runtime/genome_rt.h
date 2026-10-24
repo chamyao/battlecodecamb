@@ -165,7 +165,7 @@ public:
 #endif
 	}
 	double chunks() const { return ((m.W + 7) / 8) * ((m.H + 7) / 8); }
-	void charge_ops(long n)
+	[[gnu::always_inline]] void charge_ops(long n)
 	{
 		ops += n;
 		api.compute(n * GENOME_OP_FUEL);

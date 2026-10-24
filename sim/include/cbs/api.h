@@ -152,15 +152,19 @@ public:
 			}
 	}
 	// Charge a policy's own computation (building blocks) explicitly.
-	void compute(std::int64_t fuel)
+	[[gnu::always_inline]] void compute(std::int64_t fuel)
 	{
-		if (!compute_identity_) return charge(Call::compute, fuel);
-		// charge(Call::compute, fuel) when its price is exactly the fuel
-		if (!count_charges) return;
-		spent += fuel;
-		if (memo_stats().enabled || (!unlimited && spent > budget)) [[unlikely]]
-			charge_rest(Call::compute, fuel);
+		if (compute_identity_ && count_charges) [[likely]]
+		{
+			// charge(Call::compute, fuel) when its price is exactly the fuel
+			spent += fuel;
+			if (memo_stats().enabled || (!unlimited && spent > budget)) [[unlikely]]
+				charge_rest(Call::compute, fuel);
+			return;
+		}
+		compute_general(fuel);
 	}
+	[[gnu::noinline]] void compute_general(std::int64_t fuel) { charge(Call::compute, fuel); }
 	// Yield the rest of this turn.
 	void end_turn()
 	{
