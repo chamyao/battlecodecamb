@@ -116,9 +116,12 @@ class Arena:
             for m in self.genomes():
                 m["fingerprint"] = self.fingerprint((self.out / m["path"]).read_text())
             self.log(f"re-fingerprinted {len(self.genomes())} genomes on this runtime")
-        for path in filter(None, args.add_anchors.split(",")):  # new fixed anchors joining a resumed arena
-            name = Path(path).stem
-            if name not in self.s["members"]:
+        for spec in filter(None, args.add_anchors.split(",")):  # new fixed anchors joining a resumed arena
+            name, _, path = spec.rpartition("=")  # name=path (e.g. to freeze a copy of a member), or path
+            name = name or Path(path).stem
+            if name in self.s["members"]:
+                self.log(f"anchor {name} not added: the name is taken (pass NAME=path)")
+            else:
                 m = self._add_anchor(name, path)
                 m["calibrating"] = True  # rated like a member for --calibrate-games games, then frozen
                 m["calibrate_until"] = args.calibrate_games
@@ -686,7 +689,7 @@ def main(argv=None):
     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
     ap.add_argument("--anchor-sigma", type=float, default=1.0)
-    ap.add_argument("--add-anchors", default="", help="anchors to add to a resumed arena (comma list of paths)")
+    ap.add_argument("--add-anchors", default="", help="anchors to add to a resumed arena (comma list of path or NAME=path)")
     ap.add_argument("--calibrate-games", type=int, default=200, help="games a new anchor is rated before it is frozen")
     ap.add_argument("--recalibrate-anchors", action="store_true",
                     help="policy anchors are rated again for --calibrate-games games, then refrozen (after a runtime change)")
