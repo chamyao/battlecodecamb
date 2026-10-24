@@ -11,8 +11,12 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
 - Live: ladder version 16 = tune-5 (policies/tune-5.policy on interp/v0; dist/deploy-tune-5.zip on
   deploy/v0 @ aec1e76, sha256 cbd8405c...). Real cambc 46/80 vs tune-3 v2. History: STRATEGY.md
   "Ladder versions".
-- Upload bar (Cham): > 52% head-to-head vs the live bot on fresh games, >= 42/80 in the bot
-  session's real-cambc 80-game check, no new 100k-cap turns, no crashes. Cham approves all uploads.
+- Upload bar (Cham, Oct 24 ~06:30 UTC): league rating (tools/league.py on coord/league; round robin of our bots,
+  ladder stand-ins and the hunter opponents) above the live bot's beyond the 90% interval, plus the bot session's
+  real-cambc safety checks (no crashes, no 100k-cap turns, first turn < 200k). Head to head and cambc-exact vs live
+  are information only. Why: tune-5 topped every self-play test and lost 0-50 to ladder #1-#9 and vc? (it doesn't
+  fight back; docs/TOP_TEAMS.md on analysis/sprint1). After each upload, run unranked groups vs top teams
+  (`cambc match-groups create`, 50 groups/hour shared quota) as the real-world check. Cham approves all uploads.
 - Uploading: `cambc submit <dir> --note "<= 80 chars"` from a cambc workspace; needs `cambc login`
   (ask Cham to log in; never handle the code). Check the ZIP's sha256 and that src/policy_data.h
   names the intended policy before submitting.
