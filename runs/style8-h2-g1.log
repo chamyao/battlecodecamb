@@ -34,3 +34,9 @@ injected policies/opp-hunter-stack.policy as #4 (island 0): score 0.319
 [36] claude-haiku-5-5 island 3: score 0.438 | best 0.479 (#23) $0.43 | 1412s
 [37] claude-haiku-5-5 island 3: score 0.361 | best 0.479 (#23) $0.44 | 1452s
 [38] claude-haiku-5-5 island 1: score 0.388 | best 0.479 (#23) $0.44 | 1538s
+[39] claude-haiku-5-5 island 2: score 0.480 | best 0.480 (#39) $0.64 | 1606s
+[40] claude-opus-5-5 island 3: score 0.441 | best 0.480 (#39) $0.64 | 1710s
+[41] claude-haiku-5-5 island 0: error: TypeError: no block mul(Num, Bool) | best 0.480 (#39) $0.65 | 1727s
+[42] claude-haiku-5-5 island 1: score 0.408 | best 0.480 (#39) $0.65 | 1754s
+[43] claude-haiku-5-5 island 1: score 0.378 | best 0.480 (#39) $0.65 | 1765s
+done: 33 programs (2 invalid), spent $0.65; best #39 score 0.480 -> /root/bc/style/runs/style8-h2-g1/best.policy
