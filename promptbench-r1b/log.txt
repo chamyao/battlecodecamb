@@ -88,3 +88,99 @@ runtime pinned to genome/simspeed 4b60b58 (bit-identical to db3f945)
 [r1 bench] missing cell 6 (arenaA-3:A611, consider->walks): behavioural twin $0.097
 [r1 bench] missing cell 7 (arenaA-3:A611, shop_pending->at_spawn): 0.5 $0.101
 [r1 bench] missing cell 8 (arenaA-3:A659, rule_target->reach_camp): 0.5 $0.101
+[r1 bench] missing cell 9 (arenaA-3:A659, update->dash_path_ok): 0.5375 $0.103
+[r1 bench] missing cell 10 (arenaA-3:A659, update->camp_goal): 0.5375 $0.103
+[r1 bench] missing cell 12 (arenaA-3:A659, bank_goal->bank_t2): behavioural twin $0.103
+[r1 bench] missing cell 11 (arenaA-3:A659, consider->walks): 0.4875 $0.103
+[r1 bench] missing cell 13 (arenaA-3:A659, rule_goal->closest): behavioural twin $0.105
+[r1 bench] missing cell 14 (arenaA-3:A659, r_heal->at_spawn): behavioural twin $0.106
+[r1 bench] missing cell 15 (arenaA-3:A659, cast_value->ahead_value): behavioural twin $0.107
+[r1 bench] missing cell 17 (arenaA-3:A654, shop_value->shard_left): behavioural twin $0.108
+[r1 bench] missing cell 18 (arenaA-3:A654, update->strike_cast): behavioural twin $0.110
+[r1 bench] missing cell 16 (arenaA-3:A654, bank_goal->bank_t1): 0.4875 $0.112
+[r1 bench] missing cell 21 (arenaA-3:A654, update->at_spawn): behavioural twin $0.112
+[r1 bench] missing cell 20 (arenaA-3:A654, ahead_value->ahead_on): 0.55 $0.113
+[r1 bench] missing cell 19 (arenaA-3:A654, update->dash_spot): 0.4875 $0.113
+[r1 bench] missing cell 22 (arenaA-3:A654, rule->r_heal): 0.475 $0.114
+[r1 bench] missing cell 27 (arenaA-3:A662, closest->here): 0.5 $0.118
+[r1 bench] missing cell 23 (arenaA-3:A654, rule_goal->live_camp): 0.475 $0.118
+[r1 bench] missing cell 24 (arenaA-3:A662, update->rule_goal): 0.475 $0.118
+[r1 bench] missing cell 26 (arenaA-3:A662, update->rule): 0.5 $0.122
+[r1 bench] missing cell 25 (arenaA-3:A662, update->blocked): 0.3625 $0.122
+[r1 bench] missing cell 28 (arenaA-3:A662, update->cast_value): 0.5 $0.123
+[r1 bench] missing cell 29 (arenaA-3:A662, act_value->walks): 0.5 $0.123
+[r1 bench] missing cell 30 (arenaA-3:A662, shop_value->at_spawn): 0.55 $0.123
+[r1 bench] missing cell 31 (arenaA-3:A662, bag_ready->hurt_below): 0.4875 $0.123
+[r1 bench] missing cell 36 (arenaA-3:A685, update->bank_t3): behavioural twin $0.127
+[r1 bench] missing cell 32 (arenaA-3:A685, bag_ready->altar_eta): 0.4625 $0.127
+[r1 bench] missing cell 38 (arenaA-3:A685, rule_target->adj_altar): behavioural twin $0.129
+[r1 bench] missing cell 34 (arenaA-3:A685, dash_gate->here): 0.55 $0.129
+[r1 bench] missing cell 33 (arenaA-3:A685, ahead_value->ahead_foe): 0.4875 $0.129
+[r1 bench] missing cell 35 (arenaA-3:A685, in_reach->here): 0.5125 $0.129
+[r1 bench] missing cell 37 (arenaA-3:A685, ahead_on->ahead_foe): 0.4875 $0.135
+[r1 bench] weights cell 2 (arenaA-3:A611, rule_target->fight_foe): 0.45 $0.136
+[r1 bench] weights cell 1 (arenaA-3:A611, threat_near->enemies_within): 0.4875 $0.136
+[r1 bench] missing cell 39 (arenaA-3:A685, r_lock->lock_altar): 0.4875 $0.136
+[r1 bench] weights cell 3 (arenaA-3:A611, shard_left->shards_done): behavioural twin $0.136
+[r1 bench] weights cell 0 (arenaA-3:A611, rule_goal->live_camp): 0.5625 $0.136
+[r1 bench] weights cell 4 (arenaA-3:A611, update->ahead_value): behavioural twin $0.140
+[r1 bench] weights cell 7 (arenaA-3:A611, shop_pending->at_spawn): behavioural twin $0.140
+[r1 bench] weights cell 6 (arenaA-3:A611, consider->walks): behavioural twin $0.140
+[r1 bench] weights cell 5 (arenaA-3:A611, dash_gate->here): 0.525 $0.144
+[r1 bench] weights cell 8 (arenaA-3:A659, rule_target->reach_camp): 0.5 $0.144
+[r1 bench] weights cell 12 (arenaA-3:A659, bank_goal->bank_t2): behavioural twin $0.145
+[r1 bench] weights cell 10 (arenaA-3:A659, update->camp_goal): 0.45 $0.145
+[r1 bench] weights cell 11 (arenaA-3:A659, consider->walks): 0.4875 $0.146
+[r1 bench] weights cell 9 (arenaA-3:A659, update->dash_path_ok): 0.5 $0.146
+[r1 bench] weights cell 13 (arenaA-3:A659, rule_goal->closest): 0.5125 $0.149
+[r1 bench] weights cell 15 (arenaA-3:A659, cast_value->ahead_value): behavioural twin $0.149
+[r1 bench] weights cell 16 (arenaA-3:A654, bank_goal->bank_t1): behavioural twin $0.149
+[r1 bench] weights cell 17 (arenaA-3:A654, shop_value->shard_left): behavioural twin $0.149
+[r1 bench] weights cell 14 (arenaA-3:A659, r_heal->at_spawn): 0.4625 $0.149
+[r1 bench] weights cell 18 (arenaA-3:A654, update->strike_cast): behavioural twin $0.155
+[r1 bench] weights cell 22 (arenaA-3:A654, rule->r_heal): behavioural twin $0.155
+[r1 bench] weights cell 21 (arenaA-3:A654, update->at_spawn): behavioural twin $0.155
+[r1 bench] weights cell 19 (arenaA-3:A654, update->dash_spot): 0.55 $0.157
+[r1 bench] weights cell 20 (arenaA-3:A654, ahead_value->ahead_on): 0.475 $0.158
+[r1 bench] weights cell 24 (arenaA-3:A662, update->rule_goal): behavioural twin $0.158
+[r1 bench] weights cell 26 (arenaA-3:A662, update->rule): behavioural twin $0.161
+[r1 bench] weights cell 23 (arenaA-3:A654, rule_goal->live_camp): 0.475 $0.161
+[r1 bench] weights cell 25 (arenaA-3:A662, update->blocked): 0.475 $0.163
+[r1 bench] weights cell 30 (arenaA-3:A662, shop_value->at_spawn): behavioural twin $0.164
+[r1 bench] weights cell 27 (arenaA-3:A662, closest->here): 0.3 $0.164
+[r1 bench] weights cell 28 (arenaA-3:A662, update->cast_value): 0.5 $0.164
+[r1 bench] weights cell 29 (arenaA-3:A662, act_value->walks): 0.5 $0.167
+[r1 bench] weights cell 31 (arenaA-3:A662, bag_ready->hurt_below): 0.4125 $0.167
+[r1 bench] weights cell 32 (arenaA-3:A685, bag_ready->altar_eta): 0.5 $0.169
+[r1 bench] weights cell 34 (arenaA-3:A685, dash_gate->here): 0.55 $0.169
+[r1 bench] weights cell 33 (arenaA-3:A685, ahead_value->ahead_foe): 0.4875 $0.169
+[r1 bench] weights cell 36 (arenaA-3:A685, update->bank_t3): behavioural twin $0.170
+[r1 bench] weights cell 35 (arenaA-3:A685, in_reach->here): 0.5125 $0.172
+[r1 bench] weights cell 38 (arenaA-3:A685, rule_target->adj_altar): behavioural twin $0.173
+[r1 bench] weights cell 37 (arenaA-3:A685, ahead_on->ahead_foe): 0.475 $0.175
+[r1 bench] weights cell 39 (arenaA-3:A685, r_lock->lock_altar): 0.5 $0.175
+[r1 bench] mechanism cell 1 (arenaA-3:A611, threat_near->enemies_within): behavioural twin $0.175
+[r1 bench] mechanism cell 0 (arenaA-3:A611, rule_goal->live_camp): 0.425 $0.176
+[r1 bench] mechanism cell 3 (arenaA-3:A611, shard_left->shards_done): behavioural twin $0.176
+[r1 bench] mechanism cell 2 (arenaA-3:A611, rule_target->fight_foe): 0.4875 $0.180
+[r1 bench] mechanism cell 7 (arenaA-3:A611, shop_pending->at_spawn): GenomeError: shop_pending line 396: cannot assign to near $0.181
+[r1 bench] mechanism cell 5 (arenaA-3:A611, dash_gate->here): 0.475 $0.183
+[r1 bench] mechanism cell 6 (arenaA-3:A611, consider->walks): 0.4875 $0.183
+[r1 bench] mechanism cell 9 (arenaA-3:A659, update->dash_path_ok): behavioural twin $0.183
+[r1 bench] mechanism cell 10 (arenaA-3:A659, update->camp_goal): GenomeError: line 578: gene camp_goal redefined or shadows a builtin $0.184
+[r1 bench] mechanism cell 8 (arenaA-3:A659, rule_target->reach_camp): 0.4625 $0.185
+[r1 bench] mechanism cell 12 (arenaA-3:A659, bank_goal->bank_t2): behavioural twin $0.189
+[r1 bench] mechanism cell 15 (arenaA-3:A659, cast_value->ahead_value): EditError: syntax error line 1: unterminated string literal (detected at line 1) $0.190
+[r1 bench] mechanism cell 11 (arenaA-3:A659, consider->walks): 0.5125 $0.190
+[r1 bench] mechanism cell 14 (arenaA-3:A659, r_heal->at_spawn): 0.475 $0.191
+[r1 bench] mechanism cell 13 (arenaA-3:A659, rule_goal->closest): 0.3375 $0.191
+[r1 bench] mechanism cell 17 (arenaA-3:A654, shop_value->shard_left): behavioural twin $0.192
+[r1 bench] mechanism cell 16 (arenaA-3:A654, bank_goal->bank_t1): 0.45 $0.196
+[r1 bench] mechanism cell 18 (arenaA-3:A654, update->strike_cast): 0.5 $0.197
+[r1 bench] mechanism cell 21 (arenaA-3:A654, update->at_spawn): behavioural twin $0.197
+[r1 bench] mechanism cell 19 (arenaA-3:A654, update->dash_spot): 0.5 $0.197
+[r1 bench] mechanism cell 20 (arenaA-3:A654, ahead_value->ahead_on): 0.425 $0.198
+[r1 bench] mechanism cell 22 (arenaA-3:A654, rule->r_heal): 0.45 $0.201
+[r1 bench] mechanism cell 23 (arenaA-3:A654, rule_goal->live_camp): 0.45 $0.201
+[r1 bench] mechanism cell 24 (arenaA-3:A662, update->rule_goal): 0.5 $0.201
+[r1 bench] mechanism cell 25 (arenaA-3:A662, update->blocked): 0.5375 $0.201

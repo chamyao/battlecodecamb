@@ -257,3 +257,92 @@
 [r1 bench] helper cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.525 $0.261
 [r1 bench] helper cell 16 (arenaA-1:A344, rule->r_prefight): behavioural twin $0.262
 [r1 bench] temperament cell 31 (arenaA-1:A368, rule->r_cashout): 0.6375 $0.262
+[r1 bench] helper cell 15 (arenaA-1:A352, rule->r_recall): 0.525 $0.262
+[r1 bench] helper cell 14 (arenaA-1:A352, bank_blocked->reach_camp): 0.4625 $0.262
+[r1 bench] helper cell 19 (arenaA-1:A344, bank_goal->bank_t1): behavioural twin $0.266
+[r1 bench] helper cell 22 (arenaA-1:A344, bag_ready->altar_eta): GenomeError: altar_eta line 486: cannot assign to ring $0.267
+[r1 bench] helper cell 17 (arenaA-1:A344, bag_ready->threat_near): 0.175 $0.267
+[r1 bench] helper cell 18 (arenaA-1:A344, live_camp->here): 0.5 $0.268
+[r1 bench] helper cell 24 (arenaA-1:A368, bank_t3->closest): behavioural twin $0.268
+[r1 bench] helper cell 21 (arenaA-1:A344, rule->r_recall): 0.4375 $0.268
+[r1 bench] helper cell 20 (arenaA-1:A344, threat_near->hurt_below): 0.525 $0.268
+[r1 bench] helper cell 23 (arenaA-1:A344, under_fire->in_danger): 0.45 $0.273
+[r1 bench] helper cell 28 (arenaA-1:A368, unseen_camps->here): behavioural twin $0.273
+[r1 bench] helper cell 25 (arenaA-1:A368, enemies_within->here): 0.5 $0.276
+[r1 bench] helper cell 27 (arenaA-1:A368, update->cast_value): 0.575 $0.276
+[r1 bench] helper cell 26 (arenaA-1:A368, update->consider): 0.4875 $0.277
+[r1 bench] helper cell 30 (arenaA-1:A368, under_fire->enemies_within): 0.5 $0.279
+[r1 bench] helper cell 29 (arenaA-1:A368, bag_ready->altar_eta): 0.4125 $0.279
+[r1 bench] helper cell 31 (arenaA-1:A368, rule->r_cashout): 0.2375 $0.280
+[r1 bench] helper cell 33 (arenaA-1:A354, dash_value->dash_gate): 0.5125 $0.282
+[r1 bench] helper cell 32 (arenaA-1:A354, altar_eta->here): 0.5125 $0.282
+[r1 bench] helper cell 37 (arenaA-1:A354, r_cashout->at_spawn): GenomeError: r_cashout line 249: cannot assign to eta $0.284
+[r1 bench] helper cell 35 (arenaA-1:A354, threat_eta->eta): 0.5 $0.284
+[r1 bench] helper cell 34 (arenaA-1:A354, altar_eta->eta): 0.525 $0.285
+[r1 bench] helper cell 39 (arenaA-1:A354, cast_value->ahead_value): behavioural twin $0.286
+[r1 bench] helper cell 36 (arenaA-1:A354, camp_goal->closest): 0.4 $0.287
+[r1 bench] simplify cell 1 (seed, cast_value->strike_cast): behavioural twin $0.287
+[r1 bench] helper cell 38 (arenaA-1:A354, rule->r_live): 0.2375 $0.287
+[r1 bench] simplify cell 0 (seed, r_lock->lock_altar): 0.5125 $0.291
+[r1 bench] simplify cell 3 (seed, update->rule_target): 0.475 $0.292
+[r1 bench] simplify cell 2 (seed, rule->r_hold): 0.5125 $0.292
+[r1 bench] simplify cell 5 (seed, bank_blocked->bank_t1): 0.45 $0.292
+[r1 bench] simplify cell 4 (seed, altar_eta->here): 0.4125 $0.292
+[r1 bench] simplify cell 10 (arenaA-1:A352, at_spawn->here): EditError: no change $0.296
+[r1 bench] simplify cell 8 (arenaA-1:A352, r_run->hurt_below): behavioural twin $0.296
+[r1 bench] simplify cell 7 (seed, bank_goal->bank_t2): behavioural twin $0.296
+[r1 bench] simplify cell 6 (seed, taken->camp_block): 0.4875 $0.297
+[r1 bench] simplify cell 11 (arenaA-1:A352, score->shop_pending): behavioural twin $0.299
+[r1 bench] simplify cell 9 (arenaA-1:A352, under_fire->in_danger): 0.4125 $0.301
+[r1 bench] simplify cell 14 (arenaA-1:A352, bank_blocked->reach_camp): behavioural twin $0.301
+[r1 bench] simplify cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.5 $0.303
+[r1 bench] simplify cell 17 (arenaA-1:A344, bag_ready->threat_near): behavioural twin $0.303
+[r1 bench] simplify cell 13 (arenaA-1:A352, ahead_value->ahead_foe): 0.5375 $0.303
+[r1 bench] simplify cell 15 (arenaA-1:A352, rule->r_recall): 0.4125 $0.305
+[r1 bench] simplify cell 20 (arenaA-1:A344, threat_near->hurt_below): behavioural twin $0.306
+[r1 bench] simplify cell 19 (arenaA-1:A344, bank_goal->bank_t1): behavioural twin $0.306
+[r1 bench] simplify cell 21 (arenaA-1:A344, rule->r_recall): behavioural twin $0.308
+[r1 bench] simplify cell 16 (arenaA-1:A344, rule->r_prefight): 0.45 $0.308
+[r1 bench] simplify cell 25 (arenaA-1:A368, enemies_within->here): behavioural twin $0.310
+[r1 bench] simplify cell 18 (arenaA-1:A344, live_camp->here): 0.5 $0.310
+[r1 bench] simplify cell 24 (arenaA-1:A368, bank_t3->closest): behavioural twin $0.310
+[r1 bench] simplify cell 23 (arenaA-1:A344, under_fire->in_danger): 0.475 $0.313
+[r1 bench] simplify cell 22 (arenaA-1:A344, bag_ready->altar_eta): 0.5 $0.313
+[r1 bench] simplify cell 26 (arenaA-1:A368, update->consider): behavioural twin $0.316
+[r1 bench] simplify cell 29 (arenaA-1:A368, bag_ready->altar_eta): behavioural twin $0.317
+[r1 bench] simplify cell 28 (arenaA-1:A368, unseen_camps->here): 0.5375 $0.318
+[r1 bench] simplify cell 27 (arenaA-1:A368, update->cast_value): 0.575 $0.318
+[r1 bench] simplify cell 30 (arenaA-1:A368, under_fire->enemies_within): 0.5 $0.319
+[r1 bench] simplify cell 33 (arenaA-1:A354, dash_value->dash_gate): behavioural twin $0.319
+[r1 bench] simplify cell 31 (arenaA-1:A368, rule->r_cashout): 0.4625 $0.320
+[r1 bench] simplify cell 34 (arenaA-1:A354, altar_eta->eta): behavioural twin $0.320
+[r1 bench] simplify cell 35 (arenaA-1:A354, threat_eta->eta): behavioural twin $0.322
+[r1 bench] simplify cell 32 (arenaA-1:A354, altar_eta->here): 0.475 $0.322
+[r1 bench] simplify cell 37 (arenaA-1:A354, r_cashout->at_spawn): behavioural twin $0.323
+[r1 bench] simplify cell 39 (arenaA-1:A354, cast_value->ahead_value): behavioural twin $0.324
+[r1 bench] simplify cell 36 (arenaA-1:A354, camp_goal->closest): 0.5 $0.324
+[r1 bench] simplify cell 38 (arenaA-1:A354, rule->r_live): 0.175 $0.324
+round 1: temperament 1/40 p90 0.525; weights 1/40 p90 0.525; missing 1/40 p90 0.5125; mechanism 0/40 p90 0.525; helper 0/40 p90 0.525; default 0/40 p90 0.5125; simplify 0/40 p90 0.5125; creative 0/40 p90 0.5
+[r1 retest] temperament cell 2 (arenaA-3:A611, rule->bank_on): 0.4625 $0.329
+[r1 retest] temperament cell 3 (arenaA-3:A611, blocked->here): 0.3625 $0.329
+[r1 retest] temperament cell 4 (arenaA-3:A611, dash_gate->walks): 0.5 $0.329
+[r1 retest] temperament cell 1 (arenaA-3:A611, rule->adj_altar): 0.3625 $0.329
+[r1 retest] temperament cell 0 (arenaA-3:A611, fight_foe->in_reach): 0.5125 $0.329
+[r1 retest] temperament cell 6 (arenaA-3:A611, altar_eta->eta): behavioural twin $0.335
+[r1 retest] temperament cell 7 (arenaA-3:A611, bank_blocked->in_reach): behavioural twin $0.336
+[r1 retest] temperament cell 9 (arenaA-3:A659, lock_altar->first_tile): behavioural twin $0.336
+[r1 retest] temperament cell 8 (arenaA-3:A659, camp_goal->respawning): behavioural twin $0.336
+[r1 retest] temperament cell 5 (arenaA-3:A611, update->walk_open): 0.275 $0.339
+[r1 retest] temperament cell 13 (arenaA-3:A659, update->mono_groups): behavioural twin $0.340
+[r1 retest] temperament cell 10 (arenaA-3:A659, shard_left->shard_until): 0.375 $0.340
+[r1 retest] temperament cell 11 (arenaA-3:A659, dash_spot->dash_path_ok): 0.45 $0.341
+[r1 retest] temperament cell 12 (arenaA-3:A659, rule->r_hold): 0.475 $0.341
+[r1 retest] temperament cell 15 (arenaA-3:A659, rule_goal->rule): behavioural twin $0.341
+[r1 retest] temperament cell 14 (arenaA-3:A659, ahead_on->ahead_foe): 0.4625 $0.345
+[r1 retest] temperament cell 18 (arenaA-3:A654, rule->r_cashout): 0.5625 $0.346
+[r1 retest] temperament cell 16 (arenaA-3:A654, score->act_value): 0.5375 $0.346
+[r1 retest] temperament cell 17 (arenaA-3:A654, rule_goal->respawning): 0.475 $0.346
+[r1 retest] temperament cell 19 (arenaA-3:A654, score->pick_value): 0.35 $0.346
+[r1 retest] temperament cell 20 (arenaA-3:A654, under_fire->enemies_within): 0.5 $0.349
+[r1 retest] temperament cell 22 (arenaA-3:A654, rule->r_idle): behavioural twin $0.351
+[r1 retest] temperament cell 21 (arenaA-3:A654, dash_gate->walks): 0.575 $0.353
