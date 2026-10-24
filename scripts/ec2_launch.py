@@ -26,7 +26,7 @@ OPPS = ("builtin:starter@0.25,policies/tune-3.policy@3,policies/v7-zerogem.polic
         "policies/locker.policy,policies/v7zg-cast.policy,policies/v7zg-monozone.policy")
 
 SETUP = r"""
-step apt bash -c 'apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install -y -q build-essential cmake python3-pip'
+step apt bash -c 'export DEBIAN_FRONTEND=noninteractive; for i in 1 2 3 4 5; do apt-get -o DPkg::Lock::Timeout=600 update -q && apt-get -o DPkg::Lock::Timeout=600 install -y -q build-essential cmake python3-pip && exit 0; sleep 15; done; exit 1'
 step pip pip3 install -q --break-system-packages pytest
 step build bash -c 'cmake -S interp -B interp/build -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j --target interp_eval'
 step compile bash -c 'for p in tune-2 tune-3; do python3 -c "from policygen.compile import to_prefix; from policygen.text import parse; import sys; print(to_prefix(parse(open(sys.argv[1]).read())))" policies/$p.policy > /root/$p.pol; done'
@@ -70,7 +70,7 @@ say "boot $(date +%s) nproc=$(nproc) $(lscpu | grep 'Model name')"
 curl -sSL https://codeload.github.com/{repo}/tar.gz/{rev} | tar xz --strip-components=1
 {job}
 say "DONE $(date +%s)"
-sleep 20
+sleep 60  # let the serial console flush before the instance goes away
 shutdown -h now
 """
 
