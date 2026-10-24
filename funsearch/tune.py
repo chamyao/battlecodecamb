@@ -202,4 +202,6 @@ def climb_child(parent, child, evaluate, steps=4, rng=None, margin=0.03, max_rej
             rejects += 1
             if rejects >= max_rejects:
                 break
-    return best, dict(steps=k + 1, evals=evals, before=before, after=inc, changed=changed)
+    # the child's lines the climb changed (line count never changes), so the untuned child can be rebuilt
+    untuned = {i: a for i, (a, b) in enumerate(zip(child.split("\n"), best.split("\n"))) if a != b}
+    return best, dict(steps=k + 1, evals=evals, before=before, after=inc, changed=changed, untuned_lines=untuned)
