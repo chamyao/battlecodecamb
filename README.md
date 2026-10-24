@@ -10,3 +10,6 @@ The EC2 box (c7a.4xlarge, 16 threads; runner/lines/genome.sh on branch ec2/runne
   FUNSEARCH_API_KEY (never print it).
 - Names are unique: never edit a job that has started; add a new one. Pick up to ~5 min of latency.
 - Log Claude API spend in genome/SPEND.md on your own branch, as usual.
+
+Stopping a job: push an empty file `<name>.stop`. On the next tick (<= 5 min) the runner stops it (SIGTERM,
+then SIGKILL after 10 s) and writes rc=stopped; out/<name>/ is kept, so a new job can resume from it.
