@@ -120,8 +120,15 @@ class Arena:
             name = Path(path).stem
             if name not in self.s["members"]:
                 m = self._add_anchor(name, path)
-                m["calibrating"] = True  # rated like a member until --calibrate-games games, then frozen
+                m["calibrating"] = True  # rated like a member for --calibrate-games games, then frozen
+                m["calibrate_until"] = args.calibrate_games
                 self.log(f"added anchor {name} (calibrating for {args.calibrate_games} games)")
+        if args.recalibrate_anchors:  # e.g. after a runtime change: policy anchors rated again, then refrozen
+            for m in self.anchors():
+                if m.get("source") is None and m["path"].endswith(".policy") and not m.get("calibrating"):
+                    m["calibrating"], m["calibrate_until"] = True, m["games"] + args.calibrate_games
+                    m["sigma"] = max(m["sigma"], args.recalibrate_sigma)
+                    self.log(f"recalibrating anchor {m['name']} (mu {m['mu']:.2f}) for {args.calibrate_games} games")
         if args.fixed_anchors:  # freeze every anchor at its current mu (keeps the scale, fixed from here on)
             for m in self.anchors():
                 if not m.get("calibrating"):
@@ -317,7 +324,7 @@ class Arena:
                             m["mu"], m["sigma"] = mu, sg
             n, w = st["games"], st["a_wins"]
             for m in (a, b):
-                if m.get("calibrating") and m["games"] + n >= self.a.calibrate_games:
+                if m.get("calibrating") and m["games"] + n >= m.get("calibrate_until", self.a.calibrate_games):
                     m["calibrating"], m["sigma"] = False, self.a.anchor_sigma
                     self.log(f"anchor {m['name']} frozen at mu {m['mu']:.2f} after {m['games'] + n} games")
             a["games"] += n
@@ -681,6 +688,9 @@ def main(argv=None):
     ap.add_argument("--anchor-sigma", type=float, default=1.0)
     ap.add_argument("--add-anchors", default="", help="anchors to add to a resumed arena (comma list of paths)")
     ap.add_argument("--calibrate-games", type=int, default=200, help="games a new anchor is rated before it is frozen")
+    ap.add_argument("--recalibrate-anchors", action="store_true",
+                    help="policy anchors are rated again for --calibrate-games games, then refrozen (after a runtime change)")
+    ap.add_argument("--recalibrate-sigma", type=float, default=4.0, help="starting sigma of a recalibrating anchor")
     ap.add_argument("--refingerprint", action="store_true",
                     help="recompute live genomes' twin-check outcomes at start (after a runtime change)")
     ap.add_argument("--mutate-prompt", default="default", choices=["default", "creative"],
