@@ -100,7 +100,7 @@ Proof that it resumed and did not restart:
 
 1. Promotion: `runs/pure4.log` shows `PROMOTED fs-p3.policy: ...` and `policies/fs-p3.policy`
    exists but is uncommitted. `runs/pure4.json` is now gen 4 with no fixed/target.
-2. Check out funsearch/pure **2a4782b** exactly (coord/blocks merged: rebuild required; catalog = funsearch/runs aa032ba) (the vetted g4 commit, also G4_REV in ec2/runner runner/lines/pure.sh; not the moving tip): COMBAT + TOP_TEAMS_RULES prompt (13facf9), tune5-campreset opponent files. `runs/` holds tracked files that you changed, so a plain
+2. Check out funsearch/pure **10eafc0** exactly (coord/blocks merged: rebuild required; catalog = funsearch/runs aa032ba) (the vetted g4 commit, also G4_REV in ec2/runner runner/lines/pure.sh; not the moving tip): COMBAT + TOP_TEAMS_RULES prompt (13facf9), tune5-campreset opponent files. `runs/` holds tracked files that you changed, so a plain
    checkout refuses. Keep your state and take the tip's launcher and opponent files:
    ```sh
    cp -a runs ~/runs-g3-backup
@@ -115,7 +115,7 @@ Proof that it resumed and did not restart:
 3. Rebuild only if `interp/` changed between 81ab84b and the tip.
 4. Relaunch with `runs/pure_launch.sh` (no `--max-generations`, no `--no-commit`). It carries
    the same `--budget 18.10` (funsearch/pure c44a0a3). g4 then uses the new
-   prompt and fixed = tune5-campreset (send check vs tune5-campreset and tune-5). Its first log line must read `pure4-g4: +150 programs (to 151), best
+   prompt and fixed = tune5-campreset + opp-hunter2b (send check vs tune5-campreset and tune-5). Its first log line must read `pure4-g4: +150 programs (to 151), best
    policies/fs-p3.policy, league ['policies/tune5-campreset.policy', ...], $<about 11> left`.
 5. Report the promotion (all PROMOTED rates, incl. cambc-exact vs tune-5) on PR #2.
 
