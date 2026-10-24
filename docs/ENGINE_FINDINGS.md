@@ -324,6 +324,16 @@ the altar was the only path).
   team A wins 60/80 with bot seeds (identical to cambc) against 199/400 with per-game seeds.
   cambc's 80 games are 80 samples of one draft per pick count; per-game seeds sample drafts.
 
+## API return codes found from policy divergences
+
+- `camp(h)` on a **dead** camp returns `api_not_in_vision` (97) even when its tile is visible;
+  the simulator returned `api_not_found` (98). Found from v21-nogate vs v7zg-cast on
+  01starfish: identical states up to round 613, where `group_threat(goal)` read the dead camps
+  of the goal's group as unseen (so alive, at design strength) in cambc and as dead in the
+  simulator, and Vesper Vale took the bank branch only in cambc. With the fix, 01starfish and
+  00pilgrimage (both diverging without any fuel cap) are identical. The tracer skips nonzero
+  return codes, so this was never covered by the differential replays.
+
 ## Real ladder games (differential replay)
 
 The 50 unranked games of tune-5 against the ladder's top 9 and vc? (24 Oct, `analysis/sprint1`
