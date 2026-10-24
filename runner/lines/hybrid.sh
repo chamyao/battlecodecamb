@@ -161,6 +161,13 @@ PY
       fi
     fi
   fi
+  # H8b (13:55 UTC): H8 fired at 13:49-13:51 with the pre-revision flags (--tune-children --tune-steps 6 --tune-games 12)
+  # on fb401ce. Restart once so hyb5 runs the revised command (no --tune-* flags: default climb, games 16).
+  if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8b ] && pgrep -a -x python3 | grep -F 'league --name hyb5' | grep -q -- '--tune-children'; then
+    for pid in $(pgrep -a -x python3 | grep -E "league --name hyb5|funsearch.run --run hyb5-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "H8b: SIGTERM hyb5 pid $pid (drop --tune-* flags)"; done
+    sleep 15; touch runs/ec2-h8b
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
