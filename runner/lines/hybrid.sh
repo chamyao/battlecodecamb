@@ -133,6 +133,30 @@ PY
     wc -l < runs/hyb5.log > runs/ec2-h7c-mark; touch runs/ec2-h7c
     log "H7c: removed $n stale-build validation cache entries (expected 21; backup validation_cache.jsonl.pre-h7c); relaunching hyb5"
   fi
+  # H8 (jobs/hybrid, 13:36 UTC): at the next hyb5 boundary merge funsearch/runs f31c3a4+ (sim/ diagnostics-only line:
+  # rebuild), pytest, relaunch with H7's command plus the disengage axis and seeds v21,v21,v20,v19-L1c.
+  H8SEEDS=policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/pool/v19-L1c.policy
+  H8AXES="--axes items,vision,teleport,team,roles,pairs,macro,abilities,combat,disengage"
+  [ -f runs/ec2-h8 ] && { SEEDS=$H8SEEDS; AXES=$H8AXES; }
+  if [ -f runs/ec2-h7c ] && [ ! -f runs/ec2-h8 ]; then
+    if [ ! -f runs/ec2-h8-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h8-holdmark; touch runs/hyb5.hold runs/ec2-h8-hold
+      log "H8: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h8-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H8: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor f31c3a4 HEAD && [ -f policies/pool/v19-L1c.policy ] && build "$D" &&
+         python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h8-marks
+        rm -f runs/hyb5.hold; touch runs/ec2-h8; SEEDS=$H8SEEDS; AXES=$H8AXES
+        log "H8: funsearch/runs $(git rev-parse --short HEAD) (has f31c3a4), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 (disengage axis; seeds v21,v21,v20,v19-L1c)"
+      else
+        echo "H8 merge/f31c3a4/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H8 upgrade failed"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -196,6 +220,18 @@ PY
   if [ -f runs/ec2-h7b ] && [ ! -f runs/ec2-h7b-checked ]; then
     f=$(tail -n +"$(( $(cat runs/ec2-h7b-mark) + 1 ))" runs/hyb5.log | grep -m1 'hyb5-g[0-9]*: ')
     [ -n "$f" ] && { touch runs/ec2-h7b-checked; log "H7b check: $(echo "$f" | grep -oE 'hyb5-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$f" | grep -oE 'best [^,]*') $(echo "$f" | grep -oE '\$[0-9.]+ left')"; }
+  fi
+  if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-checked ]; then
+    r=""; for f in runs/hyb5-g*.log; do
+      m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h8-marks); m=${m:-0}
+      r="$r$(tail -n +"$((m + 1))" "$f" | grep -oE 're-seeded island [0-9] with [a-z0-9-]+' | sed "s|^|$(basename "$f" .log): |" | tr '\n' ';')"
+    done
+    newl=$(grep -c 'hyb5-g[0-9]*: ' runs/hyb5.log)
+    if [ -n "$r" ]; then touch runs/ec2-h8-checked; log "H8 check: $r (expected island 2 with v20, island 3 with v19-L1c; 0/1 keep v21)"
+    elif [ -f runs/ec2-h8-wait ] && [ $(( $(date +%s) - $(cat runs/ec2-h8-wait) )) -gt 1800 ]; then
+      touch runs/ec2-h8-checked; log "H8 check: no re-seed lines 30 min after relaunch; last: $(grep 'hyb5-g[0-9]*: ' runs/hyb5.log | tail -n 1 | cut -c1-120)"
+    fi
+    [ -f runs/ec2-h8-wait ] || date +%s > runs/ec2-h8-wait
   fi
   pushall; return 0
 fi
