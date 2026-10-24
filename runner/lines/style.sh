@@ -261,6 +261,13 @@ if [ -f runs/ec2-s12 ] && [ ! -f runs/style8-gyield.ec2-done ] && ! pgrep -a -x 
     touch runs/style8-gyield.ec2-done; log "S12: style8-gyield finished: $(tail -n 1 runs/style8-gyield.out | cut -c1-160)"
   else
     [ -f runs/style8-gyield.ec2-launched ] && log "S12: style8-gyield not running: relaunching (resumes)"
+    # S13 addendum (jobs/style d17fb2d): on a RElaunch, first move to funsearch/style 1babf5a+ (script-only: the gap
+    # launcher passes --no-tune-children); no rebuild. A failed merge is logged and the run launches on the old code.
+    if [ -f runs/style8-gyield.ec2-launched ] && ! git merge-base --is-ancestor 1babf5a HEAD 2>/dev/null; then
+      if git fetch -q origin funsearch/style && { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+         git merge-base --is-ancestor 1babf5a HEAD; then log "S13: funsearch/style $(git rev-parse --short HEAD) (has 1babf5a: gap launcher --no-tune-children)"
+      else git merge --abort 2>/dev/null; log "S13: WARNING could not move to 1babf5a; relaunching gyield on $(git rev-parse --short HEAD)"; fi
+    fi
     # S13 (jobs/style 443877f, 16:20 UTC): style-gconv1 is live as v23; any (re)launch from now on uses it as gap
     # reference and heaviest opponent (same name and total, spend carries over). No restart just for this.
     GAP_REF=policies/style-gconv1.policy \
@@ -355,7 +362,7 @@ cp runs/style8-*.json runs/style8-*.log runs/style8-*.out /root/bc/style-snap/ru
 if [ -f runs/ec2-s13-relaunched ] && [ ! -f runs/ec2-s13-checked ] && grep -q 'vs policies/style-gconv1.policy' runs/style8-gyield.out 2>/dev/null &&
    [ "$(grep -A3 'vs policies/style-gconv1.policy' runs/style8-gyield.out | grep -c 'gap metric')" -ge 2 ]; then
   touch runs/ec2-s13-checked
-  log "S13 check: $(grep -A4 'vs policies/style-gconv1.policy' runs/style8-gyield.out | tail -n 5 | grep -E 'left of|gap metric|gap: ' | cut -c1-110 | tr '\n' '|')"
+  log "S13 check: $(grep -A4 'vs policies/style-gconv1.policy' runs/style8-gyield.out | tail -n 5 | grep -E 'left of|gap metric|gap: ' | cut -c1-110 | tr '\n' '|'); no-tune-children in the live run: $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gyield ' | grep -c 'no-tune-children')"
 fi
 for gr in gconv gyield; do [ -f runs/style8-$gr/programs.jsonl ] || continue   # gap runs (plain funsearch.run)
   mkdir -p /root/bc/style-snap/runs/style8-$gr
