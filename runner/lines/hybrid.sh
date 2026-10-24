@@ -47,6 +47,32 @@ if [ -f runs/ec2-hyb5 ]; then
       fi
     fi
   fi
+  # Job H5 (jobs/hybrid, 11:35 UTC): rebase hyb5 on live v20 at the next boundary (150 so far or later), H4 mechanics:
+  # hold -> SIGTERM -> merge funsearch/runs d0cbd58+ (no interp change) -> pytest -> v20 challenger -> relaunch.
+  CREF=policies/pool/v19.policy
+  if [ -f runs/ec2-h5 ]; then
+    SEEDS=policies/pool/v20.policy,policies/pool/v20.policy,policies/pool/lean-g65.policy,policies/pool/v20.policy; CREF=policies/pool/v20.policy
+  elif [ -f runs/ec2-h4-checked ]; then
+    if [ ! -f runs/ec2-h5-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h5-holdmark; touch runs/hyb5.hold runs/ec2-h5-hold
+      log "H5: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h5-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H5: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor d0cbd58 HEAD && [ -f policies/pool/v20.policy ] && build "$D" &&
+         python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        grep -qx policies/pool/v20.policy runs/hyb5.challengers 2>/dev/null || echo policies/pool/v20.policy >> runs/hyb5.challengers
+        for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h5-marks
+        rm -f runs/hyb5.hold; touch runs/ec2-h5
+        SEEDS=policies/pool/v20.policy,policies/pool/v20.policy,policies/pool/lean-g65.policy,policies/pool/v20.policy; CREF=policies/pool/v20.policy
+        log "H5: funsearch/runs $(git rev-parse --short HEAD) (has d0cbd58), $(tail -n 1 runs/ec2-pytest.txt); v20 challenger queued; relaunching on v20"
+      else
+        echo "H5 merge/d0cbd58/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H5 upgrade failed"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -57,7 +83,7 @@ if [ -f runs/ec2-hyb5 ]; then
       setsid nohup python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 \
         --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy \
         --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy \
-        --prefix fs-h --line hybrid --round 30 --cambc-ref policies/pool/v19.policy --workers 3 --eval-threads 2 \
+        --prefix fs-h --line hybrid --round 30 --cambc-ref "$CREF" --workers 3 --eval-threads 2 \
         --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share "$ARCH" \
         --island-seeds "$SEEDS" $AXES \
         >> runs/hyb5.out 2>&1 < /dev/null &
@@ -84,6 +110,13 @@ if [ -f runs/ec2-hyb5 ]; then
       touch runs/ec2-h4-checked
       log "H4 check: 're-seeded island 3 with v19' x$n (expected 1), other islands re-seeded: ${other:-0}"
     fi
+  fi
+  if [ -f runs/ec2-h5 ] && [ ! -f runs/ec2-h5-checked ]; then
+    r=""; for f in runs/hyb5-g*.log; do
+      m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h5-marks); m=${m:-0}
+      r="$r$(tail -n +"$((m + 1))" "$f" | grep -oE 're-seeded island [0-9] with [a-z0-9-]+' | tr '\n' ';')"
+    done
+    [ -n "$r" ] && { touch runs/ec2-h5-checked; log "H5 check: $r (expected islands 0,1,3 with v20; island 2 kept)"; }
   fi
   pushall; return 0
 fi

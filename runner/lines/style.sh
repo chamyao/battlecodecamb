@@ -90,6 +90,20 @@ if [ -f runs/ec2-s5-checked ] && [ ! -f runs/ec2-s6 ]; then
     log "S6: merge to 97e64e9 failed; h2 not started"; return 1
   fi
 fi
+# S6b (style line, 11:35 UTC): h2 on ac873bb instead (tune-v20 replaces v18 in h/h2's fixed; script/policy only).
+# Restart h2 only (it resumes its few programs); h and b keep running. One-shot.
+if [ -f runs/ec2-s6 ] && [ ! -f runs/ec2-s6b ]; then
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor ac873bb HEAD; then
+    for pid in $(pgrep -a -x python3 | grep -E "league --name style8-h2 |funsearch.run --run style8-h2-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "S6b: SIGTERM style8-h2 pid $pid"; done
+    sleep 10; wc -l < runs/style8-h2.log > runs/ec2-s6b-mark; touch runs/ec2-s6b
+    log "S6b: at $(git rev-parse --short HEAD) (has ac873bb); h2 restarting below"
+  else
+    log "S6b: merge to ac873bb failed"; return 1
+  fi
+fi
 for x in h h2 b a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
   running "league --name style8-$x " && continue
@@ -129,6 +143,10 @@ if [ -f runs/ec2-s6 ] && [ ! -f runs/ec2-s6-checked ] && [ -f runs/style8-h2.log
     touch runs/ec2-s6-checked
     log "S6 check: h2: $(echo "$f2" | grep -q 'style8-h2-g1: .*best policies/opp-hunter3.policy' && echo 'g1 best opp-hunter3 ok' || echo 'UNEXPECTED') $(echo "$f2" | grep -q tune-v19 && echo 'tune-v19 in league' || echo 'tune-v19 MISSING') $(echo "$f2" | grep -oE '\$[0-9.]+ left'); $(grep -m1 -o 'injected [^ ]*' runs/style8-h2-g1.log)"
   fi
+fi
+if [ -f runs/ec2-s6b ] && [ ! -f runs/ec2-s6b-checked ]; then
+  f2=$(tail -n +"$(( $(cat runs/ec2-s6b-mark) + 1 ))" runs/style8-h2.log | grep -m1 'style8-h2-g')
+  [ -n "$f2" ] && { touch runs/ec2-s6b-checked; log "S6b check: h2: $(echo "$f2" | grep -q "league \['policies/tune-v20.policy'" && echo 'tune-v20 first in league' || echo 'tune-v20 NOT first') $(echo "$f2" | grep -oE 'best [^,]*') $(echo "$f2" | grep -oE '\$[0-9.]+ left')"; }
 fi
 # snapshot: complete JSON lines only (like runs/style_push_state.sh), never scripts or budgets
 rm -rf /root/bc/style-snap && mkdir -p /root/bc/style-snap/runs
