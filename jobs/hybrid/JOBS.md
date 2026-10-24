@@ -394,3 +394,8 @@ fuel_turns, pytest (2029). Relaunch changes (on top of H17/H18):
    (island 0 keeps v21 first: the fuel checks and the bar use it.)
 The bar stays v21 (no change to members/best); --yield-ref stays v21.
 Check: "re-seeded island 1 with style-gconv1"; new children's metrics include a "style-gconv1" opponent.
+H17/H20 update (16:30 UTC, per the lead's "unless broadly weak" condition): island 3 is seeded with
+policies/candidates/hyb5-g3-76.policy instead of hyb5-g3-82 (#82 measured broadly weak: league 1568 vs v21 1725,
+24% vs v21 over 80 games). Require funsearch/runs 166f85c or later (contains dccd4b1). Final seeds:
+`--island-seeds policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-76.policy`
+Everything else in H17-H20 unchanged (--protect-islands 3 --fuel-islands 3 --island-axes as H17, --yield-weight 0.25).
