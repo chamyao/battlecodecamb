@@ -1507,6 +1507,8 @@ struct Interp
 		{
 			// summed strength (health) of the living camps in the group of the camp spawning on the
 			// tile; a camp out of vision counts as alive at its design values. 0 off a spawn tile.
+			// camp() also reads "out of vision" for a dead camp on a visible tile (cambc): those are
+			// dead, so the tile's visibility decides (one vision query, only if needed).
 			const Vec2 t = evalt(a[0]);
 			if (!has_tile(t)) return num(0);
 			int k = -1; // Map::camp_at is not filled in the bot
@@ -1514,6 +1516,8 @@ struct Interp
 				if (m().camps[c].pos == t) k = static_cast<int>(c);
 			if (k < 0) return num(0);
 			double sum = 0;
+			Bitboard vis;
+			bool have_vis = false;
 			for (int c : m().groups[m().camps[k].group].camps)
 			{
 				cbs::CampRecord cr{};
@@ -1521,6 +1525,8 @@ struct Interp
 				if (err == Err::success) sum += e.op == Op::group_threat ? cr.strength : cr.health;
 				else if (err == Err::api_not_in_vision)
 				{
+					if (!have_vis) api.vision(vis), have_vis = true;
+					if (vis.test(m().camps[c].pos.x, m().camps[c].pos.y)) continue; // seen and dead
 					const auto& d = cbs::camp_design(m().camps[c].type);
 					sum += e.op == Op::group_threat ? d.base_strength : d.base_health;
 				}
