@@ -85,4 +85,4 @@ Next candidates, in order:
 
 ## Ranked
 
-v17 is 7-3 in its first 10 ranked games: 4-1 vs Rataturing, 3-2 vs octo's odyssey. An update follows at about 20 games.
+v17 is 13-7 in its first 20 ranked games: 4-1 vs Rataturing, 4-1 vs Lucky Boy, 3-2 vs octo's odyssey, 2-3 vs JBG fam. For comparison, tune-5 went 11-19 in its first 30 (`docs/LADDER_LOSSES_V16.md`), against different opponents, so this is not a like-for-like comparison.
