@@ -126,6 +126,15 @@ public:
 	std::uint64_t pass_id = 0;
 
 	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
+	// Simulator only: the runtime's own work in the bot beyond what the Api already prices (fitted
+	// from genome/examples/calib.genome profiled in cambc; docs in genome/FUEL.md). Compiled away in the bot.
+	void extra(double fuel)
+	{
+#ifndef GENOME_BOT
+		if (fuel > 0) api.compute(static_cast<std::int64_t>(fuel));
+#endif
+	}
+	double chunks() const { return ((m.W + 7) / 8) * ((m.H + 7) / 8); }
 	void charge_ops(long n)
 	{
 		ops += n;
@@ -148,6 +157,7 @@ public:
 			api.champion(self_, &ci);
 			me_ = from_champ(self_, ci);
 			have_me_ = true;
+			extra(50);
 		}
 		return me_;
 	}
@@ -155,7 +165,7 @@ public:
 	bool alive() { return me().state & cbs::state_bit::alive; }
 	double gems()
 	{
-		if (!have_gems_) gems_ = unit_gems(me()), have_gems_ = true;
+		if (!have_gems_) gems_ = unit_gems(me()), have_gems_ = true, extra(27);
 		return gems_;
 	}
 	double gold()
@@ -165,6 +175,7 @@ public:
 			std::uint32_t g = 0;
 			api.champion_gold(self(), &g);
 			gold_ = g, have_gold_ = true;
+			extra(32);
 		}
 		return gold_;
 	}
@@ -179,6 +190,7 @@ public:
 	{
 		std::int32_t v = 0;
 		api.champion_can_shop(self(), false, &v);
+		extra(16);
 		return v;
 	}
 	double submitted(bool enemy)
@@ -217,6 +229,7 @@ public:
 				camps_.push_back(u);
 			}
 			have_camps_ = true;
+			extra(600 + 80 * camps_.size());
 		}
 		return camps_;
 	}
@@ -237,14 +250,23 @@ public:
 		if (!group_ok(g)) return false;
 		std::uint32_t s = 0;
 		api.camp_group_state(static_cast<std::uint32_t>(g), &s);
+		extra(41);
 		return s == static_cast<std::uint32_t>(cbs::GroupState::respawning);
 	}
 	Tiles group_tiles(double g)
 	{
-		auto b = std::make_shared<Bitboard>();
-		if (group_ok(g))
+		if (!group_ok(g)) return { std::make_shared<Bitboard>() };
+		// static: built once per group (each host bit set costs ~170 fuel in the bot)
+		if (group_tiles_.empty()) group_tiles_.resize(m.groups.size());
+		extra(30);
+		auto& slot = group_tiles_[static_cast<int>(g)];
+		if (!slot)
+		{
+			auto b = std::make_shared<Bitboard>();
 			for (int c : m.groups[static_cast<int>(g)].camps) b->set(m.camps[c].pos);
-		return { b };
+			slot = b;
+		}
+		return { slot };
 	}
 	double num_groups() const { return static_cast<double>(m.groups.size()); }
 	bool visible(Tile t)
@@ -252,6 +274,7 @@ public:
 		if (!in_bounds(t)) return false;
 		std::int32_t v = 0;
 		api.is_visible(t.v(), &v);
+		extra(150);
 		return v;
 	}
 
@@ -278,6 +301,7 @@ public:
 		api.altar_locks(rec, 16, &n);
 		for (std::uint32_t i = 0; i < n && i < 16; ++i)
 			if (static_cast<int>(rec[i].team) != api.team()) b->set(rec[i].x, rec[i].y);
+		extra(275);
 		return { b };
 	}
 	double width() const { return m.W; }
@@ -290,6 +314,7 @@ public:
 	{
 		auto b = std::make_shared<Bitboard>();
 		if (in_bounds(t)) cbs::draw_chebyshev(*b, m.W, m.H, t.v(), static_cast<float>(std::max(0.0, r)));
+		extra(122 + 1.03 * chunks());
 		return { b };
 	}
 	Tile nearest(const Tiles& s, Tile t)
@@ -297,21 +322,44 @@ public:
 		Tile best;
 		int bd = 1 << 30;
 		if (!s.b || !t.valid()) return best;
-		s.b->for_each(m.H, [&](int x, int y) {
+		// ties broken by (y, x), so the iteration order does not matter (the bot's cheap order is not row-major)
+		s.b->for_each_unordered(m.H, [&](int x, int y) {
 			const int d = cbs::chebyshev({ x, y }, t.v());
-			if (d < bd) bd = d, best = { x, y };
+			if (d < bd || (d == bd && (y < best.y || (y == best.y && x < best.x)))) bd = d, best = { x, y };
 		});
+		extra(120 + 52.0 * s.b->count(m.H));
 		return best;
 	}
-	double size(const Tiles& s) const { return s.b ? s.b->count(m.H) : 0; }
-	bool contains(const Tiles& s, Tile t) const { return s.b && in_bounds(t) && s.b->test(t.v()); }
-	Tiles tiles_or(const Tiles& a, const Tiles& b) { return combine(a, b, 0); }
-	Tiles tiles_and(const Tiles& a, const Tiles& b) { return combine(a, b, 1); }
-	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return combine(a, b, 2); }
+	double size(const Tiles& s)
+	{
+		extra(80 + 1.0 * chunks());
+		return s.b ? s.b->count(m.H) : 0;
+	}
+	bool contains(const Tiles& s, Tile t) { return extra(120), s.b && in_bounds(t) && s.b->test(t.v()); }
+	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 0); }
+	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 1); }
+	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(225 + 4.0 * chunks()), combine(a, b, 2); }
+	// Row-major, as the simulator iterates. In the bot the host lists tiles chunk row by chunk row
+	// ((chunk row, chunk col, y, x)); a stable counting sort on y alone restores row-major order in
+	// linear time (the host bitboard's own for_each uses an insertion sort, quadratic per chunk row).
 	std::vector<Tile> tiles_of(const Tiles& s) const
 	{
 		std::vector<Tile> out;
-		if (s.b) s.b->for_each(m.H, [&](int x, int y) { out.push_back({ x, y }); });
+		if (!s.b) return out;
+#ifdef GENOME_BOT
+		// one host call lists the tiles; then a stable counting sort on y (no intermediate vector)
+		static cbs::hostbb::Pos buf[cbs::kMaxDim * cbs::kMaxDim];
+		std::uint32_t n = 0;
+		cambc::detail::sdk_Bitboard_GetSetBits(s.b->w, buf, cbs::kMaxDim * cbs::kMaxDim, &n);
+		int count[cbs::kMaxDim + 1] = {};
+		for (std::uint32_t i = 0; i < n; ++i) ++count[buf[i].y + 1];
+		for (int y = 0; y < m.H; ++y) count[y + 1] += count[y];
+		out.resize(n);
+		for (std::uint32_t i = 0; i < n; ++i) out[count[buf[i].y]++] = Tile{ buf[i].x, buf[i].y };
+#else
+		s.b->for_each(m.H, [&](int x, int y) { out.push_back({ x, y }); });
+		const_cast<Ctx*>(this)->extra(970 + 1.0 * chunks() + 81.0 * out.size());
+#endif
 		return out;
 	}
 	// Walking distance field to `goals` (walls, holes, altars and the enemy spawn block; goal tiles
@@ -327,6 +375,7 @@ public:
 			blocked |= m.spawn_mask[1 - api.team()];
 			blocked.andnot(*goals.b);
 			api.distance_field(blocked, *goals.b, nullptr, cbs::kUnreachable, d->data(), visited);
+			extra(97 * chunks() - 320);
 		}
 		return { d };
 	}
@@ -350,16 +399,17 @@ public:
 		}
 		return props_[s];
 	}
-	double slot_kind(double s) { return props(static_cast<int>(s)).kind; }
+	double slot_kind(double s) { return extra(90), props(static_cast<int>(s)).kind; }
 	bool slot_ready(double s)
 	{
 		const int i = static_cast<int>(s);
 		if (i < 0 || i > 1 || props(i).kind == 0) return false;
 		std::int32_t cd = 1;
 		api.champion_cooldown(self(), static_cast<std::uint32_t>(i), &cd);
+		extra(90);
 		return cd <= 0;
 	}
-	double slot_range(double s) { return props(static_cast<int>(s)).range; }
+	double slot_range(double s) { return extra(90), props(static_cast<int>(s)).range; }
 	double slot_radius(double s) { return props(static_cast<int>(s)).radius; }
 	double slot_targets(double s) { return props(static_cast<int>(s)).targets; }
 	bool slot_moveless(double s) { return props(static_cast<int>(s)).attributes & 1u; }
@@ -410,8 +460,9 @@ public:
 		for (std::uint32_t r = 0; r < 6; ++r)
 		{
 			std::int32_t p = -1;
-			if (api.draft_get(enemy ? 1 - api.team() : api.team(), r, &p) == Err::success && p == want) return true;
+			if (api.draft_get(enemy ? 1 - api.team() : api.team(), r, &p) == Err::success && p == want) return extra(60), true;
 		}
+		extra(60);
 		return false;
 	}
 
@@ -424,6 +475,11 @@ public:
 	std::vector<Option> opts_buf, failed_buf; // reused by play_turn (no reallocation per pass)
 
 	void options(std::vector<Option>& out)
+	{
+		list_options(out);
+		extra(190.0 * out.size()); // listing work per option in the bot (copies, checks), fitted on farmer/starter games
+	}
+	void list_options(std::vector<Option>& out)
 	{
 		out.clear();
 		opt_units_.clear();
@@ -477,9 +533,7 @@ public:
 				for (int dx = -1; dx <= 1; ++dx)
 				{
 					const Vec2 q{ p.x + dx, p.y + dy };
-					if ((!dx && !dy) || !m.in_bounds(q) || m.walls.test(q) || m.holes.test(q) || m.altars.test(q) ||
-						m.spawn_mask[1 - api.team()].test(q) || occ.test(q))
-						continue;
+					if ((!dx && !dy) || !m.in_bounds(q) || (tclass(q) & (kWall | kHole | kAltar | kEnemySpawn)) || occ.test(q)) continue;
 					Option o;
 					o.kind = MOVE, o.tile = { q.x, q.y };
 					out.push_back(o);
@@ -523,7 +577,7 @@ public:
 						for (int dx = -r; dx <= r; ++dx)
 						{
 							const Vec2 q{ p.x + dx, p.y + dy };
-							if ((!dx && !dy) || !m.in_bounds(q) || m.walls.test(q)) continue;
+							if ((!dx && !dy) || !m.in_bounds(q) || (tclass(q) & kWall)) continue;
 							Option o;
 							o.kind = CAST, o.slot = s, o.tile = { q.x, q.y };
 							out.push_back(o);
@@ -540,14 +594,14 @@ public:
 					for (int dx = -r; dx <= r; ++dx)
 					{
 						const Vec2 q{ p.x + dx, p.y + dy };
-						if (!m.in_bounds(q) || m.walls.test(q)) continue;
+						if (!m.in_bounds(q) || (tclass(q) & kWall)) continue;
 						Option o;
 						o.kind = WARD, o.tile = { q.x, q.y };
 						out.push_back(o);
 					}
 			}
 		}
-		if (!m.spawn_mask[api.team()].test(p.v()))
+		if (!(tclass(p.v()) & kMySpawn))
 		{
 			Option o;
 			o.kind = RECALL;
@@ -643,6 +697,7 @@ private:
 			u.enemy = enemy;
 			out.push_back(u);
 		}
+		extra(enemy ? 250 + 170 * out.size() : 170 * out.size());
 	}
 	Option target_option(int kind, const Unit& u)
 	{
@@ -651,6 +706,21 @@ private:
 		opt_units_.push_back(u);
 		return o;
 	}
+	// Static terrain class per tile, as plain bytes: one host bitboard test costs ~120 fuel in the bot.
+	enum : std::uint8_t { kWall = 1, kHole = 2, kAltar = 4, kEnemySpawn = 8, kMySpawn = 16 };
+	std::vector<std::uint8_t> cls_;
+	std::uint8_t tclass(Vec2 q)
+	{
+		if (cls_.empty())
+		{
+			cls_.assign(static_cast<std::size_t>(m.W) * m.H, 0);
+			auto mark = [&](const Bitboard& b, std::uint8_t bit) { b.for_each_unordered(m.H, [&](int x, int y) { cls_[y * m.W + x] |= bit; }); };
+			mark(m.walls, kWall), mark(m.holes, kHole), mark(m.altars, kAltar);
+			mark(m.spawn_mask[1 - api.team()], kEnemySpawn), mark(m.spawn_mask[api.team()], kMySpawn);
+		}
+		return cls_[m.idx(q)];
+	}
+	std::vector<std::shared_ptr<const Bitboard>> group_tiles_;
 	const Bitboard& occupancy()
 	{
 		if (!have_occ_)
@@ -673,6 +743,7 @@ private:
 		api.champion_items(self(), items_);
 		api.champion_consumables(self(), cons_);
 		have_items_ = true;
+		extra(260);
 	}
 	template <class Fill>
 	Tiles stat(std::shared_ptr<const Bitboard>& slot, Fill&& fill)

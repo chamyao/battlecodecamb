@@ -13,8 +13,8 @@ done
 cp "$repo/bot/bitboard_host.h" "$src/cbs/bitboard.h"
 cp "$repo"/bot/src/{bot_api.cpp,bot_api.h,coro_stub.cpp,fast_alloc.cpp,fuel_bot_gen.inc} "$src/"
 for f in constants_gen fuel coverage; do cp "$repo/sim/src/$f.cpp" "$src/vendor_sim_$f.cpp"; done
-cp "$repo/genome/runtime/genome_rt.h" "$src/"
+{ echo "#define GENOME_BOT // every file of the bot sees the same runtime (one definition rule)"; cat "$repo/genome/runtime/genome_rt.h"; } > "$src/genome_rt.h"
 cp "$repo/genome/bot/main.cpp" "$src/main.cpp"
 cp "$repo/genome/bot/bot_api_extra.cpp" "$src/"
-{ echo "#define GENOME_BOT"; (cd "$repo" && python3 -c "import sys; from genome import lang; print(lang.to_cpp(lang.parse(open(sys.argv[1]).read())))" "$genome"); } > "$src/genes.cpp"
+{ (cd "$repo" && python3 -c "import sys; from genome import lang; print(lang.to_cpp(lang.parse(open(sys.argv[1]).read())))" "$genome"); } > "$src/genes.cpp"
 echo "genome bot in $dir ($(realpath --relative-to="$repo" "$genome"))"
