@@ -62,6 +62,11 @@ AXES = {
             "set_team_target): roles, grouping, calling targets, splitting the map",
     "roles": "PER-CHAMPION ROLES: give champions different jobs by i_am(champ_vesper_vale()) etc. (carry, farmer, hunter, "
              "altar guard, monolith taker) instead of one shared behaviour",
+    "pairs": "PAIRS: keep farming but never alone. 71% of our deaths are 2-vs-1. Farm adjacent camp groups in "
+             "pairs (claim / claim_count / claimed_by_allies, or roles via write_shared / read_shared byte 7), "
+             "regroup only when an enemy is visible within ~8 (enemies_within(8), nearest(allies_visible())), and "
+             "retreat toward the nearest ally instead of toward spawn. Pulling champions off farming to join "
+             "fights at 6 tiles measured -30 points, so stay close while farming instead",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
              "where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
