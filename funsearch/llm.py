@@ -123,7 +123,7 @@ TOP_RULES = [
 NEW_BLOCKS = ["unit_max_health", "unit_strength", "unit_focus", "enemies_near", "allies_near", "strength_at",
               "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius",
               "threat_eta", "altar_eta", "retreat_eta", "enemy_between", "group_contested", "team_gems",
-              "unseen_enemies_near", "bank_detour"]
+              "unseen_enemies_near", "bank_detour", "group_rate"]
 RARE_BLOCKS = ["place_ward", "bushes", "cast_at_tile", "teleport_to", "buy_teleport", "write_draft", "walls",
                "holes", "focus", "random_stat", "unit_health", "camp_count", "read_shared", "write_shared",
                "slot_is_reset", "stat_focus", "gold_cluster_tiles", "group_gems", "claim_count", "slot_stun",

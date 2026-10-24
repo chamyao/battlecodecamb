@@ -22,7 +22,7 @@ NAMES = {b.name for b in REGISTRY if not b.infix}
 WATCH = [b for b in ("unit_max_health", "unit_strength", "unit_focus", "enemies_near", "allies_near", "strength_at",
                      "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius",
                      "threat_eta", "altar_eta", "retreat_eta", "enemy_between", "group_contested", "team_gems",
-                     "unseen_enemies_near", "bank_detour") if b in NAMES]
+                     "unseen_enemies_near", "bank_detour", "group_rate") if b in NAMES]
 
 
 def blocks_used(text):

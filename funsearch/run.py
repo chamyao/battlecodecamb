@@ -98,6 +98,13 @@ def main():
                                                       "fitness penalty for suspensions and turns >= 90k")
     ap.add_argument("--fuel-penalty", default="0.01,0.001,6", help="per suspension per game, per heavy turn per game "
                                                                    "above the free allowance, the allowance")
+    ap.add_argument("--yield-weight", type=float, default=0.0,
+                    help="capture-yield fitness: score = (1 - w) x usual + w x yield term, the term = 0.5 + 0.5 x "
+                         "clip((our gems per capture - the ref's, in the screen games vs --yield-ref) / --yield-scale)")
+    ap.add_argument("--yield-ref", default="v21", help="screen opponent (policy stem) the yield is measured against")
+    ap.add_argument("--yield-scale", type=float, default=3.0, help="gems per capture difference that saturates")
+    ap.add_argument("--yield-floor", type=float, default=0.34,
+                    help="win rate vs --yield-ref below which (minus 2 standard errors) a child scores 1 lower")
     ap.add_argument("--vocab-share", type=float, default=0.2,
                     help="with --explore: share of calls whose prompt lists the newest blocks (llm.NEW_BLOCKS)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
@@ -149,9 +156,40 @@ def main():
     confirmed = {p.metrics["screen_fp"]: p for p in db.all
                  if p.metrics.get("confirmed") and "screen_fp" in p.metrics}
 
+    def with_yield(r):
+        """Blend capture yield vs --yield-ref (same games) into r.score, once; win floor vs the ref."""
+        if args.yield_weight <= 0 or not r.ok or "yield" in r.per_opponent:
+            return r
+        m = r.per_opponent.get(args.yield_ref)
+        if not isinstance(m, dict) or not m.get("captures") or not m["captures"][0] or not m["captures"][1]:
+            return r
+        d = m["gems_captured"][0] / m["captures"][0] - m["gems_captured"][1] / m["captures"][1]
+        term = 0.5 + 0.5 * max(-1.0, min(1.0, d / args.yield_scale))
+        floor = args.yield_floor - 2.0 * (0.25 / max(1, m["games"])) ** 0.5
+        below = m["win_rate"] < floor
+        r.per_opponent["yield"] = dict(gpc_diff=round(d, 3), term=round(term, 4), raw_score=round(r.score, 4),
+                                       ref_win=m["win_rate"], below_floor=below)
+        r.score = (1 - args.yield_weight) * r.score + args.yield_weight * term - (1.0 if below else 0.0)
+        return r
+
+    if args.yield_weight > 0:
+        # programs logged before the yield term: put them on the same scale (their own yield where captures vs the
+        # ref were logged, else a neutral term 0.5), in memory only
+        n_res = 0
+        for p in db.all:
+            if p.error is None and p.score is not None and p.score > float("-inf") and "yield" not in p.metrics:
+                r0 = with_yield(EvalResult(score=p.score, per_opponent=dict(p.metrics)))
+                if "yield" not in r0.per_opponent:
+                    r0.per_opponent["yield"] = dict(term=0.5, raw_score=round(p.score, 4), neutral=True)
+                    r0.score = (1 - args.yield_weight) * p.score + args.yield_weight * 0.5
+                p.score, p.metrics = r0.score, r0.per_opponent
+                n_res += 1
+        if n_res:
+            print(f"yield term: {n_res} logged programs rescaled", flush=True)
+
     def score(text, confirm=False, screened=None):
-        r = screened or evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads,
-                                 seed=args.eval_seed)
+        r = with_yield(screened or evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads,
+                                            seed=args.eval_seed))
         if not r.ok:
             return r
         fp = fingerprint(r.per_opponent)
@@ -169,15 +207,15 @@ def main():
                 # first quarter of the confirmation games (interp_eval's games are a prefix of a
                 # longer run with the same seed): a candidate clearly below the best stops here
                 quarter = max(2, args.confirm_games // 8 * 2)
-                q = evaluate(text, opponents=opponents, games=quarter, threads=args.eval_threads,
-                             seed=args.eval_seed + 1)
+                q = with_yield(evaluate(text, opponents=opponents, games=quarter, threads=args.eval_threads,
+                                        seed=args.eval_seed + 1))
                 if q.ok and q.score < best[0].score - args.early_stop:
                     q.per_opponent["screen_score"] = screen
                     q.per_opponent["screen_fp"] = fp
                     q.per_opponent["confirm_stopped"] = quarter
                     return q
-            r = evaluate(text, opponents=opponents, games=args.confirm_games, threads=args.eval_threads,
-                         seed=args.eval_seed + 1)
+            r = with_yield(evaluate(text, opponents=opponents, games=args.confirm_games, threads=args.eval_threads,
+                                    seed=args.eval_seed + 1))
             if not r.ok:
                 return r
             r.per_opponent["screen_score"] = screen
@@ -299,7 +337,8 @@ def main():
         from .tune import climb_child, climb_targets
         if not climb_targets(parent.text, text):
             return None, text, None
-        scr = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed)
+        scr = with_yield(evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads,
+                                  seed=args.eval_seed))
         par = parent.metrics.get("screen_score", parent.score)
         if not scr.ok or scr.score < par - args.tune_slack:
             return scr, text, None
