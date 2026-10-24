@@ -283,3 +283,11 @@ At the next hyb5 round boundary after H9 (hold + SIGTERM by PID):
 2. Relaunch with the current (H9) command line, changing only --axes to the weighted menu:
    `--axes conversion:3,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1`
 3. Check: new children log axis "conversion" about 3 in 14 draws, "disengage" 2 in 14.
+
+### H10 addendum (14:30 UTC, approved by the FunSearch lead): shared helper library, same boundary as H10
+Require funsearch/runs 7a6038d or later instead (contains H10's commit). Add to the relaunch:
+`--helpers-runs <hybrid runs dir>,<pure runs dir>,<style runs dir>` (the three lines' runs/ directories on this box,
+globs allowed, e.g. /root/bc/*/runs). At every boundary the league then rebuilds runs/hyb5.helpers.json (+ HELPERS.md)
+from all of them and passes --helpers to the run. Check: hyb5.log shows "helpers: N helpers kept" at the next round
+start, and some new children carry metrics.lib_helpers. Push runs/hyb5.HELPERS.md with the state.
+(Pure's own league, when it takes this, uses only pure's runs dir.)
