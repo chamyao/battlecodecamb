@@ -1,54 +1,57 @@
-== hyb5-g3: 94 programs, 93 valid, $1.93; distinct drafts 1; blocks present 127/158, EXECUTED 136/158; behaviour cells 28; best 0.742 (#14)
-  curve (programs:best/executed blocks): 25:0.742/115  50:0.742/124  75:0.742/132  94:0.742/136
-  new blocks, children executing/containing (of 87): unit_max_health 0/0, unit_strength 0/0, unit_focus 1/1, enemies_near 1/1, allies_near 3/3, strength_at 0/0, unit_tributing 1/1, unit_is 12/12, unit_shield 0/0, slot_stun 13/13, slot_range 5/12, slot_radius 0/0, threat_eta 8/8, altar_eta 17/17, retreat_eta 0/0, enemy_between 0/0, group_contested 0/0, team_gems 0/0, unseen_enemies_near 5/5, bank_detour 1/1
-  new-block uptake by programs (executing/containing/valid children): 0-49: vocab - other 7/7/43  50-99: vocab 4/4/5 other 22/22/39
-  yield: not logged yet (needs the capture metrics build)
+== hyb5-g3: 124 programs, 122 valid, $2.94; distinct drafts 1; blocks present 129/158, EXECUTED 138/158; behaviour cells 35; best 0.742 (#14)
+  curve (programs:best/executed blocks): 25:0.742/115  50:0.742/124  75:0.742/132  100:0.742/137  124:0.742/138
+  new blocks, children executing/containing (of 116): unit_max_health 0/0, unit_strength 0/0, unit_focus 1/1, enemies_near 11/11, allies_near 14/14, strength_at 1/1, unit_tributing 1/1, unit_is 19/19, unit_shield 0/0, slot_stun 25/25, slot_range 8/24, slot_radius 2/2, threat_eta 23/23, altar_eta 35/35, retreat_eta 0/0, enemy_between 0/0, group_contested 0/0, team_gems 0/0, unseen_enemies_near 13/13, bank_detour 7/7
+  new-block uptake by programs (executing/containing/valid children): 0-49: vocab - other 7/7/43  50-99: vocab 5/5/6 other 24/24/44  100-149: vocab 4/4/4 other 18/18/19
+  yield vs v21 (gems per capture, child vs v21 in the same games; top by score): #121 0.701 gpc 10.5 vs 10.7 (-0.2) win 46%  #71 0.695 gpc 10.7 vs 10.5 (+0.2) win 48%  #97 0.690 gpc 11.1 vs 10.5 (+0.6) win 46%  #81 0.689 gpc 10.5 vs 10.7 (-0.1) win 44%  #73 0.686 gpc 10.4 vs 10.7 (-0.4) win 44%  #110 0.686 gpc 10.5 vs 10.7 (-0.1) win 46%  #87 0.670 gpc 10.4 vs 10.6 (-0.2) win 43%  #106 0.669 gpc 10.5 vs 10.6 (-0.1) win 44%
+  yield best: #119 gpc 13.8 vs 8.8 (+5.0), win 52%, score 0.545
+  FLAG yield: #82 gems per capture 13.1 vs v21 9.0 (+4.1) with 51% vs v21 (score 0.609)
+  FLAG yield: #119 gems per capture 13.8 vs v21 8.8 (+5.0) with 52% vs v21 (score 0.545)
   all:
-    all            n  88  valid  99%  mean 0.613  max 0.742  new cell  27%  new block  69%  new draft   0%
+    all            n 118  valid  98%  mean 0.608  max 0.742  new cell  26%  new block  66%  new draft   0%
   model:
-    claude-haiku-5-5 n  80  valid  99%  mean 0.612  max 0.742  new cell  29%  new block  68%  new draft   0%
-    claude-opus-5-5 n   8  valid 100%  mean 0.626  max 0.705  new cell  12%  new block  88%  new draft   0%
+    claude-haiku-5-5 n 107  valid  99%  mean 0.606  max 0.742  new cell  28%  new block  64%  new draft   0%
+    claude-opus-5-5 n  11  valid  91%  mean 0.621  max 0.705  new cell   9%  new block  82%  new draft   0%
   axis:
-    roles          n  13  valid 100%  mean 0.598  max 0.692  new cell   8%  new block  69%  new draft   0%
-    conversion     n  13  valid 100%  mean 0.606  max 0.695  new cell   8%  new block  62%  new draft   0%
-    teleport       n  11  valid 100%  mean 0.619  max 0.707  new cell  64%  new block  73%  new draft   0%
+    conversion     n  24  valid  96%  mean 0.604  max 0.695  new cell  12%  new block  58%  new draft   0%
+    roles          n  14  valid 100%  mean 0.571  max 0.692  new cell   7%  new block  71%  new draft   0%
+    teleport       n  13  valid 100%  mean 0.616  max 0.707  new cell  62%  new block  77%  new draft   0%
+    macro          n  12  valid 100%  mean 0.653  max 0.735  new cell  42%  new block  67%  new draft   0%
     items          n  10  valid 100%  mean 0.656  max 0.742  new cell  20%  new block  70%  new draft   0%
-    pairs          n   9  valid 100%  mean 0.525  max 0.690  new cell  56%  new block  78%  new draft   0%
-    macro          n   8  valid 100%  mean 0.665  max 0.735  new cell  38%  new block  62%  new draft   0%
-    abilities      n   7  valid  86%  mean 0.661  max 0.695  new cell  29%  new block  86%  new draft   0%
-    vision         n   6  valid 100%  mean 0.677  max 0.742  new cell  17%  new block  33%  new draft   0%
-    team           n   6  valid 100%  mean 0.558  max 0.694  new cell  17%  new block  83%  new draft   0%
-    combat         n   3  valid 100%  mean 0.616  max 0.646  new cell  33%  new block 100%  new draft   0%
-    disengage      n   2  valid 100%  mean 0.533  max 0.547  new cell   0%  new block  50%  new draft   0%
+    pairs          n  10  valid 100%  mean 0.536  max 0.690  new cell  50%  new block  70%  new draft   0%
+    vision         n   8  valid 100%  mean 0.664  max 0.742  new cell  12%  new block  38%  new draft   0%
+    abilities      n   8  valid  88%  mean 0.656  max 0.695  new cell  38%  new block  88%  new draft   0%
+    team           n   8  valid 100%  mean 0.564  max 0.694  new cell  12%  new block  75%  new draft   0%
+    disengage      n   6  valid 100%  mean 0.543  max 0.633  new cell  17%  new block  33%  new draft   0%
+    combat         n   5  valid 100%  mean 0.634  max 0.686  new cell  20%  new block  80%  new draft   0%
   change:
-    edit           n  50  valid 100%  mean 0.624  max 0.742  new cell  26%  new block  76%  new draft   0%
-    plan           n  38  valid  97%  mean 0.599  max 0.741  new cell  29%  new block  61%  new draft   0%
+    edit           n  64  valid 100%  mean 0.615  max 0.742  new cell  27%  new block  69%  new draft   0%
+    plan           n  54  valid  96%  mean 0.598  max 0.741  new cell  26%  new block  63%  new draft   0%
   framing:
-    champion       n  48  valid  98%  mean 0.650  max 0.742  new cell  21%  new block  67%  new draft   0%
-    captain        n  40  valid 100%  mean 0.571  max 0.742  new cell  35%  new block  72%  new draft   0%
+    champion       n  65  valid  98%  mean 0.635  max 0.742  new cell  17%  new block  63%  new draft   0%
+    captain        n  53  valid  98%  mean 0.574  max 0.742  new cell  38%  new block  70%  new draft   0%
   catalog:
-    full           n  48  valid 100%  mean 0.612  max 0.742  new cell  25%  new block  65%  new draft   0%
-    lean           n  40  valid  98%  mean 0.615  max 0.735  new cell  30%  new block  75%  new draft   0%
+    full           n  68  valid  99%  mean 0.612  max 0.742  new cell  24%  new block  60%  new draft   0%
+    lean           n  50  valid  98%  mean 0.601  max 0.735  new cell  30%  new block  74%  new draft   0%
   evidence:
-    none           n  27  valid 100%  mean 0.617  max 0.742  new cell  19%  new block  74%  new draft   0%
-    rule           n  22  valid  95%  mean 0.591  max 0.703  new cell  41%  new block  73%  new draft   0%
-    worst          n  20  valid 100%  mean 0.622  max 0.710  new cell  30%  new block  55%  new draft   0%
-    block          n  19  valid 100%  mean 0.624  max 0.730  new cell  21%  new block  74%  new draft   0%
+    none           n  41  valid 100%  mean 0.603  max 0.742  new cell  17%  new block  73%  new draft   0%
+    rule           n  30  valid  93%  mean 0.592  max 0.703  new cell  37%  new block  67%  new draft   0%
+    worst          n  26  valid 100%  mean 0.625  max 0.710  new cell  27%  new block  50%  new draft   0%
+    block          n  21  valid 100%  mean 0.616  max 0.730  new cell  29%  new block  71%  new draft   0%
   parents:
-    single         n  64  valid  98%  mean 0.609  max 0.742  new cell  34%  new block  69%  new draft   0%
-    crossover      n  24  valid 100%  mean 0.624  max 0.741  new cell   8%  new block  71%  new draft   0%
+    single         n  85  valid  98%  mean 0.602  max 0.742  new cell  31%  new block  65%  new draft   0%
+    crossover      n  33  valid 100%  mean 0.623  max 0.741  new cell  15%  new block  70%  new draft   0%
   source:
-    island         n  82  valid  99%  mean 0.614  max 0.742  new cell  28%  new block  68%  new draft   0%
-    archive        n   6  valid 100%  mean 0.602  max 0.690  new cell  17%  new block  83%  new draft   0%
+    island         n 110  valid  98%  mean 0.608  max 0.742  new cell  26%  new block  65%  new draft   0%
+    archive        n   8  valid 100%  mean 0.598  max 0.690  new cell  25%  new block  88%  new draft   0%
   vocab:
-    False          n  23  valid 100%  mean 0.598  max 0.689  new cell  22%  new block  57%  new draft   0%
-    True           n   5  valid 100%  mean 0.586  max 0.695  new cell  20%  new block 100%  new draft   0%
+    False          n  47  valid 100%  mean 0.602  max 0.701  new cell  23%  new block  55%  new draft   0%
+    True           n  11  valid  91%  mean 0.550  max 0.695  new cell  18%  new block  82%  new draft   0%
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/root/bc/hybrid/funsearch/explore_report.py", line 157, in <module>
+  File "/root/bc/hybrid/funsearch/explore_report.py", line 155, in <module>
     report(run)
-  File "/root/bc/hybrid/funsearch/explore_report.py", line 151, in report
+  File "/root/bc/hybrid/funsearch/explore_report.py", line 149, in report
     return dict(drafts=len(drafts), blocks=len(used), executed=len(executed), cells=len(cells),
                                                                ^^^^^^^^^^^^^
 TypeError: object of type 'int' has no len()

@@ -120,3 +120,11 @@ exec_blocks vs starter for 93 programs (0s)
 [114] claude-haiku-5-5 island 3: score 0.620 | best 0.742 (#14) $0.63 | 1234s
 [115] claude-haiku-5-5 island 3: score 0.648 | best 0.742 (#14) $0.63 | 1245s
 [116] claude-haiku-5-5 island 1: score 0.638 | best 0.742 (#14) $0.64 | 1273s
+[117] claude-haiku-5-5 island 1: score 0.528 | best 0.742 (#14) $0.65 | 1330s
+[118] claude-haiku-5-5 island 0: score 0.493 | best 0.742 (#14) $0.65 | 1369s
+[119] claude-haiku-5-5 island 3: score 0.545 | best 0.742 (#14) $0.66 | 1467s
+[120] claude-haiku-5-5 island 3: score 0.653 | best 0.742 (#14) $0.67 | 1501s
+[121] claude-haiku-5-5 island 2: score 0.701 | best 0.742 (#14) $0.67 | 1526s
+[122] claude-haiku-5-5 island 1: score 0.551 | best 0.742 (#14) $0.67 | 1546s
+[123] claude-opus-5-5 island 3: error: NameError: line 149: bank_min already defined | best 0.742 (#14) $1.01 | 1583s
+done: 30 programs (1 invalid), spent $1.01; best #14 score 0.742 -> /root/bc/hybrid/runs/hyb5-g3/best.policy
