@@ -326,3 +326,6 @@ reconfigure + rebuild interp_eval, pytest (2028). The rebuild changes the binary
 keys miss and validations re-run on the new costs (no manual cache cleanup). Seeds are re-scored by the league on the
 new round; the child climb measures parent and child on the same build per child. Same command line.
 bank_detour (coord/bank-detour) is on the vocab list already and appears once merged (H14).
+H13 update (14:50 UTC): require funsearch/runs 14df19b or later instead (merges deploy/v0 f6a56b7: all gap sensors and
+unit_tributing calibrated, no provisional rows; tune-2 vs tune-1 80/80 identical with cambc). If H13 already fired on
+7fff19f, take 14df19b at the next boundary as H14 (rebuild interp_eval, pytest 2028, same command line).
