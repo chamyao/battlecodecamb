@@ -1,5 +1,6 @@
-# v2: v1 with a stricter engagement health bar for ability openers. Top teams open fights
-# at HP 0.9-1.0, so OPEN_FRAC moves from 0.8 to 0.9. Everything else is v1.
+# v2: v1 with a kiting fix. A ranged champion that has a melee enemy adjacent now steps
+# away and still basic-attacks this turn (one step back keeps the target within range 3).
+# v1 ended the turn after the step, which wasted the attack. Everything else is v1.
 
 # ---- tunable constants ----
 CLEAR_POWER = 60
@@ -9,17 +10,15 @@ GEM_RETREAT_FRAC = 0.5
 BAG_MIN = 20
 LATE_ROUND = 1500
 # health fraction needed to open a fight with an ability from range
-OPEN_FRAC = 0.9
+OPEN_FRAC = 0.8
+# allies (visible, within 4 tiles) needed before we open a fight from range; 0 disables the gate
+OPEN_ALLIES = 1
 # extra tiles we will walk to reach a rich group instead of the nearest camp
 RICH_SLACK = 4
 # fuel left below which optional expensive steps are skipped this turn
 FUEL_GUARD = 30000
 # enemy champion distance that makes us bank gems at an adjacent altar first
 THREAT_RANGE = 6
-# radius for the numbers check before opening a fight
-OPEN_SCREEN = 6
-# how many more visible enemies than allies we accept when opening
-OPEN_MARGIN = 0
 
 # ---- macros ----
 def fight(t):
@@ -36,7 +35,7 @@ def fight(t):
         cast_at_unit(0, t)
     if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):
         cast_at_unit(1, t)
-    # kite: step back from an adjacent melee foe, then shoot from range in the same turn
+    # kite: step back from an adjacent melee enemy, then still attack from range
     if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():
         move_away_from( unit_position(t) )
     attack(t)
@@ -94,6 +93,9 @@ keep home = spawn_region(ally())
 if not alive() or channeling() or (not can_move() and not can_attack()):
     end_turn()
 
+# one visibility scan per turn, reused below
+let foes = enemies_visible()
+
 let at_spawn = contains( home, position() )
 if at_spawn:
     let shards_bought = floor( gold() / 30 )
@@ -103,13 +105,13 @@ if at_spawn:
     else:
         buy( shard_of(family_jungle(), stat_health()), shards_bought - strength_shards )
     buy( shard(stat_strength()), strength_shards )
-    if health() < max_health() and not exists(first(filter(enemies_visible(), in_attack_range()))):
+    if health() < max_health() and not exists(first(filter(foes, in_attack_range()))):
         end_turn()
 
 if not at_spawn and (health() < RETREAT_FRAC * max_health() or (gems() > 0 and health() < GEM_RETREAT_FRAC * max_health())):
     if in_danger():
         move_towards( closest(home) )
-        let chaser = first( filter( enemies_visible(), in_attack_range() ) )
+        let chaser = first( filter( foes, in_attack_range() ) )
         if exists(chaser):
             attack(chaser)
         end_turn()
@@ -123,14 +125,15 @@ if gems() > 0:
         tribute(carry_altar)
         end_turn()
 
-let inrange = filter( enemies_visible(), in_attack_range() )
+let inrange = filter( foes, in_attack_range() )
 let enemy = weakest( inrange )
 
 # opener: nobody in basic reach, but an enemy is within a stun/damage ability's reach.
-# Only when the visible numbers nearby are not against us, and only with fuel to spare.
-if not exists(enemy) and health() >= OPEN_FRAC * max_health() and gems() < BAG_MIN and fuel_remaining() > FUEL_GUARD:
-    let foe = nearest( enemies_visible() )
-    if exists(foe) and enemies_within(OPEN_SCREEN) <= allies_within(OPEN_SCREEN) + OPEN_MARGIN:
+# Dashes cost ~4k fuel, so the opener only runs with fuel to spare, and only with
+# at least OPEN_ALLIES visible allies close enough to focus the same target.
+if not exists(enemy) and health() >= OPEN_FRAC * max_health() and gems() < BAG_MIN and fuel_remaining() > FUEL_GUARD and allies_within(4) >= OPEN_ALLIES:
+    let foe = nearest( foes )
+    if exists(foe):
         let fd = distance( position(), unit_position(foe) )
         if can_open(0, fd):
             open_with(0, foe)
@@ -183,7 +186,7 @@ if exists(camp):
         attack(camp)
     end_turn()
 
-# one shared query for the respawning groups, used by all three goal sets below
+# computed once per turn and shared by the goal and gem/rich target lookups
 let respawning = respawning_visible_spawns()
 let goals = minus( camp_spawns, respawning )
 
