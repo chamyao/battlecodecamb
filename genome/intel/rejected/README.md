@@ -90,3 +90,24 @@ Anchor row of B318 itself at 212a505: L1c 45, gconv1 51, v7 76, L1 47, rall2 52,
 r7 skips fights against an enemy at 1.8x (1.4x) our strength while no ally is within 4.
 Result vs B318: 40/80 (34/80). Anchors: fed18 L1c 44, gconv1 49, v7 75, L1 52, rall2 48, metadraft 66; fed14 40, 51, 74, 47, 46, 69.
 Vs hunter: 54 and 52 (B318 55). The sim's opponents never grow a fed carry, so the sim cannot price this lever.
+
+## stress/carry calibration and lever (a) (GAPS v2 #2; --bot-seeds /80, runtime genome/v0 212a505)
+
+stress/carry = B318 + a fed carry (its Vesper Vale stacks the treasure strength shard; non-carries leave targets
+under 25% to it when it is within 4) + hunter's chase rule.
+
+| variant | B318 vs it (/80) | B318 deaths to champions / gems lost to champions per game |
+|---|---|---|
+| non-carries buy no shards | 76 | 4.1 / 49 |
+| non-carries keep the seed split, carry stacks the strongest shard, feed 0.25 | 52 | 6.6 / 91 |
+| ... feed 0.4 | 60 | 6.8 / 110 |
+| ... and non-carries hunt only with the carry within 6 | 56 | 5.5 / 66 |
+| **... carry stacks treasure strength (18): stress/carry.genome** | **50** | **7.4 / 109** |
+
+Real b2 losses: 11.0 deaths, killer/victim item points 53/16, burst 20%. With the strongest-shard carry (6 local
+cambc games): killer/victim 17/17, burst 3%. The carry ends with the highest strength on the map (365) but fewer
+item points than B318's own Vesper Vale (62 vs 85), so a B318-based opponent cannot reproduce the band's fed
+carries; they out-earn us. B318 still wins 50/80 against the best version.
+
+Lever (a), rejected/b318-carry (our Vesper Vale stacks shard 18): 29/80 vs B318, 48/80 vs carry (B318 50).
+Anchors: L1c 42 (B318 45), gconv1 48 (51), v7 73 (76), L1 41 (47), rall2 44 (52), metadraft 72 (69).
