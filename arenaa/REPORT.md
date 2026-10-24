@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-24 23:50 UTC: Arena Z vs PURE per dollar
+
+- arenaZ-1 done ($3.07, 475 births). Panel (11 graded opponents, 880 games): starter 46 -> best 104 at
+  birth 403 (fs-1 6 -> 32/80, v4 8 -> 17, v5 8 -> 17). 262 species; 86 LLM crossovers; Z398 grew from
+  4 to 6 genes (cached fields, retreat-to-heal, targeted casting, capture-ready camp goals).
+- v1 (PURE's seed) on the same panel: 66/880; v1 beats the starter 66/80; Z398 beats v1 55/80.
+- Per dollar, one run each: Arena Z passed v1's panel level at ~birth 300 (~$1.5); from there ~$1.1 more
+  reached 69% vs v1. PURE's pilot went v1 -> fs-1 for $0.66, and fs-1 beats v1 76% (61/80). So in the
+  matched stretch PURE was ~1.5-2x more efficient. Caveats: PURE's old build under-priced fuel; PURE's
+  policies start with hypothesis blocks the genome must invent; n = 1 run each.
+
 ## 2026-10-24 23:35 UTC: prompt experiment 1 final
 
 Verdict (pre-registered rule): A1 (minimal typed explicit prompt) does NOT beat A0 (today's prompt).
