@@ -383,8 +383,8 @@ Err Api::camp(std::uint32_t h, CampRecord* out)
 	charge(Call::camp);
 	if (h >= g_.camps.size()) return Err::api_invalid_camp;
 	const Camp& c = g_.camps[h];
-	if (!playing() || !sees(c.pos)) return Err::api_not_in_vision;
-	if (c.life == CampLife::dead) return Err::api_not_found;
+	// A dead camp reads as out of vision even on a visible tile (cambc; 01starfish round 613).
+	if (!playing() || !sees(c.pos) || c.life == CampLife::dead) return Err::api_not_in_vision;
 	*out = { c.pos.x, c.pos.y, c.hp, c.max_hp, c.strength, c.focus, { c.cooldown[0], c.cooldown[1] } };
 	return Err::success;
 }
