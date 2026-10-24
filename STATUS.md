@@ -5,8 +5,8 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 20:05 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.08 13.20 12.61 on 16 threads.
-Disk: 4.1G used of 38G.
+Updated 2026-10-24 20:10 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.33 13.16 12.77 on 16 threads.
+Disk: 4.2G used of 38G.
 
 ## python3 processes
 ```
@@ -15,8 +15,6 @@ Disk: 4.1G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[17:52:45] hybrid: FINAL: ec2-final-check.txt + hyb5.cmdline pushed (remote/hybrid c474b96)
-[17:52:45] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [17:57:47] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [18:02:59] genome: started job smoke1 at ff86746cf72a
 remote: 
@@ -55,4 +53,6 @@ remote:
 [19:55:03] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [20:00:08] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [20:05:13] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[20:10:27] genome: started job arenaB-2 at 681e2e3a90741660b8a8b51e2c0609461f6fddff
+[20:10:30] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
