@@ -54,7 +54,9 @@ AXES = {
              "heart_of_ruin, marcella, cassi_issac, stellar, willow, varg), and play that suits it",
     "items": "ITEMS AND STATS: what each champion buys and when (other emblem families, focus vs strength vs "
              "health per champion, stacking one stat on a carry, teleport crystals, altar locks)",
-    "vision": "VISION: wards (place_ward), bushes, fighting from or around fog, denying the enemy's vision",
+    "vision": "VISION: wards (place_ward), bushes, fighting from or around fog, denying the enemy's vision. A "
+              "measured start: the free ward on the nearest altar when within 3 (let a = first( filter( altars(), "
+              "within(3, position()) ) ), then place_ward(a); it recharges over 10 turns) was +4 points vs a hunter",
     "teleport": "MOBILITY: teleport crystals (buy_teleport, teleport_to), dashes, recall timing",
     "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, claims, "
             "set_team_target): roles, grouping, calling targets, splitting the map",
