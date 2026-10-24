@@ -1,0 +1,117 @@
+seed tune-v18g score 0.608 (islands [0, 1, 2, 3])
+[4] claude-opus-5-5 island 3: score 0.020 | best 0.608 (#0) $0.15 | 68s
+[5] claude-haiku-5-5 island 3: score 0.578 | best 0.608 (#0) $0.16 | 169s
+[6] claude-haiku-5-5 island 3: score 0.517 | best 0.608 (#0) $0.16 | 234s
+[7] claude-opus-5-5 island 2: score -0.116 | best 0.608 (#0) $0.32 | 259s
+[8] claude-haiku-5-5 island 1: score 0.447 | best 0.608 (#0) $0.32 | 314s
+[9] claude-opus-5-5 island 2: score -0.103 | best 0.608 (#0) $0.57 | 346s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/bc/tune-fs/funsearch/run.py", line 255, in <module>
+    main()
+  File "/root/bc/tune-fs/funsearch/run.py", line 245, in main
+    list(pool.map(one, range(args.max_programs)))
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/bc/tune-fs/funsearch/run.py", line 200, in one
+    drawn = db.sample_archive(k=2) if use_archive else None
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/bc/tune-fs/funsearch/database.py", line 147, in sample_archive
+    picks = self.rng.sample(sorted(uniq), min(k, len(uniq)))
+                            ^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'tuple' and 'int'
+[10] claude-haiku-5-5 island 3: score 0.499 | best 0.608 (#0) $0.01 | 34s
+[11] claude-haiku-5-5 island 2: score 0.581 | best 0.608 (#0) $0.01 | 174s
+[12] claude-haiku-5-5 island 2: score 0.619 | best 0.619 (#12) $0.01 | 206s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/bc/tune-fs/funsearch/run.py", line 255, in <module>
+    main()
+  File "/root/bc/tune-fs/funsearch/run.py", line 245, in main
+    list(pool.map(one, range(args.max_programs)))
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/bc/tune-fs/funsearch/run.py", line 200, in one
+    drawn = db.sample_archive(k=2) if use_archive else None
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/bc/tune-fs/funsearch/database.py", line 147, in sample_archive
+    picks = self.rng.sample(sorted(uniq), min(k, len(uniq)))
+                            ^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'tuple' and 'int'
+[13] claude-haiku-5-5 island 2: score 0.467 | best 0.619 (#12) $0.01 | 74s
+[14] claude-haiku-5-5 island 2: score 0.625 | best 0.625 (#14) $0.01 | 164s
+[15] claude-haiku-5-5 island 3: score 0.494 | best 0.625 (#14) $0.02 | 210s
+[16] claude-haiku-5-5 island 2: score 0.610 | best 0.625 (#14) $0.02 | 256s
+[17] claude-haiku-5-5 island 3: score 0.545 | best 0.625 (#14) $0.02 | 281s
+[18] claude-haiku-5-5 island 2: score 0.461 | best 0.625 (#14) $0.02 | 294s
+[19] claude-haiku-5-5 island 3: score 0.495 | best 0.625 (#14) $0.03 | 318s
+[20] claude-haiku-5-5 island 3: score 0.600 | best 0.625 (#14) $0.03 | 485s
+[21] claude-haiku-5-5 island 2: score 0.665 | best 0.665 (#21) $0.03 | 504s
+[22] claude-haiku-5-5 island 2: score 0.509 | best 0.665 (#21) $0.20 | 548s
+[23] claude-opus-5-5 island 1: score 0.582 | best 0.665 (#21) $0.20 | 558s
+[24] claude-haiku-5-5 island 1: score 0.508 | best 0.665 (#21) $0.40 | 628s
+[25] claude-opus-5-5 island 3: score -0.057 | best 0.665 (#21) $0.40 | 636s
+[26] claude-haiku-5-5 island 2: score 0.197 | best 0.665 (#21) $0.40 | 663s
+[27] claude-opus-5-5 island 3: error: TypeError: line 60: macro opener is a step; only a macro whose body is 'return < | best 0.665 (#21) $0.61 | 729s
+[28] claude-haiku-5-5 island 1: score 0.356 | best 0.665 (#21) $0.61 | 771s
+[29] claude-haiku-5-5 island 2: score 0.331 | best 0.665 (#21) $0.61 | 811s
+[30] claude-haiku-5-5 island 3: score 0.677 | best 0.677 (#30) $0.61 | 842s
+[31] claude-opus-5-5 island 1: score 0.536 | best 0.677 (#30) $0.72 | 886s
+[32] claude-haiku-5-5 island 3: score 0.020 | best 0.677 (#30) $0.95 | 924s
+[33] claude-opus-5-5 island 3: score -0.098 | best 0.677 (#30) $0.95 | 925s
+[34] claude-haiku-5-5 island 3: score 0.510 | best 0.677 (#30) $0.95 | 961s
+[35] claude-haiku-5-5 island 3: score 0.587 | best 0.677 (#30) $0.95 | 988s
+[36] claude-haiku-5-5 island 3: score -0.035 | best 0.677 (#30) $0.96 | 1012s
+[37] claude-haiku-5-5 island 2: score 0.402 | best 0.677 (#30) $0.96 | 1030s
+[38] claude-haiku-5-5 island 2: score 0.407 | best 0.677 (#30) $0.97 | 1072s
+[39] claude-haiku-5-5 island 2: score 0.318 | best 0.677 (#30) $0.97 | 1122s
+[40] claude-haiku-5-5 island 2: score 0.620 | best 0.677 (#30) $0.97 | 1197s
+[41] claude-opus-5-5 island 2: score 0.389 | best 0.677 (#30) $1.10 | 1248s
+[42] claude-haiku-5-5 island 3: score 0.666 | best 0.677 (#30) $1.10 | 1293s
+[43] claude-haiku-5-5 island 2: score 0.555 | best 0.677 (#30) $1.10 | 1318s
+[44] claude-opus-5-5 island 2: score -0.023 | best 0.677 (#30) $1.45 | 1450s
+[45] claude-haiku-5-5 island 2: score 0.602 | best 0.677 (#30) $1.45 | 1480s
+[47] claude-haiku-5-5 island 2: score 0.577 | best 0.677 (#30) $1.45 | 1518s
+[48] claude-haiku-5-5 island 0: score 0.564 | best 0.677 (#30) $1.46 | 1564s
+[49] claude-haiku-5-5 island 1: score 0.526 | best 0.677 (#30) $1.46 | 1600s
+[50] claude-haiku-5-5 island 3: score 0.575 | best 0.677 (#30) $1.77 | 1641s
+[51] claude-opus-5-5 island 3: score -0.083 | best 0.677 (#30) $1.77 | 1657s
+[52] claude-haiku-5-5 island 2: score 0.390 | best 0.677 (#30) $1.77 | 1706s
+[53] claude-opus-5-5 island 2: error: NameError: line 86: rng already defined | best 0.677 (#30) $1.94 | 1718s
+[54] claude-haiku-5-5 island 2: error: NameError: line 198: goal already defined | best 0.677 (#30) $1.95 | 1736s
+[55] claude-haiku-5-5 island 3: score 0.543 | best 0.677 (#30) $1.95 | 1786s
+[56] claude-haiku-5-5 island 3: score 0.343 | best 0.677 (#30) $1.95 | 1819s
+[57] claude-haiku-5-5 island 3: score 0.564 | best 0.677 (#30) $1.96 | 1876s
+[58] claude-haiku-5-5 island 2: score 0.608 | best 0.677 (#30) $1.96 | 1913s
+[59] claude-haiku-5-5 island 3: score 0.116 | best 0.677 (#30) $1.97 | 1974s
+[60] claude-haiku-5-5 island 0: score 0.505 | best 0.677 (#30) $1.97 | 2008s
+[61] claude-haiku-5-5 island 1: score 0.662 | best 0.677 (#30) $1.97 | 2045s
+[62] claude-haiku-5-5 island 3: score 0.284 | best 0.677 (#30) $2.17 | 2080s
+[63] claude-opus-5-5 island 3: score 0.661 | best 0.677 (#30) $2.17 | 2204s
+done: 51 programs (4 invalid), spent $2.17; best #30 score 0.677 -> /root/bc/tune-fs/runs/tune-fight-g1/best.policy

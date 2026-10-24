@@ -1,0 +1,44 @@
+seed tune-v19 score 0.627 (islands [0, 1, 2, 3])
+[4] claude-opus-5-5 island 3: score -0.028 | best 0.627 (#0) $0.17 | 75s
+[5] claude-haiku-5-5 island 3: score 0.491 | best 0.627 (#0) $0.17 | 108s
+[6] claude-haiku-5-5 island 3: score 0.650 | best 0.650 (#6) $0.17 | 140s
+[7] claude-haiku-5-5 island 3: score 0.538 | best 0.650 (#6) $0.18 | 170s
+[8] claude-haiku-5-5 island 1: score 0.462 | best 0.650 (#6) $0.38 | 207s
+[9] claude-opus-5-5 island 2: score -0.104 | best 0.650 (#6) $0.38 | 221s
+[10] claude-haiku-5-5 island 0: score 0.618 | best 0.650 (#6) $0.39 | 360s
+[11] claude-haiku-5-5 island 0: score 0.569 | best 0.650 (#6) $0.39 | 363s
+[12] claude-haiku-5-5 island 3: score 0.160 | best 0.650 (#6) $0.39 | 395s
+[13] claude-haiku-5-5 island 2: score 0.538 | best 0.650 (#6) $0.60 | 433s
+[14] claude-opus-5-5 island 2: score -0.085 | best 0.650 (#6) $0.60 | 455s
+[15] claude-haiku-5-5 island 1: score 0.466 | best 0.650 (#6) $0.61 | 493s
+[16] claude-haiku-5-5 island 2: score -0.091 | best 0.650 (#6) $0.61 | 528s
+[17] claude-opus-5-5 island 3: score -0.045 | best 0.650 (#6) $0.85 | 558s
+[18] claude-haiku-5-5 island 0: score 0.647 | best 0.650 (#6) $0.85 | 686s
+[19] claude-haiku-5-5 island 0: score 0.676 | best 0.676 (#19) $0.85 | 706s
+[20] claude-haiku-5-5 island 0: score 0.632 | best 0.676 (#19) $0.86 | 854s
+[21] claude-haiku-5-5 island 0: score 0.627 | best 0.676 (#19) $0.86 | 856s
+[22] claude-haiku-5-5 island 3: score -0.094 | best 0.676 (#19) $0.86 | 888s
+[23] claude-opus-5-5 island 3: score 0.508 | best 0.676 (#19) $1.16 | 935s
+[24] claude-opus-5-5 island 2: score -0.065 | best 0.676 (#19) $1.16 | 952s
+[25] claude-haiku-5-5 island 1: error: NameError: line 100: commit_frac already defined | best 0.676 (#19) $1.16 | 963s
+[26] claude-opus-5-5 island 0: score -0.091 | best 0.676 (#19) $1.29 | 1026s
+[27] claude-opus-5-5 island 3: score -0.046 | best 0.676 (#19) $1.43 | 1044s
+[28] claude-haiku-5-5 island 3: score 0.499 | best 0.676 (#19) $1.44 | 1066s
+[29] claude-haiku-5-5 island 3: score -0.120 | best 0.676 (#19) $1.44 | 1071s
+[30] claude-haiku-5-5 island 3: score -0.047 | best 0.676 (#19) $1.45 | 1138s
+[31] claude-haiku-5-5 island 1: score 0.542 | best 0.676 (#19) $1.77 | 1194s
+[32] claude-opus-5-5 island 2: score -0.072 | best 0.676 (#19) $1.77 | 1205s
+[33] claude-haiku-5-5 island 3: score 0.463 | best 0.676 (#19) $1.91 | 1246s
+[34] claude-opus-5-5 island 2: score 0.019 | best 0.676 (#19) $1.91 | 1252s
+[35] claude-haiku-5-5 island 2: score 0.211 | best 0.676 (#19) $1.92 | 1290s
+[36] claude-opus-5-5 island 2: score -0.042 | best 0.676 (#19) $2.13 | 1358s
+[37] claude-haiku-5-5 island 3: score 0.500 | best 0.676 (#19) $2.14 | 1399s
+[38] claude-haiku-5-5 island 1: score 0.545 | best 0.676 (#19) $2.14 | 1440s
+[39] claude-haiku-5-5 island 0: score 0.677 | best 0.677 (#39) $2.14 | 1456s
+[40] claude-haiku-5-5 island 3: score 0.499 | best 0.677 (#39) $2.15 | 1494s
+[41] claude-haiku-5-5 island 1: score 0.507 | best 0.677 (#39) $2.15 | 1504s
+[42] claude-haiku-5-5 island 1: score 0.528 | best 0.677 (#39) $2.15 | 1529s
+[43] claude-opus-5-5 island 3: score 0.498 | best 0.677 (#39) $2.26 | 1554s
+spent $2.26 of $2.25
+[44] claude-opus-5-5 island 2: score -0.054 | best 0.677 (#39) $2.43 | 1622s
+done: 41 programs (1 invalid), spent $2.43; best #39 score 0.677 -> /root/bc/tune-fs/runs/tune-fight2-g1/best.policy
