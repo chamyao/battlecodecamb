@@ -40,15 +40,43 @@ enemies_within(r: Num) -> Num      [s6]  visible enemy champions within r tiles
 r_cashout() -> Bool   [r5]  recall with gems when below half health and nothing near
 
 # Task
-Rewrite r_run and under_fire. You may change anything in their bodies, parameters and return
-types, and you may add new genes that they call. Your reply must either change both genes, or add at
-least one new gene. A reply that changes only one of the two genes and adds no new gene is rejected.
-If you change under_fire's signature, its other callers (listed above) must still type-check.
+You are making one mutation of this program. The mutation may touch exactly two existing genes,
+r_run and under_fire, and may create new genes.
+
+What you may do:
+1. Rewrite the body of r_run, of under_fire, or both: change conditions, thresholds, arithmetic,
+   which genes and primitives they call, the order of tests, add or remove branches.
+2. Change the parameters or return type of r_run or under_fire.
+3. Create new genes. A new gene can be called by r_run, by under_fire, or by another new gene. It may
+   call any gene listed in this prompt and any primitive.
+4. Stop calling a gene: r_run may stop calling under_fire, under_fire may stop calling in_danger, etc.
+
+What you may not do:
+5. Change any gene other than r_run and under_fire (the listed fixed genes stay exactly as they are).
+6. Use a gene or primitive that is not listed in this prompt or in the language reference.
+7. Break a caller: r_run is called by rule() as r_run() -> Bool, and under_fire is called by r_cashout()
+   as under_fire() -> Bool. If you change either signature, those calls must still type-check, so
+   keep the old signature for them (for example: keep under_fire as it is called and give r_run a new
+   gene with the new signature).
+
+What counts as a mutation (checked automatically; otherwise the reply is rejected):
+8. Either both r_run and under_fire have a changed body, or at least one new gene is created and
+   called. Changing only one of the two genes, with no new gene, is rejected.
+9. Changing only a description, renaming, reformatting, or reordering code without changing what it
+   computes does not count as a change.
+10. The result must type-check under the language reference. Every gene must return its declared
+    type on every path.
 
 # Reply
-One ```python block with: each changed editable gene (keep its @gene id; update its description to
-say what it does now), and each new gene as @gene("new", "<one line>", parents=["<id it came from>"]).
-Nothing else.
+Reply with exactly one ```python code block and nothing outside it. The block contains:
+- Each of r_run and under_fire that you changed, in full, with its original id: @gene("r3", ...) and
+  @gene("s8", ...). Update the description to one plain line saying what the gene now computes.
+  Omit a gene you did not change.
+- Each new gene, in full, as @gene("new", "<one plain line saying what it computes>",
+  parents=["<id of the gene it was derived from, r3 or s8>"]).
+- Any new keep declaration your genes use (NAME: Type = value), above the genes. Only update() may
+  assign keeps, so r_run, under_fire and new genes may read keeps but not assign them.
+Do not repeat fixed genes. A new gene that nothing calls is deleted.
 ```
 
 ## What was removed vs today's prompt, and why
