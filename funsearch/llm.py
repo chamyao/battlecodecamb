@@ -79,8 +79,11 @@ AXES = {
     "conversion": "GEM CONVERSION, the biggest measured gap to the band above us (docs/GAP_LIST.md). Measured: we "
                   "lose 184 gems per game on death; 54% of our deaths happen while carrying gems, a median 7 tiles "
                   "from an altar; we submit 76% of the gems we capture (they 99%); we bank 18 times a game (they "
-                  "26). Levers: when and where gems are banked, bag size, the distance to an altar, routes while "
-                  "carrying, which camp groups are taken, what happens to the bag when a fight starts",
+                  "26). Ranked, v21 is 30-35 and lost 0-5 to a lower-rated team in three close gem races: gems per capture 8.8 "
+                  "vs their 12.9, tributes 17 vs 25 per game, and 4.4 of our deaths per game to camps. Close games are "
+                  "decided by capture yield and conversion, blowouts by pack fights. Levers: when and where gems are banked, bag size, the distance to an altar, routes while "
+                  "carrying, which camp groups are taken, what happens to the bag when a fight starts, which camps are hit and with how many champions (gems per capture), "
+                  "camp HP vs our HP",
     "disengage": "LOW-HP SURVIVAL. Measured: once one of our champions is below 50% HP with an enemy within 5 it "
                  "dies 88% of the time (the top team 6%, similar teams 13-20%), gaining ~1 tile in 5 rounds. "
                  "Measured hand rules: walking away mid-fight at HP below 0.4-0.6 with an enemy within 5-6 scored "

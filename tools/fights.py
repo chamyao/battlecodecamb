@@ -82,6 +82,8 @@ def run(a, b, games=80, seed=1):
                           "--seed", str(seed), "--details", *MAPS], capture_output=True, text=True, env=env,
                          timeout=7200).stdout.splitlines()
     engs, games_n, wins, ev = [], 0, 0, []
+    camp_deaths = [0, 0]  # ours, theirs
+    gem = dict(captures=[0, 0], gems_captured=[0, 0], tributes=[0, 0], gems_lost_to_champs=[0, 0])
     for line in out:
         if line.startswith("@@EV"):
             p = line.split()
@@ -92,6 +94,13 @@ def run(a, b, games=80, seed=1):
         d = json.loads(line)
         us = 0 if d["a_side"] == "A" else 1
         games_n += 1
+        for _, kind, f, raw in ev:
+            if kind == "death" and "by=camp" in raw:
+                camp_deaths[int(f["team"]) != us] += 1
+        for k, v in gem.items():
+            if k in d:
+                v[0] += d[k][us]
+                v[1] += d[k][1 - us]
         wins += d["winner"] == us
         engs += segment(ev, us)
         ev = []
@@ -111,6 +120,12 @@ def run(a, b, games=80, seed=1):
         "their_outnumbered_deaths_pg": round(sum(e["their_out_deaths"] for e in engs) / n, 2),
         "our_out_death_share": round(sum(e["our_out_deaths"] for e in engs) / max(1, sum(e["our_deaths"] for e in engs)), 3),
         # outnumbered by 2+ champions in the engagement (the ranked-loss measure vs pack teams)
+        # gem race: capture yield, tributes, camp deaths (ours, theirs; per game)
+        "gems_per_capture": [round(gem["gems_captured"][i] / max(1, gem["captures"][i]), 1) for i in (0, 1)],
+        "captures_pg": [round(gem["captures"][i] / n, 2) for i in (0, 1)],
+        "tributes_pg": [round(gem["tributes"][i] / n, 2) for i in (0, 1)],
+        "camp_deaths_pg": [round(camp_deaths[i] / n, 2) for i in (0, 1)],
+        "gems_lost_to_champs_pg": [round(gem["gems_lost_to_champs"][i] / n, 1) for i in (0, 1)],
         "our_out2_death_share": round(sum(e["our_out2_deaths"] for e in engs) / max(1, sum(e["our_deaths"] for e in engs)), 3),
     }
     return res
