@@ -35,6 +35,19 @@ Islands (runs/style_launch.sh, budgets in runs/style_budgets: h 3.95, b 3.5, a 2
   (restart h only: SIGTERM the h league and child by PID first; b keeps running).
 - Comment h's validation lines (and b's) on PR #3 at each boundary.
 
+## Job S8 (14:20 UTC): conversion gap run, $2 (lead-released)
+
+On funsearch/style ed49293 or later. It merges coord/capture-metric 2dc29a7, so rebuild interp_eval (configure first)
+and run pytest (2012). Then launch one resumable run, style8-gconv, alongside h2/b (a/c stay paused):
+```
+GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gconv 2.0 conversion:max:0.05 \
+  policies/tune-v21.policy funsearch/styles/g_conversion.txt >> runs/style8-gconv.out 2>&1 &
+```
+The launcher subtracts recorded spend on every start; rerun the same command after any restart. Push
+runs/style8-gconv/programs.jsonl, runs/style8-gconv.out and the run log with the usual state push. It is a plain
+funsearch.run (no league, no validation boundaries); the line hand-validates the best children (800 games vs v21).
+
 ## EC2 resume (2026-10-24 ~06:10 UTC): for the EC2 worker (session_01Knzq5vzttJNCCzc9dRHHkQ)
 
 Compute moves from remote-server to EC2 (c7a.4xlarge, 16 threads). Order: style6-a (finish), then
