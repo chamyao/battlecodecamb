@@ -12,8 +12,4 @@ for x in a b c; do
   tail -n 3 runs/style6-$x.log 2>/dev/null
   for f in runs/style6-$x-g*.log; do [ -f "$f" ] && tail -n 1 "$f"; done
 done
-git add -f runs/style*.log runs/style*.json runs/style*-g*/programs.jsonl runs/style*-g*/proposals.jsonl runs/SPEND.md 2>/dev/null
-git commit -qm "runs: style line progress
-
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01V26XD9N15L34L9j3pMnVNC" && git push -q origin funsearch/style
+runs/style_push_state.sh

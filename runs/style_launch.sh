@@ -13,4 +13,5 @@ PYTHONUNBUFFERED=1 exec python3 -m funsearch.league --name "style6-$1" --budget 
   --fixed policies/v7zg-cast.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy \
   --regress 1.0 --z 2.83 --prefix "style-$1" --line "style-$1" \
   --session https://claude.ai/code/session_01V26XD9N15L34L9j3pMnVNC \
-  --fresh-seeds --directive "@$dir" --require "$req" --workers 2 --eval-threads 2
+  --threads "${VAL_THREADS:-4}" \
+  --fresh-seeds --directive "@$dir" --require "$req" --workers "${WORKERS:-2}" --eval-threads "${EVAL_THREADS:-2}"
