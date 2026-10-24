@@ -119,13 +119,15 @@ int main(int argc, char** argv)
 				if (details)
 				{
 					std::string draft;
+					int kd[2][2] = {};
+					for (const auto& c : match.game.champs) { kd[c.team][0] += c.kills; kd[c.team][1] += c.deaths; }
 					for (const auto& c : match.game.champs)
 						draft += std::string(draft.empty() ? "" : ",") + std::to_string(c.team) + ":" + std::to_string(static_cast<int>(c.type));
 					std::printf("{\"game\": %d, \"map\": \"%s\", \"a_side\": \"%s\", \"winner\": %d, \"gems\": [%lld, %lld], \"rounds\": %d, "
-								"\"suspensions\": %llu, \"champs\": \"%s\"}\n",
+								"\"suspensions\": %llu, \"champs\": \"%s\", \"kills\": [%d, %d], \"deaths\": [%d, %d]}\n",
 								g, maps[(g / 2) % maps.size()].c_str(), swap ? "B" : "A", r.winner, static_cast<long long>(match.game.teams[0].submitted),
 								static_cast<long long>(match.game.teams[1].submitted), match.game.round,
-								static_cast<unsigned long long>(match.stats.suspensions), draft.c_str());
+								static_cast<unsigned long long>(match.stats.suspensions), draft.c_str(), kd[0][0], kd[1][0], kd[0][1], kd[1][1]);
 				}
 			}
 		});
