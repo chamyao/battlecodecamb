@@ -4,6 +4,9 @@
 # runs/ is TRACKED on funsearch/pure: every checkout here saves and restores runs/ around it.
 D=/root/bc/pure
 SESSION=https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd
+# g4 runs from this vetted funsearch/pure commit, not the moving tip (set by the pure line session only).
+# 806879a: prompt = funsearch/runs 13facf9 catalog; fixed tune5-campreset, v5d, v4, locker, fs-2; budget 18.10.
+G4_REV=806879a
 [ -f "$D/HALT" ] && { log "halted: $(cat "$D/HALT")"; return 0; }
 p1() {   # P1 contents (JOBS.md section 2)
   printf 'policies/tune-5.policy\npolicies/v5d.policy\npolicies/v4.policy\npolicies/locker.policy\npolicies/fs-2.policy\n' > runs/pure_fixed.txt
@@ -48,12 +51,11 @@ if ! running "league --name pure4"; then
 
 $prom" || { log "fs-p3 push failed"; return 1; }
     rm -rf /root/bc/pure-runs-save && cp -a runs /root/bc/pure-runs-save &&
-      git fetch -q origin funsearch/pure && git checkout -q -f origin/funsearch/pure &&
+      git fetch -q origin funsearch/pure && git checkout -q -f "$G4_REV" &&
       rm -rf runs && cp -a /root/bc/pure-runs-save runs && cp /root/bc/pure-pol/fs-p3.policy policies/ &&
-      git checkout -q origin/funsearch/pure -- runs/pure_launch.sh runs/pure_fixed.txt runs/pure_send.txt ||
+      git checkout -q "$G4_REV" -- runs/pure_launch.sh runs/pure_fixed.txt runs/pure_send.txt ||
       { halt "g4 checkout failed"; return 1; }
-    # g4 opponents come from the tip (pure line, funsearch/pure 82701f3: fixed tune5-reset instead of tune-5;
-    # send check vs tune5-reset and tune-5); do not rewrite them with p1 here.
+    # g4 opponents come from G4_REV (fixed tune5-campreset instead of tune-5); do not rewrite them with p1 here.
     build "$D" || { log "g4 build failed"; return 1; }
     echo g4 > runs/ec2-phase; wc -l < runs/pure4.log > runs/ec2-resume-mark; rm -f runs/ec2-resume-checked
     phase=g4; mark=$(cat runs/ec2-resume-mark)
@@ -84,7 +86,7 @@ if [ ! -f runs/ec2-resume-checked ]; then
   if [ -n "$first" ]; then
     if [ "$phase" = g3 ] && { ! echo "$first" | grep -q 'pure4-g3: ' || echo "$first" | grep -qE '\+15[01] programs'; }; then
       halt "restart detected instead of a resume: $first"
-    elif [ "$phase" = g4 ] && { ! echo "$first" | grep -q 'pure4-g4: ' || ! echo "$first" | grep -q 'tune5-reset'; }; then
+    elif [ "$phase" = g4 ] && { ! echo "$first" | grep -q 'pure4-g4: ' || ! echo "$first" | grep -qF "$(head -n 1 runs/pure_fixed.txt)"; }; then
       halt "g4 did not start as expected: $first"
     else
       touch runs/ec2-resume-checked; log "resume check ok: $(echo "$first" | cut -c1-160)"
