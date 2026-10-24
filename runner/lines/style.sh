@@ -181,6 +181,26 @@ if [ -f runs/ec2-s9-checked ] && [ ! -f runs/ec2-s10 ]; then
     log "S10: merge to 34f261c failed; gconv left as is"; touch runs/ec2-s10-failed
   fi
 fi
+# S11 (style line, 15:07 UTC): gconv AND b on funsearch/style 5b70f04 (34f261c + deploy/v0 e32dc0d: v22 group_threat
+# dead-camp fix in sim/src/api.cpp, new cost tables) -> rebuild, pytest, relaunch both (spend carries over). One-shot.
+if [ -f runs/ec2-s10 ] && [ ! -f runs/ec2-s11 ]; then
+  for pid in $(pgrep -a -x python3 | grep -E "league --name style8-b |funsearch.run --run style8-b-|funsearch.run --run style8-gconv " | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "S11: SIGTERM pid $pid"; done
+  sleep 15
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor 5b70f04 HEAD && build "$D" && python3 -m pytest -q tests > /root/bc/style-pytest.txt 2>&1; then
+    wc -l < runs/style8-gconv.out > runs/ec2-s11-outmark; wc -l < runs/style8-b.log > runs/ec2-s11-bmark; touch runs/ec2-s11
+    log "S11: at $(git rev-parse --short HEAD) (has 5b70f04: v22 dead-camp fix), rebuilt, $(tail -n 1 /root/bc/style-pytest.txt); relaunching b and gconv"
+  else
+    echo "S11 merge/5b70f04/build/tests failed; b and gconv stopped" > "$D/HALT"; log "HALT: S11 merge/build/tests failed"; return 1
+  fi
+fi
+if [ -f runs/ec2-s11 ] && [ ! -f runs/ec2-s11-checked ]; then
+  o=$(tail -n +"$(( $(cat runs/ec2-s11-outmark) + 1 ))" runs/style8-gconv.out 2>/dev/null)
+  fb=$(tail -n +"$(( $(cat runs/ec2-s11-bmark) + 1 ))" runs/style8-b.log 2>/dev/null | grep -m1 'style8-b-g')
+  echo "$o" | grep -q 'left of' && [ -n "$fb" ] && { touch runs/ec2-s11-checked; log "S11 check: gconv $(echo "$o" | grep -m1 -oE '\$[0-9.]+ left of \$[0-9.]+'); b $(echo "$fb" | grep -oE 'style8-b-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$fb" | grep -oE '\$[0-9.]+ left')"; }
+fi
 if [ -f runs/ec2-s10 ] && [ ! -f runs/ec2-s10-checked ]; then
   o=$(tail -n +"$(( $(cat runs/ec2-s10-outmark) + 1 ))" runs/style8-gconv.out 2>/dev/null)
   echo "$o" | grep -q 'left of' && { touch runs/ec2-s10-checked; log "S10 check: gconv relaunched: $(echo "$o" | grep -m1 -oE '\$[0-9.]+ left of \$[0-9.]+')"; }

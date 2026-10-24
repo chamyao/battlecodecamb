@@ -217,6 +217,25 @@ PY
       fi
     fi
   fi
+  # H16 (jobs/hybrid c20e5e6, 15:07 UTC): next hyb5 boundary after H10: merge funsearch/runs 8b38ce6+ (dead-camp fix,
+  # the v22 build: sim/ + interp/ changed -> rebuild; validation cache invalidated by the rebuild), pytest, same flags.
+  if [ -f runs/ec2-h10 ] && [ ! -f runs/ec2-h16 ]; then
+    if [ ! -f runs/ec2-h16-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h16-holdmark; touch runs/hyb5.hold runs/ec2-h16-hold
+      log "H16: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h16-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H16: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor 8b38ce6 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        rm -f runs/hyb5.hold; touch runs/ec2-h16
+        log "H16: funsearch/runs $(git rev-parse --short HEAD) (has 8b38ce6: dead-camp fix / v22 build), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5, same flags"
+      else
+        echo "H16 merge/8b38ce6/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H16 upgrade failed"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
