@@ -107,17 +107,43 @@ Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights 
   A direction worth trying instead (early screen +4, unconfirmed): choose a rich group (closest of
   goals intersected with rich_spawns(15)) over the nearest camp when it is only a few tiles farther.
 - Constant tuning around the current best finds nothing better (its thresholds are locally
-  optimal). The open lever is STRUCTURAL camp choice: today the goal is simply the closest camp
-  spawn. Try scoring candidate camps by gems per turn of travel and fighting (group value vs
-  distance and danger), splitting the team between rich groups, or committing together to the
-  richest one, rather than adjusting the existing numbers.
+  optimal). Camp choice is the second lever: today the goal is simply the closest camp spawn.
+Observations from 50 games vs the ladder's top 10 (live bot, v16): 0-50. COMBAT IS NOW THE TOP PRIORITY.
+- Per game: our deaths 17.8 vs their 1.6, our kills 0.3 vs their 12.9, damage to champions 7.2k vs
+  21.1k. Max HP is equal at round 100, yet their first kill comes at a median of round 175: they win
+  fights at even strength, mostly with 1-2 champions, not packs. The item gap comes from the kills.
+- In the 5 rounds before each of our deaths to a champion the victim attacked an enemy champion only
+  59% of the time, cast an ability on one only 16% (casts went to self or dash 32%), had started a
+  recall (damage cancels it) 23%, attacked a camp 18%. 52% of our dead carried no gems.
+- How they fight (1,317 engagements, docs/TOP_TEAMS_RULES.md; medians): ENGAGE EARLY AND HEALTHY at
+  vision range: own HP 0.9-1.0 at the first hit, distance ~7 five rounds before; usually 2v1 (one ally
+  within 5, enemies_within(5) <= allies_within(5) + 1). TARGET THE CLOSEST visible enemy (87-94%; usually
+  also the weakest; carriers are not sought). OPEN WITH THE ABILITY ON THE FIRST-HIT TURN: HoR stunning
+  dash (slot 1) from 3; Vendetta dash (slot 1) from 3 or basic > reset (slot 0) > basic; Marcella damage
+  (slot 1) from 4; Ryth AoE stun (slot 0) from 4, then basic > reset (slot 1); Prism AoE (slot 1) from 5
+  then damage-stun (slot 0); Vesper Vale basic > reset (slot 0) > basic, keeping range 3; Tavi stun
+  (slot 1) from 4; Cassi stun (slot 1) from 5. i_am(champ_x()) tells which champion you are. CHASE ONLY
+  0-2 tiles (3-6 for HoR/Ryth on a low target). DISENGAGE AT ~0.8 HP (walk away, recall once safe), not
+  at 0.3: they die 1.6 times per game. Most fights are in their own half, the first at round ~86.
+  Meta draft core: Vesper Vale + Heart of Ruin, then Vendetta / Marcella / Ryth / Prism / Tavi / Willow.
+- Directions: build that loop (healthy engage at 7-9 tiles with numbers, closest target, ability
+  opener, short chase, early disengage) and name the target with set_team_target so allies converge;
+  never start a recall while in_danger() (move away first); tribute at once when an enemy is near
+  while carrying.
+- MEASURED in the simulator (160 games each): a plain chase rule (go to the weakest enemy within 6 when
+  local_strength(6) >= 1) LOST to the live bot (33%) and did not raise kills; a 3-4 tile fight-back
+  rule was neutral; the meta draft alone with that rule lost more. So a naive chase is not it: what
+  is missing is winning the fight once in it (ability timing, stun then burst, focus, kiting, not
+  splitting attention with camps). Simulator opponents are passive and the simulator's combat is
+  still being checked against the real engine; judge combat changes by kills, deaths and damage, not
+  only by the win rate against the live bot, and do not drop a combat idea on one bad score.
 """
 
 GRAMMAR += """\
 Macros (the one exception to "no functions"): top-level `def name(a, b):` definitions are
 expanded inline where called. A macro whose whole body is `return <expr>` is used as a
 value; any other macro is used as a step. Arguments are re-evaluated at each use (bind them
-with let first to pay their fuel once). No recursion. Build reusable helpers this way.
+with let first to pay their fuel once). No recursion. Build reusable helpers this way. A step macro cannot call another step macro (inline it).
 If you need a capability that no block or macro can express, write a comment line
 `# PROPOSE: <block signature> -> <type>: <what it does and why>` above your policy; it will
 be reviewed for adding to the language. Write the policy with the existing blocks anyway.
@@ -194,7 +220,7 @@ DOCS = {
     "rich_spawns": "spawn tiles of every camp whose group gives at least n gems when captured (static; gold-only groups give 0 gems, elk/gem-cluster groups 15-60+). Bind it with keep",
     "group_tiles": "spawn tiles of every camp in a group that has a camp on one of the given tiles (static; hitting any camp of a group wakes the whole group, e.g. group_tiles(monolith_tiles()) wakes monoliths). Bind it with keep",
     "group_gems": "total gems of the camp groups that have a camp on one of the given tiles (static; e.g. group_gems(monolith_tiles()) is what the monoliths give). Bind it with keep",
-    "group_threat": "summed strength (damage per turn when awake) of the living camps in the group spawning on that tile, 0 off a spawn tile; a camp out of vision counts as alive. Elk 60, wolf 20, golem 120, monolith 200, clusters 0. (measured: a skip test on it loses; see the camp-choice note)",
+    "group_threat": "summed strength (damage per turn when awake) of the living camps in the group spawning on that tile, 0 off a spawn tile; a camp out of vision counts as alive. Elk 60, wolf 20, golem 120, monolith 200, clusters 0.",
     "group_hp": "summed health of the same camps as group_threat (unseen counts at full health): clearing takes about group_hp(g) / (strength() * (1 + allies_within(4))) turns, taking group_threat(g) damage each turn",
     "turns_idle": "consecutive turns (counted each time you check) your position has not changed",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
