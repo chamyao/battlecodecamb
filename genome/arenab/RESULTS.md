@@ -40,3 +40,9 @@ first turn is 154-188k on these).
 | B279 | 0.610 | +0.5, +11.0, +6.0, -0.7 -> PASS |
 | B263 | 0.595 | -0.2, +6.8, +5.2, -2.0 -> PASS |
 | commit-mono | 0.570 | +1.3, +4.7, +5.5, -1.5 -> PASS |
+
+**Caveat (genome lead, 20:48):** the seeded runs above give the policy bots random seeds; deployed bots play
+fixed seeds, so a deploy-faithful pairing has only 80 distinct games. With `--bot-seeds`
+(`python3 -m genome.arenab.sim_gate ... --bot-seeds`), B318 vs tune-v20-L1c at 2356e26 is **38/80 (0.475)**:
+anchors v7 +1.3, tune-v20-L1 +2.5, rall2 +3.7, metadraft -1.3. The arena gives 38/80 at db3f945 and 43/80 at
+77da39c. Real cambc vs the v22 ZIP (old build): 46/80.
