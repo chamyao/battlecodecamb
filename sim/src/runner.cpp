@@ -89,6 +89,14 @@ void Match::run_turn(Instance& inst)
 
 GameResult Match::run()
 {
+	// Every board of this match lies inside the map: board-wide ops need only its rows (bots run on
+	// this thread's coroutines, so they see the same value).
+	struct Rows
+	{
+		int saved = board_rows;
+		~Rows() { board_rows = saved; }
+	} rows_guard;
+	board_rows = game.map().H;
 	for (int t = 0; t < 2; ++t) draft_bots_.push_back(make_instance(t, -1));
 	std::uint64_t rng = opt_.seed * 0x9E3779B97F4A7C15ull + 1;
 	while (!game.draft.done)

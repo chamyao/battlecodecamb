@@ -228,7 +228,7 @@ public:
 #endif
 	}
 	double chunks() const { return ((m.W + 7) / 8) * ((m.H + 7) / 8); }
-	void charge_ops(long n)
+	[[gnu::always_inline]] void charge_ops(long n)
 	{
 		ops += n;
 		api.compute(n * GENOME_OP_FUEL);
@@ -613,8 +613,7 @@ public:
 		FIELD_PROF_END(c, dests != nullptr);
 		return { d };
 #else
-		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
-		std::fill(d.get(), d.get() + static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]); // cbs::distance_field writes every entry
 		Bitboard visited;
 		FIELD_PROF_BEGIN;
 		// the bot runs the host search directly (no memo), so it is priced here on its own expansions
