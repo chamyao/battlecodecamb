@@ -62,8 +62,8 @@ class ArenaRater:
     """Plays a gate's matches on the arena service (POST /matches: 80 games, every map from both sides, bot seeds)
     instead of locally: no run or EC2 slot needed."""
 
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self, engine, priority=1):
+        self.engine, self.priority = engine, priority  # gates go ahead of bulk scoring (priority 0)
 
     def side(self, text_or_path, kind=None):
         if kind == "genome":
@@ -75,7 +75,8 @@ class ArenaRater:
         return f"repo:{rel.as_posix()}"
 
     def rate(self, a, b, threads=None, fuel_mult=1.0):
-        body = json.dumps({"a": a, "b": b, "engine": self.engine, "fuel_mult": fuel_mult, "bot_seeds": True}).encode()
+        body = json.dumps({"a": a, "b": b, "engine": self.engine, "fuel_mult": fuel_mult, "bot_seeds": True,
+                           "priority": self.priority}).encode()
         req = urllib.request.Request(f"{ARENA_URL}/matches?wait=110", data=body, method="POST",
                                      headers={"X-Arena-Client": "genome-search", "Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=130) as r:
