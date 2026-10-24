@@ -681,10 +681,12 @@ struct Interp
 	// same either way; the turn as a whole and its running total never go below zero.
 	// Mid-turn, kGateDeferMilli per block run so far is also held back and charged at the end:
 	// the fitted charges price the turn's total, but the real bot pays part of it after the
-	// policy runs. Measured at fuel_remaining() reads (21.5k first reads per turn, tune-3 with
-	// its gate always passing vs tune-2, 4 maps x 2 sides): without it the simulator read the
-	// gate a median 1.8k low; with it, 0.
-	static constexpr std::int64_t kGateDeferMilli = 24000;
+	// policy runs. Fitted at fuel_remaining() reads: the first read of each turn, in rounds 1-40
+	// of 160 cambc games (style-gconv1, tune-3, tune-v21-g65 and rall2-ca4 vs v7zg-cast, 40 maps),
+	// each compared with the simulator's read at the same turn. With this deferral the simulator's
+	// spend at the read is within a median 0.2k of cambc's for each policy. On a champion's first
+	// turn nothing is deferred: there the median is 0.3-1k low (24 per block: 3.5-4.3k low).
+	static constexpr std::int64_t kGateDeferMilli = 13000;
 	static constexpr std::int64_t kCampTilesMilliPerCamp = 43500;
 	static constexpr std::int64_t kFieldInitMilliPerTile = 2050;
 	std::uint64_t turn_calls0 = 0;
@@ -693,7 +695,7 @@ struct Interp
 	{
 		const auto target = static_cast<std::int64_t>(
 			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0))) -
-			(final ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
+			(final || turn_no == 1 ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
 		const std::int64_t raw = api.spent - turn_spent0 - turn_adj; // charges other than the correction
 		const std::int64_t want = std::max<std::int64_t>(target, -std::max<std::int64_t>(0, raw));
 		const std::int64_t d = want - turn_adj;
