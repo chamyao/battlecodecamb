@@ -1,0 +1,10 @@
+seed score 0.342
+[4] claude-haiku-5-5 island 3: error: NameError: line 65: use_altars already defined | best 0.342 (#0) $0.01 | 15s
+[5] claude-haiku-5-5 island 2: score 0.227 | best 0.342 (#0) $0.01 | 63s
+[6] claude-haiku-5-5 island 3: score 0.227 | best 0.342 (#0) $0.01 | 66s
+[7] claude-haiku-5-5 island 2: score 0.220 | best 0.342 (#0) $0.01 | 144s
+[8] claude-haiku-5-5 island 2: score 0.221 | best 0.342 (#0) $0.02 | 215s
+[9] claude-haiku-5-5 island 3: score 0.309 | best 0.342 (#0) $0.02 | 356s
+[10] claude-haiku-5-5 island 2: score 0.287 | best 0.342 (#0) $0.02 | 367s
+[11] claude-haiku-5-5 island 1: score 0.361 | best 0.361 (#11) $0.02 | 395s
+done: 8 programs (1 invalid), spent $0.02; best #11 score 0.361 -> /home/user/battlecodecamb/runs/pure3-g1/best.policy

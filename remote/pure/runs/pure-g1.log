@@ -1,0 +1,22 @@
+seed score 0.385
+[4] claude-haiku-5-5 island 3: error: TypeError: no block eq(Tile, Tile) | best 0.385 (#0) $0.01 | 18s
+[5] claude-haiku-5-5 island 2: score 0.265 | best 0.385 (#0) $0.01 | 63s
+[6] claude-haiku-5-5 island 3: score 0.136 | best 0.385 (#0) $0.01 | 67s
+[7] claude-haiku-5-5 island 2: score 0.202 | best 0.385 (#0) $0.02 | 82s
+[8] claude-haiku-5-5 island 2: score 0.270 | best 0.385 (#0) $0.02 | 192s
+[9] claude-haiku-5-5 island 1: score 0.253 | best 0.385 (#0) $0.02 | 278s
+[10] claude-opus-5-5 island 0: error: KeyError: 'VAR:Num:10' | best 0.385 (#0) $0.13 | 309s
+[11] claude-haiku-5-5 island 2: score 0.108 | best 0.385 (#0) $0.13 | 387s
+[12] claude-haiku-5-5 island 3: score 0.556 | best 0.556 (#12) $0.13 | 405s
+[13] claude-haiku-5-5 island 1: score 0.386 | best 0.556 (#12) $0.14 | 445s
+[14] claude-haiku-5-5 island 3: score 0.068 | best 0.556 (#12) $0.14 | 454s
+[15] claude-haiku-5-5 island 1: score 0.235 | best 0.556 (#12) $0.14 | 478s
+[16] claude-haiku-5-5 island 2: score 0.222 | best 0.556 (#12) $0.14 | 509s
+[17] claude-haiku-5-5 island 0: error: TypeError: no block GEM_FRAC_PLACEHOLDER() | best 0.556 (#12) $0.14 | 526s
+[18] claude-haiku-5-5 island 2: score 0.526 | best 0.556 (#12) $0.14 | 527s
+[19] claude-haiku-5-5 island 0: score 0.379 | best 0.556 (#12) $0.14 | 527s
+[20] claude-haiku-5-5 island 2: error: TypeError: no block move_towards(TileSet) | best 0.556 (#12) $0.15 | 535s
+[21] claude-haiku-5-5 island 1: score 0.377 | best 0.556 (#12) $0.01 | 66s
+[22] claude-haiku-5-5 island 2: score 0.434 | best 0.556 (#12) $0.01 | 71s
+[23] claude-haiku-5-5 island 1: score 0.446 | best 0.556 (#12) $0.01 | 130s
+[24] claude-haiku-5-5 island 0: score 0.372 | best 0.556 (#12) $0.01 | 142s
