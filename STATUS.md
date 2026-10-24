@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 11:35 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.08 11.33 12.77 on 16 threads.
+Updated 2026-10-24 11:41 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.16 11.79 12.50 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -16,8 +16,6 @@ Disk: 3.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[08:28:56] tune: G: tune/fs set up at 6cba5f0
-[08:28:56] tune: G: launched tune-fight ($5)
 [08:34:03] style: S4 check: h: g2 best style-h1 ok tune-v19 in league $3.32 left; b: style8-b-g1: +128 programs to the next boundary (22 so far) $3.06 left; before: h 3.34 b 3.50
 [08:59:55] hybrid: H3: g4 verdict logged; STOP placed in runs/hyb4-g5, waiting for hyb4 to exit
 [09:00:00] tune: G: restarting tune-fight on 45acc49 (pid 29566)
@@ -56,4 +54,6 @@ Disk: 3.3G used of 38G.
 [11:35:47] style: S6: at ace8582 (has 97e64e9), no rebuild; budgets: h 3.95 h2 2.2 b 3.5 a 0.04 c 2.25 
 [11:35:47] style: style8-h exited: [11:31:47] budget spent ($3.95)
 [11:35:47] style: launched style8-h2 (budget $2.2)
+[11:40:54] pure: pure: v20 opponent files from 13f4e52 (fixed from g5): policies/tune-fight-2s.policy policies/v5d.policy policies/v4.policy policies/locker.policy policies/fs-2.policy policies/opp-hunter3.policy 
+[11:40:56] style: S6 check: h2: g1 best opp-hunter3 ok tune-v19 in league $2.20 left; injected policies/opp-hunter-stack.policy
 ```
