@@ -24,3 +24,10 @@ first turn is 154-188k on these).
 | B279 | 0.649 | 0.525 | +2.5, +10.3, +7.7, +6.8 | 0.562 |
 | B318 | 0.647 | 0.637 | +0.8, +10.3, +8.2, +4.8 | 0.613 |
 | B263 | 0.641 | 0.588 | +2.5, +12.0, +8.5, +6.5 | 0.512 |
+
+## Runtime genome/fuel 82b5dcb (cheaper first turn, reserve() pass guard), vs v23 interpreted, 3 jobs
+
+| candidate | wins /80 | first turns at 200k cap | normal turns >= 100k (cand / v23) |
+|---|---|---|---|
+| seed (genome/seed f739709) | 41 | 6 | 226 / 0 |
+| B318 | 56 | 9 | 224 / 0 |
