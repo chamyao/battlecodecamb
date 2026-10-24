@@ -91,9 +91,9 @@ r7 skips fights against an enemy at 1.8x (1.4x) our strength while no ally is wi
 Result vs B318: 40/80 (34/80). Anchors: fed18 L1c 44, gconv1 49, v7 75, L1 52, rall2 48, metadraft 66; fed14 40, 51, 74, 47, 46, 69.
 Vs hunter: 54 and 52 (B318 55). The sim's opponents never grow a fed carry, so the sim cannot price this lever.
 
-## stress/carry calibration and lever (a) (GAPS v2 #2; --bot-seeds /80, runtime genome/v0 212a505)
+## stress/hunter-carry calibration and lever (a) (GAPS v2 #2; --bot-seeds /80, runtime genome/v0 212a505)
 
-stress/carry = B318 + a fed carry (its Vesper Vale stacks the treasure strength shard; non-carries leave targets
+stress/hunter-carry = B318 + a fed carry (its Vesper Vale stacks the treasure strength shard; non-carries leave targets
 under 25% to it when it is within 4) + hunter's chase rule.
 
 | variant | B318 vs it (/80) | B318 deaths to champions / gems lost to champions per game |
@@ -102,7 +102,7 @@ under 25% to it when it is within 4) + hunter's chase rule.
 | non-carries keep the seed split, carry stacks the strongest shard, feed 0.25 | 52 | 6.6 / 91 |
 | ... feed 0.4 | 60 | 6.8 / 110 |
 | ... and non-carries hunt only with the carry within 6 | 56 | 5.5 / 66 |
-| **... carry stacks treasure strength (18): stress/carry.genome** | **50** | **7.4 / 109** |
+| **... carry stacks treasure strength (18): stress/hunter-carry.genome** | **50** | **7.4 / 109** |
 
 Real b2 losses: 11.0 deaths, killer/victim item points 53/16, burst 20%. With the strongest-shard carry (6 local
 cambc games): killer/victim 17/17, burst 3%. The carry ends with the highest strength on the map (365) but fewer
