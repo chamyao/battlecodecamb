@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 22:10 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 4.52 5.31 5.39 on 16 threads.
+Updated 2026-10-24 22:15 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 4.86 4.85 5.14 on 16 threads.
 Disk: 7.3G used of 38G.
 
 ## python3 processes
@@ -14,8 +14,6 @@ Disk: 7.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-hint: the embedded repository and will not know how to obtain it.
-hint: If you meant to add a submodule, use:
 hint: 
 hint: 	git submodule add <url> simspeed-exact-1/suite/base
 hint: 
@@ -54,4 +52,6 @@ fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/b
 [22:04:59] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
 [22:10:05] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
+[22:15:10] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
