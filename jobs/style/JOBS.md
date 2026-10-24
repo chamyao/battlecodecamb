@@ -35,9 +35,9 @@ Islands (runs/style_launch.sh, budgets in runs/style_budgets: h 3.95, b 3.5, a 2
   (restart h only: SIGTERM the h league and child by PID first; b keeps running).
 - Comment h's validation lines (and b's) on PR #3 at each boundary.
 
-## Job S8 (14:20 UTC): conversion gap run, $2 (lead-released)
+## Job S8 (14:20 UTC; released 14:45 on 6e8cc17): conversion gap run, $2 (lead-released)
 
-On funsearch/style ed49293 or later. It merges coord/capture-metric 2dc29a7, so rebuild interp_eval (configure first)
+On funsearch/style 6e8cc17 or later (deploy/v0 d23c1cb: all 15 sensors calibrated; hill-climb + helpers). Rebuild interp_eval (configure first)
 and run pytest (2012). Then launch one resumable run, style8-gconv, alongside h2/b (a/c stay paused):
 ```
 GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
