@@ -162,6 +162,10 @@ calls + 110·turns`, 4668 rounds):
 - tune-1 vs v7zg-cast on 01big-world, the full game (EVERY=10), for heavy big-map searches.
 Runs from different bot builds list their API scopes differently; `fuel_calibrate.py` maps
 them by name.
+The profiler-distortion correction is fitted on the real policies' runs only: coverage.policy's
+turns (dozens of probe blocks each) are unlike any real policy's, and including them moved
+real policies (01big-world, tune-2 vs tune-1, lost its exact match when the gap-block probes
+were added).
 
 Largest items, in profile fuel before the scale (fuel; mean and mean absolute error over the
 samples):

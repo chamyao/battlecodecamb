@@ -151,7 +151,9 @@ def plain_rounds(run):
         if c!=C or nd+C*tno>len(real): continue
         out.append((sum(real[nd+C*(tno-1):nd+C*tno]),m,nb,na,c))
     return out
-PLAIN={run:plain_rounds(run) for run in runs}
+# coverage.policy is a synthetic probe (dozens of extra blocks per turn): it prices blocks but its
+# turns are unlike any real policy's, and fitting the correction on them moves real policies.
+PLAIN={run:plain_rounds(run) for run in runs if os.path.basename(os.path.dirname(run))!='coverage'}
 prow=[r for v in PLAIN.values() if v for r in v]
 if prow:
     y=np.array([r[0] for r in prow],float); X=np.array([r[1:] for r in prow],float)
