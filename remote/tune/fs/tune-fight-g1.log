@@ -75,3 +75,13 @@ TypeError: '<' not supported between instances of 'tuple' and 'int'
 [21] claude-haiku-5-5 island 2: score 0.665 | best 0.665 (#21) $0.03 | 504s
 [22] claude-haiku-5-5 island 2: score 0.509 | best 0.665 (#21) $0.20 | 548s
 [23] claude-opus-5-5 island 1: score 0.582 | best 0.665 (#21) $0.20 | 558s
+[24] claude-haiku-5-5 island 1: score 0.508 | best 0.665 (#21) $0.40 | 628s
+[25] claude-opus-5-5 island 3: score -0.057 | best 0.665 (#21) $0.40 | 636s
+[26] claude-haiku-5-5 island 2: score 0.197 | best 0.665 (#21) $0.40 | 663s
+[27] claude-opus-5-5 island 3: error: TypeError: line 60: macro opener is a step; only a macro whose body is 'return < | best 0.665 (#21) $0.61 | 729s
+[28] claude-haiku-5-5 island 1: score 0.356 | best 0.665 (#21) $0.61 | 771s
+[29] claude-haiku-5-5 island 2: score 0.331 | best 0.665 (#21) $0.61 | 811s
+[30] claude-haiku-5-5 island 3: score 0.677 | best 0.677 (#30) $0.61 | 842s
+[31] claude-opus-5-5 island 1: score 0.536 | best 0.677 (#30) $0.72 | 886s
+[32] claude-haiku-5-5 island 3: score 0.020 | best 0.677 (#30) $0.95 | 924s
+[33] claude-opus-5-5 island 3: score -0.098 | best 0.677 (#30) $0.95 | 925s
