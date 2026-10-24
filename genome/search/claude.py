@@ -47,6 +47,10 @@ class Claude:
     def ask(self, system, user, model=None):
         """One request. `system` is a list of strings: each becomes a cached block (stable first).
         Returns (reply text or None on refusal, model, cost USD, info dict)."""
+        if model is not None:
+            with self.lock:
+                if self.spent >= self.budget:
+                    raise BudgetExceeded(f"spent ${self.spent:.2f} of ${self.budget:.2f}")
         model = model or self._model()
         blocks = [{"type": "text", "text": s} for s in system]
         blocks[-1]["cache_control"] = {"type": "ephemeral"}

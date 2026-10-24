@@ -27,15 +27,18 @@ def main():
     ap.add_argument("--games", type=int, default=200)
     ap.add_argument("--threads", type=int, default=5)
     ap.add_argument("--tag", default="")
+    ap.add_argument("--anchors", default="", help="comma list of opponents (default: the live-bot reference and the "
+                                                  "4 fixed anchors)")
+    ap.add_argument("--no-seed", action="store_true")
     args = ap.parse_args()
     d = Path(args.state)
     s = json.loads((d / "state.json").read_text())
     live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"] and m["games"] >= args.min_games]
-    who = [("seed", Path(args.seed_genome).read_text(), None)]
+    who = [] if args.no_seed else [("seed", Path(args.seed_genome).read_text(), None)]
     who += [(m["name"], (d / m["path"]).read_text(), m["mu"]) for m in sorted(live, key=lambda m: -m["mu"])[:args.top]]
     for name, text, mu in who:
         spec = spec_of(text, "genome")
-        for anc in (REF,) + ANCHORS:
+        for anc in (args.anchors.split(",") if args.anchors else (REF,) + ANCHORS):
             w, n = rate(spec, spec_of(str(ROOT / anc)), SEEDS, args.games, args.threads)
             rec = {"tag": args.tag, "genome": name, "mu_old": mu, "anchor": Path(anc).stem, "wins": w, "games": n,
                    "win_rate": w / n, "seeds": list(SEEDS), "t": round(time.time())}

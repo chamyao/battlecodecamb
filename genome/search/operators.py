@@ -99,10 +99,12 @@ def apply_mutation(parent_src, reply, editable_ids, prefix):
     return child, stats
 
 
-def mutate(parent_src, claude, rng, prefix, stats_line=None, two_prob=0.25, notes_fn=None, variant="default"):
-    """notes_fn(names of the editable genes) -> extra text for the prompt (e.g. ladder evidence)."""
+def mutate(parent_src, claude, rng, prefix, stats_line=None, two_prob=0.25, notes_fn=None, variant="default",
+           edges=None, task=None, model=None):
+    """notes_fn(names of the editable genes) -> extra text for the prompt (e.g. ladder evidence).
+    edges / task / model override the random edge pick, the mutation task text and the model (prompt bench)."""
     genome = lang.parse(parent_src)
-    edges = pick_edges(genome, rng, two_prob)
+    edges = edges or pick_edges(genome, rng, two_prob)
     names = []
     for a, b, _ in edges:
         for n in (a, b):
@@ -113,7 +115,8 @@ def mutate(parent_src, claude, rng, prefix, stats_line=None, two_prob=0.25, note
     if notes_fn:
         stats_line = (stats_line or "") + notes_fn(names)
     user = prompts.mutate_user(genome, src_genes, names, edges, stats_line)
-    text, model, cost, info = claude.ask([prompts.SYSTEM_BASE, prompts.MUTATE_TASKS[variant]], user)
+    text, model, cost, info = claude.ask([prompts.SYSTEM_BASE, task or prompts.MUTATE_TASKS[variant]], user,
+                                         model=model)
     log = {"edges": [list(e) for e in edges], "n_edges": len(edges), "editable": sorted(editable_ids), "llm": info,
            "prompt": variant}
     if text is None:
