@@ -26,7 +26,7 @@ if [ ! -f runs/ec2-u1 ]; then
 | 2026-10-24 | hybrid line cap raised $10 -> $30 (project cap $90 -> $200). League --budget 29.47 = 30 - 0.18 (hyb, hyb2, hyb3) - 0.35 (lost above) | | | |
 X
 fi
-# U1 step 3 + budget: hold at the g4 boundary, then merge funsearch/runs (must contain ff56f90), rebuild, test,
+# U1 step 3 + budget: hold at the g4 boundary, then merge funsearch/runs (must contain aa032ba), rebuild, test,
 # relaunch with --budget 29.47. The league waits at the boundary while runs/hyb4.hold exists.
 if [ ! -f runs/ec2-g4-upgraded ]; then
   grep -q 'hyb4-g4: ' runs/hyb4.log && [ ! -f runs/ec2-hold-set ] && { touch runs/hyb4.hold runs/ec2-hold-set; log "g4 started: hold set for the g4 boundary upgrade"; }
@@ -34,12 +34,12 @@ if [ ! -f runs/ec2-g4-upgraded ]; then
     for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb4' | cut -d' ' -f1); do kill -TERM "$pid"; done; sleep 10
     rm -f policies/tune5-campreset.policy   # tracked upstream; avoid the untracked-file conflict
     if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-       git merge-base --is-ancestor ff56f90 HEAD && build "$D" &&
+       git merge-base --is-ancestor aa032ba HEAD && build "$D" &&
        python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
       echo 29.47 > runs/ec2-budget; BUDGET=29.47; rm -f runs/hyb4.hold; touch runs/ec2-g4-upgraded
       log "g4 boundary upgrade: funsearch/runs $(git rev-parse --short HEAD), $(tail -n 1 runs/ec2-pytest.txt); relaunching with --budget 29.47"
     else
-      echo "g4 boundary upgrade failed (merge/ff56f90/build/tests); league left on hold" > "$D/HALT"; log "HALT: g4 upgrade failed"; return 1
+      echo "g4 boundary upgrade failed (merge/aa032ba/build/tests); league left on hold" > "$D/HALT"; log "HALT: g4 upgrade failed"; return 1
     fi
   fi
 fi
