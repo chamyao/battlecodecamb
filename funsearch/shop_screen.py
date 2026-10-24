@@ -23,6 +23,8 @@ V = {
     "home-hp": [(JUN, "    buy( shard_of(family_home(), stat_health()), jungle_n )\n")],
     "treasure-focus": [(TRE, "    buy( shard_of(family_treasure(), stat_focus()), treasure_n )\n")],
     "monster-str": [(STR, "    buy( shard_of(family_monster(), stat_strength()), strength_shards )\n")],
+    "dur-both": [(HP, "    buy( shard_of(family_durability(), stat_health()), rest_after_jungle - strength_shards )\n"),
+                 (STR, "    buy( shard_of(family_durability(), stat_strength()), strength_shards )\n")],
     "dur-hp+focus": [(HP, "    buy( shard_of(family_durability(), stat_health()), rest_after_jungle - strength_shards )\n"),
                      (STR, "    buy( shard(stat_focus()), strength_shards )\n")],
 }
