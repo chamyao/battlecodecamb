@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 12:38 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.13 11.90 12.44 on 16 threads.
+Updated 2026-10-24 12:43 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.41 10.95 11.78 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -9,18 +9,12 @@ Disk: 3.3G used of 38G.
 43713 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 43738 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 2.60 --max-programs 106 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 75545 python3 -m funsearch.league --name style8-h2 --budget 2.2 --members policies/opp-hunter3.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v20.policy,policies/tune-v19.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/
-79363 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
-81282 /usr/bin/python3 -m funsearch.run --run hyb5-g2 --budget 20.72 --max-programs 30 --seed-policy policies/pool/v20.policy --opponents builtin:starter@0.25,policies/pool/v20.policy@3.0,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy
 85991 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.52 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-fight-2s.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,poli
+86583 /usr/bin/python3 -m funsearch.run --run style8-h2-g1 --budget 1.53 --max-programs 40 --seed-policy policies/opp-hunter3.policy --opponents builtin:starter@0.25,policies/opp-hunter3.policy@0.5,policies/tune-v20.policy,policies/tune-v19.policy,policies/tune5-campreset.policy,policies/tune5-reset
+87162 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
 ```
 ## tick.log (last 40 lines)
 ```
-[09:31:05] pure: resume check ok: [09:25:56] pure4-g4: +151 programs (to 151), best policies/fs-p2.policy, league ['policies/rall2-ca4-lean-g.policy', 'policies/v5d.policy', 'policies/v4.policy'
-[09:36:17] style: S5: SIGTERM style8-h pid 29229
-[09:36:17] style: S5: SIGTERM style8-h pid 41062
-[09:36:17] style: S5: SIGTERM style8-b pid 29242
-[09:36:17] style: S5: SIGTERM style8-b pid 29270
-[09:36:42] style: S5: at e576e98 (has 88e3783: deploy/v0 merge, pair-farming h, fuel-gate b), rebuilt, 2012 passed in 5.86s; left before: h 2.65 b 3.06; relaunching h and b
 [09:36:42] style: style8-h not running: relaunching (resumes from its programs.jsonl)
 [09:36:42] style: launched style8-h (budget $3.95)
 [09:36:42] style: style8-b not running: relaunching (resumes from its programs.jsonl)
@@ -55,4 +49,10 @@ Disk: 3.3G used of 38G.
 [12:01:59] hybrid: launched hyb5 league
 [12:17:26] hybrid: H6: hold set for the next hyb5 boundary
 [12:17:26] hybrid: H5 check: no re-seed lines; v20 promoted at the boundary, new generation: [12:10:40]   PROMOTED challenger policies/pool/v20.policy: builtin:starter 99.2%, v19 55.6%, lean-g65 55.6%, v18 59.2%, opp-hunter3 71.9%, opp-hunter2|[12:10:40] hyb5-g2: +30 programs to the next boundary (0 so far), best policies/pool/v20.policy, league ['policies/pool/v19.policy', 'policies/pool/le|
+[12:43:07] hybrid: H6: SIGTERM hyb5 pid 79363
+[12:43:24] hybrid: H6+H7: funsearch/runs a43aede (has a43aede, 48a1404), 2012 passed in 5.95s; v21 challenger queued; relaunching on v21
+[12:43:24] hybrid: hyb5 not running: relaunching (resume from runs/)
+[12:43:24] hybrid: launched hyb5 league
+[12:43:25] pure: pure: v21 opponent files from 0fcb030 (fixed from g6): policies/tune-v20-L1c.policy policies/v5d.policy policies/v4.policy policies/locker.policy policies/fs-2.policy policies/opp-hunter3.policy 
+[12:43:26] style: S7: waiting for h2's boundary verdict (verdict lines so far: 1)
 ```
