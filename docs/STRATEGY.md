@@ -178,6 +178,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   the league bar): tune-5 casting attack-reset abilities after the first basic attack and attacking again, vs
   champions and camps (tune-5 cast them at the target first, where they fail). Real cambc 65/80 vs tune-5,
   kills ~7.8 vs ~4.1; league 1729 [1715-1743] vs tune-5 1603 [1591-1616] (14-bot pool with hunters).
+  Still 0-50 in the same unranked groups vs the top 9 + vc? (tune-5 was 0-50 too).
+  18 = tune-r-all-v2 (`deploy/v0` c0024c8, sha256 46ce4da6...; ~07:27 UTC): campreset + monolith-group and
+  starvation fixes (T240 gated at fuel > 65000) + no recall with an enemy within 8. Tune line's league 1725
+  [1712-1737] vs campreset 1672 [1659-1683]; real cambc 40/80 vs campreset (information only), 0 capped turns.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
