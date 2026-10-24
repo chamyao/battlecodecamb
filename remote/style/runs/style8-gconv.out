@@ -2,3 +2,6 @@ gap run style8-gconv (conversion:max:0.05 vs policies/tune-v21.policy): $2.00 le
 gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.9034; win floor 0.5 vs it; weight 0.5
 seed tune-v21 score 0.628 (islands [0, 1, 2, 3])
 [4] claude-haiku-5-5 island 3: score -0.327 | best 0.628 (#0) $0.01 | 63s
+[5] claude-haiku-5-5 island 3: score 0.859 | best 0.859 (#5) $0.01 | 193s
+[6] claude-haiku-5-5 island 3: score 0.748 | best 0.859 (#5) $0.02 | 291s
+[7] claude-haiku-5-5 island 2: score 0.617 | best 0.859 (#5) $0.02 | 377s
