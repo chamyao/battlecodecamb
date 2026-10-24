@@ -732,14 +732,16 @@ struct Interp
 			api.compute(kUncalibratedBlockMilli / 1000);
 			return;
 		}
-		const std::int64_t H = m().H, ch = static_cast<std::int64_t>((m().W + 7) / 8) * ((m().H + 7) / 8);
 		// sum of c[i] * f[i], f = { 1, H, ch, occ, occ * H, dests, exp * ch, camps, groups, bits }; the
 		// terms fixed by the map are summed once per block kind
 		std::int64_t& fixed = fixed_milli[exec ? 1 : 0][static_cast<int>(op)];
+		const std::int64_t H = m().H;
+		auto chunks = [&] { return static_cast<std::int64_t>((m().W + 7) / 8) * ((m().H + 7) / 8); };
 		if (fixed == kUnsetMilli)
-			fixed = c[0] + c[1] * H + c[2] * ch + c[7] * static_cast<std::int64_t>(m().camps.size()) +
+			fixed = c[0] + c[1] * H + c[2] * chunks() + c[7] * static_cast<std::int64_t>(m().camps.size()) +
 					c[8] * static_cast<std::int64_t>(m().groups.size());
-		const std::int64_t milli = fixed + c[3] * w.occ + c[4] * (w.occ * H) + c[5] * w.dests + c[6] * (w.exp * ch) + c[9] * w.bits;
+		std::int64_t milli = fixed;
+		if (w.occ | w.dests | w.exp | w.bits) milli += c[3] * w.occ + c[4] * (w.occ * H) + c[5] * w.dests + c[6] * (w.exp * chunks()) + c[9] * w.bits;
 		if (cbs::memo_stats().enabled)
 		{
 			auto& st = charge_stats_table()[exec ? 1 : 0][static_cast<int>(op)];
