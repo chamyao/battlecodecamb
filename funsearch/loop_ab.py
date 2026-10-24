@@ -4,6 +4,8 @@ Replays one generation's database (runs/<run>/programs.jsonl) on the current bui
 
   climb  per-child hill-climb (funsearch.tune.climb_child, run.py's --tune-children settings) on the children
          that run.py would have climbed; each child is re-scored untuned and tuned on the same confirmation games.
+  screen fixed-subset screen (current: seed 0, 32 games/opponent, 14 of 40 maps) vs a stratified screen (same games,
+         every map tiled across opponents), both against a ground truth of all maps x both sides (80 games/opponent).
   stage  league tuning stage (funsearch.league.tune_candidate) on the top 3 candidates; untuned and tuned are
          validated like the league does (fresh seeds, 2 x val-games vs every opponent, h2h vs the best).
 
@@ -83,12 +85,50 @@ def stage_arm(run, opponents, best, args, log):
     return rows
 
 
+def screen_arm(progs, opponents, args, log):
+    import statistics as st
+    valid = sorted((p for p in progs if p["error"] is None), key=lambda p: p["score"])
+    step = max(1, len(valid) // args.screen_n)
+    sample = valid[::step][: args.screen_n]
+    rows = []
+    for p in sample:
+        t = p["text"]
+        cur = evaluate(t, opponents=tuple(opponents), games=args.games, threads=args.threads, seed=0)
+        strat = evaluate(t, opponents=tuple(opponents), games=args.games, threads=args.threads, seed=0, stratify=True)
+        truth = evaluate(t, opponents=tuple(opponents), games=80, threads=args.threads, seed=12345, stratify=True)
+        if not (cur.ok and strat.ok and truth.ok):
+            continue
+        rows.append({"id": p["id"], "current": round(cur.score, 4), "stratified": round(strat.score, 4),
+                     "truth": round(truth.score, 4)})
+        log(f"screen #{p['id']}: {rows[-1]}")
+
+    def rank(xs):
+        order = sorted(range(len(xs)), key=lambda i: xs[i])
+        r = [0] * len(xs)
+        for k, i in enumerate(order):
+            r[i] = k
+        return r
+    tr = [r["truth"] for r in rows]
+    summary = {}
+    for key in ("current", "stratified"):
+        xs = [r[key] for r in rows]
+        top = sorted(range(len(rows)), key=lambda i: -xs[i])[:5]
+        true_top = sorted(range(len(rows)), key=lambda i: -tr[i])[:5]
+        summary[key] = {"pearson": round(st.correlation(xs, tr), 3), "spearman": round(st.correlation(rank(xs), rank(tr)), 3),
+                        "mean_bias": round(st.mean(x - y for x, y in zip(xs, tr)), 4),
+                        "top5_overlap": len(set(top) & set(true_top))}
+    log(f"screen summary: {summary}")
+    return {"rows": rows, "summary": summary}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
     ap.add_argument("--best", required=True)
     ap.add_argument("--opponents", required=True, help="the run's weighted opponents, as given to funsearch.run")
     ap.add_argument("--arms", default="climb,stage")
+    ap.add_argument("--screen-n", type=int, default=60, help="programs (spread over the score range) in the screen arm")
+    ap.add_argument("--games", type=int, default=32, help="screen games per opponent (run.py --games)")
     ap.add_argument("--climb-n", type=int, default=24, help="children replayed in the climb arm")
     ap.add_argument("--tune-games", type=int, default=8)
     ap.add_argument("--rescore-games", type=int, default=64)
@@ -102,6 +142,9 @@ def main():
     out = {"run": args.run, "best": args.best, "opponents": opponents}
     if "climb" in args.arms:
         out["climb"] = climb_arm(progs, opponents, args, print)
+        Path(args.out).write_text(json.dumps(out, indent=1))
+    if "screen" in args.arms:
+        out["screen"] = screen_arm(progs, opponents, args, print)
         Path(args.out).write_text(json.dumps(out, indent=1))
     if "stage" in args.arms:
         out["stage"] = stage_arm(args.run, opponents, args.best, args, print)

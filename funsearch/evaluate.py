@@ -51,11 +51,13 @@ def _compiled_opponent(spec):
 
 
 def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, maps=None, timeout=600,
-             fuel_mult=1.0):
+             fuel_mult=1.0, stratify=False):
     """Parse, compile and play `text`; games alternate sides, maps sampled by seed.
 
     fuel_mult scales every bot's per-turn fuel budget (exploration only: anything
-    named best or submitted must be scored at 1.0, the real game)."""
+    named best or submitted must be scored at 1.0, the real game).
+    stratify: instead of sampling maps, give each opponent consecutive maps from the pool, continuing where the
+    previous opponent stopped, so one evaluation tiles every map (both sides) at the same total games."""
     try:
         steps = parse(text)
         prefix = to_prefix(steps)
@@ -78,10 +80,16 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         pol = f.name
     try:
         result = EvalResult(score=0.0)
+        start = 0
         for name, opp, w, n in zip(names, opponents, weights, counts):
+            if stratify:
+                these = [pool[(start + k) % len(pool)] for k in range(n // 2)]
+                start += n // 2
+            else:
+                these = chosen[: n // 2]
             out = subprocess.run(
                 [str(EVAL_BIN), "--a", pol, "--b", opp, "--games", str(n), "--threads", str(threads),
-                 "--seed", str(seed), "--fuel-mult", str(fuel_mult), *chosen[: n // 2]],
+                 "--seed", str(seed), "--fuel-mult", str(fuel_mult), *these],
                 capture_output=True, text=True, timeout=timeout)
             stats = json.loads(out.stdout)
             if "error" in stats:
