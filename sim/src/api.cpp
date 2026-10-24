@@ -875,9 +875,15 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 				}
 				h->D = bd;
 				h->round = round;
-				// The bot measures it. Estimate (bot session's measurements): ~190 + 1.7 per tile
-				// reached in compact regions, ~0.9 chunks per layer on long open walks.
-				h->mask = std::max<long long>(190 + reach * 17 / 10, static_cast<long long>(chunks) * bd * 9 / 10);
+				// The bot measures it. Estimate: ReachableMask works layer by layer on the chunks of
+				// the box within k of origin (clipped to the map), so 97 + 1.54 per such chunk summed
+				// over the D layers + 0.29 per tile reached (33k masks on 10 maps, tune-2 vs tune-1:
+				// mae 93 fuel; large masks median 0.995).
+				long long box_chunks = 0;
+				for (int k = 1; k <= bd; ++k)
+					box_chunks += static_cast<long long>(std::min(W - 1, origin.x + k) / 8 - std::max(0, origin.x - k) / 8 + 1) *
+								  (std::min(H - 1, origin.y + k) / 8 - std::max(0, origin.y - k) / 8 + 1);
+				h->mask = 97 + box_chunks * 154 / 100 + reach * 29 / 100;
 				h->used = ++hs.clock;
 			}
 		}

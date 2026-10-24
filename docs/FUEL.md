@@ -266,6 +266,20 @@ tune-1 profiles: three turns cambc measured at ~95.7k came out at ~103.5k becaus
 samples in the pool). On the same refit, v7zg-cast vs fs-1 (12 maps, all still identical):
 total 1.028 (was 1.044), per-turn median +1.6%, 10-90% [−7.8%, +12.7%].
 
+On the ba25401 bot (refit 65ca6e5, then the mask estimate below), tune-2 vs tune-1, 80
+`--bot-seeds` games against cambc: **80/80 identical**, including the one game where cambc
+itself suspends a turn (01big-world, tune-2 as A, round 1392). 525,805 turns: total 1.011,
+per-turn median −0.0%, 10-90% [−11.2%, +12.8%], 1-99% [−23.0%, +24.1%]; turns over 80k:
+median 0.997.
+
+`nearest_by_walk`'s choice of the capped origin search depends on what the last reachable
+mask cost the bot (it measures it). The simulator estimated it as max(190 + 1.7·tiles,
+0.9·chunks·D), which is 3-4x the real cost almost everywhere (median masks are 100-350
+fuel), so the simulator took the capped search where the bot did not (an extra ~60 layers on
+01big-world). Measured on 33k masks (tune-2 vs tune-1, 10 maps), ReachableMask works layer
+by layer on the chunks of the box within k of origin: mask ≈ 97 + 1.54·Σ_{k≤D} chunks(box
+of radius k, clipped) + 0.29·tiles (mae 93 fuel; masks over 2k: median 0.995).
+
 Diagnostics for this kind of check:
 - `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
   trace build): per champion turn, `@@ST` (state seen at turn start), `@@SE` (the `end_turn()`
