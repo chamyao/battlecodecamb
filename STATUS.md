@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 16:04 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 9.89 12.76 14.08 on 16 threads.
+Updated 2026-10-24 16:09 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.03 12.33 13.51 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
@@ -11,10 +11,10 @@ Disk: 3.4G used of 38G.
 134213 python3 -m funsearch.run --run style8-gyield --budget 1.27 --max-programs 400 --seed-policy policies/style-gconv1.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraf
 134253 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
 134277 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.92 --max-programs 149 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-
+134778 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 17.19 --max-programs 30 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
 ```
 ## tick.log (last 40 lines)
 ```
-[14:49:50] style: launched style8-b (budget $3.5)
 [14:54:56] hybrid: H10: SIGTERM hyb5 pid 103837
 [14:55:21] hybrid: H10: funsearch/runs 6646329 (has 7a6038d, 6646329: H10-H15: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, 2028 passed in 7.16s; relaunching hyb5 with the weighted axis menu and --helpers-runs
 [14:55:21] hybrid: hyb5 not running: relaunching (resume from runs/)
@@ -54,4 +54,5 @@ Disk: 3.4G used of 38G.
 [16:04:07] style: S12: launched style8-gyield ($1.27)
 [16:04:07] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [16:04:07] style: launched style8-b (budget $3.5)
+[16:09:15] style: S12 gyield check: gap run style8-gyield (conversion:max:0.05,gems_per_capture:max:3 vs policies/tune-v21.policy): $1.27 left of |gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8974|gap metric gems_per_capture (max, scale 3): reference tune-v21 mirror value 10.6992|gap: 2 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5|
 ```
