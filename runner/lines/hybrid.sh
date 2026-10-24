@@ -26,6 +26,21 @@ pushall() {
 # the pending H21b/H23/H24/H25 restart. At the hyb5-g3 boundary (hold already set): SIGTERM hyb5 by PID, NO relaunch,
 # hold file left in place, one final full state push. Nothing below this block runs again (no restarts, no checks).
 if [ -f runs/ec2-final ]; then
+  # 17:50 follow-up: FINAL fired at 17:42 on 4146036, before the cmdline capture and the check file were added, and the
+  # league is gone (/proc unavailable). Write both now and push once: the command line is the 16:35 (H20+H21) launch,
+  # rebuilt from this script's variables with the markers h4..h20 set and h21b unset.
+  if [ ! -f runs/ec2-final-check.txt ]; then
+    { echo "# $(date -u +%FT%TZ) in $D (after the 17:42 stop)"; echo "\$ ls -la policies/fs-h* policies/fsh*"; ls -la policies/fs-h* policies/fsh* 2>&1
+      echo "\$ grep -h PROMOTED runs/*.log"; grep -h PROMOTED runs/*.log 2>&1; } > runs/ec2-final-check.txt
+    cat > runs/hyb5.cmdline <<'X'
+# hyb5 league as last launched by the ec2 runner (16:35:16 UTC, H20+H21; pid 142461; cwd /root/bc/hybrid on funsearch/runs 694a4a3).
+# Reconstructed from runner/lines/hybrid.sh variables (ec2/runner), since the stop at 17:42 preceded the /proc capture.
+# NOT included (pending H21b/H23/H24/H25, never applied): see the hybrid line's notes; H24 would change --island-seeds
+# (island 3 -> v21), drop --protect-islands/--fuel-islands/--island-axes, append fuel:1 to --axes, add --no-tune-children.
+python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy,policies/pool/style-gconv1.policy --prefix fs-h --line hybrid --round 30 --cambc-ref policies/pool/v21.policy --workers 3 --eval-threads 2 --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share 0.1 --island-seeds policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-76.policy --axes conversion:5,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1 --tune-opponents builtin:starter@0.25,policies/pool/v21.policy@3,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-metadraft.policy --helpers-runs /root/bc/hybrid/runs,/root/bc/pure/runs,/root/bc/style/runs,/root/bc/tune-fs/runs --protect-islands 3 --fuel-islands 3 --island-axes 3=fuel:5,conversion:2,pairs:1,disengage:1 --yield-weight 0.25 --screen-maps cover --rescreen-top 3
+X
+    pushall && log "FINAL: ec2-final-check.txt + hyb5.cmdline pushed (remote/hybrid $(git -C /root/bc/state/remote_hybrid rev-parse --short HEAD))"
+  fi
   [ -f runs/ec2-final-pushed ] || { pushall && touch runs/ec2-final-pushed && log "FINAL: state pushed (remote/hybrid $(git -C /root/bc/state/remote_hybrid rev-parse --short HEAD))"; }
   return 0
 fi
