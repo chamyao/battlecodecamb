@@ -85,6 +85,38 @@ if [ "$phase" = g4 ] && [ -f runs/ec2-v20 ] && [ ! -f runs/ec2-v21 ]; then
     touch runs/ec2-v21 && log "pure: v21 opponent files from $V21_REV (fixed from g6): $(tr '\n' ' ' < runs/pure_fixed.txt)" ||
     log "pure: v21 opponent file sync failed"
 fi
+# One-shot build switch at g5 -> g6 (pure line, 12:55 UTC): G6_REV merges deploy/v0 dc15600 (tune lockfix b9452ee:
+# locked_altars() = enemy locks only; v21 depends on it). When pure4.json reaches gen 6 the league has already started
+# g6 on the old build: stop it, move that partial g6 dir aside (still counted by spent()), drop "target" (keep the
+# frozen "fixed"), check out G6_REV keeping runs/, rebuild, relaunch g6 from scratch.
+G6_REV=0af36c4
+if [ "$phase" = g4 ] && [ ! -f runs/ec2-g6build ]; then
+  gen=$(python3 -c "import json; print(json.load(open('runs/pure4.json'))['gen'])")
+  if [ "$gen" -ge 6 ]; then
+    if running "league --name pure4"; then
+      [ -f "runs/pure4-g$gen/STOP" ] || { mkdir -p "runs/pure4-g$gen"; touch "runs/pure4-g$gen/STOP"; log "g6 build switch: STOP requested (gen $gen)"; }
+      push_state remote/pure remote/pure/runs runs; return 0
+    fi
+    rm -f "runs/pure4-g$gen/STOP"
+    [ -d "runs/pure4-g$gen" ] && mv "runs/pure4-g$gen" "runs/pure4-g$gen-oldbuild"
+    [ -f "runs/pure4-g$gen.log" ] && mv "runs/pure4-g$gen.log" "runs/pure4-g$gen-oldbuild.log"
+    python3 - <<'EOF2' || { halt "g6 build switch: pure4.json edit failed"; return 1; }
+import json
+s = json.load(open("runs/pure4.json"))
+s.pop("target", None)
+json.dump(s, open("runs/pure4.json", "w"))
+EOF2
+    rm -rf /root/bc/pure-runs-save && cp -a runs /root/bc/pure-runs-save &&
+      git fetch -q origin funsearch/pure && git checkout -q -f "$G6_REV" &&
+      rm -rf runs && cp -a /root/bc/pure-runs-save runs &&
+      git checkout -q "$G6_REV" -- runs/pure_launch.sh ||
+      { halt "g6 build switch: checkout failed"; return 1; }
+    build "$D" || { log "g6 build failed"; return 1; }
+    wc -l < runs/pure4.log > runs/ec2-resume-mark; rm -f runs/ec2-resume-checked
+    touch runs/ec2-g6build; mark=$(cat runs/ec2-resume-mark)
+    log "g6 build switch: moved to funsearch/pure $(git rev-parse --short HEAD) (lockfix); g6 restarts on the new build"
+  fi
+fi
 if ! running "league --name pure4"; then
   if [ "$phase" = g3 ] && [ -f runs/ec2-launched ] && newlog | grep -q 'PROMOTED fs-p3' &&
      python3 -c "import json,sys; sys.exit(json.load(open('runs/pure4.json'))['gen'] != 4)"; then
@@ -130,7 +162,7 @@ if [ ! -f runs/ec2-resume-checked ]; then
   if [ -n "$first" ]; then
     if [ "$phase" = g3 ] && { ! echo "$first" | grep -q 'pure4-g3: ' || echo "$first" | grep -qE '\+15[01] programs'; }; then
       halt "restart detected instead of a resume: $first"
-    elif [ "$phase" = g4 ] && { ! echo "$first" | grep -q 'pure4-g4: ' || ! echo "$first" | grep -qF "$(head -n 1 runs/pure_fixed.txt)"; }; then
+    elif [ "$phase" = g4 ] && { ! echo "$first" | grep -qE 'pure4-g[4-9][0-9]*: ' || ! echo "$first" | grep -qF "$(head -n 1 runs/pure_fixed.txt)"; }; then
       halt "g4 did not start as expected: $first"
     else
       touch runs/ec2-resume-checked; log "resume check ok: $(echo "$first" | cut -c1-160)"
