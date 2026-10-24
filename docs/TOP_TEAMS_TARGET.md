@@ -147,11 +147,13 @@ Tools:
 | candidate | what it is | v21: our deaths, sim / real | v21: our kills, sim / real | v21: gems us / them, sim (real 174 / 1014) | sim W-L of our versions (real 0-25) | fit error |
 |---|---|---|---|---|---|---|
 | opp-hunter3 | the style line's hunter (baseline) | 13.2 / 18.0 | 13.0 / 0.4 | 735 / 612 | 16-9 | 46.6 |
-| fishA-E | hunter3 + Fish draft and items; engage gates by ally count | 4.4-7.0 | 13.6-16.6 | ~900 / 250-450 | 23-2 to 25-0 | 33.7-54.3 |
+| fishA-E | hunter3 + Fish draft and items; engage gates by ally count | 4.4-7.0 | 13.6-16.6 | ~900 / 250-450 | 22-3 to 25-0 | 33.7-54.3 |
 | fishF-I | + engage/disengage on local strength (Lanchester; engage ≥ 1.0-2.0, leave < 0.5-1.2) | 4.2-5.4 | 8.0-11.4 | ~860 / 220-350 | 25-0 | **20.6-28.4** |
 | fv0 | v21 with only Fish's draft | 6.6 | 13.4 | 774 / 619 | 10-15 | 42.2 |
 | fv1 | v21 + Fish draft + Fish items (stat stacking) | 6.8 | 18.4 | 853 / 440 | 21-4 | 60.8 |
 | fv3-4 | fv1 + Fish engage (closest within 8-10 when local strength ≥ 1.0-1.5) + walk away when local strength < 0.6-0.7 | 4.8-5.4 | 9.6-11.2 | ~800 / 390-460 | 21-4 to 23-2 | 21.3-23.2 |
+
+| fv5, fishJ | fv4 / fishI + the low-HP rule below (at HP < 0.5 with an enemy within 5: walk straight away every turn) | 3.8-4.0 | 7.4-8.2 | 753-857 / 287-375 | 21-4 / 25-0 | **18.5-18.6** |
 
 **None reproduces Fish.**
 - Every clone loses to all five of our versions in the sim. v21 dies 4-7 times per game against them (18 against the real Fish), and kills them 8-18 times (0.4 against the real Fish).
@@ -177,6 +179,7 @@ Tools:
 - The other top teams are similar: 13-20% of their low-HP champions die, against our 65-69%.
 - This is the rule a clone (and our bot) must have before anything else. **At HP < 0.5 with an enemy within 5, move directly away from the nearest enemy every turn, and don't stop to attack.** Recall only once no enemy is within 8.
 - The clones' retreat rules (dash home at 0.3-0.6, or walk away on low local strength) don't do this. They retreat too late, or stop to fight.
+- Adding the rule to the clones (fv5, fishJ) helps but isn't enough. v21 kills them 7-8 times per game, down from 10-11, against 0.4 for the real Fish, and the fit error drops to 18.5. So Fish's survival also comes from something these clones don't do. Candidates: fighting only inside its own area (62% of top-team engagements are in their half), committing several champions at once so that the low-HP champion has cover, and a stat lead in every fight after the first kills.
 
 **Next for the sim session:**
 1. Add that rule to a clone and to a v22 candidate.
