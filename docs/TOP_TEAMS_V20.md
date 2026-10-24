@@ -40,15 +40,22 @@ The comparison:
 | vc? | 0-5 (246-1018) | 0-5 (298-1010) | 3-2 (693-745) | 0-5 (180-1055) |
 | willow best girl | 0-5 (171-1015) | 0-5 (109-1018) | 0-5 (89-1032) | 0-5 (140-1033) |
 
-## Why v19's wins disappeared: the opponents changed, not (only) us
+## Why v19's wins disappeared: vc? changed its bot; the prism win may be the ward
 
-The engine is deterministic, and so are most of these bots. So a v19 game and its v20 rerun are identical unless one side's behaviour changed.
-- **Identical games: 11 of 50**, with the same score and round count. These are maps where the ward rule didn't change our play.
-- **vc? and prism best girl changed their bots between 08:30 and 11:35.** In the reruns, the first action that differs is *theirs*:
-  - vc? on 01the_farm: their ward placement, round 2 vs 3. Our v20 placed no ward at all on that map.
-  - vc? on 00eight: their cast target, round 39.
-- So the vc? 3-2 and prism 1-4 under v19 were against older versions of those bots. The v20 0-5 against both doesn't show that the ward rule is worse.
-- To separate the two effects, someone would need to rerun v19 against the current vc? and prism. I can't do that from the analysis line.
+The engine is deterministic, and so are most of these bots. So a v19 game and its v20 rerun are identical unless one side's behaviour changed. For each pair I found the first event that differs, and whose action it is:
+
+| first divergence | games | opponents |
+|---|---|---|
+| identical game (same score and round count) | 7 | :3, Fish 2, Univardisty 2, policy wonk, prism |
+| our action first (the ward rule) | 20 | most teams |
+| *their* action first | 8 | **vc? 3**, Mite 3, willow 2 |
+| both in the same event slot (order within the round; can't tell) | 15 | |
+
+- **vc? changed its bot between 08:30 and 11:35.** Its first differing action comes at round 2 on 01the_farm and 01starvation, before any ward of ours. On 01the_farm our v20 placed no ward at all. Its other two games are ambiguous at rounds 1 and 9.
+  - So v19's 3-2 against vc? was against an older vc?, and v20's 0-5 doesn't show that the ward rule is worse there.
+  - Mite and willow also updated, which doesn't matter here (0-5 throughout).
+- **prism best girl did not visibly change.** Its games diverge on our action first (wards from round 12-20). The 00quadrants win (1023-845 under v19, 472-1053 under v20) diverges at round 19, when our first ward goes down. **The ward rule may have cost that game.**
+- To settle the vc? part, someone would need to rerun v19 against the current vc?. I can't do that from the analysis line.
 
 ## Decisive fights (our champion dies, no kill back within 10 rounds)
 
