@@ -1,32 +1,19 @@
 # EC2 runner status
 
-Updated 2026-10-24 15:58 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.26 14.70 14.86 on 16 threads.
+Updated 2026-10-24 16:04 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 9.89 12.76 14.08 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
 ```
 92618 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
 92630 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.29 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,polic
-120806 python3 -m funsearch.run --run style8-gconv --budget 1.75 --max-programs 400 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.pol
-120843 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
-124830 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
-125838 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 18.20 --max-programs 30 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
-131479 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.93 --max-programs 150 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-
+133949 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
+134213 python3 -m funsearch.run --run style8-gyield --budget 1.27 --max-programs 400 --seed-policy policies/style-gconv1.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraf
+134253 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
+134277 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.92 --max-programs 149 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-
 ```
 ## tick.log (last 40 lines)
 ```
-[14:23:38] style: S8: launched style8-gconv ($2.0 total)
-[14:23:38] style: style8-b not running: relaunching (resumes from its programs.jsonl)
-[14:23:38] style: launched style8-b (budget $3.5)
-[14:28:46] style: S8 gap line: gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.9034; win floor 0.5 vs it; weight 0.5
-[14:33:55] style: S8 HOLD: SIGTERM style8-gconv pid 106865
-[14:34:00] style: S8 HOLD: gconv stopped; spend $0.019 over 8 lines
-[14:49:24] style: S9: SIGTERM pid 106899
-[14:49:24] style: S9: SIGTERM pid 106920
-[14:49:50] style: S9: at ec8c33d (has 6e8cc17), rebuilt, 2024 passed in 6.17s; restarting b, releasing gconv
-[14:49:50] style: S8: style8-gconv not running: relaunching (resumes)
-[14:49:50] style: S8: launched style8-gconv ($2.0 total)
-[14:49:50] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [14:49:50] style: launched style8-b (budget $3.5)
 [14:54:56] hybrid: H10: SIGTERM hyb5 pid 103837
 [14:55:21] hybrid: H10: funsearch/runs 6646329 (has 7a6038d, 6646329: H10-H15: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, 2028 passed in 7.16s; relaunching hyb5 with the weighted axis menu and --helpers-runs
@@ -55,4 +42,16 @@ Disk: 3.4G used of 38G.
 [15:32:21] hybrid: launched hyb5 league
 [15:32:21] hybrid: H10 check: 28 new programs: conversion 13 (0.46, expect 0.31), disengage 1 (0.04, expect 0.12), vocab 5 (0.18, expect ~0.2)
 [15:42:40] hybrid: H17: hold set for the next hyb5 boundary
+[16:03:15] hybrid: H17: SIGTERM hyb5 pid 124830
+[16:03:38] hybrid: H17: funsearch/runs fce1ade (has 27dd4a2, fce1ade: H17-H19), built interp_eval+fuel_turns, 2029 passed in 7.31s; relaunching hyb5 with the #82 fuel island and --yield-weight 0.25
+[16:03:38] hybrid: hyb5 not running: relaunching (resume from runs/)
+[16:03:38] hybrid: launched hyb5 league
+[16:03:38] hybrid: H15 ALERT: 'FLAG yield' in explore.txt:   FLAG yield: #119 gems per capture 13.8 vs v21 8.8 (+5.0) with 52% vs v21 (score 0.545)
+[16:03:41] style: S12: SIGTERM pid 120806
+[16:03:41] style: S12: SIGTERM pid 120843
+[16:03:41] style: S12: SIGTERM pid 131479
+[16:04:07] style: S12: at 16dfcad (has 983462f), rebuilt, 2024 passed in 6.28s; gconv stopped for good; b restarting; gyield starting
+[16:04:07] style: S12: launched style8-gyield ($1.27)
+[16:04:07] style: style8-b not running: relaunching (resumes from its programs.jsonl)
+[16:04:07] style: launched style8-b (budget $3.5)
 ```
