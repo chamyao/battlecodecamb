@@ -1146,3 +1146,13 @@
 {"arena": "B", "t": 1792879981.0, "name": "B1145", "birth": 1145, "parents": ["B1102"], "species": "S1", "mu": 44.93866597292582, "op": "mutate", "model": "claude-haiku-5-5"}
 {"arena": "B", "t": 1792879995.8, "name": "B1146", "birth": 1146, "parents": ["B1136"], "species": "S1", "mu": 43.359175597685244, "op": "mutate", "model": "claude-haiku-5-5"}
 {"arena": "B", "t": 1792880002.2, "name": "B1147", "birth": 1147, "parents": ["B1102"], "species": "S1", "mu": 44.785748678031275, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "B", "t": 1792880019.1, "name": "B1148", "birth": 1148, "parents": ["B1092"], "species": "S2", "mu": 43.841712647981325, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "B", "t": 1792880033.2, "name": "B1149", "birth": 1149, "parents": ["B1136"], "species": "S1", "mu": 43.99329157418657, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "B", "t": 1792880043.7, "name": "B1150", "birth": 1150, "parents": ["B1102"], "species": "S1", "mu": 43.83109115546358, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "B", "t": 1792880053.5, "name": "B1151", "birth": 1151, "parents": ["B1102"], "species": "S1", "mu": 43.82056706114838, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "B", "t": 1792880099.7, "name": "B1152", "birth": 1152, "parents": ["B1127", "B1026"], "species": "S2", "mu": 43.921888727808806, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "B", "t": 1792880108.6, "name": "B1153", "birth": 1153, "parents": ["B1130", "B1026"], "species": "S1", "mu": 44.17256876408771, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "B", "t": 1792880121.2, "name": "B1154", "birth": 1154, "parents": ["B1136", "B1141"], "species": "S1", "mu": 44.53640948725246, "op": "cross", "model": ""}
+{"arena": "B", "t": 1792880132.7, "name": "B1155", "birth": 1155, "parents": ["B1121", "B1141"], "species": "S1", "mu": 44.80144324794931, "op": "cross", "model": ""}
+{"arena": "B", "t": 1792880142.0, "name": "B1156", "birth": 1156, "parents": ["B1145"], "species": "S1", "mu": 44.73624960526809, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "B", "t": 1792880144.6, "name": "B1157", "birth": 1157, "parents": ["B1130"], "species": "S1", "mu": 43.7360765408529, "op": "tune", "model": ""}

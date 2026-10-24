@@ -2053,3 +2053,23 @@
 [00:14:03] [B] champion anchor champ23-B1105 (mu 44.6)
 [00:14:03] [B] summary: births 1150 deaths 1127 games 253056 $7.90; top [('B1105', 44.61, 0.79, 680, 'S1'), ('B1127', 44.6, 0.79, 496, 'S1'), ('B1145', 44.54, 0.85, 144, 'S1')]; top vs anchors {'B1105': 0.648, 'B1127': 0.656, 'B1145': 0.875}
 [00:14:03] [B] birth B1150 (mutate claude-haiku-5-5) of ['B1102'] species S1; 24 genomes $7.90
+[00:14:11] [B] rejected mutate claude-opus-5-5: GenomeError: step_gain line 685: unknown name DANGER
+[00:14:13] [B] birth B1151 (mutate claude-haiku-5-5) of ['B1102'] species S1; 24 genomes $7.96
+[00:14:19] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[00:14:29] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[00:14:42] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[00:14:59] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[00:14:59] [B] birth B1152 (llm_cross claude-haiku-5-5) of ['B1127', 'B1026'] species S2; 24 genomes $7.98
+[00:15:08] [B] birth B1153 (llm_cross claude-haiku-5-5) of ['B1130', 'B1026'] species S1; 24 genomes $7.98
+[00:15:08] [B] rejected tune : behavioural twin
+[00:15:11] [B] rejected tune : behavioural twin
+[00:15:21] [B] birth B1154 (cross ) of ['B1136', 'B1141'] species S1; 24 genomes $7.98
+[00:15:21] [B] rejected tune : behavioural twin
+[00:15:24] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:32] [B] birth B1155 (cross ) of ['B1121', 'B1141'] species S1; 24 genomes $7.98
+[00:15:42] [B] birth B1156 (mutate claude-opus-5-5) of ['B1145'] species S1; 24 genomes $8.02
+[00:15:42] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:44] [B] spent $8.02 of $8.00: no more births
+[00:15:44] [B] birth B1157 (tune ) of ['B1130'] species S1; 24 genomes $8.02
+[00:16:31] [B] summary: births 1157 deaths 1134 games 257576 $8.03; top [('B1145', 44.68, 0.79, 400, 'S1'), ('B1156', 44.25, 0.81, 184, 'S1'), ('B1121', 44.23, 0.79, 800, 'S1')]; top vs anchors {'B1145': 0.896, 'B1156': 0.812, 'B1121': 0.743}
+[00:16:32] [B] done: spent $8.02
