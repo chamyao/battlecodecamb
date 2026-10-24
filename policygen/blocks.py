@@ -198,6 +198,12 @@ _b("team_gems", "", "Num")
 _b("unseen_enemies_near", "Num Num", "Num")
 _b("bank_detour", "Tile", "Num")
 _b("group_rate", "Tile", "Num")
+_b("monolith_threat", "Tile", "Num")
+_b("in_monolith_zone", "Tile", "Bool")
+_b("altar_safe_tiles", "", "TileSet")
+_b("camp_threat", "Tile", "Num")
+_b("enemy_locks", "", "UnitList")
+_b("lock_hits_left", "Tile", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)
