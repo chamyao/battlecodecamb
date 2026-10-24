@@ -68,6 +68,8 @@ class ArenaRater:
     def side(self, text_or_path, kind=None):
         if kind == "genome":
             return {"text": text_or_path, "kind": "genome"}
+        if str(text_or_path).endswith(".genome"):  # genome files go inline (they need not exist in the engine's tree)
+            return {"text": Path(text_or_path).read_text(), "kind": "genome"}
         p = Path(text_or_path)
         rel = p.resolve().relative_to(ROOT) if p.is_absolute() or p.resolve().is_relative_to(ROOT) else p
         return f"repo:{rel.as_posix()}"
