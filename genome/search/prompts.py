@@ -93,3 +93,13 @@ def mutate_user(genome, source_genes, editable, edges, stats=None):
 def cross_user(a_src, a_score, b_src, b_score):
     return (f"## Parent A (score {a_score:.3f})\n```python\n{a_src.strip()}\n```\n\n"
             f"## Parent B (score {b_score:.3f})\n```python\n{b_src.strip()}\n```\n\nWrite the child.")
+
+
+_AIM = """Aim for a change that should make the bot win more: a better rule, a missing behaviour, a better
+threshold, a cheaper way to compute the same thing. Keep what already works."""
+_CREATIVE = """Be creative: try a genuinely new idea for these genes (a new behaviour, a different rule, a new
+helper or subtree), not a small tweak of what is there. Bold, surprising changes are welcome; it is fine if
+most of them fail."""
+# mutation prompt variants (arena --mutate-prompt); "default" is MUTATE_TASK as written above
+MUTATE_TASKS = {"default": MUTATE_TASK, "creative": MUTATE_TASK.replace(_AIM, _CREATIVE)}
+assert MUTATE_TASKS["creative"] != MUTATE_TASK

@@ -374,7 +374,7 @@ class Arena:
         if op == "mutate":
             two = 1.0 if r.random() < 0.25 else 0.0
             child = operators.mutate(ptext, self.claude, r, prefix, self._stats_line(parent), two,
-                                     notes_fn=self.intel_notes)
+                                     notes_fn=self.intel_notes, variant=self.a.mutate_prompt)
         return self.check(child, parents, seq)
 
     def _stats_line(self, m):
@@ -382,6 +382,7 @@ class Arena:
 
     def check(self, child, parents, seq, op=None):
         rec = {"seq": seq, "op": op or child.op, "model": child.model, "cost": child.cost, "parents": parents,
+               "prompt": self.a.mutate_prompt,
                "log": child.log, "error": child.error}
         if child.source is None:
             return rec, None
@@ -649,6 +650,8 @@ def main(argv=None):
     ap.add_argument("--anchor-sigma", type=float, default=1.0)
     ap.add_argument("--refingerprint", action="store_true",
                     help="recompute live genomes' twin-check outcomes at start (after a runtime change)")
+    ap.add_argument("--mutate-prompt", default="default", choices=["default", "creative"],
+                    help="mutation prompt variant (genome/search/prompts.py MUTATE_TASKS); logged per child")
     ap.add_argument("--intel-branch", default="")
     ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
     ap.add_argument("--resume-from", default="", help="an earlier arena output directory (e.g. the last pushed "
