@@ -220,10 +220,11 @@ session runs the real-cambc safety checks (crashes, 100k-cap turns, first turn <
   `export ARENA_URL=https://138-201-121-171.sslip.io/arena ARENA_CLIENT=tune`; `curl -fsS $ARENA_URL/docs`;
   `curl -fsS $ARENA_URL/client.py -o arena.py`; docs/REMOTE_WORKER.md on main (1983be7). No new job PRs; the
   jobs/tune / remote/tune / ec2/runner channel is retired.
-- Compare against live with the deploy/v0 engine (sha 545c7b1e644b1e5c82ba07b3a8aa8945ab2dc190); names are immutable;
+- Compare against live with arena engine 2e1ff7edfe75d21b3eee24f60144e04bea8f7b8c (deploy/v0 2e1ff7e, fuel recalibrated:
+  545c7b1 under-charged fuel by 1-4k; never compare across the two); league `main2`; names are immutable;
   leagues at priority -1; batches over single matches. A token (ask Cham via the coordinator; never in the repo) is
   needed only for FunSearch runs and run-file writes.
-- League `main`: v23 (style-gconv1, sensor-driven banking) 1684, v22 (= tune-v20-L1c = our v21) 1679, ...
+- League `main` (old engine): v23 (style-gconv1, sensor-driven banking) 1684, v22 (= tune-v20-L1c = our v21) 1679, ...
 - State at the switch: tune line idle (method change: analysis gaps become blocks for the FunSearch lines). Live
   uploads from this line tonight: v18 (tune-r-all-v2), v20 (tune-fight-2s), v21 (tune-v20-L1c).
 
