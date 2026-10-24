@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 14:55 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.09 11.72 11.73 on 16 threads.
+Updated 2026-10-24 15:00 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.89 13.64 12.53 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.4G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[13:15:20] style: launched style8-b (budget $3.5)
 [13:20:32] style: S7 check: h2: tune-v21 first in league style8-h2-g1: +39 programs to the next boundary (81 so far) best policies/opp-hunter3.policy $0.70 left; b: style8-b-g1: +39 programs to the next boundary (111 so far) $1.45 left
 [13:41:04] hybrid: H8: hold set for the next hyb5 boundary
 [13:46:15] style: style8-h2 exited: [13:44:16] budget spent ($2.23)
@@ -55,4 +54,5 @@ Disk: 3.4G used of 38G.
 [14:55:21] hybrid: hyb5 not running: relaunching (resume from runs/)
 [14:55:21] hybrid: launched hyb5 league
 [14:55:24] style: S9 check: $1.98 left of $2.0; reference tune-v21 mirror value 0.8999
+[15:00:29] hybrid: H10 startup check: 'exec_blocks vs starter for 65 programs (3s)'
 ```
