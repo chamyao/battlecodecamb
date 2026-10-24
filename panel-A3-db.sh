@@ -1,8 +1,8 @@
 # rev: 60ec8ba678521f842dc5e42ecf7bf7c2ce265842
 # panel-A3-db (Arena A lead): panel-A3 re-run at genome/v0 db3f945 (4b60b58 turned out not to be bit-identical for
 # genome-vs-policy games). All 24 live arenaA-3 genomes + the seed vs the 5 fixed anchors, tune-v20-L1c, B318 and 6 held-out
-# tune-v19-L1c, hyb-t5m, tune-r-all-v2); 80 distinct games each (40 maps x 2 sides, bot seeds). Runtime genome/simspeed
-# 4b60b58 (= db3f945). B318.genome is copied from this rev first (the runtime pin only replaces runtime files).
+# opponents (v5, v6, v7-zerogem, tune-v19-L1c, hyb-t5m, tune-r-all-v2); 80 distinct games each (bot seeds). Runtime
+# genome/v0 db3f945. B318.genome is copied from this rev first (the runtime pin only replaces runtime files).
 cp genome/candidates/B318.genome $OUT/B318.genome
 git checkout -q db3f945 -- sim interp policygen genome/runtime genome/lang.py genome/build.py genome/tools genome/CMakeLists.txt || exit 1
 cmake --build genome/build -j$THREADS --target genome_eval > $OUT/rebuild.log 2>&1 || exit 1
