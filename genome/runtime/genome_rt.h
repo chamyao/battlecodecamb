@@ -71,7 +71,7 @@ struct Unit
 	int type = -1; // ChampionType or CampType
 	Tile pos;
 	float health = 0, max_health = 0, strength = 0, focus = 0;
-	int attack_range = 0;
+	int attack_range = 0, move_speed = 0;
 	std::uint32_t state = 0;
 	bool valid() const { return kind != 0; }
 	bool operator==(const Unit& o) const { return kind == o.kind && h == o.h; }
@@ -82,10 +82,14 @@ struct Tiles
 {
 	std::shared_ptr<const Bitboard> b;
 };
+// A distance field: row-major W x H in the simulator, the host's chunked layout in the bot.
 struct Field
 {
-	std::shared_ptr<const std::vector<std::uint16_t>> d;
+	std::shared_ptr<std::uint16_t[]> d;
 };
+#ifdef GENOME_BOT
+constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map (100 x 100)
+#endif
 enum OptionKind
 {
 	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK
@@ -100,6 +104,7 @@ struct Option
 	int ukind = 0;
 	std::uint32_t uh = 0;
 	int ui = -1;
+	int count = 1; // BUY: units bought at once (the SDK's buy_item count)
 };
 
 inline double div(double a, double b) { return b == 0 ? 0.0 : a / b; }
@@ -109,6 +114,14 @@ inline double fmod_pos(double a, double b)
 	const double r = std::fmod(a, b);
 	return r < 0 ? r + std::fabs(b) : r;
 }
+
+// The genome's optional consider(kind) entry gene, seen from the runtime (GenesBase implements it).
+struct KindFilter
+{
+	virtual ~KindFilter() = default;
+	virtual bool consider_kind(int kind) = 0;
+	virtual bool has_consider() const = 0;
+};
 
 inline std::atomic<std::uint64_t>& pass_counter()
 {
@@ -120,7 +133,11 @@ inline std::atomic<std::uint64_t>& pass_counter()
 class Ctx
 {
 public:
-	explicit Ctx(Api& api) : api(api), m(api.map()) {}
+	explicit Ctx(Api& api) : api(api), m(api.map())
+	{
+		rng_ = 0x9E3779B97F4A7C15ull ^ (static_cast<std::uint64_t>(api.team()) << 32) ^ static_cast<std::uint64_t>(api.champ() + 7) * 0xBF58476D1CE4E5B9ull;
+		rng_ |= 1;
+	}
 	Api& api;
 	const cbs::Map& m;
 	std::uint64_t pass_id = 0;
@@ -163,6 +180,16 @@ public:
 	}
 	std::uint32_t self() { return me(), self_; }
 	bool alive() { return me().state & cbs::state_bit::alive; }
+	bool my_state(std::uint32_t bits) { return api.champ() >= 0 && (me().state & bits); }
+	bool channeling() { return my_state(cbs::state_bit::recalling | cbs::state_bit::submitting | cbs::state_bit::teleporting); }
+	// uniform integer in [0, n) from this instance's generator (generic operation, no engine call)
+	double rand(double n)
+	{
+		rng_ ^= rng_ << 13, rng_ ^= rng_ >> 7, rng_ ^= rng_ << 17;
+		const double k = std::floor(n);
+		return k >= 1 ? static_cast<double>((rng_ >> 11) % static_cast<std::uint64_t>(std::min(k, 1e9))) : 0.0;
+	}
+	void set_priority(double p) { api.set_priority(static_cast<std::int32_t>(std::clamp(p, -1e6, 1e6))); }
 	double gems()
 	{
 		if (!have_gems_) gems_ = unit_gems(me()), have_gems_ = true, extra(27);
@@ -241,18 +268,59 @@ public:
 		return g;
 	}
 	bool unit_state(const Unit& u, std::uint32_t bit) { return u.kind == 1 && (u.state & bit); }
+	bool camp_awake(const Unit& u)
+	{
+		if (u.kind != 2) return false;
+		std::uint32_t life = 0;
+		return api.camp_state(u.h, &life) == Err::success && life == static_cast<std::uint32_t>(cbs::CampLife::awake);
+	}
+	Tile camp_spawn(const Unit& u) const
+	{
+		if (u.kind != 2 || u.h >= m.camps.size()) return {};
+		return { m.camps[u.h].pos.x, m.camps[u.h].pos.y };
+	}
+	// static map: the camp spawning on a tile (its type / group), -1 if none
+	int camp_index(Tile t)
+	{
+		if (!in_bounds(t)) return -1;
+		if (camp_at_.empty())
+		{
+			camp_at_.assign(static_cast<std::size_t>(m.W) * m.H, -1);
+			for (std::size_t c = 0; c < m.camps.size(); ++c) camp_at_[m.idx(m.camps[c].pos)] = static_cast<int>(c);
+		}
+		return camp_at_[m.idx(t.v())];
+	}
+	double spawn_type(Tile t)
+	{
+		const int c = camp_index(t);
+		return c < 0 ? -1 : static_cast<int>(m.camps[c].type);
+	}
+	double spawn_group(Tile t)
+	{
+		const int c = camp_index(t);
+		return c < 0 ? -1 : m.camps[c].group;
+	}
+	static bool camp_type_ok(double k) { return k >= 0 && k <= static_cast<double>(cbs::CampType::golem); }
+	double camp_base(double k, int which)
+	{
+		if (!camp_type_ok(k)) return 0;
+		const auto& d = cbs::camp_design(static_cast<cbs::CampType>(static_cast<int>(k)));
+		return which == 0 ? d.base_health : which == 1 ? d.base_strength : d.base_focus;
+	}
 	double camp_group(const Unit& u) { return u.kind == 2 ? m.camps[u.h].group : -1; }
 	bool group_ok(double g) const { return g >= 0 && g < static_cast<double>(m.groups.size()); }
 	double group_gems(double g) { return group_ok(g) ? m.groups[static_cast<int>(g)].gems : 0; }
 	double group_gold(double g) { return group_ok(g) ? m.groups[static_cast<int>(g)].gold : 0; }
-	bool group_respawning(double g)
+	bool group_in_state(double g, cbs::GroupState want)
 	{
 		if (!group_ok(g)) return false;
 		std::uint32_t s = 0;
 		api.camp_group_state(static_cast<std::uint32_t>(g), &s);
 		extra(41);
-		return s == static_cast<std::uint32_t>(cbs::GroupState::respawning);
+		return s == static_cast<std::uint32_t>(want);
 	}
+	bool group_respawning(double g) { return group_in_state(g, cbs::GroupState::respawning); }
+	bool group_reward(double g) { return group_in_state(g, cbs::GroupState::reward); }
 	Tiles group_tiles(double g)
 	{
 		if (!group_ok(g)) return { std::make_shared<Bitboard>() };
@@ -293,6 +361,16 @@ public:
 			for (const auto& c : m.camps) b.set(c.pos);
 		});
 	}
+	// spawn tiles of the camps of one type (static map)
+	Tiles type_spawns(double k)
+	{
+		if (!camp_type_ok(k)) return { std::make_shared<Bitboard>() };
+		const int i = static_cast<int>(k);
+		return stat(type_sp_[i], [&](Bitboard& b) {
+			for (const auto& c : m.camps)
+				if (static_cast<int>(c.type) == i) b.set(c.pos);
+		});
+	}
 	Tiles locked_altars()
 	{
 		auto b = std::make_shared<Bitboard>();
@@ -304,6 +382,11 @@ public:
 		extra(275);
 		return { b };
 	}
+	// ---- live occupancy and vision as the SDK reports them (one engine call each)
+	Tiles vision() { return sdk_mask([&](Bitboard& b) { api.vision(b); }); }
+	Tiles ally_tiles() { return sdk_mask([&](Bitboard& b) { api.ally_occupancy(b); }); }
+	Tiles enemy_tiles() { return sdk_mask([&](Bitboard& b) { api.enemy_occupancy(b); }); }
+	Tiles camp_tiles() { return sdk_mask([&](Bitboard& b) { api.camp_occupancy(b, 0); }); }
 	double width() const { return m.W; }
 	double height() const { return m.H; }
 
@@ -366,23 +449,69 @@ public:
 	// themselves are allowed). One engine distance-field call, priced by the Api.
 	Field field(const Tiles& goals)
 	{
-		auto d = std::make_shared<std::vector<std::uint16_t>>(static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
-		if (goals.b && goals.b->any(m.H))
-		{
-			Bitboard blocked = m.walls, visited;
-			blocked |= m.holes;
-			blocked |= m.altars;
-			blocked |= m.spawn_mask[1 - api.team()];
-			blocked.andnot(*goals.b);
-			api.distance_field(blocked, *goals.b, nullptr, cbs::kUnreachable, d->data(), visited);
-			extra(97 * chunks() - 320);
-		}
+		if (!goals.b || !goals.b->any(m.H)) return empty_field();
+		Bitboard blocked = m.walls;
+		blocked |= m.holes;
+		blocked |= m.altars;
+		blocked |= m.spawn_mask[1 - api.team()];
+		blocked.andnot(*goals.b);
+		return run_field(blocked, *goals.b, nullptr);
+	}
+	// Walking distance field to `goals` over every tile not in `walls` (goal tiles always allowed). The
+	// search stops after the first distance layer that reaches a tile of `stop` (empty: the whole map);
+	// tiles beyond it read as unreachable.
+	Field field_avoid(const Tiles& goals, const Tiles& walls, const Tiles& stop)
+	{
+		if (!goals.b || !goals.b->any(m.H)) return empty_field();
+		Bitboard blocked;
+		if (walls.b) blocked = *walls.b;
+		blocked.andnot(*goals.b);
+		const bool stops = stop.b && stop.b->any(m.H);
+		return run_field(blocked, *goals.b, stops ? stop.b.get() : nullptr);
+	}
+	// A full-map field the genome can read anywhere. Simulator: the Api's search, row-major. Bot: the
+	// host search straight into a buffer we own, read in the host's chunked layout. (The bot's
+	// Api::distance_field fills only the champion's box and the dests, for the interpreter's needs, and
+	// filling a 20 KB array costs ~1 fuel per byte; the host initialises every entry itself.)
+	Field run_field(const Bitboard& blocked, const Bitboard& roots, const Bitboard* dests)
+	{
+#ifdef GENOME_BOT
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[kBotFieldWords]); // uninitialised: the host writes all of it
+		Bitboard visited;
+		std::uint16_t c = 0;
+		if (dests) cambc::detail::sdk_DistanceField_ComputeToWithExpansionCount(blocked.w, roots.w, dests->w, visited.w, d.get(), cbs::kUnreachable, &c);
+		else cambc::detail::sdk_DistanceField_ComputeWithExpansionCount(blocked.w, roots.w, visited.w, d.get(), cbs::kUnreachable, &c);
 		return { d };
+#else
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
+		std::fill(d.get(), d.get() + static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
+		Bitboard visited;
+		api.distance_field(blocked, roots, dests, cbs::kUnreachable, d.get(), visited);
+		extra(field_price(dests != nullptr));
+		return { d };
+#endif
+	}
+	Field empty_field() { return {}; }
+	double field_price(bool stopped) const { return stopped ? 97 * chunks() - 320 : 97 * chunks() - 320; } // re-fit (see FUEL.md)
+	// Nearest tile of `cand` from `from` by walking over tiles not in `walls` (ties: row-major); invalid if none.
+	Tile walk_nearest(const Tiles& cand, Tile from, const Tiles& walls)
+	{
+		if (!cand.b || !in_bounds(from) || !cand.b->any(m.H)) return {};
+		Bitboard w;
+		if (walls.b) w = *walls.b;
+		Vec2 out{ -1, -1 };
+		if (!api.nearest_by_walk(w, from.v(), *cand.b, out)) return {};
+		return { out.x, out.y };
 	}
 	double field_at(const Field& f, Tile t) const
 	{
 		if (!f.d || !in_bounds(t)) return 1e9;
-		const std::uint16_t v = (*f.d)[m.idx(t.v())];
+#ifdef GENOME_BOT
+		const int i = ((t.y >> 3) * static_cast<int>(cbs::hostbb::md.chunked_width) + (t.x >> 3)) * 64 + (t.y & 7) * 8 + (t.x & 7);
+		const std::uint16_t v = f.d[i];
+#else
+		const std::uint16_t v = f.d[m.idx(t.v())];
+#endif
 		return v == cbs::kUnreachable ? 1e9 : v;
 	}
 
@@ -473,6 +602,21 @@ public:
 		return o.ui >= 0 && o.ui < static_cast<int>(opt_units_.size()) ? opt_units_[o.ui] : none;
 	}
 	std::vector<Option> opts_buf, failed_buf; // reused by play_turn (no reallocation per pass)
+	KindFilter* filter = nullptr;			   // set by play_turn
+	// consider(kind), once per kind per pass; kinds it rejects are neither listed nor scored
+	bool want(int kind)
+	{
+		if (!filter || !filter->has_consider()) return true;
+		if (want_pass_ != pass_id)
+		{
+			want_pass_ = pass_id;
+			for (auto& w : want_) w = -1;
+		}
+		if (want_[kind] < 0) want_[kind] = filter->consider_kind(kind) ? 1 : 0;
+		return want_[kind];
+	}
+	std::int8_t want_[16];
+	std::uint64_t want_pass_ = 0;
 
 	void options(std::vector<Option>& out)
 	{
@@ -488,7 +632,7 @@ public:
 			for (int c = 0; c < cbs::kNumDraftChoices; ++c)
 			{
 				const int t = choice_to_type(c);
-				if (picked(false, t) || picked(true, t)) continue;
+				if (picked(false, t)) continue; // the opponent's picks stay legal (GameRules: Drafting)
 				Option o;
 				o.kind = PICK, o.champ = t;
 				out.push_back(o);
@@ -506,18 +650,22 @@ public:
 			return;
 		}
 		if (alive_now && (st & cbs::state_bit::teleporting)) return;
-		if (can_shop())
+		if ((want(BUY) || want(BUY_LOCK)) && can_shop())
 		{
 			const double g = gold();
 			for (int i = 0; i < cbs::kNumItems; ++i)
 			{
 				const auto& d = cbs::item_design(i);
-				if (!d.purchasable || d.cost > g) continue;
-				Option o;
-				o.kind = BUY, o.item = i;
-				out.push_back(o);
+				if (!d.purchasable || d.cost > g || !want(BUY)) continue;
+				// counts in powers of two up to what we can pay: any number in a few passes
+				for (int c = 1; c * d.cost <= g; c *= 2)
+				{
+					Option o;
+					o.kind = BUY, o.item = i, o.count = c;
+					out.push_back(o);
+				}
 			}
-			if (g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
+			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
 			{
 				Option o;
 				o.kind = BUY_LOCK;
@@ -526,7 +674,7 @@ public:
 		}
 		if (!alive_now) return;
 		const Tile p = self_u.pos;
-		if (st & cbs::state_bit::can_move)
+		if ((st & cbs::state_bit::can_move) && want(MOVE))
 		{
 			const Bitboard& occ = occupancy();
 			for (int dy = -1; dy <= 1; ++dy)
@@ -539,14 +687,14 @@ public:
 					out.push_back(o);
 				}
 		}
-		if (st & cbs::state_bit::can_attack)
+		if ((st & cbs::state_bit::can_attack) && want(ATTACK))
 		{
 			for (const Unit& u : enemies())
 				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
 			for (const Unit& u : camps())
 				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
 		}
-		if (st & cbs::state_bit::can_cast)
+		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
 			{
 				if (!slot_ready(s)) continue;
@@ -587,7 +735,7 @@ public:
 		{
 			cbs::WardResources wr{};
 			api.champion_wards(self(), &wr);
-			if (wr.charges > 0)
+			if (wr.charges > 0 && want(WARD))
 			{
 				const int r = static_cast<int>(cbs::settings().ward_placement_radius);
 				for (int dy = -r; dy <= r; ++dy)
@@ -601,7 +749,7 @@ public:
 					}
 			}
 		}
-		if (!(tclass(p.v()) & kMySpawn))
+		if (!(tclass(p.v()) & kMySpawn) && want(RECALL))
 		{
 			Option o;
 			o.kind = RECALL;
@@ -609,13 +757,13 @@ public:
 		}
 		const bool lock = has_lock();
 		const double g = gems();
-		if (g > 0 || lock)
+		if ((g > 0 && want(TRIBUTE)) || (lock && want(LOCK)))
 		{
-			const Tiles locked = g > 0 ? locked_altars() : Tiles{};
 			for (Vec2 a : m.altar_list)
 			{
 				const int d = cbs::chebyshev(a, p.v());
-				if (g > 0 && d <= cbs::settings().submit_gems_range && !contains(locked, { a.x, a.y }))
+				// at an enemy-locked altar a tribute is legal too: it hits the lock (5 hits clear it)
+				if (g > 0 && d <= cbs::settings().submit_gems_range)
 				{
 					Option o;
 					o.kind = TRIBUTE, o.tile = { a.x, a.y };
@@ -650,7 +798,7 @@ public:
 			break;
 		}
 		case WARD: e = api.place_ward(o.tile.v(), &ok); break;
-		case BUY: e = api.buy_item(static_cast<std::uint32_t>(o.item), 1), ok = 1; break;
+		case BUY: e = api.buy_item(static_cast<std::uint32_t>(o.item), static_cast<std::uint32_t>(o.count)), ok = 1; break;
 		case BUY_LOCK: e = api.buy_consumable(cbs::consumable::altar_lock), ok = 1; break;
 		case RECALL: e = api.recall(), ok = 1; break;
 		case TRIBUTE: e = api.submit_gems(o.tile.v()), ok = 1; break;
@@ -673,13 +821,23 @@ private:
 	cbs::AbilityProps props_[2] = {};
 	std::uint64_t props_pass_[2] = { 0, 0 };
 	std::shared_ptr<const Bitboard> altars_, walls_, bushes_, holes_, myspawn_, espawn_, campsp_;
+	std::shared_ptr<const Bitboard> type_sp_[static_cast<int>(cbs::CampType::count)];
+	std::vector<int> camp_at_;
+	std::uint64_t rng_ = 1;
+	template <class Fill>
+	Tiles sdk_mask(Fill&& fill)
+	{
+		auto b = std::make_shared<Bitboard>();
+		fill(*b);
+		return { b };
+	}
 
 	static Unit from_champ(std::uint32_t h, const cbs::ChampionInfo& ci)
 	{
 		Unit u;
 		u.kind = 1, u.h = h, u.type = ci.type, u.pos = { ci.x, ci.y };
 		u.health = ci.health, u.max_health = ci.max_health, u.strength = ci.strength, u.focus = ci.focus;
-		u.attack_range = ci.attack_range, u.state = ci.state;
+		u.attack_range = ci.attack_range, u.move_speed = ci.move_speed, u.state = ci.state;
 		return u;
 	}
 	void champs(bool enemy, Units& out)
@@ -772,12 +930,14 @@ private:
 };
 
 // Generated genes derive from this.
-struct GenesBase
+struct GenesBase : KindFilter
 {
 	explicit GenesBase(Ctx& x) : X(x) {}
 	virtual ~GenesBase() = default;
 	virtual double score_option(const Option& o) = 0;
 	virtual void run_update() = 0;
+	bool consider_kind(int) override { return true; }
+	bool has_consider() const override { return false; }
 	Ctx& X;
 };
 
@@ -791,9 +951,11 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	failed.clear();
 	if (opts.capacity() < 256) opts.reserve(256);
 	auto same = [](const Option& a, const Option& b) {
-		return a.kind == b.kind && a.ukind == b.ukind && a.uh == b.uh && a.tile == b.tile && a.slot == b.slot && a.item == b.item && a.champ == b.champ;
+		return a.kind == b.kind && a.ukind == b.ukind && a.uh == b.uh && a.tile == b.tile && a.slot == b.slot && a.item == b.item &&
+			   a.champ == b.champ && a.count == b.count;
 	};
 	const bool draft = X.api.champ() < 0;
+	X.filter = &g;
 #ifdef GENOME_PROF
 #ifndef GENOME_PROF_EVERY
 #define GENOME_PROF_EVERY 50
@@ -806,6 +968,8 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #else
 #define PROF_MARK(acc) ((void)0)
 #endif
+	// GENOME_FUEL=N: passes and turns that spent more than N fuel (simulator diagnostics, @@FP / @@F lines on stderr)
+	static const long fuel_trace = std::getenv("GENOME_FUEL") ? std::atol(std::getenv("GENOME_FUEL")) : -1;
 	X.new_pass();
 	if (!draft) g.run_update();
 	int acted = 0;
@@ -843,6 +1007,9 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 						 best->tile.y, best->ukind, best->uh, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me().state, X.me().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist(X.me().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
 		if (ok) ++acted;
 		else failed.push_back(*best);
+		if (fuel_trace >= 0 && X.api.spent > fuel_trace)
+			std::fprintf(stderr, "@@FP r%d t%d c%d pass %d spent %lld kind %d ok %d options %zu\n", static_cast<int>(X.round()), X.api.team(),
+						 X.api.champ(), pass, static_cast<long long>(X.api.spent), best->kind, ok ? 1 : 0, opts.size());
 		if (draft) break;
 	}
 #ifdef GENOME_PROF
@@ -855,6 +1022,9 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 					static_cast<long long>(f_exec), static_cast<long long>(X.api.fuel_remaining()), X.ops - ops0,
 					static_cast<long long>(start - X.api.fuel_remaining()));
 #endif
+	if (fuel_trace >= 0 && X.api.spent > fuel_trace)
+		std::fprintf(stderr, "@@F r%d t%d c%d spent %lld acted %d draft %d\n", static_cast<int>(X.round()), X.api.team(), X.api.champ(),
+					 static_cast<long long>(X.api.spent), acted, draft ? 1 : 0);
 	return acted;
 }
 
