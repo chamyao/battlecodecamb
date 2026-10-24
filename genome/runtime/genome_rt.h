@@ -6,6 +6,8 @@
 // Generated genes (genome/lang.py) include this header and derive from GenesBase.
 #pragma once
 #include <algorithm>
+#include <array>
+#include <cstring>
 #include <atomic>
 #include <cstdio>
 #include <cstdlib>
@@ -60,7 +62,9 @@ struct GeneScope
 	GeneScope(GeneStat& s, cbs::Api& api, void*& top) : s(s), api(api), t0(api.fuel_remaining()), top(top), parent(static_cast<GeneScope*>(top))
 	{
 		++s.calls, top = this;
+		if (turn_calls) ++turn_calls[&s - gene_stats];
 	}
+	static inline int* turn_calls = nullptr; // GENOME_TURN_CALLS (simulator): this bot instance's calls per gene this turn
 	~GeneScope()
 	{
 		const std::int64_t f = t0 - api.fuel_remaining();
@@ -77,6 +81,11 @@ struct FieldRec
 	long long fuel;
 };
 inline FieldRec field_recs[400];
+// First-turn checkpoints (fuel remaining): main start, map built, Api ready, genes made, then per phase
+// of the first play_turn; printed on the second turn with the per-gene totals of turn 1 (@@T1).
+inline std::int64_t t1_marks[16];
+inline int n_t1_marks = 0;
+inline void t1_mark(std::int64_t f) { if (n_t1_marks < 16) t1_marks[n_t1_marks++] = f; }
 inline int n_field_recs = 0;
 #define FIELD_PROF_BEGIN const std::int64_t fp0_ = api.fuel_remaining()
 #define FIELD_PROF_END(n, st) \
@@ -121,6 +130,9 @@ struct Tiles
 struct Field
 {
 	std::shared_ptr<std::uint16_t[]> d;
+	// box_field: only the 3 x 3 box around (bx, by) is stored (d[(dy + 1) * 3 + dx + 1]); reads elsewhere,
+	// or above the centre's own distance, are unreachable
+	int bx = -1, by = -1;
 };
 #ifdef GENOME_BOT
 constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map (100 x 100)
@@ -203,6 +215,10 @@ public:
 
 	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
 	void* prof_top = nullptr; // GENOME_PROF: the innermost open gene scope
+#ifdef GENOME_PROF
+	int turn_calls_buf[256] = {};
+	long long turn_opts = 0;
+#endif
 	// Simulator only: the runtime's own work in the bot beyond what the Api already prices (fitted
 	// from genome/examples/calib.genome profiled in cambc; docs in genome/FUEL.md). Compiled away in the bot.
 	void extra(double fuel) const
@@ -231,7 +247,7 @@ public:
 
 	// ---- self
 	// me() as genes call it: the cached unit costs ~22 in the bot (measured per scored option)
-	const Unit& me() { return extra(18), me_u(); }
+	const Unit& me() { return extra(8), me_u(); }
 	const Unit& me_u()
 	{
 		if (!have_me_)
@@ -357,15 +373,28 @@ public:
 	// static map: the camp spawning on a tile (its type / group), -1 if none
 	int camp_index(Tile t)
 	{
-		extra(66);
+		extra(135);
 		if (!in_bounds(t)) return -1;
+		// the camp spawn tiles in a small open-addressing table keyed by tile index (a W x H table cost
+		// ~30k+ to fill on a 100 x 100 map)
 		if (camp_at_.empty())
 		{
-			extra(2700 + 3.0 * m.W * m.H); // filling the table (once per instance)
-			camp_at_.assign(static_cast<std::size_t>(m.W) * m.H, -1);
-			for (std::size_t c = 0; c < m.camps.size(); ++c) camp_at_[m.idx(m.camps[c].pos)] = static_cast<int>(c);
+			std::size_t cap = 64;
+			while (cap < 4 * m.camps.size()) cap *= 2;
+			camp_at_.assign(cap, CampAt{ -1, -1 });
+			for (std::size_t c = 0; c < m.camps.size(); ++c)
+			{
+				const int key = m.idx(m.camps[c].pos);
+				std::size_t h = camp_hash(key, cap);
+				while (camp_at_[h].tile >= 0) h = (h + 1) & (cap - 1);
+				camp_at_[h] = { key, static_cast<int>(c) };
+			}
+			extra(500 + 85.0 * m.camps.size());
 		}
-		return camp_at_[m.idx(t.v())];
+		const int key = m.idx(t.v());
+		const std::size_t cap = camp_at_.size();
+		for (std::size_t h = camp_hash(key, cap);; h = (h + 1) & (cap - 1))
+			if (camp_at_[h].tile == key || camp_at_[h].tile < 0) return camp_at_[h].tile == key ? camp_at_[h].camp : -1;
 	}
 	double spawn_type(Tile t)
 	{
@@ -404,7 +433,7 @@ public:
 		if (!group_ok(g)) return { std::make_shared<Bitboard>() };
 		// static: built once per group (each host bit set costs ~170 fuel in the bot)
 		if (group_tiles_.empty()) group_tiles_.resize(m.groups.size());
-		extra(30);
+		extra(104); // as a static set read (~74) and the group lookup
 		auto& slot = group_tiles_[static_cast<int>(g)];
 		if (!slot)
 		{
@@ -425,16 +454,19 @@ public:
 	}
 
 	// ---- static map (built once per instance)
-	Tiles altars() { return stat(altars_, [&](Bitboard& b) { b = m.altars; }); }
-	Tiles walls() { return stat(walls_, [&](Bitboard& b) { b = m.walls; }); }
-	Tiles bushes() { return stat(bushes_, [&](Bitboard& b) { b = m.bushes; }); }
-	Tiles holes() { return stat(holes_, [&](Bitboard& b) { b = m.holes; }); }
+	// a static set costs ~74 per read in the bot (the shared board's handle copied out; score variants)
+	Tiles altars() { return extra(74), stat(altars_, [&](Bitboard& b) { b = m.altars; }); }
+	Tiles walls() { return extra(74), stat(walls_, [&](Bitboard& b) { b = m.walls; }); }
+	Tiles bushes() { return extra(74), stat(bushes_, [&](Bitboard& b) { b = m.bushes; }); }
+	Tiles holes() { return extra(74), stat(holes_, [&](Bitboard& b) { b = m.holes; }); }
 	Tiles spawn(bool enemy)
 	{
+		extra(74);
 		return stat(enemy ? espawn_ : myspawn_, [&](Bitboard& b) { b = m.spawn_mask[enemy ? 1 - api.team() : api.team()]; });
 	}
 	Tiles camp_spawns()
 	{
+		extra(74);
 		return stat(campsp_, [&](Bitboard& b) {
 			for (const auto& c : m.camps) b.set(c.pos);
 		});
@@ -491,18 +523,18 @@ public:
 			const int d = cbs::chebyshev({ x, y }, t.v());
 			if (d < bd || (d == bd && (y < best.y || (y == best.y && x < best.x)))) bd = d, best = { x, y };
 		});
-		extra(120 + 52.0 * s.b->count(m.H));
+		extra(46 + 52.0 * s.b->count(m.H));
 		return best;
 	}
 	double size(const Tiles& s)
 	{
-		extra(80 + 1.0 * chunks());
+		extra(6 + 1.0 * chunks());
 		return s.b ? s.b->count(m.H) : 0;
 	}
-	bool contains(const Tiles& s, Tile t) { return extra(60), s.b && in_bounds(t) && s.b->test(t.v()); }
-	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 0); }
-	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 1); }
-	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(225 + 4.0 * chunks()), combine(a, b, 2); }
+	bool contains(const Tiles& s, Tile t) { return extra(66), s.b && in_bounds(t) && s.b->test(t.v()); }
+	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(76 + 3.1 * chunks()), combine(a, b, 0); }
+	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(76 + 3.1 * chunks()), combine(a, b, 1); }
+	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(77 + 4.0 * chunks()), combine(a, b, 2); }
 	// Row-major, as the simulator iterates. In the bot the host lists tiles chunk row by chunk row
 	// ((chunk row, chunk col, y, x)); a stable counting sort on y alone restores row-major order in
 	// linear time (the host bitboard's own for_each uses an insertion sort, quadratic per chunk row).
@@ -515,14 +547,27 @@ public:
 		static cbs::hostbb::Pos buf[cbs::kMaxDim * cbs::kMaxDim];
 		std::uint32_t n = 0;
 		cambc::detail::sdk_Bitboard_GetSetBits(s.b->w, buf, cbs::kMaxDim * cbs::kMaxDim, &n);
+		out.resize(n);
+		if (n <= 32)
+		{
+			// a small set: insertion sort by (y, x) (the counting sort's pass over the rows costs ~2k)
+			for (std::uint32_t i = 0; i < n; ++i)
+			{
+				const Tile t{ buf[i].x, buf[i].y };
+				std::uint32_t j = i;
+				for (; j > 0 && (out[j - 1].y > t.y || (out[j - 1].y == t.y && out[j - 1].x > t.x)); --j) out[j] = out[j - 1];
+				out[j] = t;
+			}
+			return out;
+		}
 		int count[cbs::kMaxDim + 1] = {};
 		for (std::uint32_t i = 0; i < n; ++i) ++count[buf[i].y + 1];
 		for (int y = 0; y < m.H; ++y) count[y + 1] += count[y];
-		out.resize(n);
 		for (std::uint32_t i = 0; i < n; ++i) out[count[buf[i].y]++] = Tile{ buf[i].x, buf[i].y };
 #else
 		s.b->for_each(m.H, [&](int x, int y) { out.push_back({ x, y }); });
-		extra(970 + 1.0 * chunks() + 81.0 * out.size());
+		// bot: up to 32 tiles an insertion sort, else a counting sort over the rows
+		extra(out.size() <= 32 ? 80 + 1.0 * chunks() + 90.0 * out.size() : 2026 + 1.0 * chunks() + 81.0 * out.size());
 #endif
 		return out;
 	}
@@ -580,6 +625,45 @@ public:
 #endif
 	}
 	Field empty_field() { return {}; }
+	// Walking field to `goals` over tiles not in `walls` (goal tiles always allowed), through the
+	// memoised distance field the interpreter's move_towards uses (dests = my tile: the bot's memo
+	// answers it across turns while the goals stay and the walls do not affect my box). Readable only
+	// in my 3 x 3 box and up to my own distance (the part the bot fills and the simulator's search
+	// stopped at my tile reaches); elsewhere unreachable, identically in the bot and the simulator.
+	Field box_field(const Tiles& goals, const Tiles& walls)
+	{
+		const Unit& u = me_u();
+		const Tile c = u.pos;
+		if (!goals.b || !in_bounds(c) || !(u.state & cbs::state_bit::alive) || !goals.b->any(m.H)) return empty_field();
+		Bitboard blocked;
+		if (walls.b) blocked = *walls.b;
+		blocked.andnot(*goals.b);
+		Bitboard dest, visited;
+		dest.set(c.v());
+		// uninitialised: the Api writes every entry that is read (the bot: the box and the dest)
+		if (!box_buf_) box_buf_.reset(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
+		std::uint16_t* buf = box_buf_.get();
+		api.distance_field(blocked, *goals.b, &dest, cbs::kUnreachable, buf, visited);
+		extra(300 + 6.5 * chunks()); // the wrapper in the bot beyond the Api's memo price (probes: near and far goals, 2 maps)
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[9]);
+		const std::uint16_t mine = buf[m.idx(c.v())];
+		for (int dy = -1; dy <= 1; ++dy)
+			for (int dx = -1; dx <= 1; ++dx)
+			{
+				const Vec2 q{ c.x + dx, c.y + dy };
+				std::uint16_t v = cbs::kUnreachable;
+				if (mine != cbs::kUnreachable && m.in_bounds(q) && !blocked.test(q))
+				{
+					v = buf[m.idx(q)];
+					if (v > mine) v = cbs::kUnreachable;
+				}
+				d[(dy + 1) * 3 + dx + 1] = v;
+			}
+		Field f{ d };
+		f.bx = c.x, f.by = c.y;
+		return f;
+	}
+	std::unique_ptr<std::uint16_t[]> box_buf_;
 	// the host search, exact (9 + 16 x chunks + expansions x chunks; + 2 with a stop set), plus the wrapper's own work
 	double field_price(int expansions, bool stopped) const { return 9 + (stopped ? 2 : 0) + (16.0 + expansions) * chunks(); }
 	// Nearest tile of `cand` from `from` by walking over tiles not in `walls` (ties: row-major); invalid if none.
@@ -596,6 +680,13 @@ public:
 	{
 		extra(70); // the read costs ~70 in the bot (bounds, chunked index; measured per scored option)
 		if (!f.d || !in_bounds(t)) return 1e9;
+		if (f.bx >= 0)
+		{
+			const int dx = t.x - f.bx, dy = t.y - f.by;
+			if (dx < -1 || dx > 1 || dy < -1 || dy > 1) return 1e9;
+			const std::uint16_t v = f.d[(dy + 1) * 3 + dx + 1];
+			return v == cbs::kUnreachable ? 1e9 : v;
+		}
 #ifdef GENOME_BOT
 		const int i = ((t.y >> 3) * static_cast<int>(cbs::hostbb::md.chunked_width) + (t.x >> 3)) * 64 + (t.y & 7) * 8 + (t.x & 7);
 		const std::uint16_t v = f.d[i];
@@ -698,6 +789,19 @@ public:
 	std::unique_ptr<OptionList> opts_buf = std::make_unique<OptionList>(); // reused by play_turn (24 KB: off the stack)
 	std::vector<Option> failed_buf; // options the engine refused this turn
 	KindFilter* filter = nullptr;			   // set by play_turn
+	// what the loop did this turn, by option kind (read by after() through acted / acted_tile)
+	bool acted_[16] = {};
+	Tile acted_tile_[16];
+	void reset_acted()
+	{
+		for (int k = 0; k < 16; ++k) acted_[k] = false, acted_tile_[k] = Tile{};
+	}
+	void note_acted(const Option& o)
+	{
+		if (o.kind > 0 && o.kind < 16) acted_[o.kind] = true, acted_tile_[o.kind] = o.tile;
+	}
+	bool acted(double k) const { return k > 0 && k < 16 && acted_[static_cast<int>(k)]; }
+	Tile acted_tile(double k) const { return k > 0 && k < 16 ? acted_tile_[static_cast<int>(k)] : Tile{}; }
 	// consider(kind), once per kind per pass; kinds it rejects are neither listed nor scored
 	bool want(int kind)
 	{
@@ -784,7 +888,6 @@ public:
 		LMARK(1);
 		if (!alive_now) return extra(250); // a dead champion's turn costs ~250 more in the bot (starter games)
 		const Tile p = self_u.pos;
-		const std::uint8_t* cls = classes();
 		const int W = m.W, H = m.H;
 		LACT(0);
 		extra(40);
@@ -793,11 +896,14 @@ public:
 		{
 			LACT(2);
 			for (int y = std::max(0, p.y - 1); y <= std::min(H - 1, p.y + 1); ++y)
+			{
+				const std::uint8_t* row = row_classes(y);
 				for (int x = std::max(0, p.x - 1); x <= std::min(W - 1, p.x + 1); ++x)
 				{
-					if ((x == p.x && y == p.y) || (cls[y * W + x] & (kWall | kHole | kAltar | kEnemySpawn)) || occupied(x, y)) continue;
+					if ((x == p.x && y == p.y) || (row[x] & (kWall | kHole | kAltar | kEnemySpawn)) || occupied(x, y)) continue;
 					out.add(MOVE).tile = { x, y };
 				}
+			}
 			extra(421 + 1.24 * chunks() + 70.0 * (out.n - n_move));
 		}
 		LMARK(2);
@@ -842,11 +948,10 @@ public:
 		LMARK(5);
 		LACT(6);
 		extra(11);
-		if (!(cls[p.y * W + p.x] & kMySpawn) && want(RECALL)) out.add(RECALL), extra(50);
+		if (!(row_classes(p.y)[p.x] & kMySpawn) && want(RECALL)) out.add(RECALL), extra(50);
 		LMARK(6);
 		const double g = gems();
-		// (as before: once tributes are listed, LOCK options are too, even if consider() rejects LOCK)
-		const bool tribute = g > 0 && want(TRIBUTE), lock = (tribute || want(LOCK)) && has_lock();
+		const bool tribute = g > 0 && want(TRIBUTE), lock = want(LOCK) && has_lock();
 		LACT(7);
 		if (tribute || lock)
 		{
@@ -856,7 +961,7 @@ public:
 			{
 				const int d = cbs::chebyshev(a, p.v());
 				// at an enemy-locked altar a tribute is legal too: it hits the lock (5 hits clear it)
-				if (g > 0 && d <= cbs::settings().submit_gems_range) out.add(TRIBUTE).tile = { a.x, a.y };
+				if (tribute && d <= cbs::settings().submit_gems_range) out.add(TRIBUTE).tile = { a.x, a.y };
 				if (lock && d <= 2) out.add(LOCK).tile = { a.x, a.y };
 			}
 		}
@@ -865,7 +970,6 @@ public:
 	// The tiles within Chebyshev r of p that are not walls (row-major; ground casts skip p itself).
 	void tile_options(OptionList& out, int kind, int slot, Tile p, int r, bool skip_self)
 	{
-		const std::uint8_t* cls = classes();
 		const int W = m.W;
 		const int x0 = std::max(0, p.x - r), x1 = std::min(W - 1, p.x + r);
 		const int scanned = (x1 - x0 + 1) * (std::min(m.H - 1, p.y + r) - std::max(0, p.y - r) + 1);
@@ -873,7 +977,7 @@ public:
 		const int n0 = out.n;
 		for (int y = std::max(0, p.y - r), y1 = std::min(m.H - 1, p.y + r); y <= y1; ++y)
 		{
-			const std::uint8_t* row = cls + y * W;
+			const std::uint8_t* row = row_classes(y);
 			for (int x = x0; x <= x1; ++x)
 			{
 				if ((row[x] & kWall) || (skip_self && x == p.x && y == p.y)) continue;
@@ -934,7 +1038,12 @@ private:
 	std::uint64_t props_pass_[2] = { 0, 0 };
 	std::shared_ptr<const Bitboard> altars_, walls_, bushes_, holes_, myspawn_, espawn_, campsp_;
 	std::shared_ptr<const Bitboard> type_sp_[static_cast<int>(cbs::CampType::count)];
-	std::vector<int> camp_at_;
+	struct CampAt
+	{
+		int tile, camp;
+	};
+	static std::size_t camp_hash(int key, std::size_t cap) { return (static_cast<std::uint32_t>(key) * 2654435761u >> 8) & (cap - 1); }
+	std::vector<CampAt> camp_at_;
 	std::uint64_t rng_ = 1;
 	template <class Fill>
 	Tiles sdk_mask(Fill&& fill)
@@ -977,6 +1086,15 @@ private:
 	}
 	// Static terrain class per tile, as plain bytes: one host bitboard test costs ~120 fuel in the bot.
 	enum : std::uint8_t { kWall = 1, kHole = 2, kAltar = 4, kEnemySpawn = 8, kMySpawn = 16 };
+	static constexpr double ROW_FUEL_BASE = 0, ROW_FUEL_PER_TILE = 16; // a row's first build in the bot (~1.6k per 100-tile row)
+	// kSpread[b]: bit i of b moved to bit 0 of byte i
+	static constexpr std::array<std::uint64_t, 256> kSpread = [] {
+		std::array<std::uint64_t, 256> t{};
+		for (int b = 0; b < 256; ++b)
+			for (int i = 0; i < 8; ++i)
+				if (b >> i & 1) t[b] |= std::uint64_t{ 1 } << (8 * i);
+		return t;
+	}();
 	struct ShopItem
 	{
 		int item, cost;
@@ -989,18 +1107,40 @@ private:
 				if (cbs::item_design(i).purchasable) shop_.push_back({ i, static_cast<int>(cbs::item_design(i).cost) });
 		return shop_;
 	}
-	std::vector<std::uint8_t> cls_;
-	const std::uint8_t* classes()
+	// Terrain classes of a map row, built the first time the row is read (the whole W x H table at once
+	// cost ~51k fuel on a 100 x 100 map's first turn; a row costs ~W/8 chunk words per mask).
+	std::unique_ptr<std::uint8_t[]> cls_;
+	std::vector<std::uint8_t> row_built_;
+	const std::uint8_t* row_classes(int y)
 	{
-		if (cls_.empty()) build_classes();
-		return cls_.data();
+		if (!cls_) cls_.reset(new std::uint8_t[static_cast<std::size_t>(m.W) * m.H]), row_built_.assign(m.H, 0);
+		std::uint8_t* row = cls_.get() + static_cast<std::size_t>(y) * m.W;
+		if (!row_built_[y]) build_row(y, row), row_built_[y] = 1;
+		return row;
 	}
-	void build_classes()
+	void build_row(int y, std::uint8_t* row)
 	{
-		cls_.assign(static_cast<std::size_t>(m.W) * m.H, 0);
-		auto mark = [&](const Bitboard& b, std::uint8_t bit) { b.for_each_unordered(m.H, [&](int x, int y) { cls_[y * m.W + x] |= bit; }); };
-		mark(m.walls, kWall), mark(m.holes, kHole), mark(m.altars, kAltar);
-		mark(m.spawn_mask[1 - api.team()], kEnemySpawn), mark(m.spawn_mask[api.team()], kMySpawn);
+		const Bitboard* masks[5] = { &m.walls, &m.holes, &m.altars, &m.spawn_mask[1 - api.team()], &m.spawn_mask[api.team()] };
+#ifdef GENOME_BOT
+		// one byte of each mask's chunk word per 8 tiles of the row, spread to 8 class bytes by table
+		const int base = (y >> 3) * cbs::hostbb::stride, sh = (y & 7) * 8;
+		for (int cx = 0, x0 = 0; x0 < m.W; ++cx, x0 += 8)
+		{
+			std::uint64_t v = 0;
+			for (int k = 0; k < 5; ++k) v |= kSpread[(masks[k]->w[base + cx] >> sh) & 0xFFu] << k;
+			if (x0 + 8 <= m.W) std::memcpy(row + x0, &v, 8);
+			else
+				for (int i = 0; x0 + i < m.W; ++i) row[x0 + i] = static_cast<std::uint8_t>(v >> (8 * i));
+		}
+#else
+		for (int x = 0; x < m.W; ++x)
+		{
+			std::uint8_t c = 0;
+			for (int k = 0; k < 5; ++k) c |= static_cast<std::uint8_t>(masks[k]->test(x, y)) << k;
+			row[x] = c;
+		}
+		extra(ROW_FUEL_BASE + ROW_FUEL_PER_TILE * m.W);
+#endif
 	}
 	std::vector<std::shared_ptr<const Bitboard>> group_tiles_;
 	// a unit stands on (x, y): the three SDK occupancy masks, tested per tile (no board unions)
@@ -1064,6 +1204,11 @@ struct GenesBase : KindFilter
 	virtual ~GenesBase() = default;
 	virtual double score_option(const Option& o) = 0;
 	virtual void run_update() = 0;
+	virtual void run_after() {}
+	// The optional reserve() entry gene: no new pass of the loop starts with less fuel left than this
+	// (read once per turn, after update()).
+	static constexpr double kDefaultReserve = 15000;
+	virtual double reserve_fuel() { return kDefaultReserve; }
 	bool consider_kind(int) override { return true; }
 	bool has_consider() const override { return false; }
 	Ctx& X;
@@ -1106,11 +1251,36 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #define GENOME_TRACE_OUT stderr
 #endif
 	static const bool trace = GENOME_TRACE_ON || std::getenv("GENOME_TRACE");
+#ifdef GENOME_PROF
+	static int play_turns = 0;
+	if (!draft) ++play_turns;
+	const bool t1 = !draft && play_turns == 1;
+	if (!draft && play_turns == 2)
+	{
+		std::printf("@@T1 c%d marks", X.api.champ());
+		for (int i = 0; i < n_t1_marks; ++i) std::printf(" %lld", static_cast<long long>(t1_marks[i]));
+		std::printf("\n");
+		for (const auto& gs : gene_stats)
+			if (gs.name && gs.calls) std::printf("@@T1G %s calls %lld fuel %lld self %lld\n", gs.name, gs.calls, gs.fuel, gs.self);
+	}
+	if (t1) t1_mark(X.api.fuel_remaining()); // play_turn start
+	// GENOME_TURN_CALLS=1 (simulator): team 0's calls per gene and options listed, every play turn (@@TC lines)
+	static const bool turn_calls = std::getenv("GENOME_TURN_CALLS") != nullptr;
+	if (turn_calls && !draft) std::fill(std::begin(X.turn_calls_buf), std::end(X.turn_calls_buf), 0), GeneScope::turn_calls = X.turn_calls_buf;
+#endif
 	X.new_pass();
+	X.reset_acted();
 	if (!draft) g.run_update();
+#ifdef GENOME_PROF
+	if (t1) t1_mark(X.api.fuel_remaining()); // after update()
+#endif
+	const double reserve = draft ? 0.0 : g.reserve_fuel();
 	int acted = 0;
 	for (int pass = 0; pass < max_passes; ++pass)
 	{
+		// the pass guard: a later pass starts only with at least reserve() fuel left
+		if (pass > 0 && !draft && static_cast<double>(X.api.fuel_remaining()) < reserve) break;
+		if (!draft) X.extra(pass == 0 ? 575 : 1074); // a pass's own work in the bot (fitted per turn: seed and v23, identical games)
 		X.new_pass();
 #ifdef GENOME_PROF
 		std::int64_t f_upd = 0;
@@ -1142,12 +1312,20 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 			std::fprintf(GENOME_TRACE_OUT, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %d camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
 						 static_cast<int>(X.round()), X.api.team(), X.api.champ(), X.me_u().pos.x, X.me_u().pos.y, best->kind, bs, best->tile.x,
 						 best->tile.y, best->ukind, best->uh, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me_u().state, X.me_u().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist_raw(X.me_u().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
-		if (ok) ++acted;
+#ifdef GENOME_PROF
+		if (t1) t1_mark(f_opt), t1_mark(f_score), t1_mark(X.api.fuel_remaining()); // per pass: listing, scoring so far; fuel left
+#endif
+		if (ok) ++acted, X.note_acted(*best);
 		else failed.push_back(*best);
 		if (fuel_trace >= 0 && X.api.spent > fuel_trace)
 			std::fprintf(stderr, "@@FP r%d t%d c%d pass %d spent %lld kind %d ok %d options %d\n", static_cast<int>(X.round()), X.api.team(),
 						 X.api.champ(), pass, static_cast<long long>(X.api.spent), best->kind, ok ? 1 : 0, opts.size());
 		if (draft) break;
+	}
+	if (!draft)
+	{
+		X.new_pass(); // after() sees the state after this turn's actions
+		g.run_after();
 	}
 #ifdef GENOME_PROF
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) % 500 == 0)
@@ -1173,6 +1351,16 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	for (int i = 0; i < 8; ++i) X.lp_[i] = X.lp_n_[i] = X.lp_scan_[i] = X.lp_act_[i] = X.lp_scan2_[i] = 0;
 	X.lp_passes_ = 0;
 #endif
+#ifdef GENOME_PROF
+	if (turn_calls && !draft && X.api.team() == 0)
+	{
+		std::printf("@@TC r%d c%d passes %d opts %d", static_cast<int>(X.round()), X.api.champ(), npass, nopts);
+		for (int i = 0; i < 256; ++i)
+			if (X.turn_calls_buf[i]) std::printf(" %d:%d", i, X.turn_calls_buf[i]);
+		std::printf("\n");
+		GeneScope::turn_calls = nullptr;
+	}
+#endif
 	if (fuel_trace >= 0 && X.api.spent > fuel_trace)
 		std::fprintf(stderr, "@@F r%d t%d c%d spent %lld acted %d draft %d\n", static_cast<int>(X.round()), X.api.team(), X.api.champ(),
 					 static_cast<long long>(X.api.spent), acted, draft ? 1 : 0);
@@ -1191,6 +1379,9 @@ public:
 		return [make](Api& api) {
 			Ctx X(api);
 			std::unique_ptr<GenesBase> g(make(X));
+#ifdef GENOME_PROF
+			if (api.champ() >= 0) t1_mark(api.fuel_remaining()); // runtime and genes made
+#endif
 			// the bot's one-off start-up on a champion's first turn (map and game built from the engine,
 			// runtime tables): first-turn fuel minus the simulator's, idle genome on 8 maps (err < 4.5k)
 			if (api.champ() >= 0)

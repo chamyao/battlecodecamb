@@ -1,0 +1,19 @@
+"""after() test: announce the camp tile we attacked this turn in shared bytes 2-3."""
+@gene("t1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == ATTACK:
+        return 10
+    if o.kind == MOVE:
+        return 1 if o.tile.x > me().pos.x else 0
+    return 0
+
+@gene("t2", "after acting: write the attacked tile to bytes 2-3")
+def after() -> None:
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        write_shared(2, t.x)
+        write_shared(3, t.y)
+
+@gene("t3", "ally beacon: the tile an ally last attacked")
+def beacon() -> Tile:
+    return tile(read_shared(2), read_shared(3))
