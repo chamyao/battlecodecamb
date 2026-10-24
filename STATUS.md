@@ -1,25 +1,20 @@
 # EC2 runner status
 
-Updated 2026-10-24 09:00 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.82 16.13 15.91 on 16 threads.
+Updated 2026-10-24 09:05 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.22 14.06 15.11 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
 ```
 5462 python3 -m funsearch.league --name pure4 --budget 9.71 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --threads 
-27961 python3 -m funsearch.league --name hyb4 --threads 5 --budget 29.47 --members policies/v7-zerogem.policy,policies/v7.policy,policies/v5d-fs2.policy --fixed policies/locker.policy --prefix fs-h --line hybrid --round 30 --cambc-ref policies/tune-5.policy --workers 3 --eval-threads 2
 29229 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies
 29242 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
-29257 /usr/bin/python3 -m funsearch.run --run style8-h-g2 --budget 3.32 --max-programs 34 --seed-policy policies/style-h1.policy --opponents builtin:starter@0.25,policies/style-h1.policy@0.5,policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy
 29270 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 3.06 --max-programs 128 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 34422 /usr/bin/python3 -m funsearch.run --run pure4-g3 --budget 2.85 --max-programs 150 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/tune-3.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy --workers 3
-35404 /usr/bin/python3 -m funsearch.run --run hyb4-g5 --budget 28.21 --max-programs 30 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/candidates/hyb-t5m.policy,policies/tune-4.policy,policies/tune-1.policy,policies/locker.p
 35865 python3 -m funsearch.league --name tune-fight --budget 5 --members policies/tune-v18g.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v18.policy --fixed policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campreset.policy --regress 1.0 
 35879 /usr/bin/python3 -m funsearch.run --run tune-fight-g1 --budget 4.42 --max-programs 51 --seed-policy policies/tune-v18g.policy --opponents builtin:starter@0.25,policies/tune-v18g.policy@3.0,policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campres
 ```
 ## tick.log (last 40 lines)
 ```
-[06:54:45] style: HOLD: style7 stopped; spend a/b/c: 0.02 0.017 0.007  a:8lines b:7lines c:5lines
-[06:54:49] tune: job F exited rc=0
 [07:10:25] style: style8 setup ok at 5c47501: gate 3, 2012 passed in 6.26s; budgets: h 3.95 b 3.5 a 2.25 c 2.25 
 [07:10:25] style: launched style8-h (budget $3.95)
 [07:10:25] style: launched style8-b (budget $3.5)
@@ -58,4 +53,6 @@ Disk: 3.2G used of 38G.
 [09:00:00] tune: G: restarting tune-fight on 45acc49 (pid 29566)
 [09:00:00] tune: G: tune-fight not running: relaunching (resumes)
 [09:00:00] tune: G: launched tune-fight ($5)
+[09:05:05] hybrid: H3: hyb4 stopped. g4 verdict: [08:36:55]   #33: builtin:starter 0.973, hyb-t5m 0.511, tune-4 0.568, tune-1 0.682, v7-zerogem 0.792, locker 0.944, v7zg-cast 0.720, v8 0.724, v7zg-monozone 0.7|[08:44:09]   #29: builtin:starter 0.976, hyb-t5m 0.481, tune-4 0.527, tune-1 0.652, v7-zerogem 0.787, locker 0.946, v7zg-cast 0.713, v8 0.704, v7zg-monozone 0.7|[08:51:28]   #23: builtin:starter 0.976, hyb-t5m 0.486, tune-4 0.532, tune-1 0.649, v7-zerogem 0.787, locker 0.946, v7zg-cast 0.710, v8 0.700, v7zg-monozone 0.7|[08:58:41]   policies/tune5-campreset.policy: builtin:starter 0.974, hyb-t5m 0.710, tune-4 0.734, tune-1 0.774, v7-zerogem 0.869, locker 0.950, v7zg-cast 0.809,|[08:58:47]   PROMOTED challenger policies/tune5-campreset.policy: builtin:starter 97.4%, hyb-t5m 71.0%, tune-4 73.4%, tune-1 77.4%, v7-zerogem 86.9%, locker 95.|
+[09:05:12] hybrid: H3: funsearch/runs 557ce2c (has 557ce2c), rebuilt, 2012 passed in 5.94s; SPEND lines appended; hyb5 launches next tick
 ```
