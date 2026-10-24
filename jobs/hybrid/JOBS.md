@@ -307,3 +307,9 @@ At the next hyb5 round boundary (if H10 has not fired yet, fold this into it: sa
 3. Check: about 1 in 5 new children have metrics.variant.vocab true; runs/hyb5.explore.txt shows the
    "new-block uptake by programs" line. Push the explore.txt with the state.
 Batch 2 of the gap sensors (coord/gap-blocks bd8b098) follows as H12 once deploy/v0 has it.
+
+## Job H12 (2026-10-24 14:30 UTC, hybrid line session; per the FunSearch lead): gap sensors batch 2, with H11
+Require funsearch/runs fe36f47 or later instead of e82cb4a (same boundary as H11, one pull; if H11 already ran, the
+next boundary). It merges deploy/v0 9d607af (batch 2: threat_eta, altar_eta, retreat_eta, enemy_between,
+group_contested, team_gems, unseen_enemies_near; BOT_VERIFY running at the lead's end, revert if told). interp/ CHANGED:
+rebuild interp_eval, pytest (2027). Same command line. The new sensors join the vocab variant list automatically.
