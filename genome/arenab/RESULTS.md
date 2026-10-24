@@ -31,3 +31,12 @@ first turn is 154-188k on these).
 |---|---|---|---|
 | seed (genome/seed f739709) | 41 | 6 | 226 / 0 |
 | B318 | 56 | 9 | 224 / 0 |
+
+## Sim gate (a) vs the actual live bot before v25, tune-v20-L1c (genome/v0 2356e26 runtime, seeds 96001-96013)
+
+| genome | vs tune-v20-L1c (800) | anchors (change vs L1c's own rate) |
+|---|---|---|
+| B318 (uploaded as v25) | 0.606 | v7 -0.7, tune-v20-L1 +11.5, rall2 +7.3, metadraft -1.7 -> PASS |
+| B279 | 0.610 | +0.5, +11.0, +6.0, -0.7 -> PASS |
+| B263 | 0.595 | -0.2, +6.8, +5.2, -2.0 -> PASS |
+| commit-mono | 0.570 | +1.3, +4.7, +5.5, -1.5 -> PASS |
