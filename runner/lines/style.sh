@@ -78,7 +78,19 @@ if [ -f runs/ec2-s4-checked ] && [ ! -f runs/ec2-s5 ]; then
     echo "S5 merge/build/tests failed; h and b stopped, a/c paused" > "$D/HALT"; log "HALT: S5 merge/build/tests failed"; return 1
   fi
 fi
-for x in h b a c; do
+# Job S6 (style line, 11:32 UTC): new island h2 on funsearch/style 97e64e9 (script/policy only, no rebuild): fresh
+# style8-h2, $2.2 from runs/style_budgets, H_* threads apply to h and h2. h and b keep running (not restarted);
+# a stays paused (budget capped at its $0.04 spend). One-shot merge; the loop below starts h2.
+if [ -f runs/ec2-s5-checked ] && [ ! -f runs/ec2-s6 ]; then
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor 97e64e9 HEAD && grep -q '^h2 ' runs/style_budgets; then
+    touch runs/ec2-s6; log "S6: at $(git rev-parse --short HEAD) (has 97e64e9), no rebuild; budgets: $(tr '\n' ' ' < runs/style_budgets)"
+  else
+    log "S6: merge to 97e64e9 failed; h2 not started"; return 1
+  fi
+fi
+for x in h h2 b a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
   running "league --name style8-$x " && continue
   ls runs/style8-$x-g*/STOP > /dev/null 2>&1 && continue
@@ -111,6 +123,13 @@ if [ -f runs/ec2-s5 ] && [ ! -f runs/ec2-s5-checked ]; then
     log "S5 check: h: $(echo "$fh" | grep -q 'style8-h-g3: .*best policies/style-h1.policy' && echo 'g3 best style-h1 ok' || echo 'UNEXPECTED') $(echo "$fh" | grep -q tune-v19 && echo 'tune-v19 in league' || echo 'tune-v19 MISSING') $(echo "$fh" | grep -oE '\$[0-9.]+ left'); b: $(echo "$fb" | grep -oE 'style8-b-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$fb" | grep -oE '\$[0-9.]+ left'); before: $(cat runs/ec2-s5-left)"
   fi
 fi
+if [ -f runs/ec2-s6 ] && [ ! -f runs/ec2-s6-checked ] && [ -f runs/style8-h2.log ]; then
+  f2=$(grep -m1 'style8-h2-g' runs/style8-h2.log)
+  if [ -n "$f2" ] && grep -q 'injected' runs/style8-h2-g1.log 2>/dev/null; then
+    touch runs/ec2-s6-checked
+    log "S6 check: h2: $(echo "$f2" | grep -q 'style8-h2-g1: .*best policies/opp-hunter3.policy' && echo 'g1 best opp-hunter3 ok' || echo 'UNEXPECTED') $(echo "$f2" | grep -q tune-v19 && echo 'tune-v19 in league' || echo 'tune-v19 MISSING') $(echo "$f2" | grep -oE '\$[0-9.]+ left'); $(grep -m1 -o 'injected [^ ]*' runs/style8-h2-g1.log)"
+  fi
+fi
 # snapshot: complete JSON lines only (like runs/style_push_state.sh), never scripts or budgets
 rm -rf /root/bc/style-snap && mkdir -p /root/bc/style-snap/runs
 for d in runs/style8-*-g*/; do
@@ -125,6 +144,6 @@ for line in open(sys.argv[1]):
 open(sys.argv[2], "w").writelines(out)' "$d$f" "/root/bc/style-snap/$d$f"
   done
 done
-cp runs/style8-*.json runs/style8-?.log runs/style8-*-g*.log runs/style8-?.out /root/bc/style-snap/runs/ 2>/dev/null
+cp runs/style8-*.json runs/style8-*.log runs/style8-*.out /root/bc/style-snap/runs/ 2>/dev/null
 push_state funsearch/style-state runs /root/bc/style-snap/runs
 push_state remote/style remote/style/runs /root/bc/style-snap/runs
