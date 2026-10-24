@@ -207,6 +207,7 @@ DOCS = {
     "slot_is_shield": "self shield", "slot_is_reset": "attack reset (self-cast it AFTER a basic attack, then attack again)",
     "slot_range": "cast range in tiles of ability slot (0/1); a dash's travel distance", "slot_radius": "area radius of the slot's effect (0 = single target)",
     "slot_stun": "turns the slot stuns on hit, 0 if none: cc abilities and stunning damage/dash (Heart of Ruin's dash, Ryth's AoE). Open fights with it",
+    "unit_is": "true if the unit is that champion (e.g. unit_is(enemy, champ_heart_of_ruin()))", "unit_shield": "shield points currently on a visible champion (absorbs damage before health); 0 if none",
     "dash_towards": "cast the dash in slot (0/1) up to 2 tiles along the walking path to the tile",
     "weakest": "lowest-health member, or none", "richest": "member carrying the most gems, or none",
     "nearest": "closest member by Chebyshev distance, or none",
