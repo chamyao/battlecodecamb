@@ -111,3 +111,17 @@ carries; they out-earn us. B318 still wins 50/80 against the best version.
 
 Lever (a), rejected/b318-carry (our Vesper Vale stacks shard 18): 29/80 vs B318, 48/80 vs carry (B318 50).
 Anchors: L1c 42 (B318 45), gconv1 48 (51), v7 73 (76), L1 41 (47), rall2 44 (52), metadraft 72 (69).
+
+## Fight children on B792 (ladder v26) for a possible ladder A/B (--bot-seeds /80, runtime genome/v0 b5d606b)
+
+The bar: >= 38/80 vs B792, no anchor drop > 3, and a fight-metric gain vs stress/hunter-carry.
+
+| genome | vs B792 | L1c | gconv1 | v7 | L1 | rall2 | metadraft | vs hunter-carry | deaths / gems lost to champions |
+|---|---|---|---|---|---|---|---|---|---|
+| B792 | — | 52 | 50 | 78 | 49 | 55 | 72 | 57 | 6.0 / 79 |
+| b792-disengage (r3: retreat when a growing pack outnumbers us by 2+) | 36 | 45 | 50 | 77 | 46 | 47 | 68 | 58 | 7.1 / 109 |
+| b792-disengage-bag (same, only while carrying) | 38 | 50 | 50 | 76 | 42 | 50 | 66 | 59 | 6.3 / 111 |
+| b792-groupup (alone near enemies: go to the nearest ally before a 14+ gem group) | 39 | 54 | 45 | 76 | 47 | 56 | 72 | 58 | 6.1 / 161 |
+
+None qualifies, since each drops an anchor by 5-8. All three lose more gems to hunter-carry than B792 (the
+retreats are caught, and group-up walks carriers around). Same pattern as cashout: in the sim, disengaging costs more than it saves.
