@@ -31,6 +31,8 @@ def main(argv):
     sys.path.insert(0, os.path.abspath(adir))
     import analyse, mapinfo, race_analysis
     from live_digest import digest
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import stuck
     G = []
     for fd, ex in zip(pairs[::2], pairs[1::2]):
         for v in json.load(open(os.path.join(fd, 'sides.json'))).values():
@@ -44,8 +46,10 @@ def main(argv):
             st = analyse.game_stats(d, (v['A'], v['B']))
             u, t = (race_analysis.side_numbers(d, st, x, m, team) for x in (us, 1 - us))
             caps = st[us]['lists'].get('capture', [])
+            sp = stuck.spells(d, us, m)
             G.append(dict(
-                win=g['win'], opp=g['opp'], map=g['map'], sub=g['sub'][0], sub_them=g['sub'][1],
+                win=g['win'], opp=g['opp'], map=g['map'], side='a' if us == 0 else 'b',
+                stuck=sum(x['n'] for x in sp), stuck_bag=max([x['bag'] for x in sp], default=0), sub=g['sub'][0], sub_them=g['sub'][1],
                 margin=g['sub'][1] - g['sub'][0], causes=g['causes'],
                 d_champ=g['deaths'][0], d_camp=g['deaths'][1], d_mono=g['deaths'][2], lost=g['lost'],
                 cap=u['gems_cap'], cap_them=t['gems_cap'], ncap=u['caps'], ncap_them=t['caps'],
@@ -77,6 +81,8 @@ def main(argv):
         ('our deaths to champions', mean('d_champ'), False),
         ('our deaths to camps', mean('d_camp'), False),
         ('our deaths to monoliths', mean('d_mono'), False),
+        ('stuck champion-rounds (stuck.py)', mean('stuck'), False),
+        ('games with a stuck spell', pct(lambda x: x['stuck'] > 0), True),
         ('our deaths to monoliths, monolith maps only', lambda gs: mean('d_mono')([x for x in gs if x['mono_map']]), False),
         ('gems lost on death, us', mean('lost'), False),
         ('gems captured, us', mean('cap'), False), ('gems captured, them', mean('cap_them'), False),

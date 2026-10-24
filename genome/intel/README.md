@@ -5,7 +5,8 @@ Evidence from our live bot's real band games (rated +50..+150 above us), turned 
 - `GAPS.md`: ranked gaps (evidence, seed genes, sim metric); refreshed per batch. `NOTES.md`: what changed per batch.
 - `directed/*.genome`: directed children of the seed (`genome/seeds/v23.genome`), one gap each.
 - `stress/lockall.genome`, `stress/hunter.genome`: test opponents (locks every altar; chases carriers); not arena genomes.
-- `batches/bN.md`: each batch's raw tables, opponents and match-group IDs.
+- `batches/bN.md`: each batch's raw tables, opponents and match-group IDs; `bN_plan.json` (teams, maps, sides, groups) and
+  `bN_games.json` (per-game metrics, for paired before/after comparisons).
 
 Tools:
 ```
@@ -17,5 +18,9 @@ python3 -I ../an/analysis/fetch_groups.py B GROUP...   # downloads (untrusted da
 python3 -I ../an/analysis/ladder_prep.py B BX | while read r o w; do echo "$w $r $o"; done | xargs -P4 -n3 sh -c 'CAMBC_WASM=$0 node ../an/analysis/extract.js $1 $2'
 python3 -I genome/intel/batch_report.py ../an/analysis B BX
 python3 -I genome/intel/stuck.py ../an/analysis B BX
+python3 -I genome/intel/run_batch.py plan PLAN.json [--like genome/intel/batches/b1_plan.json]   # new or paired plan
+python3 -I genome/intel/run_batch.py queue PLAN.json                                             # spends quota
+python3 -I genome/intel/batch_report.py ../an/analysis B BX --json genome/intel/batches/bN_games.json
+python3 genome/intel/paired.py genome/intel/batches/b1_games.json genome/intel/batches/bN_games.json
 python3 -I ../an/analysis/gaps.py b=BX,B               # fight / low-HP tables
 ```
