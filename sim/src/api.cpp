@@ -8,7 +8,19 @@
 
 namespace cbs
 {
-Api::Api(Game& g, int team, int champ, const PriceTable* prices) : g_(g), team_(team), champ_(champ), prices_(prices) {}
+Api::Api(Game& g, int team, int champ, const PriceTable* prices) : g_(g), team_(team), champ_(champ), prices_(prices) { fold_prices(); }
+
+void Api::fold_prices()
+{
+	custom_price_ = static_cast<bool>(prices_->custom);
+	if (custom_price_) return;
+	const PriceContext ctx{ g_.map().W, g_.map().H };
+	const std::int64_t ch = ctx.chunks();
+	for (int i = 0; i < static_cast<int>(Call::count); ++i)
+		folded_[i] = { prices_->base[i] + prices_->per_row[i] * ctx.map_h + prices_->per_chunk[i] * ch,
+					   prices_->per_n_milli[i] + prices_->per_n_chunk_milli[i] * ch, prices_->per_n2_milli[i],
+					   prices_->per_n3_milli[i] + prices_->per_n3_chunk_milli[i] * ch };
+}
 
 const Bitboard& Api::vis()
 {
@@ -691,12 +703,10 @@ void Api::reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
 	int layers = 0;
 	if (dist > 0 && out.count(g_.map().H) > 1)
 	{
-		static thread_local std::uint16_t d[kMaxDim * kMaxDim];
-		Bitboard roots, visited;
+		Row128 seen[kMaxDim];
+		Bitboard roots;
 		roots.set(origin);
-		cbs::distance_field(walls, roots, nullptr, g_.map().W, g_.map().H, dist, d, visited);
-		for (int i = 0; i < g_.map().W * g_.map().H; ++i)
-			if (d[i] != kUnreachable) layers = std::max<int>(layers, d[i]);
+		bfs_layers(walls, roots, g_.map().W, g_.map().H, dist, seen, [&](Row128, int, int d) { layers = d; }, [] { return false; });
 	}
 	charge(Call::bitboard_reachable, layers);
 }
@@ -724,10 +734,36 @@ struct SimFieldOps
 	std::uint16_t compute(const Board& walls, const Board& roots, const Board* dests, std::uint16_t maxd, std::uint16_t* field,
 						  Board& visited) const
 	{
-		std::vector<std::uint16_t> d(static_cast<std::size_t>(W) * H);
-		const int n = distance_field(walls, roots, dests, W, H, maxd, d.data(), visited, true);
-		for (int y = 0; y < H; ++y)
-			for (int x = 0; x < W; ++x) field[fidx(x, y)] = d[y * W + x];
+		// distance_field(..., all_dests = true), written straight into the chunked layout.
+		Row128 seen[kMaxDim];
+		std::fill(field, field + field_memo::kFieldWords, kUnreachable);
+		const Row128 full = W >= 128 ? ~Row128{ 0 } : (Row128{ 1 } << W) - 1;
+		auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
+		auto pop = [](Row128 v) { return std::popcount(static_cast<std::uint64_t>(v)) + std::popcount(static_cast<std::uint64_t>(v >> 64)); };
+		int left = 0;
+		bool reached = false;
+		if (dests)
+			for (int y = 0; y < H; ++y) left += pop(load(*dests, y) & full);
+		const int n = bfs_layers(
+			walls, roots, W, H, maxd, seen,
+			[&](Row128 layer, int y, int d) {
+				if (dests)
+					if (const Row128 hit = layer & load(*dests, y))
+						if ((left -= pop(hit)) == 0) reached = true;
+				std::uint16_t* row = field + ((y >> 3) * cw) * 64 + (y & 7) * 8;
+				for (auto k = 0; k < 2; ++k)
+					for (std::uint64_t b = static_cast<std::uint64_t>(layer >> (64 * k)); b; b &= b - 1)
+					{
+						const int x = 64 * k + std::countr_zero(b);
+						row[(x >> 3) * 64 + (x & 7)] = static_cast<std::uint16_t>(d);
+					}
+			},
+			[&] { return dests && reached; });
+		for (int y = 0; y < kMaxDim; ++y)
+		{
+			visited.w[y][0] = y < H ? static_cast<std::uint64_t>(seen[y]) : 0;
+			visited.w[y][1] = y < H ? static_cast<std::uint64_t>(seen[y] >> 64) : 0;
+		}
 		return static_cast<std::uint16_t>(n);
 	}
 };
@@ -788,23 +824,28 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 		if (expansions) *expansions = 0;
 		return false;
 	}
-	// Per call, not static: a charge can suspend this bot while others run on the same thread.
-	std::vector<std::uint16_t> field(static_cast<std::size_t>(W) * H);
-	std::uint16_t* d = field.data();
-	Bitboard roots, visited;
+	// cbs::distance_field from origin to cand without the field: the search stops at the first layer
+	// that reaches cand, so the answer is that layer's first cand tile in row-major order.
+	auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
+	Row128 seen[kMaxDim];
+	Bitboard roots;
 	roots.set(origin);
-	const int n = cbs::distance_field(walls, roots, &cand, W, H, kUnreachable, d, visited);
-	if (expansions) *expansions = n;
 	std::uint16_t bd = kUnreachable;
 	bool found = false;
-	cand.for_each(H, [&](int x, int y) {
-		if (d[y * W + x] < bd)
-		{
-			bd = d[y * W + x];
-			out = { x, y };
-			found = true;
-		}
-	});
+	const int n = bfs_layers(
+		walls, roots, W, H, kUnreachable, seen,
+		[&](Row128 layer, int y, int d) {
+			if (found) return;
+			if (const Row128 hit = layer & load(cand, y))
+			{
+				const auto lo = static_cast<std::uint64_t>(hit);
+				out = { lo ? std::countr_zero(lo) : 64 + std::countr_zero(static_cast<std::uint64_t>(hit >> 64)), y };
+				bd = static_cast<std::uint16_t>(d);
+				found = true;
+			}
+		},
+		[&] { return found; });
+	if (expansions) *expansions = n;
 	if (!prices_->bot_memo || !count_charges)
 	{
 		last_field = { n, cand.count(H) };
@@ -853,11 +894,16 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 		bool fast = false;
 		if (!mc.answered)
 		{
-			std::vector<std::uint16_t> f(static_cast<std::size_t>(W) * H);
-			Bitboard v;
-			layers += cbs::distance_field(walls, o, nullptr, W, H, cap, f.data(), v);
+			// cbs::distance_field(walls, o, nullptr, cap) and the least value on cand: the first layer
+			// that reaches cand (the search itself runs on to cap).
+			Row128 v[kMaxDim];
 			int bd = cap + 1;
-			cand.for_each(H, [&](int x, int y) { bd = std::min<int>(bd, f[y * W + x]); });
+			layers += bfs_layers(
+				walls, o, W, H, cap, v,
+				[&](Row128 layer, int y, int d) {
+					if (d < bd && (layer & load(cand, y))) bd = d;
+				},
+				[] { return false; });
 			h->used = ++hs.clock;
 			if (bd <= cap)
 			{
@@ -874,7 +920,9 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 		}
 		if (!fast && found)
 		{
-			const std::int64_t reach = visited.count(H); // tiles within D of origin: the mask
+			std::int64_t reach = 0; // tiles within D of origin: the mask
+			for (int y = 0; y < H; ++y)
+				reach += std::popcount(static_cast<std::uint64_t>(seen[y])) + std::popcount(static_cast<std::uint64_t>(seen[y] >> 64));
 			tiles += reach;
 			if (have_me)
 			{

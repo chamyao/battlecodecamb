@@ -2,6 +2,7 @@
 // Row-major: bit x of row y. Every algorithm here is verified bit-for-bit against the
 // engine's own host functions (oracle/fixtures/geom, docs/ENGINE_FINDINGS.md).
 #pragma once
+#include <algorithm>
 #include <bit>
 #include <cstdint>
 #include <cstring>
@@ -116,6 +117,14 @@ void reachable(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitbo
 constexpr std::uint16_t kUnreachable = 0xFFFF;
 int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int W, int H, int max_distance,
 				   std::uint16_t* dist /* W*H row-major */, Bitboard& visited, bool all_dests = false);
+// The layered BFS behind distance_field, for callers that need less than the full field.
+// Calls on_row(row_bits, y, depth) for each row of each layer in order (depth 0 = the open roots,
+// then rows ascending within a layer); before each expansion stops when done() or at max_distance.
+// Returns the expansion count; seen (H rows) gets every reached tile. Bit x of a row is tile x.
+using Row128 = unsigned __int128;
+template <class OnRow, class Done>
+int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow&& on_row,
+			   Done&& done);
 void draw_circle(Bitboard& b, int W, int H, Vec2 c, float r);
 void draw_chebyshev(Bitboard& b, int W, int H, Vec2 c, float r);
 
@@ -179,6 +188,83 @@ struct Caster
 	}
 };
 } // namespace detail
+
+namespace detail
+{
+// Row is std::uint64_t for maps at most 64 wide (word 1 of every row is zero there), else Row128.
+template <class Row, class OnRow, class Done>
+int bfs_layers_impl(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow& on_row,
+					Done& done)
+{
+	auto load = [](const Bitboard& b, int y) {
+		if constexpr (sizeof(Row) == 8) return b.w[y][0];
+		else return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64;
+	};
+	constexpr int bits = 8 * sizeof(Row);
+	const Row full = W >= bits ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
+	// avail = open and not yet reached. front is padded by one zero row on each side and is zero
+	// outside the frontier's rows [y0, y1], so a layer is one pass over [y0 - 1, y1 + 1] that
+	// overwrites front in place (the old rows y and y + 1 are held in registers).
+	Row avail[kMaxDim], front_[kMaxDim + 2];
+	Row* front = front_ + 1;
+	front[-1] = front[H] = 0;
+	bool any = false;
+	int y0 = H, y1 = -1; // rows spanned by the frontier
+	for (int y = 0; y < H; ++y)
+	{
+		const Row open = ~load(walls, y) & full;
+		front[y] = load(roots, y) & open;
+		avail[y] = open & ~front[y];
+		if (front[y])
+		{
+			any = true;
+			y0 = std::min(y0, y), y1 = y;
+			on_row(static_cast<Row128>(front[y]), y, 0);
+		}
+	}
+	int count = 0, depth = 0;
+	while (any)
+	{
+		if (done()) break;
+		if (depth >= max_distance) break;
+		any = false;
+		const int lo = std::max(0, y0 - 1), hi = std::min(H - 1, y1 + 1);
+		const int d = depth + 1;
+		int n0 = H, n1 = -1;
+		Row up = front[lo - 1], cur = front[lo];
+		for (int y = lo; y <= hi; ++y)
+		{
+			const Row down = front[y + 1];
+			Row h = up | cur | down;
+			h |= h << 1 | h >> 1;
+			const Row nx = h & avail[y];
+			front[y] = nx;
+			up = cur, cur = down;
+			if (nx)
+			{
+				any = true;
+				if (n1 < 0) n0 = y;
+				n1 = y;
+				avail[y] &= ~nx;
+				on_row(static_cast<Row128>(nx), y, d);
+			}
+		}
+		y0 = n0, y1 = n1;
+		++depth;
+		++count;
+	}
+	for (int y = 0; y < H; ++y) seen[y] = static_cast<Row128>(~load(walls, y) & full & ~avail[y]);
+	return count;
+}
+} // namespace detail
+
+template <class OnRow, class Done>
+int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow&& on_row,
+			   Done&& done)
+{
+	if (W <= 64) return detail::bfs_layers_impl<std::uint64_t>(walls, roots, W, H, max_distance, seen, on_row, done);
+	return detail::bfs_layers_impl<Row128>(walls, roots, W, H, max_distance, seen, on_row, done);
+}
 
 template <class Blocking, class Mark>
 void shadowcast(int W, int H, Vec2 origin, int dist, Blocking&& blocking, Mark&& mark)
