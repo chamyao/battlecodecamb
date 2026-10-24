@@ -100,7 +100,7 @@ Proof that it resumed and did not restart:
 
 1. Promotion: `runs/pure4.log` shows `PROMOTED fs-p3.policy: ...` and `policies/fs-p3.policy`
    exists but is uncommitted. `runs/pure4.json` is now gen 4 with no fixed/target.
-2. Check out funsearch/pure **2a874b7** exactly (coord/blocks merged: rebuild required) (the vetted g4 commit, also G4_REV in ec2/runner runner/lines/pure.sh; not the moving tip): COMBAT + TOP_TEAMS_RULES prompt (13facf9), tune5-campreset opponent files. `runs/` holds tracked files that you changed, so a plain
+2. Check out funsearch/pure **2a4782b** exactly (coord/blocks merged: rebuild required; catalog = funsearch/runs aa032ba) (the vetted g4 commit, also G4_REV in ec2/runner runner/lines/pure.sh; not the moving tip): COMBAT + TOP_TEAMS_RULES prompt (13facf9), tune5-campreset opponent files. `runs/` holds tracked files that you changed, so a plain
    checkout refuses. Keep your state and take the tip's launcher and opponent files:
    ```sh
    cp -a runs ~/runs-g3-backup
