@@ -4,6 +4,23 @@ Written 2026-10-24 ~03:45 UTC by the outgoing STYLE session (session_01V26XD9N15
 Branch: `funsearch/style` (code + directives). Read `CLAUDE.md` and `docs/STRATEGY.md` first (core
 principle: compute is part of the action space; fuel is a rule, not a constraint).
 
+## Arena (current; read this before the older sections below)
+
+- Engine for anything compared with live: deploy/v0 `545c7b1e644b1e5c82ba07b3a8aa8945ab2dc190`;
+  pass it as `"engine"` on every policy registration and match (the default engine is older).
+- The arena's `client.py` is a download; this container's permission policy blocked running it,
+  so call the API with `curl` + JSON bodies (POST /policies, /matches, /batches,
+  /leagues/main/members; `?wait=N` long-polls).
+- Registered by style on 545c7b1: opp-finisher, opp-hunter3 (= style-h1), opp-hunter2a/b/c,
+  opp-hunter-stack. Live lineage is already there (`v22-tune-v20-L1c` = live = our v21 reference
+  tune-v20-L1c; `v23-style-gconv1` = style-gconv1). Names are immutable: a changed policy gets a
+  new name.
+- Candidate checks: 800 games vs `v22-tune-v20-L1c` (floor 50%) as a match; then
+  `POST /leagues/main/members {"policy": NAME}` (priority -1) and post standings on PR #5.
+  Real-cambc checks and uploads stay with the coordinator (each upload needs Cham's go-ahead).
+- Still on EC2 until Cham issues a token: style8-gsub (gems-submitted gap vs v21, $0.52) and b2
+  (bar v21, $0.95). State on `funsearch/style-state`. Their candidates go through the arena.
+
 ## Goal
 
 Explore policy styles nobody on the team plays, so (1) we may find a stronger style and (2) the
@@ -44,11 +61,12 @@ style that is merely competitive (45%+ vs the bar over 800 games) but plays very
   `runs/style6-X-g1/programs.jsonl` = database, resumable).
 - Launcher `runs/style_launch.sh <x> <budget>`, budgets in `runs/style_budgets` (2.3 each; the
   league subtracts spend already in programs.jsonl, so the cap is per island in total).
-- Talking to remote-server: follow `docs/REMOTE_WORKER.md` on main. Channel = draft PR #3
-  (`remote/style` -> `jobs/style`). Put instructions in `jobs/style/JOBS.md`; read
-  `remote/style/STATUS.md` (still a placeholder when this was written: no server status yet).
-  The server has no GitHub push for our older scripts; `runs/style_push_state.sh` (pushes to
-  `funsearch/style-state`) fails there harmlessly. Expect state/promotions on `remote/style`.
+- Talking to remote-server (Oct 24, 17:30 UTC on): **the arena**, see `docs/REMOTE_WORKER.md` on
+  main and `$ARENA_URL/docs` (`ARENA_URL=https://138-201-121-171.sslip.io/arena`, header
+  `X-Arena-Client: style`). Matches, batches, leagues and policy registration need no token;
+  FunSearch runs and run-file writes need a token from Cham (never commit or print it). The old
+  draft-PR channel (PR #3, `remote/style` -> `jobs/style`, `jobs/style/JOBS.md`) and the EC2
+  runner are retired for new work: no new jobs there.
 - Snapshot of state at the move (55/115/75 programs): branch `funsearch/style-state`
   (run data only; overlay with `git checkout origin/funsearch/style-state -- runs/`).
 - Nothing runs in the cloud container any more. Do not start islands there (double spend).
