@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 22:30 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 1.48 3.56 4.39 on 16 threads.
+Updated 2026-10-24 22:35 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.09 1.29 3.15 on 16 threads.
 Disk: 7.3G used of 38G.
 
 ## python3 processes
@@ -13,7 +13,6 @@ Disk: 7.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-hint: 
 hint: See "git help submodule" for more information.
 [21:28:31] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [21:33:45] genome: started job simspeed-exact-2 at 654ddbc9f69b2f9495e13a4c1b84362c5ef7ec96
@@ -53,4 +52,5 @@ fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/b
 [22:30:22] genome: job lineage-A exited rc=0
 fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
 [22:30:24] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[22:35:31] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
