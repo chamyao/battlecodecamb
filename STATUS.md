@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 14:28 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.83 12.69 11.29 on 16 threads.
+Updated 2026-10-24 14:34 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.84 14.04 12.31 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -9,14 +9,11 @@ Disk: 3.3G used of 38G.
 92630 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.29 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,polic
 103837 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
 104363 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 19.53 --max-programs 30 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
-106865 python3 -m funsearch.run --run style8-gconv --budget 2.00 --max-programs 400 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.pol
 106899 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
 106920 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.99 --max-programs 17 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 ```
 ## tick.log (last 40 lines)
 ```
-[13:04:40] pure: g6 build switch: STOP requested (gen 5)
-[13:09:54] pure: g6 build switch: moved to funsearch/pure 0af36c4 (lockfix); g6 restarts on the new build
 [13:09:54] pure: league not running: relaunching (g4, resume from runs/)
 [13:09:54] pure: launched pure4 league (g4)
 [13:15:01] hybrid: H7 check: no re-seed lines; v21 promoted at the boundary
@@ -55,4 +52,6 @@ Disk: 3.3G used of 38G.
 [14:23:38] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [14:23:38] style: launched style8-b (budget $3.5)
 [14:28:46] style: S8 gap line: gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.9034; win floor 0.5 vs it; weight 0.5
+[14:33:55] style: S8 HOLD: SIGTERM style8-gconv pid 106865
+[14:34:00] style: S8 HOLD: gconv stopped; spend $0.019 over 8 lines
 ```
