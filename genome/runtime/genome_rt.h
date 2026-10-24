@@ -20,13 +20,37 @@
 #define GENOME_OP_FUEL 4 // fuel per own operation (placeholder until calibrated against cambc)
 #endif
 #ifdef GENOME_BOT
+#ifdef GENOME_PROF
+#define F(n) (X.ops += (n))
+#else
 #define F(n) ((void)0)
+#endif
 #else
 #define F(n) X.charge_ops(n)
 #endif
 
 namespace genome
 {
+#ifdef GENOME_PROF
+// Inclusive fuel and calls per gene (real fuel in the bot), printed every GENOME_PROF_GENES rounds.
+struct GeneStat
+{
+	const char* name = nullptr;
+	long long calls = 0, fuel = 0;
+};
+inline GeneStat gene_stats[256];
+struct GeneScope
+{
+	GeneStat& s;
+	cbs::Api& api;
+	std::int64_t t0;
+	GeneScope(GeneStat& s, cbs::Api& api) : s(s), api(api), t0(api.fuel_remaining()) { ++s.calls; }
+	~GeneScope() { s.fuel += t0 - api.fuel_remaining(); }
+};
+#define GENE_PROF(i, nm) genome::gene_stats[i].name = nm; genome::GeneScope gene_scope_(genome::gene_stats[i], X.api)
+#else
+#define GENE_PROF(i, nm) ((void)0)
+#endif
 using cbs::Api;
 using cbs::Bitboard;
 using cbs::Err;
@@ -66,12 +90,16 @@ enum OptionKind
 {
 	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK
 };
+// Small on purpose: copying costs ~1 fuel per byte in the bot. The target unit lives in the pass's
+// unit table (Ctx::unit_of); ukind/uh identify it across passes.
 struct Option
 {
 	int kind = 0;
-	Unit unit;
-	Tile tile;
 	int slot = -1, item = -1, champ = -1;
+	Tile tile;
+	int ukind = 0;
+	std::uint32_t uh = 0;
+	int ui = -1;
 };
 
 inline double div(double a, double b) { return b == 0 ? 0.0 : a / b; }
@@ -97,7 +125,12 @@ public:
 	const cbs::Map& m;
 	std::uint64_t pass_id = 0;
 
-	void charge_ops(long n) { api.compute(n * GENOME_OP_FUEL); }
+	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
+	void charge_ops(long n)
+	{
+		ops += n;
+		api.compute(n * GENOME_OP_FUEL);
+	}
 
 	void new_pass()
 	{
@@ -383,9 +416,17 @@ public:
 	}
 
 	// ---- the options of the current pass (legal as far as we know; the engine has the last word)
+	const Unit& unit_of(const Option& o) const
+	{
+		static const Unit none{};
+		return o.ui >= 0 && o.ui < static_cast<int>(opt_units_.size()) ? opt_units_[o.ui] : none;
+	}
+	std::vector<Option> opts_buf, failed_buf; // reused by play_turn (no reallocation per pass)
+
 	void options(std::vector<Option>& out)
 	{
 		out.clear();
+		opt_units_.clear();
 		if (api.champ() < 0)
 		{
 			for (int c = 0; c < cbs::kNumDraftChoices; ++c)
@@ -545,13 +586,13 @@ public:
 		{
 		case PICK: e = api.draft_champion(type_to_choice(o.champ)); ok = 1; break;
 		case MOVE: e = api.move_to(o.tile.v(), &ok); break;
-		case ATTACK: e = api.attack(static_cast<std::uint32_t>(o.unit.kind == 1 ? cbs::EntityKind::champion : cbs::EntityKind::camp), o.unit.h), ok = 1; break;
+		case ATTACK: e = api.attack(static_cast<std::uint32_t>(o.ukind == 1 ? cbs::EntityKind::champion : cbs::EntityKind::camp), o.uh), ok = 1; break;
 		case CAST:
 		{
 			const std::uint32_t kind = static_cast<std::uint32_t>(
-				!o.unit.valid() ? cbs::EntityKind::none : o.unit.kind == 1 ? cbs::EntityKind::champion : cbs::EntityKind::camp);
-			const Vec2 at = o.unit.valid() ? o.unit.pos.v() : o.tile.v();
-			e = api.cast(static_cast<std::uint32_t>(o.slot), kind, o.unit.valid() ? o.unit.h : 0, at, &ok);
+				!o.ukind ? cbs::EntityKind::none : o.ukind == 1 ? cbs::EntityKind::champion : cbs::EntityKind::camp);
+			const Vec2 at = o.tile.v(); // a unit target's tile is its position
+			e = api.cast(static_cast<std::uint32_t>(o.slot), kind, o.ukind ? o.uh : 0, at, &ok);
 			break;
 		}
 		case WARD: e = api.place_ward(o.tile.v(), &ok); break;
@@ -569,7 +610,7 @@ public:
 private:
 	std::uint32_t self_ = 0;
 	Unit me_;
-	Units enemies_, allies_, camps_;
+	Units enemies_, allies_, camps_, opt_units_;
 	double gems_ = 0, gold_ = 0;
 	bool have_me_ = false, have_enemies_ = false, have_allies_ = false, have_camps_ = false, have_gems_ = false, have_gold_ = false,
 		 have_occ_ = false, have_items_ = false;
@@ -606,7 +647,8 @@ private:
 	Option target_option(int kind, const Unit& u)
 	{
 		Option o;
-		o.kind = kind, o.unit = u, o.tile = u.pos;
+		o.kind = kind, o.tile = u.pos, o.ukind = u.kind, o.uh = u.h, o.ui = static_cast<int>(opt_units_.size());
+		opt_units_.push_back(u);
 		return o;
 	}
 	const Bitboard& occupancy()
@@ -673,18 +715,42 @@ using MakeGenes = GenesBase* (*)(Ctx&);
 // One turn of the fixed loop. Returns the number of actions taken.
 inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 {
-	std::vector<Option> opts, failed;
+	std::vector<Option>& opts = X.opts_buf;
+	std::vector<Option>& failed = X.failed_buf;
+	failed.clear();
+	if (opts.capacity() < 256) opts.reserve(256);
 	auto same = [](const Option& a, const Option& b) {
-		return a.kind == b.kind && a.unit == b.unit && a.tile == b.tile && a.slot == b.slot && a.item == b.item && a.champ == b.champ;
+		return a.kind == b.kind && a.ukind == b.ukind && a.uh == b.uh && a.tile == b.tile && a.slot == b.slot && a.item == b.item && a.champ == b.champ;
 	};
 	const bool draft = X.api.champ() < 0;
+#ifdef GENOME_PROF
+#ifndef GENOME_PROF_EVERY
+#define GENOME_PROF_EVERY 50
+#endif
+	// fuel by phase (bot build: real fuel from the engine); printed every 50th round
+	std::int64_t f_opt = 0, f_score = 0, f_exec = 0, t0 = X.api.fuel_remaining(), tp, start = t0;
+	const long long ops0 = X.ops;
+	int npass = 0, nopts = 0;
+#define PROF_MARK(acc) (tp = X.api.fuel_remaining(), acc += t0 - tp, t0 = tp)
+#else
+#define PROF_MARK(acc) ((void)0)
+#endif
 	X.new_pass();
 	if (!draft) g.run_update();
 	int acted = 0;
 	for (int pass = 0; pass < max_passes; ++pass)
 	{
 		X.new_pass();
+#ifdef GENOME_PROF
+		std::int64_t f_upd = 0;
+		PROF_MARK(f_upd);
+		++npass;
+#endif
 		X.options(opts);
+		PROF_MARK(f_opt);
+#ifdef GENOME_PROF
+		nopts += static_cast<int>(opts.size());
+#endif
 		const Option* best = nullptr;
 		double bs = 0;
 		for (const Option& o : opts)
@@ -695,17 +761,29 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 			const double s = g.score_option(o);
 			if (!best || s > bs) best = &o, bs = s;
 		}
+		PROF_MARK(f_score);
 		// the draft must pick; everything else needs a positive score
 		if (!best || (!draft && bs <= 0)) break;
 		const bool ok = X.execute(*best);
+		PROF_MARK(f_exec);
 		if (std::getenv("GENOME_TRACE"))
 			std::fprintf(stderr, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %zu camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
 						 static_cast<int>(X.round()), X.api.team(), X.api.champ(), X.me().pos.x, X.me().pos.y, best->kind, bs, best->tile.x,
-						 best->tile.y, best->unit.kind, best->unit.h, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me().state, X.me().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist(X.me().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
+						 best->tile.y, best->ukind, best->uh, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me().state, X.me().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist(X.me().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
 		if (ok) ++acted;
 		else failed.push_back(*best);
 		if (draft) break;
 	}
+#ifdef GENOME_PROF
+	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) % 500 == 0)
+		for (const auto& gs : gene_stats)
+			if (gs.name) std::printf("@@GENE r%d %s calls %lld fuel %lld per %.0f\n", static_cast<int>(X.round()), gs.name, gs.calls, gs.fuel, gs.calls ? double(gs.fuel) / gs.calls : 0.0);
+	if (!draft && (GENOME_PROF_EVERY <= 1 || static_cast<int>(X.round()) % GENOME_PROF_EVERY == 1))
+		std::printf("@@P t%d r%d c%d passes %d opts %d options %lld score %lld exec %lld left %lld ops %lld turn %lld\n", X.api.team(), static_cast<int>(X.round()),
+					X.api.champ(), npass, nopts, static_cast<long long>(f_opt), static_cast<long long>(f_score),
+					static_cast<long long>(f_exec), static_cast<long long>(X.api.fuel_remaining()), X.ops - ops0,
+					static_cast<long long>(start - X.api.fuel_remaining()));
+#endif
 	return acted;
 }
 

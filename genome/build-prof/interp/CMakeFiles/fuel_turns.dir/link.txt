@@ -1,0 +1,1 @@
+/usr/bin/c++ -DGENOME_PROF -DGENOME_PROF_EVERY=1 -O3 -DNDEBUG CMakeFiles/fuel_turns.dir/tools/fuel_turns.cpp.o -o fuel_turns  libinterp.a -lpthread ../sim/libcbs.a 

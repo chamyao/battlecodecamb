@@ -1,0 +1,1 @@
+/usr/bin/c++ -DGENOME_PROF -DGENOME_PROF_EVERY=1 -O3 -DNDEBUG CMakeFiles/interp_eval.dir/tools/interp_eval.cpp.o -o interp_eval  libinterp.a -lpthread ../sim/libcbs.a 

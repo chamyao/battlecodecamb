@@ -1,0 +1,1 @@
+/usr/bin/c++ -DGENOME_PROF -DGENOME_PROF_EVERY=1 -O2 -g CMakeFiles/replay.dir/tools/replay.cpp.o -o replay  libcbs.a 

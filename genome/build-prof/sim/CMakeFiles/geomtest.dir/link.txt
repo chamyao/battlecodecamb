@@ -1,0 +1,1 @@
+/usr/bin/c++ -DGENOME_PROF -DGENOME_PROF_EVERY=1 -O2 -g CMakeFiles/geomtest.dir/tests/geomtest.cpp.o -o geomtest  libcbs.a 
