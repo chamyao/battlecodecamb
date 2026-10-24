@@ -107,3 +107,45 @@ seed screen 0.804 confirm 0.783 (vs builtin:starter: win 0.51, gems 384-400; vs 
 [109] mutate claude-haiku-5-5 isl 1: screen -0.053 (11 lines) | best 1.009 (#49) $0.29 | 1142s
 [110] mutate claude-haiku-5-5 isl 1: screen +0.000 twin (3 lines) | best 1.009 (#49) $0.29 | 1159s
 [111] mutate claude-haiku-5-5 isl 2: screen +0.000 twin (5 lines) | best 1.009 (#49) $0.29 | 1160s
+[112] mutate claude-haiku-5-5 isl 1: screen -0.272 (14 lines) | best 1.009 (#49) $0.29 | 1178s
+[113] mutate claude-opus-5-5 isl 3: screen +0.033 confirm +0.071 (18 lines) | best 1.009 (#49) $0.29 | 1198s
+[114] mutate claude-haiku-5-5 isl 0: screen -0.014 confirm +0.020 (5 lines) | best 1.025 (#114) $0.29 | 1212s
+[115] mutate claude-haiku-5-5 isl 1: screen -0.051 (2 lines) | best 1.025 (#114) $0.29 | 1216s
+[116] tune  isl 3: screen -0.000 (1 lines) | best 1.025 (#114) $0.29 | 1224s
+[117] mutate claude-haiku-5-5 isl 1: screen -0.001 confirm +0.001 (2 lines) | best 1.025 (#114) $0.29 | 1226s
+[118] mutate claude-haiku-5-5 isl 1: screen -0.029 (10 lines) | best 1.025 (#114) $0.29 | 1233s
+[119] cross  isl 3: screen -0.000 twin (9 lines) | best 1.025 (#114) $0.29 | 1236s
+[120] mutate claude-haiku-5-5 isl 3: screen +0.000 twin (3 lines) | best 1.025 (#114) $0.29 | 1242s
+[121] tune  isl 2: screen -0.003 (1 lines) | best 1.025 (#114) $0.29 | 1247s
+[122] cross  isl 1: screen +0.000 twin (5 lines) | best 1.025 (#114) $0.29 | 1248s
+[123] cross  isl 2: screen -0.099 (6 lines) | best 1.025 (#114) $0.31 | 1260s
+[124] cross  isl 1: screen -0.097 twin (5 lines) | best 1.025 (#114) $0.31 | 1272s
+[125] cross  isl 3: screen +0.000 twin (1 lines) | best 1.025 (#114) $0.31 | 1284s
+[126] cross : invalid: child equals a parent
+spent $0.31 of $0.30
+[127] cross  isl 0: screen -0.081 confirm -0.036 (5 lines) | best 1.025 (#114) $0.31 | 1289s
+[128] mutate claude-opus-5-5 isl 1: screen +0.021 confirm +0.034 (4 lines) | best 1.025 (#114) $0.31 | 1301s
+done: 125 programs (12 invalid), spent $0.31; best #114 1.025
+## run
+
+seed confirm 0.783; best confirmed #114 1.025
+
+| op | children | invalid | twins | screen_up | beats_parent | two_parent_beats_both | cost | cost_per_gain |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| mutate | 90 | 5/90 = 5.6% (±2.4) | 14/85 = 16.5% (±4.0) | 29/85 = 34.1% (±5.1) | 8/90 = 8.9% (±3.0) | - | $0.31 | $0.04 |
+| tune | 13 | 0/13 = 0.0% (±5.4) | 5/13 = 38.5% (±13.5) | 4/13 = 30.8% (±12.8) | 3/13 = 23.1% (±11.7) | - | $0.00 | $0.00 |
+| cross | 22 | 7/22 = 31.8% (±9.9) | 8/15 = 53.3% (±12.9) | 1/15 = 6.7% (±6.4) | 0/22 = 0.0% (±3.2) | 0/15 = 0.0% (±4.7) | $0.00 | - |
+| all | 125 | 12/125 = 9.6% (±2.6) | 27/113 = 23.9% (±4.0) | 34/113 = 30.1% (±4.3) | 11/125 = 8.8% (±2.5) | 0/15 = 0.0% (±4.7) | $0.31 | $0.03 |
+
+Edit size (Claude children):
+
+| lines | children | beats_parent | median_screen_delta | invalid |
+| --- | --- | --- | --- | --- |
+| 1-2 | 9 | 0/9 = 0.0% (±7.9) | -0.001 |  |
+| 3-5 | 31 | 4/31 = 12.9% (±6.0) | +0.000 |  |
+| 6-10 | 30 | 2/30 = 6.7% (±4.6) | +0.000 |  |
+| 11-20 | 9 | 1/9 = 11.1% (±10.5) | +0.000 |  |
+| 21-40 | 6 | 1/6 = 16.7% (±15.2) | -0.242 |  |
+| 1 edge(s) | 84 | 8/79 = 10.1% (±3.4) |  | 5/84 = 6.0% (±2.6) |
+| 2 edge(s) | 6 | 0/6 = 0.0% (±11.8) |  | 0/6 = 0.0% (±11.8) |
+
