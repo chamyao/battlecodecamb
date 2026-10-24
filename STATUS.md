@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 18:53 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.07 1.95 4.22 on 16 threads.
+Updated 2026-10-24 18:59 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.08 0.71 3.03 on 16 threads.
 Disk: 3.7G used of 38G.
 
 ## python3 processes
@@ -13,7 +13,6 @@ Disk: 3.7G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[17:06:16] style: S14: at d446d2b (has 35595b0), 2024 passed in 6.32s; gyield stopped for good; gsub starting
 [17:06:16] style: S14: launched style8-gsub ($0.52)
 [17:11:24] style: S14 gsub check: gap run style8-gsub (gem_margin:max:50 vs policies/tune-v21.policy): $0.52 left of $0.52|gap metric gem_margin (max, scale 50): reference tune-v21 mirror value 29.8125|gap: 1 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5|
 [17:21:37] hybrid: H21 check: 18 're-screened #' lines, 're-screen (cover maps): 9 programs'; 3 new children with screen_maps=cover
@@ -53,4 +52,5 @@ remote:
 [18:48:55] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [18:53:57] genome: job evo-policy-1 exited rc=0
 [18:53:58] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[18:59:01] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
