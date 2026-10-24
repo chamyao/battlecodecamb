@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 13:36 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.48 13.94 13.23 on 16 threads.
+Updated 2026-10-24 13:41 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.00 13.98 13.54 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -16,7 +16,6 @@ Disk: 3.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[11:46:15] style: launched style8-h2 (budget $2.2)
 [11:46:15] style: S6b check: h2: tune-v20 first in league best policies/opp-hunter3.policy $2.18 left
 [12:01:42] hybrid: H5: SIGTERM hyb5 pid 65847
 [12:01:59] hybrid: H5: funsearch/runs d0cbd58 (has d0cbd58), 2012 passed in 5.98s; v20 challenger queued; relaunching on v20
@@ -56,4 +55,5 @@ Disk: 3.3G used of 38G.
 [13:15:20] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [13:15:20] style: launched style8-b (budget $3.5)
 [13:20:32] style: S7 check: h2: tune-v21 first in league style8-h2-g1: +39 programs to the next boundary (81 so far) best policies/opp-hunter3.policy $0.70 left; b: style8-b-g1: +39 programs to the next boundary (111 so far) $1.45 left
+[13:41:04] hybrid: H8: hold set for the next hyb5 boundary
 ```
