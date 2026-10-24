@@ -96,7 +96,9 @@ Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights 
   without more deaths. Treat these as directions, not rules.
 - KEY TOOL for camp choice (calibrated blocks): group_gems(set) is what a group pays,
   group_threat(g) and group_hp(g) what it costs. Skip a goal g you cannot clear:
-      group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) > health()
+      group_threat(g) * group_hp(g) / (my_dps * (1 + allies_within(4))) > health()
+  where my_dps is your damage per turn: there is no block for it (strength() does not exist),
+  so define it as a named constant, e.g. keep my_dps = 60, and let it be tuned
   (this is what kills us on starvation-type maps), and prefer goals by gems per turn of travel
   and fighting, e.g. rich_spawns(n) for groups worth >= n gems, group_tiles(monolith_tiles())
   for the monolith group. Bind static sets with keep.
@@ -188,8 +190,8 @@ DOCS = {
     "rich_spawns": "spawn tiles of every camp whose group gives at least n gems when captured (static; gold-only groups give 0 gems, elk/gem-cluster groups 15-60+). Bind it with keep",
     "group_tiles": "spawn tiles of every camp in a group that has a camp on one of the given tiles (static; hitting any camp of a group wakes the whole group, e.g. group_tiles(monolith_tiles()) wakes monoliths). Bind it with keep",
     "group_gems": "total gems of the camp groups that have a camp on one of the given tiles (static; e.g. group_gems(monolith_tiles()) is what the monoliths give). Bind it with keep",
-    "group_threat": "summed strength (damage per turn when awake) of the living camps in the group spawning on that tile, 0 off a spawn tile; a camp out of vision counts as alive. Elk 60, wolf 20, golem 120, monolith 200, clusters 0. Skip a goal g when group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) > health()",
-    "group_hp": "summed health of the same camps as group_threat (unseen counts at full health): clearing takes about group_hp(g) / (strength() * (1 + allies_within(4))) turns, taking group_threat(g) damage each turn",
+    "group_threat": "summed strength (damage per turn when awake) of the living camps in the group spawning on that tile, 0 off a spawn tile; a camp out of vision counts as alive. Elk 60, wolf 20, golem 120, monolith 200, clusters 0. Skip a goal g when group_threat(g) * group_hp(g) / (my_dps * (1 + allies_within(4))) > health(), with my_dps a named constant for your damage per turn (no block reads it; e.g. keep my_dps = 60 and tune it)",
+    "group_hp": "summed health of the same camps as group_threat (unseen counts at full health): clearing takes about group_hp(g) / (my_dps * (1 + allies_within(4))) turns (my_dps: your damage per turn, a named constant), taking group_threat(g) damage each turn",
     "turns_idle": "consecutive turns (counted each time you check) your position has not changed",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
     "map_width": "", "map_height": "", "camp_count": "camps on the map",
