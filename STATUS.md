@@ -1,25 +1,19 @@
 # EC2 runner status
 
-Updated 2026-10-24 16:35 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 7.85 9.82 11.82 on 16 threads.
+Updated 2026-10-24 16:40 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.18 9.72 11.14 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
 ```
 92618 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
-92630 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.29 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,polic
 134213 python3 -m funsearch.run --run style8-gyield --budget 1.27 --max-programs 400 --seed-policy policies/style-gconv1.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraf
-134253 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
-134277 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.92 --max-programs 149 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-
 142461 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
 142565 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 16.30 --max-programs 29 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
+143592 python3 -m funsearch.league --name style8-b2 --budget 0.95 --members policies/tune-v21.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v21.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/v7zg-cast
+143612 /usr/bin/python3 -m funsearch.run --run style8-b2-g1 --budget 0.95 --max-programs 150 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.poli
 ```
 ## tick.log (last 40 lines)
 ```
-[15:05:41] style: S10: SIGTERM style8-gconv pid 112718
-[15:05:51] style: S10: at ec8c33d (has 34f261c), no rebuild; gconv relaunching below
-[15:05:51] style: S8: style8-gconv not running: relaunching (resumes)
-[15:05:51] style: S8: launched style8-gconv ($2.0 total)
-[15:10:59] style: S10 check: gconv relaunched: $1.76 left of $2.0
 [15:16:04] hybrid: H16: hold set for the next hyb5 boundary
 [15:16:07] style: S11: SIGTERM pid 112760
 [15:16:07] style: S11: SIGTERM pid 112781
@@ -55,4 +49,9 @@ Disk: 3.4G used of 38G.
 [16:35:16] hybrid: H20: funsearch/runs 694a4a3 (has 694a4a3/166f85c: v23 style-gconv1, sim fix, #76, H21 cover screens), built interp_eval+fuel_turns, 2029 passed in 7.37s; relaunching hyb5 with style-gconv1 fixed + island-1 seed, island-3 seed #76, --screen-maps cover --rescreen-top 3
 [16:35:16] hybrid: hyb5 not running: relaunching (resume from runs/)
 [16:35:16] hybrid: launched hyb5 league
+[16:40:29] style: S12b: b's first verdict predates S12; stopping b now
+[16:40:29] style: S12: SIGTERM style8-b pid 134253 (boundary verdict in)
+[16:40:29] style: S12: SIGTERM style8-b pid 134277 (boundary verdict in)
+[16:40:29] style: S12: b verdict: [15:54:59]   no promotion; style8-b-g1 continues; b stopped (STOP in runs/style8-b-g1), b2 starts below
+[16:40:29] style: launched style8-b2 (budget $0.95)
 ```
