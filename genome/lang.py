@@ -140,6 +140,17 @@ PRIMS = {
     "group_cooldown": (("Num",), "Num", "X.group_cooldown({0})"),
     "lock_hits": (("Tile",), "Num", "X.lock_hits({0})"),
     "lock_enemy": (("Tile",), "Bool", "X.lock_enemy({0})"),
+    "ally_wards": ((), "Tiles", "X.ally_wards()"),
+    "enemy_wards": ((), "Tiles", "X.enemy_wards()"),
+    "ward_charges": ((), "Num", "X.ward_res(false)"),
+    "ward_cooldown": ((), "Num", "X.ward_res(true)"),
+    "my_ward": ((), "Tile", "X.my_ward()"),
+    "ward_sight": (("Tile",), "Tiles", "X.ward_sight({0})"),
+    "sight": (("Num", "Tile"), "Tiles", "X.sight({0}, {1})"),
+    "teleport_dest": (("Unit",), "Tile", "X.teleport_dest({0})"),
+    "teleport_left": (("Unit",), "Num", "X.teleport_left({0})"),
+    "priority": (("Unit",), "Num", "X.priority({0})"),
+    "can_sell": ((), "Bool", "X.can_sell()"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
     "slot_kind": (("Num",), "Num", "X.slot_kind({0})"),
@@ -178,7 +189,8 @@ PRIMS = {
 UNCALIBRATED = set()
 # calibrated Oct 24 (genome/FUEL.md): wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield;
 # the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
-# group_cooldown, lock_hits, lock_enemy
+# group_cooldown, lock_hits, lock_enemy; ally_wards, enemy_wards, ward_charges, ward_cooldown, my_ward,
+# ward_sight, sight, teleport_dest, teleport_left, priority, can_sell
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 

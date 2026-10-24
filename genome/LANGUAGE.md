@@ -124,6 +124,17 @@ def danger_at(t: Tile) -> Num:
 | `group_cooldown(Num)` | Num |
 | `lock_hits(Tile)` | Num |
 | `lock_enemy(Tile)` | Bool |
+| `ally_wards()` | Tiles |
+| `enemy_wards()` | Tiles |
+| `ward_charges()` | Num |
+| `ward_cooldown()` | Num |
+| `my_ward()` | Tile |
+| `ward_sight(Tile)` | Tiles |
+| `sight(Num, Tile)` | Tiles |
+| `teleport_dest(Unit)` | Tile |
+| `teleport_left(Unit)` | Num |
+| `priority(Unit)` | Num |
+| `can_sell()` | Bool |
 | `at(Field, Tile)` | Num |
 | `walk_nearest(Tiles, Tile, Tiles)` | Tile |
 | `slot_kind(Num)` | Num |
@@ -173,7 +184,9 @@ reads the game; it never judges. Judgement belongs to genes (GENOME.md).
 | the engine's damage rules | `attack_damage`, `cast_damage` |
 | item design table | `item_cost`, `item_strength`, `item_focus`, `item_health`, `item_passive` |
 | draft picks, shared memory, priority | `picked_by_us`, `picked_by_them`, `read_shared`, `write_shared`, `set_priority` |
-| wards, teleports, hypothetical vision, champion priority, can_sell | not yet (next batch) |
+| wards, ward resources, ward and hypothetical vision | `ally_wards`, `enemy_wards`, `ward_charges`, `ward_cooldown`, `my_ward`, `ward_sight`, `sight` |
+| teleports in flight | `teleport_dest`, `teleport_left` |
+| turn priority, can_sell | `priority`, `can_sell` (own next priority: `set_priority`) |
 | restrictions | covered: the engine's restriction byte is "stunned", i.e. `buff_turns(u, 1) > 0` |
 | attack tiles, draft memory | not exposed (derivable from position and range / not used by genomes) |
 | level / xp, armor / resist, camp gem drops | not in the game |
@@ -194,6 +207,7 @@ Notes on the newer primitives (SDK reads and generic operations only):
 - `territory(mine, theirs, walls)`: tiles strictly nearer by walking to `mine` than to `theirs` (empty `theirs`: every tile reachable from `mine`), over tiles not in `walls` (sources allowed): two engine fields and a compare in our code, ~300k fuel on 100x100 (~80k on 90x30).
 - Fights, exact from the game's formulas and the units' host data (emblem passives from their items, shields from their buffs), in the engine's float order: `attack_damage(a, b)` what one basic attack of `a` takes off `b` (strength, missing-health passive, Monster emblem and the camp multiplier against camps, then Durability / Jungle; before shields); `cast_damage(a, slot, b)` the same for a damage / stun / area ability (modifier x focus); `shield(u)` the shield left on a champion. A champion's items and buffs are read once per pass (~0.9k); calls ~0.1-0.25k after that.
 - Raw unit reads (the SDK's data, no judgement; 0 for a unit out of vision): `cooldown(u, s)` turns left on slot s (a champion's ability; a camp's attack 0 / ability 1); `ability_*(u, s)` a champion's ability design on slot s (kind, base cooldown, range, radius, target mask, modifier, duration, moveless), any champion; `item_count(u, i)` copies of item i a visible champion owns; `unit_gold(u)`; `buff_value(u, t)` / `buff_turns(u, t)` buffs of type t (0 shield, 1 stun, 2 enhanced attack) on a champion or camp: summed shield amount (the number of buffs for other types) / longest duration left; `channel_left(u)` turns left on a recall / gem submission / teleport channel; `group_cooldown(g)` turns until camp group g respawns; `lock_hits(t)` / `lock_enemy(t)` a visible altar lock on tile t: hits left (0 none) / it is the enemy's. 20-230 fuel each in the bot; records (items, buffs, ability design, a camp's record, the lock list) are fetched once per unit per pass, later reads ~20-60.
+- Wards, sight, teleports, turn order (raw reads): `ally_wards()` / `enemy_wards()` visible wards' tiles (~1.2k, once per pass); `ward_charges()` / `ward_cooldown()` my ward charges and turns to the next; `my_ward()` my placed ward (invalid if none); `ward_sight(t)` what a ward at t would see, `sight(k, t)` what a champion of type k at t would see (~0.4k + the board); `teleport_dest(u)` / `teleport_left(u)` a visible teleport in flight (invalid / 0 if none); `priority(u)` a visible champion's turn priority this round; `can_sell()`.
 - `walk_nearest(cand, from, walls)`: the engine's nearest-by-walk (ties row-major); invalid if none is reachable.
 - `type_spawns(k)`, `spawn_type(t)`, `spawn_group(t)`, `camp_spawn(u)`, `camp_base_*(k)`: static map and camp design data (-1 off a spawn tile).
 - `is_awake(u)`: camp life state; `group_reward(g)`: the group is cleared and waiting for capture.
