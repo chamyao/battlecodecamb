@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 14:07 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.01 10.88 11.16 on 16 threads.
+Updated 2026-10-24 14:12 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 8.85 9.99 10.74 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -10,11 +10,10 @@ Disk: 3.3G used of 38G.
 93608 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 93637 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 1.45 --max-programs 39 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hu
 103837 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
+104363 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 19.53 --max-programs 30 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
 ```
 ## tick.log (last 40 lines)
 ```
-[12:43:26] style: S7: waiting for h2's boundary verdict (verdict lines so far: 1)
-[12:48:33] hybrid: H7b: SIGTERM hyb5 pid 87162
 [12:48:58] hybrid: H7b: funsearch/runs c4341a3 (has c4341a3: lockfix + fuel recalibration), rebuilt, 2012 passed in 5.87s; relaunching hyb5 (same v21 flags)
 [12:48:58] hybrid: hyb5 not running: relaunching (resume from runs/)
 [12:48:58] hybrid: launched hyb5 league
@@ -53,4 +52,6 @@ Disk: 3.3G used of 38G.
 [14:07:38] hybrid: H9: funsearch/runs 41e1191 (has c6eb17a), 2024 passed in 6.46s; relaunching hyb5 with --tune-opponents (5)
 [14:07:38] hybrid: hyb5 not running: relaunching (resume from runs/)
 [14:07:38] hybrid: launched hyb5 league
+[14:12:46] hybrid: H10: hold set for the next hyb5 boundary
+[14:12:46] hybrid: H9 rate: 0 programs in 5 min = 0/h; tuned children 0, mean tuned.games 0 (round ended: [14:10:50]   no promotion; hyb5-g3 continues); before: g2 58/h, g3 49/h
 ```
