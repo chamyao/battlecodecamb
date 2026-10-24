@@ -84,3 +84,9 @@ step outside BLOCK, or refused moves. The sim also does not reproduce the real 0
 16/20 there), so this gap needs a real-replay look first.
 
 Anchor row of B318 itself at 212a505: L1c 45, gconv1 51, v7 76, L1 47, rall2 52, metadraft 69 (/80).
+
+## b318-fed18 / b318-fed14 (GAPS v2 #2 fights: fed carries; --bot-seeds, 212a505)
+
+r7 skips fights against an enemy at 1.8x (1.4x) our strength while no ally is within 4.
+Result vs B318: 40/80 (34/80). Anchors: fed18 L1c 44, gconv1 49, v7 75, L1 52, rall2 48, metadraft 66; fed14 40, 51, 74, 47, 46, 69.
+Vs hunter: 54 and 52 (B318 55). The sim's opponents never grow a fed carry, so the sim cannot price this lever.

@@ -30,6 +30,14 @@ Ranked for B318 (genes are B318's, same IDs as the seed):
    - Evidence: 9.7 ± 1.3 deaths per game to champions, 11.0 in losses against 7.4 in wins. Fights are a cause in 44% ± 9 of losses.
    - Genes: `r7` / `s13` / `a3` / `a4` (B318 retuned `s13` and `a4`), and `s8` under_fire (B318 uses threat_eta <= 5).
    - Sim: `stress/hunter`; the sim under-counts these deaths, see gap 2 in v1.
+   - **Mechanism (batch 2, 353 deaths in losses, 133 in wins): fed carries.** At our deaths in losses the killer carries
+     53 item points against our victim's 16, with strength 259 against 92. In wins killer and victim are level (23 vs 21
+     points). One enemy, usually Vesper Vale (133 of the 353 kills), snowballs. Burst deaths (dead within 2 rounds of dropping
+     under half HP) are 20% of crossings in losses against 7% in wins. Conditions at the first hit do not separate
+     outcomes (death rate about 50% outnumbered or not), but 51% of deaths end outnumbered by 2+.
+   - Tried: avoid the fed carry when alone (`rejected/b318-fed18`, 40/80; fed14, 34/80). The sim has no fed carries
+     (no band opponents), so it cannot price this. Levers worth a real test: our own item concentration (our victims
+     carry 16 points), and denying the carry's kills. Both need a stress opponent that snowballs, or real games.
 3. **Zero-gem maps: idle champions**
    - Evidence: 00contest submits 0 and 0 (they make 600). There, 3,529 champion-rounds over 2 games are spent standing idle with an empty bag. On 01elk_arena we submit 14 (they make 1008; our gems per capture there are 0.0, theirs 14.2).
    - On 00contest the only gems are in two monoliths (`docs/ZERO_GEM_MAPS.md`). B318's `r15` r_mono waits for round 1000, 3+ allies alive and team gems under 100.
