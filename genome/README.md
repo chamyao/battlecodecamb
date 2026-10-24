@@ -13,8 +13,13 @@ genome/build/genome_eval --a genome:$SO --b builtin:starter --games 80 --threads
 ```
 
 `genome_eval` is `interp_eval` plus `genome:` sides: same flags, same JSON, and `.pol` policies as opponents.
-`GENOME_TRACE=1` prints every action the loop takes (`@@G` lines on stderr).
+`GENOME_TRACE=1` prints every action the loop takes (`@@G` lines on stderr); `GENOME_FUEL=N` prints passes and turns
+that spent more than N fuel (`@@FP` / `@@F`); `--block-hits` also reports `call_fuel` (engine calls by `cbs::Call`
+index: count and fuel, both sides). Rebuild `genome_eval` after changing `runtime/genome_rt.h` (it compiles the
+loop and `Ctx` in; compiled genomes are cached by source and runtime hash).
 
 - `lang.py`: parser, type checker, edges (calls, keeps, shared bytes), C++ codegen. Reference: `LANGUAGE.md`.
 - `runtime/genome_rt.h`: primitives, legal options, the fixed loop, the simulator Player.
 - `examples/starter.genome`: the starter bot as a genome; 51.25% vs builtin:starter over 80 games (all maps).
+- `seeds/v23.genome`: the seed genome, the live ladder policy (`policies/candidates/style-gconv1.policy`, v23) as
+  genes; 56.75% vs the compiled original over 400 games (all maps, both sides; 52.25% with 10x fuel for both).

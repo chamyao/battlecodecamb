@@ -55,6 +55,10 @@ PRIMS = {
     "round": ((), "Num", "X.round()"),
     "fuel": ((), "Num", "X.fuel()"),
     "can_shop": ((), "Bool", "X.can_shop()"),
+    "alive": ((), "Bool", "X.alive()"),
+    "can_move": ((), "Bool", "X.my_state(cbs::state_bit::can_move)"),
+    "can_attack": ((), "Bool", "X.my_state(cbs::state_bit::can_attack)"),
+    "channeling": ((), "Bool", "X.channeling()"),
     "team_gems": ((), "Num", "X.submitted(false)"),
     "enemy_gems": ((), "Num", "X.submitted(true)"),
     # units in vision
@@ -65,12 +69,19 @@ PRIMS = {
     "is_recalling": (("Unit",), "Bool", "X.unit_state({0}, 2)"),
     "is_tributing": (("Unit",), "Bool", "X.unit_state({0}, 4)"),
     "camp_group": (("Unit",), "Num", "X.camp_group({0})"),
+    "is_awake": (("Unit",), "Bool", "X.camp_awake({0})"),
+    "camp_spawn": (("Unit",), "Tile", "X.camp_spawn({0})"),
     "group_gems": (("Num",), "Num", "X.group_gems({0})"),
     "group_gold": (("Num",), "Num", "X.group_gold({0})"),
     "group_respawning": (("Num",), "Bool", "X.group_respawning({0})"),
+    "group_reward": (("Num",), "Bool", "X.group_reward({0})"),
     "group_tiles": (("Num",), "Tiles", "X.group_tiles({0})"),
     "num_groups": ((), "Num", "X.num_groups()"),
     "visible": (("Tile",), "Bool", "X.visible({0})"),
+    "vision": ((), "Tiles", "X.vision()"),
+    "ally_tiles": ((), "Tiles", "X.ally_tiles()"),
+    "enemy_tiles": ((), "Tiles", "X.enemy_tiles()"),
+    "camp_tiles": ((), "Tiles", "X.camp_tiles()"),
     # static map
     "altars": ((), "Tiles", "X.altars()"),
     "walls": ((), "Tiles", "X.walls()"),
@@ -79,7 +90,12 @@ PRIMS = {
     "my_spawn": ((), "Tiles", "X.spawn(false)"),
     "enemy_spawn": ((), "Tiles", "X.spawn(true)"),
     "camp_spawns": ((), "Tiles", "X.camp_spawns()"),
+    "type_spawns": (("Num",), "Tiles", "X.type_spawns({0})"),
     "locked_altars": ((), "Tiles", "X.locked_altars()"),
+    "spawn_type": (("Tile",), "Num", "X.spawn_type({0})"),
+    "spawn_group": (("Tile",), "Num", "X.spawn_group({0})"),
+    "camp_base_health": (("Num",), "Num", "X.camp_base({0}, 0)"),
+    "camp_base_strength": (("Num",), "Num", "X.camp_base({0}, 1)"),
     "width": ((), "Num", "X.width()"),
     "height": ((), "Num", "X.height()"),
     # geometry
@@ -92,7 +108,9 @@ PRIMS = {
     "valid": (("Tile",), "Bool", "{0}.valid()"),
     "exists": (("Unit",), "Bool", "{0}.valid()"),
     "field": (("Tiles",), "Field", "X.field({0})"),
+    "field_avoid": (("Tiles", "Tiles", "Tiles"), "Field", "X.field_avoid({0}, {1}, {2})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
+    "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
     "slot_kind": (("Num",), "Num", "X.slot_kind({0})"),
     "slot_ready": (("Num",), "Bool", "X.slot_ready({0})"),
@@ -111,6 +129,8 @@ PRIMS = {
     # memory
     "read_shared": (("Num",), "Num", "X.read_shared({0})"),
     "write_shared": (("Num", "Num"), "None", "X.write_shared({0}, {1})"),
+    # turn order (takes effect next round)
+    "set_priority": (("Num",), "None", "X.set_priority({0})"),
     # draft
     "picked_by_us": (("Num",), "Bool", "X.picked(false, {0})"),
     "picked_by_them": (("Num",), "Bool", "X.picked(true, {0})"),
@@ -118,20 +138,22 @@ PRIMS = {
     "abs": (("Num",), "Num", "std::fabs({0})"),
     "floor": (("Num",), "Num", "std::floor({0})"),
     "sqrt": (("Num",), "Num", "std::sqrt(std::max(0.0, {0}))"),
+    "rand": (("Num",), "Num", "X.rand({0})"),
 }
-EFFECT_PRIMS = {"write_shared"}  # allowed only in update()
+EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update()
 
 FIELDS = {
     "Unit": {"pos": ("Tile", "{0}.pos"), "health": ("Num", "double({0}.health)"),
              "max_health": ("Num", "double({0}.max_health)"), "strength": ("Num", "double({0}.strength)"),
              "focus": ("Num", "double({0}.focus)"), "attack_range": ("Num", "double({0}.attack_range)"),
+             "move_speed": ("Num", "double({0}.move_speed)"),
              "type": ("Num", "double({0}.type)"), "is_enemy": ("Bool", "{0}.enemy"),
              "is_champion": ("Bool", "({0}.kind == 1)"), "is_camp": ("Bool", "({0}.kind == 2)"),
              "health_frac": ("Num", "({0}.max_health > 0 ? double({0}.health) / {0}.max_health : 0.0)")},
     "Tile": {"x": ("Num", "double({0}.x)"), "y": ("Num", "double({0}.y)")},
     "Option": {"kind": ("Num", "double({0}.kind)"), "unit": ("Unit", "X.unit_of({0})"), "tile": ("Tile", "{0}.tile"),
                "slot": ("Num", "double({0}.slot)"), "item": ("Num", "double({0}.item)"),
-               "champ": ("Num", "double({0}.champ)")},
+               "champ": ("Num", "double({0}.champ)"), "count": ("Num", "double({0}.count)")},
 }
 
 
@@ -533,6 +555,7 @@ class Checker:
             if n in EFFECT_PRIMS:
                 if not effect_ok or self.cur.name != "update":
                     self.err(e, f"{n} only as a statement in update()")
+            if n == "write_shared":
                 off = e.args[0]
                 self.cur.shared_writes.add(str(int(off.value)) if isinstance(off, ast.Constant) else "*")
             if n == "read_shared":
