@@ -134,3 +134,53 @@ Running the clone in the sim (exact replicas of our versions) is the sim session
 4. The per-champion openers above.
 5. Leave at HP 0.8 (VV 0.9).
 6. Bank at a median bag of 22.
+
+## First hand-built Fish clones, scored against the target
+
+Tools:
+- `analysis/score_clone.py CAND.pol TEAM VERSION=OURS.pol ...` plays the candidate in the sim against our five versions on the team's 5 real maps and sides.
+  - It uses `interp_eval --bot-seeds`, the cambc-exact seeding, from `funsearch/style` (`interp/build/interp_eval`).
+  - Our versions are `policies/tune-5`, `tune5-campreset` (v17), `tune-v19`, `tune-v20` and `tune-v21`.
+  - It prints sim vs real per version, and a fit error: the mean squared z over versions × 6 metrics, where 0 means it matches.
+- The clone policies and their generators are in `analysis/clones/`.
+
+| candidate | what it is | v21: our deaths, sim / real | v21: our kills, sim / real | v21: gems us / them, sim (real 174 / 1014) | sim W-L of our versions (real 0-25) | fit error |
+|---|---|---|---|---|---|---|
+| opp-hunter3 | the style line's hunter (baseline) | 13.2 / 18.0 | 13.0 / 0.4 | 735 / 612 | 16-9 | 46.6 |
+| fishA-E | hunter3 + Fish draft and items; engage gates by ally count | 4.4-7.0 | 13.6-16.6 | ~900 / 250-450 | 23-2 to 25-0 | 33.7-54.3 |
+| fishF-I | + engage/disengage on local strength (Lanchester; engage ≥ 1.0-2.0, leave < 0.5-1.2) | 4.2-5.4 | 8.0-11.4 | ~860 / 220-350 | 25-0 | **20.6-28.4** |
+| fv0 | v21 with only Fish's draft | 6.6 | 13.4 | 774 / 619 | 10-15 | 42.2 |
+| fv1 | v21 + Fish draft + Fish items (stat stacking) | 6.8 | 18.4 | 853 / 440 | 21-4 | 60.8 |
+| fv3-4 | fv1 + Fish engage (closest within 8-10 when local strength ≥ 1.0-1.5) + walk away when local strength < 0.6-0.7 | 4.8-5.4 | 9.6-11.2 | ~800 / 390-460 | 21-4 to 23-2 | 21.3-23.2 |
+
+**None reproduces Fish.**
+- Every clone loses to all five of our versions in the sim. v21 dies 4-7 times per game against them (18 against the real Fish), and kills them 8-18 times (0.4 against the real Fish).
+- The best fit error is about 21, against 47 for hunter3.
+- Copying Fish's draft and items into v21's own policy makes it *weaker*: fv1 does worse than fv0.
+- So the draft and the stat stacking are not what makes Fish strong. They pay off only once the kills are coming.
+
+**What the clones are missing: Fish doesn't die.** I measured what happens after a champion drops below half HP with an enemy within 5 tiles (`analysis/low_hp.py`, real games, 5 versions):
+
+| team | crossings | died within 15 rounds | got home | broke contact | still in contact | distance gained from the nearest enemy in 5 rounds |
+|---|---|---|---|---|---|---|
+| **Intercontinental Fish** | 163 | **6%** | 46% | 20% | 29% | **+5 tiles** |
+| us vs Fish | 428 | **88%** | 8% | 1% | 2% | +1 |
+| willow best girl | 56 | 20% | 43% | 16% | 21% | +4 (and starts a recall within 5 rounds 100% of the time) |
+| us vs willow | 320 | 65% | 29% | 2% | 5% | +2 |
+| vc? | 442 | 14% | 23% | 26% | 37% | +4 |
+| us vs vc? | 860 | 69% | 18% | 4% | 9% | +2 |
+| Claudus Maximus | 157 | 13% | 43% | 14% | 30% | +5 |
+| us vs Claudus | 641 | 69% | 27% | 1% | 3% | +3 |
+
+- Fish champions turn and walk away at half HP: 5 tiles in 5 rounds, every turn, and they don't start a recall in contact (21%). They get home or out of reach 66% of the time and die 6%.
+- Our champions at half HP mostly stay: +1 tile, and 88% die.
+- The other top teams are similar: 13-20% of their low-HP champions die, against our 65-69%.
+- This is the rule a clone (and our bot) must have before anything else. **At HP < 0.5 with an enemy within 5, move directly away from the nearest enemy every turn, and don't stop to attack.** Recall only once no enemy is within 8.
+- The clones' retreat rules (dash home at 0.3-0.6, or walk away on low local strength) don't do this. They retreat too late, or stop to fight.
+
+**Next for the sim session:**
+1. Add that rule to a clone and to a v22 candidate.
+2. Fit the remaining parameters (engage distance and strength gate, retreat threshold, bag size) to minimise the fit error over Fish's 25 games.
+3. Check the economy target too: Fish submits about 1,015 gems in every game, while the clones manage 250-450.
+
+The sim has no replay output from `interp_eval`, so I couldn't measure the clones' own low-HP behaviour. Adding a trace would make the behaviour metrics above fittable.
