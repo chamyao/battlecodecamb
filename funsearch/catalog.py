@@ -53,6 +53,9 @@ like .x, indexing, lists/tuples, for/while, def inside a block, return outside a
 Comments start with #.
 """
 
+# the game without the ladder observations and directions below (exploration's "lean" prompt)
+GAME_BASE = GAME
+
 GAME += """\
 Observations from today's top-12 ladder games (current rules), for inspiration, not rules:
 - Long games (median ~1,100 rounds); more gems captured predicts the winner 92%, more gold 86%,
