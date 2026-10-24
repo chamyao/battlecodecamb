@@ -2,6 +2,10 @@
 # One supervisor tick: run every enabled line script, then push a heartbeat to ec2/status.
 cd /root/bc || exit 1
 . /root/bc/runner/runner/lib.sh
+LINE=runner
+python3 -c "import pytest, anthropic" 2>/dev/null ||
+  { pip3 install -q --break-system-packages --ignore-installed pytest anthropic > /root/bc/pip.log 2>&1 &&
+    log "installed pytest + anthropic"; } || { log "pip install failed: $(tail -n 2 /root/bc/pip.log)"; exit 1; }
 for f in /root/bc/runner/runner/lines/*.sh; do
   [ -e "$f" ] || continue
   LINE=$(basename "$f" .sh)
