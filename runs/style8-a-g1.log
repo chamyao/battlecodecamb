@@ -1,0 +1,7 @@
+seed tune5-campreset score 0.723 (islands [0, 1, 2, 3])
+[4] claude-haiku-5-5 island 3: score 0.677 | best 0.723 (#0) $0.01 | 400s
+[5] claude-haiku-5-5 island 3: score 0.585 | best 0.723 (#0) $0.01 | 491s
+[6] claude-haiku-5-5 island 3: score 0.644 | best 0.723 (#0) $0.02 | 968s
+[7] claude-haiku-5-5 island 2: error: NameError: line 109: lock_goal already defined | best 0.723 (#0) $0.02 | 1032s
+[8] claude-haiku-5-5 island 2: score 0.142 | best 0.723 (#0) $0.03 | 1145s
+[9] claude-haiku-5-5 island 1: score 0.455 | best 0.723 (#0) $0.04 | 1249s

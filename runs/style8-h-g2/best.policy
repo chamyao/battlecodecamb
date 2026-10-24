@@ -1,0 +1,240 @@
+# style-h2 [style-h line, v2]: builds on version 1 (focus fire first, nearest-target hunting, attack resets
+# after the first basic, ranged champions fire from full reach). One change: Heart of Ruin, the front
+# champion, buys Health shards instead of Strength after its treasure shards, so it survives the opening
+# stun/dash fights long enough for the carries to land their damage. Everything else is unchanged.
+
+def cast_on(slot, u):
+    if ability_ready(slot):
+        if slot_is_shield(slot) or slot_is_heal(slot):
+            cast_self(slot)
+        elif not slot_is_dash(slot):
+            cast_at_unit(slot, u)
+
+def dash_to(slot, t):
+    if ability_ready(slot):
+        if slot_is_dash(slot):
+            dash_towards(slot, t)
+
+# engage u: hit it if in reach (3 for ranged, 1 for melee), else close in (dash when farther than 2), then hit
+def hunt(u):
+    set_team_target(u)
+    set_priority( 150 + random_int(50) )
+    if distance( unit_position(u), position() ) <= 1 or (i_am_ranged() and distance( unit_position(u), position() ) <= 3):
+        if ability_ready(0):
+            if slot_is_shield(0) or slot_is_heal(0):
+                if health() < 1.01 * max_health():
+                    cast_self(0)
+            elif slot_is_dash(0):
+                if i_am(champ_heart_of_ruin()):
+                    dash_towards(0, unit_position(u))
+            elif slot_is_aoe(0):
+                cast_at_tile(0, unit_position(u))
+            elif not slot_is_reset(0):
+                cast_at_unit(0, u)
+        if ability_ready(1):
+            if slot_is_shield(1) or slot_is_heal(1):
+                if health() < 1.01 * max_health():
+                    cast_self(1)
+            elif slot_is_dash(1):
+                if i_am(champ_heart_of_ruin()):
+                    dash_towards(1, unit_position(u))
+            elif slot_is_aoe(1):
+                cast_at_tile(1, unit_position(u))
+            elif not slot_is_reset(1):
+                cast_at_unit(1, u)
+        attack(u)
+        if ability_ready(0) and slot_is_reset(0):
+            cast_self(0)
+            attack(u)
+        if ability_ready(1) and slot_is_reset(1):
+            cast_self(1)
+            attack(u)
+        if not i_am_ranged():
+            move_towards( unit_position(u) )
+        end_turn()
+    if distance( unit_position(u), position() ) > 1 + 1 and ability_ready(0) and slot_is_dash(0):
+        dash_towards(0, unit_position(u))
+    if distance( unit_position(u), position() ) > 1 + 1 and ability_ready(1) and slot_is_dash(1):
+        dash_towards(1, unit_position(u))
+    move_towards( unit_position(u) )
+    if ability_ready(0):
+        if slot_is_shield(0) or slot_is_heal(0):
+            if health() < 1.01 * max_health():
+                cast_self(0)
+        elif slot_is_dash(0):
+            if i_am(champ_heart_of_ruin()):
+                dash_towards(0, unit_position(u))
+        elif slot_is_aoe(0):
+            cast_at_tile(0, unit_position(u))
+        elif not slot_is_reset(0):
+            cast_at_unit(0, u)
+    if ability_ready(1):
+        if slot_is_shield(1) or slot_is_heal(1):
+            if health() < 1.01 * max_health():
+                cast_self(1)
+        elif slot_is_dash(1):
+            if i_am(champ_heart_of_ruin()):
+                dash_towards(1, unit_position(u))
+        elif slot_is_aoe(1):
+            cast_at_tile(1, unit_position(u))
+        elif not slot_is_reset(1):
+            cast_at_unit(1, u)
+    attack(u)
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+        attack(u)
+    if ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+        attack(u)
+    end_turn()
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    elif available(pool, champ_heart_of_ruin()):
+        pick(champ_heart_of_ruin())
+    elif available(pool, champ_vendetta()):
+        pick(champ_vendetta())
+    elif available(pool, champ_marcella()):
+        pick(champ_marcella())
+    elif available(pool, champ_ryth()):
+        pick(champ_ryth())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+keep altar_ring = ring( altars(), 1 )
+keep safe_altar_ring = ring( minus( altars(), ring(monolith_tiles(), 5) ), 1 )
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally()), position() )
+if at_spawn:
+    let shards_bought = floor( gold() / 30 )
+    let treasure_n = floor( shards_bought / 2 )
+    let rest_after_treasure = shards_bought - treasure_n
+    let jungle_n = floor( rest_after_treasure / 2 )
+    let rest_after_jungle = rest_after_treasure - jungle_n
+    let strength_shards = floor( rest_after_jungle / 2 )
+    if i_am(champ_heart_of_ruin()):
+        # the front champion sustains: treasure shards, then all remaining shards as Health
+        buy( shard_of(family_treasure(), stat_strength()), treasure_n )
+        buy( shard(stat_health()), shards_bought - treasure_n )
+    else:
+        buy( shard_of(family_treasure(), stat_strength()), treasure_n )
+        buy( shard_of(family_jungle(), stat_health()), jungle_n )
+        buy( shard(stat_strength()), strength_shards )
+        buy( shard(stat_health()), rest_after_jungle - strength_shards )
+    # heal on spawn before heading back out, unless an enemy is already in reach
+    if health() < max_health() and not exists(first(filter(enemies_visible(), in_attack_range()))):
+        end_turn()
+
+# retreat below 30% health while in danger; recall once clear
+if not at_spawn and health() < 0.3 * max_health():
+    if in_danger():
+        let home = closest( spawn_region(ally()) )
+        dash_to(0, home)
+        dash_to(1, home)
+        move_towards(home)
+        end_turn()
+    recall()
+    end_turn()
+# carrying gems at half health: recall while no enemy can hit us
+if not at_spawn and gems() > 0 and health() < 0.5 * max_health() and not in_danger():
+    recall()
+    end_turn()
+
+let enemy_spawn = spawn_region(enemy())
+let tt = team_target()
+# focus first: the team target already in basic-attack reach
+if exists(tt) and not contains( enemy_spawn, unit_position(tt) ):
+    if distance( unit_position(tt), position() ) <= 1 or (i_am_ranged() and distance( unit_position(tt), position() ) <= 3):
+        hunt(tt)
+# in reach: hit the weakest enemy we can already attack (not on its own spawn)
+let near_e = weakest( filter( enemies_visible(), in_attack_range() ) )
+if exists(near_e) and not contains( enemy_spawn, unit_position(near_e) ):
+    hunt(near_e)
+# ---- hunt: the team target within 5 first, then the nearest enemy within 3 (never on its own spawn) ----
+if exists(tt) and distance( unit_position(tt), position() ) <= 3 + 2 and not contains( enemy_spawn, unit_position(tt) ):
+    hunt(tt)
+let prey = nearest( enemies_visible() )
+if exists(prey) and distance( unit_position(prey), position() ) <= 3 and not contains( enemy_spawn, unit_position(prey) ):
+    hunt(prey)
+
+# tribute only with a worthwhile bag (or when hurt / late game)
+let bag_ready = gems() >= 25 or round_number() > 1500 or health() < 0.3 * max_health()
+if gems() > 0 and bag_ready:
+    # an altar next to us works even when locked: tributing there attacks the lock (5 hits clear it)
+    let altar = first( filter( altars(), within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    # walk to an open altar out of monolith reach (5); else any altar out of reach; else any altar
+    let target = closest( minus( safe_altar_ring, ring(locked_altars(), 1) ) )
+    if exists(target):
+        move_towards(target)
+        end_turn()
+    let target2 = closest(safe_altar_ring)
+    if exists(target2):
+        move_towards(target2)
+        end_turn()
+    let altar_goal = closest(altar_ring)
+    # every altar-adjacent tile is taken by a camp: fight it
+    if contains(camp_spawns, altar_goal):
+        let blocker = first( filter( camps_visible(), in_attack_range() ) )
+        if exists(blocker):
+            attack(blocker)
+            end_turn()
+    move_towards( altar_goal )
+    end_turn()
+
+# one camps_visible() query per turn, reused for both attack checks
+let camps = camps_visible()
+
+let camp = first( filter( camps, in_attack_range() ) )
+if exists(camp):
+    cast_on(0, camp)
+    cast_on(1, camp)
+    attack(camp)
+    # attack reset: cast after the first basic attack, then hit again
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+        attack(camp)
+    if ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+        attack(camp)
+    set_priority( 1 + random_int(100) )
+    end_turn()
+
+# nothing tributed by round 300 (only monoliths carry gems): go for monoliths too
+if team_score(ally()) == 0 and round_number() > 300:
+    move_towards( closest( minus( minus( camp_spawns, respawning_visible_spawns() ), golem_tiles() ) ) )
+    end_turn()
+let goals = minus( minus( minus( camp_spawns, respawning_visible_spawns() ), monolith_tiles() ), golem_tiles() )
+
+# already standing on a cleared camp spawn: hold here so the capture timer keeps running
+if contains(capturable_spawns(), position()):
+    end_turn()
+
+let goal = closest(goals)
+# on a dead camp of a group that is not cleared yet, walk to the nearest living camp (not a monolith or golem)
+if distance(goal, position()) == 0:
+    let live = nearest(camps)
+    if exists(live) and not contains( union( monolith_tiles(), golem_tiles() ), unit_position(live) ):
+        move_towards( unit_position(live) )
+        end_turn()
+# dash toward a camp goal only when it is farther than 2; fuel guard skips it on a near-cap turn
+if exists(goal) and distance(position(), goal) > 2 and fuel_remaining() > 55000:
+    dash_to(0, goal)
+    dash_to(1, goal)
+move_towards( goal )
+let camp2 = first( filter( camps, in_attack_range() ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
