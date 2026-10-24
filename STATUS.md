@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 16:14 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.58 12.66 13.27 on 16 threads.
+Updated 2026-10-24 16:19 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.81 12.60 13.12 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.4G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[14:55:21] hybrid: H10: funsearch/runs 6646329 (has 7a6038d, 6646329: H10-H15: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, 2028 passed in 7.16s; relaunching hyb5 with the weighted axis menu and --helpers-runs
 [14:55:21] hybrid: hyb5 not running: relaunching (resume from runs/)
 [14:55:21] hybrid: launched hyb5 league
 [14:55:24] style: S9 check: $1.98 left of $2.0; reference tune-v21 mirror value 0.8999
@@ -55,4 +54,5 @@ Disk: 3.4G used of 38G.
 [16:04:07] style: launched style8-b (budget $3.5)
 [16:09:15] style: S12 gyield check: gap run style8-gyield (conversion:max:0.05,gems_per_capture:max:3 vs policies/tune-v21.policy): $1.27 left of |gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8974|gap metric gems_per_capture (max, scale 3): reference tune-v21 mirror value 10.6992|gap: 2 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5|
 [16:14:20] hybrid: H18 check: 'yield term: 122 logged programs rescaled'; 3 new children carry metrics.yield
+[16:19:29] hybrid: H20: hold set for the next hyb5 boundary
 ```
