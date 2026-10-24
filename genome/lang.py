@@ -116,6 +116,7 @@ PRIMS = {
     "wfield": (("Tiles", "Tiles", "Tiles", "Num"), "Field", "X.wfield({0}, {1}, {2}, {3})"),
     "path_step": (("Tile", "Tile", "Tiles", "Num"), "Tile", "X.path_step({0}, {1}, {2}, {3})"),
     "path_len": (("Tile", "Tile", "Tiles", "Num"), "Num", "X.path_len({0}, {1}, {2}, {3})"),
+    "territory": (("Tiles", "Tiles", "Tiles"), "Tiles", "X.territory({0}, {1}, {2})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
@@ -152,7 +153,7 @@ PRIMS = {
 }
 # Primitives whose simulator price is not yet calibrated against cambc (genome/FUEL.md): rejected unless
 # GENOME_UNCALIBRATED=1 (calibration probes), so the search cannot use them before they are priced.
-UNCALIBRATED = set()  # wfield, path_step, path_len: calibrated Oct 24 (genome/FUEL.md)
+UNCALIBRATED = set()  # wfield, path_step, path_len, territory: calibrated Oct 24 (genome/FUEL.md)
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
