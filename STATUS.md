@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 18:18 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 9.89 5.92 3.88 on 16 threads.
+Updated 2026-10-24 18:23 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 9.10 8.10 5.41 on 16 threads.
 Disk: 3.7G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.7G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[16:40:29] style: S12: SIGTERM style8-b pid 134253 (boundary verdict in)
 [16:40:29] style: S12: SIGTERM style8-b pid 134277 (boundary verdict in)
 [16:40:29] style: S12: b verdict: [15:54:59]   no promotion; style8-b-g1 continues; b stopped (STOP in runs/style8-b-g1), b2 starts below
 [16:40:29] style: launched style8-b2 (budget $0.95)
@@ -55,4 +54,5 @@ remote:
 [18:13:26] genome: started job evo-starter-pilot at fb14c783bda3090568092fef92757f19af026464
 [18:13:27] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [18:18:31] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[18:23:35] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
