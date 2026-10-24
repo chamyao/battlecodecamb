@@ -25,10 +25,10 @@ directly. The old channel is retired for anything the arena covers.
 
 - **Engine**: every policy and match is pinned to an engine (a built repo commit). The default is
   an old funsearch/runs commit without tonight's sensors and bot fixes. For anything compared with
-  the live bot, use the current deploy/v0 engine: **ca8f85bf63d15abf15d26a966f911ed6c4913011**
-  (Oct 24 ~18:30 UTC: adds monolith_threat, in_monolith_zone, altar_safe_tiles, camp_threat, all
-  calibrated and verified in cambc). Pass it as `"engine"`. Don't compare results across engines
-  (earlier: 2e1ff7e, and 545c7b1, which under-charges fuel by 1-4k).
+  the live bot, use the current deploy/v0 engine: **7ea42c7c4bc4d9f0750062812316f0d7d22bec4c**
+  (Oct 24 ~19:20 UTC: adds enemy_locks, lock_hits_left; ca8f85b added monolith_threat,
+  in_monolith_zone, altar_safe_tiles, camp_threat; all calibrated and verified in cambc). Pass it
+  as `"engine"`. Don't compare results across engines (earlier: ca8f85b, 2e1ff7e, 545c7b1).
 - **Names are immutable.** A changed policy gets a new name. Live lineage is registered as
   `v18-tune-r-all-v2`, `v19-rall2-ca4-lean-g`, `v20-tune-fight-2s`, `v22-tune-v20-L1c` (live;
   versions 21, 22 and 24 run this policy) and `v23-style-gconv1`; older pool policies under their
@@ -38,8 +38,8 @@ directly. The old channel is retired for anything the arena covers.
 - **Shared cores** (16 total: 6 match threads, 8 for arena runs, the rest for the line clones'
   own jobs). Don't flood the queue with low-value matches. League matches default to priority -1,
   so ad-hoc checks overtake them.
-- **The `main3r` league** (coordinator, engine ca8f85b, `bot_seeds: false`, 160 games per pair: a real sample; `main2` = 2e1ff7e exact-seed run, `main` = 545c7b1) holds the live lineage and baselines. A
-  candidate joins with `python3 arena.py league add main3r <name>`, which plays a gauntlet against
+- **The `main4r` league** (coordinator, engine 7ea42c7, `bot_seeds: false`, 160 games per pair: a real sample; `main3r` = ca8f85b, `main2` = 2e1ff7e exact seeds, `main` = 545c7b1) holds the live lineage and baselines. A
+  candidate joins with `python3 arena.py league add main4r <name>`, which plays a gauntlet against
   every member; post the standings with your candidate on PR #5.
 - **Sample size** (style line, Oct 24): with `bot_seeds: true` (the default) a game depends only on
   its map and side, so there are only 80 distinct games (40 maps x 2 sides); 800 games repeat them,
