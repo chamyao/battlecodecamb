@@ -1,9 +1,15 @@
 # Handoff: hybrid FunSearch line
 
-Snapshot as of 2026-10-24 ~03:30 UTC. Read `CLAUDE.md`, `docs/STRATEGY.md` and `docs/FUNSEARCH.md`
-first. For talking to the compute machine ("remote-server"), read `docs/REMOTE_WORKER.md` on
-`main`. This line's channel is draft PR #1 (`remote/hybrid` -> `jobs/hybrid`): put durable
-instructions in `jobs/hybrid/JOBS.md` and comment on the PR.
+Snapshot as of 2026-10-24 ~17:40 UTC. Read `CLAUDE.md`, `docs/STRATEGY.md` and `docs/FUNSEARCH.md`
+first. This line reports to the FunSearch lead (session_01YJxccSM2xmnTtoiFjrAzf3).
+
+**Channels (since 17:30 UTC, Cham):** simulator matches, batches and leagues go through the **arena**
+(`docs/REMOTE_WORKER.md` on `main` 1983be7; `$ARENA_URL/docs`), with `X-Arena-Client: hybrid` and the
+deploy/v0 engine sha `545c7b1e644b1e5c82ba07b3a8aa8945ab2dc190` (not the default). Candidates are registered
+under immutable names and join the `main` league (`league add main <name>`) when they would be sent; standings
+go on PR #5. The old `remote/hybrid` -> `jobs/hybrid` PR channel and `jobs/hybrid/JOBS.md` are retired for
+anything the arena covers. FunSearch runs on the arena need a hybrid token from Cham (never commit or message it).
+Verdicts still go on PR #1.
 
 ## Goal
 
@@ -27,29 +33,25 @@ v7-zerogem -> v7zg-cast (#14 graft) -> tune-1 -> tune-2 -> tune-3.
 
 ## What's running, and where
 
-- **League:** `python3 -m funsearch.league --name hyb4`. State is in `runs/hyb4.json`: gen 2, best
-  tune-1; members v7-zerogem, v7, v5d-fs2; fixed_extra v7zg-cast, v8, v7zg-monozone. CLI
-  `--fixed policies/locker.policy`; `--prefix fs-h --line hybrid`.
-- **Pending:** the hyb4-g2 boundary validation (15 programs) of four challengers: tune-2,
-  tune2-focus, tune-3, tune-4. They're in `pending` in hyb4.json, so a restart re-judges them. Done
-  so far: #18 52.3% vs tune-1 over 1600 games (not clear); #7 43.6%; #11 41.5%. 179 results are
-  cached in `runs/validation_cache.jsonl`.
-- **Where:** it was stopped in the cloud container at ~03:05 UTC and handed to remote-server.
-  **Not confirmed running there:** `remote/hybrid` still had only the placeholder STATUS.md and
-  `jobs/hybrid/JOBS.md` had no jobs. First thing: check PR #1 / `remote/hybrid` STATUS.md. If it
-  isn't running, write the job into `jobs/hybrid/JOBS.md`.
-- **State to resume from:** branch `funsearch/league-state` @ ade51ec, with runs/hyb4.json,
-  runs/hyb4.challengers, runs/hyb4-g1/ and runs/hyb4-g2/programs.jsonl,
-  runs/validation_cache.jsonl, runs/hyb4.log, runs/resume_hyb.sh, runs/SPEND.md. runs/ is
-  gitignored on funsearch/runs; overlay with `git checkout origin/funsearch/league-state -- runs/
-  && git reset -q`.
-- **Suggested job** (it was sent to remote-server but not acknowledged), in its own clone (e.g.
-  `~/bc/hybrid`, branch funsearch/runs):
-  `cmake -S interp -B interp/build -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j --target interp_eval`,
-  `python3 -m pytest -q tests` (2012 pass), then `sh runs/resume_hyb.sh` after editing it to
-  `--workers 3 --eval-threads 2` plus `--threads 5` after `--name hyb4`. Keep `--round 15` until the
-  g2 verdict, then use 30. 16 threads are shared with pure, style and tune (tune at nice 15).
-  Needs FUNSEARCH_API_KEY in that shell.
+- **hyb5** (league `--name hyb5`, exploration mode) runs on **EC2** (session_01Knzq5vzttJNCCzc9dRHHkQ, state
+  pushed to `remote/hybrid/runs/` every ~5 min). It stays there until Cham issues an arena token for FS runs.
+  Changes reach EC2 by send_message; it applies them at round boundaries (hold + SIGTERM by PID, merge
+  funsearch/runs, rebuild, pytest, relaunch). Jobs H1-H24 are logged in `jobs/hybrid/JOBS.md` (history).
+- **Current hyb5 setup** (after H21b/H23/H24): best/bar v21 (`policies/pool/v21.policy`, live ladder
+  v22/v24); islands v21, style-gconv1 (v23, diversity), v20, v21; `--fixed` includes style-gconv1;
+  `--axes conversion:5,disengage:2,...,fuel:1`; `--yield-weight 0.25` (gems submitted per game vs v21 in
+  the same screen games, scale 50; gems per capture is report-only: it can be raised by giving up volume);
+  `--screen-maps cover --rescreen-top 3` (screens cover every map; the old with-replacement draw covered ~29
+  of 40 and overstated map-specific lines by ~20 points); `--no-tune-children` (climb measured as noise:
+  +0.001 over 21 accepted climbs); `--helpers-runs` (shared helper library); new-vocabulary variant 20%
+  (16 sensors); exec blocks vs builtin:starter; novelty lambda.
+- **Candidate checks** (any FLAG or promotion): the 80-game all-maps fights.py check vs v21 (win, gems
+  submitted, gems/capture, captures, tributes, camp deaths, out/out2 shares), `funsearch.evaluate.fuel_check`
+  (big-world + ambush, --enforce --bot-seeds), the required pool league, conversion. From now on run the
+  matches/leagues on the arena (engine 545c7b1).
+- **Measured dead ends tonight:** the #82/#76 line (teleport + altar dashes: +2.9 gems/capture but 64 vs 82
+  captures, submitted gems level with v21); per-child constant climb (noise); island-3 fuel fitness (fixed
+  fuel, kept the low volume).
 
 ## Promotion rules (funsearch/league.py)
 
@@ -72,11 +74,10 @@ v7-zerogem -> v7zg-cast (#14 graft) -> tune-1 -> tune-2 -> tune-3.
 
 ## Budget
 
-- Hybrid line cap $10 (set 19:17 UTC, 2026-10-23). Spent since: hyb $0.03, hyb2 $0.14, hyb3 $0.01,
-  hyb4 $0.36 = **$0.54; ~$9.46 left**. The league's own `--budget 9.82` caps the hyb4 runs
-  (spent counts hyb4-g* only).
-- Whole session, including the pre-split pilot and leagues: **$3.18** (runs/SPEND.md, updated). The
-  overall project cap is $90 across all lines.
+- Hybrid line cap **$40** (raised from $30 by the FunSearch lead, 16:40 UTC). Spent $23.26: hyb/hyb2/hyb3
+  $0.18, hyb4 on the old remote-server $9.91, hyb4 on EC2 $1.26, xc/xp exploration test $3.21, hyb5 $8.70
+  (to 16:40). hyb5 keeps its remaining ~$16.30 (`--budget 25` from its start). Lines recorded in
+  `remote/hybrid/runs/SPEND.md` (H22). Arena runs are capped at $10 per run, $40 in total.
 - Cost per call: Haiku ~$0.0016, Opus ~$0.072.
 
 ## What worked (with numbers)
