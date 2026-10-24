@@ -64,6 +64,35 @@ def segment(events, us):
     return done + open_
 
 
+LOW_HP, LOW_HP_RANGE, LOW_HP_WINDOW = 0.5, 5, 15  # as analysis/low_hp.py (crossings, 15 rounds)
+
+
+def low_hp_episodes(events, team):
+    """Low-HP crossings of `team`'s champions (analysis/low_hp.py's definition, from hit events): an enemy
+    champion hit from within LOW_HP_RANGE tiles takes the champion from >= LOW_HP of max health to below it; the
+    episode counts as a death if the champion dies within LOW_HP_WINDOW rounds. Returns (episodes, deaths)."""
+    open_ep, episodes, deaths = {}, 0, 0
+    for r, kind, f, raw in events:
+        for c, start in list(open_ep.items()):
+            if r - start > LOW_HP_WINDOW:
+                del open_ep[c]
+        if kind == "chit" and int(f["team"]) != team and "hp" in f:
+            dst = int(f["dst"])
+            x, y = map(int, f["pos"].split(","))
+            sx, sy = map(int, f["spos"].split(","))
+            hp, mx = float(f["hp"]), float(f["max"])
+            crossed = hp + float(f["dmg"]) >= LOW_HP * mx > hp  # this hit took it from >= half health to below
+            if dst not in open_ep and hp > 0 and crossed and max(abs(x - sx), abs(y - sy)) <= LOW_HP_RANGE:
+                open_ep[dst] = r
+                episodes += 1
+        elif kind == "death" and int(f["team"]) == team:
+            c = int(f["champ"])
+            if c in open_ep:
+                deaths += 1
+                del open_ep[c]
+    return episodes, deaths
+
+
 def play(a_pol, b_pol, games=40, seed=1, maps=None, timeout=3600):
     """A and B are compiled .pol paths (or builtin:...). One interp_eval process, single-threaded (event lines of
     parallel games would interleave). Returns {"games": [per-game dicts], "summary": {...}} from A's view."""
@@ -100,6 +129,7 @@ def play(a_pol, b_pol, games=40, seed=1, maps=None, timeout=3600):
             "our_out_deaths": sum(e["our_out_deaths"] for e in engs),
             "their_deaths_in_fights": sum(e["their_deaths"] for e in engs),
             "their_out_deaths": sum(e["their_out_deaths"] for e in engs),
+            "low_hp": low_hp_episodes(ev, us), "opp_low_hp": low_hp_episodes(ev, 1 - us),
         })
         ev = []
     return {"games": per_game, "summary": summarize(per_game)}
@@ -131,6 +161,10 @@ def summarize(per_game):
         "out_deaths": sum(g["our_out_deaths"] for g in per_game) / n,
         "fight_deaths": our_d / n,
         "fights_won": sum(e["dealt"] > e["taken"] for e in engs) / m,
+        # P(death within LOW_HP_WINDOW rounds | below LOW_HP health with an enemy champion within LOW_HP_RANGE)
+        "low_hp_death_rate": sum(g["low_hp"][1] for g in per_game) / max(1, sum(g["low_hp"][0] for g in per_game)),
+        "low_hp_episodes": sum(g["low_hp"][0] for g in per_game) / n,
+        "opp_low_hp_death_rate": sum(g["opp_low_hp"][1] for g in per_game) / max(1, sum(g["opp_low_hp"][0] for g in per_game)),
         "dealt_per_fight": sum(e["dealt"] for e in engs) / m,
         "taken_per_fight": sum(e["taken"] for e in engs) / m,
     }

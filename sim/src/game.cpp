@@ -335,8 +335,10 @@ void Game::damage_champion(int target, const Hit& hit)
 	}
 	if (hit.src_champ >= 0 && champs[hit.src_champ].team != t.team) teams[champs[hit.src_champ].team].champ_damage += amount;
 	if (events_on() && hit.src_champ >= 0 && champs[hit.src_champ].team != t.team && amount > 0)
-		std::printf("@@EV r=%d chit team=%d src=%d dst=%d dmg=%.0f pos=%d,%d spos=%d,%d\n", round, champs[hit.src_champ].team,
-					hit.src_champ, target, static_cast<double>(amount), t.pos.x, t.pos.y, champs[hit.src_champ].pos.x, champs[hit.src_champ].pos.y);
+		std::printf("@@EV r=%d chit team=%d src=%d dst=%d dmg=%.0f pos=%d,%d spos=%d,%d hp=%.0f max=%.0f\n", round,
+					champs[hit.src_champ].team, hit.src_champ, target, static_cast<double>(amount), t.pos.x, t.pos.y,
+					champs[hit.src_champ].pos.x, champs[hit.src_champ].pos.y, static_cast<double>(t.hp - amount),
+					static_cast<double>(t.max_hp));
 	t.hp -= amount;
 	interrupt_channel(t, true);
 	// Ren retaliation (also as he dies).
