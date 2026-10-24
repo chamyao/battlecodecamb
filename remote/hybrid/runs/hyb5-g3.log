@@ -33,3 +33,5 @@ seed v21 score 0.741 (islands [3])
 [32] claude-haiku-5-5 island 1: score 0.687 | best 0.742 (#14) $0.60 | 1565s
 [33] claude-haiku-5-5 island 1: score 0.688 | best 0.742 (#14) $0.60 | 1693s
 done: 30 programs (1 invalid), spent $0.60; best #14 score 0.742 -> /root/bc/hybrid/runs/hyb5-g3/best.policy
+re-seeded island 2 with v20 (score 0.711)
+re-seeded island 3 with v19-L1c (score 0.677)
