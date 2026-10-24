@@ -23,6 +23,9 @@ Ranked for B318 (genes are B318's, same IDs as the seed):
    - Evidence: our captures pay 10.2 ± 0.9 gems, theirs 15.2 ± 1.1. 28.7 of our 76 captures per game pay 0 gems. Low yield is a cause in 50% ± 9 of losses.
    - Genes: `m11` camp_goal (still the nearest live spawn), `v2` CAMP_BASE.
    - Sim: B318 + gemgroups scores 14.4 gems per capture but loses to B318 0.450 (0.688 vs style-gconv1).
+   - Deploy-faithful (--bot-seeds): every gem-group variant loses to B318, 33-38/80 (`rejected/README.md`). The sim
+     does not reward richer groups. In real games yield barely separates our wins from our losses (11.3 vs 9.4), so
+     it may follow from losing contested groups. Next test: real cambc with b318-gg6.
 2. **Fights**
    - Evidence: 9.7 ± 1.3 deaths per game to champions, 11.0 in losses against 7.4 in wins. Fights are a cause in 44% ± 9 of losses.
    - Genes: `r7` / `s13` / `a3` / `a4` (B318 retuned `s13` and `a4`), and `s8` under_fire (B318 uses threat_eta <= 5).

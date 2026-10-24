@@ -58,3 +58,17 @@ and r_hold never lets go. b318-hold holds only while no visible enemy champion s
 (40/80 vs B318) and mixed against the anchors. Adding the early monolith rule (b318-hold-zg) is worse: 37/80.
 01elk-arena and 01shortcut do not change, so their causes differ. On 01elk-arena the idle champions are
 under rule 20 (camp walk) with no live goal; on 01shortcut it is rule 12, the bank walk to monolith-guarded altars.
+
+## Yield on B318 (GAPS v2 #1), --bot-seeds /80 vs B318
+
+| child | vs B318 | per capture | captures |
+|---|---|---|---|
+| B318 + gemgroups (nearest gem-paying group) | 38 | 14.5 | 58.7 |
+| ... gem group only if at most 3 tiles farther than the nearest group | 36 | 11.9 | 73.1 |
+| ... at most 6 farther (kept: b318-gg6) | 38 | 12.5 | 69.2 |
+| ... at most 10 farther | 33 | 13.0 | 66.5 |
+
+Choosing richer groups raises gems per capture in the sim but loses head to head. The sim does not reward the
+real yield gap. In the real games yield barely separates wins from losses (11.3 vs 9.4 gems per capture), so it
+may be a consequence (being pushed off contested groups) more than a choice. Testing it needs real games, e.g.
+b318-gg6 vs B318 in real cambc.
