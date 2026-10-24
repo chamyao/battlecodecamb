@@ -449,7 +449,7 @@ class Exp:
         nulls = []
         for gid in sc:
             if gid.startswith("null:"):
-                p = gid.split(":")[1]
+                p = gid[len("null:"):].rsplit(":", 1)[0]  # parent names hold a colon (arenaA-1:A352)
                 v = anchor_sum(gid)
                 if v is not None and par[p] is not None:
                     nulls.append(v - par[p])
@@ -498,10 +498,47 @@ class Exp:
         rep = {"null_n": len(nulls), "null_p95": p95, "null": nulls, "parents_anchor_wins": par,
                "arms": {arm: summary(rows) for arm, rows in per.items()},
                "by_type_A1": {t: summary([x for x in per.get("A1", []) if x["type"] == t]) for t in TYPES},
-               "mcnemar": {"A1_only": b, "A0_only": cc, "p_one_sided": round(p_mcnemar, 4)}}
+               "mcnemar": {"A1_only": b, "A0_only": cc, "p_one_sided": round(p_mcnemar, 4)},
+               "per_cell": [{"arm": arm, "cell": x["cell"], "type": x["type"], "parent": (x["rec"] or {}).get("parent"),
+                             "error": (x["rec"] or {}).get("error"), "file": (x["rec"] or {}).get("file"),
+                             "diff": x["diff"], "twin": x["twin"], "better": x["better"], "vs_parent": x["vs_parent"]}
+                            for arm, rows in per.items() for x in rows]}
         (self.out / "report.json").write_text(json.dumps(rep, indent=1))
-        print(json.dumps({k: v for k, v in rep.items() if k != "null"}, indent=1))
+        print(json.dumps({k: v for k, v in rep.items() if k not in ("null", "per_cell")}, indent=1))
         return rep
+
+    # ---- panel: children above --panel-min (anchor diff vs parent, of 480) and their parents vs the panel opponents
+    def panel(self, texts, rep):
+        opps = [x for part in self.a.panel_opponents for x in part.split(",") if x]
+        done = {(r["genome"], r["opponent"]) for r in self.records("panel.jsonl")}
+        picks = [x for x in rep["per_cell"] if x["diff"] is not None and x["diff"] > self.a.panel_min]
+        jobs = []
+        for p in sorted({x["parent"] for x in picks}):
+            jobs += [(f"parent:{p}", texts[p], o, {"kind": "parent", "parent": p}) for o in opps]
+        for x in picks:
+            text = (self.out / x["file"]).read_text()
+            jobs += [(f"c{x['cell']}:{x['arm']}", text, o, {"kind": "child", "parent": x["parent"], "cell": x["cell"],
+                                                             "arm": x["arm"], "type": x["type"], "diff": x["diff"]})
+                     for o in opps]
+        jobs = [j for j in jobs if (j[0], Path(j[2]).stem) not in done]
+        print(f"panel: {len(picks)} children, {len(jobs)} matches", flush=True)
+
+        def play(j):
+            gid, text, o, meta = j
+            opp = Path(o).read_text() if o.endswith(".genome") else o
+            for attempt in range(6):
+                try:
+                    w, n = rate(self.a.arena_engine, side(text), side(opp), self.a.priority)
+                    break
+                except Exception as e:
+                    print(f"panel {gid} vs {Path(o).stem}: {type(e).__name__}: {e}", flush=True)
+                    time.sleep(30 * (attempt + 1))
+            else:
+                return
+            self.log("panel.jsonl", {"genome": gid, "opponent": Path(o).stem, "wins": w, "games": n, **meta})
+
+        with ThreadPoolExecutor(self.a.workers) as ex:
+            list(ex.map(play, jobs))
 
     def run(self):
         texts, meta = {}, {}
@@ -514,7 +551,9 @@ class Exp:
             if not self.a.generate_only:
                 self.score(cells, texts)
         if not self.a.generate_only:
-            self.report(cells)
+            rep = self.report(cells)
+            if self.a.panel_opponents:
+                self.panel(texts, rep)
 
 
 def main():
@@ -531,6 +570,10 @@ def main():
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--generate-only", action="store_true")
     ap.add_argument("--report-only", action="store_true")
+    ap.add_argument("--panel-opponents", action="append", default=[],
+                    help="comma list (repo paths, or local .genome files sent inline); repeatable: after the report, "
+                         "children with anchor diff > --panel-min and their parents play these")
+    ap.add_argument("--panel-min", type=float, default=5)
     a = ap.parse_args()
     Exp(a).run()
 
