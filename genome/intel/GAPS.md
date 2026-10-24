@@ -88,6 +88,19 @@ All compile (`python3 -m genome.build`) and run (`genome_eval`). Win rate is sid
 | `commit` | 1 stuck | v2, r10, r18 (keeps LAST_RULE, LAST_GOAL, BANKING) | 0.545 | 0.537 | stuck 66.7 → 0.0 per game; 00corners 0.60 → 0.85, rushbait 0.55 → 0.95 (20 games each) |
 | `mono-spare` | 7 monolith | s14, r14, r13, a0 (i1) | 0.540 | 0.537 | great-wall camp deaths 31.6 → 20.1, self-play monolith deaths 52 → 6; boss-battle worse (0.45 → 0.35, 20 games) |
 | `mono-pack` | 7 monolith | s14, r14, r13, a0 (i2) | 0.542 | 0.500 | as mono-spare, but monolith groups are allowed with both allies within 5 (boss-battle 0.50) |
+| `commit-mono` | 1 + 7 | commit + mono-spare (disjoint genes) | 0.577 (800, seeds 91001-2) | 0.550 | gate set below |
 | `gem-groups` | 3 yield | v2, m11 (i5, keep GEM_BASE) | 0.492 | 0.487 | per capture 10.9 → 14.4, captures 81 → 61 |
 
 Reference: the seed itself scores 0.507 against the original.
+
+### Gate set for `commit-mono` (sim, normal fuel unless noted; fresh seeds)
+
+| opponent | commit-mono | original (style-gconv1) | change |
+|---|---|---|---|
+| original, 800 games (seeds 91001 / 91002) | 0.577 (0.593 / 0.560), SE ≈ 0.018 | — | — |
+| original, 10x fuel both, 400 (seed 91003) | 0.593 | (seed genome: 0.537) | — |
+| seed genome, 400 (seed 91004) | 0.550 | — | — |
+| v7, 400 (seed 91005) | 0.940 | 0.920 | +2.0 |
+| tune-v20-L1 | 0.588 | 0.537 | +5.1 |
+| rall2-ca4-lean-g | 0.588 | 0.517 | +7.1 |
+| opp-tune5-metadraft | 0.877 | 0.873 | +0.4 |
