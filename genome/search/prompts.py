@@ -6,10 +6,6 @@ from funsearch.catalog import GAME
 from .edit import ENTRIES
 
 LANGUAGE = (Path(__file__).resolve().parent.parent / "LANGUAGE.md").read_text()
-# hits_to_kill is leaving the language (a model, not a rule): keep it out of the prompt until lang.py drops it
-LANGUAGE = "\n".join(l for l in LANGUAGE.splitlines() if not l.startswith("| `hits_to_kill("))
-LANGUAGE = LANGUAGE.replace("; `hits_to_kill(a, b)` basic attacks of `a` that kill `b` from now (shields first; 1e9 if "
-                            "none hurts)", "") + "\n"
 
 FACTS = GAME.replace("Every block a bot runs costs fuel", "Every operation and engine call a bot runs costs fuel") + """\
 In a genome, compiled gene code is cheap (a few fuel per operation); engine calls (distance fields
