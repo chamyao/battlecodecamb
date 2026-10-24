@@ -21,6 +21,7 @@ from pathlib import Path
 from .evaluate import EVAL_BIN, ROOT, evaluate
 
 FRESH_SEEDS = (5_000_011, 6_000_011)  # validation only; the runs use eval seeds 0 and 1
+TUNE_SEED, HOLDOUT_SEED = 3_000_011, 4_000_011  # tuning stage: hill-climb games / independent check
 
 
 def log(msg, path):
@@ -36,6 +37,39 @@ def spent(name):
         for line in open(path):
             total += json.loads(line)["metrics"].get("cost", 0.0)
     return total
+
+
+def tune_candidate(p, opponents, args, logfile, run):
+    """Rough tuning stage between the generation and validation: a few hill-climb steps over the candidate's
+    named constants on one small fixed set of games (the run's weighted opponents), kept only if the tuned
+    text also beats the untuned one on a small independent holdout set. Deliberately cheap (a few percent of
+    validation time) and model-free (no API spend); the fresh-seed validation stays the real gate."""
+    from .tune import named_constants, tune_named
+
+    if not named_constants(p["text"]):
+        return p
+
+    def scorer(seed):
+        def score(text):
+            r = evaluate(text, opponents=tuple(opponents), games=args.tune_games, threads=args.threads, seed=seed)
+            return r.score if r.ok else -1.0
+        return score
+
+    tuned, s, s0 = tune_named(p["text"], scorer(TUNE_SEED), steps=args.tune_steps, seed=p["id"], log=lambda m: None)
+    if tuned == p["text"]:
+        log(f"  tune #{p['id']}: no better constants ({args.tune_steps} steps, {s0:.3f})", logfile)
+        return p
+    hold = scorer(HOLDOUT_SEED)
+    new, old = hold(tuned), hold(p["text"])
+    before, after = named_constants(p["text"]), named_constants(tuned)
+    changed = ", ".join(f"{k} {before[k]:g}->{after[k]:g}" for k in after if after[k] != before[k])
+    keep = new > old
+    log(f"  tune #{p['id']}: {changed}; tune games {s0:.3f}->{s:.3f}, holdout {old:.3f}->{new:.3f} "
+        f"({'kept' if keep else 'dropped'})", logfile)
+    with open(ROOT / "runs" / run / "tuned.jsonl", "a") as f:
+        f.write(json.dumps({"id": p["id"], "kept": keep, "changed": changed, "tune": [s0, s],
+                            "holdout": [old, new], "text": tuned}) + "\n")
+    return {**p, "text": tuned, "tuned": True} if keep else p
 
 
 def top_distinct(run, k):
@@ -143,6 +177,11 @@ def main():
                                               "(e.g. pure: programs descend only from FunSearch outputs)")
     ap.add_argument("--session", default="https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj",
                     help="Claude-Session trailer for promotion commits")
+    ap.add_argument("--tune-steps", type=int, default=0,
+                    help="rough tuning stage before validation: hill-climb steps over the top candidates' named "
+                         "constants (0 = off; 6 is the intended rough setting)")
+    ap.add_argument("--tune-games", type=int, default=8, help="games per opponent per tuning evaluation (kept tiny)")
+    ap.add_argument("--tune-k", type=int, default=3, help="how many of the top candidates get the tuning stage")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     args, run_args = ap.parse_known_args()  # anything else goes to funsearch.run
 
@@ -186,7 +225,11 @@ def main():
         league = [best, *older]
         bar = win_rates(Path(best).read_text(), older, args.val_games, args.threads) if older else {}
         promoted = None
-        for p in top_distinct(run, 3):
+        cands = top_distinct(run, 3)
+        if args.tune_steps:
+            cands = [tune_candidate(p, opponents, args, logfile, run) if i < args.tune_k else p
+                     for i, p in enumerate(cands)]
+        for p in cands:
             rates = win_rates(p["text"], ["builtin:starter", *league], args.val_games, args.threads)
             if rates is None:
                 continue
@@ -214,13 +257,14 @@ def main():
         n = 1 + max((int(f.stem[len(pre):]) for f in (ROOT / "policies").glob(f"{pre}*.policy")
                      if f.stem[len(pre):].isdigit()), default=0)
         out = ROOT / "policies" / f"{pre}{n}.policy"
-        header = (f"# {pre}{n}: league {run} #{p['id']}; beat {Path(best).stem} {h2h:.1%} head to head on "
+        tag = " + tune" if p.get("tuned") else ""
+        header = (f"# {pre}{n}: league {run} #{p['id']}{tag}; beat {Path(best).stem} {h2h:.1%} head to head on "
                   f"{2 * args.val_games} fresh games.\n")
         if args.line:
             # lineage: the parent's chain (from its header) plus this generation
             prev = next((l.split(":", 1)[1].strip() for l in Path(best).read_text().splitlines()
                          if l.startswith("# lineage:")), Path(best).stem)
-            header += f"# line: {args.line}\n# lineage: {prev} -> {run} #{p['id']} = {pre}{n}\n"
+            header += f"# line: {args.line}\n# lineage: {prev} -> {run} #{p['id']}{tag} = {pre}{n}\n"
         out.write_text(header + p["text"])
         summary = ", ".join(f"{k} {v:.1%}" for k, v in rates.items())
         log(f"  PROMOTED {out.name}: {summary}", logfile)
