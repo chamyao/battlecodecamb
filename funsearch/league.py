@@ -196,13 +196,16 @@ def main():
         db_file = ROOT / "runs" / run / "programs.jsonl"
         done = max(0, sum(1 for _ in open(db_file)) - 4) if db_file.exists() else 0
         todo = args.round - done % args.round
+        if done and done % args.round == 0 and state.get("validated", {}).get(run, 0) < done:
+            todo = 0  # restarted exactly at a boundary that was never validated: validate it now
         log(f"{run}: +{todo} programs to the next boundary ({done} so far), best {best}, league {older}, "
             f"${left:.2f} left", logfile)
-        subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
-                        "--max-programs", str(todo), "--seed-policy", best,
-                        "--opponents", ",".join(opponents),
-                        *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
-                       cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
+        if todo:
+            subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
+                            "--max-programs", str(todo), "--seed-policy", best,
+                            "--opponents", ",".join(opponents),
+                            *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
+                           cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
         if (ROOT / "runs" / run / "STOP").exists():
             log("STOP file present: pausing the league", logfile)
             break
@@ -252,6 +255,8 @@ def main():
             if ok and worst >= -args.regress and (promoted is None or h2h > promoted[2]):
                 promoted = (label, text, h2h, n, rates, p)
         state["tried"] = sorted(tried)
+        db_done = max(0, sum(1 for _ in open(db_file)) - 4) if db_file.exists() else 0
+        state.setdefault("validated", {})[run] = db_done
         state_path.write_text(json.dumps(state))
         if queued:
             # challengers become parents of this run and fixed opponents from the next generation
