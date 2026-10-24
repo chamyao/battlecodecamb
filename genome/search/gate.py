@@ -83,7 +83,10 @@ def gate(text, ref, anchors, threads=5, screen_games=400, screen_min=0.55, h2h=4
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
-    ap.add_argument("--arena", action="append", required=True, help="path of an arena dir on remote/genome")
+    ap.add_argument("--arena", action="append", required=True,
+                    help="arena dir on remote/genome, or a chain of resumed jobs' dirs joined by + "
+                         "(e.g. arenaB-1/arena+arenaB-2/arena): the latest pushed one is read, and the chain is "
+                         "finished when its last job has an rc file")
     ap.add_argument("--ref", default=str(ROOT / REF), help="the live ladder bot")
     ap.add_argument("--anchors", default=",".join(str(ROOT / a) for a in ANCHORS))
     ap.add_argument("--top", type=int, default=3)
@@ -116,10 +119,13 @@ def main():
         if f.returncode != 0:
             log(f"fetch failed: {f.stderr.strip()[:200]}")
         finished = 0
-        for arena in args.arena:
-            job = arena.split("/")[0]
-            if git("cat-file", "-e", f"origin/remote/genome:{job}/rc").returncode == 0:
+        for chain in args.arena:
+            dirs = chain.split("+")
+            if git("cat-file", "-e", f"origin/remote/genome:{dirs[-1].split('/')[0]}/rc").returncode == 0:
                 finished += 1
+            have = [d for d in dirs if git("cat-file", "-e", f"origin/remote/genome:{d}/state.json").returncode == 0]
+            arena = have[-1] if have else dirs[0]
+            job = arena.split("/")[0]
             st = git("show", f"origin/remote/genome:{arena}/state.json")
             if st.returncode != 0:
                 log(f"{arena}: no state yet")
@@ -128,7 +134,7 @@ def main():
             live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"]
                     and m["games"] >= args.min_games]
             for m in sorted(live, key=lambda m: -m["mu"])[:args.top]:
-                key = f"{arena}:{m['name']}"
+                key = f"{dirs[0]}:{m['name']}"  # one key per genome across a chain of resumed jobs
                 if key in seen:
                     continue
                 seen.add(key)
