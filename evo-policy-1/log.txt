@@ -46,3 +46,20 @@ seed screen 0.686 confirm 0.768 (vs v7: win 0.97, gems 965-437; vs tune-v20-L1: 
 [48] llm claude-haiku-5-5 isl 0: screen +0.017 confirm -0.006 (6 lines) | best 0.776 (#27) $0.59 | 813s
 [49] llm claude-haiku-5-5 isl 0: screen +0.001 confirm +0.004 (12 lines) | best 0.776 (#27) $0.59 | 825s
 [50] llm claude-haiku-5-5 isl 3: screen -0.272 (9 lines) | best 0.776 (#27) $0.60 | 857s
+[51] llm claude-haiku-5-5 isl 2: screen -0.002 confirm +0.001 (6 lines) | best 0.776 (#27) $0.60 | 874s
+[52] llm claude-haiku-5-5 isl 3: screen +0.000 confirm -0.004 twin (12 lines) | best 0.776 (#27) $0.60 | 875s
+[53] llm claude-haiku-5-5 isl 0: screen +0.061 confirm -0.168 (20 lines) | best 0.776 (#27) $0.61 | 954s
+[54] llm claude-haiku-5-5 isl 3: screen -0.017 confirm +0.004 (6 lines) | best 0.776 (#27) $0.61 | 957s
+[55] llm claude-haiku-5-5 isl 1: screen +0.028 confirm +0.003 (7 lines) | best 0.776 (#27) $0.62 | 975s
+[56] llm claude-haiku-5-5 isl 1: screen +0.018 confirm +0.001 (6 lines) | best 0.776 (#27) $0.74 | 1017s
+[57] llm claude-haiku-5-5 isl 3: screen -0.024 confirm -0.001 (23 lines) | best 0.776 (#27) $0.74 | 1020s
+[58] llm claude-opus-5-5 isl 3: screen -0.221 (17 lines) | best 0.776 (#27) $0.74 | 1021s
+[59] llm claude-haiku-5-5 isl 2: screen -0.022 (5 lines) | best 0.776 (#27) $0.75 | 1043s
+[60] llm claude-haiku-5-5 isl 3: screen -0.077 (15 lines) | best 0.776 (#27) $0.75 | 1052s
+[61] tune  isl 0: screen -0.022 (168 lines) | best 0.776 (#27) $0.75 | 1057s
+[62] llm claude-haiku-5-5 isl 3: screen -0.043 (7 lines) | best 0.776 (#27) $0.76 | 1085s
+[63] llm claude-haiku-5-5 isl 2: screen -0.107 confirm -0.042 (11 lines) | best 0.776 (#27) $0.76 | 1086s
+[64] llm claude-haiku-5-5 isl 2: screen +0.017 confirm +0.001 (5 lines) | best 0.776 (#27) $0.77 | 1118s
+[65] llm claude-haiku-5-5 isl 1: screen +0.014 confirm +0.007 (7 lines) | best 0.777 (#65) $0.77 | 1148s
+[66] llm claude-haiku-5-5 isl 3: screen -0.001 confirm -0.018 (24 lines) | best 0.777 (#65) $0.77 | 1149s
+[67] tune  isl 1: screen -0.011 (163 lines) | best 0.777 (#65) $0.77 | 1162s
