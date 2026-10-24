@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 12:32 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.96 13.17 12.83 on 16 threads.
+Updated 2026-10-24 12:38 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.13 11.90 12.44 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -11,6 +11,7 @@ Disk: 3.3G used of 38G.
 75545 python3 -m funsearch.league --name style8-h2 --budget 2.2 --members policies/opp-hunter3.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v20.policy,policies/tune-v19.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/
 79363 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
 81282 /usr/bin/python3 -m funsearch.run --run hyb5-g2 --budget 20.72 --max-programs 30 --seed-policy policies/pool/v20.policy --opponents builtin:starter@0.25,policies/pool/v20.policy@3.0,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy
+85991 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.52 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-fight-2s.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,poli
 ```
 ## tick.log (last 40 lines)
 ```
