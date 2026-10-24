@@ -185,7 +185,7 @@ class BudgetExceeded(Exception):
 
 
 class Proposer:
-    def __init__(self, budget_usd, opus_every=10, max_tokens=16000):
+    def __init__(self, budget_usd, opus_every=10, max_tokens=16000, helpers=""):
         # The cloud environment reserves ANTHROPIC_API_KEY for Claude Code's own login and does not
         # pass it to processes, so the key is stored as FUNSEARCH_ANTHROPIC_KEY (or FUNSEARCH_API_KEY) there. It may also
         # point ANTHROPIC_BASE_URL at Claude Code's endpoint, so the API URL is pinned.
@@ -199,6 +199,8 @@ class Proposer:
         self.opus_every = opus_every
         self.max_tokens = max_tokens
         self.lock = threading.Lock()
+        # shared helper library section (funsearch.helpers.prompt_section), appended to the cached system prompt
+        self.helpers = helpers
 
     def _model(self):
         with self.lock:
@@ -241,6 +243,8 @@ class Proposer:
             import random as _random
             user = explore_user(parents, variant, rng or _random.Random())
             system = EXPLORE_SYSTEM[variant["catalog"]]
+        if self.helpers:
+            system = system + "\n" + self.helpers
         kwargs = dict(
             model=model,
             max_tokens=self.max_tokens,

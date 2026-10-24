@@ -1,0 +1,913 @@
+[
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n        end_turn()\n    attack(t)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(t)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n        end_turn()\n    attack(P0)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(P0)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(P0)\n    end_turn()",
+  "uses": 84,
+  "introduced": 3,
+  "mean_delta": 0.0827,
+  "rank": 0.3676,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    # damage abilities: never cast resets at the enemy (they are self-cast after a basic attack)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    # ranged champions step away from an adjacent enemy, then still shoot this turn\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n    if distance( unit_position(t), position() ) <= 1 or (i_am_ranged() and distance( unit_position(t), position() ) <= 3):\n        attack(t)\n        # attack reset: self-cast right after a basic attack, then attack again\n        if ability_ready(0) and slot_is_reset(0):\n            cast_self(0)\n            attack(t)\n        elif ability_ready(1) and slot_is_reset(1):\n            cast_self(1)\n            attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n    if distance( unit_position(P0), position() ) <= 1 or (i_am_ranged() and distance( unit_position(P0), position() ) <= 3):\n        attack(P0)\n        if ability_ready(0) and slot_is_reset(0):\n            cast_self(0)\n            attack(P0)\n        elif ability_ready(1) and slot_is_reset(1):\n            cast_self(1)\n            attack(P0)\n    end_turn()",
+  "uses": 29,
+  "introduced": 1,
+  "mean_delta": 0.069,
+  "rank": 0.2346,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1):\n        cast_at_unit(1, t)\n    # ranged champions step away from an adjacent enemy instead of trading in place\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n        end_turn()\n    attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n        end_turn()\n    attack(P0)\n    end_turn()",
+  "uses": 212,
+  "introduced": 1,
+  "mean_delta": 0.0431,
+  "rank": 0.2313,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g2",
+   "pure:pure4-g3",
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    if ability_ready(0) and slot_is_dash(0):\n        dash_towards(0, t)\n    elif ability_ready(1) and slot_is_dash(1):\n        dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if ability_ready(0) and slot_is_dash(0):\n        dash_towards(0, P0)\n    elif ability_ready(1) and slot_is_dash(1):\n        dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 196,
+  "introduced": 1,
+  "mean_delta": 0.0431,
+  "rank": 0.228,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g2",
+   "pure:pure4-g3",
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go_tribute",
+  "params": [
+   "pool"
+  ],
+  "source": "def go_tribute(pool):\n    let altar = first( filter( pool, within(1, position()) ) )\n    if exists(altar):\n        tribute(altar)\n        end_turn()\n    move_towards( closest( ring(pool, 1) ) )\n    end_turn()",
+  "normalised": "def F(P0):\n    let L0 = first( filter( P0, within(1, position()) ) )\n    if exists(L0):\n        tribute(L0)\n        end_turn()\n    move_towards( closest( ring(P0, 1) ) )\n    end_turn()",
+  "uses": 2,
+  "introduced": 1,
+  "mean_delta": 0.1406,
+  "rank": 0.1544,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure-g1"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    # damage casts: never shields, dashes, heals or attack resets (resets are self-cast after attacks)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    # ranged champions kite an adjacent enemy only when hurt and losing the trade\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move() and health() < KITE_FRAC * max_health() and health() < unit_health_frac(t) * max_health():\n        move_away_from( unit_position(t) )\n        end_turn()\n    attack(t)\n    # attack reset: self-cast after the basic attack, then attack again this turn\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(t)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move() and health() < KITE_FRAC * max_health() and health() < unit_health_frac(P0) * max_health():\n        move_away_from( unit_position(P0) )\n        end_turn()\n    attack(P0)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(P0)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(P0)\n    end_turn()",
+  "uses": 10,
+  "introduced": 1,
+  "mean_delta": 0.0504,
+  "rank": 0.1209,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC",
+    "KITE_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5",
+    "KITE_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "opener",
+  "params": [
+   "s",
+   "f"
+  ],
+  "source": "def opener(s, f):\n    if ability_ready(s) and (slot_stun(s) > 0 or slot_is_damage(s)) and not slot_is_reset(s) and distance( position(), unit_position(f) ) <= slot_range(s) + slot_radius(s):\n        if slot_is_dash(s):\n            dash_towards( s, unit_position(f) )\n        else:\n            cast_at_unit( s, f )\n        end_turn()",
+  "normalised": "def F(P0, P1):\n    if ability_ready(P0) and (slot_stun(P0) > 0 or slot_is_damage(P0)) and not slot_is_reset(P0) and distance( position(), unit_position(P1) ) <= slot_range(P0) + slot_radius(P0):\n        if slot_is_dash(P0):\n            dash_towards( P0, unit_position(P1) )\n        else:\n            cast_at_unit( P0, P1 )\n        end_turn()",
+  "uses": 7,
+  "introduced": 1,
+  "mean_delta": 0.0504,
+  "rank": 0.1048,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    # damage abilities: never cast resets at the enemy (they are self-cast after a basic attack)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    if distance( unit_position(t), position() ) <= 1 or (i_am_ranged() and distance( unit_position(t), position() ) <= 3):\n        attack(t)\n        # attack reset: self-cast right after a basic attack, then attack again\n        if ability_ready(0) and slot_is_reset(0):\n            cast_self(0)\n            attack(t)\n        elif ability_ready(1) and slot_is_reset(1):\n            cast_self(1)\n            attack(t)\n    # ranged champions step away from an adjacent enemy only if they could not attack\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if distance( unit_position(P0), position() ) <= 1 or (i_am_ranged() and distance( unit_position(P0), position() ) <= 3):\n        attack(P0)\n        if ability_ready(0) and slot_is_reset(0):\n            cast_self(0)\n            attack(P0)\n        elif ability_ready(1) and slot_is_reset(1):\n            cast_self(1)\n            attack(P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n    end_turn()",
+  "uses": 9,
+  "introduced": 1,
+  "mean_delta": 0.0315,
+  "rank": 0.0725,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "can_open",
+  "params": [
+   "s",
+   "d"
+  ],
+  "source": "def can_open(s, d):\n    return ability_ready(s) and (slot_stun(s) > 0 or (slot_is_damage(s) and not slot_is_dash(s))) and d <= slot_range(s) + slot_radius(s)",
+  "normalised": "def F(P0, P1):\n    return ability_ready(P0) and (slot_stun(P0) > 0 or (slot_is_damage(P0) and not slot_is_dash(P0))) and P1 <= slot_range(P0) + slot_radius(P0)",
+  "uses": 58,
+  "introduced": 1,
+  "mean_delta": 0.0132,
+  "rank": 0.0538,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "open_with",
+  "params": [
+   "s",
+   "foe"
+  ],
+  "source": "def open_with(s, foe):\n    if slot_is_dash(s):\n        dash_towards(s, unit_position(foe))\n    else:\n        cast_at_unit(s, foe)\n    set_team_target(foe)\n    if distance( position(), unit_position(foe) ) <= 1 or (i_am_ranged() and distance( position(), unit_position(foe) ) <= 3):\n        attack(foe)\n    else:\n        move_towards( unit_position(foe) )\n    end_turn()",
+  "normalised": "def F(P0, P1):\n    if slot_is_dash(P0):\n        dash_towards(P0, unit_position(P1))\n    else:\n        cast_at_unit(P0, P1)\n    set_team_target(P1)\n    if distance( position(), unit_position(P1) ) <= 1 or (i_am_ranged() and distance( position(), unit_position(P1) ) <= 3):\n        attack(P1)\n    else:\n        move_towards( unit_position(P1) )\n    end_turn()",
+  "uses": 57,
+  "introduced": 1,
+  "mean_delta": 0.0132,
+  "rank": 0.0536,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    # ranged champions step away from an adjacent enemy, then still attack from range\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n    attack(t)\n    # attack reset: self-cast after the basic attack, then attack again\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(t)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n    attack(P0)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(P0)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(P0)\n    end_turn()",
+  "uses": 41,
+  "introduced": 1,
+  "mean_delta": 0.0138,
+  "rank": 0.0514,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    # damage casts at the enemy: skip shields, dashes, heals and resets (resets are self-cast below)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    # ranged champions step away from an adjacent enemy instead of trading in place\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n        end_turn()\n    attack(t)\n    # attack reset: self-cast right after a basic attack, then attack again\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        if can_attack():\n            attack(t)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        if can_attack():\n            attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n        end_turn()\n    attack(P0)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        if can_attack():\n            attack(P0)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        if can_attack():\n            attack(P0)\n    end_turn()",
+  "uses": 1,
+  "introduced": 1,
+  "mean_delta": 0.0624,
+  "rank": 0.0432,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    if fuel_remaining() > DASH_FUEL_MIN:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, t)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if fuel_remaining() > DASH_FUEL_MIN:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, P0)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 26,
+  "introduced": 3,
+  "mean_delta": 0.012,
+  "rank": 0.0397,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g3",
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "DASH_FUEL_MIN"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "DASH_FUEL_MIN = 40000"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "opener_ok",
+  "params": [
+   "t"
+  ],
+  "source": "def opener_ok(t):\n    return (ability_ready(0) and slot_stun(0) > 0 and distance( position(), unit_position(t) ) <= slot_range(0) + slot_radius(0)) or (ability_ready(1) and slot_stun(1) > 0 and distance( position(), unit_position(t) ) <= slot_range(1) + slot_radius(1))",
+  "normalised": "def F(P0):\n    return (ability_ready(0) and slot_stun(0) > 0 and distance( position(), unit_position(P0) ) <= slot_range(0) + slot_radius(0)) or (ability_ready(1) and slot_stun(1) > 0 and distance( position(), unit_position(P0) ) <= slot_range(1) + slot_radius(1))",
+  "uses": 7,
+  "introduced": 1,
+  "mean_delta": 0.0187,
+  "rank": 0.0389,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "open_fight",
+  "params": [
+   "t"
+  ],
+  "source": "def open_fight(t):\n    if ability_ready(0) and slot_stun(0) > 0 and distance( position(), unit_position(t) ) <= slot_range(0) + slot_radius(0):\n        if slot_is_dash(0):\n            dash_towards(0, unit_position(t))\n        else:\n            cast_at_unit(0, t)\n    elif ability_ready(1) and slot_stun(1) > 0 and distance( position(), unit_position(t) ) <= slot_range(1) + slot_radius(1):\n        if slot_is_dash(1):\n            dash_towards(1, unit_position(t))\n        else:\n            cast_at_unit(1, t)",
+  "normalised": "def F(P0):\n    if ability_ready(0) and slot_stun(0) > 0 and distance( position(), unit_position(P0) ) <= slot_range(0) + slot_radius(0):\n        if slot_is_dash(0):\n            dash_towards(0, unit_position(P0))\n        else:\n            cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_stun(1) > 0 and distance( position(), unit_position(P0) ) <= slot_range(1) + slot_radius(1):\n        if slot_is_dash(1):\n            dash_towards(1, unit_position(P0))\n        else:\n            cast_at_unit(1, P0)",
+  "uses": 7,
+  "introduced": 1,
+  "mean_delta": 0.0187,
+  "rank": 0.0389,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "opener",
+  "params": [
+   "s",
+   "f"
+  ],
+  "source": "def opener(s, f):\n    if ability_ready(s) and slot_stun(s) > 0 and distance( position(), unit_position(f) ) <= slot_range(s) + slot_radius(s):\n        if slot_is_dash(s):\n            dash_towards( s, unit_position(f) )\n        else:\n            cast_at_unit( s, f )\n        end_turn()",
+  "normalised": "def F(P0, P1):\n    if ability_ready(P0) and slot_stun(P0) > 0 and distance( position(), unit_position(P1) ) <= slot_range(P0) + slot_radius(P0):\n        if slot_is_dash(P0):\n            dash_towards( P0, unit_position(P1) )\n        else:\n            cast_at_unit( P0, P1 )\n        end_turn()",
+  "uses": 5,
+  "introduced": 1,
+  "mean_delta": 0.0169,
+  "rank": 0.0302,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "affordable",
+  "params": [
+   "t",
+   "n"
+  ],
+  "source": "def affordable(t, n):\n    # n = allies_within(4) for this turn, passed in so it is queried only once\n    return group_threat(t) * group_hp(t) <= health() * CLEAR_POWER * (1 + n)",
+  "normalised": "def F(P0, P1):\n    return group_threat(P0) * group_hp(P0) <= health() * CLEAR_POWER * (1 + P1)",
+  "uses": 2,
+  "introduced": 1,
+  "mean_delta": 0.0249,
+  "rank": 0.0273,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g2"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "CLEAR_POWER"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "CLEAR_POWER = 60"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    # dashes are expensive in fuel; only cast one when there is plenty left\n    if fuel_remaining() > DASH_MIN_FUEL and ability_ready(0) and slot_is_dash(0):\n        dash_towards(0, t)\n    elif fuel_remaining() > DASH_MIN_FUEL and ability_ready(1) and slot_is_dash(1):\n        dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if fuel_remaining() > DASH_MIN_FUEL and ability_ready(0) and slot_is_dash(0):\n        dash_towards(0, P0)\n    elif fuel_remaining() > DASH_MIN_FUEL and ability_ready(1) and slot_is_dash(1):\n        dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 15,
+  "introduced": 1,
+  "mean_delta": 0.0025,
+  "rank": 0.007,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g3"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "DASH_MIN_FUEL"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "DASH_MIN_FUEL = 40000"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    # dashes are expensive in fuel; skip them when fuel is short\n    if fuel_remaining() > FUEL_GUARD:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, t)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if fuel_remaining() > FUEL_GUARD:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, P0)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 4,
+  "introduced": 1,
+  "mean_delta": 0.0028,
+  "rank": 0.0046,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "FUEL_GUARD"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "FUEL_GUARD = 40000"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    if fuel_remaining() > DASH_FUEL:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, t)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if fuel_remaining() > DASH_FUEL:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, P0)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 79,
+  "introduced": 2,
+  "mean_delta": 0.0008,
+  "rank": 0.0037,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g3",
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "DASH_FUEL"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "DASH_FUEL = 45000"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    # dashes are expensive to evaluate: only when fuel allows\n    if fuel_remaining() > FUEL_MIN:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, t)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if fuel_remaining() > FUEL_MIN:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, P0)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 3,
+  "introduced": 1,
+  "mean_delta": 0.0021,
+  "rank": 0.003,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g3"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "FUEL_MIN"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "FUEL_MIN = 35000"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "stun_reach",
+  "params": [
+   "s",
+   "t"
+  ],
+  "source": "def stun_reach(s, t):\n    return ability_ready(s) and slot_stun(s) > 0 and distance( position(), unit_position(t) ) <= slot_range(s) + slot_radius(s)",
+  "normalised": "def F(P0, P1):\n    return ability_ready(P0) and slot_stun(P0) > 0 and distance( position(), unit_position(P1) ) <= slot_range(P0) + slot_radius(P0)",
+  "uses": 6,
+  "introduced": 1,
+  "mean_delta": 0.0009,
+  "rank": 0.0018,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "dmg_reach",
+  "params": [
+   "s",
+   "t"
+  ],
+  "source": "def dmg_reach(s, t):\n    return ability_ready(s) and slot_is_damage(s) and not slot_is_dash(s) and not slot_is_reset(s) and not slot_is_shield(s) and not slot_is_heal(s) and distance( position(), unit_position(t) ) <= slot_range(s)",
+  "normalised": "def F(P0, P1):\n    return ability_ready(P0) and slot_is_damage(P0) and not slot_is_dash(P0) and not slot_is_reset(P0) and not slot_is_shield(P0) and not slot_is_heal(P0) and distance( position(), unit_position(P1) ) <= slot_range(P0)",
+  "uses": 6,
+  "introduced": 1,
+  "mean_delta": 0.0009,
+  "rank": 0.0018,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "opener_ok",
+  "params": [
+   "t"
+  ],
+  "source": "def opener_ok(t):\n    return stun_reach(0, t) or stun_reach(1, t) or dmg_reach(0, t) or dmg_reach(1, t)",
+  "normalised": "def F(P0):\n    return stun_reach(0, P0) or stun_reach(1, P0) or dmg_reach(0, P0) or dmg_reach(1, P0)",
+  "uses": 6,
+  "introduced": 1,
+  "mean_delta": 0.0009,
+  "rank": 0.0018,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [
+    "dmg_reach",
+    "stun_reach"
+   ],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": false,
+  "bundle": [
+   "def dmg_reach(s, t):\n    return ability_ready(s) and slot_is_damage(s) and not slot_is_dash(s) and not slot_is_reset(s) and not slot_is_shield(s) and not slot_is_heal(s) and distance( position(), unit_position(t) ) <= slot_range(s)",
+   "def stun_reach(s, t):\n    return ability_ready(s) and slot_stun(s) > 0 and distance( position(), unit_position(t) ) <= slot_range(s) + slot_radius(s)"
+  ]
+ },
+ {
+  "name": "open_fight",
+  "params": [
+   "t"
+  ],
+  "source": "def open_fight(t):\n    if stun_reach(0, t):\n        if slot_is_dash(0):\n            dash_towards(0, unit_position(t))\n        else:\n            cast_at_unit(0, t)\n    elif stun_reach(1, t):\n        if slot_is_dash(1):\n            dash_towards(1, unit_position(t))\n        else:\n            cast_at_unit(1, t)\n    elif dmg_reach(0, t):\n        cast_at_unit(0, t)\n    elif dmg_reach(1, t):\n        cast_at_unit(1, t)",
+  "normalised": "def F(P0):\n    if stun_reach(0, P0):\n        if slot_is_dash(0):\n            dash_towards(0, unit_position(P0))\n        else:\n            cast_at_unit(0, P0)\n    elif stun_reach(1, P0):\n        if slot_is_dash(1):\n            dash_towards(1, unit_position(P0))\n        else:\n            cast_at_unit(1, P0)\n    elif dmg_reach(0, P0):\n        cast_at_unit(0, P0)\n    elif dmg_reach(1, P0):\n        cast_at_unit(1, P0)",
+  "uses": 6,
+  "introduced": 1,
+  "mean_delta": 0.0009,
+  "rank": 0.0018,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [
+    "dmg_reach",
+    "stun_reach"
+   ],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": false,
+  "bundle": [
+   "def dmg_reach(s, t):\n    return ability_ready(s) and slot_is_damage(s) and not slot_is_dash(s) and not slot_is_reset(s) and not slot_is_shield(s) and not slot_is_heal(s) and distance( position(), unit_position(t) ) <= slot_range(s)",
+   "def stun_reach(s, t):\n    return ability_ready(s) and slot_stun(s) > 0 and distance( position(), unit_position(t) ) <= slot_range(s) + slot_radius(s)"
+  ]
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    if fuel_remaining() > DASH_FUEL and ability_ready(0) and slot_is_dash(0):\n        dash_towards(0, t)\n    elif fuel_remaining() > DASH_FUEL and ability_ready(1) and slot_is_dash(1):\n        dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if fuel_remaining() > DASH_FUEL and ability_ready(0) and slot_is_dash(0):\n        dash_towards(0, P0)\n    elif fuel_remaining() > DASH_FUEL and ability_ready(1) and slot_is_dash(1):\n        dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 4,
+  "introduced": 1,
+  "mean_delta": 0.001,
+  "rank": 0.0016,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "DASH_FUEL"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "DASH_FUEL = 30000"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "go",
+  "params": [
+   "t"
+  ],
+  "source": "def go(t):\n    if fuel_remaining() > FUEL_LOW:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, t)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, t)\n    move_towards(t)",
+  "normalised": "def F(P0):\n    if fuel_remaining() > FUEL_LOW:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, P0)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, P0)\n    move_towards(P0)",
+  "uses": 3,
+  "introduced": 1,
+  "mean_delta": 0.0003,
+  "rank": 0.0004,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "FUEL_LOW"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "FUEL_LOW = 30000"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight_cast",
+  "params": [
+   "slot",
+   "target"
+  ],
+  "source": "def fight_cast(slot, target):\n    if ability_ready(slot) and not slot_is_dash(slot):\n        if slot_is_shield(slot):\n            if health() < 0.7 * max_health():\n                cast_self(slot)\n        elif not slot_is_heal(slot):\n            cast_at_unit(slot, target)",
+  "normalised": "def F(P0, P1):\n    if ability_ready(P0) and not slot_is_dash(P0):\n        if slot_is_shield(P0):\n            if health() < 0.7 * max_health():\n                cast_self(P0)\n        elif not slot_is_heal(P0):\n            cast_at_unit(P0, P1)",
+  "uses": 13,
+  "introduced": 1,
+  "mean_delta": 0.0,
+  "rank": 0.0,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g1"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [],
+   "unknown": [],
+   "const_lines": []
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities (not resets: those self-cast)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    # ranged champions step away from an adjacent enemy instead of trading in place\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n        end_turn()\n    attack(t)\n    # attack reset: self-cast right after the basic attack, then attack again\n    if can_attack():\n        if ability_ready(0) and slot_is_reset(0):\n            cast_self(0)\n            attack(t)\n        elif ability_ready(1) and slot_is_reset(1):\n            cast_self(1)\n            attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n        end_turn()\n    attack(P0)\n    if can_attack():\n        if ability_ready(0) and slot_is_reset(0):\n            cast_self(0)\n            attack(P0)\n        elif ability_ready(1) and slot_is_reset(1):\n            cast_self(1)\n            attack(P0)\n    end_turn()",
+  "uses": 2,
+  "introduced": 2,
+  "mean_delta": 0.0,
+  "rank": 0.0,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ }
+]

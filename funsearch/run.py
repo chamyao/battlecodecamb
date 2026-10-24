@@ -84,6 +84,9 @@ def main():
     ap.add_argument("--tune-slack", type=float, default=0.15,
                     help="early stop: no climb for a child that screens below its best parent minus this")
     ap.add_argument("--tune-margin", type=float, default=0.03, help="a mutant must beat the incumbent by this much")
+    ap.add_argument("--helpers", default="", help="helpers.json from funsearch.helpers: its top self-contained "
+                                                 "helpers go into the prompt, and children using one are tagged")
+    ap.add_argument("--helpers-budget", type=int, default=2500, help="characters of helper source in the prompt")
     ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu (default: all axes)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
@@ -197,10 +200,16 @@ def main():
             confirmed.setdefault(r.per_opponent["screen_fp"], db.all[-1])
             print(f"injected {path} as #{pid} (island {k % args.islands}): score {r.score:.3f}", flush=True)
 
+    helper_text, helper_keys = "", {}
+    if args.helpers:
+        from . import helpers as _helpers
+        _lib = json.loads(Path(args.helpers).read_text())
+        helper_text = _helpers.prompt_section(_lib, args.helpers_budget)
+        helper_keys = _helpers.lib_keys(_lib)
     proposer = None
     if args.proposer == "claude":
         from .llm import BudgetExceeded, Proposer
-        proposer = Proposer(args.budget, opus_every=args.opus_every)
+        proposer = Proposer(args.budget, opus_every=args.opus_every, helpers=helper_text)
     if args.explore:
         from .llm import sample_variant
     change_weights = tuple(float(x) for x in args.change_weights.split(","))
@@ -309,6 +318,11 @@ def main():
         r.per_opponent["cost"] = cost
         if tuned_info:
             r.per_opponent["tuned"] = tuned_info
+        if helper_keys:
+            from .helpers import tag
+            used = tag(text, helper_keys)
+            if used:
+                r.per_opponent["lib_helpers"] = used
         if variant:
             r.per_opponent["variant"] = variant
             if r.ok:
