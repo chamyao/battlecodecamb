@@ -43,6 +43,7 @@ def log_spend(run, programs, cost):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
+    ap.add_argument("--out", default="", help="results directory (default runs/<run>)")
     ap.add_argument("--arm", choices=["genome", "policy"], required=True)
     ap.add_argument("--seed", required=True, help="seed program (.genome or .policy)")
     ap.add_argument("--opponents", required=True, help="comma list: builtin:x, .policy, .pol or .genome")
@@ -58,12 +59,14 @@ def main(argv=None):
     ap.add_argument("--beat-margin", type=float, default=0.03, help="confirmed gain that counts as beating")
     ap.add_argument("--tune-rate", type=float, default=0.15, help="share of constant-tuning children")
     ap.add_argument("--cross-rate", type=float, default=0.15, help="genome arm: share of crossover children")
-    ap.add_argument("--two-edge-prob", type=float, default=0.25)
+    ap.add_argument("--two-edge-prob", type=float, default=0.25,
+                    help="starting share of two-edge mutations; then shifted toward the size that gives confirmed "
+                         "gains (Laplace-smoothed gain rate per edge count, clipped to 0.1-0.6)")
     ap.add_argument("--islands", type=int, default=4)
     ap.add_argument("--no-llm", action="store_true", help="tuning and ID crossover only (testing)")
     args = ap.parse_args(argv)
 
-    out = ROOT / "runs" / args.run
+    out = Path(args.out) if args.out else ROOT / "runs" / args.run
     out.mkdir(parents=True, exist_ok=True)
     db = Database(out / "programs.jsonl", islands=args.islands)
     db.load()
@@ -94,6 +97,18 @@ def main(argv=None):
         """Screen/confirm results of a stored program (recomputed from the cache, deterministic)."""
         return scorer.confirm(p.text, kind) if confirm else scorer.screen(p.text, kind)
 
+    def two_edge_prob():
+        """Shift edit size toward what gives confirmed gains (docs/GENOME.md, Mutation)."""
+        k = 8  # prior strength, in children, around --two-edge-prob
+        rate = {}
+        for e in (1, 2):
+            ps = [p for p in db.all if p.metrics.get("log", {}).get("n_edges") == e]
+            gains = sum(1 for p in ps if p.metrics.get("beats_parent"))
+            rate[e] = (gains + 0.05 * k) / (len(ps) + k)
+        prior = args.two_edge_prob / (1 - args.two_edge_prob)
+        odds = prior * rate[2] / rate[1]
+        return min(0.6, max(0.1, odds / (1 + odds)))
+
     def propose(parents, n):
         with rng_lock:
             r = random.Random(rng.random())
@@ -120,7 +135,7 @@ def main(argv=None):
                     return operators.llm_cross(a.text, a.score, b.text, b.score, claude, prefix), [a, b]
             if args.no_llm:
                 return operators.tune(best.text, r), [best]
-            return operators.mutate(best.text, claude, r, prefix, brief(pscore(best)), args.two_edge_prob), [best]
+            return operators.mutate(best.text, claude, r, prefix, brief(pscore(best)), two_edge_prob()), [best]
         # policy arm: the existing FunSearch proposer prompt
         from funsearch.llm import SYSTEM
         shown = "\n\n".join(f"## Version {i} (score {p.score:.3f})\n```policy\n{p.text.strip()}\n```"
@@ -201,7 +216,7 @@ def main(argv=None):
         (out / f"best.{kind}").write_text(best.text)
         new = db.all[started:]
         cost = (claude.spent - spent0) if claude else 0.0
-        if cost > 0:
+        if cost > 0 and not args.out:
             log_spend(args.run, len(new), cost)
         n_err = sum(1 for p in new if p.error)
         print(f"done: {len(new)} programs ({n_err} invalid), spent ${cost:.2f}; best #{best.id} {best.score:.3f}")
