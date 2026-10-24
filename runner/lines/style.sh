@@ -17,16 +17,23 @@ if [ ! -f "$D/.setup-$REV" ]; then
   touch "$D/.setup-$REV"
   log "style8 setup ok at $REV: gate 3, $(tail -n 1 /root/bc/style-pytest.txt); budgets: $(tr '\n' ' ' < runs/style_budgets)"
 fi
-# 07:30 UTC (style line): restart ONLY island h on b59e19e (adds policies/tune-v18.policy to h's FIXED; script and
-# policy only, no rebuild). b/a/c keep running on their loaded code. One-shot; the loop below relaunches h.
-if [ ! -f runs/ec2-h-v18 ] && [ -f "$D/.setup-$REV" ]; then
-  git fetch -q origin funsearch/style && git merge-base --is-ancestor HEAD b59e19e && git checkout -q -f b59e19e &&
-    grep -q tune-v18 runs/style_launch.sh || { log "h-v18: checkout b59e19e failed"; return 1; }
+# Job S3 (jobs/style 618411f, 07:31 UTC): pause islands a and c (STOP + SIGTERM; budgets kept for later), restart
+# island h on funsearch/style 3d34e37 (v18 in h's fixed, --round 40, extra directions; script/policy/directive only,
+# no rebuild) with H_WORKERS=2 H_EVAL_THREADS=2. Island b keeps running untouched. One-shot; the loop relaunches h.
+export H_WORKERS=2 H_EVAL_THREADS=2
+if [ ! -f runs/ec2-s3 ] && [ -f "$D/.setup-$REV" ]; then
+  git fetch -q origin funsearch/style && git merge-base --is-ancestor HEAD 3d34e37 && git checkout -q -f 3d34e37 &&
+    grep -q tune-v18 runs/style_launch.sh || { log "S3: checkout 3d34e37 failed"; return 1; }
+  for x in a c; do
+    for g in runs/style8-$x-g*/; do [ -d "$g" ] && touch "${g}STOP"; done
+    for pid in $(pgrep -a -x python3 | grep -E "league --name style8-$x |funsearch.run --run style8-$x-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "S3: paused style8-$x (SIGTERM pid $pid)"; done
+  done
   for pid in $(pgrep -a -x python3 | grep -E "league --name style8-h |funsearch.run --run style8-h-" | cut -d' ' -f1); do
-    kill -TERM "$pid" && log "h-v18: SIGTERM style8-h pid $pid"; done
+    kill -TERM "$pid" && log "S3: SIGTERM style8-h pid $pid"; done
   sleep 15
-  wc -l < runs/style8-h.log > runs/ec2-h-v18-mark; touch runs/ec2-h-v18
-  log "h-v18: at b59e19e; style8-h stopped, relaunching below"
+  wc -l < runs/style8-h.log > runs/ec2-s3-mark; touch runs/ec2-s3
+  log "S3: at 3d34e37; a and c paused (STOP files), h stopped and relaunching below, b untouched"
 fi
 for x in h b a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
@@ -41,9 +48,9 @@ for x in h b a c; do
   touch runs/style8-$x.ec2-launched
   log "launched style8-$x (budget \$$b)"
 done
-if [ -f runs/ec2-h-v18 ] && [ ! -f runs/ec2-h-v18-checked ]; then
-  first=$(tail -n +"$(( $(cat runs/ec2-h-v18-mark) + 1 ))" runs/style8-h.log | grep -m1 'style8-h-g')
-  [ -n "$first" ] && { touch runs/ec2-h-v18-checked; log "h-v18 check: $(echo "$first" | grep -q tune-v18 && echo 'tune-v18 in league' || echo 'tune-v18 MISSING'); $(echo "$first" | grep -oE '\$[0-9.]+ left')"; }
+if [ -f runs/ec2-s3 ] && [ ! -f runs/ec2-s3-checked ]; then
+  first=$(tail -n +"$(( $(cat runs/ec2-s3-mark) + 1 ))" runs/style8-h.log | grep -m1 'style8-h-g')
+  [ -n "$first" ] && { touch runs/ec2-s3-checked; log "S3 h check: $(echo "$first" | grep -q tune-v18 && echo 'tune-v18 in league' || echo 'tune-v18 MISSING'); $(echo "$first" | grep -oE '\$[0-9.]+ left')"; }
 fi
 # snapshot: complete JSON lines only (like runs/style_push_state.sh), never scripts or budgets
 rm -rf /root/bc/style-snap && mkdir -p /root/bc/style-snap/runs
