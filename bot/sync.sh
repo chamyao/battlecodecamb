@@ -19,7 +19,7 @@ cp "$repo/bot/bitboard_host.h" "$src/cbs/bitboard.h"
 # game.cpp: bot_api.cpp and coro_stub.cpp replace them; no bitboard.cpp/map.cpp: the bot's
 # Bitboard is bot/bitboard_host.h).
 for f in constants_gen fuel coverage; do cp "$repo/sim/src/$f.cpp" "$src/vendor_sim_$f.cpp"; done
-cp "$repo/interp/src/policy.cpp" "$src/vendor_interp_policy.cpp"
+{ echo "#define INTERP_RELEASE"; cat "$repo/interp/src/policy.cpp"; } > "$src/vendor_interp_policy.cpp"
 # Generated fuel tables included by those sources (oracle/tools/fuel_calibrate.py).
 cp "$repo/sim/src/fuel_bot_gen.inc" "$repo/interp/src/block_costs_gen.inc" "$src/"
 # Embedded policy, pre-encoded (no string parsing in the bot).
