@@ -136,6 +136,13 @@ Arena house bot metab-v3 (tune-3 scored 33 on 01hooks both sides and 0 on 01star
   - T180 is similar. T60/T120 cost about 5 points.
   - `r800+T240` confirmed and passes the full map-fix bar (no map lost on both sides): that's tune-6.
 
+opp-metab on hooks (funsearch/metab_hooks.py, 40 games as A vs tune-5 on 01hooks + 20 on starvation vs tune-3):
+- Current stand-in: 0% on hooks, 110 gems vs 1016, 14 deaths, 20 captures; starvation vs tune-3 45%.
+- Cohesion (walk to the nearest ally when none within 3 / 6), earlier recall (0.55), wider defend zone (8, chase 7)
+  and their combos: all 0% on hooks and worse gems; cohesion also wrecks starvation (0-10%). Radius 9 is a no-op.
+- So the policy language's farming bot can't reproduce metab-v3's hooks win: tune-5 farms 1000+ gems there whatever
+  the stand-in does. Hooks fixes need the arena (or a stand-in with real combat micro). **Lead 4 is closed.**
+
 ## Open leads / next steps (in order)
 
 1. Agree the base with the coordinator (tune-5 vs tune-3 live).

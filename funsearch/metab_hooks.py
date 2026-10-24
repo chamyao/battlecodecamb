@@ -14,6 +14,9 @@ INTRUDER = "let intruder = nearest( enemies_visible() )\n"
 EDITS = {
     # stay with the group: alone (no ally within 3) and not holding a capture -> walk to the nearest ally
     "C": [(INTRUDER, "let mate = nearest( allies_visible() )\nif exists(mate) and allies_within(3) == 0 and not contains( capturable_spawns(), position() ) and gems() < 10:\n    move_towards( unit_position(mate) )\n    end_turn()\n" + INTRUDER)],
+    # looser cohesion: regroup only when no ally is within 6 / 9
+    "6": [(INTRUDER, "let mate = nearest( allies_visible() )\nif exists(mate) and allies_within(6) == 0 and not contains( capturable_spawns(), position() ) and gems() < 10:\n    move_towards( unit_position(mate) )\n    end_turn()\n" + INTRUDER)],
+    "9": [(INTRUDER, "let mate = nearest( allies_visible() )\nif exists(mate) and allies_within(9) == 0 and not contains( capturable_spawns(), position() ) and gems() < 10:\n    move_towards( unit_position(mate) )\n    end_turn()\n" + INTRUDER)],
     # recall earlier (metab-v3 recalls at median 33-58% health)
     "R": [("health() < 0.45 * max_health():", "health() < 0.55 * max_health():")],
     # chase intruders anywhere within 8 of an altar, from up to 7 away
