@@ -11,3 +11,4 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-24 | genome/search s-smoke (strength loop test, starter.genome) | 24 | 0.01 | 0.10 |
 | 2026-10-24 | genome/search EC2 evo-policy-1 (arm a, dropped) | 124 | 1.58 | 1.68 |
 | 2026-10-24 | genome/search EC2 evo-starter-pilot | 125 | 0.31 | 1.99 |
+| 2026-10-24 | genome/search arena-smoke (arena loop test, starter.genome) | 40 | 0.04 | 2.03 |
