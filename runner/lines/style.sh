@@ -130,6 +130,37 @@ if [ -f runs/ec2-s6b-checked ] && [ ! -f runs/ec2-s7 ]; then
     fi
   fi
 fi
+# S8 (jobs/style 49213a5, 14:17 UTC): rebuild on funsearch/style ed49293 (new block unit_tributing + capture-metric
+# counters change the binary, so h2 and b restart together), then the resumable conversion gap run style8-gconv ($2).
+if [ -f runs/ec2-s7-checked ] && [ ! -f runs/ec2-s8 ]; then
+  for x in h2 b; do
+    for pid in $(pgrep -a -x python3 | grep -E "league --name style8-$x |funsearch.run --run style8-$x-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "S8: SIGTERM style8-$x pid $pid"; done
+  done
+  sleep 15
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor ed49293 HEAD && build "$D" && python3 -m pytest -q tests > /root/bc/style-pytest.txt 2>&1; then
+    touch runs/ec2-s8
+    log "S8: at $(git rev-parse --short HEAD) (has ed49293), rebuilt, $(tail -n 1 /root/bc/style-pytest.txt); h2 and b restarting, gap run style8-gconv starting"
+  else
+    echo "S8 merge/ed49293/build/tests failed; h2 and b stopped" > "$D/HALT"; log "HALT: S8 merge/build/tests failed"; return 1
+  fi
+fi
+if [ -f runs/ec2-s8 ] && [ ! -f runs/style8-gconv.ec2-done ] && ! pgrep -a -x python3 | grep -q 'funsearch.run --run style8-gconv '; then
+  if [ -f runs/style8-gconv.ec2-launched ] && tail -n 3 runs/style8-gconv.out 2>/dev/null | grep -qE '^done:|\$0\.00 left'; then
+    touch runs/style8-gconv.ec2-done; log "S8: style8-gconv finished: $(tail -n 1 runs/style8-gconv.out | cut -c1-160)"
+  else
+    [ -f runs/style8-gconv.ec2-launched ] && log "S8: style8-gconv not running: relaunching (resumes)"
+    GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+      WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gconv 2.0 conversion:max:0.05 policies/tune-v21.policy funsearch/styles/g_conversion.txt >> runs/style8-gconv.out 2>&1 < /dev/null &
+    touch runs/style8-gconv.ec2-launched; log "S8: launched style8-gconv (\$2.0 total)"
+  fi
+fi
+if [ -f runs/style8-gconv.ec2-launched ] && [ ! -f runs/style8-gconv.ec2-metric ]; then
+  gm=$(grep -m1 'gap metric' runs/style8-gconv.out runs/style8-gconv.log 2>/dev/null | cut -d: -f2- | cut -c1-200)
+  [ -n "$gm" ] && { touch runs/style8-gconv.ec2-metric; log "S8 gap line: $gm"; }
+fi
 for x in h h2 b a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
   running "league --name style8-$x " && continue
@@ -194,5 +225,15 @@ open(sys.argv[2], "w").writelines(out)' "$d$f" "/root/bc/style-snap/$d$f"
   done
 done
 cp runs/style8-*.json runs/style8-*.log runs/style8-*.out /root/bc/style-snap/runs/ 2>/dev/null
+if [ -f runs/style8-gconv/programs.jsonl ]; then   # S8 gap run (plain funsearch.run, no league)
+  mkdir -p /root/bc/style-snap/runs/style8-gconv
+  python3 -c '
+import sys, json
+out = []
+for line in open(sys.argv[1]):
+    try: json.loads(line); out.append(line)
+    except Exception: pass
+open(sys.argv[2], "w").writelines(out)' runs/style8-gconv/programs.jsonl /root/bc/style-snap/runs/style8-gconv/programs.jsonl
+fi
 push_state funsearch/style-state runs /root/bc/style-snap/runs
 push_state remote/style remote/style/runs /root/bc/style-snap/runs
