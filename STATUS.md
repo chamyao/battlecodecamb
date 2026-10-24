@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 14:02 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.52 10.35 11.16 on 16 threads.
+Updated 2026-10-24 14:07 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.01 10.88 11.16 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -9,14 +9,10 @@ Disk: 3.3G used of 38G.
 92630 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.29 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,polic
 93608 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 93637 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 1.45 --max-programs 39 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hu
-102351 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
+103837 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
 ```
 ## tick.log (last 40 lines)
 ```
-[12:43:24] hybrid: H6+H7: funsearch/runs a43aede (has a43aede, 48a1404), 2012 passed in 5.95s; v21 challenger queued; relaunching on v21
-[12:43:24] hybrid: hyb5 not running: relaunching (resume from runs/)
-[12:43:24] hybrid: launched hyb5 league
-[12:43:25] pure: pure: v21 opponent files from 0fcb030 (fixed from g6): policies/tune-v20-L1c.policy policies/v5d.policy policies/v4.policy policies/locker.policy policies/fs-2.policy policies/opp-hunter3.policy 
 [12:43:26] style: S7: waiting for h2's boundary verdict (verdict lines so far: 1)
 [12:48:33] hybrid: H7b: SIGTERM hyb5 pid 87162
 [12:48:58] hybrid: H7b: funsearch/runs c4341a3 (has c4341a3: lockfix + fuel recalibration), rebuilt, 2012 passed in 5.87s; relaunching hyb5 (same v21 flags)
@@ -53,4 +49,8 @@ Disk: 3.3G used of 38G.
 [13:56:48] hybrid: H8b: SIGTERM hyb5 pid 101560 (drop --tune-* flags)
 [13:57:03] hybrid: hyb5 not running: relaunching (resume from runs/)
 [13:57:03] hybrid: launched hyb5 league
+[14:07:16] hybrid: H9: SIGTERM hyb5 pid 102351
+[14:07:38] hybrid: H9: funsearch/runs 41e1191 (has c6eb17a), 2024 passed in 6.46s; relaunching hyb5 with --tune-opponents (5)
+[14:07:38] hybrid: hyb5 not running: relaunching (resume from runs/)
+[14:07:38] hybrid: launched hyb5 league
 ```
