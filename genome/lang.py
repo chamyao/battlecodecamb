@@ -213,8 +213,8 @@ def parse(source):
             if name in keeps or name in CONSTANTS or name in PRIMS:
                 raise GenomeError(f"line {st.lineno}: keep {name} redefined or shadows a builtin")
             t = _ann(st.annotation, f"keep {name}")
-            if t not in ("Num", "Bool", "Tile"):
-                raise GenomeError(f"line {st.lineno}: keep {name} must be Num, Bool or Tile")
+            if t not in ("Num", "Bool", "Tile", "Tiles", "Field"):
+                raise GenomeError(f"line {st.lineno}: keep {name} must be Num, Bool, Tile, Tiles or Field")
             keeps[name] = (t, st.value)
         elif isinstance(st, ast.FunctionDef):
             if len(st.decorator_list) != 1 or not isinstance(st.decorator_list[0], ast.Call) or \
@@ -645,8 +645,8 @@ def to_cpp(genome):
                 init = repr(float(ast.literal_eval(v)))
             elif t == "Bool" and isinstance(v, ast.Constant):
                 init = "true" if v.value else "false"
-            elif t == "Tile" and not (isinstance(v, ast.Constant) and v.value is None):
-                raise GenomeError(f"keep {n}: Tile keeps start invalid (= None)")
+            elif t in ("Tile", "Tiles", "Field") and not (isinstance(v, ast.Constant) and v.value is None):
+                raise GenomeError(f"keep {n}: {t} keeps start empty (= None)")
         lines.append(f"\t{CPP[t]} {n} = {init};")
     lines += ["};", "struct Genes : GenesBase {", "\tKeeps K;", "\tusing GenesBase::GenesBase;"]
     order = list(genome.genes)
