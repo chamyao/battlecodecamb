@@ -160,6 +160,30 @@ unchanged at 0.99 / 1.02). A test genome choosing fights by them takes the same 
 and the simulator (00lanes: 220 attacks, 117 casts; 00ambush; 01big-world); its whole-game fuel is
 0.89-0.91 of real (the cost of calling its large score gene, not inlined, is not modelled).
 
+## Raw SDK reads (Oct 24, SDK coverage audit)
+
+Added: `cooldown`, `ability_kind/cooldown/range/radius/targets/modifier/duration/moveless`, `item_count`,
+`unit_gold`, `buff_value`, `buff_turns`, `channel_left`, `group_cooldown`, `lock_hits`, `lock_enemy` (LANGUAGE.md).
+These are host reads with no judgement. The bot shim gained `champion_channel_time`, `camp_group_cooldown` and
+`camp_buffs`. Records are cached per unit per pass in Ctx. Champions get a slot per handle and camps share
+8 direct-mapped slots. Both caches live in Ctx, which sits on the bot's small stack. A heap cache was tried and
+dropped: its first use cost ~1-86k fuel in the bot, depending on its size.
+
+Prices beyond the Api's own charge (RW_* in genome_rt.h) were fitted on `examples/calib5.genome`. Each call ran
+in a probe gene, and per-probe steady self fuel minus an empty probe was compared on identical games against the
+interpreted v23 (1e8 fuel; 00ambush, 01big-world, 00lanes, 00packs). Real / sim, in bot fuel:
+- cooldown (champion): 55 / 56. On a camp: fetch 128 / 126, second read 69 / 65.
+- ability_* fetch 125 / 126, hit 46 / 47.
+- item_count fetch 227 / 227, hit 31 / 33.
+- unit_gold 36 / 36; channel_left 40 / 40; group_cooldown 72 / 72.
+- buffs on a champion: fetch 131 / 124, hit 55 / 57. On a camp: fetch 121 / 117.
+- lock_hits fetch 54 / 54, hit 25 / 25.
+All probes fall at 0.95-1.02.
+
+Whole game, the plain probe genome scores 0.90-0.94. The same genome with its probes removed scores the same
+(0.90 / 0.95). The gap is in its score gene, which calls `nearest(camp_spawns(), me().pos)` per move option, and
+not in the reads. starter, seed, v23, B318 and B792 stay identical (results and fuel, 80 games, 1x and 100x).
+
 ## Guest pathfinding: wfield, path_step, path_len, territory (Oct 24)
 
 Plain C++ in `genome_rt.h`, the same code in the bot (wasm) and the simulator; each call counts its

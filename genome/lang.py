@@ -123,6 +123,24 @@ PRIMS = {
     "shield": (("Unit",), "Num", "X.shield({0})"),
     "hits_to_kill": (("Unit", "Unit"), "Num", "X.hits_to_kill({0}, {1})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
+    # raw unit reads (any visible unit; 0 when out of vision)
+    "cooldown": (("Unit", "Num"), "Num", "X.cooldown({0}, {1})"),
+    "ability_kind": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 0)"),
+    "ability_cooldown": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 1)"),
+    "ability_range": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 2)"),
+    "ability_radius": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 3)"),
+    "ability_targets": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 4)"),
+    "ability_modifier": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 5)"),
+    "ability_duration": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 6)"),
+    "ability_moveless": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 7)"),
+    "item_count": (("Unit", "Num"), "Num", "X.item_count({0}, {1})"),
+    "unit_gold": (("Unit",), "Num", "X.unit_gold({0})"),
+    "buff_value": (("Unit", "Num"), "Num", "X.buff_value({0}, {1})"),
+    "buff_turns": (("Unit", "Num"), "Num", "X.buff_turns({0}, {1})"),
+    "channel_left": (("Unit",), "Num", "X.channel_left({0})"),
+    "group_cooldown": (("Num",), "Num", "X.group_cooldown({0})"),
+    "lock_hits": (("Tile",), "Num", "X.lock_hits({0})"),
+    "lock_enemy": (("Tile",), "Bool", "X.lock_enemy({0})"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
     "slot_kind": (("Num",), "Num", "X.slot_kind({0})"),
@@ -158,7 +176,10 @@ PRIMS = {
 }
 # Primitives whose simulator price is not yet calibrated against cambc (genome/FUEL.md): rejected unless
 # GENOME_UNCALIBRATED=1 (calibration probes), so the search cannot use them before they are priced.
-UNCALIBRATED = set()  # wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield, hits_to_kill: calibrated Oct 24 (genome/FUEL.md)
+UNCALIBRATED = set()
+# calibrated Oct 24 (genome/FUEL.md): wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield,
+# hits_to_kill; the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
+# group_cooldown, lock_hits, lock_enemy
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 

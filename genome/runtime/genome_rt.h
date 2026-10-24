@@ -1178,6 +1178,207 @@ public:
 	// fitted on cambc probes (FUEL.md): FD a champion's items and buffs read once per pass; the rest per call
 	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60, HK_BASE = 236, HK_HIT = 26;
 
+	// ---- raw unit reads (SDK coverage): the host's data as the SDK reports it, no judgement. Unit handles
+	// index per-pass caches; a unit out of vision reads as 0.
+	struct UnitRaw // the arrays are filled when their stamp is stale, so they need no initialisation
+	{
+		std::uint64_t items_pass = 0, buffs_pass = 0, camp_pass = 0;
+		std::uint32_t items[cbs::kNumItems];
+		cbs::BuffRecord buffs[8];
+		std::uint32_t nbuffs;
+		std::int32_t camp_cd[2];
+	};
+	UnitRaw raw_ch_[cbs::kMaxChampions];
+	UnitRaw raw_camp_[8]; // direct-mapped on the camp handle (no heap: a first use costs nothing extra)
+	std::uint32_t raw_camp_h_[8] = { ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u };
+	UnitRaw* raw_of(const Unit& u)
+	{
+		if (u.kind == 1 && u.h < cbs::kMaxChampions) return &raw_ch_[u.h];
+		if (u.kind != 2) return nullptr;
+		const int i = static_cast<int>(u.h & 7);
+		if (raw_camp_h_[i] != u.h) raw_camp_h_[i] = u.h, raw_camp_[i].items_pass = raw_camp_[i].buffs_pass = raw_camp_[i].camp_pass = 0;
+		return &raw_camp_[i];
+	}
+	// cooldown left on slot s (0 ready): a champion's ability, a camp's attack (0) / ability (1)
+	double cooldown(const Unit& u, double s)
+	{
+		const int i = static_cast<int>(s);
+		if (i < 0 || i > 1) return 0;
+		if (u.kind == 1)
+		{
+			std::int32_t cd = 0;
+			api.champion_cooldown(u.h, static_cast<std::uint32_t>(i), &cd);
+			extra(RW_CD);
+			return cd;
+		}
+		UnitRaw* r = raw_of(u);
+		if (!r) return 0;
+		if (r->camp_pass != pass_id)
+		{
+			r->camp_pass = pass_id;
+			cbs::CampRecord c{};
+			r->camp_cd[0] = r->camp_cd[1] = 0;
+			if (api.camp(u.h, &c) == Err::success) r->camp_cd[0] = c.cooldowns[0], r->camp_cd[1] = c.cooldowns[1];
+			extra(RW_CAMP_FETCH);
+		}
+		else extra(RW_CAMP_HIT);
+		return r->camp_cd[i];
+	}
+	// a champion's ability design on slot s (any champion; the same table as slot_*)
+	const cbs::AbilityProps& uprops(const Unit& u, double s)
+	{
+		static thread_local cbs::AbilityProps none{};
+		const int i = static_cast<int>(s);
+		if (u.kind != 1 || u.h >= 32 || i < 0 || i > 1) return none;
+		const int k = static_cast<int>(u.h) * 2 + i;
+		if (uprops_pass_[k] != pass_id)
+		{
+			uprops_[k] = {};
+			api.champion_ability_props(u.h, static_cast<std::uint32_t>(i), &uprops_[k]);
+			uprops_pass_[k] = pass_id;
+			extra(RW_AB_FETCH);
+		}
+		else extra(RW_AB_HIT);
+		return uprops_[k];
+	}
+	cbs::AbilityProps uprops_[64] = {};
+	std::uint64_t uprops_pass_[64] = {};
+	double ability(const Unit& u, double s, int which)
+	{
+		const cbs::AbilityProps& p = uprops(u, s);
+		switch (which)
+		{
+		case 0: return p.kind;
+		case 1: return p.cooldown;
+		case 2: return p.range;
+		case 3: return p.radius;
+		case 4: return p.targets;
+		case 5: return p.modifier;
+		case 6: return p.duration;
+		default: return p.attributes & 1u;
+		}
+	}
+	// copies of item i a visible champion owns
+	double item_count(const Unit& u, double i)
+	{
+		UnitRaw* r = u.kind == 1 ? raw_of(u) : nullptr;
+		if (!r || !item_ok(i)) return 0;
+		if (r->items_pass != pass_id)
+		{
+			r->items_pass = pass_id;
+			std::fill(std::begin(r->items), std::end(r->items), 0u);
+			api.champion_items(u.h, r->items);
+			extra(RW_IT_FETCH);
+		}
+		else extra(RW_IT_HIT);
+		return r->items[static_cast<int>(i)];
+	}
+	double unit_gold(const Unit& u)
+	{
+		if (u.kind != 1) return 0;
+		std::uint32_t g = 0;
+		api.champion_gold(u.h, &g);
+		extra(RW_GOLD);
+		return g;
+	}
+	// buffs of type t (0 shield, 1 stun, 2 enhanced attack) on a visible unit: their summed value (shields; the
+	// number of buffs for other types), their longest duration left
+	const UnitRaw* ubuffs(const Unit& u)
+	{
+		UnitRaw* r = raw_of(u);
+		if (!r) return nullptr;
+		if (r->buffs_pass != pass_id)
+		{
+			r->buffs_pass = pass_id;
+			r->nbuffs = 0;
+			if (u.kind == 1)
+			{
+				if (api.champion_buff_data(u.h, r->buffs, 8, &r->nbuffs) != Err::success) r->nbuffs = 0;
+			}
+			else
+			{
+				cbs::CampBuffRecord cb[8];
+				std::uint32_t n = 0;
+				if (api.camp_buffs(u.h, cb, 8, &n) == Err::success)
+					for (std::uint32_t i = 0; i < n && i < 8; ++i) r->buffs[r->nbuffs++] = { cb[i].type, cb[i].timer, cb[i].magnitude };
+			}
+			r->nbuffs = std::min<std::uint32_t>(r->nbuffs, 8);
+			extra(u.kind == 1 ? RW_BF_FETCH : RW_BF_CAMP_FETCH);
+		}
+		else extra(RW_BF_HIT);
+		return r;
+	}
+	double buff_value(const Unit& u, double t)
+	{
+		const UnitRaw* r = ubuffs(u);
+		double v = 0;
+		if (r)
+			for (std::uint32_t i = 0; i < r->nbuffs; ++i)
+				if (r->buffs[i].type == static_cast<std::uint32_t>(t)) v += t == 0 ? r->buffs[i].value : 1; // the SDK has a value for shields only
+		return v;
+	}
+	double buff_turns(const Unit& u, double t)
+	{
+		const UnitRaw* r = ubuffs(u);
+		double v = 0;
+		if (r)
+			for (std::uint32_t i = 0; i < r->nbuffs; ++i)
+				if (r->buffs[i].type == static_cast<std::uint32_t>(t)) v = std::max<double>(v, r->buffs[i].duration);
+		return v;
+	}
+	// turns left on a visible champion's channel (recall, gem submission, teleport); 0 if none
+	double channel_left(const Unit& u)
+	{
+		if (u.kind != 1) return 0;
+		std::int32_t t = 0;
+		if (api.champion_channel_time(u.h, &t) != Err::success) t = 0;
+		extra(RW_CH);
+		return t;
+	}
+	// turns until camp group g respawns (0 if it is not respawning)
+	double group_cooldown(double g)
+	{
+		if (!group_ok(g)) return 0;
+		std::int32_t t = 0;
+		if (api.camp_group_cooldown(static_cast<std::uint32_t>(g), &t) != Err::success) t = 0;
+		extra(RW_GCD);
+		return t;
+	}
+	// a visible altar lock on tile p: hits left to break it (0 none); whether it is the enemy's
+	const cbs::AltarLockRecord* lock_at(Tile p)
+	{
+		if (locks_pass_ != pass_id)
+		{
+			locks_pass_ = pass_id;
+			nlocks_ = 0;
+			api.altar_locks(locks_, 16, &nlocks_);
+			nlocks_ = std::min<std::uint32_t>(nlocks_, 16);
+			extra(RW_LK_FETCH);
+		}
+		else extra(RW_LK_HIT);
+		for (std::uint32_t i = 0; i < nlocks_; ++i)
+			if (locks_[i].x == p.x && locks_[i].y == p.y) return &locks_[i];
+		return nullptr;
+	}
+	cbs::AltarLockRecord locks_[16] = {};
+	std::uint32_t nlocks_ = 0;
+	std::uint64_t locks_pass_ = 0;
+	double lock_hits(Tile p)
+	{
+		const cbs::AltarLockRecord* l = lock_at(p);
+		return l ? l->hits_remaining : 0;
+	}
+	bool lock_enemy(Tile p)
+	{
+		const cbs::AltarLockRecord* l = lock_at(p);
+		return l && static_cast<int>(l->team) != api.team();
+	}
+	// fitted on cambc probes (calib5, FUEL.md), beyond the Api's price of the call: a call, a record's fetch
+	// (once per unit per pass), a cached read
+	static constexpr double RW_CD = 40, RW_GOLD = 21, RW_CH = 17, RW_GCD = 47, RW_CAMP_FETCH = 94, RW_CAMP_HIT = 63, RW_AB_FETCH = 73,
+							RW_AB_HIT = 45, RW_IT_FETCH = 206, RW_IT_HIT = 31, RW_BF_FETCH = 99, RW_BF_CAMP_FETCH = 90, RW_BF_HIT = 55,
+							RW_LK_FETCH = 38, RW_LK_HIT = 22;
+
 	// ---- abilities
 	const cbs::AbilityProps& props(int s)
 	{
