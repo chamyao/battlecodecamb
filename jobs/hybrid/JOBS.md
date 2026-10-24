@@ -231,8 +231,9 @@ v20 (tune-fight-2s = v19 + ward our own bush tile when no enemy is visible) is l
 v21 (tune-v20-L1c = v20 + one altar lock per team, shared byte 7 bits 0-1) is live. Do this at the SAME boundary as H6
 (the hold already set for the end of the current hyb5-g2 round), in one relaunch:
 
-1. `git pull origin funsearch/runs` to a43aede or later (ancestor check). It contains 48a1404 (H6: prompt keeps byte 7
-   bits 0-1) and policies/pool/v21.policy. No interp change; pytest.
+1. `git pull origin funsearch/runs` to c4341a3 or later (ancestor check). It contains 48a1404 (H6: prompt keeps byte 7
+   bits 0-1), policies/pool/v21.policy and deploy/v0 (>= d9d2897: the LOCKFIX, required to evaluate v21 or any lock policy,
+   plus recalibrated fuel costs). interp/ CHANGED: reconfigure + rebuild interp_eval, then pytest (2012).
 2. `grep -qx policies/pool/v21.policy runs/hyb5.challengers || echo policies/pool/v21.policy >> runs/hyb5.challengers`
 3. Relaunch with the current command line (H5's) changed in two flags only:
    `--island-seeds policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/lean-g65.policy,policies/pool/v21.policy`
