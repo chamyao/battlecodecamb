@@ -1,0 +1,199 @@
+# fs-p2 v5: v1 with a distance cap on rich camp targets.
+# Change: a rich group is only chosen if it is within RICH_MAX_DIST tiles. A far rich group
+# costs a long walk through danger while carrying nothing, so nearer gem/elk groups are used
+# instead. Everything else is unchanged from v1.
+
+# ---- tunable constants ----
+# damage multiplier on strength() when judging whether a rich camp group is clearable
+CLEAR_SCALE = 3
+# weight of an ally's claim on the same group (they are coming but may not be there yet)
+CLAIM_WEIGHT = 0.5
+# health fraction needed before heading for a rich camp group
+RICH_HEALTH_FRAC = 0.7
+# farthest (Chebyshev tiles) a rich camp group may be before nearer gem/elk groups are used
+RICH_MAX_DIST = 25
+# health fraction below which shields / heals are used in a fight
+HURT_FRAC = 0.5
+# health fraction below which an unladen champion retreats to spawn
+RETREAT_FRAC = 0.3
+# health fraction below which a gem carrier retreats to spawn
+GEM_RETREAT_FRAC = 0.5
+# gems a carrier collects before walking to an altar to tribute
+BAG_MIN = 20
+# round after which carriers tribute whatever they hold
+LATE_ROUND = 1500
+# fuel left below which optional expensive steps (dashes, rich-camp scoring) are skipped
+FUEL_SAFE = 40000
+
+# ---- macros ----
+def fight(t):
+    # self-shield / self-heal when hurt
+    if health() < HURT_FRAC * max_health():
+        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):
+            cast_self(0)
+        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):
+            cast_self(1)
+    # stun first so the target loses its turn, then damage abilities
+    if ability_ready(0) and slot_is_stun(0):
+        cast_at_unit(0, t)
+    elif ability_ready(1) and slot_is_stun(1):
+        cast_at_unit(1, t)
+    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0):
+        cast_at_unit(0, t)
+    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1):
+        cast_at_unit(1, t)
+    # ranged champions step away from an adjacent enemy instead of trading in place
+    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():
+        move_away_from( unit_position(t) )
+        end_turn()
+    attack(t)
+    end_turn()
+
+def go(t):
+    # dashes are expensive to evaluate: only when fuel allows
+    if fuel_remaining() > FUEL_SAFE:
+        if ability_ready(0) and slot_is_dash(0):
+            dash_towards(0, t)
+        elif ability_ready(1) and slot_is_dash(1):
+            dash_towards(1, t)
+    move_towards(t)
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    elif available(pool, champ_tavi()):
+        pick(champ_tavi())
+    elif available(pool, champ_marcella()):
+        pick(champ_marcella())
+    elif available(pool, champ_stellar()):
+        pick(champ_stellar())
+    elif available(pool, champ_ren()):
+        pick(champ_ren())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+keep home = spawn_region(ally())
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( home, position() )
+if at_spawn:
+    let shards_bought = floor( gold() / 30 )
+    let strength_shards = floor( shards_bought / 2 )
+    # early game: Treasure shards for more gold; later: Jungle shards for camp durability
+    if round_number() < 400:
+        buy( shard_of(family_treasure(), stat_health()), shards_bought - strength_shards )
+    else:
+        buy( shard_of(family_jungle(), stat_health()), shards_bought - strength_shards )
+    buy( shard(stat_strength()), strength_shards )
+    # heal on spawn before heading back out, unless an enemy is already in reach
+    if health() < max_health() and not exists(first(filter(enemies_visible(), in_attack_range()))):
+        end_turn()
+
+# retreat when hurt (RETREAT_FRAC unladen, GEM_RETREAT_FRAC when carrying gems).
+# While something can hit us, walk toward spawn (recall would be cancelled); recall once clear.
+if not at_spawn and (health() < RETREAT_FRAC * max_health() or (gems() > 0 and health() < GEM_RETREAT_FRAC * max_health())):
+    if in_danger():
+        move_towards( closest(home) )
+        let chaser = first( filter( enemies_visible(), in_attack_range() ) )
+        if exists(chaser):
+            attack(chaser)
+        end_turn()
+    recall()
+    end_turn()
+
+# fight: focus the team target if in reach, else the weakest enemy champion in attack range
+let inrange = filter( enemies_visible(), in_attack_range() )
+let enemy = weakest( inrange )
+if exists(enemy):
+    # outnumbered and hurt: disengage toward spawn rather than trade into a losing fight
+    if health() < 0.5 * max_health() and enemies_within(4) > 1 and local_strength(4) < 0.6:
+        move_towards( closest(home) )
+        end_turn()
+    let tt = team_target()
+    if exists(tt) and unit_health_frac(tt) > 0 and (distance( unit_position(tt), position() ) <= 1 or (i_am_ranged() and distance( unit_position(tt), position() ) <= 3)):
+        fight(tt)
+    else:
+        set_team_target(enemy)
+        fight(enemy)
+
+# tribute only with a worthwhile bag (or when hurt or late); otherwise keep farming
+if gems() > 0 and (gems() >= BAG_MIN or health() < GEM_RETREAT_FRAC * max_health() or round_number() > LATE_ROUND):
+    let all_altars = altars()
+    let open_altars = minus( all_altars, locked_altars() )
+    let altar = first( filter( open_altars, within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    let dest = closest( ring(open_altars, 1) )
+    if exists(dest):
+        move_towards( dest )
+        end_turn()
+    # every known altar is locked: go to one anyway; tributing there attacks the lock
+    let locked_altar = first( filter( all_altars, within(1, position()) ) )
+    if exists(locked_altar):
+        tribute(locked_altar)
+        end_turn()
+    move_towards( closest( ring(all_altars, 1) ) )
+    end_turn()
+
+# one camps_visible() query per turn, reused for both attack checks
+let camps = camps_visible()
+
+let camp = first( filter( camps, in_attack_range() ) )
+if exists(camp):
+    if ability_ready(0) and not slot_is_dash(0):
+        cast_at_unit(0, camp)
+    if ability_ready(1) and not slot_is_dash(1):
+        cast_at_unit(1, camp)
+    attack(camp)
+    end_turn()
+
+let goals = minus( camp_spawns, respawning_visible_spawns() )
+
+# already standing on a cleared camp spawn: hold so the capture timer keeps running,
+# but only for up to 25 idle turns; after that, move on to the next goal
+if contains(goals, position()) and turns_idle() < 25:
+    end_turn()
+
+# rich camp groups (static), and gem/elk groups as the fallback
+keep rich_all = rich_spawns(10)
+keep gem_goals_all = union( gem_cluster_tiles(), elk_tiles() )
+
+# rich target only if healthy, reasonably close, and if clearing it looks affordable
+# (threat * hp over our damage per turn across the group, scaled by health).
+# Allies that claimed the same group count as (partial) helpers.
+# Skipped on low fuel to avoid running out mid-turn.
+if fuel_remaining() > FUEL_SAFE:
+    let rich_target = closest( minus( rich_all, respawning_visible_spawns() ) )
+    if exists(rich_target) and distance( rich_target, position() ) <= RICH_MAX_DIST and health() >= RICH_HEALTH_FRAC * max_health() and group_threat(rich_target) * group_hp(rich_target) <= health() * CLEAR_SCALE * strength() * (1 + allies_within(4) + CLAIM_WEIGHT * claim_count(rich_target)):
+        claim( rich_target )
+        go( rich_target )
+    else:
+        let gem_goals = minus( gem_goals_all, respawning_visible_spawns() )
+        let gem_target = closest( gem_goals )
+        if exists(gem_target):
+            claim( gem_target )
+            go( gem_target )
+        else:
+            unclaim()
+            move_towards( closest(goals) )
+else:
+    let gem_goals_low = minus( gem_goals_all, respawning_visible_spawns() )
+    let gem_target_low = closest( gem_goals_low )
+    if exists(gem_target_low):
+        move_towards( gem_target_low )
+    else:
+        move_towards( closest(goals) )
+
+let camp2 = first( filter( camps, in_attack_range() ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
