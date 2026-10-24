@@ -11,3 +11,15 @@
 Maps where the first turn hits the cap: 00ambush, 00corners, 00expanse, 00lanes, 00road-of-riches,
 01big-world, 01boss-battle, 01fracture, 01islands, 01starvation, 01yellow-brick-road (v23's own
 first turn is 154-188k on these).
+| Oct 24 20:35 | genome/v0 2356e26 | Arena B B318 (20:00 snapshot) | 49 | 110 | 583 / 0 |
+| Oct 24 20:40 | genome/v0 2356e26 | Arena B B279 (20:00 snapshot) | 50 | 110 | 652 / 0 |
+| Oct 24 20:45 | 2356e26 vs 0d931cf build | B318 vs commit-mono (not v23) | 45 | — | — |
+
+## Sim gate (a), `python3 -m genome.arenab.sim_gate` at genome/v0 2356e26 (seeds 94001-94013)
+
+| genome | vs style-gconv1 (800) | vs seed | anchors (change vs the original on the same games) | vs commit-mono (400, seed 95001) |
+|---|---|---|---|---|
+| commit-mono | 0.566 | 0.562 | v7 +1.8, tune-v20-L1 +9.3, rall2 +5.5, metadraft +5.5 | — |
+| B279 | 0.649 | 0.525 | +2.5, +10.3, +7.7, +6.8 | 0.562 |
+| B318 | 0.647 | 0.637 | +0.8, +10.3, +8.2, +4.8 | 0.613 |
+| B263 | 0.641 | 0.588 | +2.5, +12.0, +8.5, +6.5 | 0.512 |
