@@ -86,6 +86,9 @@ class Database:
 
     def _insert(self, p, log=True):
         self.all.append(p)
+        if p.model == "seed":
+            # a seed row (re)starts its island: later --island-seeds changes replace the population
+            self.islands[p.island] = []
         if p.error is None:
             self.islands[p.island].append(p)
             if p.score > float("-inf"):

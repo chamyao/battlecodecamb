@@ -132,6 +132,27 @@ def main():
             db.seed(seed_text, r.score, r.per_opponent, islands=islands)
             confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
             print(f"seed {Path(path).stem} score {r.score:.3f} (islands {list(islands)})")
+    elif args.island_seeds:
+        # resume with a changed island-seed list: re-seed only the islands whose latest seed differs
+        seeds = [x for x in args.island_seeds.split(",") if x][: args.islands]
+        latest = {}
+        for p in db.all:
+            if p.model == "seed":
+                latest[p.island] = p.text
+        for k, path in enumerate(seeds):
+            seed_text = Path(path).read_text()
+            for i in range(k, args.islands, len(seeds)):
+                if latest.get(i) == seed_text:
+                    continue
+                r = score(seed_text, confirm=True)
+                if not r.ok:
+                    raise SystemExit(f"seed policy {path} failed: {r.error}")
+                if args.explore:
+                    blocks = executed_blocks(seed_text)
+                    if blocks is not None:
+                        r.per_opponent["exec_blocks"] = sorted(blocks)
+                db.seed(seed_text, r.score, r.per_opponent, islands=[i])
+                print(f"re-seeded island {i} with {Path(path).stem} (score {r.score:.3f})")
     have = {p.text for p in db.all}
     for k, path in enumerate(x for x in args.inject.split(",") if x):
         text = Path(path).read_text()
