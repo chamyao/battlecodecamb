@@ -27,3 +27,10 @@ seed style-gconv1 score 0.731 (islands [0, 1, 2, 3])
 [25] claude-haiku-5-5 island 1: error: TypeError: no block ne(Tile, Tile) | best 0.789 (#22) $0.49 | 1506s
 [26] claude-haiku-5-5 island 3: score 0.699 | best 0.789 (#22) $0.50 | 1550s
 [27] claude-haiku-5-5 island 3: error: KeyError: 'VAR:Num:16' | best 0.789 (#22) $0.50 | 1568s
+[28] claude-haiku-5-5 island 2: score 0.738 | best 0.789 (#22) $0.50 | 1741s
+[29] claude-haiku-5-5 island 2: error: KeyError: 'VAR:Num:16' | best 0.789 (#22) $0.51 | 1759s
+[30] claude-haiku-5-5 island 1: score 0.723 | best 0.789 (#22) $0.51 | 1773s
+[31] claude-haiku-5-5 island 1: error: KeyError: 'VAR:Num:16' | best 0.789 (#22) $0.51 | 1778s
+[32] claude-opus-5-5 island 3: error: NameError: line 138: outnumbered already defined | best 0.789 (#22) $0.73 | 1825s
+[33] claude-haiku-5-5 island 1: error: KeyError: 'VAR:Num:16' | best 0.789 (#22) $0.74 | 1850s
+[34] claude-haiku-5-5 island 3: score 0.673 | best 0.789 (#22) $0.74 | 1973s
