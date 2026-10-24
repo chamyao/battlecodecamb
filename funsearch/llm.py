@@ -71,7 +71,8 @@ AXES = {
              "monolith taker)",
     "pairs": "PAIRS. Measured: 71% of our deaths are 2-vs-1; before round 150, 89% are 2+ of theirs vs 1 of ours. "
              "Measured hand rules: retreating to an ally instead of spawn doubled deaths; walking to allies when "
-             "outnumbered cost 10 points. Vision is not shared; byte 7 bits 2-7 of shared memory are free for a "
+             "outnumbered cost 10 points. Ranked, v21 lost 0-5 to a pack team of similar rating (Ren, Stellar, Varg, Tavi, Ryth): "
+             "80% of our deaths were outnumbered by 2+, 20.4 deaths a game to their 8.4. Vision is not shared; byte 7 bits 2-7 of shared memory are free for a "
              "beacon (bits 0-1 are the lock flags: v = read_shared(7), beacon = floor(v / 4), write_shared(7, 4 * b "
              "+ (v - 4 * floor(v / 4)))). Levers: partners (i_am), which camp groups each takes (claim, claim_count, "
              "claimed_by_allies), distance between allies while farming, signals",
@@ -83,7 +84,9 @@ AXES = {
     "disengage": "LOW-HP SURVIVAL. Measured: once one of our champions is below 50% HP with an enemy within 5 it "
                  "dies 88% of the time (the top team 6%, similar teams 13-20%), gaining ~1 tile in 5 rounds. "
                  "Measured hand rules: walking away mid-fight at HP below 0.4-0.6 with an enemy within 5-6 scored "
-                 "18-34% vs the live bot, with more deaths. Levers: which fights are entered, local numbers and "
+                 "18-34% vs the live bot, with more deaths. Ranked, v21 lost 0-5 to a pack team of similar rating "
+                 "(Ren, Stellar, Varg, Tavi, Ryth): 89% of our deaths had 2+ of theirs within 5, 80% were outnumbered "
+                 "by 2+, and we died 20.4 times a game to their 8.4. Levers: which fights are entered, local numbers and "
                  "strength, range, movement and dashes, recall timing (damage cancels a recall), allies' help",
     "macro": "MACRO ROUTE AND TIMING. Measured: we bank 18 times a game (top teams 26). Levers: which camps when, "
              "monolith takes (claim_count), when to bank, where to stand between fights, early vs late game plans",

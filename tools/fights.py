@@ -42,7 +42,7 @@ def segment(events, us):
                     break
             if eng is None:
                 eng = {"start": r, "last": r, "x": x, "y": y, "dealt": 0.0, "taken": 0.0, "ours": set(), "theirs": set(),
-                       "our_deaths": 0, "their_deaths": 0, "our_out_deaths": 0, "their_out_deaths": 0}
+                       "our_deaths": 0, "their_deaths": 0, "our_out_deaths": 0, "their_out_deaths": 0, "our_out2_deaths": 0}
                 open_.append(eng)
             eng["last"], eng["x"], eng["y"] = r, x, y
             src, dst, dmg = int(f["src"]), int(f["dst"]), float(f["dmg"])
@@ -64,6 +64,7 @@ def segment(events, us):
                     if mine:
                         e["our_deaths"] += 1
                         e["our_out_deaths"] += out
+                        e["our_out2_deaths"] += len(e[other]) - len(e[side]) >= 2
                     else:
                         e["their_deaths"] += 1
                         e["their_out_deaths"] += out
@@ -109,6 +110,8 @@ def run(a, b, games=80, seed=1):
         "our_outnumbered_deaths_pg": round(sum(e["our_out_deaths"] for e in engs) / n, 2),
         "their_outnumbered_deaths_pg": round(sum(e["their_out_deaths"] for e in engs) / n, 2),
         "our_out_death_share": round(sum(e["our_out_deaths"] for e in engs) / max(1, sum(e["our_deaths"] for e in engs)), 3),
+        # outnumbered by 2+ champions in the engagement (the ranked-loss measure vs pack teams)
+        "our_out2_death_share": round(sum(e["our_out2_deaths"] for e in engs) / max(1, sum(e["our_deaths"] for e in engs)), 3),
     }
     return res
 
