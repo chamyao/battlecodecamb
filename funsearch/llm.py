@@ -91,13 +91,13 @@ AXES = {
                  "(Ren, Stellar, Varg, Tavi, Ryth): 89% of our deaths had 2+ of theirs within 5, 80% were outnumbered "
                  "by 2+, and we died 20.4 times a game to their 8.4. Levers: which fights are entered, local numbers and "
                  "strength, range, movement and dashes, recall timing (damage cancels a recall), allies' help",
-    "fuel": "FUEL COST PER TURN. Measured on the hyb5-g3 #82 line (fuel_turns --enforce --bot-seeds vs v21): on "
-            "01big-world 19 suspensions a game (v21 0; a champion turn over 100k fuel suspends it) and 129-152 turns at "
-            "90k or more (v21 4); on 00ambush 56-60 such turns (v21 4-5). Its most expensive blocks there: and/or "
-            "chains, minus(TileSet), closest(TileSet), filter over unit lists and tile sets, respawning_visible_spawns "
-            "and capturable_spawns. On this island the fitness counts suspensions and turns of 90k or more. Levers: "
-            "keep (computed once a game), let (once a turn), fuel_remaining(), which branches call the costly blocks "
-            "and how often, the size of the sets they scan",
+    "fuel": "FUEL COST PER TURN. Measured on this island's line (hyb5-g3 #76 and #82, teleport crystal and altar dashes "
+            "for gem carriers; fuel_turns --enforce --bot-seeds on 01big-world and 00ambush, both sides, vs v21): #76 6 "
+            "suspensions and 43 turns at 90k or more per game, #82 10.8 and 91, v21 0 and 5 (a champion turn over 100k "
+            "fuel suspends it). The most expensive blocks there: and/or chains, minus(TileSet), closest(TileSet), "
+            "filter over unit lists and tile sets, respawning_visible_spawns and capturable_spawns. On this island the "
+            "fitness counts suspensions and turns of 90k or more. Levers: keep (computed once a game), let (once a "
+            "turn), fuel_remaining(), which branches call the costly blocks and how often, the size of the sets they scan",
     "macro": "MACRO ROUTE AND TIMING. Measured: we bank 18 times a game (top teams 26). Levers: which camps when, "
              "monolith takes (claim_count), when to bank, where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES. Measured: top teams open with an ability on the first-hit turn. Levers: AoE at tiles "
