@@ -1,1 +1,9 @@
 [20:39:27] gate arenaA-1/arena:A485@tune-v20-L1c (mu 39.96, 288 games)
+[20:39:40] arenaA-1/arena:A485@tune-v20-L1c: {"name": "A485", "mu": 39.959044573623714, "games": 288, "ref": "tune-v20-L1c.policy", "screen": 0.5225, "passed": false} -> no
+[20:39:40] gate arenaA-1/arena:A384@tune-v20-L1c (mu 39.88, 1192 games)
+[20:42:07] arenaA-1/arena:A384@tune-v20-L1c: {"name": "A384", "mu": 39.88228012240605, "games": 1192, "ref": "tune-v20-L1c.policy", "screen": 0.57, "h2h": 0.5525, "h2h_games": 800, "clear": true, "anchor_deltas": {"style-gconv1": 0.073, "v7": 0.005, "tune-v20-L1": 0.108, "rall2-ca4-lean-g": 0.025, "opp-tune5-metadraft": -0.005}, "h2h_fuel10": 0.5425, "passed": true} -> CANDIDATE
+[20:42:07] gate arenaA-1/arena:A452@tune-v20-L1c (mu 39.88, 552 games)
+[20:42:20] arenaA-1/arena:A452@tune-v20-L1c: {"name": "A452", "mu": 39.88223260735428, "games": 552, "ref": "tune-v20-L1c.policy", "screen": 0.49, "passed": false} -> no
+[20:42:20] gate arenaB-1/arena:B527@tune-v20-L1c (mu 43.39, 616 games)
+[20:44:07] arenaB-1/arena:B527@tune-v20-L1c: {"name": "B527", "mu": 43.385022515068016, "games": 616, "ref": "tune-v20-L1c.policy", "screen": 0.625, "h2h": 0.61625, "h2h_games": 800, "clear": true, "anchor_deltas": {"style-gconv1": 0.158, "v7": 0.04, "tune-v20-L1": 0.21, "rall2-ca4-lean-g": 0.065, "opp-tune5-metadraft": 0.045}, "h2h_fuel10": 0.64, "passed": true} -> CANDIDATE
+[20:44:07] gate arenaB-1/arena:B512@tune-v20-L1c (mu 43.30, 808 games)
