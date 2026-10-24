@@ -187,6 +187,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   ungated versions to a long retreat on 01big-world; v18 has the same ungated retreat). League (hybrid, lean):
   1711 [1694-1725] vs v18 1661; real cambc 51/80 vs v18, kills 8.2 vs 6.9, 0 capped turns, peak 89.8k.
   v18 ranked: 10-10 in its first 20.
+  v19: 4-46 in the unranked top-team groups (first wins: vc? 3-2, prism 1-4); ~51-39 ranked.
+  20 = tune-fight-2s (`deploy/v0` 6d50156, sha256 ec50970b...; ~11:35 UTC): v19 + an FS-found rule: with no enemy
+  visible and standing in a bush, ward our own tile. Tune line's league 1710 [1698-1725] vs v19 1670 (re-run 1691);
+  real cambc 45/80 vs v19, 0 capped turns, peak 93.9k; sim-vs-cambc agreement 60/80 (baseline v19 vs v18: 58/80),
+  so the allied-ward move rule the sim doesn't model shows no effect.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
