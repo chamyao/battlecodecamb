@@ -126,6 +126,15 @@ model fits all five within 5%: their errors are specific to the genome.
 00swirl 7 / 13, 01yellow-brick-road 4 / 1 and 8 / 4, 01elk-arena 11 / 9 and 6 / 11, 01starvation
 6 / 8, 01islands 1 / 0, 01big-world 0 / 2. In total 43 real vs 48 sim.
 
+**box_field(goals, walls)** (Oct 24): the walking field through the bot's distance-field memo (the
+interpreter's move_towards path, dests = my tile). The bot fills only my 3 x 3 box, so reads are
+valid there and up to my own distance (values above it, or outside the box, read unreachable in both
+bot and simulator, which keeps them exact). A walker using it plays the same games as one using
+field_avoid stopped at my tile (00lanes, 01big-world, bot and simulator identical). Per call, real /
+sim: a far fixed goal 2.0k / 2.2k (00lanes), 3.3k / 3.7k (01big-world), against field_avoid's 3.5k
+and 19.2k; nearby goals (camp spawns) 3.4k / 3.2k and 4.9k / 4.6k, dearer than field_avoid (1.7k,
+4.5k), whose search is short then. Priced as the Api's memo price plus 300 + 6.5 x chunks.
+
 ## Listing the options (task 3, Oct 24)
 
 The bot used to pay ~160-170 fuel per listed option (default-constructing an Option, copying it into

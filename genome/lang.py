@@ -109,6 +109,7 @@ PRIMS = {
     "exists": (("Unit",), "Bool", "{0}.valid()"),
     "field": (("Tiles",), "Field", "X.field({0})"),
     "field_avoid": (("Tiles", "Tiles", "Tiles"), "Field", "X.field_avoid({0}, {1}, {2})"),
+    "box_field": (("Tiles", "Tiles"), "Field", "X.box_field({0}, {1})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
