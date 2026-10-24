@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 09:15 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.91 12.35 13.64 on 16 threads.
+Updated 2026-10-24 09:20 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.76 13.22 13.64 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -17,7 +17,6 @@ Disk: 3.2G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[07:10:25] style: launched style8-b (budget $3.5)
 [07:10:25] style: launched style8-a (budget $2.25)
 [07:10:25] style: launched style8-c (budget $2.25)
 [07:26:00] tune: job E exited rc=0
@@ -57,4 +56,5 @@ Disk: 3.2G used of 38G.
 [09:05:12] hybrid: H3: funsearch/runs 557ce2c (has 557ce2c), rebuilt, 2012 passed in 5.94s; SPEND lines appended; hyb5 launches next tick
 [09:10:20] hybrid: launched hyb5 league
 [09:15:29] hybrid: hyb5 check ok: [09:10:20] hyb5-g1: +30 programs to the next boundary (0 so far), best policies/pool/v19.policy, league ['poli; seeds:  2 seed v19;
+[09:20:39] pure: g3 advance: STOP requested, waiting for the league to exit
 ```
