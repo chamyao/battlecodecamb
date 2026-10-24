@@ -151,7 +151,7 @@ FIELDS = {
              "is_champion": ("Bool", "({0}.kind == 1)"), "is_camp": ("Bool", "({0}.kind == 2)"),
              "health_frac": ("Num", "({0}.max_health > 0 ? double({0}.health) / {0}.max_health : 0.0)")},
     "Tile": {"x": ("Num", "double({0}.x)"), "y": ("Num", "double({0}.y)")},
-    "Option": {"kind": ("Num", "double({0}.kind)"), "unit": ("Unit", "{0}.unit"), "tile": ("Tile", "{0}.tile"),
+    "Option": {"kind": ("Num", "double({0}.kind)"), "unit": ("Unit", "X.unit_of({0})"), "tile": ("Tile", "{0}.tile"),
                "slot": ("Num", "double({0}.slot)"), "item": ("Num", "double({0}.item)"),
                "champ": ("Num", "double({0}.champ)"), "count": ("Num", "double({0}.count)")},
 }
@@ -381,6 +381,8 @@ class Checker:
         name = target.id
         if name in CONSTANTS or name in PRIMS or name in self.g.genes:
             self.err(st, f"cannot assign to {name}")
+        if name in dict(self.cur.params):
+            self.err(st, f"cannot assign to parameter {name}")
         t, c, ops = self.expr(value)
         if name in self.g.keeps:
             if self.cur.name != "update":
@@ -674,7 +676,7 @@ def to_cpp(genome):
     # declarations first so genes can call each other in any order
     for n in order:
         g = genome.genes[n]
-        params = ", ".join(f"{CPP[t]} {p}" for p, t in g.params)
+        params = ", ".join(_param(p, t) for p, t in g.params)
         lines.append(f"\t{CPP[g.ret]} {n}({params});")
     for n in order:
         g = genome.genes[n]
@@ -684,11 +686,12 @@ def to_cpp(genome):
               f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}", "};"]
     for n in order:
         g = genome.genes[n]
-        params = ", ".join(f"{CPP[t]} {p}" for p, t in g.params)
+        params = ", ".join(_param(p, t) for p, t in g.params)
         lines.append(f"// gene {g.id}: {g.desc.replace(chr(10), ' ')}")
         body = ch.cpp[n]
         memo = not g.params and g.ret not in ("None",) and n != "update"
         lines.append(f"{CPP[g.ret]} Genes::{n}({params}) {{")
+        lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:
             # zero-argument genes are pure within a pass: computed once per pass, cached on this instance
             lines += [f"\tif (stamp_{n} == X.pass_id) return val_{n};",
@@ -701,6 +704,11 @@ def to_cpp(genome):
     lines += ["} // namespace genome_gen", "", "extern \"C\" genome::GenesBase* genome_make(genome::Ctx& X) "
               "{ return new genome_gen::Genes(X); }", ""]
     return "\n".join(lines)
+
+
+def _param(name, t):
+    """Scalars by value, everything else by const reference (copies cost ~1 fuel per byte in the bot)."""
+    return f"{CPP[t]} {name}" if t in ("Num", "Bool", "Tile") else f"const {CPP[t]}& {name}"
 
 
 def summary(genome):

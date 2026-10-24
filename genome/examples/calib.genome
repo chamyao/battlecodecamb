@@ -1,0 +1,212 @@
+"""Fuel calibration genome: every primitive in its own gene; update() runs one probe per turn, in rotation."""
+
+
+@gene("c0", "score: walk to camps, else nothing (keeps the game moving)")
+def score(o: Option) -> Num:
+    if o.kind == MOVE:
+        return 1 + floor((o.tile.x * 7 + o.tile.y * 13 + round()) % 10)
+    return 0
+
+@gene("c1", "run one probe this turn (round mod #probes)")
+def update() -> None:
+    acc = 0
+    slot = round() % 33
+    if slot == 0:
+        acc += p_empty(round())
+    if slot == 1:
+        acc += p_arith(round())
+    if slot == 2:
+        acc += p_loop100(round())
+    if slot == 3:
+        acc += p_me(round())
+    if slot == 4:
+        acc += p_gems(round())
+    if slot == 5:
+        acc += p_gold(round())
+    if slot == 6:
+        acc += p_round(round())
+    if slot == 7:
+        acc += p_fuel(round())
+    if slot == 8:
+        acc += p_can_shop(round())
+    if slot == 9:
+        acc += p_enemies(round())
+    if slot == 10:
+        acc += p_allies(round())
+    if slot == 11:
+        acc += p_camps(round())
+    if slot == 12:
+        acc += p_unit_gems(round())
+    if slot == 13:
+        acc += p_group_resp(round())
+    if slot == 14:
+        acc += p_group_tiles(round())
+    if slot == 15:
+        acc += p_visible(round())
+    if slot == 16:
+        acc += p_altars(round())
+    if slot == 17:
+        acc += p_locked(round())
+    if slot == 18:
+        acc += p_near1(round())
+    if slot == 19:
+        acc += p_near5(round())
+    if slot == 20:
+        acc += p_union(round())
+    if slot == 21:
+        acc += p_minus(round())
+    if slot == 22:
+        acc += p_and(round())
+    if slot == 23:
+        acc += p_iter_walls(round())
+    if slot == 24:
+        acc += p_nearest_walls(round())
+    if slot == 25:
+        acc += p_contains(round())
+    if slot == 26:
+        acc += p_field_altars(round())
+    if slot == 27:
+        acc += p_field_camps(round())
+    if slot == 28:
+        acc += p_slot(round())
+    if slot == 29:
+        acc += p_items(round())
+    if slot == 30:
+        acc += p_shared(round())
+    if slot == 31:
+        acc += p_picked(round())
+    if slot == 32:
+        acc += p_dist(round())
+    write_shared(7, acc)
+
+@gene("q0", "probe p_empty")
+def p_empty(k: Num) -> Num:
+    return k
+
+@gene("q1", "probe p_arith")
+def p_arith(k: Num) -> Num:
+    return k * 2 + 1 - k / 3
+
+@gene("q2", "probe p_loop100")
+def p_loop100(k: Num) -> Num:
+    return sum(i * 2 for i in range(100))
+
+@gene("q3", "probe p_me")
+def p_me(k: Num) -> Num:
+    return me().health + k
+
+@gene("q4", "probe p_gems")
+def p_gems(k: Num) -> Num:
+    return gems() + k
+
+@gene("q5", "probe p_gold")
+def p_gold(k: Num) -> Num:
+    return gold() + k
+
+@gene("q6", "probe p_round")
+def p_round(k: Num) -> Num:
+    return round() + k
+
+@gene("q7", "probe p_fuel")
+def p_fuel(k: Num) -> Num:
+    return fuel() + k
+
+@gene("q8", "probe p_can_shop")
+def p_can_shop(k: Num) -> Num:
+    return 1 if can_shop() else k
+
+@gene("q9", "probe p_enemies")
+def p_enemies(k: Num) -> Num:
+    return count_units(enemies()) + k
+
+@gene("q10", "probe p_allies")
+def p_allies(k: Num) -> Num:
+    return count_units(allies()) + k
+
+@gene("q11", "probe p_camps")
+def p_camps(k: Num) -> Num:
+    return count_units(camps()) + k
+
+@gene("q12", "probe p_unit_gems")
+def p_unit_gems(k: Num) -> Num:
+    return sum(unit_gems(u) for u in allies()) + k
+
+@gene("q13", "probe p_group_resp")
+def p_group_resp(k: Num) -> Num:
+    return count(group_respawning(g) for g in range(num_groups())) + k
+
+@gene("q14", "probe p_group_tiles")
+def p_group_tiles(k: Num) -> Num:
+    return sum(size(group_tiles(g)) for g in range(num_groups())) + k
+
+@gene("q15", "probe p_visible")
+def p_visible(k: Num) -> Num:
+    return count(visible(t) for t in near(me().pos, 2)) + k
+
+@gene("q16", "probe p_altars")
+def p_altars(k: Num) -> Num:
+    return size(altars()) + k
+
+@gene("q17", "probe p_locked")
+def p_locked(k: Num) -> Num:
+    return size(locked_altars()) + k
+
+@gene("q18", "probe p_near1")
+def p_near1(k: Num) -> Num:
+    return size(near(me().pos, 1)) + k
+
+@gene("q19", "probe p_near5")
+def p_near5(k: Num) -> Num:
+    return size(near(me().pos, 5)) + k
+
+@gene("q20", "probe p_union")
+def p_union(k: Num) -> Num:
+    return size(altars() | walls()) + k
+
+@gene("q21", "probe p_minus")
+def p_minus(k: Num) -> Num:
+    return size(walls() - altars()) + k
+
+@gene("q22", "probe p_and")
+def p_and(k: Num) -> Num:
+    return size(walls() & bushes()) + k
+
+@gene("q23", "probe p_iter_walls")
+def p_iter_walls(k: Num) -> Num:
+    return sum(t.x for t in walls()) + k
+
+@gene("q24", "probe p_nearest_walls")
+def p_nearest_walls(k: Num) -> Num:
+    return nearest(walls(), me().pos).x + k
+
+@gene("q25", "probe p_contains")
+def p_contains(k: Num) -> Num:
+    return 1 if me().pos in walls() else k
+
+@gene("q26", "probe p_field_altars")
+def p_field_altars(k: Num) -> Num:
+    return at(field(altars()), me().pos) + k
+
+@gene("q27", "probe p_field_camps")
+def p_field_camps(k: Num) -> Num:
+    return at(field(camp_spawns()), me().pos) + k
+
+@gene("q28", "probe p_slot")
+def p_slot(k: Num) -> Num:
+    return slot_kind(0) + slot_range(1) + (1 if slot_ready(0) else 0) + k
+
+@gene("q29", "probe p_items")
+def p_items(k: Num) -> Num:
+    return items_owned(6) + item_cost(6) + k
+
+@gene("q30", "probe p_shared")
+def p_shared(k: Num) -> Num:
+    return read_shared(3) + k
+
+@gene("q31", "probe p_picked")
+def p_picked(k: Num) -> Num:
+    return 1 if picked_by_them(RYTH) else k
+
+@gene("q32", "probe p_dist")
+def p_dist(k: Num) -> Num:
+    return dist(me().pos, tile(k, k)) + k
