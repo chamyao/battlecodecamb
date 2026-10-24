@@ -12,6 +12,8 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 Standing approval: upload a genome when it beats the live ladder bot, with no further ask. Bar, all three:
 1. Sim vs the live bot: >= 53.5% head to head over 800 fresh games, no drop > 3 points vs any anchor.
 2. Real cambc vs the live bot: >= 42/80 over 40 maps x both sides.
-3. Real cambc safety: no crashes, first turn < 200k fuel, capped turns no worse than the live bot's.
+3. Real cambc safety: no crashes. (Cham, Oct 24 ~20:00 UTC: the first-turn < 200k and capped-turn limits are
+   dropped as requirements; trading turns for compute is a legitimate strategy and the real head-to-head (2) already
+   includes its cost. First-turn and capped-turn numbers are still reported with every candidate.)
 Uploads go through the intel session's logged-in cambc, on the lead's instruction only. Contact the
 project's coordinator only when a candidate clears the bar (both lines upload to the same ladder slot).
