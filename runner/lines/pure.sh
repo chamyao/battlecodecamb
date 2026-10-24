@@ -85,14 +85,14 @@ if [ "$phase" = g4 ] && [ -f runs/ec2-v20 ] && [ ! -f runs/ec2-v21 ]; then
     touch runs/ec2-v21 && log "pure: v21 opponent files from $V21_REV (fixed from g6): $(tr '\n' ' ' < runs/pure_fixed.txt)" ||
     log "pure: v21 opponent file sync failed"
 fi
-# One-shot build switch at g5 -> g6 (pure line, 12:55 UTC): G6_REV merges deploy/v0 dc15600 (tune lockfix b9452ee:
+# One-shot build switch, now applied to the running g5 (pure line, 12:55 / 13:05 UTC): G6_REV merges deploy/v0 dc15600 (tune lockfix b9452ee:
 # locked_altars() = enemy locks only; v21 depends on it). When pure4.json reaches gen 6 the league has already started
 # g6 on the old build: stop it, move that partial g6 dir aside (still counted by spent()), drop "target" (keep the
 # frozen "fixed"), check out G6_REV keeping runs/, rebuild, relaunch g6 from scratch.
 G6_REV=0af36c4
 if [ "$phase" = g4 ] && [ ! -f runs/ec2-g6build ]; then
   gen=$(python3 -c "import json; print(json.load(open('runs/pure4.json'))['gen'])")
-  if [ "$gen" -ge 6 ]; then
+  if [ "$gen" -ge 5 ]; then   # moved up to g5 (13:05 UTC): every pool policy uses locked_altars
     if running "league --name pure4"; then
       [ -f "runs/pure4-g$gen/STOP" ] || { mkdir -p "runs/pure4-g$gen"; touch "runs/pure4-g$gen/STOP"; log "g6 build switch: STOP requested (gen $gen)"; }
       push_state remote/pure remote/pure/runs runs; return 0
@@ -104,6 +104,7 @@ if [ "$phase" = g4 ] && [ ! -f runs/ec2-g6build ]; then
 import json
 s = json.load(open("runs/pure4.json"))
 s.pop("target", None)
+s.pop("fixed", None)   # re-read runs/pure_fixed.txt (v21 list) for the restarted generation
 json.dump(s, open("runs/pure4.json", "w"))
 EOF2
     rm -rf /root/bc/pure-runs-save && cp -a runs /root/bc/pure-runs-save &&
