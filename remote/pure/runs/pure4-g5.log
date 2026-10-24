@@ -158,3 +158,7 @@ done: 151 programs (18 invalid), spent $3.25; best #81 score 0.616 -> /root/bc/p
 [159] claude-haiku-5-5 island 0: score 0.587 | best 0.617 (#156) $0.02 | 591s
 [160] claude-haiku-5-5 island 1: score 0.602 | best 0.617 (#156) $0.03 | 592s
 [161] claude-haiku-5-5 island 3: error: KeyError: 'VAR:Num:16' | best 0.617 (#156) $0.03 | 608s
+[162] claude-haiku-5-5 island 2: score 0.602 | best 0.617 (#156) $0.22 | 863s
+[163] claude-haiku-5-5 island 0: error: KeyError: 'VAR:Num:16' | best 0.617 (#156) $0.22 | 877s
+[164] claude-haiku-5-5 island 1: score 0.597 | best 0.617 (#156) $0.22 | 885s
+[165] claude-opus-5-5 island 2: score 0.596 | best 0.617 (#156) $0.23 | 922s
