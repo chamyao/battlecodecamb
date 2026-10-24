@@ -1,0 +1,37 @@
+"""Exactness test: walks to the camp with the shortest walk, found by reading a field rooted at my own
+tile at every camp tile (far reads), then steps along a field to that camp."""
+
+TARGET: Tile = None
+TO_TARGET: Field = None
+
+@gene("f1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        return 80 if o.unit.is_champion else 60
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if at(TO_TARGET, o.tile) < at(TO_TARGET, me().pos) else 0
+    return 0
+
+@gene("f2", "once per turn: nearest camp by walking (far field reads) and the field to it")
+def update() -> None:
+    if gems() > 0:
+        goal = near(tile(-5, -5), 0)
+        for a in altars():
+            goal = goal | near(a, 1)
+        TO_TARGET = field(goal)
+    else:
+        from_me = field(near(me().pos, 0))
+        TARGET = best(camp_spawns(), lambda t: -at(from_me, t))
+        TO_TARGET = field(near(TARGET, 1))
+
+@gene("f3", "only the kinds this genome uses")
+def consider(k: Num) -> Bool:
+    return k != WARD and k != CAST
