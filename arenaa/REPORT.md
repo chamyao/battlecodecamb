@@ -2,6 +2,19 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-24 23:35 UTC: prompt experiment 1 final
+
+Verdict (pre-registered rule): A1 (minimal typed explicit prompt) does NOT beat A0 (today's prompt).
+- "Better" (anchor diff > null p95; the 648bafd null is tight, p95 = 0): A0 39/120, A1 21/120. Paired:
+  A1-only 11, A0-only 29, one-sided p = 0.999. At fixed bars: > +5 A0 10 / A1 3; > +10 3 / 2; > +20 1 / 1.
+- A1 did make structural changes (58 new genes in 78 valid children vs 0 in A0) but they were more
+  harmful on average (mean -23.7 vs -16.4), and 42/120 cells produced no valid child (30 type-check
+  rejections after the retry, 12 invalid). By type: T3 helper least harmful (mean -4.4), T4 replace
+  worst (-44.8, half rejected).
+- Cost $0.263. The best children (A1 T1 +30, A0 +24, +20, +13, A1 T2 +12) are being panel-scored.
+- Reading: with Haiku, asking for larger structural edits buys variance mostly on the downside; the
+  wider-variance arm does not produce more children above the null. Next arena run keeps today's prompt.
+
 ## 2026-10-24 23:30 UTC
 
 - arenaA-5 (arenaA-3 + distinct games/bot-seeded anchors), birth 1061, $6.25 of 7.77. Panel (13 opp,
