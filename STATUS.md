@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 15:37 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 16.22 14.30 13.58 on 16 threads.
+Updated 2026-10-24 15:42 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 17.33 15.89 14.48 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
@@ -14,7 +14,6 @@ Disk: 3.4G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[14:23:38] style: S8: at 834ac00 (has ed49293), rebuilt, 2012 passed in 5.87s; h2 and b restarting, gap run style8-gconv starting
 [14:23:38] style: S8: launched style8-gconv ($2.0 total)
 [14:23:38] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [14:23:38] style: launched style8-b (budget $3.5)
@@ -54,4 +53,5 @@ Disk: 3.4G used of 38G.
 [15:32:21] hybrid: hyb5 not running: relaunching (resume from runs/)
 [15:32:21] hybrid: launched hyb5 league
 [15:32:21] hybrid: H10 check: 28 new programs: conversion 13 (0.46, expect 0.31), disengage 1 (0.04, expect 0.12), vocab 5 (0.18, expect ~0.2)
+[15:42:40] hybrid: H17: hold set for the next hyb5 boundary
 ```
