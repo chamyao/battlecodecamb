@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 07:57 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 18.77 18.35 19.04 on 16 threads.
+Updated 2026-10-24 08:02 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 18.62 18.32 18.80 on 16 threads.
 Disk: 3.1G used of 38G.
 
 ## python3 processes
@@ -12,7 +12,6 @@ Disk: 3.1G used of 38G.
 12424 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 12444 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 3.50 --max-programs 150 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 17790 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/tune-5.policy,policies/o
-17805 /usr/bin/python3 -m funsearch.run --run style8-h-g1 --budget 3.93 --max-programs 33 --seed-policy policies/opp-hunter2b.policy --opponents builtin:starter@0.25,policies/opp-hunter2b.policy@0.5,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/tune-5.
 18724 /usr/bin/python3 -m funsearch.run --run hyb4-g4 --budget 9.11 --max-programs 30 --seed-policy policies/candidates/hyb-t5m.policy --opponents builtin:starter@0.25,policies/candidates/hyb-t5m.policy@3.0,policies/tune-4.policy,policies/tune-1.policy,policies/v7-zerogem.policy,policies/locker.poli
 ```
 ## tick.log (last 40 lines)
