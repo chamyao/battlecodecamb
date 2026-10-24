@@ -81,6 +81,10 @@ gems, end round, kills, deaths: 00ambush 857-1020 r1445, 01big-world 878-1020 r1
 games drift with the genome's suspensions (it caps 200-1000 turns, the interpreted bot 3-5):
 gems real / sim 577-1009 / 722-1011, 872-1001 / 757-1040, 920-1016 / 928-1003, 1017-939 / 1012-939.
 
+Exactness checks (bot vs simulator on the same game) need an opponent the simulator plays exactly:
+the interpreted v23 (`bot/sync.sh` + `--bot-seeds`) or a genome. Against starter-cpp the games diverge
+by ~round 140, because builtin:starter differs from starter-cpp.
+
 Re-run the calibration whenever `runtime/genome_rt.h`, `lang.py`'s codegen or `bot/bot_api.cpp`
 changes, and check new primitives with a probe before relying on them. Tools: `tools/prof_pair.sh`
 (a GENOME_PROF build in cambc and the simulator; `BIG_FUEL=1` for clean profiles without
@@ -134,6 +138,27 @@ field_avoid stopped at my tile (00lanes, 01big-world, bot and simulator identica
 sim: a far fixed goal 2.0k / 2.2k (00lanes), 3.3k / 3.7k (01big-world), against field_avoid's 3.5k
 and 19.2k; nearby goals (camp spawns) 3.4k / 3.2k and 4.9k / 4.6k, dearer than field_avoid (1.7k,
 4.5k), whose search is short then. Priced as the Api's memo price plus 300 + 6.5 x chunks.
+
+**dash_field(goal, walls)** (Oct 24): the interpreter's dash_towards path (root = the goal tile,
+dests = my 5 x 5 box without it); reads only on the box's tiles nearest to the goal (the first layer
+the search reaches), unreachable elsewhere, identically in the bot and the simulator (a walker using
+it takes the same 2720 / 5952 actions on 00lanes / 01big-world as the simulator). Per call, identical
+games against the interpreted v23 (`prof_pair.sh` with OPP_BOT / OPP_SIM), real / sim: 4117 / 4077
+(00lanes), 5388 / 4971 (01big-world), 6264 / 6132 (00ambush). Priced as the Api's memo price plus
+1206 + 8.5 x chunks.
+
+**Fight primitives** (Oct 24): `attack_damage`, `cast_damage`, `shield`, `hits_to_kill` follow the
+engine's damage code (Game::apply_outgoing, damage_champion's reductions, shields first) on the
+units' host data: each champion's items (emblem passives) and buffs (shields) are read once per pass.
+Exact: `GENOME_CHECK_FIGHT=1` compares every attack / damage cast the loop makes with the target's
+actual health and shield loss: 60,498 checks over B792, v23 and farmer games, 0 mismatches. Prices
+(`examples/calib4.genome`, identical games against the interpreted v23): the items + buffs read 900
+once per champion per pass; attack_damage 140, cast_damage 204, shield 60, hits_to_kill 236 + 26 per
+hit; probes 1.01-1.09. Score variants show a cached call is what a genome mostly pays (attack_damage
+~134, cast_damage ~200) and that `o.unit` costs ~20 (now priced; B318 / seed whole-game ratios
+unchanged at 0.99 / 1.02). A test genome choosing fights by them takes the same actions in the bot
+and the simulator (00lanes: 220 attacks, 117 casts; 00ambush; 01big-world); its whole-game fuel is
+0.89-0.91 of real (the cost of calling its large score gene, not inlined, is not modelled).
 
 ## Guest pathfinding: wfield, path_step, path_len, territory (Oct 24)
 

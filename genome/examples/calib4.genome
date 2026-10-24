@@ -1,0 +1,75 @@
+"""Fuel calibration genome 4: fight primitives (attack_damage, cast_damage, shield, hits_to_kill). update()
+runs one probe per turn in rotation on the nearest visible camp (and me). Needs GENOME_UNCALIBRATED=1 until
+accepted."""
+
+@gene("c0", "score: wander, attack camps")
+def score(o: Option) -> Num:
+    if o.kind == ATTACK:
+        return 60
+    if o.kind == MOVE:
+        return 1 + floor((o.tile.x * 7 + o.tile.y * 13 + round()) % 10)
+    return 0
+
+@gene("c1", "run one probe this turn (round mod #probes)")
+def update() -> None:
+    acc = 0
+    k = round()
+    slot = k % 9
+    m = me()
+    al = best(allies(), lambda x: 0 - dist(x.pos, m.pos))
+    c = best(camps(), lambda x: 0 - dist(x.pos, m.pos))
+    if slot == 0:
+        acc += p_empty(k)
+    if slot == 1 and exists(c):
+        acc += p_attack(k, m, c)
+    if slot == 2 and exists(c):
+        acc += p_cast(k, m, c)
+    if slot == 3:
+        acc += p_shield(k, m)
+    if slot == 4 and exists(c):
+        acc += p_kill(k, m, c)
+    if slot == 5 and exists(c):
+        acc += p_killed(k, c, m)
+    if slot == 6:
+        acc += p_kill_me(k, m, m)
+    if slot == 7 and exists(al):
+        acc += p_attack_ally(k, m, al)
+    if slot == 8 and exists(al):
+        acc += p_kill_ally(k, al, m)
+    write_shared(7, acc)
+
+@gene("q0", "probe empty")
+def p_empty(k: Num) -> Num:
+    return k
+
+@gene("q1", "attack_damage me -> camp")
+def p_attack(k: Num, a: Unit, b: Unit) -> Num:
+    return attack_damage(a, b) + k
+
+@gene("q2", "cast_damage slot 0 me -> camp")
+def p_cast(k: Num, a: Unit, b: Unit) -> Num:
+    return cast_damage(a, 0, b) + k
+
+@gene("q3", "shield of me")
+def p_shield(k: Num, a: Unit) -> Num:
+    return shield(a) + k
+
+@gene("q4", "hits_to_kill me -> camp")
+def p_kill(k: Num, a: Unit, b: Unit) -> Num:
+    return hits_to_kill(a, b) + k
+
+@gene("q5", "hits_to_kill camp -> me")
+def p_killed(k: Num, a: Unit, b: Unit) -> Num:
+    return hits_to_kill(a, b) + k
+
+@gene("q6", "hits_to_kill me -> me")
+def p_kill_me(k: Num, a: Unit, b: Unit) -> Num:
+    return hits_to_kill(a, b) + k
+
+@gene("q7", "attack_damage me -> ally")
+def p_attack_ally(k: Num, a: Unit, b: Unit) -> Num:
+    return attack_damage(a, b) + k
+
+@gene("q8", "hits_to_kill ally -> me")
+def p_kill_ally(k: Num, a: Unit, b: Unit) -> Num:
+    return hits_to_kill(a, b) + k

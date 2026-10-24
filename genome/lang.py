@@ -113,10 +113,15 @@ PRIMS = {
     "field": (("Tiles",), "Field", "X.field({0})"),
     "field_avoid": (("Tiles", "Tiles", "Tiles"), "Field", "X.field_avoid({0}, {1}, {2})"),
     "box_field": (("Tiles", "Tiles"), "Field", "X.box_field({0}, {1})"),
+    "dash_field": (("Tile", "Tiles"), "Field", "X.dash_field({0}, {1})"),
     "wfield": (("Tiles", "Tiles", "Tiles", "Num"), "Field", "X.wfield({0}, {1}, {2}, {3})"),
     "path_step": (("Tile", "Tile", "Tiles", "Num"), "Tile", "X.path_step({0}, {1}, {2}, {3})"),
     "path_len": (("Tile", "Tile", "Tiles", "Num"), "Num", "X.path_len({0}, {1}, {2}, {3})"),
     "territory": (("Tiles", "Tiles", "Tiles"), "Tiles", "X.territory({0}, {1}, {2})"),
+    "attack_damage": (("Unit", "Unit"), "Num", "X.attack_damage({0}, {1})"),
+    "cast_damage": (("Unit", "Num", "Unit"), "Num", "X.cast_damage({0}, {1}, {2})"),
+    "shield": (("Unit",), "Num", "X.shield({0})"),
+    "hits_to_kill": (("Unit", "Unit"), "Num", "X.hits_to_kill({0}, {1})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
@@ -153,7 +158,7 @@ PRIMS = {
 }
 # Primitives whose simulator price is not yet calibrated against cambc (genome/FUEL.md): rejected unless
 # GENOME_UNCALIBRATED=1 (calibration probes), so the search cannot use them before they are priced.
-UNCALIBRATED = set()  # wfield, path_step, path_len, territory: calibrated Oct 24 (genome/FUEL.md)
+UNCALIBRATED = set()  # wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield, hits_to_kill: calibrated Oct 24 (genome/FUEL.md)
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
@@ -761,7 +766,9 @@ def to_cpp(genome):
             lines += body
         lines.append("}")
     lines += ["} // namespace genome_gen", "", "extern \"C\" genome::GenesBase* genome_make(genome::Ctx& X) "
-              "{ return new genome_gen::Genes(X); }", ""]
+              "{ return new genome_gen::Genes(X); }",
+              "// the runtime layout this genome was compiled against (genome_eval refuses a mismatch)",
+              "extern \"C\" unsigned long genome_ctx_size() { return sizeof(genome::Ctx); }", ""]
     return "\n".join(lines)
 
 

@@ -99,10 +99,15 @@ def danger_at(t: Tile) -> Num:
 | `field(Tiles)` | Field |
 | `field_avoid(Tiles, Tiles, Tiles)` | Field |
 | `box_field(Tiles, Tiles)` | Field |
+| `dash_field(Tile, Tiles)` | Field |
 | `wfield(Tiles, Tiles, Tiles, Num)` | Field |
 | `path_step(Tile, Tile, Tiles, Num)` | Tile |
 | `path_len(Tile, Tile, Tiles, Num)` | Num |
 | `territory(Tiles, Tiles, Tiles)` | Tiles |
+| `attack_damage(Unit, Unit)` | Num |
+| `cast_damage(Unit, Num, Unit)` | Num |
+| `shield(Unit)` | Num |
+| `hits_to_kill(Unit, Unit)` | Num |
 | `at(Field, Tile)` | Num |
 | `walk_nearest(Tiles, Tile, Tiles)` | Tile |
 | `slot_kind(Num)` | Num |
@@ -140,9 +145,11 @@ Notes on the newer primitives (SDK reads and generic operations only):
 - `vision()`, `ally_tiles()`, `enemy_tiles()`, `camp_tiles()`: the SDK's vision and occupancy masks (one engine call each). `ally_tiles()` includes me.
 - `field_avoid(goals, walls, stop)`: the engine distance field to `goals` over tiles not in `walls`; the search ends after the layer by which every reachable `stop` tile has been reached (the host's ComputeTo; one stop tile: the first layer that reaches it; empty `stop`: whole map), farther tiles read unreachable (1e9).
 - `box_field(goals, walls)`: the walking field to `goals` over tiles not in `walls`, through the engine field memo the policy bot's walking uses (cheap on later turns while the goals stay the same); readable only on my 3 x 3 box and up to my own distance (enough to choose a step), unreachable (1e9) everywhere else.
+- `dash_field(goal, walls)`: the walking field to one `goal` tile through the engine field memo the policy bot's dash uses (root = the goal, dests = my 5 x 5 box); only the box tiles nearest to the goal read their distance, every other tile unreachable (1e9): for choosing a dash landing. ~4-6k per call.
 - `wfield(goals, walls, slow, k)`: a weighted walking field computed in our own code (Dijkstra, bucket queue): stepping onto a tile costs 1, or 1 + k on a `slow` tile (k clamped to 0..8); `walls` cannot be entered (goal tiles can); distances above 65534 read 1e9. Dear: a whole 100x100 map costs ~4.5M fuel in the bot (~45 turns of budget), 90x30 ~1.3M.
 - `path_step(from, to, walls, budget)` / `path_len(...)`: A* from `from` to `to` over tiles not in `walls` (`to` allowed), expanding at most `budget` tiles: the first step (invalid if not found) / the length (1e9). About 1.4k + 380 per tile expanded in the bot.
 - `territory(mine, theirs, walls)`: tiles strictly nearer by walking to `mine` than to `theirs` (empty `theirs`: every tile reachable from `mine`), over tiles not in `walls` (sources allowed): two engine fields and a compare in our code, ~300k fuel on 100x100 (~80k on 90x30).
+- Fights, exact from the game's formulas and the units' host data (emblem passives from their items, shields from their buffs), in the engine's float order: `attack_damage(a, b)` what one basic attack of `a` takes off `b` (strength, missing-health passive, Monster emblem and the camp multiplier against camps, then Durability / Jungle; before shields); `cast_damage(a, slot, b)` the same for a damage / stun / area ability (modifier x focus); `shield(u)` the shield left on a champion; `hits_to_kill(a, b)` basic attacks of `a` that kill `b` from now (shields first; 1e9 if none hurts). A champion's items and buffs are read once per pass (~0.9k); calls ~0.1-0.25k after that.
 - `walk_nearest(cand, from, walls)`: the engine's nearest-by-walk (ties row-major); invalid if none is reachable.
 - `type_spawns(k)`, `spawn_type(t)`, `spawn_group(t)`, `camp_spawn(u)`, `camp_base_*(k)`: static map and camp design data (-1 off a spawn tile).
 - `is_awake(u)`: camp life state; `group_reward(g)`: the group is cleared and waiting for capture.
