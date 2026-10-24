@@ -57,6 +57,7 @@ TWIN_SEED = 4_000_037
 
 # ---------------------------------------------------------------- TrueSkill, 1v1 without draws
 MU0, SIGMA0 = 25.0, 25.0 / 3
+FIXED_DEFAULT = True
 BETA, TAU = 25.0 / 6, 25.0 / 300
 
 
@@ -111,6 +112,10 @@ class Arena:
             m = self._add_genome(text, "seed", [], {"op": "seed"})
             self.log(f"new arena {args.tag}: seed {m['name']} in species {m['species']}, "
                      f"{len(self.anchors())} anchors")
+        if args.fixed_anchors:  # freeze every anchor at its current mu (keeps the scale, fixed from here on)
+            for m in self.anchors():
+                m["sigma"] = args.anchor_sigma
+            self.log("fixed anchors: " + ", ".join(f"{m['name']} {m['mu']:.2f}" for m in self.anchors()))
         self.rng = random.Random(self.s["births"] * 7919 + self.s["matches"] + 1)
         self.gaps, self.gaps_t = [], 0.0
 
@@ -161,6 +166,8 @@ class Arena:
              "fingerprint": None, "source": source}
         if rating:
             m["mu"], m["sigma"] = rating
+        if self.a.fixed_anchors:
+            m["sigma"] = self.a.anchor_sigma
         self.s["members"][name] = m
         return m
 
@@ -267,10 +274,15 @@ class Arena:
                 return
             before = (a["mu"], b["mu"])
             for r in st.get("results", []):
-                if r > 0.5:
-                    rate_game(a, b)
-                elif r < 0.5:
-                    rate_game(b, a)
+                if r == 0.5:
+                    continue
+                w_, l_ = (a, b) if r > 0.5 else (b, a)
+                keep = [(m["mu"], m["sigma"]) for m in (w_, l_)]
+                rate_game(w_, l_)
+                if self.a.fixed_anchors:  # anchors keep fixed ratings: only the genome learns from the game
+                    for m, (mu, sg) in zip((w_, l_), keep):
+                        if m["kind"] == "anchor":
+                            m["mu"], m["sigma"] = mu, sg
             n, w = st["games"], st["a_wins"]
             a["games"] += n
             b["games"] += n
@@ -628,6 +640,9 @@ def main(argv=None):
     ap.add_argument("--summary-every", type=int, default=10)
     ap.add_argument("--max-hours", type=float, default=48)
     ap.add_argument("--tail-matches", type=int, default=200, help="matches played after the budget runs out")
+    ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
+                    help="anchors keep fixed ratings (frozen at their current mu on resume)")
+    ap.add_argument("--anchor-sigma", type=float, default=1.0)
     ap.add_argument("--intel-branch", default="")
     ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
     ap.add_argument("--resume-from", default="", help="an earlier arena output directory (e.g. the last pushed "
