@@ -3,15 +3,16 @@ vc? drafts VV, HoR, Marcella, Vendetta, Ryth and won fights 130-21 against tune-
 meta draft, and every head of 3 from {vendetta, vesper_vale, tavi, heart_of_ruin, marcella, ryth} with the two best
 tails, and the TOP_TEAMS meta core (VV + HoR + 3 of Marcella/Vendetta/Prism/Ryth/Tavi, 2 x 60 orders). Each order: 200 games vs opp-metadraft (tune-5 with the meta draft) and 200 vs tune-5, seed SEED; ranked by
 the mean. Both teams may pick the same champion, so a "counter" can't deny picks; it can only out-fight them.
-usage: draft_meta.py TAG SEED"""
+usage: draft_meta.py TAG SEED [BASE.policy]  (base default policies/tune-5.policy; opp-metadraft is rebuilt on the base)"""
 import itertools, json, sys
 sys.path.insert(0, '.')
 from funsearch.race import *
 
 tag, seed = sys.argv[1], int(sys.argv[2])
-base = open("policies/tune-5.policy").read()
+base = open(sys.argv[3] if len(sys.argv) > 3 else "policies/tune-5.policy").read()
 bpol = compile_text(base)
-meta = compile_file("policies/opp-metadraft.policy")
+META = ["vesper_vale", "heart_of_ruin", "marcella", "vendetta", "ryth"]
+meta = compile_text(set_draft(base, chain_draft(META)))
 pool = ["vendetta", "vesper_vale", "tavi", "heart_of_ruin", "marcella", "ryth"]
 orders = {("vesper_vale", "heart_of_ruin", "marcella", "vendetta", "ryth")}
 for head in itertools.permutations(pool, 3):
