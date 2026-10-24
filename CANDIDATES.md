@@ -1,0 +1,117 @@
+# FunSearch lead -> coordinator: ladder candidates
+
+One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-seeds 80-game result vs live, notes.
+
+## 1. hyb-t5m (hybrid line), sent 2026-10-24 05:02 UTC
+
+- Policy: `policies/candidates/hyb-t5m.policy` on branch `hybrid/candidates` @ 6e5d894.
+- What: tune-5 (live v16) + tune-4's scoreless-monolith fallback limited to maps whose only gems are
+  monoliths. A graft of two existing changes; no FunSearch code.
+- h2h vs tune-5, fresh per-game seeds: 52.3% over 2000 games (about +/-1.1 SE). vs tune-4: 55.0%.
+- cambc-exact vs tune-5 (`--bot-seeds`, 40 maps x 2 sides): 0.537 = 43/80 (pre-check bar 42).
+- Notes: just above the bar on both counts. It doesn't address the v16 loss causes (bag deaths,
+  group value); a rich-group preference on top of it screened 56% vs tune-5 over 400 games and is
+  being confirmed over 1600. That would supersede this entry if it holds.
+
+## 2. tune-r-all (tune line), sent 2026-10-24 07:03 UTC
+
+- Policy: `policies/candidates/tune-r-all.policy` on branch `tune/runs` @ 82d7d28 or later.
+- What: tune5-campreset + map fixes (monolith fallback only after round 800; tribute before a camp
+  group with group_threat >= 240; skip camp groups containing a monolith, 00lost-world) + safe recall
+  (no recall with an enemy champion within 8: retreat home first; threshold 0.3).
+- League (tools/league.py, 19 policies, 160 games per pair, seed 1; hunters 2a/b/c NOT yet in the pool):
+  r-all 1742 [1729-1754] vs tune5-campreset 1693 [1681-1705], beyond the 90% interval.
+- Info: bot-seeded 44/80 vs tune5-campreset; 0 sim suspensions, 0 crashes. Fight metrics vs tune5-campreset
+  (80 games): vs v7zg-cast deaths 4.59 vs 5.76, mid-recall deaths 1.88 vs 2.54; vs metadraft wins 93 vs 80%.
+- Needs: real-cambc safety checks (bot session). Supersedes candidate 1 (hyb-t5m), which only cleared tune-5.
+
+## 3. tune-r-all-v2 (tune line), sent 2026-10-24 07:19 UTC
+
+- Policy: `policies/candidates/tune-r-all-v2.policy` on branch `tune/runs` @ 3f16905.
+- What: tune-r-all (candidate 2) with its fuel fixes: the monolith-group exclusion set is now a `keep`
+  (computed once per game), and the T240 threat-bank branch is gated on fuel_remaining() > 65000.
+- League (tools/league.py, 19 policies, 160 games per pair, seed 1). Pool: live tune5-campreset (as
+  r-campreset, play-identical); hunters opp-hunter2a/2b/2c + opp-hunter; ladder stand-ins opp-icecream,
+  opp-odyssey, opp-metab, opp-metadraft; v7zg-cast, v7-zerogem, tune-3, tune-5, tune5-reset; tune variants.
+  r-all-v2 1725 [1712-1737] vs tune5-campreset 1672 [1659-1683], beyond the 90% interval. v2 vs r-all 50%.
+- Sim fuel (fuel_turns --enforce --bot-seeds vs campreset; starvation, big-world, lost-world; 24 games):
+  0 turns >= 100k, 24 turns > 80k (campreset 100), max non-first turn 87.1k, first turn up to 167k.
+- Needs: real-cambc safety checks. Supersedes candidate 2 (failed fuel). If starvation still caps in real
+  cambc, the tune line will raise the gate or drop T240.
+
+## 4. rall2-ca4 (hybrid line), sent 2026-10-24 07:52 UTC
+
+- Policy: `policies/candidates/rall2-ca4.policy` on branch `hybrid/candidates` @ 7933e00.
+- What: live v18 (tune-r-all-v2) + cast-ahead: before the in-range fight, cast damage/stun (not
+  dash/shield/heal/reset) at the nearest enemy champion within 4 tiles; no move, turn continues, sets
+  team_target. Uses no slot_*/unit_* blocks.
+- League (tools/league.py, 160 games per pair, all maps x both sides). Pool: tune5-campreset (v17),
+  tune-r-all-v2 (v18, bar), tune-5, opp-hunter2a/2b/2c, opp-icecream, opp-odyssey, opp-metab, opp-metadraft,
+  cr-m, cr-m-ca4, hyb-t5m-r-camp. rall2-ca4 1711 [1696-1723] vs v18 1659 [1645-1673]: beyond the 90% interval.
+  Worst matchup cr-m-ca4 55%; vs v18 57%.
+- Sim safety (80-game --bot-seeds set vs v18): 50/80; 0 capped turns, 0 crashes; fuel 23.0k vs 21.0k per
+  champion-turn (+10%); near-cap turns at a 70% cap 4.4 vs 3.6 per game. First-turn fuel not measurable in sim.
+- Fights: vs v18 K 8.4/6.8, D 11.1/12.8; vs hunter2b 78.7%; vs metadraft 85.6%.
+- Needs: bot session's safety checks (first turn < 200k, BOT_VERIFY).
+
+## 4b. rall2-ca4-lean (hybrid line), sent 2026-10-24 08:08 UTC: replaces 4 (held on one 100k turn)
+
+- Policy: `policies/candidates/rall2-ca4-lean.policy` on `hybrid/candidates` @ a33869c.
+- Change vs 4: one shared `let foes = enemies_visible()` per turn; nearest(foes) only when an enemy is visible.
+  A fuel_remaining() gate can't help (the block runs early in the turn, when fuel is near full).
+- Sim fuel (deploy/v0 49cc030 fuel_turns --enforce --bot-seeds vs v18, 80 games): mean 23.6k (v18 22.8k, 4 was
+  24.9k); turns >80k 15 (v18 9, 4 was 20); 0 suspended; peak 95.8k on 00ambush/a (v18 peak 89.9k); first turn 166.6k.
+- League (same required pool): lean 1711 [1694-1725] vs v18 1661 [1648-1673].
+- Risk: the 95.8k sim peak is close to the cap. If real cambc caps, hybrid's next lever is sharing closest(goals).
+
+## 4c. rall2-ca4-lean2-d65 (hybrid line), sent 2026-10-24 08:20 UTC: replaces 4b (one real 100k turn)
+
+- Policy: `policies/candidates/rall2-ca4-lean2-d65.policy` on `hybrid/candidates` @ 9c0c7e8.
+- Change vs 4b: v18's camp-goal dash gated at fuel_remaining() > 65000 (was 55000). Lean's worst turn was v18's own
+  far-camp trip (closest(goals) ~20k + dash + move distance fields ~17k each); cast-ahead cost ~0 there.
+- Sim fuel (fuel_turns --enforce --bot-seeds vs v18, all 80 games, first turns excluded): peak 89.3k
+  (v18 89.9k; target <= 90k met), 9 turns >80k (v18 9), mean 23.6k, 0 suspended, first turn max 158.5k.
+- League (required pool + variants, 160 games per pair): d65 1682 [1668-1696] vs v18 1636 [1623-1650], beyond the
+  90% interval. (d70 loses the gain: 1641.)
+
+## 5. tune-fight-2s (tune line), sent 2026-10-24 11:23 UTC
+
+- Policy: `policies/candidates/tune-fight-2s.policy` on `tune/runs` @ e2cc499. Build from deploy/v0 as for v19.
+- What: v19 + one rule found by the tune line's fight-block FunSearch (G2): with no enemy champion visible and standing
+  in a bush, place the free ward on our own tile (`contains(bushes(), position())`, one bitboard test).
+- League (tools/league.py, 13 policies, 160 games per pair). Pool: v19 (live), v18, tune5-campreset, opp-hunter3,
+  opp-hunter2a/2b/2c, opp-icecream, opp-odyssey, opp-metab, opp-metadraft, + variants.
+  2s 1710 [1698-1725] vs v19 1670 [1657-1685]: beyond the 90% interval.
+- Info: 55.75% vs v19 on 2 x 400 fresh; 43/80 bot-seeded; 0 suspensions.
+- Sim fuel (fuel_turns --enforce --bot-seeds; big-world/ambush/starvation x 2 sides): peak 89.8k (non-first), 0 >= 100k,
+  first turn <= 167.8k. Note: close to the 90k target.
+- Fights vs hunter3 (80 games): wins 70 vs 64%, deaths 4.44 vs 6.30, kills 8.80 vs 7.76, mid-recall deaths 1.02 vs 1.77.
+
+## 6. tune-v20-L1 (tune line), sent 2026-10-24 12:02 UTC
+
+- Policy: `policies/candidates/tune-v20-L1.policy` on `tune/runs` @ b15465c. Build from deploy/v0 b9452ee or later
+  (needs the lockfix: locked_altars() = enemy locks only; v20's deploy 6d50156 already has it).
+- What: v20 + lock once. At spawn, if shared byte 7 == 0 and no lock held, buy one altar lock; when within 2 of an altar
+  with an empty bag, place it, set byte 7 = 1, end turn. One lock per team per game; locks block only enemy tributes.
+  Old blocks only (buy/place/has_altar_lock, read/write_shared).
+- League (13 policies, 160 games per pair). Pool: v20 (live), v19, tune5-campreset, opp-hunter3, opp-hunter2a/2b/2c,
+  opp-icecream, opp-odyssey, opp-metab, opp-metadraft, + variants. L1 1736 [1724-1752] vs v20 1694 [1681-1709].
+- Info: 55.4% and 54.0% vs v20 on two 2 x 400 fresh sets; 42/80 bot-seeded; 0 suspensions.
+- Sim fuel (enforce, bot-seeds; big-world/ambush/starvation/lost-world/hooks/gemfight x 2): peak 88.1k, first turn <= 169.2k.
+- vs hunter3 (80 games): wins 75 vs 70%, deaths 3.92 vs 4.44.
+
+## 7. style-gsub2-11k33 (style line), sent 2026-10-24 19:06 UTC
+
+- Policy: `policies/candidates/style-gsub2-11k33.policy` on `funsearch/style` @ 092fc3b. ZIP `dist/deploy-style-gsub2-11k33.zip`
+  (45af074, sha256 9a80ccec…2843), built by the bot session on deploy/v0 ca8f85b.
+- What: v21/v22 policy + (a) group choice found by FunSearch (style8-gsub2 #11, target = gems submitted vs v21): a rich
+  camp group (rich_spawns(15)) up to 5 tiles farther than the nearest camp is taken first, fuel-gated (> 72000, never
+  turn 1, skipped when the goal is already rich or no rich goal lies within distance(goal)+5); (b) from gsub2 #33: any
+  bag tributes at once at an adjacent altar.
+- Upload bar: arena league main3r (engine ca8f85b, bot_seeds off, 160 games per pair; pool: v19-v23 lineage, hunters
+  2a/2b/2c/3, stand-ins icecream/odyssey/metab/metadraft, tune-5): 1710 vs live 1679, bootstrapped 90% interval of the
+  difference +15 to +51.
+- Info: arena vs live (bot_seeds off, 2 x 800): 54.6% (+3.7 SE), submitted +45/game. Real cambc vs v22 ZIP 44/80.
+- Safety (bot session): BOT_VERIFY 0 mismatches, exactness 40/40, 0 crashes, 0 capped turns, first turn <= 182.6k,
+  peak 93.9k; turns > 80k 114 vs v22's 67 in the same games (heavier, ~6k margin).
+- Lineage note: gsub2-11 (unfixed) failed cambc fuel; 11k (fuel fix) cleared safety but was −1.3 short on the bar.
