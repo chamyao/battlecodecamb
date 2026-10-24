@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 14:34 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.84 14.04 12.31 on 16 threads.
+Updated 2026-10-24 14:39 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.02 12.31 12.04 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
