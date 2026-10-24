@@ -25,6 +25,11 @@ fs-1 -> pure4-g1 #155 = fs-p1 -> pure4-g2 #140 = fs-p2 -> (g3: no promotion) -> 
 23.3 / 31.0 / 42.0%. fs-p3 cambc-exact vs v21 0.175. fs-p3 is registered in the arena as `fs-p3`
 (engines deploy/v0 545c7b1 and 2e1ff7e; the live comparison league is `main2` on 2e1ff7e).
 
+Fuel caveat: on arena engine 2e1ff7e (recalibrated fuel) fs-p3 averaged 307 fuel suspensions per game on
+00ambush (arena match 150). Pure's pinned build under-prices fuel, so the lineage evolved fuel-heavy play.
+Lead: keep the current A/B arms on the pinned build; the NEXT comparison series starts on a build >= 2e1ff7e
+with the baseline re-run there.
+
 ## Loop A/B results so far (PR #2)
 
 1. Offline g4 replay ($0, `funsearch/loop_ab.py`, `runs/ab-g4.json`): per-child climb (funsearch/runs
