@@ -1,0 +1,178 @@
+# opp-metab: test opponent (tune line), a stand-in for the arena house bot metab-v3 (docs/ARENA_METAB_V3.md on
+# analysis/sprint1): v7zg-cast with draft VV > HoR > Marcella > Ryth > Vendetta, an opening rush to the altar zone,
+# farming only camps within 8 of an altar, tribute at 10, chasing intruders within 6 of an altar, recall at 45%.
+# v7zg-cast [hybrid line]: v7-zerogem + ability-type-aware casting grafted from hybrid #14 (Opus, runs/hyb2-g1 #14): shield/heal on self, dash kept for escape and far camp goals, damage/aoe/stun/reset at the target.
+# v7-zerogem: v7 + fixes for the three maps where a v7 mirror tributes nothing (docs/ZERO_GEM_MAPS.md):
+# no fighting enemies on their own spawn, fight a camp that is the only way to an altar, and go
+# for monoliths when nothing is tributed by round 300. Proposal from the sim-calibration session.
+# v7: v5d-fs2 + idle fix (docs/FARM_DIAGNOSIS.md on deploy/v0): when standing on a dead camp of an
+# uncleared group, walk to the nearest living camp instead of idling.
+# v5d-fs2 [hybrid line]: v5d plus fs-2's league finds (Treasure/Jungle shards; tribute at >= 10 gems, when hurt, or after round 1500).
+# v5d: v5 with a fixed draft order (the composition that won 75% of a v4 mirror).
+# v5: v4 attacking the weakest enemy in range (focus fire) instead of the first.
+# v4: v3 + altar fixes from docs/LADDER_LOSSES_V3.md: never freeze when every altar is locked
+# (tributing a locked altar attacks the lock), and prefer altars out of monolith reach.
+# v3: fs-1 + three fixes from the ladder-loss analysis (docs/LADDER_LOSSES.md on analysis/sprint1):
+# retreat toward spawn below 30% health while in_danger() and recall only once clear; hold on a
+# camp tile only when its group is capturable; skip monoliths and golems.
+# Based on fs-1: FunSearch pilot #146 (5 Haiku edits from v1): split strength/health shards, heal on spawn,
+# retreat at 50% health when carrying gems, hold on a cleared camp spawn to capture, one camps_visible() per turn.
+
+# zg14: ability-type-aware casting from hybrid #14 (Opus): shield/heal on self, dash kept for escape/travel
+def cast_on(slot, u):
+    if ability_ready(slot):
+        if slot_is_shield(slot) or slot_is_heal(slot):
+            cast_self(slot)
+        elif not slot_is_dash(slot):
+            cast_at_unit(slot, u)
+
+def dash_to(slot, t):
+    if ability_ready(slot):
+        if slot_is_dash(slot):
+            dash_towards(slot, t)
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    elif available(pool, champ_heart_of_ruin()):
+        pick(champ_heart_of_ruin())
+    elif available(pool, champ_marcella()):
+        pick(champ_marcella())
+    elif available(pool, champ_ryth()):
+        pick(champ_ryth())
+    elif available(pool, champ_vendetta()):
+        pick(champ_vendetta())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+keep altar_ring = ring( altars(), 1 )
+keep safe_altar_ring = ring( minus( altars(), ring(monolith_tiles(), 5) ), 1 )
+# metab: farm only the altar zone (camp spawns within 8 of an altar), defend within 6 of an altar
+keep zone_spawns = minus( camp_spawns, minus( camp_spawns, ring( altars(), 8 ) ) )
+keep defend_zone = ring( altars(), 6 )
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally()), position() )
+if at_spawn:
+    let shards_bought = floor( gold() / 30 )
+    let treasure_n = floor( shards_bought / 2 )
+    let rest_after_treasure = shards_bought - treasure_n
+    let jungle_n = floor( rest_after_treasure / 3 )
+    let rest_after_jungle = rest_after_treasure - jungle_n
+    let strength_shards = floor( rest_after_jungle / 2 )
+    buy( shard_of(family_treasure(), stat_strength()), treasure_n )
+    buy( shard_of(family_jungle(), stat_health()), jungle_n )
+    buy( shard(stat_strength()), strength_shards )
+    buy( shard(stat_health()), rest_after_jungle - strength_shards )
+    # heal on spawn before heading back out, unless an enemy is already in reach
+    if health() < max_health() and not exists(first(filter(enemies_visible(), in_attack_range()))):
+        end_turn()
+
+# retreat at 20% health normally, but at 50% when carrying gems
+if not at_spawn and health() < 0.45 * max_health():
+    if in_danger():
+        let home = closest( spawn_region(ally()) )
+        dash_to(0, home)
+        dash_to(1, home)
+        move_towards(home)
+        end_turn()
+    recall()
+    end_turn()
+if not at_spawn and gems() > 0 and health() < 0.5 * max_health() and not in_danger():
+    recall()
+    end_turn()
+
+let enemy = weakest( filter( enemies_visible(), in_attack_range() ) )
+# an enemy on its own spawn is healed every turn: fighting it there never ends (00reverse-spiral)
+if exists(enemy) and not contains( spawn_region(enemy()), unit_position(enemy) ):
+    cast_on(0, enemy)
+    cast_on(1, enemy)
+    attack(enemy)
+    end_turn()
+
+# metab: chase enemies inside the altar zone (no further)
+let intruder = nearest( enemies_visible() )
+if exists(intruder) and distance( position(), unit_position(intruder) ) <= 5 and contains( defend_zone, unit_position(intruder) ) and contains( defend_zone, position() ):
+    move_towards( unit_position(intruder) )
+    end_turn()
+
+# metab: opening rush, everyone to the altar zone first
+if round_number() < 50 and not contains( defend_zone, position() ):
+    move_towards( closest(altar_ring) )
+    end_turn()
+
+# tribute only with a worthwhile bag (or when hurt / late game)
+let bag_ready = gems() >= 10 or round_number() > 1500 or health() < 0.5 * max_health()
+if gems() > 0 and bag_ready:
+    # an altar next to us works even when locked: tributing there attacks the lock (5 hits clear it)
+    let altar = first( filter( altars(), within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    # walk to an open altar out of monolith reach (5); else any altar out of reach; else any altar
+    let target = closest( minus( safe_altar_ring, ring(locked_altars(), 1) ) )
+    if exists(target):
+        move_towards(target)
+        end_turn()
+    let target2 = closest(safe_altar_ring)
+    if exists(target2):
+        move_towards(target2)
+        end_turn()
+    let altar_goal = closest(altar_ring)
+    # every altar-adjacent tile is taken by a camp (01boss-battle: holes and a monolith): fight it
+    if contains(camp_spawns, altar_goal):
+        let blocker = first( filter( camps_visible(), in_attack_range() ) )
+        if exists(blocker):
+            attack(blocker)
+            end_turn()
+    move_towards( altar_goal )
+    end_turn()
+
+# one camps_visible() query per turn, reused for both attack checks
+let camps = camps_visible()
+
+let camp = first( filter( camps, in_attack_range() ) )
+if exists(camp):
+    cast_on(0, camp)
+    cast_on(1, camp)
+    attack(camp)
+    end_turn()
+
+# nothing tributed by round 300 (00contest: only monoliths carry gems): go for monoliths too
+if false():
+    move_towards( closest( minus( minus( camp_spawns, respawning_visible_spawns() ), golem_tiles() ) ) )
+    end_turn()
+let all_goals = minus( minus( minus( camp_spawns, respawning_visible_spawns() ), monolith_tiles() ), golem_tiles() )
+let zone_goals = minus( all_goals, minus( all_goals, zone_spawns ) )
+# all goals when the zone has none: within(R) with R = 1999 if the zone is empty, else -1 (no tiles)
+let goals = union( zone_goals, filter( all_goals, within( 2000 * floor( 1 / (count(zone_goals) + 1) ) - 1, position() ) ) )
+
+# already standing on a cleared camp spawn: hold here so the capture timer keeps running
+if contains(capturable_spawns(), position()):
+    end_turn()
+
+let goal = closest(goals)
+# on a dead camp of a group that is not cleared yet, the closest goal is our own tile: walk to the
+# nearest living camp instead (not a monolith or golem), so the group can be finished
+if distance(goal, position()) == 0:
+    let live = nearest(camps)
+    if exists(live) and not contains( union( monolith_tiles(), golem_tiles() ), unit_position(live) ):
+        move_towards( unit_position(live) )
+        end_turn()
+# tunable: dash toward a camp goal only when it is farther than this
+if exists(goal) and distance(position(), goal) > 4:
+    dash_to(0, goal)
+    dash_to(1, goal)
+move_towards( goal )
+let camp2 = first( filter( camps, in_attack_range() ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
