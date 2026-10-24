@@ -73,8 +73,11 @@ if [ -f runs/ec2-hyb5 ]; then
       fi
     fi
   fi
-  # H6 (hybrid line, 12:15 UTC): at the next hyb5 boundary merge funsearch/runs 48a1404+ (prompt-only shared-memory
-  # change: byte 7 bits 0-1 reserved for tune's lock flags; no interp change) and relaunch with the same flags.
+  # H6 + H7 (hybrid line, 12:15 / 12:40 UTC), one relaunch at the same hyb5 boundary: merge funsearch/runs a43aede+
+  # (includes 48a1404: lock-flag bits in shared memory; and policies/pool/v21.policy; no interp change), queue v21 as a
+  # challenger, relaunch with v21 seeds on islands 0/1/3 and --cambc-ref v21.
+  V21SEEDS=policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/lean-g65.policy,policies/pool/v21.policy
+  [ -f runs/ec2-h6 ] && { SEEDS=$V21SEEDS; CREF=policies/pool/v21.policy; }
   if [ -f runs/ec2-h5 ] && [ ! -f runs/ec2-h6 ]; then
     if [ ! -f runs/ec2-h6-hold ]; then
       grep -c 'hold file present' runs/hyb5.log > runs/ec2-h6-holdmark; touch runs/hyb5.hold runs/ec2-h6-hold
@@ -84,11 +87,14 @@ if [ -f runs/ec2-hyb5 ]; then
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H6: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 48a1404 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
-        rm -f runs/hyb5.hold; touch runs/ec2-h6
-        log "H6: funsearch/runs $(git rev-parse --short HEAD) (has 48a1404), $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5, same flags"
+         git merge-base --is-ancestor a43aede HEAD && [ -f policies/pool/v21.policy ] && build "$D" &&
+         python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        grep -qx policies/pool/v21.policy runs/hyb5.challengers 2>/dev/null || echo policies/pool/v21.policy >> runs/hyb5.challengers
+        for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h6-marks
+        rm -f runs/hyb5.hold; touch runs/ec2-h6; SEEDS=$V21SEEDS; CREF=policies/pool/v21.policy
+        log "H6+H7: funsearch/runs $(git rev-parse --short HEAD) (has a43aede, 48a1404), $(tail -n 1 runs/ec2-pytest.txt); v21 challenger queued; relaunching on v21"
       else
-        echo "H6 merge/48a1404/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H6 upgrade failed"; pushall; return 1
+        echo "H6+H7 merge/a43aede/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H6 upgrade failed"; pushall; return 1
       fi
     fi
   fi
@@ -142,6 +148,15 @@ if [ -f runs/ec2-hyb5 ]; then
     elif grep -q 'PROMOTED challenger policies/pool/v20.policy' runs/hyb5.log; then
       touch runs/ec2-h5-checked; log "H5 check: no re-seed lines; v20 promoted at the boundary, new generation: $newgen"
     fi
+  fi
+  if [ -f runs/ec2-h6 ] && [ ! -f runs/ec2-h6-checked ]; then
+    r=""; for f in runs/hyb5-g*.log; do
+      m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h6-marks); m=${m:-0}
+      r="$r$(tail -n +"$((m + 1))" "$f" | grep -oE 're-seeded island [0-9] with [a-z0-9-]+' | tr '\n' ';')"
+    done
+    if [ -n "$r" ]; then touch runs/ec2-h6-checked; log "H7 check: $r (expected islands 0,1,3 with v21; island 2 kept)"
+    elif grep -q 'PROMOTED challenger policies/pool/v21.policy' runs/hyb5.log; then
+      touch runs/ec2-h6-checked; log "H7 check: no re-seed lines; v21 promoted at the boundary"; fi
   fi
   pushall; return 0
 fi
