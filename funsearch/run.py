@@ -76,8 +76,11 @@ def main():
     ap.add_argument("--no-tune-children", dest="tune_children", action="store_false")
     ap.add_argument("--tune-children", dest="tune_children", action="store_true")
     ap.set_defaults(tune_children=True)
-    ap.add_argument("--tune-steps", type=int, default=6)
-    ap.add_argument("--tune-games", type=int, default=16, help="games per opponent per tuning evaluation")
+    ap.add_argument("--tune-steps", type=int, default=4)
+    ap.add_argument("--tune-games", type=int, default=8, help="games per opponent per tuning evaluation")
+    ap.add_argument("--tune-rejects", type=int, default=2, help="stop the climb after this many rejections in a row")
+    ap.add_argument("--tune-opponents", default="",
+                    help="opponents for the climb (default: the run's 4 highest-weighted, starter excluded)")
     ap.add_argument("--tune-slack", type=float, default=0.15,
                     help="early stop: no climb for a child that screens below its best parent minus this")
     ap.add_argument("--tune-margin", type=float, default=0.03, help="a mutant must beat the incumbent by this much")
@@ -220,6 +223,12 @@ def main():
 
     rng = random.Random(len(db.all))
     tune_lock = threading.Lock()
+    # climb opponents: explicit, else the run's 4 highest-weighted (starter excluded); a fixed seed per child
+    def _w(o):
+        return float(o.rsplit("@", 1)[1]) if "@" in o else 1.0
+    tune_opps = tuple(x for x in args.tune_opponents.split(",") if x) or tuple(
+        sorted((o for o in opponents if not o.startswith("builtin:starter")), key=lambda o: -_w(o))[:4])
+    tune_games_per_eval = sum(max(2, round(args.tune_games * _w(o) / 2) * 2) for o in tune_opps)
 
     def tune_child(parent, text):
         """--tune-children: screen the child; if it is near its best parent and changed constants, hill-climb
@@ -232,17 +241,19 @@ def main():
         if not scr.ok or scr.score < par - args.tune_slack:
             return scr, text, None
         with tune_lock:
-            seed0 = 100000 + rng.randrange(10 ** 6)
+            seed = 100000 + rng.randrange(10 ** 6)
             crng = random.Random(rng.random())
 
-        def ev(t, k):
-            r = evaluate(t, opponents=opponents, games=args.tune_games, threads=args.eval_threads, seed=seed0 + k)
+        def ev(t):
+            r = evaluate(t, opponents=tune_opps, games=args.tune_games, threads=args.eval_threads, seed=seed)
             return r.score if r.ok else None
         t0 = time.time()
-        tuned, info = climb_child(parent.text, text, ev, steps=args.tune_steps, rng=crng, margin=args.tune_margin)
+        tuned, info = climb_child(parent.text, text, ev, steps=args.tune_steps, rng=crng, margin=args.tune_margin,
+                                  max_rejects=args.tune_rejects)
         if info is None:
             return scr, text, None
-        info.update(screen=round(scr.score, 4), parent_screen=round(par, 4), seconds=round(time.time() - t0, 1))
+        info.update(screen=round(scr.score, 4), parent_screen=round(par, 4), seconds=round(time.time() - t0, 1),
+                    games=info["evals"] * tune_games_per_eval)
         # an unchanged text keeps its screen; a tuned one is screened again (fingerprint of the tuned text)
         return (scr if tuned == text else None), tuned, info
     stop = threading.Event()

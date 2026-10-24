@@ -40,14 +40,16 @@ def test_mutate_literal_keeps_text_and_parses():
 
 
 def test_climb_accepts_only_clear_gains():
-    def ev(t, k):  # rewards larger SLACK, deterministic
+    def ev(t):  # rewards larger SLACK, deterministic
         return 0.5 + 0.05 * float(t.split("SLACK = ")[1].split("\n")[0])
-    best, info = climb_child(PARENT, CHILD, ev, steps=10, rng=random.Random(0), margin=0.02)
+    best, info = climb_child(PARENT, CHILD, ev, steps=10, rng=random.Random(0), margin=0.02, max_rejects=10)
     assert info["after"] >= info["before"]
     assert ("SLACK" in info["changed"]) == (best != CHILD)
-    flat, info2 = climb_child(PARENT, CHILD, lambda t, k: 0.5, steps=5, rng=random.Random(0))
-    assert flat == CHILD and info2["changed"] == {}
-    same, none = climb_child(PARENT, PARENT, lambda t, k: 0.5)
+    flat, info2 = climb_child(PARENT, CHILD, lambda t: 0.5, steps=5, rng=random.Random(0), max_rejects=2)
+    assert flat == CHILD and info2["changed"] == {} and info2["evals"] == 3  # incumbent + 2 rejected steps
+    based, info3 = climb_child(PARENT, CHILD, lambda t: 0.5, steps=5, rng=random.Random(0), max_rejects=2, base=0.5)
+    assert info3["evals"] == 2  # incumbent score reused
+    same, none = climb_child(PARENT, PARENT, lambda t: 0.5)
     assert same == PARENT and none is None
 
 

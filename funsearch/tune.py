@@ -171,30 +171,35 @@ def mutate_literal(text, lit, rng, sigma=0.3):
     return text[: lit["start"]] + s + text[lit["end"]:], s
 
 
-def climb_child(parent, child, evaluate, steps=6, rng=None, margin=0.03, seed0=0):
-    """(1+1)-ES on the constants the child added or changed. evaluate(text, seed) -> score or None. Each step scores
-    the incumbent and the mutant on the same fresh seed and accepts only a clear gain (> margin). Returns
-    (text, info) where info = {steps, before, after, changed: {name or line:col: "old->new"}} or None if no targets."""
+def climb_child(parent, child, evaluate, steps=4, rng=None, margin=0.03, max_rejects=2, base=None):
+    """(1+1)-ES on the constants the child added or changed (climb_targets), on ONE fixed set of games:
+    evaluate(text) -> score or None always plays the same games, so the incumbent is scored once (or `base` is
+    used) and each step scores only the mutant. A mutant replaces the incumbent only with a clear gain (> margin);
+    the climb stops after `max_rejects` rejections in a row. Returns (text, info) with info = {steps, evals,
+    before, after, changed: {name or line:code: "old->new"}}, or (child, None) when there is nothing to tune."""
     rng = rng or random.Random(0)
     if not climb_targets(parent, child):
         return child, None
-    best = child
-    before = after = None
-    changed = {}
+    inc = base if base is not None else evaluate(child)
+    evals = 0 if base is not None else 1
+    if inc is None:
+        return child, None
+    best, before, changed, rejects, k = child, inc, {}, 0, 0
     for k in range(steps):
         targets = climb_targets(parent, best)
         if not targets:
             break
         lit = rng.choice(targets)
         cand, new = mutate_literal(best, lit, rng)
-        s_best, s_cand = evaluate(best, seed0 + k), evaluate(cand, seed0 + k)
-        if s_best is None or s_cand is None:
-            continue
-        before = s_best if before is None else before
-        if s_cand > s_best + margin:
+        s = evaluate(cand)
+        evals += 1
+        if s is not None and s > inc + margin:
             key = lit["name"] or f"{lit['line']}:{lit['masked'][:40]}"
             old = changed.get(key, lit["value"]).split("->")[0]
             changed[key] = f"{old}->{new}"
-            best = cand
-            after = s_cand
-    return best, dict(steps=steps, before=before, after=after if after is not None else before, changed=changed)
+            best, inc, rejects = cand, s, 0
+        else:
+            rejects += 1
+            if rejects >= max_rejects:
+                break
+    return best, dict(steps=k + 1, evals=evals, before=before, after=inc, changed=changed)
