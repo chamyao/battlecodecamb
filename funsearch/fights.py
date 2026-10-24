@@ -133,6 +133,7 @@ def play(a_pol, b_pol, games=40, seed=1, maps=None, timeout=3600):
             "gems_captured": d.get("gems_captured", [0, 0])[us], "opp_gems_captured": d.get("gems_captured", [0, 0])[1 - us],
             "tributes": d.get("tributes", [0, 0])[us], "captures": d.get("captures", [0, 0])[us],
             "gems_lost_to_champs": d.get("gems_lost_to_champs", [0, 0])[us],
+            "camp_deaths": sum(1 for r, k, f, raw in ev if k == "death" and "by=camp" in raw and int(f["team"]) == us),
         })
         ev = []
     return {"games": per_game, "summary": summarize(per_game)}
@@ -171,6 +172,8 @@ def summarize(per_game):
         "gems_lost_to_champs": sum(g["gems_lost_to_champs"] for g in per_game) / n,
         "tributes": sum(g["tributes"] for g in per_game) / n,
         "captures": sum(g["captures"] for g in per_game) / n,
+        "gems_per_capture": sum(g["gems_captured"] for g in per_game) / max(1, sum(g["captures"] for g in per_game)),
+        "camp_deaths": sum(g["camp_deaths"] for g in per_game) / n,
         # P(death within LOW_HP_WINDOW rounds | below LOW_HP health with an enemy champion within LOW_HP_RANGE)
         "low_hp_death_rate": sum(g["low_hp"][1] for g in per_game) / max(1, sum(g["low_hp"][0] for g in per_game)),
         "low_hp_episodes": sum(g["low_hp"][0] for g in per_game) / n,
