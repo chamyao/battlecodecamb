@@ -1,6 +1,6 @@
 # gen.py out.policy key=val ...   builds the hunter from tune-5's body
 import sys
-P = dict(HUNT_R=6, REACH=1, BAG_SAFE=45, BAG_NEAR=15, RET=0.3, CHASE_DASH=1, LS=0, STUN_FIRST=0, ALLY_MIN=0, PREY_HP=1.01, CHASE=1, SHIELD_HP=1.01, K10=0)
+P = dict(HUNT_R=6, REACH=1, BAG_SAFE=45, BAG_NEAR=15, RET=0.3, CHASE_DASH=1, LS=0, STUN_FIRST=0, ALLY_MIN=0, PREY_HP=1.01, CHASE=1, SHIELD_HP=1.01, K10=0, TARGET='weakest', ENGAGE_HP=0, ODDS=9)
 for kv in sys.argv[2:]:
     k, v = kv.split('='); P[k] = v
 src = open(__import__('pathlib').Path(__file__).resolve().parents[2] / 'policies' / 'tune-5.policy').read()
@@ -81,8 +81,8 @@ let enemy_spawn = spawn_region(enemy())
 let tt = team_target()
 if exists(tt) and distance( unit_position(tt), position() ) <= {P["HUNT_R"]} + 2 and not contains( enemy_spawn, unit_position(tt) ) and local_strength({P["HUNT_R"]}) > {P["LS"]} and allies_within(4) >= {P["ALLY_MIN"]} and {P["CHASE"]} > 0:
     hunt(tt)
-let prey = weakest( enemies_visible() )
-if exists(prey) and distance( unit_position(prey), position() ) <= {P["HUNT_R"]} and not contains( enemy_spawn, unit_position(prey) ) and local_strength({P["HUNT_R"]}) > {P["LS"]} and allies_within(4) >= {P["ALLY_MIN"]} and unit_health_frac(prey) < {P["PREY_HP"]} and {P["CHASE"]} > 0:
+let prey = {P["TARGET"]}( enemies_visible() )
+if exists(prey) and distance( unit_position(prey), position() ) <= {P["HUNT_R"]} and health() > {P["ENGAGE_HP"]} * max_health() and enemies_within(5) <= allies_within(5) + {P["ODDS"]} and not contains( enemy_spawn, unit_position(prey) ) and local_strength({P["HUNT_R"]}) > {P["LS"]} and allies_within(4) >= {P["ALLY_MIN"]} and unit_health_frac(prey) < {P["PREY_HP"]} and {P["CHASE"]} > 0:
     hunt(prey)
 '''
 assert old in body; body = body.replace(old, new)
