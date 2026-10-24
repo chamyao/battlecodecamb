@@ -184,6 +184,13 @@ int main(int argc, char** argv)
 		bool first = true;
 		for (const auto& [k, n] : hits) std::printf("%s\"%s\": %lld", std::exchange(first, false) ? "" : ", ", k.c_str(), n);
 		std::printf("}");
+		// fuel charged per engine call (cbs::Call order), summed over both sides and all games
+		const auto& ms = cbs::memo_stats();
+		std::printf(", \"call_fuel\": {");
+		first = true;
+		for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
+			if (ms.call_n[c]) std::printf("%s\"%d\": [%lld, %lld]", std::exchange(first, false) ? "" : ", ", c, ms.call_n[c], ms.call_fuel[c]);
+		std::printf("}");
 	}
 	std::printf("}\n");
 }
