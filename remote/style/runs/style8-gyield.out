@@ -3,3 +3,7 @@ gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8974
 gap metric gems_per_capture (max, scale 3): reference tune-v21 mirror value 10.6992
 gap: 2 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5
 seed style-gconv1 score 0.731 (islands [0, 1, 2, 3])
+[4] claude-haiku-5-5 island 3: score -0.307 | best 0.731 (#0) $0.01 | 117s
+[5] claude-haiku-5-5 island 3: score 0.763 | best 0.763 (#5) $0.02 | 249s
+[6] claude-haiku-5-5 island 3: score 0.736 | best 0.763 (#5) $0.02 | 346s
+[7] claude-haiku-5-5 island 2: score -0.297 | best 0.763 (#5) $0.02 | 371s
