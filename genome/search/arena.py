@@ -20,7 +20,8 @@
   + 0.5 x shared IDs whose bodies differ) / genome size; below --species-delta joins that species.
 - Anchors: fixed opponents (--anchors) that are rated but never die and are never parents; every
   --champion-every births the current top genome is frozen as a champion anchor.
-- Ladder gate (outside selection): a genome that stays top for --gate-births births is played
+- Ladder gate (outside selection, gate.py): every --gate-every births the top --gate-top genomes with
+  >= --gate-min-games games get a --gate-screen-games screen vs --gate-ref; at >= --gate-screen, each is played
   --gate-h2h games per seed (two fresh seeds) head to head vs --gate-ref (>= 53.5% over 800 games: the
   lower bound at --z standard errors above 50%) and --gate-games per seed vs every fixed anchor (no drop
   > --regress vs the reference's own rate). Passing genomes go to <out>/candidates/. Each gated genome is
@@ -422,52 +423,34 @@ class Arena:
         gs = [m for m in self.genomes() if m["games"] >= self.a.min_games]
         return max(gs, key=lambda m: m["mu"]) if gs else None
 
-    # ---- ladder gate
+    # ---- ladder gate (genome/search/gate.py): every --gate-every births, the top --gate-top live genomes with
+    # >= --gate-min-games games are screened vs the live bot; those at >= --gate-screen get the full gate
     def gate_due(self):
-        t = self.top()
-        return (t is not None and self.s["top_streak"] >= self.a.gate_births and t["name"] not in self.s["gated"])
-
-    def rate(self, sa, sb, seeds, games, fuel_mult=1.0):
-        w = n = 0
-        for sd in seeds:
-            st = self.sc.play(sa, sb, sd, games, threads=self.a.gate_threads) if fuel_mult == 1.0 else \
-                Scorer([], threads=self.a.gate_threads, fuel_mult=fuel_mult).play(sa, sb, sd, games)
-            w, n = w + st["a_wins"], n + st["games"]
-        return w, n
+        return self.s["births"] >= self.s.get("next_gate", self.a.gate_every)
 
     def gate(self):
+        from . import gate as G
         with self.lock:
-            t = self.top()
-            self.s["gated"].append(t["name"])
-            spec = self.spec(t)
-            ref = self.sc._spec(self.a.gate_ref)
-            fixed = [m for m in self.anchors() if m.get("source") is None
-                     and Path(m["path"]).resolve() != Path(self.a.gate_ref).resolve()]
-        self.log(f"ladder gate for {t['name']} (mu {t['mu']:.1f}, top for {self.s['top_streak']} births)")
-        w, n = self.rate(spec, ref, FRESH_SEEDS, self.a.gate_h2h)
-        z = self.a.z
-        if 0.5 <= w / n < 0.5 + z * 0.5 / n ** 0.5:
-            w2, n2 = self.rate(spec, ref, MORE_SEEDS, self.a.gate_h2h)
-            w, n = w + w2, n + n2
-        h2h = w / n
-        clear = h2h >= 0.5 + z * 0.5 / n ** 0.5
-        drops = {}
-        for m in fixed:
-            key = f"{self.a.gate_ref}|{m['name']}"
-            if key not in self.s["bars"]:
-                self.s["bars"][key] = self.rate(ref, self.spec(m), FRESH_SEEDS, self.a.gate_games)
-            bw, bn = self.s["bars"][key]
-            cw, cn = self.rate(spec, self.spec(m), FRESH_SEEDS, self.a.gate_games)
-            drops[m["name"]] = round(cw / cn - bw / bn, 3)
-        f10w, f10n = self.rate(spec, ref, FRESH_SEEDS[:1], self.a.gate_h2h, fuel_mult=10.0)
-        passed = clear and min(drops.values(), default=0) >= -self.a.regress
-        rec = {"name": t["name"], "mu": t["mu"], "h2h": h2h, "h2h_games": n, "clear": clear, "anchor_deltas": drops,
-               "h2h_fuel10": f10w / f10n, "passed": passed, "births": self.s["births"]}
-        self._write("gates", rec)
-        self.log(f"gate {t['name']}: h2h {h2h:.3f} over {n} ({'clear' if clear else 'not clear'}), anchor deltas "
-                 f"{drops}, h2h at fuel x10 {f10w / f10n:.3f} -> {'CANDIDATE' if passed else 'no'}")
-        if passed:
-            (self.out / "candidates" / f"{t['name']}.genome").write_text((self.out / t["path"]).read_text())
+            self.s["next_gate"] = self.s["births"] + self.a.gate_every
+            pool = [m for m in self.genomes() if m["games"] >= self.a.gate_min_games and m["name"] not in self.s["gated"]]
+            picks = sorted(pool, key=lambda m: -m["mu"])[:self.a.gate_top]
+            for m in picks:
+                self.s["gated"].append(m["name"])
+            anchors = [m["path"] for m in self.anchors() if m.get("source") is None
+                       and Path(m["path"]).resolve() != Path(self.a.gate_ref).resolve()]
+        for t in picks:
+            text = (self.out / t["path"]).read_text()
+            rec = G.gate(text, self.a.gate_ref, anchors, self.a.gate_threads, self.a.gate_screen_games,
+                         self.a.gate_screen, self.a.gate_h2h, self.a.gate_games, self.a.z, self.a.regress, self.s["bars"])
+            rec = {"name": t["name"], "mu": t["mu"], "games": t["games"], "births": self.s["births"],
+                   "ref": Path(self.a.gate_ref).name, **rec}
+            self._write("gates", rec)
+            self.log(f"gate {t['name']} (mu {t['mu']:.1f}, {t['games']} games): screen {rec['screen']:.3f}"
+                     + (f", h2h {rec['h2h']:.3f} over {rec['h2h_games']}, anchor deltas {rec['anchor_deltas']}, "
+                        f"fuel x10 {rec['h2h_fuel10']:.3f}" if "h2h" in rec else "")
+                     + f" -> {'CANDIDATE' if rec['passed'] else 'no'}")
+            if rec["passed"]:
+                (self.out / "candidates" / f"{t['name']}.genome").write_text(text)
         self.save()
 
     # ---- intel (arena B)
@@ -630,7 +613,11 @@ def main(argv=None):
     ap.add_argument("--species-delta", type=float, default=0.15)
     ap.add_argument("--tournament", type=int, default=3)
     ap.add_argument("--champion-every", type=int, default=50)
-    ap.add_argument("--gate-births", type=int, default=20, help="births a genome must stay top before its gate")
+    ap.add_argument("--gate-every", type=int, default=60, help="births between gate rounds")
+    ap.add_argument("--gate-top", type=int, default=3)
+    ap.add_argument("--gate-min-games", type=int, default=200)
+    ap.add_argument("--gate-screen-games", type=int, default=400)
+    ap.add_argument("--gate-screen", type=float, default=0.55, help="screen win rate vs the live bot for the full gate")
     ap.add_argument("--gate-h2h", type=int, default=400)
     ap.add_argument("--gate-games", type=int, default=200)
     ap.add_argument("--gate-threads", type=int, default=5)

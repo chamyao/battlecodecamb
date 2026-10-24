@@ -13,6 +13,7 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-24 | genome/search EC2 evo-policy-1 (arm a, dropped) | 124 | 1.58 | 1.68 |
 | 2026-10-24 | genome/search EC2 evo-starter-pilot | 125 | 0.31 | 1.99 |
 | 2026-10-24 | genome/search arena-smoke (arena loop test, starter.genome) | 40 | 0.04 | 2.03 |
+| 2026-10-24 | genome/search arena-g (gate round test, starter.genome) | 20 | 0.01 | 2.04 |
 
 ## Ladder uploads (Cham, Oct 24)
 
