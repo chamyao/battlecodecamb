@@ -1,0 +1,49 @@
+{"tag": "panel-L1c@db3f945", "genome": "seed", "mu_old": null, "anchor": "tune-v20-L1c", "wins": 98, "games": 200, "win_rate": 0.49, "seeds": [2000003], "t": 1792875033}
+{"tag": "panel-L1c@db3f945", "genome": "A581", "mu_old": 40.81258255097923, "anchor": "tune-v20-L1c", "wins": 104, "games": 200, "win_rate": 0.52, "seeds": [2000003], "t": 1792875042}
+{"tag": "panel-L1c@db3f945", "genome": "A626", "mu_old": 40.699869313878295, "anchor": "tune-v20-L1c", "wins": 103, "games": 200, "win_rate": 0.515, "seeds": [2000003], "t": 1792875050}
+{"tag": "panel-L1c@db3f945", "genome": "A611", "mu_old": 40.66349208614856, "anchor": "tune-v20-L1c", "wins": 116, "games": 200, "win_rate": 0.58, "seeds": [2000003], "t": 1792875059}
+[r1 bench] default cell 4 (seed, altar_eta->here): GenomeError: altar_eta line 482: cannot assign to ring $0.004
+[r1 bench] default cell 3 (seed, update->rule_target): behavioural twin $0.005
+[r1 bench] default cell 1 (seed, cast_value->strike_cast): behavioural twin $0.005
+[r1 bench] default cell 5 (seed, bank_blocked->bank_t1): behavioural twin $0.006
+[r1 bench] default cell 7 (seed, bank_goal->bank_t2): behavioural twin $0.008
+[r1 bench] default cell 0 (seed, r_lock->lock_altar): 0.54 $0.009
+[r1 bench] default cell 2 (seed, rule->r_hold): 0.445 $0.009
+[r1 bench] default cell 10 (arenaA-1:A352, at_spawn->here): behavioural twin $0.011
+[r1 bench] default cell 6 (seed, taken->camp_block): 0.46 $0.011
+[r1 bench] default cell 8 (arenaA-1:A352, r_run->hurt_below): 0.385 $0.013
+[r1 bench] default cell 9 (arenaA-1:A352, under_fire->in_danger): 0.425 $0.013
+[r1 bench] default cell 14 (arenaA-1:A352, bank_blocked->reach_camp): behavioural twin $0.015
+[r1 bench] default cell 11 (arenaA-1:A352, score->shop_pending): 0.47 $0.015
+[r1 bench] default cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.55 $0.017
+[r1 bench] default cell 13 (arenaA-1:A352, ahead_value->ahead_foe): 0.49 $0.017
+[r1 bench] default cell 16 (arenaA-1:A344, rule->r_prefight): behavioural twin $0.017
+[r1 bench] default cell 18 (arenaA-1:A344, live_camp->here): behavioural twin $0.019
+[r1 bench] default cell 15 (arenaA-1:A352, rule->r_recall): 0.44 $0.019
+[r1 bench] default cell 17 (arenaA-1:A344, bag_ready->threat_near): 0.53 $0.021
+[r1 bench] default cell 19 (arenaA-1:A344, bank_goal->bank_t1): 0.5 $0.022
+[r1 bench] default cell 20 (arenaA-1:A344, threat_near->hurt_below): 0.525 $0.022
+[r1 bench] default cell 21 (arenaA-1:A344, rule->r_recall): 0.45 $0.024
+[r1 bench] default cell 22 (arenaA-1:A344, bag_ready->altar_eta): 0.515 $0.024
+[r1 bench] default cell 24 (arenaA-1:A368, bank_t3->closest): behavioural twin $0.026
+[r1 bench] default cell 25 (arenaA-1:A368, enemies_within->here): behavioural twin $0.026
+[r1 bench] default cell 26 (arenaA-1:A368, update->consider): behavioural twin $0.026
+[r1 bench] default cell 23 (arenaA-1:A344, under_fire->in_danger): 0.385 $0.029
+[r1 bench] default cell 29 (arenaA-1:A368, bag_ready->altar_eta): behavioural twin $0.029
+[r1 bench] default cell 28 (arenaA-1:A368, unseen_camps->here): behavioural twin $0.030
+[r1 bench] default cell 32 (arenaA-1:A354, altar_eta->here): behavioural twin $0.032
+[r1 bench] default cell 30 (arenaA-1:A368, under_fire->enemies_within): 0.49 $0.033
+[r1 bench] default cell 31 (arenaA-1:A368, rule->r_cashout): 0.185 $0.033
+[r1 bench] default cell 34 (arenaA-1:A354, altar_eta->eta): behavioural twin $0.034
+[r1 bench] default cell 33 (arenaA-1:A354, dash_value->dash_gate): 0.47 $0.036
+[r1 bench] default cell 35 (arenaA-1:A354, threat_eta->eta): 0.505 $0.037
+[r1 bench] default cell 36 (arenaA-1:A354, camp_goal->closest): 0.395 $0.038
+[r1 bench] default cell 37 (arenaA-1:A354, r_cashout->at_spawn): 0.35 $0.038
+[r1 bench] default cell 39 (arenaA-1:A354, cast_value->ahead_value): behavioural twin $0.040
+[r1 bench] default cell 38 (arenaA-1:A354, rule->r_live): 0.21 $0.042
+[r1 bench] creative cell 3 (seed, update->rule_target): behavioural twin $0.043
+[r1 bench] creative cell 0 (seed, r_lock->lock_altar): 0.465 $0.044
+[r1 bench] creative cell 1 (seed, cast_value->strike_cast): 0.26 $0.044
+[r1 bench] creative cell 2 (seed, rule->r_hold): 0.405 $0.044
+[r1 bench] creative cell 5 (seed, bank_blocked->bank_t1): behavioural twin $0.047
+[r1 bench] creative cell 7 (seed, bank_goal->bank_t2): behavioural twin $0.047

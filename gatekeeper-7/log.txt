@@ -1,2 +1,13 @@
 B318 sha256 00e1711a5b5778c9
 [20:50:13] gate arenaA-1/arena:A575@B318 (mu 41.16, 304 games)
+[20:50:29] arenaA-1/arena:A575@B318: {"name": "A575", "mu": 41.15586745801005, "games": 304, "ref": "B318.genome", "screen": 0.415, "passed": false} -> no
+[20:50:29] gate arenaA-1/arena:A573@B318 (mu 41.06, 336 games)
+[20:50:44] arenaA-1/arena:A573@B318: {"name": "A573", "mu": 41.05766505771675, "games": 336, "ref": "B318.genome", "screen": 0.42, "passed": false} -> no
+[20:50:44] gate arenaA-1/arena:A581@B318 (mu 41.04, 344 games)
+[20:50:59] arenaA-1/arena:A581@B318: {"name": "A581", "mu": 41.038874327231795, "games": 344, "ref": "B318.genome", "screen": 0.485, "passed": false} -> no
+[20:50:59] gate arenaB-1/arena:B600@B318 (mu 43.61, 464 games)
+[20:51:16] arenaB-1/arena:B600@B318: {"name": "B600", "mu": 43.60580004241699, "games": 464, "ref": "B318.genome", "screen": 0.5175, "passed": false} -> no
+[20:51:16] gate arenaB-1/arena:B615@B318 (mu 43.28, 504 games)
+[20:51:32] arenaB-1/arena:B615@B318: {"name": "B615", "mu": 43.27892340048957, "games": 504, "ref": "B318.genome", "screen": 0.505, "passed": false} -> no
+[20:51:32] gate arenaB-1/arena:B627@B318 (mu 43.27, 344 games)
+[20:55:12] arenaB-1/arena:B627@B318: {"name": "B627", "mu": 43.27268044974198, "games": 344, "ref": "B318.genome", "screen": 0.5675, "h2h": 0.55625, "h2h_games": 800, "clear": true, "anchor_deltas": {"tune-v20-L1c": 0.005, "style-gconv1": -0.037, "v7": 0.005, "tune-v20-L1": 0.005, "rall2-ca4-lean-g": -0.027, "opp-tune5-metadraft": -0.01}, "h2h_fuel10": 0.505, "passed": false} -> no
