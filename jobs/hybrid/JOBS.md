@@ -418,3 +418,6 @@ At the pending H20/H21 restart (or now; no restart needed), append to runs/SPEND
 | 2026-10-24 | hyb5 through 16:40 UTC (25.00 -> 16.30 left) | | 8.70 | |
 | 2026-10-24 | hybrid line total $23.26 (0.18 hyb/hyb2/hyb3 + 9.91 hyb4 remote-server + 1.26 hyb4 EC2 + 3.21 xc/xp + 8.70 hyb5); cap raised $30 -> $40 by the FunSearch lead; hyb5 keeps its remaining 16.30 (23.26 + 16.30 = 39.56) | | | |
 No command-line change: hyb5's --budget stays as is.
+H21 addendum (16:50 UTC, per the FunSearch lead): also add `--no-tune-children` to the relaunch (the per-child climb
+is off: fresh-seed gain +0.001 over 21 accepted climbs, no verdict changed). Python unchanged (already in 694a4a3).
+Check: new children have no metrics.tuned; programs/hour back toward 49-58.
