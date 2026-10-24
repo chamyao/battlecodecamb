@@ -115,6 +115,8 @@
 { "le(Num,Num)", false, { 100131, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=6730 mean=102 mae=0 (profile fuel)
 { "local_strength(Num)", false, { 2443657, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=14400 mean=2489 mae=213 (profile fuel)
 { "locked_altars()", false, { 248364, 0, 982, 0, 0, 0, 0, 0, 0, 0 } }, // n=1557 mean=320 mae=0 (profile fuel)
+{ "enemy_locks()", false, { 248364, 0, 982, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as locked_altars (one altar_locks call), coordinator
+{ "lock_hits_left(Tile)", false, { 248364, 0, 982, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as locked_altars (one altar_locks call), coordinator
 { "lt(Num,Num)", false, { 360604, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=23038 mean=367 mae=1 (profile fuel)
 { "map_height()", false, { 47120, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=36 mean=48 mae=0 (profile fuel)
 { "map_width()", false, { 47120, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=36 mean=48 mae=0 (profile fuel)
