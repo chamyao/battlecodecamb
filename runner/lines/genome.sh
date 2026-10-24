@@ -53,4 +53,13 @@ for o in "$G"/out/*/; do
   [ -d "$o" ] || continue; n=$(basename "$o")
   [ -f "$o/rc" ] && [ ! -f "$o/reported" ] && { log "job $n exited rc=$(cat "$o/rc")"; touch "$o/reported"; }
 done
+# A git checkout left inside a finished job's out/ (e.g. a worktree; its .git points at a deleted worktree)
+# makes push_state's `git add` abort on every tick: remove it there and in push_state's clone.
+for o in "$G"/out/*/; do
+  [ -f "$o/rc" ] || continue
+  find "$o" -mindepth 2 -name .git -printf '%h\n' 2>/dev/null | while read -r d; do
+    log "removing git checkout ${d#$G/out/} from finished job output"; rm -rf "$d"
+  done
+done
+find /root/bc/state/remote_genome -mindepth 2 -name .git -printf '%h\n' 2>/dev/null | while read -r d; do rm -rf "$d"; done
 push_state remote/genome . "$G/out" "remote/genome: $(date -u +%H:%M) UTC"
