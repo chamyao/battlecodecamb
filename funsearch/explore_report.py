@@ -20,7 +20,9 @@ from .evaluate import ROOT, executed_blocks
 NAMES = {b.name for b in REGISTRY if not b.infix}
 # recently added blocks whose uptake we track (gap sensors, capture metric, ability/unit info)
 WATCH = [b for b in ("unit_max_health", "unit_strength", "unit_focus", "enemies_near", "allies_near", "strength_at",
-                     "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius") if b in NAMES]
+                     "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius",
+                     "threat_eta", "altar_eta", "retreat_eta", "enemy_between", "group_contested", "team_gems",
+                     "unseen_enemies_near") if b in NAMES]
 
 
 def blocks_used(text):
@@ -29,8 +31,8 @@ def blocks_used(text):
 
 def exec_blocks_of(run, rows, valid):
     """Executed blocks per valid program: from metrics when the run logged them, else computed now
-    (vs builtin:idle) and cached in runs/<run>/exec_blocks.json."""
-    cache_path = ROOT / "runs" / run / "exec_blocks.json"
+    (vs builtin:starter) and cached in runs/<run>/exec_blocks_v2.json."""
+    cache_path = ROOT / "runs" / run / "exec_blocks_v2.json"  # v2: vs starter, not idle
     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
     out = {}
     for r in valid:
