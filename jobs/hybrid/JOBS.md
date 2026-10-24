@@ -291,3 +291,19 @@ globs allowed, e.g. /root/bc/*/runs). At every boundary the league then rebuilds
 from all of them and passes --helpers to the run. Check: hyb5.log shows "helpers: N helpers kept" at the next round
 start, and some new children carry metrics.lib_helpers. Push runs/hyb5.HELPERS.md with the state.
 (Pure's own league, when it takes this, uses only pure's runs dir.)
+
+## Job H11 (2026-10-24 14:35 UTC, hybrid line session; per the FunSearch lead): gap sensors + new-vocabulary variant, next boundary
+
+At the next hyb5 round boundary (if H10 has not fired yet, fold this into it: same boundary, one pull):
+1. `git pull origin funsearch/runs` to e82cb4a or later (ancestor check). It contains:
+   - 84504a5: all axis briefs are measured facts + levers (no prescriptions); `--vocab-share` (default 0.2): that
+     share of explore calls lists the newest blocks; explore.txt gets per-50-program new-block uptake, vocab vs other.
+   - 5ef0ab2 (gap sensors batch 1, BOT_VERIFY clean on deploy/v0 577a141): interp/ and policygen/blocks.py CHANGED
+     (unit_max_health, unit_strength, unit_focus, enemies_near, allies_near, strength_at). Reconfigure + rebuild
+     interp_eval, then pytest (2027).
+   - e82cb4a: metrics.exec_blocks is now measured vs builtin:starter (idle never comes into view, so blocks that need a
+     visible enemy never counted; novelty and uptake missed them). Older children keep their vs-idle exec_blocks.
+2. Relaunch with the current command line unchanged (vocab variant is on by default).
+3. Check: about 1 in 5 new children have metrics.variant.vocab true; runs/hyb5.explore.txt shows the
+   "new-block uptake by programs" line. Push the explore.txt with the state.
+Batch 2 of the gap sensors (coord/gap-blocks bd8b098) follows as H12 once deploy/v0 has it.
