@@ -31,3 +31,10 @@ This batch reruns batch 1's exact plan, so the games pair one to one: v22 → B3
 - New: zero-gem maps. On 00contest we submit 0 and stand idle; its gems are only in monoliths, and B318's
   r_mono waits for round 1000. On 01elk_arena we submit 14.
 - Top gaps for B318: yield (50% of losses), fights (44%), zero-gem maps, monoliths (12%), 01shortcut.
+
+## Batch 3: 24 Oct 2026, 21:28 UTC, 50 games, 17-33 (v26 = B792 live; b1's exact plan)
+
+This is a paired comparison with b2 (v25, B318) on the same 50 matchups. Record 18-32 → 17-33 (7 flips to a win,
+8 to a loss). Gems submitted 684 → 646 (−38 ± 39), deaths to champions 9.7 → 11.3 (+1.5 ± 1.1), gems captured
+−59 ± 36. All within noise: v26 is no better than v25 against the band (sim: 47/80 vs B318; real cambc 43/80 vs
+the v25 build). Against v22 (b1) both are ahead: 15-35 → 17-33, gems +68 ± 52.
