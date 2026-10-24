@@ -130,6 +130,9 @@ struct Tiles
 struct Field
 {
 	std::shared_ptr<std::uint16_t[]> d;
+	// box_field: only the 3 x 3 box around (bx, by) is stored (d[(dy + 1) * 3 + dx + 1]); reads elsewhere,
+	// or above the centre's own distance, are unreachable
+	int bx = -1, by = -1;
 };
 #ifdef GENOME_BOT
 constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map (100 x 100)
@@ -622,6 +625,45 @@ public:
 #endif
 	}
 	Field empty_field() { return {}; }
+	// Walking field to `goals` over tiles not in `walls` (goal tiles always allowed), through the
+	// memoised distance field the interpreter's move_towards uses (dests = my tile: the bot's memo
+	// answers it across turns while the goals stay and the walls do not affect my box). Readable only
+	// in my 3 x 3 box and up to my own distance (the part the bot fills and the simulator's search
+	// stopped at my tile reaches); elsewhere unreachable, identically in the bot and the simulator.
+	Field box_field(const Tiles& goals, const Tiles& walls)
+	{
+		const Unit& u = me_u();
+		const Tile c = u.pos;
+		if (!goals.b || !in_bounds(c) || !(u.state & cbs::state_bit::alive) || !goals.b->any(m.H)) return empty_field();
+		Bitboard blocked;
+		if (walls.b) blocked = *walls.b;
+		blocked.andnot(*goals.b);
+		Bitboard dest, visited;
+		dest.set(c.v());
+		// uninitialised: the Api writes every entry that is read (the bot: the box and the dest)
+		if (!box_buf_) box_buf_.reset(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
+		std::uint16_t* buf = box_buf_.get();
+		api.distance_field(blocked, *goals.b, &dest, cbs::kUnreachable, buf, visited);
+		extra(300 + 6.5 * chunks()); // the wrapper in the bot beyond the Api's memo price (probes: near and far goals, 2 maps)
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[9]);
+		const std::uint16_t mine = buf[m.idx(c.v())];
+		for (int dy = -1; dy <= 1; ++dy)
+			for (int dx = -1; dx <= 1; ++dx)
+			{
+				const Vec2 q{ c.x + dx, c.y + dy };
+				std::uint16_t v = cbs::kUnreachable;
+				if (mine != cbs::kUnreachable && m.in_bounds(q) && !blocked.test(q))
+				{
+					v = buf[m.idx(q)];
+					if (v > mine) v = cbs::kUnreachable;
+				}
+				d[(dy + 1) * 3 + dx + 1] = v;
+			}
+		Field f{ d };
+		f.bx = c.x, f.by = c.y;
+		return f;
+	}
+	std::unique_ptr<std::uint16_t[]> box_buf_;
 	// the host search, exact (9 + 16 x chunks + expansions x chunks; + 2 with a stop set), plus the wrapper's own work
 	double field_price(int expansions, bool stopped) const { return 9 + (stopped ? 2 : 0) + (16.0 + expansions) * chunks(); }
 	// Nearest tile of `cand` from `from` by walking over tiles not in `walls` (ties: row-major); invalid if none.
@@ -638,6 +680,13 @@ public:
 	{
 		extra(70); // the read costs ~70 in the bot (bounds, chunked index; measured per scored option)
 		if (!f.d || !in_bounds(t)) return 1e9;
+		if (f.bx >= 0)
+		{
+			const int dx = t.x - f.bx, dy = t.y - f.by;
+			if (dx < -1 || dx > 1 || dy < -1 || dy > 1) return 1e9;
+			const std::uint16_t v = f.d[(dy + 1) * 3 + dx + 1];
+			return v == cbs::kUnreachable ? 1e9 : v;
+		}
 #ifdef GENOME_BOT
 		const int i = ((t.y >> 3) * static_cast<int>(cbs::hostbb::md.chunked_width) + (t.x >> 3)) * 64 + (t.y & 7) * 8 + (t.x & 7);
 		const std::uint16_t v = f.d[i];
