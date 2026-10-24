@@ -95,7 +95,7 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)") \
 	X(threat_eta, "threat_eta()") X(altar_eta, "altar_eta()") X(retreat_eta, "retreat_eta()") X(enemy_between, "enemy_between(Tile)")   \
 	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)") X(bank_detour, "bank_detour(Tile)") X(group_rate, "group_rate(Tile)")                                \
-	X(monolith_threat, "monolith_threat(Tile)") X(in_monolith_zone, "in_monolith_zone(Tile)") X(altar_safe_tiles, "altar_safe_tiles()")
+	X(monolith_threat, "monolith_threat(Tile)") X(in_monolith_zone, "in_monolith_zone(Tile)") X(altar_safe_tiles, "altar_safe_tiles()") X(camp_threat, "camp_threat(Tile)")
 
 enum class Op : std::uint16_t
 {
@@ -1625,6 +1625,21 @@ struct Interp
 			return num(gems / std::max(1.0, turns));
 		}
 		case Op::monolith_threat: { const Vec2 t = evalt(a[0]); return num(has_tile(t) ? monolith_reach(t, true) : 0); }
+		case Op::camp_threat:
+		{
+			// damage per turn of the awake camps (any type) whose attack range covers the tile
+			const Vec2 t = evalt(a[0]);
+			if (!has_tile(t)) return num(0);
+			double dmg = 0;
+			for (std::uint32_t c = 0; c < m().camps.size(); ++c)
+			{
+				const auto& d = cbs::camp_design(m().camps[c].type);
+				if (d.attack_range <= 0 || cbs::chebyshev(t, m().camps[c].pos) > d.attack_range) continue;
+				std::uint32_t life = 0;
+				if (api.camp_state(c, &life) == Err::success && life == static_cast<std::uint32_t>(cbs::CampLife::awake)) dmg += d.base_strength;
+			}
+			return num(dmg);
+		}
 		case Op::in_monolith_zone: { const Vec2 t = evalt(a[0]); return num(has_tile(t) && monolith_reach(t, false) > 0); }
 		case Op::altar_safe_tiles:
 		{

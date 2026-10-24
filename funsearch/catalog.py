@@ -125,6 +125,7 @@ DOCS = {
     "monolith_threat": "monolith_threat(tile): damage per turn awake monoliths deal on that tile (200 each within range 5); asleep monoliths fight only once a champion hits their group",
     "in_monolith_zone": "in_monolith_zone(tile): true if the tile is within attack range (5) of a living monolith, awake or asleep",
     "altar_safe_tiles": "altar_safe_tiles(): tiles next to an altar (where a tribute can start) that no awake monolith can hit",
+    "camp_threat": "camp_threat(tile): damage per turn awake camps of any type deal on that tile (wolf 20 in range 3, elk 60 and golem 120 in range 4, monolith 200 in range 5); camps wake when their group is hit and sleep after 2 rounds with no champion in range",
     "dash_towards": "cast the dash in slot (0/1) up to 2 tiles along the walking path to the tile",
     "weakest": "lowest-health member, or none", "richest": "member carrying the most gems, or none",
     "nearest": "closest member by Chebyshev distance, or none",
