@@ -1,4 +1,5 @@
-"""Fuel calibration genome 4: fight primitives (attack_damage, cast_damage, shield, hits_to_kill). update()
+"""Fuel calibration genome 4: fight primitives (attack_damage, cast_damage, shield; its hits_to_kill
+probes went with that primitive). update()
 runs one probe per turn in rotation on the nearest visible camp (and me). Needs GENOME_UNCALIBRATED=1 until
 accepted."""
 
@@ -26,16 +27,8 @@ def update() -> None:
         acc += p_cast(k, m, c)
     if slot == 3:
         acc += p_shield(k, m)
-    if slot == 4 and exists(c):
-        acc += p_kill(k, m, c)
-    if slot == 5 and exists(c):
-        acc += p_killed(k, c, m)
-    if slot == 6:
-        acc += p_kill_me(k, m, m)
     if slot == 7 and exists(al):
         acc += p_attack_ally(k, m, al)
-    if slot == 8 and exists(al):
-        acc += p_kill_ally(k, al, m)
     write_shared(7, acc)
 
 @gene("q0", "probe empty")
@@ -54,22 +47,6 @@ def p_cast(k: Num, a: Unit, b: Unit) -> Num:
 def p_shield(k: Num, a: Unit) -> Num:
     return shield(a) + k
 
-@gene("q4", "hits_to_kill me -> camp")
-def p_kill(k: Num, a: Unit, b: Unit) -> Num:
-    return hits_to_kill(a, b) + k
-
-@gene("q5", "hits_to_kill camp -> me")
-def p_killed(k: Num, a: Unit, b: Unit) -> Num:
-    return hits_to_kill(a, b) + k
-
-@gene("q6", "hits_to_kill me -> me")
-def p_kill_me(k: Num, a: Unit, b: Unit) -> Num:
-    return hits_to_kill(a, b) + k
-
 @gene("q7", "attack_damage me -> ally")
 def p_attack_ally(k: Num, a: Unit, b: Unit) -> Num:
     return attack_damage(a, b) + k
-
-@gene("q8", "hits_to_kill ally -> me")
-def p_kill_ally(k: Num, a: Unit, b: Unit) -> Num:
-    return hits_to_kill(a, b) + k

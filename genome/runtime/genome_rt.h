@@ -1143,40 +1143,8 @@ public:
 		return b.kind == 2 ? amount : incoming(b, amount, false);
 	}
 	double shield(const Unit& u) { return extra(SH_FUEL), fight_data(u).shield; }
-	// basic attacks of a that b survives before dying, plus one: shields absorb first, then health, hit by hit
-	// in float as the engine does (1e9 if a cannot hurt b)
-	double hits_to_kill(const Unit& a, const Unit& b)
-	{
-		PRIM_PROF_BEGIN;
-		last_work = {};
-		const long long f0 = fd_fetches_;
-		const double r = hits_to_kill_(a, b);
-		last_work.relax = fd_fetches_ - f0;
-		PRIM_PROF_END(6);
-		return r;
-	}
-	double hits_to_kill_(const Unit& a, const Unit& b)
-	{
-		const float d = static_cast<float>(attack_damage_(a, b));
-		if (!(d > 0)) return 1e9;
-		float sh = b.kind == 1 ? fight_data(b).shield : 0.0f, hp = b.health;
-		int n = 0;
-		while (hp > 0 && n < 100000)
-		{
-			float amount = d;
-			if (sh > 0)
-			{
-				if (sh > amount) sh -= amount, amount = 0;
-				else amount -= sh, sh = 0;
-			}
-			hp -= amount, ++n;
-		}
-		extra(HK_BASE + HK_HIT * n);
-		last_work.pops = n;
-		return n;
-	}
 	// fitted on cambc probes (FUEL.md): FD a champion's items and buffs read once per pass; the rest per call
-	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60, HK_BASE = 236, HK_HIT = 26;
+	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60;
 
 	// ---- raw unit reads (SDK coverage): the host's data as the SDK reports it, no judgement. Unit handles
 	// index per-pass caches; a unit out of vision reads as 0.

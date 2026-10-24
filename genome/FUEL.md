@@ -147,7 +147,8 @@ games against the interpreted v23 (`prof_pair.sh` with OPP_BOT / OPP_SIM), real 
 (00lanes), 5388 / 4971 (01big-world), 6264 / 6132 (00ambush). Priced as the Api's memo price plus
 1206 + 8.5 x chunks.
 
-**Fight primitives** (Oct 24): `attack_damage`, `cast_damage`, `shield`, `hits_to_kill` follow the
+**Fight primitives** (Oct 24; `hits_to_kill` was removed later that day, being a model, not a rule):
+`attack_damage`, `cast_damage`, `shield`, `hits_to_kill` follow the
 engine's damage code (Game::apply_outgoing, damage_champion's reductions, shields first) on the
 units' host data: each champion's items (emblem passives) and buffs (shields) are read once per pass.
 Exact: `GENOME_CHECK_FIGHT=1` compares every attack / damage cast the loop makes with the target's

@@ -121,7 +121,6 @@ PRIMS = {
     "attack_damage": (("Unit", "Unit"), "Num", "X.attack_damage({0}, {1})"),
     "cast_damage": (("Unit", "Num", "Unit"), "Num", "X.cast_damage({0}, {1}, {2})"),
     "shield": (("Unit",), "Num", "X.shield({0})"),
-    "hits_to_kill": (("Unit", "Unit"), "Num", "X.hits_to_kill({0}, {1})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
     # raw unit reads (any visible unit; 0 when out of vision)
     "cooldown": (("Unit", "Num"), "Num", "X.cooldown({0}, {1})"),
@@ -177,8 +176,8 @@ PRIMS = {
 # Primitives whose simulator price is not yet calibrated against cambc (genome/FUEL.md): rejected unless
 # GENOME_UNCALIBRATED=1 (calibration probes), so the search cannot use them before they are priced.
 UNCALIBRATED = set()
-# calibrated Oct 24 (genome/FUEL.md): wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield,
-# hits_to_kill; the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
+# calibrated Oct 24 (genome/FUEL.md): wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield;
+# the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
 # group_cooldown, lock_hits, lock_enemy
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
