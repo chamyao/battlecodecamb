@@ -1070,11 +1070,15 @@ struct Interp
 
 	// Monoliths whose attack range covers the tile. awake_only: damage per turn of the awake ones (asleep
 	// monoliths fight only once hit); otherwise 1 if any living one does (unseen counts as alive).
-	double monolith_reach(Vec2 t, bool awake_only)
+	// `iters` counts the camps looked at (prices the calling block)
+	double monolith_reach(Vec2 t, bool awake_only, std::size_t& iters)
 	{
 		double dmg = 0;
 		for (std::uint32_t c = 0; c < m().camps.size(); ++c)
 		{
+#ifndef INTERP_RELEASE
+			++iters;
+#endif
 			if (m().camps[c].type != cbs::CampType::monolith) continue;
 			const auto& d = cbs::camp_design(m().camps[c].type);
 			if (cbs::chebyshev(t, m().camps[c].pos) > d.attack_range) continue;
@@ -1623,27 +1627,31 @@ struct Interp
 								 cbs::settings().capture_time;
 			return num(gems / std::max(1.0, turns));
 		}
-		case Op::monolith_threat: { const Vec2 t = evalt(a[0]); return num(has_tile(t) ? monolith_reach(t, true) : 0); }
-		case Op::in_monolith_zone: { const Vec2 t = evalt(a[0]); return num(has_tile(t) && monolith_reach(t, false) > 0); }
+		case Op::monolith_threat:
+		case Op::in_monolith_zone:
+		{
+			const Vec2 t = evalt(a[0]);
+			std::size_t iters = 0;
+			const double r = has_tile(t) ? monolith_reach(t, e.op == Op::monolith_threat, iters) : 0;
+			note_list(iters);
+			return num(e.op == Op::monolith_threat ? r : static_cast<double>(r > 0));
+		}
 		case Op::altar_safe_tiles:
 		{
 			// tiles next to an altar (where a tribute starts) that no awake monolith can hit; walls, holes and altars excluded
 			const auto bp = std::make_shared<Bitboard>();
 			Bitboard& b = *bp;
-			std::size_t scans = 0; // monolith_reach calls, each a loop over every map camp
+			std::size_t iters = 0;
 			m().altars.for_each_unordered(m().H, [&](int x, int y) {
 				for (int dx = -1; dx <= 1; ++dx)
 					for (int dy = -1; dy <= 1; ++dy)
 					{
 						const Vec2 p{ x + dx, y + dy };
 						if ((dx || dy) && m().in_bounds(p) && !m().walls.test(p) && !m().holes.test(p) && !m().altars.test(p))
-						{
-							++scans;
-							if (monolith_reach(p, true) == 0) b.set(p);
-						}
+							if (monolith_reach(p, true, iters) == 0) b.set(p);
 					}
 			});
-			note_list(scans * m().camps.size());
+			note_list(iters);
 			return set_ptr(bp);
 		}
 		case Op::respawning_visible_spawns:
