@@ -136,3 +136,23 @@ run the tests, append any missing challengers, and relaunch.
    logged $9.11 left of 9.82), not $29.47.
 
 Report the first log lines, then each boundary verdict (validation lines + cambc-exact vs tune-5), on PR #1.
+
+## EC2 update U1 (2026-10-24 06:55 UTC, hybrid line session)
+
+hyb4 is running on EC2 since 06:38 UTC at funsearch/runs 13facf9 (g3 boundary validating tune-5, hyb-t5m,
+hyb-t5m-rich15d6f). Changes, in order:
+
+1. **Never run funsearch/runs 9ef3d8b.** Its prompt tells children to use slot_stun / slot_range / slot_radius,
+   which have no fuel costs yet, so every child using them is rejected. ff56f90 removes that. Until told
+   otherwise, staying on 13facf9 is fine.
+2. **Now (no restart needed):** add the new base as a challenger for the next boundary. The policy file isn't in
+   13facf9, so fetch it alone (it parses with 13facf9's blocks):
+   ```
+   git fetch origin funsearch/runs && git show origin/funsearch/runs:policies/tune5-campreset.policy > policies/tune5-campreset.policy
+   grep -qx policies/tune5-campreset.policy runs/hyb4.challengers || echo policies/tune5-campreset.policy >> runs/hyb4.challengers
+   ```
+   tune5-campreset replaces tune5-reset: do not add tune5-reset.
+3. **At the g4 boundary only (optional, better prompt):** STOP, `git pull origin funsearch/runs` (ff56f90 or later,
+   never 9ef3d8b alone), REBUILD interp_eval (op codes changed: `cmake -S interp -B interp/build
+   -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j --target interp_eval`), `python3 -m pytest -q tests`,
+   relaunch with the same command line (--budget 29.47).
