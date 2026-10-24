@@ -137,8 +137,9 @@ PY
   # rebuild), pytest, relaunch with H7's command plus the disengage axis and seeds v21,v21,v20,v19-L1c.
   H8SEEDS=policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/pool/v19-L1c.policy
   H8AXES="--axes items,vision,teleport,team,roles,pairs,macro,abilities,combat,disengage"
-  # H8 addendum (jobs/hybrid 27f7c9b): also require 896fb6b (python only) and add child constant tuning
-  H8TUNE="--tune-children --tune-steps 6 --tune-games 12"; TUNE=
+  # H8 addendum, revised (13:51 UTC): require fb401ce (child constant climb on by default in funsearch.run: steps 6,
+  # games 16, slack 0.15, margin 0.03; comment-only children skipped) and NO --tune-* flags.
+  H8TUNE=; TUNE=
   [ -f runs/ec2-h8 ] && { SEEDS=$H8SEEDS; AXES=$H8AXES; TUNE=$H8TUNE; }
   if [ -f runs/ec2-h7c ] && [ ! -f runs/ec2-h8 ]; then
     if [ ! -f runs/ec2-h8-hold ]; then
@@ -149,12 +150,12 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H8: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor f31c3a4 HEAD && git merge-base --is-ancestor 896fb6b HEAD &&
+         git merge-base --is-ancestor f31c3a4 HEAD && git merge-base --is-ancestor fb401ce HEAD &&
          [ -f policies/pool/v19-L1c.policy ] && build "$D" &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h8-marks
         rm -f runs/hyb5.hold; touch runs/ec2-h8; SEEDS=$H8SEEDS; AXES=$H8AXES; TUNE=$H8TUNE
-        log "H8: funsearch/runs $(git rev-parse --short HEAD) (has f31c3a4, 896fb6b), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 (disengage axis; seeds v21,v21,v20,v19-L1c; --tune-children)"
+        log "H8: funsearch/runs $(git rev-parse --short HEAD) (has f31c3a4, fb401ce), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 (disengage axis; seeds v21,v21,v20,v19-L1c; default child climb)"
       else
         echo "H8 merge/f31c3a4/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H8 upgrade failed"; pushall; return 1
       fi
