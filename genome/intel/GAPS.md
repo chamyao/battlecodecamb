@@ -157,3 +157,15 @@ Baselines here are against style-gconv1 (v23). The live bot before v25 was tune-
 On B318 the stuck fix removes the stuck rounds but costs win rate, since B318's evolved rules depend on the
 old flip behaviour. Only firstbank, alone or with commit_live, beats B318 at >= 0.53. Both lose to it against
 style-gconv1 (0.620 vs 0.670), so they wait for the rerun against tune-v20-L1c.
+
+### B318 as the base (ladder v25); anchors tune-v20-L1c (v22) and style-gconv1 (v23); seeds 97001 / 97002
+
+| genome | vs B318 | vs L1c | vs gconv1 |
+|---|---|---|---|
+| B318 | — | 0.608 | 0.672 |
+| `directed/b318-firstbank` | 0.575 | 0.573 (−3.5) | 0.600 (−7.2) |
+| `directed/b318-live-firstbank` (commit_live + firstbank) | 0.588 | 0.575 (−3.3) | 0.625 (−4.7) |
+| `directed/cm-gf` | 0.450 | 0.547 | 0.547 |
+
+Both B318 grafts beat B318 head to head but lose 3-7 points against the anchors, so they fail the upload gate's
+"no drop > 3" rule. They go to Arena B for selection, not upload.
