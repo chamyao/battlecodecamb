@@ -329,3 +329,9 @@ bank_detour (coord/bank-detour) is on the vocab list already and appears once me
 H13 update (14:50 UTC): require funsearch/runs 14df19b or later instead (merges deploy/v0 f6a56b7: all gap sensors and
 unit_tributing calibrated, no provisional rows; tune-2 vs tune-1 80/80 identical with cambc). If H13 already fired on
 7fff19f, take 14df19b at the next boundary as H14 (rebuild interp_eval, pytest 2028, same command line).
+
+## Job H14 (2026-10-24 14:45 UTC, hybrid line session; per the FunSearch lead): bank_detour, calibrated
+Require funsearch/runs d915b03 or later (contains 14df19b and e71632d). If the H10-H13 pull has not happened yet, take d915b03
+in that same pull; otherwise at the next boundary. It merges deploy/v0 d23c1cb: the bank_detour(Tile) sensor with its
+calibrated cost row (0 provisional rows; all 15 sensors now in). interp/ CHANGED: rebuild interp_eval, pytest (2028).
+Same command line; bank_detour joins the vocab-variant list automatically.
