@@ -1,6 +1,8 @@
 // Static map data decoded from .map26a files (format: oracle/tools/map26a.py).
 #pragma once
+#include <atomic>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 #include "cbs/bitboard.h"
@@ -53,11 +55,27 @@ struct Map
 	{
 		std::uint32_t rows[17];
 	};
-	const Window& vision8(Vec2 from) const { return vision_cache_[idx(from)]; }
-	const Window& vision6(Vec2 from) const { return ward_vision_cache_[idx(from)]; }
+	const Window& vision8(Vec2 from) const
+	{
+		const int i = idx(from);
+		if (!window_ready_[i].load(std::memory_order_acquire)) fill_windows(i);
+		return vision_cache_[i];
+	}
+	const Window& vision6(Vec2 from) const
+	{
+		const int i = idx(from);
+		if (!window_ready_[i].load(std::memory_order_acquire)) fill_windows(i);
+		return ward_vision_cache_[i];
+	}
 	void add_window(const Window& w, Vec2 from, Bitboard& out) const;
 
-	std::vector<Window> vision_cache_, ward_vision_cache_; // filled at load
+	// Filled per tile on first use (a map is shared by concurrent matches: filled under a lock, then
+	// published by window_ready_). The radius-6 window is the radius-8 one cut to Chebyshev 6: the
+	// shadowcaster's depth is the Chebyshev distance and depth d depends only on depths below d.
+	mutable std::vector<Window> vision_cache_, ward_vision_cache_;
+	mutable std::unique_ptr<std::atomic<std::uint8_t>[]> window_ready_;
+	mutable std::mutex window_mu_;
+	void fill_windows(int i) const;
 };
 
 // Throws std::runtime_error on malformed data.
