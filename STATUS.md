@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 19:09 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.08 0.10 1.56 on 16 threads.
+Updated 2026-10-24 19:14 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.00 0.03 1.12 on 16 threads.
 Disk: 3.7G used of 38G.
 
 ## python3 processes
@@ -13,7 +13,6 @@ Disk: 3.7G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[17:21:37] hybrid: H21 check: 18 're-screened #' lines, 're-screen (cover maps): 9 programs'; 3 new children with screen_maps=cover
 [17:42:12] hybrid: FINAL: SIGTERM hyb5 pid 142461
 [17:42:27] hybrid: FINAL: hyb5 stopped at the boundary, not relaunched; last hyb5.log: [16:35:18]   helpers: 20 helpers kept; top 20: -> hyb5.helpers.json|[17:40:14] hold file present: waiting at the round boundary (remove hyb5.hold to go on)|
 [17:42:29] hybrid: FINAL: state pushed (remote/hybrid fb5107a)
@@ -53,4 +52,5 @@ remote:
 [18:59:01] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [19:04:04] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [19:09:06] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[19:14:09] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
