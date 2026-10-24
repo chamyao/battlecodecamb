@@ -30,18 +30,25 @@ def main():
     ap.add_argument("--anchors", default="", help="comma list of opponents (default: the live-bot reference and the "
                                                   "4 fixed anchors)")
     ap.add_argument("--no-seed", action="store_true")
+    ap.add_argument("--names", default="", help="comma list of genome names to measure instead of the top --top")
+    ap.add_argument("--seeds", default="", help="comma list of game seeds (default 2000003)")
     args = ap.parse_args()
     d = Path(args.state)
     s = json.loads((d / "state.json").read_text())
     live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"] and m["games"] >= args.min_games]
     who = [] if args.no_seed else [("seed", Path(args.seed_genome).read_text(), None)]
-    who += [(m["name"], (d / m["path"]).read_text(), m["mu"]) for m in sorted(live, key=lambda m: -m["mu"])[:args.top]]
+    if args.names:
+        allm = s["members"]
+        who += [(n, (d / allm[n]["path"]).read_text(), allm[n]["mu"]) for n in args.names.split(",")]
+    else:
+        who += [(m["name"], (d / m["path"]).read_text(), m["mu"]) for m in sorted(live, key=lambda m: -m["mu"])[:args.top]]
+    seeds = tuple(int(x) for x in args.seeds.split(",")) if args.seeds else SEEDS
     for name, text, mu in who:
         spec = spec_of(text, "genome")
         for anc in (args.anchors.split(",") if args.anchors else (REF,) + ANCHORS):
-            w, n = rate(spec, spec_of(str(ROOT / anc)), SEEDS, args.games, args.threads)
+            w, n = rate(spec, spec_of(str(ROOT / anc)), seeds, args.games, args.threads)
             rec = {"tag": args.tag, "genome": name, "mu_old": mu, "anchor": Path(anc).stem, "wins": w, "games": n,
-                   "win_rate": w / n, "seeds": list(SEEDS), "t": round(time.time())}
+                   "win_rate": w / n, "seeds": list(seeds), "t": round(time.time())}
             with open(args.out, "a") as f:
                 f.write(json.dumps(rec) + "\n")
             print(json.dumps(rec), flush=True)
