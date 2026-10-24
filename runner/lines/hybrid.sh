@@ -16,12 +16,39 @@ if [ ! -f "$D/.setup-done" ]; then
   log "setup ok at $(git rev-parse --short HEAD): $(tail -n 1 runs/ec2-pytest.txt); challengers: $(tr '\n' ' ' < runs/hyb4.challengers)"
 fi
 cd "$D" || return 1
+BUDGET=$(cat runs/ec2-budget 2>/dev/null || echo 9.82)   # launched at 9.82; 29.47 from the g4 boundary (JOBS.md)
+# EC2 update U1 step 2 (jobs/hybrid da1a09c): tune5-campreset as a challenger now, no restart; never tune5-reset
+if [ ! -f runs/ec2-u1 ]; then
+  git fetch -q origin funsearch/runs && git show origin/funsearch/runs:policies/tune5-campreset.policy > policies/tune5-campreset.policy &&
+    { grep -qx policies/tune5-campreset.policy runs/hyb4.challengers || echo policies/tune5-campreset.policy >> runs/hyb4.challengers; } &&
+    cat >> runs/SPEND.md <<'X' && touch runs/ec2-u1 && log "U1: challenger tune5-campreset added; SPEND.md lines appended"
+| 2026-10-24 | hyb4-g3 (best tune-4) on remote-server after snapshot bca8693: lost with Cham's machine (g3 verdict and later programs), not in programs.jsonl | ? | ~0.35 | |
+| 2026-10-24 | hybrid line cap raised $10 -> $30 (project cap $90 -> $200). League --budget 29.47 = 30 - 0.18 (hyb, hyb2, hyb3) - 0.35 (lost above) | | | |
+X
+fi
+# U1 step 3 + budget: hold at the g4 boundary, then merge funsearch/runs (must contain ff56f90), rebuild, test,
+# relaunch with --budget 29.47. The league waits at the boundary while runs/hyb4.hold exists.
+if [ ! -f runs/ec2-g4-upgraded ]; then
+  grep -q 'hyb4-g4: ' runs/hyb4.log && [ ! -f runs/ec2-hold-set ] && { touch runs/hyb4.hold runs/ec2-hold-set; log "g4 started: hold set for the g4 boundary upgrade"; }
+  if [ -f runs/hyb4.hold ] && tail -n 3 runs/hyb4.log | grep -q 'hold file present'; then
+    for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb4' | cut -d' ' -f1); do kill -TERM "$pid"; done; sleep 10
+    rm -f policies/tune5-campreset.policy   # tracked upstream; avoid the untracked-file conflict
+    if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+       git merge-base --is-ancestor ff56f90 HEAD && build "$D" &&
+       python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+      echo 29.47 > runs/ec2-budget; BUDGET=29.47; rm -f runs/hyb4.hold; touch runs/ec2-g4-upgraded
+      log "g4 boundary upgrade: funsearch/runs $(git rev-parse --short HEAD), $(tail -n 1 runs/ec2-pytest.txt); relaunching with --budget 29.47"
+    else
+      echo "g4 boundary upgrade failed (merge/ff56f90/build/tests); league left on hold" > "$D/HALT"; log "HALT: g4 upgrade failed"; return 1
+    fi
+  fi
+fi
 if ! running "league --name hyb4"; then
   if [ -f runs/ec2-launched ] && ls runs/hyb4-g*/STOP > /dev/null 2>&1; then
     log "league not running and a STOP file is present: leaving it paused"
   else
     [ -f runs/ec2-launched ] && log "league not running: relaunching (resume from runs/)"
-    setsid nohup python3 -m funsearch.league --name hyb4 --threads 5 --budget 9.82 \
+    setsid nohup python3 -m funsearch.league --name hyb4 --threads 5 --budget "$BUDGET" \
       --members policies/v7-zerogem.policy,policies/v7.policy,policies/v5d-fs2.policy \
       --fixed policies/locker.policy --prefix fs-h --line hybrid --round 30 \
       --cambc-ref policies/tune-5.policy --workers 3 --eval-threads 2 >> runs/hyb4.out 2>&1 < /dev/null &
