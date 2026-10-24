@@ -86,7 +86,7 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(unit_max_health, "unit_max_health(Unit)") X(unit_strength, "unit_strength(Unit)") X(unit_focus, "unit_focus(Unit)")     \
 	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)") \
 	X(threat_eta, "threat_eta()") X(altar_eta, "altar_eta()") X(retreat_eta, "retreat_eta()") X(enemy_between, "enemy_between(Tile)")   \
-	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)")
+	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)") X(bank_detour, "bank_detour(Tile)")
 
 enum class Op : std::uint16_t
 {
@@ -2020,6 +2020,26 @@ struct Interp
 				g += v;
 			});
 			return num(g);
+		}
+		case Op::bank_detour:
+		{
+			// extra turns to reach the tile via a tile next to the best non-enemy-locked altar, compared with going
+			// straight there (0 when an altar is on the way); Chebyshev distances at our speed, walls ignored
+			const Vec2 t = evalt(a[0]);
+			ChampionInfo me_{};
+			if (!has_tile(t) || !me(me_)) return num(1000);
+			const Vec2 p{ me_.x, me_.y };
+			cbs::AltarLockRecord locks[16];
+			std::uint32_t n = 0;
+			api.altar_locks(locks, 16, &n);
+			int best = 1 << 20;
+			m().altars.for_each_unordered(m().H, [&](int x, int y) {
+				for (std::uint32_t i = 0; i < n && i < 16; ++i)
+					if (locks[i].team != static_cast<std::uint32_t>(api.team()) && locks[i].x == x && locks[i].y == y) return;
+				best = std::min(best, std::max(0, cbs::chebyshev(p, { x, y }) - 1) + std::max(0, cbs::chebyshev({ x, y }, t) - 1));
+			});
+			if (best >= (1 << 20)) return num(1000);
+			return num(std::max(0.0, eta(best, me_.move_speed) - eta(cbs::chebyshev(p, t), me_.move_speed)));
 		}
 		case Op::unseen_enemies_near:
 		{
