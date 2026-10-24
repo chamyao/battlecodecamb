@@ -6,7 +6,6 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | --- | --- | --- | --- | --- |
 | 2026-10-24 | Budget (Cham): Arena A $8, Arena B (ladder-informed) $3, on top of ~$2 spent in tests and EC2 dry runs | — | — | committed ~$13 of $50 |
 | 2026-10-24 | Budget raise (Cham): Claude API +$40 (line total $90), EC2 +$10 | — | — | committed ~$13 of $90 API |
-| 2026-10-24 | Arena A +$5 (Cham, cap $13); Arena B +$5 (cap $8) | — | — | |
 | 2026-10-24 | Arena B +$3 (cap $11) and the exploiter test $2 (Cham, via the Arena B lead, ~23:30 UTC) | — | — | |
 
 ## Ladder uploads (Cham, Oct 24)
