@@ -122,3 +122,10 @@ done: 33 programs (0 invalid), spent $0.71; best #24 score 0.490 -> /root/bc/sty
 [122] claude-haiku-5-5 island 1: score 0.274 | best 0.492 (#99) $0.71 | 1941s
 [123] claude-opus-5-5 island 0: score 0.438 | best 0.492 (#99) $0.84 | 2089s
 done: 40 programs (0 invalid), spent $0.84; best #99 score 0.492 -> /root/bc/style/runs/style8-h-g2/best.policy
+[124] claude-haiku-5-5 island 3: score 0.379 | best 0.492 (#99) $0.01 | 68s
+[125] claude-haiku-5-5 island 2: score 0.412 | best 0.492 (#99) $0.01 | 130s
+[126] claude-haiku-5-5 island 2: score 0.437 | best 0.492 (#99) $0.02 | 158s
+[127] claude-haiku-5-5 island 0: error: TypeError: line 61: macro stun_opener is a step; only a macro whose body is 'ret | best 0.492 (#99) $0.02 | 178s
+[128] claude-haiku-5-5 island 1: score 0.364 | best 0.492 (#99) $0.02 | 192s
+[129] claude-haiku-5-5 island 2: score 0.380 | best 0.492 (#99) $0.03 | 229s
+[130] claude-haiku-5-5 island 3: score 0.349 | best 0.492 (#99) $0.03 | 263s
