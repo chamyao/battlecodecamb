@@ -41,7 +41,7 @@ threshold, a cheaper way to compute the same thing. Keep what already works.
 Reply with one ```python code block holding:
 - the new version of every EDITABLE gene you change (keep its @gene id; you may update its
   description; omit an editable gene to leave it as it is);
-- each new gene with @gene("new", "<one-line description>", parents=["<id of the gene it came from>"]);
+- each new gene with @gene("new", "<description: one plain line, no backslashes>", parents=["<id of the gene it came from>"]);
 - any new keep declarations (NAME: Type = value) your genes use.
 Do not repeat the fixed genes. A gene nobody calls is deleted. Then write nothing else."""
 
