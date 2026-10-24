@@ -75,9 +75,9 @@ programs.jsonl won't show (accounted for in --budget below and in SPEND.md).
 
 ```
 git clone https://github.com/chamyao/battlecodecamb ~/bc/hybrid && cd ~/bc/hybrid
-git checkout funsearch/runs && git pull origin funsearch/runs        # 7001ccd or later (must include
-                                                                      # 2445e9c: combat directions in the prompt)
-git merge-base --is-ancestor 2445e9c HEAD && echo prompt-ok          # must print prompt-ok
+git checkout funsearch/runs && git pull origin funsearch/runs        # 13facf9 or later (must include
+                                                                      # 13facf9: combat directions in the prompt)
+git merge-base --is-ancestor 13facf9 HEAD && echo prompt-ok          # must print prompt-ok
 git fetch origin remote/hybrid
 mkdir -p runs && git archive origin/remote/hybrid remote/hybrid/runs | tar -x --strip-components=2 -C .
 ls runs   # hyb4.json hyb4.challengers hyb4.log hyb4-g1 hyb4-g2 hyb4-g3 validation_cache.jsonl SPEND.md ...
