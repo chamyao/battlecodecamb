@@ -351,3 +351,18 @@ not-in-vision, as cambc), 59d9e3a (group_threat / group_hp treat such camps as d
 = v21's policy on this build. sim/ and interp/ CHANGED: reconfigure + rebuild interp_eval, pytest (2028). Same command
 line (H15 axes). Re-baseline: the rebuild invalidates validation_cache keys (binary mtime) and the new round re-scores
 the seeds; the bar stays v21 (policies/pool/v21.policy), now evaluated on the v22 build.
+
+## Job H17 (2026-10-24 15:45 UTC, hybrid line session; per the FunSearch lead): #82 fuel island
+Fold into the H16 pull if it has not happened (one pull), else the next boundary. Require funsearch/runs 27dd4a2 or
+later (contains 8b38ce6). Besides H16's rebuild, ALSO build fuel_turns:
+`cmake --build interp/build -j --target interp_eval fuel_turns`; pytest (2029).
+Relaunch with the current command line plus these changes (run args, passed through by the league):
+1. --island-seeds: replace policies/pool/v19-L1c.policy (island 3) with policies/candidates/hyb5-g3-82.policy, i.e.
+   `--island-seeds policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-82.policy`
+2. `--protect-islands 3` (island 3 never re-seeded at island resets, never a donor)
+3. `--fuel-islands 3` (each island-3 child, and its seed, gets a 4-game fuel_turns --enforce --bot-seeds check on
+   01big-world + 00ambush vs v21, ~3 s; score -= 0.01 x suspensions/game + 0.001 x (turns >= 90k per game - 6);
+   raw score and fuel numbers in metrics.fuel)
+4. `--island-axes "3=fuel:5,conversion:2,pairs:1,disengage:1"` (island 3's axis menu; other islands keep --axes)
+Check: hyb5.log shows "re-seeded island 3 with hyb5-g3-82 (score ~0.50)" (penalised; raw ~0.70 is in metrics.fuel);
+island-3 children carry metrics.fuel; about half of island-3 children log axis "fuel".
