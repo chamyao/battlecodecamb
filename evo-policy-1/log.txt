@@ -1,0 +1,13 @@
+seed screen 0.686 confirm 0.768 (vs v7: win 0.97, gems 965-437; vs tune-v20-L1: win 0.53, gems 818-784; vs rall2-ca4-lean-g: win 0.62, gems 884-731)
+[4] llm claude-haiku-5-5 isl 3: screen +0.003 confirm -0.004 (12 lines) | best 0.768 (#0) $0.01 | 63s
+[5] llm claude-haiku-5-5 isl 3: screen +0.021 confirm -0.060 (13 lines) | best 0.768 (#0) $0.01 | 64s
+[6] llm claude-haiku-5-5 isl 3: screen +0.021 confirm -0.060 (13 lines) | best 0.768 (#0) $0.01 | 65s
+[7] llm claude-haiku-5-5 isl 2: screen +0.002 confirm -0.011 (12 lines) | best 0.768 (#0) $0.02 | 126s
+[8] llm claude-haiku-5-5 isl 2: screen +0.001 confirm +0.004 (12 lines) | best 0.772 (#8) $0.02 | 128s
+[9] llm claude-haiku-5-5 isl 1: screen -0.009 confirm -0.006 (12 lines) | best 0.772 (#8) $0.02 | 128s
+[10] llm claude-haiku-5-5 isl 2: screen -0.020 (5 lines) | best 0.772 (#8) $0.02 | 154s
+[11] tune  isl 2: screen +0.000 confirm +0.000 twin (168 lines) | best 0.772 (#8) $0.03 | 176s
+[12] llm claude-haiku-5-5 isl 1: screen -0.011 confirm +0.004 (12 lines) | best 0.772 (#8) $0.03 | 191s
+[13] llm claude-haiku-5-5 isl 2: screen +0.000 confirm -0.011 twin (12 lines) | best 0.772 (#8) $0.18 | 217s
+[14] llm claude-opus-5-5 isl 3: screen -0.053 (42 lines) | best 0.772 (#8) $0.18 | 221s
+[15] llm claude-haiku-5-5 isl 1: screen -0.008 confirm -0.062 (15 lines) | best 0.772 (#8) $0.19 | 259s

@@ -1,0 +1,22 @@
+seed screen 0.804 confirm 0.783 (vs builtin:starter: win 0.51, gems 384-400; vs farmer: win 0.97, gems 392-7)
+[4] mutate claude-haiku-5-5: invalid: GenomeError: progress line 45: expected Bool, got Num
+[5] mutate claude-haiku-5-5 isl 3: screen +0.092 confirm +0.070 (6 lines) | best 0.853 (#5) $0.00 | 45s
+[6] mutate claude-haiku-5-5 isl 3: screen -0.011 confirm +0.035 (4 lines) | best 0.853 (#5) $0.00 | 46s
+[7] mutate claude-haiku-5-5 isl 2: screen +0.000 confirm +0.000 twin (5 lines) | best 0.853 (#5) $0.00 | 49s
+[8] tune  isl 2: screen +0.000 confirm +0.000 twin (1 lines) | best 0.853 (#5) $0.00 | 90s
+[9] cross : invalid: child equals a parent
+[10] mutate claude-haiku-5-5 isl 2: screen -0.042 confirm +0.024 (4 lines) | best 0.853 (#5) $0.00 | 91s
+[11] mutate claude-haiku-5-5 isl 1: screen -0.000 confirm +0.000 (4 lines) | best 0.853 (#5) $0.00 | 91s
+[12] mutate claude-haiku-5-5 isl 1: screen -0.069 (7 lines) | best 0.853 (#5) $0.01 | 107s
+[13] mutate claude-haiku-5-5 isl 2: screen +0.001 confirm +0.019 (10 lines) | best 0.853 (#5) $0.05 | 135s
+[14] mutate claude-haiku-5-5 isl 0: screen +0.000 confirm +0.000 twin (4 lines) | best 0.853 (#5) $0.05 | 135s
+[15] mutate claude-opus-5-5 isl 3: screen -0.296 (32 lines) | best 0.853 (#5) $0.05 | 136s
+[16] tune  isl 0: screen +0.004 confirm +0.009 (1 lines) | best 0.853 (#5) $0.06 | 177s
+[17] mutate claude-haiku-5-5 isl 1: screen -0.028 confirm -0.011 (9 lines) | best 0.853 (#5) $0.06 | 180s
+[18] mutate claude-haiku-5-5 isl 2: screen +0.001 confirm -0.044 (4 lines) | best 0.853 (#5) $0.06 | 180s
+[19] mutate claude-haiku-5-5 isl 0: screen +0.000 confirm -0.000 twin (5 lines) | best 0.853 (#5) $0.06 | 222s
+[20] mutate claude-haiku-5-5 isl 0: screen +0.003 confirm +0.013 (6 lines) | best 0.853 (#5) $0.06 | 225s
+[21] cross : invalid: child equals a parent
+[22] mutate claude-haiku-5-5 isl 2: screen -0.019 confirm +0.003 (5 lines) | best 0.853 (#5) $0.06 | 226s
+[23] mutate claude-haiku-5-5: invalid: GenomeError: progress line 43: expected Bool, got Unit
+[24] mutate claude-haiku-5-5: invalid: GenomeError: progress line 43: expected Bool, got Num
