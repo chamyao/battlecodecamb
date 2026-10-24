@@ -309,6 +309,31 @@ values it sees will still flip some decisions.
 `FUEL_GATE_DETAIL=1` (fuel_turns, `--enforce`) prints each turn's first `fuel_remaining()` read
 (`@@GD`) with the charges so far by block (`@@GDB`) and API call (`@@GDC`).
 
+**First turns and camp-rich maps (Oct 24, style-gconv1).** style-gconv1 vs v7zg-cast was 47/80
+identical. The rules are not the cause: its cambc games replay with 0 divergences through
+oracle/replays. The cause is fuel at its `fuel_remaining() > 55000/60000/65000` gates; the first
+divergence is usually round 1. Bot profiles found:
+- One-offs on a bot instance's first turn, now charged where they happen: the camp-tile build
+  in `refresh_occupancy` (43.5 per camp) and the field zero fill in `distance_field` (2.05 per tile).
+- Blocks fitted without their real cost driver. The camp-type sets (`monolith_tiles()` etc.,
+  `camp_spawn_tiles()`) loop over every camp but were fitted on chunks; now on camps
+  (monolith_tiles: 149 + 12.4/camp, mae 20). The UnitList loops (`filter`, `weakest`,
+  `richest`, `nearest`) had no length feature; `note_list` now records the list length (sim:
+  dests term; profile build: `INTERP_LIST_FEAT`, a no-op in the deploy bot). filter(UnitList):
+  801 + 181 per unit, mae 47.
+- The coverage pool lacked camp-rich maps: 00swirl (106 camps) and 00road-of-riches (132) were added.
+
+After the re-profile and refit:
+- The start-up was refitted on 160 first turns: 30623 + 0.897·W·H + 247·camps + 193·groups, mae 1.7k.
+- The gate deferral was refitted at the first `fuel_remaining()` read of each turn, using 160
+  cambc games (style-gconv1, tune-3, tune-v21-g65 and rall2-ca4 vs v7zg-cast, rounds 1-40,
+  13k reads). It is now 13 per block and none on a first turn.
+- Sim minus real spend at the read: median −0.2k to +0.2k per policy on later turns (was
+  −0.7k to −1.2k). On first turns: −0.3k to −1.0k (was −3.5k to −4.3k); p10/p90 about ±2k.
+- tune-2 vs tune-1 is still 80/80. style-gconv1 vs v7zg-cast is 49/80, a ceiling set by the
+  noise: 540 of its gate reads per game fall within 1k of a threshold, so with per-read noise
+  of ±2k, gate decisions differ in most games.
+
 **Combat (meta draft).** opp-tune5-metadraft (Vesper Vale, Heart of Ruin, Marcella, Vendetta,
 Ryth) vs tune-5 (both sides) and vs itself, 40 maps, `--bot-seeds` against `cambc run-batch`
 (bot/src at 4f4f9e1): with their `fuel_remaining() > 55000` gates, 110/120 identical (all ten
