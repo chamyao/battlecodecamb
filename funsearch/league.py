@@ -221,13 +221,16 @@ def main():
         cfile = ROOT / "runs" / f"{args.name}.challengers"
         queued = [c.strip() for c in cfile.read_text().splitlines() if c.strip()] if cfile.exists() else []
         queued = [c for c in queued if c not in state.get("challengers", []) and c != best]
+        # challengers taken from the file but not yet judged (a restart during validation)
+        queued = list(dict.fromkeys(state.get("pending", []) + queued))
         missing = [c for c in queued if not (ROOT / c).exists()]
         if missing:  # not merged yet: keep them queued for the next boundary
             log(f"  challengers not found yet, kept queued: {missing}", logfile)
             queued = [c for c in queued if c not in missing]
         if queued or missing:
             cfile.write_text("".join(f"{c}\n" for c in missing))
-            state.setdefault("challengers", []).extend(queued)
+            state["challengers"] = list(dict.fromkeys(state.get("challengers", []) + queued))
+            state["pending"] = queued
             state_path.write_text(json.dumps(state))
             log(f"  challengers: {queued}", logfile)
         tried = set(state.get("tried", []))  # candidates already judged against this best
@@ -255,6 +258,7 @@ def main():
             if ok and worst >= -args.regress and (promoted is None or h2h > promoted[2]):
                 promoted = (label, text, h2h, n, rates, p)
         state["tried"] = sorted(tried)
+        state["pending"] = []
         db_done = max(0, sum(1 for _ in open(db_file)) - 4) if db_file.exists() else 0
         state.setdefault("validated", {})[run] = db_done
         state_path.write_text(json.dumps(state))
