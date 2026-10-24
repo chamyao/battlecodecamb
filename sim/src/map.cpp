@@ -146,23 +146,10 @@ std::shared_ptr<const Map> decode_map(const std::uint8_t* data, std::size_t size
 	for (int y = 0; y < H; ++y)
 		for (int x = 0; x < W; ++x)
 			if (m->altars.test(x, y)) m->altar_list.push_back({ x, y });
-	auto fill = [&](std::vector<Map::Window>& cache, int radius) {
-		cache.resize(static_cast<std::size_t>(W) * H);
-		for (int y = 0; y < H; ++y)
-			for (int x = 0; x < W; ++x)
-			{
-				Map::Window w{};
-				const Vec2 from{ x, y };
-				const std::uint16_t own = m->bushes.test(from) ? m->cluster[m->idx(from)] : 0;
-				shadowcast(
-					W, H, from, radius,
-					[&](int bx, int by) { return m->walls.test(bx, by) || (m->bushes.test(bx, by) && !(own && m->cluster[by * W + bx] == own)); },
-					[&](int vx, int vy) { w.rows[vy - y + 8] |= 1u << (vx - x + 8); });
-				cache[m->idx(from)] = w;
-			}
-	};
-	fill(m->vision_cache_, 8);
-	fill(m->ward_vision_cache_, 6);
+	m->vision_cache_.resize(static_cast<std::size_t>(W) * H);
+	m->ward_vision_cache_.resize(static_cast<std::size_t>(W) * H);
+	m->window_ready_.reset(new std::atomic<std::uint8_t>[static_cast<std::size_t>(W) * H]);
+	for (int i = 0; i < W * H; ++i) m->window_ready_[i].store(0, std::memory_order_relaxed);
 	return m;
 }
 
@@ -183,6 +170,24 @@ void Map::vision(Vec2 from, int radius, Bitboard& out) const
 		W, H, from, radius,
 		[&](int x, int y) { return walls.test(x, y) || (bushes.test(x, y) && !(own && cluster[y * W + x] == own)); },
 		[&](int x, int y) { out.set(x, y); });
+}
+
+void Map::fill_windows(int i) const
+{
+	std::lock_guard<std::mutex> lk(window_mu_);
+	if (window_ready_[i].load(std::memory_order_relaxed)) return;
+	const int x = i % W, y = i / W;
+	Window w{};
+	const Vec2 from{ x, y };
+	const std::uint16_t own = bushes.test(from) ? cluster[idx(from)] : 0;
+	shadowcast(
+		W, H, from, 8, [&](int bx, int by) { return walls.test(bx, by) || (bushes.test(bx, by) && !(own && cluster[by * W + bx] == own)); },
+		[&](int vx, int vy) { w.rows[vy - y + 8] |= 1u << (vx - x + 8); });
+	vision_cache_[i] = w;
+	Window w6{};
+	for (int r = 2; r <= 14; ++r) w6.rows[r] = w.rows[r] & 0x7FFCu; // Chebyshev <= 6
+	ward_vision_cache_[i] = w6;
+	window_ready_[i].store(1, std::memory_order_release);
 }
 
 void Map::add_window(const Window& w, Vec2 from, Bitboard& out) const

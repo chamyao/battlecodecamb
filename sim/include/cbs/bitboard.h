@@ -118,10 +118,38 @@ constexpr std::uint16_t kUnreachable = 0xFFFF;
 int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int W, int H, int max_distance,
 				   std::uint16_t* dist /* W*H row-major */, Bitboard& visited, bool all_dests = false);
 // The layered BFS behind distance_field, for callers that need less than the full field.
+// Rows as integers: std::uint64_t (maps at most 64 wide) or Row128; bit x is tile x.
+using Row128 = unsigned __int128;
+template <class Row>
+inline Row row_of(const Bitboard& b, int y)
+{
+	if constexpr (sizeof(Row) == 8) return b.w[y][0];
+	else return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64;
+}
+inline int row_pop(std::uint64_t v) { return std::popcount(v); }
+inline int row_pop(Row128 v) { return std::popcount(static_cast<std::uint64_t>(v)) + std::popcount(static_cast<std::uint64_t>(v >> 64)); }
+inline int row_first(std::uint64_t v) { return std::countr_zero(v); }
+inline int row_first(Row128 v)
+{
+	const auto lo = static_cast<std::uint64_t>(v);
+	return lo ? std::countr_zero(lo) : 64 + std::countr_zero(static_cast<std::uint64_t>(v >> 64));
+}
+// f(x) for every set bit x, ascending.
+template <class F>
+inline void row_bits(std::uint64_t v, F&& f)
+{
+	for (; v; v &= v - 1) f(std::countr_zero(v));
+}
+template <class F>
+inline void row_bits(Row128 v, F&& f)
+{
+	for (auto w = static_cast<std::uint64_t>(v); w; w &= w - 1) f(std::countr_zero(w));
+	for (auto w = static_cast<std::uint64_t>(v >> 64); w; w &= w - 1) f(64 + std::countr_zero(w));
+}
 // Calls on_row(row_bits, y, depth) for each row of each layer in order (depth 0 = the open roots,
 // then rows ascending within a layer); before each expansion stops when done() or at max_distance.
-// Returns the expansion count; seen (H rows) gets every reached tile. Bit x of a row is tile x.
-using Row128 = unsigned __int128;
+// Returns the expansion count; seen (H rows) gets every reached tile. row_bits is a std::uint64_t on
+// maps at most 64 wide, else a Row128 (on_row must take either, e.g. a generic lambda).
 template <class OnRow, class Done>
 int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow&& on_row,
 			   Done&& done);
@@ -219,7 +247,7 @@ int bfs_layers_impl(const Bitboard& walls, const Bitboard& roots, int W, int H, 
 		{
 			any = true;
 			y0 = std::min(y0, y), y1 = y;
-			on_row(static_cast<Row128>(front[y]), y, 0);
+			on_row(front[y], y, 0);
 		}
 	}
 	int count = 0, depth = 0;
@@ -246,7 +274,7 @@ int bfs_layers_impl(const Bitboard& walls, const Bitboard& roots, int W, int H, 
 				if (n1 < 0) n0 = y;
 				n1 = y;
 				avail[y] &= ~nx;
-				on_row(static_cast<Row128>(nx), y, d);
+				on_row(nx, y, d);
 			}
 		}
 		y0 = n0, y1 = n1;
