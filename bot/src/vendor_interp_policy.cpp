@@ -82,7 +82,9 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")                                 \
 	X(strength, "strength()") X(focus, "focus()")                                                       \
 	X(slot_range, "slot_range(Num)") X(slot_radius, "slot_radius(Num)") X(slot_stun, "slot_stun(Num)")                                                                    \
-	X(unit_is, "unit_is(Unit,Champ)") X(unit_shield, "unit_shield(Unit)") X(unit_tributing, "unit_tributing(Unit)")
+	X(unit_is, "unit_is(Unit,Champ)") X(unit_shield, "unit_shield(Unit)") X(unit_tributing, "unit_tributing(Unit)")                       \
+	X(unit_max_health, "unit_max_health(Unit)") X(unit_strength, "unit_strength(Unit)") X(unit_focus, "unit_focus(Unit)")     \
+	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)")
 
 enum class Op : std::uint16_t
 {
@@ -1922,6 +1924,46 @@ struct Interp
 			if (u.kind != EntityKind::champion || api.champion(u.h, &ci) != Err::success) return num(0);
 			const int pick = ci.type <= 3 ? ci.type : ci.type - 1; // as in i_am: Issac shares Cassi's pick
 			return num(pick == c);
+		}
+		case Op::unit_max_health:
+		case Op::unit_strength:
+		case Op::unit_focus:
+		{
+			// a visible champion's stats (items included): spots a stacked carry before engaging it
+			const Unit u = evalu(a[0]);
+			ChampionInfo ci{};
+			if (u.kind != EntityKind::champion || api.champion(u.h, &ci) != Err::success) return num(0);
+			return num(e.op == Op::unit_max_health ? ci.max_health : e.op == Op::unit_strength ? ci.strength : ci.focus);
+		}
+		case Op::enemies_near:
+		case Op::allies_near:
+		case Op::strength_at:
+		{
+			// counts (or local_strength's Lanchester ratio, ours over theirs) of living visible champions within r of
+			// a tile, e.g. a fight target or the altar we are carrying to; we count as an ally wherever we stand
+			const Vec2 t = evalt(a[0]);
+			const double r = evaln(a[1]);
+			if (!has_tile(t)) return num(0);
+			double hp[2] = { 0, 0 }, dmg[2] = { 0, 0 };
+			int cnt[2] = { 0, 0 };
+			for (int side = 0; side < 2; ++side)
+			{
+				std::uint32_t ids[16], n = 0;
+				side ? api.enemies(ids, 16, &n) : api.allies(ids, 16, &n);
+				for (std::uint32_t i = 0; i < n && i < 16; ++i)
+				{
+					ChampionInfo ei{};
+					if (api.champion(ids[i], &ei) != Err::success || !(ei.state & state_bit::alive) || cbs::chebyshev(t, { ei.x, ei.y }) > r)
+						continue;
+					++cnt[side];
+					hp[side] += ei.health;
+					dmg[side] += ei.strength + 0.5 * ei.focus;
+				}
+			}
+			if (e.op == Op::enemies_near) return num(cnt[1]);
+			if (e.op == Op::allies_near) return num(cnt[0]);
+			if (hp[1] <= 0) return num(100);
+			return num(std::min(100.0, hp[0] * dmg[0] / std::max(1e-6, hp[1] * dmg[1])));
 		}
 		case Op::unit_tributing:
 		{
