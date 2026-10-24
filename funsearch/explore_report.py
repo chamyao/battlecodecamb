@@ -57,7 +57,9 @@ def yield_report(rows, valid, ref_name="v21", top=8, flag_delta=1.0):
     line = []
     for r in sorted(kids, key=lambda r: -r["score"])[:top]:
         d, ours, theirs, w = yield_vs(r["metrics"], ref_name)
-        line.append(f"#{r['id']} {r['score']:.3f} gpc {ours:.1f} vs {theirs:.1f} ({d:+.1f}) win {w:.0%}")
+        m = r["metrics"][ref_name]
+        line.append(f"#{r['id']} {r['score']:.3f} submitted {m['a_gems'] - m['b_gems']:+.0f}/game gpc {ours:.1f} vs "
+                    f"{theirs:.1f} ({d:+.1f}) win {w:.0%}")
     print(f"  yield vs {ref_name} (gems per capture, child vs {ref_name} in the same games; top by score): " +
           "  ".join(line))
     best = max(kids, key=lambda r: yield_vs(r["metrics"], ref_name)[0])

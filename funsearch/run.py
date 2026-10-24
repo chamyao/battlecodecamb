@@ -102,7 +102,11 @@ def main():
                     help="capture-yield fitness: score = (1 - w) x usual + w x yield term, the term = 0.5 + 0.5 x "
                          "clip((our gems per capture - the ref's, in the screen games vs --yield-ref) / --yield-scale)")
     ap.add_argument("--yield-ref", default="v21", help="screen opponent (policy stem) the yield is measured against")
-    ap.add_argument("--yield-scale", type=float, default=3.0, help="gems per capture difference that saturates")
+    ap.add_argument("--yield-metric", choices=["submitted", "gpc"], default="submitted",
+                    help="submitted: gems tributed per game, ours - the ref's (a ratio like gems per capture can be "
+                         "raised by giving up volume); gpc: gems per capture (report-only by default)")
+    ap.add_argument("--yield-scale", type=float, default=None,
+                    help="difference that saturates the term (default 50 gems/game for submitted, 3 for gpc)")
     ap.add_argument("--yield-floor", type=float, default=0.34,
                     help="win rate vs --yield-ref below which (minus 2 standard errors) a child scores 1 lower")
     ap.add_argument("--screen-maps", choices=["random", "cover"], default="random",
@@ -169,14 +173,24 @@ def main():
         if args.yield_weight <= 0 or not r.ok or "yield" in r.per_opponent:
             return r
         m = r.per_opponent.get(args.yield_ref)
-        if not isinstance(m, dict) or not m.get("captures") or not m["captures"][0] or not m["captures"][1]:
+        if not isinstance(m, dict) or "a_gems" not in m:
             return r
-        d = m["gems_captured"][0] / m["captures"][0] - m["gems_captured"][1] / m["captures"][1]
-        term = 0.5 + 0.5 * max(-1.0, min(1.0, d / args.yield_scale))
+        gpc = None
+        if m.get("captures") and m["captures"][0] and m["captures"][1]:
+            gpc = m["gems_captured"][0] / m["captures"][0] - m["gems_captured"][1] / m["captures"][1]
+        sub = m["a_gems"] - m["b_gems"]
+        if args.yield_metric == "gpc":
+            if gpc is None:
+                return r
+            d, scale = gpc, args.yield_scale or 3.0
+        else:
+            d, scale = sub, args.yield_scale or 50.0
+        term = 0.5 + 0.5 * max(-1.0, min(1.0, d / scale))
         floor = args.yield_floor - 2.0 * (0.25 / max(1, m["games"])) ** 0.5
         below = m["win_rate"] < floor
-        r.per_opponent["yield"] = dict(gpc_diff=round(d, 3), term=round(term, 4), raw_score=round(r.score, 4),
-                                       ref_win=m["win_rate"], below_floor=below)
+        r.per_opponent["yield"] = dict(metric=args.yield_metric, diff=round(d, 3), submitted_diff=round(sub, 1),
+                                       gpc_diff=None if gpc is None else round(gpc, 3), term=round(term, 4),
+                                       raw_score=round(r.score, 4), ref_win=m["win_rate"], below_floor=below)
         r.score = (1 - args.yield_weight) * r.score + args.yield_weight * term - (1.0 if below else 0.0)
         return r
 
@@ -185,12 +199,18 @@ def main():
         # ref were logged, else a neutral term 0.5), in memory only
         n_res = 0
         for p in db.all:
+            y = p.metrics.get("yield")
+            refuel = 0.0
+            if y and y.get("metric", "gpc") != args.yield_metric and "raw_score" in y:
+                # scored under another yield metric: back to the raw score, re-derive (fuel penalty re-applied)
+                refuel = (p.metrics.get("fuel") or {}).get("penalty", 0.0)
+                p.score, p.metrics = y["raw_score"], {k: v for k, v in p.metrics.items() if k != "yield"}
             if p.error is None and p.score is not None and p.score > float("-inf") and "yield" not in p.metrics:
                 r0 = with_yield(EvalResult(score=p.score, per_opponent=dict(p.metrics)))
                 if "yield" not in r0.per_opponent:
                     r0.per_opponent["yield"] = dict(term=0.5, raw_score=round(p.score, 4), neutral=True)
                     r0.score = (1 - args.yield_weight) * p.score + args.yield_weight * 0.5
-                p.score, p.metrics = r0.score, r0.per_opponent
+                p.score, p.metrics = r0.score - refuel, r0.per_opponent
                 n_res += 1
         if n_res:
             print(f"yield term: {n_res} logged programs rescaled", flush=True)
