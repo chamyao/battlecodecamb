@@ -318,17 +318,20 @@ X
     if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h21b-holdmark)" ]; then
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H21b: SIGTERM hyb5 pid $pid"; done
       sleep 10
+      # H25 (hybrid line by message, 17:31 UTC) folded in: funsearch/runs aeca5e6+ (deploy/v0 2e1ff7e fuel recalibration;
+      # interp/ + sim/ changed: forced rebuild of interp_eval + fuel_turns, pytest 2029); same command line as H24.
       # H23 (jobs/hybrid f6ae0df, lead) folded in: funsearch/runs f0cbbce+ (python only: yield term = gems submitted/game vs v21)
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor f8fe74a HEAD && git merge-base --is-ancestor f0cbbce HEAD && grep -q 'no-tune-children' funsearch/run.py && build "$D" fuel_turns &&
+         git merge-base --is-ancestor aeca5e6 HEAD && git merge-base --is-ancestor f8fe74a HEAD && git merge-base --is-ancestor f0cbbce HEAD && grep -q 'no-tune-children' funsearch/run.py &&
+         rm -f "$D/interp/build/.built-$(git rev-parse HEAD)" && build "$D" fuel_turns &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h21b-progs; date +%s > runs/ec2-h21b-t0
         grep -c 'yield term: ' runs/hyb5.out runs/hyb5*.log 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}' > runs/ec2-h23-yieldmark
         for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h24-marks
         rm -f runs/hyb5.hold; touch runs/ec2-h21b; SEEDS=$H24SEEDS; EXTRA=$H24EXTRA; AXES="$H10AXES,fuel:1"
-        log "H21b+H23: funsearch/runs $(git rev-parse --short HEAD) (has f8fe74a/f0cbbce: submitted-gems yield, H24), $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5: --no-tune-children, island 3 = v21, no fuel island, --axes +fuel:1"
+        log "H21b+H23: funsearch/runs $(git rev-parse --short HEAD) (has aeca5e6/f8fe74a/f0cbbce: fuel recalibration, submitted-gems yield, H24), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5: --no-tune-children, island 3 = v21, no fuel island, --axes +fuel:1"
       else
-        echo "H21b/H23/H24 merge/f8fe74a/flag/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H21b/H23 upgrade failed"; pushall; return 1
+        echo "H21b/H23/H24/H25 merge/aeca5e6/flag/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H21b/H23 upgrade failed"; pushall; return 1
       fi
     fi
   fi
