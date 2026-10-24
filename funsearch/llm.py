@@ -58,7 +58,7 @@ AXES = {
               "measured start: the free ward on the nearest altar when within 3 (let a = first( filter( altars(), "
               "within(3, position()) ) ), then place_ward(a); it recharges over 10 turns) was +4 points vs a hunter",
     "teleport": "MOBILITY: teleport crystals (buy_teleport, teleport_to), dashes, recall timing",
-    "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, upper 7 bits only: bit 0 is the lock flag; claims, "
+    "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, bits 2-7 only: bits 0-1 are the lock flags; claims, "
             "set_team_target): roles, grouping, calling targets, splitting the map",
     "roles": "PER-CHAMPION ROLES: give champions different jobs by i_am(champ_vesper_vale()) etc. (carry, farmer, hunter, "
              "altar guard, monolith taker) instead of one shared behaviour",
@@ -66,10 +66,10 @@ AXES = {
              "each champion a partner by i_am(champ_vendetta()) etc. (e.g. vendetta with vesper_vale, tavi with ryth), have "
              "partners farm neighbouring camp groups (claim / claim_count / claimed_by_allies tell which groups "
              "your partner took), and converge when either sees an enemy. Vision is not shared, so signal it: "
-             "shared memory has 8 bytes and only byte 7 is free (0-6 are claims and the team target), and bit 0 "
-             "of byte 7 is the live bot's lock flag: keep it. Put a beacon in the upper 7 bits, e.g. let v = "
-             "read_shared(7), beacon = floor(v / 2), write_shared(7, 2 * b + (v - 2 * floor(v / 2))) for a new "
-             "beacon b, e.g. which pair is in a fight. Retreating "
+             "shared memory has 8 bytes and only byte 7 is free (0-6 are claims and the team target), and bits 0-1 "
+             "of byte 7 are the live bot's lock flags: keep them. Put a beacon in bits 2-7, e.g. let v = "
+             "read_shared(7), beacon = floor(v / 4), write_shared(7, 4 * b + (v - 4 * floor(v / 4))) for a new "
+             "beacon b (0-63), e.g. which pair is in a fight. Retreating "
              "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
              "tests, so stay close WHILE farming rather than walking across the map to regroup",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
