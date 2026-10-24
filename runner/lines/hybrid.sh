@@ -73,7 +73,7 @@ if [ -f runs/ec2-hyb5 ]; then
       fi
     fi
   fi
-  # H6 + H7 (hybrid line, 12:15 / 12:40 UTC), one relaunch at the same hyb5 boundary: merge funsearch/runs a43aede+
+  # H6 + H7 (hybrid line, 12:15 / 12:40 / 12:47 UTC), one relaunch at the same hyb5 boundary: merge funsearch/runs c4341a3+ (deploy/v0 lockfix d9d2897 + recalibrated fuel: interp changes, build() rebuilds;
   # (includes 48a1404: lock-flag bits in shared memory; and policies/pool/v21.policy; no interp change), queue v21 as a
   # challenger, relaunch with v21 seeds on islands 0/1/3 and --cambc-ref v21.
   V21SEEDS=policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/lean-g65.policy,policies/pool/v21.policy
@@ -87,14 +87,14 @@ if [ -f runs/ec2-hyb5 ]; then
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H6: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor a43aede HEAD && [ -f policies/pool/v21.policy ] && build "$D" &&
+         git merge-base --is-ancestor c4341a3 HEAD && [ -f policies/pool/v21.policy ] && build "$D" &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         grep -qx policies/pool/v21.policy runs/hyb5.challengers 2>/dev/null || echo policies/pool/v21.policy >> runs/hyb5.challengers
         for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h6-marks
         rm -f runs/hyb5.hold; touch runs/ec2-h6; SEEDS=$V21SEEDS; CREF=policies/pool/v21.policy
-        log "H6+H7: funsearch/runs $(git rev-parse --short HEAD) (has a43aede, 48a1404), $(tail -n 1 runs/ec2-pytest.txt); v21 challenger queued; relaunching on v21"
+        log "H6+H7: funsearch/runs $(git rev-parse --short HEAD) (has c4341a3: deploy/v0 lockfix + fuel recalibration; rebuilt), $(tail -n 1 runs/ec2-pytest.txt); v21 challenger queued; relaunching on v21"
       else
-        echo "H6+H7 merge/a43aede/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H6 upgrade failed"; pushall; return 1
+        echo "H6+H7 merge/c4341a3/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H6 upgrade failed"; pushall; return 1
       fi
     fi
   fi
