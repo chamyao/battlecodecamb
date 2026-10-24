@@ -236,6 +236,33 @@ PY
       fi
     fi
   fi
+  # H17 (jobs/hybrid 138bd65, 15:40 UTC, lead-approved): #82 fuel island at the next hyb5 boundary after H16: merge
+  # funsearch/runs 27dd4a2+, build interp_eval + fuel_turns, pytest; island 3 seeded with #82, protected, fuel-scored,
+  # with its own axis menu (the league passes these run args through).
+  H17SEEDS=policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-82.policy
+  H17EXTRA="--protect-islands 3 --fuel-islands 3 --island-axes 3=fuel:5,conversion:2,pairs:1,disengage:1"; EXTRA=
+  [ -f runs/ec2-h17 ] && { SEEDS=$H17SEEDS; EXTRA=$H17EXTRA; }
+  if [ -f runs/ec2-h16 ] && [ ! -f runs/ec2-h17 ]; then
+    if [ ! -f runs/ec2-h17-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h17-holdmark; touch runs/hyb5.hold runs/ec2-h17-hold
+      log "H17: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h17-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H17: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor 27dd4a2 HEAD && [ -f policies/candidates/hyb5-g3-82.policy ] &&
+         rm -f "$D/interp/build/.built-$(git rev-parse HEAD)" && build "$D" fuel_turns &&
+         python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h17-marks
+        cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h17-progs
+        rm -f runs/hyb5.hold; touch runs/ec2-h17; SEEDS=$H17SEEDS; EXTRA=$H17EXTRA
+        log "H17: funsearch/runs $(git rev-parse --short HEAD) (has 27dd4a2), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the #82 fuel island"
+      else
+        echo "H17 merge/27dd4a2/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H17 upgrade failed"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -248,7 +275,7 @@ PY
         --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy \
         --prefix fs-h --line hybrid --round 30 --cambc-ref "$CREF" --workers 3 --eval-threads 2 \
         --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share "$ARCH" \
-        --island-seeds "$SEEDS" $AXES $TUNE $HELP \
+        --island-seeds "$SEEDS" $AXES $TUNE $HELP $EXTRA \
         >> runs/hyb5.out 2>&1 < /dev/null &
       touch runs/hyb5.ec2-launched; log "launched hyb5 league"
     fi
@@ -372,6 +399,27 @@ PY
     hk=$(tail -n +"$(( $(cat runs/ec2-h10-progs 2>/dev/null || echo 0) * 0 + 1 ))" runs/hyb5.log | grep -o 'helpers: [0-9]* helpers kept' | tail -n 1)
     lh=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h10-progs) + 1 ))" | grep -c 'lib_helpers')
     [ -n "$hk" ] && [ "$lh" -gt 0 ] && { touch runs/ec2-h10-helpers; log "H10 helpers check: '$hk'; $lh new children carry metrics.lib_helpers; HELPERS.md $( [ -f runs/hyb5.HELPERS.md ] && echo present || echo MISSING)"; }
+  fi
+  if [ -f runs/ec2-h17 ] && [ ! -f runs/ec2-h17-checked ]; then
+    r=""; for f in runs/hyb5-g*.log; do
+      m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h17-marks); m=${m:-0}
+      r="$r$(tail -n +"$((m + 1))" "$f" | grep -E 're-seeded island 3' | cut -c1-120 | tr '\n' ';')"
+    done
+    st=$(python3 - "$(cat runs/ec2-h17-progs)" <<'PY'
+import json, glob, sys
+n0 = int(sys.argv[1]); rows = []
+for f in sorted(glob.glob("runs/hyb5-g*/programs.jsonl")):
+    for l in open(f):
+        try: rows.append(json.loads(l))
+        except Exception: pass
+i3 = [r for r in rows[n0:] if (r.get("metrics") or {}).get("island", r.get("island")) == 3]
+if len(i3) >= 8:
+    fuel = sum(1 for r in i3 if (r.get("metrics") or {}).get("fuel") is not None)
+    fax = sum(1 for r in i3 if ((r.get("metrics") or {}).get("variant") or {}).get("axis") == "fuel")
+    print(f"island-3 children {len(i3)}: metrics.fuel {fuel}, fuel axis {fax} ({fax/len(i3):.2f}, expect ~0.5)")
+PY
+)
+    [ -n "$r" ] && [ -n "$st" ] && { touch runs/ec2-h17-checked; log "H17 check: $r $st"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
