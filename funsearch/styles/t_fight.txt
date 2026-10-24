@@ -16,4 +16,6 @@ ability casts, attack, approach/chase, retreat from a fight). Directions:
 Measured already (don't repeat): retreating at 0.5-0.8 HP with an enemy near loses (12-32% vs the base); a hunter
 that walks at any enemy within 7 loses (23-42%); one-stat shard stacking loses (23-28%).
 Keep every version compiling and the turn cheap: no extra closest()/distance-field query per turn in the fight block
-(the fuel cap is 100k per turn; a second closest() costs ~35k).
+(the fuel cap is 100k per turn; a second closest() costs ~35k). Rule: every dash (dash_to/dash_towards) and every
+host search that can run along a long path (closest, move_towards to a far tile) needs a fuel_remaining() gate
+(e.g. > 60000) unless the turn has nothing else expensive; the real-engine cap was hit by an ungated retreat dash.
