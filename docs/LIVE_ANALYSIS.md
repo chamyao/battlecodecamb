@@ -100,3 +100,27 @@ Labels come from `analysis/live_digest.py`. A loss can have several.
 The most common combinations are fights + low yield (10), slow start alone (7), low yield + slow start (6), and low yield alone (5).
 
 Latest batch (18:00): v24 lost 0-5 to cory. All 5 losses had low yield (their gems per capture were 1.6-2.8x ours), with 18 camp deaths on 00reverse_spiral and 40 champion deaths on 00fragment.
+
+## 7. Carriers stalled by enemy altar locks (18% of games)
+
+Found while digging into a v24 loss on 01the_farm (18:50, 66-1011):
+- The enemy locked both central altars, (26,22) at round 88 and (23,22) at round 183.
+- Our three champions then stood about 5-7 tiles from them, holding 27-35 gems each, for about 400 rounds. They barely acted, then died.
+- The enemy banked 8 times at those altars in the meantime.
+
+**Detector (`analysis/stalls.py`):** a carrier stall is one of our champions with 20+ gems staying within 2 tiles of one spot for 60+ rounds while alive.
+
+Over 410 live games of v21-v24 (ranked and unranked):
+- **73 games (18%) have a stall**, totalling 43,495 champion-rounds.
+- **The stall games go 16-57 (22% wins)**, against 132-205 (39%) for the rest.
+- **201 of the 256 stalls (about 36,000 of the champion-rounds) are next to an altar the enemy has locked.** Another 27 are next to an altar within 5 of a monolith, and 28 are 4-9 tiles from any altar.
+- The most-hit maps are 01boss_battle (18 games), 01broken_curve (11), 00gemfight (6), 00reverse_spiral (5), 00elkring, 00quadrants and 00lost_world (4 each), and 01the_farm (3).
+
+In v21/v24's policy, a locked altar is attacked only when the carrier is already next to it (`first( filter( altars(), within(1, position()) ) )` → tribute, which hits the lock). The walk targets `minus( safe_altar_ring, ring(locked_altars(), 1) )`, then `safe_altar_ring`.
+- I haven't confirmed the exact branch.
+- But the effect is that our carriers wait near the locked altar instead of either breaking the lock (5 basic attacks) or walking to another altar.
+
+**Sensing the bot would need:**
+- whether the altar is locked by the enemy, and how many hits it takes to clear (`locked_altars()` exists; a `lock_hits_left(Tile)` would help);
+- the path turns to the nearest *open* altar against the time to break the lock;
+- turns spent idle while carrying (`turns_idle()` exists): a stall is directly observable.
