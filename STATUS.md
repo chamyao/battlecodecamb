@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 14:23 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.83 10.27 10.25 on 16 threads.
+Updated 2026-10-24 14:28 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.83 12.69 11.29 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[12:59:31] hybrid: launched hyb5 league
 [13:04:40] pure: g6 build switch: STOP requested (gen 5)
 [13:09:54] pure: g6 build switch: moved to funsearch/pure 0af36c4 (lockfix); g6 restarts on the new build
 [13:09:54] pure: league not running: relaunching (g4, resume from runs/)
@@ -55,4 +54,5 @@ Disk: 3.3G used of 38G.
 [14:23:38] style: S8: launched style8-gconv ($2.0 total)
 [14:23:38] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [14:23:38] style: launched style8-b (budget $3.5)
+[14:28:46] style: S8 gap line: gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.9034; win floor 0.5 vs it; weight 0.5
 ```
