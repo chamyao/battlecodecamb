@@ -192,3 +192,21 @@ g4 verdict and hyb5 starts on v19.
 
 The upload-evidence league is separate (tools/league.py with the full required pool: v19, hunters 2a/2b/2c/3,
 icecream, odyssey, metab, metadraft); the hybrid session runs it for any hyb5 promotion.
+
+## Job H4 (2026-10-24 10:55 UTC, hybrid line session; approved by the FunSearch lead): retune hyb5 at its next round boundary
+
+After two rounds hyb5's best only matches v19 and every top program comes from the v19 / lean-g65 islands, so:
+less archive, hunter3 island replaced by v19, draft axis dropped (the pairs axis stays, with a richer brief).
+
+1. At the next hyb5 round boundary (the line after the next `no promotion` / `PROMOTED`, i.e. `hyb5-gN: +30 programs
+   ... (90 so far)` or later), stop the league the same way as the g4 upgrade: set runs/hyb5.hold, and when the league
+   logs `hold file present`, SIGTERM it by PID (never pkill -f).
+2. `git pull origin funsearch/runs` (8c5b4e4 or later, ancestor check), rebuild interp_eval, run pytest (2012).
+3. Remove the hold and relaunch with the H3 command line changed in these flags only:
+   `--archive-share 0.1`
+   `--island-seeds policies/pool/v19.policy,policies/pool/v19.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy`
+   `--axes items,vision,teleport,team,roles,pairs,macro,abilities,combat`   (all but draft)
+   (unchanged: --budget 25.0, --change-weights 0.6,0.4,0, --novelty-lambda 0.3, members, fixed, round 30, cambc-ref.)
+   The budget counts the spend already in hyb5-g*/programs.jsonl, so 25.0 stays.
+4. Check runs/hyb5-gN.log: `re-seeded island 2 with v19` and `re-seeded island 3 with lean-g65` (islands 0/1 keep
+   their v19 seeds), then children logging axes other than draft.
