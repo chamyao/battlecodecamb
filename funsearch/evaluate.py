@@ -51,6 +51,23 @@ def _compiled_opponent(spec):
         return _OPP_CACHE[spec]
 
 
+# map sampling (funsearch.run --screen-maps): "random" draws maps with replacement (the original screens: a fixed
+# seed gives every child the same ~28 of 40 maps for 48 slots); "cover" walks seeded shuffles of the whole pool, so
+# an opponent with >= 80 games plays every map on both sides and smaller ones get distinct maps
+MAP_MODE = "random"
+
+
+def _choose_maps(rng, pool, slots):
+    if MAP_MODE != "cover":
+        return [rng.choice(pool) for _ in range(slots)]
+    out = []
+    while len(out) < slots:
+        perm = list(pool)
+        rng.shuffle(perm)
+        out += perm
+    return out[:slots]
+
+
 def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, maps=None, timeout=600,
              fuel_mult=1.0):
     """Parse, compile and play `text`; games alternate sides, maps sampled by seed.
@@ -73,7 +90,7 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
     rng = random.Random(seed)
     pool = maps or MAPS
     counts = [max(2, round(games * w / 2) * 2) for w in weights]  # even, so sides stay balanced
-    chosen = [rng.choice(pool) for _ in range(max(counts) // 2)]
+    chosen = _choose_maps(rng, pool, max(counts) // 2)
     with tempfile.NamedTemporaryFile("w", suffix=".pol", delete=False) as f:
         f.write(prefix)
         pol = f.name

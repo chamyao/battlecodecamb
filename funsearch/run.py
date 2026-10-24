@@ -105,6 +105,12 @@ def main():
     ap.add_argument("--yield-scale", type=float, default=3.0, help="gems per capture difference that saturates")
     ap.add_argument("--yield-floor", type=float, default=0.34,
                     help="win rate vs --yield-ref below which (minus 2 standard errors) a child scores 1 lower")
+    ap.add_argument("--screen-maps", choices=["random", "cover"], default="random",
+                    help="screen map sampling: cover = shuffled whole pool (every map x both sides for opponents "
+                         "with >= 80 games); random = draws with replacement (original)")
+    ap.add_argument("--rescreen-top", type=int, default=0,
+                    help="at startup, re-screen the top K programs of each island (and archive elites among them) "
+                         "whose screen used another map mode, so old and new scores compare")
     ap.add_argument("--vocab-share", type=float, default=0.2,
                     help="with --explore: share of calls whose prompt lists the newest blocks (llm.NEW_BLOCKS)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
@@ -121,6 +127,8 @@ def main():
     db = Database(out / "programs.jsonl", islands=args.islands, temperature=temperature, reset_every=reset_every)
     db.novelty_lambda = args.novelty_lambda if args.explore else 0.0
     db.protected = {int(x) for x in args.protect_islands.split(",") if x}
+    from . import evaluate as _ev
+    _ev.MAP_MODE = args.screen_maps
     fuel_islands = {int(x) for x in args.fuel_islands.split(",") if x}
     pen_susp, pen_turn, turn_free = (float(x) for x in args.fuel_penalty.split(","))
     # opponent of fuel checks: the first island seed (the line's best), else the seed policy
@@ -223,6 +231,7 @@ def main():
             r.per_opponent["screen_fp"] = fp
         else:
             r.per_opponent["screen_fp"] = fp
+        r.per_opponent["screen_maps"] = args.screen_maps
         return r
 
     if not db.all:
@@ -359,6 +368,31 @@ def main():
         # an unchanged text keeps its screen; a tuned one is screened again (fingerprint of the tuned text)
         return (scr if tuned == text else None), tuned, info
     stop = threading.Event()
+    if args.rescreen_top > 0:
+        # programs screened on another map sample: re-screen each island's top K so selection compares like with like
+        stale = []
+        for i, isl in enumerate(db.islands):
+            top = sorted((p for p in isl if p.score is not None and p.score > float("-inf")), key=lambda p: -p.score)
+            stale += [p for p in top[: args.rescreen_top] if p.metrics.get("screen_maps") != args.screen_maps]
+        # and the overall top K (db.best() sets the confirmation threshold)
+        top_all = sorted((p for p in db.all if p.score is not None and p.score > float("-inf")), key=lambda p: -p.score)
+        stale += [p for p in top_all[: args.rescreen_top] if p.metrics.get("screen_maps") != args.screen_maps]
+        stale = list({id(p): p for p in stale}.values())
+        t = time.time()
+        for p in stale:
+            keep_keys = {k: v for k, v in p.metrics.items() if k in ("cost", "variant", "tuned", "lib_helpers", "cell",
+                                                                      "exec_blocks", "exec_opp")}
+            old_score = p.score
+            r = score(p.text, confirm=bool(p.metrics.get("confirmed")) or p.model == "seed")
+            if not r.ok:
+                continue
+            if p.island in fuel_islands:
+                fuel_penalize(p.text, r)
+            p.score, p.metrics = r.score, {**r.per_opponent, **keep_keys, "rescreened_from": round(old_score, 4)}
+            print(f"re-screened #{p.id} (island {p.island}): {old_score:.3f} -> {p.score:.3f}", flush=True)
+        if stale:
+            print(f"re-screen ({args.screen_maps} maps): {len(stale)} programs in {time.time() - t:.0f}s", flush=True)
+
     started = len(db.all)
     t0 = time.time()
 
