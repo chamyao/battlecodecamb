@@ -48,6 +48,7 @@ def metrics(a_pol, b_pol, maps=None, games=80, seed=1, threads=4):
                 if f["team"] == str(us):
                     agg["deaths"] += 1
                     agg["gems_lost"] += int(f["gems"])
+                    agg["deaths_carrying"] += int(f["gems"]) > 0
                     if "by=champ" in e:
                         agg["deaths_champ"] += 1
                         if r - last_recall.get(f["champ"], -99) <= 5:
@@ -56,7 +57,7 @@ def metrics(a_pol, b_pol, maps=None, games=80, seed=1, threads=4):
                     agg["kills"] += 1
         ev = []
     n = max(1, agg["games"])
-    res = {k: round(agg[k] / n, 2) for k in ("wins", "gems", "deaths", "deaths_champ", "kills", "gems_lost", "recalls", "recall_cut", "mid_recall_deaths")}
+    res = {k: round(agg[k] / n, 2) for k in ("wins", "gems", "deaths", "deaths_champ", "deaths_carrying", "kills", "gems_lost", "recalls", "recall_cut", "mid_recall_deaths")}
     res["games"] = agg["games"]
     if agg["lock_placed"]:
         res.update(lock_placed=round(agg["lock_placed"] / n, 2), lock_round=round(agg["lock_round"] / agg["lock_placed"]),
