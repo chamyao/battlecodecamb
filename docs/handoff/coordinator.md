@@ -8,20 +8,17 @@ Merge the lines' work, keep the simulator and the bot consistent, pick and uploa
 add blocks to the language when a diagnosis needs one, and keep Cham informed (short, times in ET).
 
 ## Live and history
-- Live: ladder version 16 = tune-5 (policies/tune-5.policy on interp/v0; dist/deploy-tune-5.zip on
-  deploy/v0 @ aec1e76, sha256 cbd8405c...). Real cambc 46/80 vs tune-3 v2. History: STRATEGY.md
-  "Ladder versions".
-- Upload bar (Cham, Oct 24 ~06:30 UTC): league rating (tools/league.py on coord/league; round robin of our bots,
-  ladder stand-ins and the hunter opponents) above the live bot's beyond the 90% interval, plus the bot session's
-  real-cambc safety checks (no crashes, no 100k-cap turns, first turn < 200k). Head to head and cambc-exact vs live
-  are information only. Why: tune-5 topped every self-play test and lost 0-50 to ladder #1-#9 and vc? (it doesn't
-  fight back; docs/TOP_TEAMS.md on analysis/sprint1). After each upload, run unranked groups vs top teams
-  (`cambc match-groups create`, 50 groups/hour shared quota) as the real-world check. Cham approves all uploads.
-- Uploading: `cambc submit <dir> --note "<= 80 chars"` from a cambc workspace; needs `cambc login`
-  (ask Cham to log in; never handle the code). Check the ZIP's sha256 and that src/policy_data.h
-  names the intended policy before submitting.
-- Ladder record since v7zg-cast (Oct 23 ~22:10 UTC on): 60-35. Weak opponents: Patient Lock Pickers,
-  Astra EK, Brr Brr Battlecode (1-4 twice), Arasaka.
+- Live (Oct 24 ~08:26 UTC): ladder version 19 = rall2-ca4-lean-g (deploy/v0 7ef15b2, dist/deploy-rall2-ca4-lean-g.zip,
+  sha256 a77fa4e3...; policy on coord/candidates 95b1daa). Chain tonight: v17 tune5-campreset (attack -> reset ->
+  attack), v18 tune-r-all-v2 (+ map fixes, no recall with an enemy within 8), v19 (+ cast-ahead, retreat dash gated
+  at fuel_remaining() > 60000). History: STRATEGY.md "Ladder versions".
+- Ranked: tune-5 11-19; v17 7-3; v18 about 11-14. Unranked vs ladder #1-#9 + vc? (same 10 groups each time):
+  tune-5 0-50, v17 0-50 (docs/TOP_TEAMS*.md on analysis/sprint1). v19's groups were queued ~08:30 UTC.
+- Why we lose to the top: not sim or bot fidelity (both verified exact in fights). They fight in groups: 70-85% of our
+  deaths are 2+ of theirs vs 1 at equal items, and then they snowball items (docs/TOP_TEAMS_FIGHTS.md). Lines are on
+  group engage/focus, leaving when outnumbered, and the group hunter (style; best so far opp-hunter3).
+- Workspace: cambc is installed and logged in (pip cambc 3.0.5; Cham ran `cambc login`, 7 days from Oct 24 ~04:50 UTC).
+  Submit from a `cambc init --yes` workspace: copy the checked ZIP's src/ into bots/<name>/src and `cambc submit <name>`.
 
 ## Pipeline facts
 - Sim exactness: `interp_eval --bot-seeds` over all 40 maps x 2 sides reproduces real cambc games;
