@@ -100,7 +100,7 @@ Proof that it resumed and did not restart:
 
 1. Promotion: `runs/pure4.log` shows `PROMOTED fs-p3.policy: ...` and `policies/fs-p3.policy`
    exists but is uncommitted. `runs/pure4.json` is now gen 4 with no fixed/target.
-2. Check out the tip of funsearch/pure. `runs/` holds tracked files that you changed, so a plain
+2. Check out the tip of funsearch/pure (2f59f64 or later: prompt with the COMBAT + TOP_TEAMS_RULES section). `runs/` holds tracked files that you changed, so a plain
    checkout refuses. Keep your state and take the tip's launcher and opponent files:
    ```sh
    cp -a runs ~/runs-g3-backup
