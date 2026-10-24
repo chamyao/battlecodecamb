@@ -305,6 +305,15 @@ values it sees will still flip some decisions.
 `FUEL_GATE_DETAIL=1` (fuel_turns, `--enforce`) prints each turn's first `fuel_remaining()` read
 (`@@GD`) with the charges so far by block (`@@GDB`) and API call (`@@GDC`).
 
+**Combat (meta draft).** opp-tune5-metadraft (Vesper Vale, Heart of Ruin, Marcella, Vendetta,
+Ryth) vs tune-5 (both sides) and vs itself, 40 maps, `--bot-seeds` against `cambc run-batch`
+(bot/src at 4f4f9e1): with their `fuel_remaining() > 55000` gates, 110/120 identical (all ten
+mismatches on gate-sensitive maps). With the gates set to always pass, **119/120**; the one
+left (01big-world, meta as A) is a heavy-turn fuel suspension in the simulator, not combat.
+These games fight (e.g. 00contest 46 champion kills, 01elk-arena 30), so champion abilities,
+stuns, Heart of Ruin's missing-health bonus and item stats in fights match cambc. Not covered
+by these drafts: Prism, Stellar, Willow, Varg, Cassi & Issac in champion fights.
+
 Diagnostics for this kind of check:
 - `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
   trace build): per champion turn, `@@ST` (state seen at turn start), `@@SE` (the `end_turn()`
