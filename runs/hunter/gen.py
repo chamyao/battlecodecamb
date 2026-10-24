@@ -138,10 +138,21 @@ if exists(goal):
 if int(P['STACK']):
     i0 = body.index("    let shards_bought = floor( gold() / 30 )")
     i1 = body.index("    buy( shard(stat_health()), rest_after_jungle - strength_shards )\n") + len("    buy( shard(stat_health()), rest_after_jungle - strength_shards )\n")
-    body = body[:i0] + """    # one stat per carry (TOP_TEAMS_FIGHTS): focus on the spell champions, strength on the rest
+    if int(P['STACK']) == 2:
+        shop = """    # stacking + sustain: Health on the front champion (Heart of Ruin), one stat per carry otherwise
+    if i_am(champ_heart_of_ruin()):
+        buy( shard(stat_health()), floor( gold() / 30 ) )
+    elif i_am(champ_ryth()) or i_am(champ_marcella()):
+        buy( shard(stat_focus()), floor( gold() / 30 ) )
+    else:
+        buy( shard(stat_strength()), floor( gold() / 30 ) )
+"""
+    else:
+        shop = """    # one stat per carry (TOP_TEAMS_FIGHTS): focus on the spell champions, strength on the rest
     if i_am(champ_heart_of_ruin()) or i_am(champ_ryth()) or i_am(champ_marcella()):
         buy( shard(stat_focus()), floor( gold() / 30 ) )
     else:
         buy( shard(stat_strength()), floor( gold() / 30 ) )
-""" + body[i1:]
+"""
+    body = body[:i0] + shop + body[i1:]
 open(sys.argv[1], 'w').write(head + body)
