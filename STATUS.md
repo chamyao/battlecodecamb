@@ -5,18 +5,14 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 22:25 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 4.55 4.51 4.81 on 16 threads.
+Updated 2026-10-24 22:30 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 1.48 3.56 4.39 on 16 threads.
 Disk: 7.3G used of 38G.
 
 ## python3 processes
 ```
-325213 python3 -m genome.search.lineage --out /root/bc/genome/out/lineage-A/lineage.jsonl --state /root/bc/genome/out/lineage-A/../arenaA-3/arena --threads 5 --ancestors A1,A3,A7,A8,A20,A67,A107,A129,A137,A141,A161,A177,A196,A259,A263,A314,A324,A335,A341,A352,A494,A509,A514,A543,A548,A615,A622,A637,
 ```
 ## tick.log (last 40 lines)
 ```
-hint: index with:
-hint: 
-hint: 	git rm --cached simspeed-exact-1/suite/base
 hint: 
 hint: See "git help submodule" for more information.
 [21:28:31] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -54,4 +50,7 @@ fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/b
 [22:20:15] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
 [22:25:19] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[22:30:22] genome: job lineage-A exited rc=0
+fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
+[22:30:24] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
