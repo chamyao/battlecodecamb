@@ -7,3 +7,8 @@
 [09:00:01] tune-fight-g1: +51 programs to the next boundary (9 so far), best policies/tune-v18g.policy, league ['policies/tune-v18.policy', 'policies/opp-hunter2b.policy', 'policies/opp-hunter2a.policy', 'policies/tune5-campreset.policy'], $4.42 left
 [09:41:20]   #30: builtin:starter 0.981, tune-v18g 0.568, tune-v18 0.570, opp-hunter2b 0.782, opp-hunter2a 0.772, tune5-campreset 0.618 | h2h 0.568 over 800 games (clear), worst change vs older +0.031
 [09:45:57]   #42: builtin:starter 0.981, tune-v18g 0.566, tune-v18 0.570, opp-hunter2b 0.755, opp-hunter2a 0.789, tune5-campreset 0.591 | h2h 0.566 over 800 games (clear), worst change vs older +0.004
+[09:51:19]   #21: builtin:starter 0.981, tune-v18g 0.539, tune-v18 0.536, opp-hunter2b 0.775, opp-hunter2a 0.765, tune5-campreset 0.568 | h2h 0.552 over 1600 games (clear), worst change vs older -0.001
+[09:51:24]     cambc-exact vs tune-v18g (all maps x 2 sides): 0.512
+[09:51:29]     cambc-exact vs tune-v18 (all maps x 2 sides): 0.500
+[09:51:29]   PROMOTED tune-fight-1.policy: builtin:starter 98.1%, tune-v18g 56.8%, tune-v18 57.0%, opp-hunter2b 78.2%, opp-hunter2a 77.2%, tune5-campreset 61.8%, cambc-exact vs tune-v18g 51.2%, cambc-exact vs tune-v18 50.0%
+[09:51:29] tune-fight-g2: +60 programs to the next boundary (0 so far), best policies/tune-fight-1.policy, league ['policies/tune-v18.policy', 'policies/opp-hunter2b.policy', 'policies/opp-hunter2a.policy', 'policies/tune5-campreset.policy'], $2.25 left
