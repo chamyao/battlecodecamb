@@ -71,6 +71,9 @@ def main():
                     help="gap search: children below this win rate vs --gap-ref score 1 lower (never preferred)")
     ap.add_argument("--win-floor-tol", type=float, default=2.0,
                     help="gap search: screening penalises only win < floor - tol * SE (SE of the --gap-games sample)")
+    ap.add_argument("--strict-floor", action="store_true",
+                    help="gap search: a child scoring above its best parent must reach the full --win-floor vs "
+                         "--gap-ref (no tolerance) on its --gap-games (>= 160) sample, or it scores 1 lower")
     ap.add_argument("--fit-target", default="",
                     help="fitting run: score = fit to the real top-team stats in this JSON (funsearch/fit.py); "
                          "the target's versions are the opponents and --opponents is ignored for scoring")
@@ -144,6 +147,8 @@ def main():
                           "baseline": base[name]})
             print(f"gap metric {name} ({direction}, scale {scale}): reference {Path(args.gap_ref).stem} mirror value "
                   f"{base[name]:.4f}", flush=True)
+        if args.strict_floor and args.gap_games < 160:
+            ap.error("--strict-floor needs --gap-games >= 160")
         ev.GAP = {"terms": terms, "weight": args.gap_weight, "floor": args.win_floor, "floor_tol": args.win_floor_tol,
                   "ref": ref, "games": args.gap_games}
         print(f"gap: {len(terms)} term(s), equal weight; win floor {args.win_floor} vs the reference; "
@@ -381,6 +386,12 @@ def main():
         if args.tune_children:
             screened, text, tuned_info = tune_child(parents[-1], text)
         r = score(text, screened=screened)
+        g = r.per_opponent.get("gap") if r.ok else None
+        if (args.strict_floor and g and not g["below_floor"] and r.score > max(p.score for p in parents)
+                and g["ref_win"] < args.win_floor):
+            # above its parents on a losing record vs the reference: never let it top the island
+            g["below_floor"], g["strict_floor"] = True, True
+            r.score -= 1.0
         r.per_opponent["cost"] = cost
         if tuned_info:
             r.per_opponent["tuned"] = tuned_info
