@@ -99,3 +99,47 @@ Our versions go 5-245 against the top 9. The same gaps appear, larger:
 - Low-HP death rate 88% against Fish's 6%.
 
 The per-(version, team, map, side) table is in `data/top-teams-target.json`, built by `analysis/target_build.py`. It is now a progress tracker for our versions, not a fitting target; see `docs/TOP_TEAMS_TARGET.md`.
+
+## v22 check: the dead-camp group_threat fix, same 50 band games
+
+v22 is v21's policy plus a bot fix to `group_threat`, so that dead camps no longer count. The coordinator queued the same 10 band groups at 15:05 UTC: same teams, maps and sides. The engine and most bots are deterministic, so each game pairs with its v21 game.
+
+| per game | v21 | v22 |
+|---|---|---|
+| games, W-L | 50, 15-35 | 50, 17-33 |
+| gems submitted us / them | 617 / 887 | 626 / 876 |
+| deaths us / them | 15.4 / 8.0 | 15.2 / 8.0 |
+| kills us / them | 2.9 / 11.1 | 3.6 / 11.1 |
+| champion damage us / them | 23.9k / 35.3k | 23.6k / 35.0k |
+| gems per capture us / them | 13.6 / 19.3 | 13.5 / 19.3 |
+| captures us / them | 74.9 / 60.1 | 73.2 / 59.9 |
+| tributes us / them | 18.0 / 26.2 | 17.9 / 27.2 |
+| median bag us / them | 30 / 34 | 30 / 36 |
+| gems lost dying us / them | 185 / 104 | 206 / 125 |
+| gold earned us / them | 7.1k / 7.3k | 7.1k / 7.3k |
+| our deaths with 2+ of theirs within 5 | 62% of 556 | 63% of 555 |
+
+| opponent | v21 W-L (gems us-them) | v22 W-L (gems us-them) |
+|---|---|---|
+| Ding | 1-4 (560-982) | 0-5 (602-1016) |
+| Gem_alert | 0-5 (408-999) | 0-5 (408-999) |
+| Kingstonks | 1-4 (657-868) | 2-3 (654-820) |
+| Memory? | 3-2 (734-836) | 3-2 (730-834) |
+| Mommy Shogun | 1-4 (574-964) | 1-4 (561-961) |
+| Monarch | 0-5 (541-1044) | 1-4 (563-930) |
+| NotSoLonely | 3-2 (733-682) | 3-2 (754-736) |
+| WHIM | 3-2 (765-774) | 3-2 (772-759) |
+| vc? | 2-3 (622-899) | 2-3 (622-899) |
+| ❤️Quantom❤️ | 1-4 (574-822) | 2-3 (590-803) |
+
+- **Most games didn't change.** 31 of the 50 games are identical to v21 (same score and round count), so the fix never changed a decision in them.
+- **The 19 games that changed:** 3 flipped to a win and 1 to a loss. Our gems changed by +23 ± 61 per game.
+- **Overall:** 17-33 against 15-35, which is +2 wins, within noise (SE ≈ 0.065 per version).
+- **The economy gaps didn't move:**
+  - gems per capture: 11.1 ± 1.1 against 10.9 ± 1.1;
+  - captured: 814 against 815;
+  - tributes: 17.9 against 18.0;
+  - share of captured gems submitted: 77% against 76%;
+  - gems lost on death: 164 ± 30 against 144 ± 18;
+  - deaths to camps: 4.1 against 4.2.
+- So the fix is neutral at this tier. The capture-yield gap (#2) needs a change in which groups we choose, not in how threat is counted.
