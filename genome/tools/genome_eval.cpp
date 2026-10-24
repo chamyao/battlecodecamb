@@ -4,6 +4,9 @@
 //                    [--bot-seeds] [--details] [--block-hits] MAP...
 // --bot-seeds: policies seeded per instance as the deploy bot is (reproduces cambc games);
 // --details: one JSON line per game (map, side of A, winner, gems, end round) before the summary.
+// --fuel-hash: with --details, record every game's per-turn fuel and add "fuel_hash" (FNV-1a over both teams' per-turn
+//              fuel, in play order), "turns" and "fuel" (total per team) to each game line (exactness checks).
+//              GENOME_TURN_FUEL_ALL=DIR also writes DIR/<game>.txt (both teams' per-turn fuel, one line each).
 // --block-hits: add "block_hits": {block: executions} summed over both sides and all games (counters are
 //               shared across threads without locking, so counts are approximate with --threads > 1).
 //        genome_eval --list-blocks
@@ -63,7 +66,8 @@ int main(int argc, char** argv)
 	std::string a_spec = "builtin:starter", b_spec = "builtin:starter";
 	int games = 10, threads = 1, max_rounds = 0;
 	double fuel_mult = 1.0; // exploration: scale every bot's per-turn fuel budget
-	bool bot_seeds = false, details = false;
+	bool bot_seeds = false, details = false, fuel_hash = false;
+	const char* turn_fuel_all = std::getenv("GENOME_TURN_FUEL_ALL");
 	const char* turn_fuel_out = std::getenv("GENOME_TURN_FUEL"); // game 0: per-turn fuel of both teams, one line each
 	std::uint64_t seed = 1;
 	for (int i = 1; i < argc; ++i)
@@ -82,6 +86,7 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--fuel-mult")) fuel_mult = std::atof(argv[++i]);
 		else if (!std::strcmp(argv[i], "--bot-seeds")) bot_seeds = true;
 		else if (!std::strcmp(argv[i], "--details")) details = true;
+		else if (!std::strcmp(argv[i], "--fuel-hash")) fuel_hash = true;
 		else if (!std::strcmp(argv[i], "--block-hits")) cbs::memo_stats().enabled = true;
 		else maps.push_back(argv[i]);
 	}
@@ -121,7 +126,7 @@ int main(int argc, char** argv)
 				MatchOptions opt;
 				opt.seed = gs;
 				opt.max_rounds = max_rounds;
-				opt.record_turn_fuel = turn_fuel_out && g == 0;
+				opt.record_turn_fuel = (turn_fuel_out && g == 0) || fuel_hash || turn_fuel_all;
 				opt.fuel.per_turn = static_cast<std::int64_t>(static_cast<double>(opt.fuel.per_turn) * fuel_mult);
 				Match match(loaded[(g / 2) % loaded.size()], swap ? *pb : *pa, swap ? *pa : *pb, opt);
 				const GameResult r = match.run();
@@ -145,9 +150,25 @@ int main(int argc, char** argv)
 					capgems[k] += static_cast<long>(ts.gems_captured);
 					tribs[k] += ts.tributes;
 				}
+				std::uint64_t fh = 1469598103934665603ull;
+				for (int t = 0; t < 2; ++t)
+				{
+					for (auto v : match.stats.turn_fuel[t]) fh = (fh ^ static_cast<std::uint64_t>(v)) * 1099511628211ull;
+					fh = (fh ^ 0xffffffffffffffffull) * 1099511628211ull;
+				}
+				if (turn_fuel_all)
+					if (FILE* f = std::fopen((std::string(turn_fuel_all) + "/" + std::to_string(g) + ".txt").c_str(), "w"))
+					{
+						for (int t = 0; t < 2; ++t)
+						{
+							for (auto v : match.stats.turn_fuel[t]) std::fprintf(f, "%lld ", static_cast<long long>(v));
+							std::fprintf(f, "\n");
+						}
+						std::fclose(f);
+					}
 				std::lock_guard<std::mutex> lk(mu);
 				per_game[g] = won;
-				if (opt.record_turn_fuel)
+				if (turn_fuel_out && g == 0)
 					if (FILE* f = std::fopen(turn_fuel_out, "w"))
 					{
 						for (int t = 0; t < 2; ++t)
@@ -172,6 +193,11 @@ int main(int argc, char** argv)
 								match.game.teams[0].gems_lost_to_champs, match.game.teams[1].gems_lost_to_champs, match.game.teams[0].captures,
 								match.game.teams[1].captures, match.game.teams[0].gems_captured, match.game.teams[1].gems_captured, match.game.teams[0].tributes,
 								match.game.teams[1].tributes);
+					if (fuel_hash)
+						std::printf("{\"game\": %d, \"fuel_hash\": \"%016llx\", \"turns\": [%zu, %zu], \"fuel\": [%lld, %lld], \"crashes\": %llu}\n", g,
+									static_cast<unsigned long long>(fh), match.stats.turn_fuel[0].size(), match.stats.turn_fuel[1].size(),
+									static_cast<long long>(match.stats.fuel_used[0]), static_cast<long long>(match.stats.fuel_used[1]),
+									static_cast<unsigned long long>(match.stats.crashes));
 				}
 			}
 		});

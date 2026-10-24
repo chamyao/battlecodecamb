@@ -2,6 +2,7 @@
 // Row-major: bit x of row y. Every algorithm here is verified bit-for-bit against the
 // engine's own host functions (oracle/fixtures/geom, docs/ENGINE_FINDINGS.md).
 #pragma once
+#include <algorithm>
 #include <bit>
 #include <cstdint>
 #include <cstring>
@@ -116,6 +117,14 @@ void reachable(const Bitboard& walls, int W, int H, Vec2 origin, int dist, Bitbo
 constexpr std::uint16_t kUnreachable = 0xFFFF;
 int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, int W, int H, int max_distance,
 				   std::uint16_t* dist /* W*H row-major */, Bitboard& visited, bool all_dests = false);
+// The layered BFS behind distance_field, for callers that need less than the full field.
+// Calls on_row(row_bits, y, depth) for each row of each layer in order (depth 0 = the open roots,
+// then rows ascending within a layer); before each expansion stops when done() or at max_distance.
+// Returns the expansion count; seen (H rows) gets every reached tile. Bit x of a row is tile x.
+using Row128 = unsigned __int128;
+template <class OnRow, class Done>
+int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow&& on_row,
+			   Done&& done);
 void draw_circle(Bitboard& b, int W, int H, Vec2 c, float r);
 void draw_chebyshev(Bitboard& b, int W, int H, Vec2 c, float r);
 
@@ -179,6 +188,65 @@ struct Caster
 	}
 };
 } // namespace detail
+
+template <class OnRow, class Done>
+int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow&& on_row,
+			   Done&& done)
+{
+	using Row = Row128;
+	auto load = [](const Bitboard& b, int y) { return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64; };
+	const Row full = W >= 128 ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
+	// front is padded by one zero row on each side and is zero outside the frontier's rows [y0, y1].
+	Row open[kMaxDim], front_[kMaxDim + 2], next[kMaxDim];
+	Row* front = front_ + 1;
+	front[-1] = front[H] = 0;
+	bool any = false;
+	int y0 = H, y1 = -1; // rows spanned by the frontier
+	for (int y = 0; y < H; ++y)
+	{
+		open[y] = ~load(walls, y) & full;
+		front[y] = load(roots, y) & open[y];
+		seen[y] = front[y];
+		if (front[y])
+		{
+			any = true;
+			y0 = std::min(y0, y), y1 = y;
+			on_row(front[y], y, 0);
+		}
+	}
+	int count = 0, depth = 0;
+	while (any)
+	{
+		if (done()) break;
+		if (depth >= max_distance) break;
+		any = false;
+		const int lo = std::max(0, y0 - 1), hi = std::min(H - 1, y1 + 1);
+		int n0 = H, n1 = -1;
+		for (int y = lo; y <= hi; ++y)
+		{
+			Row h = front[y - 1] | front[y] | front[y + 1];
+			h |= h << 1 | h >> 1;
+			next[y] = h & open[y] & ~seen[y];
+			if (next[y])
+			{
+				any = true;
+				n0 = std::min(n0, y), n1 = y;
+			}
+		}
+		const int d = depth + 1;
+		for (int y = lo; y <= hi; ++y)
+		{
+			front[y] = next[y];
+			if (!next[y]) continue;
+			seen[y] |= next[y];
+			on_row(next[y], y, d);
+		}
+		y0 = n0, y1 = n1;
+		++depth;
+		++count;
+	}
+	return count;
+}
 
 template <class Blocking, class Mark>
 void shadowcast(int W, int H, Vec2 origin, int dist, Blocking&& blocking, Mark&& mark)

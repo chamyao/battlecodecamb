@@ -129,8 +129,7 @@ public:
 	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0, std::int64_t n3 = 0)
 	{
 		if (!count_charges) return;
-		PriceContext ctx{ g_.map().W, g_.map().H, n, n2, n3 };
-		const std::int64_t p = prices_->price(c, ctx);
+		const std::int64_t p = price(c, n, n2, n3);
 		spent += p;
 		if (c != Call::compute && c != Call::yield) ++api_calls;
 		if (memo_stats().enabled && prices_->bot_memo)
@@ -260,6 +259,25 @@ private:
 	int team_, champ_;
 	const PriceTable* prices_;
 	Coroutine* coro_ = nullptr;
+	// prices_ folded with this map's size (set_prices): price = fixed + (kn n + kn2 n2 + kn3 n3) / 1000,
+	// the same integers as PriceTable::price. Unused (custom) when the table has a custom function.
+	struct Folded
+	{
+		std::int64_t fixed, kn, kn2, kn3;
+	};
+	Folded folded_[static_cast<int>(Call::count)];
+	bool custom_price_ = true;
+	void fold_prices();
+	std::int64_t price(Call c, std::int64_t n, std::int64_t n2, std::int64_t n3) const
+	{
+		if (custom_price_)
+		{
+			PriceContext ctx{ g_.map().W, g_.map().H, n, n2, n3 };
+			return prices_->price(c, ctx);
+		}
+		const Folded& f = folded_[static_cast<int>(c)];
+		return f.fixed + (f.kn * n + f.kn2 * n2 + f.kn3 * n3) / 1000;
+	}
 
 	bool playing() const { return champ_ >= 0; }
 	const Bitboard& vis();	  // cached vision for the current game state

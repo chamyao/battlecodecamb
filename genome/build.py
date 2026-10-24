@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RT = ROOT / "genome" / "runtime"
 CACHE = Path(os.environ.get("GENOME_CACHE", ROOT / "genome" / "build" / "so"))
 EVAL = ROOT / "genome" / "build" / "genome_eval"
-FLAGS = ["-std=c++20", "-O2", "-fPIC", "-shared", "-w", f"-I{ROOT / 'sim' / 'include'}", f"-I{RT}"]
+FLAGS = ["-std=c++20", "-O2", "-mpopcnt", "-mbmi", "-mbmi2", "-mlzcnt", "-ffp-contract=off", "-fPIC", "-shared", "-w", f"-I{ROOT / 'sim' / 'include'}", f"-I{RT}"]
 
 
 def build(source, op_fuel=None):
