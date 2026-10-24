@@ -456,6 +456,9 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 #endif
 	if (expansions) *expansions = 0; // only the simulator prices it
 	const int W = g_.map().W, H = g_.map().H;
+	// A dead champion reads (-1,-1): nothing is reachable from off the map (and setting that bit
+	// would write outside the board; the memo must never see it).
+	if (origin.x < 0 || origin.y < 0 || origin.x >= W || origin.y >= H) return false;
 #ifdef BOT_REFERENCE
 	{
 		// The simulator's algorithm, on a fresh host search.
