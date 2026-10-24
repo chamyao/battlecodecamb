@@ -188,6 +188,27 @@ session runs the real-cambc safety checks (crashes, 100k-cap turns, first turn <
   - F switch-ons, all negative: lock 32%, ward 46%, hunter 47.5%
 - Never `pkill -f <pattern>` where the pattern appears in your own command: use pgrep -f "[x]yz" and kill by PID.
 
+### Session 2, later (to 11:50 UTC)
+
+- **Live: v20 = policies/tune-v20.policy (= policies/candidates/tune-fight-2s.policy)**: v19 (coordinator's
+  rall2-ca4-lean-g: v18 + cast-ahead + lean queries + retreat-dash gate > 60000) + one rule: standing in a bush with no
+  enemy visible, ward our own tile. Found by the fight-block FunSearch (tune/fs, $5 spent in total), which warded a
+  bush within 2 via filter(bushes(), ...) every turn; that broke the 100k cap, and contains(bushes(), position()) fixed it.
+  League (required pool): 2s 1710 [1698-1725] vs v19 1670 [1657-1685]; vs hunter3 champion deaths 6.30 -> 4.44.
+  Real cambc peak 93.9k.
+- Required league pool for upload evidence: the live bot (now v20), opp-hunter3, opp-hunter2a/b/c, opp-icecream,
+  opp-odyssey, opp-metab, opp-metadraft (I also include v18/v19 and tune5-campreset). Sim fuel target: peak <= 90k
+  on big-world/ambush/starvation, both sides (funsearch/fuel_check.py; real cambc adds up to ~5k).
+- The canonical base is deploy/v0 (merged into tune/runs 7c47221). The lockfix (tune/lockfix: locked_altars() =
+  enemy locks only) is being merged there by the coordinator.
+- Negative on v19/v20 (required pool or 2 x 400):
+  - G's first winner (stun opener + heal + AoE) ~ v19; v19 + opener/heal neutral;
+  - target choice (team target / carrier / VV-HoR-Vendetta first) noise;
+  - pre-empting camp fights with an enemy within 5: loses;
+  - other wards (anywhere, altar when carrying, camp goal, bush with enemies) all <= v20.
+- Tools: funsearch/fight_metrics.py, fuel_check.py, hand_fight.py, vision.py, explore.py (drafts/switches),
+  tools/league.py.
+
 ## Things only I know
 
 - `--bot-seeds` with a single map replays the same two games; use per-game seeds for one-map
