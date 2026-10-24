@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 10:02 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 16.28 16.63 16.35 on 16 threads.
+Updated 2026-10-24 10:07 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 16.86 16.69 16.44 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -11,9 +11,9 @@ Disk: 3.2G used of 38G.
 40780 /usr/bin/python3 -m funsearch.run --run pure4-g4 --budget 7.73 --max-programs 151 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/rall2-ca4-lean-g.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,p
 43700 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies
 43713 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
-43728 /usr/bin/python3 -m funsearch.run --run style8-h-g2 --budget 2.62 --max-programs 33 --seed-policy policies/style-h1.policy --opponents builtin:starter@0.25,policies/style-h1.policy@0.5,policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy
 43738 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 2.60 --max-programs 106 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 46966 /usr/bin/python3 -m funsearch.run --run tune-fight-g2 --budget 2.25 --max-programs 60 --seed-policy policies/tune-fight-1.policy --opponents builtin:starter@0.25,policies/tune-fight-1.policy@3.0,policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-c
+49930 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 24.43 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
 ```
 ## tick.log (last 40 lines)
 ```
