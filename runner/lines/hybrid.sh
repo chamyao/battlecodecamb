@@ -264,6 +264,33 @@ PY
       fi
     fi
   fi
+  # H20 (jobs/hybrid 01ed646, 16:20 UTC, lead): ladder v23 = style-gconv1. H17 had already fired (16:03), so this is its
+  # own boundary restart: merge funsearch/runs dccd4b1+ (sim/ changed: rebuild interp_eval + fuel_turns, pytest 2029);
+  # style-gconv1 joins --fixed and replaces island 1's v21 seed. Bar and --yield-ref stay v21.
+  FIXED=policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy
+  H20SEEDS=policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-82.policy
+  [ -f runs/ec2-h20 ] && { SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy; }
+  if [ -f runs/ec2-h17 ] && [ ! -f runs/ec2-h20 ]; then
+    if [ ! -f runs/ec2-h20-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h20-holdmark; touch runs/hyb5.hold runs/ec2-h20-hold
+      log "H20: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h20-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H20: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor dccd4b1 HEAD && git merge-base --is-ancestor fce1ade HEAD && [ -f policies/pool/style-gconv1.policy ] &&
+         rm -f "$D/interp/build/.built-$(git rev-parse HEAD)" && build "$D" fuel_turns &&
+         python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h20-marks
+        cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h20-progs
+        rm -f runs/hyb5.hold; touch runs/ec2-h20; SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy
+        log "H20: funsearch/runs $(git rev-parse --short HEAD) (has dccd4b1: v23 style-gconv1, sim fix), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with style-gconv1 fixed + island-1 seed"
+      else
+        echo "H20 merge/dccd4b1/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H20 upgrade failed"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -273,7 +300,7 @@ PY
       [ -f runs/hyb5.ec2-launched ] && log "hyb5 not running: relaunching (resume from runs/)"
       setsid nohup python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 \
         --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy \
-        --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy \
+        --fixed "$FIXED" \
         --prefix fs-h --line hybrid --round 30 --cambc-ref "$CREF" --workers 3 --eval-threads 2 \
         --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share "$ARCH" \
         --island-seeds "$SEEDS" $AXES $TUNE $HELP $EXTRA \
@@ -426,6 +453,14 @@ if len(i3) >= 8:
 PY
 )
     [ -n "$r" ] && [ -n "$st" ] && { touch runs/ec2-h17-checked; log "H17 check: $r $st"; }
+  fi
+  if [ -f runs/ec2-h20 ] && [ ! -f runs/ec2-h20-checked ]; then
+    r=""; for f in runs/hyb5-g*.log; do
+      m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h20-marks); m=${m:-0}
+      r="$r$(tail -n +"$((m + 1))" "$f" | grep -E 're-seeded island 1' | cut -c1-120 | tr '\n' ';')"
+    done
+    ng=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h20-progs) + 1 ))" | grep -c 'style-gconv1')
+    [ -n "$r" ] && [ "$ng" -gt 0 ] && { touch runs/ec2-h20-checked; log "H20 check: $r $ng new children mention style-gconv1 (metrics opponent)"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
