@@ -38,3 +38,7 @@ seed score 0.578
 [40] claude-haiku-5-5 island 1: score 0.607 | best 0.607 (#40) $0.68 | 3377s
 [41] claude-haiku-5-5 island 0: score 0.571 | best 0.607 (#40) $0.68 | 3392s
 [42] claude-opus-5-5 island 0: score 0.458 | best 0.607 (#40) $0.86 | 3452s
+[43] claude-haiku-5-5 island 1: score 0.611 | best 0.611 (#43) $0.86 | 3558s
+[44] claude-haiku-5-5 island 1: error: KeyError: 'VAR:Num:16' | best 0.611 (#43) $0.87 | 3573s
+[45] claude-haiku-5-5 island 0: score 0.586 | best 0.611 (#43) $0.87 | 3686s
+[46] claude-haiku-5-5 island 0: score 0.583 | best 0.611 (#43) $0.87 | 3742s
