@@ -22,6 +22,12 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   session's real-cambc safety checks (no crashes, no 100k-cap turns, first turn < 200k). Head to head is information
   only. Cham approves uploads (approved all overnight Oct 24). After each upload, queue the same unranked groups vs
   top teams as the real-world check.
+- Direction (Cham, Oct 24 ~13:25 UTC): iterate against ladder teams about +100 above our rating (band +50..+150;
+  at 1594 that was 1644-1744, list on PR #5); top-9 groups only occasionally. Real games vs the band are first-hand
+  information: analysis turns them into a gap list of OUR bot's measurable behaviours (frequency, cost, SE, sim
+  metric) and the lines search against those metrics while holding win rate vs live. Never drive iteration by
+  copying or fitting observed opponents (no clones, no new stand-ins as targets); copies are allowed only as extra
+  league members for diversity. After each upload, queue unranked groups vs ~10 band teams (re-derive the band).
 - Workspace: cambc is installed and logged in (pip cambc 3.0.5; Cham ran `cambc login`, 7 days from Oct 24 ~04:50 UTC).
   Submit from a `cambc init --yes` workspace: copy the checked ZIP's src/ into bots/<name>/src and `cambc submit <name>`.
 
