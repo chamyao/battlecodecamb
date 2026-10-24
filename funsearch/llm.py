@@ -62,11 +62,14 @@ AXES = {
             "set_team_target): roles, grouping, calling targets, splitting the map",
     "roles": "PER-CHAMPION ROLES: give champions different jobs by i_am(champ_vesper_vale()) etc. (carry, farmer, hunter, "
              "altar guard, monolith taker) instead of one shared behaviour",
-    "pairs": "PAIRS: keep farming but never alone. 71% of our deaths are 2-vs-1. Farm adjacent camp groups in "
-             "pairs (claim / claim_count / claimed_by_allies, or roles via write_shared / read_shared byte 7), "
-             "regroup only when an enemy is visible within ~8 (enemies_within(8), nearest(allies_visible())), and "
-             "retreat toward the nearest ally instead of toward spawn. Pulling champions off farming to join "
-             "fights at 6 tiles measured -30 points, so stay close while farming instead",
+    "pairs": "PAIRS: keep farming but never alone (71% of our deaths are 2-vs-1). Make two-champion pairs: give "
+             "each champion a partner by i_am(champ_vendetta()) etc. (e.g. vendetta with vesper_vale, tavi with ryth), have "
+             "partners farm neighbouring camp groups (claim / claim_count / claimed_by_allies tell which groups "
+             "your partner took), and converge when either sees an enemy. Vision is not shared, so signal it: "
+             "shared memory has 8 bytes and only byte 7 is free (0-6 are claims and the team target); pack a "
+             "beacon into it with write_shared(7, v) / read_shared(7), e.g. which pair is in a fight. Retreating "
+             "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
+             "tests, so stay close WHILE farming rather than walking across the map to regroup",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
              "where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
@@ -103,11 +106,12 @@ FRAMINGS = {
 }
 
 
-def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15)):
-    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite."""
+def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None):
+    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu
+    (default all of AXES)."""
     change = rng.choices(list(CHANGE_TYPES), change_weights)[0]
     return {
-        "axis": rng.choice(list(AXES)),
+        "axis": rng.choice(list(axes or AXES)),
         "change": change,
         "framing": rng.choice(list(FRAMINGS)),
         "catalog": rng.choice(["full", "lean"]),

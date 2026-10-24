@@ -53,6 +53,7 @@ def main():
     ap.add_argument("--change-weights", default="0.55,0.3,0.15",
                     help="with --explore: weights of the edit, plan and rewrite change types (rewrites always use "
                          "Opus; in the first test they all scored ~-0.2)")
+    ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu (default: all axes)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
                          "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
@@ -150,6 +151,12 @@ def main():
     if args.explore:
         from .llm import sample_variant
     change_weights = tuple(float(x) for x in args.change_weights.split(","))
+    axes = [a for a in args.axes.split(",") if a]
+    if args.explore and axes:
+        from .llm import AXES
+        unknown = [a for a in axes if a not in AXES]
+        if unknown:
+            raise SystemExit(f"unknown --axes {unknown}; known: {list(AXES)}")
     variant_lock = threading.Lock()
     proposals_lock = threading.Lock()
 
@@ -180,7 +187,7 @@ def main():
             return
         if args.explore:
             with variant_lock:
-                variant = sample_variant(rng, len(parents), change_weights)
+                variant = sample_variant(rng, len(parents), change_weights, axes)
                 vrng = random.Random(rng.random())
             variant["source"] = "archive" if drawn else "island"
         if proposer:
