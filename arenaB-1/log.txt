@@ -366,3 +366,78 @@
 [19:44:45] [B] summary: births 210 deaths 187 games 39272 $1.13; top [('B189', 35.48, 0.82, 248, 'S0'), ('B181', 35.18, 0.8, 360, 'S0'), ('B199', 34.91, 0.81, 184, 'S0')]; top vs anchors {'B189': 0.625, 'B181': 0.875, 'B199': 0.625}
 [19:44:45] [B] birth B210 (mutate claude-haiku-5-5) of ['B196'] species S0; 24 genomes $1.13
 [19:44:47] [B] birth B211 (cross ) of ['B200', 'B189'] species S0; 24 genomes $1.13
+[19:44:57] [B] birth B212 (mutate claude-haiku-5-5) of ['B209'] species S0; 24 genomes $1.13
+[19:44:57] [B] birth B213 (cross ) of ['B211', 'B176'] species S0; 24 genomes $1.13
+[19:45:01] [B] birth B214 (mutate claude-haiku-5-5) of ['B181'] species S0; 24 genomes $1.13
+[19:45:11] [B] rejected mutate claude-haiku-5-5: GenomeError: move_value line 388: cannot assign to near
+[19:45:11] [B] birth B215 (tune ) of ['B200'] species S0; 24 genomes $1.14
+[19:45:15] [B] birth B216 (mutate claude-haiku-5-5) of ['B199'] species S0; 24 genomes $1.14
+[19:45:18] [B] rejected cross : behavioural twin
+[19:45:26] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:45:29] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:45:36] [B] rejected mutate claude-opus-5-5: behavioural twin
+[19:45:38] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:45:41] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:45:43] [B] birth B217 (cross ) of ['B216', 'B142'] species S0; 24 genomes $1.18
+[19:45:49] [B] birth B218 (mutate claude-haiku-5-5) of ['B142'] species S0; 24 genomes $1.18
+[19:45:52] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:45:53] [B] birth B219 (cross ) of ['B217', 'B181'] species S0; 24 genomes $1.18
+[19:46:03] [B] rejected cross : behavioural twin
+[19:46:06] [B] summary: births 220 deaths 197 games 41392 $1.19; top [('B217', 35.54, 0.96, 96, 'S0'), ('B181', 35.39, 0.83, 480, 'S0'), ('B176', 35.16, 0.85, 504, 'S0')]; top vs anchors {'B217': 0.833, 'B181': 0.917, 'B176': 0.854}
+[19:46:06] [B] birth B220 (mutate claude-haiku-5-5) of ['B177'] species S0; 24 genomes $1.19
+[19:46:08] [B] birth B221 (mutate claude-haiku-5-5) of ['B202'] species S0; 24 genomes $1.19
+[19:46:16] [B] birth B222 (mutate claude-haiku-5-5) of ['B142'] species S0; 24 genomes $1.19
+[19:46:23] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:46:25] [B] birth B223 (tune ) of ['B202'] species S0; 24 genomes $1.23
+[19:46:27] [B] rejected mutate claude-opus-5-5: behavioural twin
+[19:46:36] [B] birth B224 (cross ) of ['B189', 'B217'] species S0; 24 genomes $1.23
+[19:46:37] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:46:39] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:46:47] [B] birth B225 (cross ) of ['B188', 'B221'] species S0; 24 genomes $1.23
+[19:46:54] [B] birth B226 (mutate claude-haiku-5-5) of ['B199'] species S0; 24 genomes $1.23
+[19:46:55] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:46:57] [B] birth B227 (cross ) of ['B221', 'B189'] species S0; 24 genomes $1.23
+[19:47:03] [B] rejected tune : behavioural twin
+[19:47:04] [B] rejected tune : behavioural twin
+[19:47:11] [B] birth B228 (tune ) of ['B133'] species S0; 24 genomes $1.23
+[19:47:11] [B] rejected tune : behavioural twin
+[19:47:12] [B] birth B229 (mutate claude-haiku-5-5) of ['B189'] species S0; 24 genomes $1.23
+[19:47:24] [B] summary: births 230 deaths 207 games 43360 $1.23; top [('B217', 35.63, 0.87, 136, 'S0'), ('B199', 35.43, 0.8, 392, 'S0'), ('B183', 35.33, 0.8, 640, 'S0')]; top vs anchors {'B217': 0.833, 'B199': 0.625, 'B183': 0.833}
+[19:47:24] [B] birth B230 (cross ) of ['B188', 'B133'] species S0; 24 genomes $1.23
+[19:47:27] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:47:30] [B] birth B231 (mutate claude-haiku-5-5) of ['B221'] species S0; 24 genomes $1.23
+[19:47:37] [B] birth B232 (mutate claude-haiku-5-5) of ['B217'] species S0; 24 genomes $1.24
+[19:47:39] [B] birth B233 (mutate claude-haiku-5-5) of ['B133'] species S0; 24 genomes $1.24
+[19:47:52] [B] birth B234 (mutate claude-opus-5-5) of ['B217'] species S0; 24 genomes $1.28
+[19:47:53] [B] birth B235 (mutate claude-haiku-5-5) of ['B199'] species S0; 24 genomes $1.28
+[19:48:02] [B] birth B236 (mutate claude-haiku-5-5) of ['B217'] species S0; 24 genomes $1.28
+[19:48:07] [B] birth B237 (mutate claude-haiku-5-5) of ['B221'] species S0; 24 genomes $1.28
+[19:48:09] [B] birth B238 (mutate claude-haiku-5-5) of ['B221'] species S0; 24 genomes $1.28
+[19:48:23] [B] birth B239 (mutate claude-haiku-5-5) of ['B183'] species S0; 24 genomes $1.29
+[19:48:23] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:48:24] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:48:33] [B] summary: births 240 deaths 217 games 45128 $1.29; top [('B235', 36.06, 0.82, 160, 'S0'), ('B183', 36.03, 0.8, 768, 'S0'), ('B142', 35.74, 0.79, 1104, 'S0')]; top vs anchors {'B235': 0.875, 'B183': 0.833, 'B142': 0.67}
+[19:48:33] [B] birth B240 (cross ) of ['B171', 'B199'] species S0; 24 genomes $1.29
+[19:48:33] [B] birth B241 (cross ) of ['B238', 'B217'] species S0; 24 genomes $1.29
+[19:48:38] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:48:45] [B] rejected cross : behavioural twin
+[19:48:49] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:48:52] [B] rejected cross : behavioural twin
+[19:48:54] [B] birth B242 (mutate claude-opus-5-5) of ['B227'] species S0; 24 genomes $1.33
+[19:49:01] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:49:05] [B] birth B243 (cross ) of ['B227', 'B216'] species S0; 24 genomes $1.33
+[19:49:05] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:49:08] [B] birth B244 (tune ) of ['B212'] species S0; 24 genomes $1.33
+[19:49:15] [B] birth B245 (cross ) of ['B238', 'B216'] species S0; 24 genomes $1.33
+[19:49:25] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:49:25] [B] birth B246 (mutate claude-haiku-5-5) of ['B188'] species S0; 24 genomes $1.33
+[19:49:31] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:49:36] [B] birth B247 (mutate claude-haiku-5-5) of ['B183'] species S0; 24 genomes $1.34
+[19:49:38] [B] rejected tune : behavioural twin
+[19:49:38] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[19:49:46] [B] birth B248 (tune ) of ['B238'] species S0; 24 genomes $1.34
+[19:49:47] [B] birth B249 (tune ) of ['B236'] species S0; 24 genomes $1.34
+[19:49:53] [B] champion anchor champ5-B221 (mu 36.2)
+[19:49:53] [B] summary: births 250 deaths 227 games 47168 $1.34; top [('B221', 36.21, 0.81, 416, 'S0'), ('B188', 36.2, 0.8, 760, 'S0'), ('B246', 36.18, 0.88, 112, 'S0')]; top vs anchors {'B221': 0.675, 'B188': 0.75, 'B246': 0.75}
+[19:49:53] [B] birth B250 (mutate claude-haiku-5-5) of ['B227'] species S0; 24 genomes $1.34
+[19:49:53] [B] birth B251 (directed ) of ['B133'] species S0; 24 genomes $1.34
