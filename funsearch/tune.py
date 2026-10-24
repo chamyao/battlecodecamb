@@ -108,25 +108,48 @@ def literals(text):
         for m in _NUM.finditer(code):
             if _INDEX_CALL.search(code[: m.start()]):
                 continue
+            # equality tests (flag == 0, lock_bought != 1) are discrete, not tunable quantities
+            if _re.search(r"(==|!=)\s*\(*\s*$", code[: m.start()]) or _re.match(r"\s*\)*\s*(==|!=)", code[m.end():]):
+                continue
             out.append(dict(start=pos + m.start(), end=pos + m.end(), value=m.group(0), line=ln, masked=masked,
                             name=named.group(1) if named else None))
         pos += len(line) + 1
     return out
 
 
-def changed_constants(parent, child):
-    """Literals of `child` that are new or changed relative to `parent`: named constants (NAME = number) that are
-    new or differ in value; else numbers on code lines whose masked form or values are not in the parent. Empty when
-    the child's constants are the parent's."""
-    p, c = literals(parent), literals(child)
-    p_named = {x["name"]: x["value"] for x in p if x["name"]}
-    named = [x for x in c if x["name"] and p_named.get(x["name"]) != x["value"]]
-    if named:
-        return named
+def code_lines(text):
+    """Code lines with comments and surrounding blanks stripped (for no-code-change and edit detection)."""
+    return [c.rstrip() for c in (_code_part(l) for l in text.split("\n")) if c.strip()]
+
+
+def climb_targets(parent, child, rewrite_share=0.5):
+    """Literals of `child` to hill-climb: named constants (NAME = number) that are new or changed, plus the numbers
+    on code lines the child edited (lines not in the parent). If more than `rewrite_share` of the child's code
+    lines are edited (a rewrite or a reformat: no clean diff), every literal. Empty when nothing tunable changed."""
+    c = literals(child)
+    p_named = {x["name"]: x["value"] for x in literals(parent) if x["name"]}
     p_lines = {}
-    for x in p:
-        p_lines.setdefault(x["masked"], set()).add(x["value"])
-    return [x for x in c if not x["name"] and x["value"] not in p_lines.get(x["masked"], set())]
+    for l in code_lines(parent):
+        p_lines[l.strip()] = p_lines.get(l.strip(), 0) + 1
+    lines = child.split("\n")
+    code_idx = [i for i, l in enumerate(lines) if _code_part(l).strip()]
+    edited = set()
+    for i in code_idx:
+        key = _code_part(lines[i]).strip()
+        if p_lines.get(key, 0) > 0:
+            p_lines[key] -= 1
+        else:
+            edited.add(i)
+    if code_idx and len(edited) > rewrite_share * len(code_idx):
+        return c
+    named = [x for x in c if x["name"] and p_named.get(x["name"]) != x["value"]]
+    region = [x for x in c if not x["name"] and x["line"] in edited]
+    return named + region
+
+
+def changed_constants(parent, child):
+    """Backwards-compatible name for climb_targets."""
+    return climb_targets(parent, child)
 
 
 def mutate_literal(text, lit, rng, sigma=0.3):
@@ -134,7 +157,8 @@ def mutate_literal(text, lit, rng, sigma=0.3):
     v = float(lit["value"])
     is_int = "." not in lit["value"]
     if v == 0:
-        new = rng.choice([1, -1]) * (1 if is_int else round(rng.random(), 4))
+        # thresholds at 0 (counts, scores) only move up; negative values are rarely meaningful there
+        new = 1 if is_int else round(rng.uniform(0.01, 0.2), 4)
     elif is_int and abs(v) >= 2:
         new = max(0, round(v * rng.lognormvariate(0, sigma)))
         if new == v:
@@ -147,18 +171,18 @@ def mutate_literal(text, lit, rng, sigma=0.3):
     return text[: lit["start"]] + s + text[lit["end"]:], s
 
 
-def climb_child(parent, child, evaluate, steps=8, rng=None, margin=0.02, seed0=0):
+def climb_child(parent, child, evaluate, steps=6, rng=None, margin=0.03, seed0=0):
     """(1+1)-ES on the constants the child added or changed. evaluate(text, seed) -> score or None. Each step scores
     the incumbent and the mutant on the same fresh seed and accepts only a clear gain (> margin). Returns
     (text, info) where info = {steps, before, after, changed: {name or line:col: "old->new"}} or None if no targets."""
     rng = rng or random.Random(0)
-    if not changed_constants(parent, child):
+    if not climb_targets(parent, child):
         return child, None
     best = child
     before = after = None
     changed = {}
     for k in range(steps):
-        targets = changed_constants(parent, best)
+        targets = climb_targets(parent, best)
         if not targets:
             break
         lit = rng.choice(targets)

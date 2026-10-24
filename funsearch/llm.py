@@ -72,11 +72,14 @@ AXES = {
              "beacon b (0-63), e.g. which pair is in a fight. Retreating "
              "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
              "tests, so stay close WHILE farming rather than walking across the map to regroup",
-    "disengage": "DISENGAGE at low HP: once one of our champions is below 50% HP with an enemy within 5 it "
-                 "dies 88% of the time (the top team 6%, similar teams 13-20%) and gains only ~1 tile in 5 rounds. "
-                 "Decide when to break off (HP, enemies_within, local_strength), which way to run (away from the "
-                 "nearest enemy, toward allies or spawn, out of in_danger()), when to use a dash to escape, when a "
-                 "recall is safe (damage cancels it), and whether a healthy ally should peel for the hurt one",
+    "disengage": "DISENGAGE, i.e. not being caught in losing fights at low HP: once one of our champions is "
+                 "below 50% HP with an enemy within 5 it dies 88% of the time (the top team 6%, similar teams "
+                 "13-20%). MEASURED: walking away mid-fight (HP below 0.4-0.6 with an enemy within 5-6) is strongly "
+                 "NEGATIVE (18-34% vs the live bot, more deaths: a fleeing champion takes free hits). So avoid the "
+                 "losing fight instead of fleeing it: engage only with local numbers or strength ahead "
+                 "(enemies_within, allies_within, local_strength), keep range, back off BEFORE the first exchange "
+                 "when outnumbered, never start a recall within reach of an enemy (damage cancels it), and let a "
+                 "healthy ally peel for a hurt one",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
              "where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "

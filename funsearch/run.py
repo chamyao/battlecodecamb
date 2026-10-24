@@ -71,13 +71,16 @@ def main():
                     help="with --explore: weights of the edit, plan and rewrite change types (rewrites always use "
                          "Opus; in the first test they all scored ~-0.2)")
     # constant hill-climb on a promising child before confirmation (no API cost)
-    ap.add_argument("--tune-children", action="store_true",
-                    help="a child that screens within --tune-slack of its best parent and whose constants differ "
-                         "from it gets a (1+1)-ES on the constants it added or changed before confirmation")
-    ap.add_argument("--tune-steps", type=int, default=8)
+    # every valid child is hill-climbed on its constants before it is compared (no API cost); its score is the
+    # tuned score. --no-tune-children turns this off.
+    ap.add_argument("--no-tune-children", dest="tune_children", action="store_false")
+    ap.add_argument("--tune-children", dest="tune_children", action="store_true")
+    ap.set_defaults(tune_children=True)
+    ap.add_argument("--tune-steps", type=int, default=6)
     ap.add_argument("--tune-games", type=int, default=16, help="games per opponent per tuning evaluation")
-    ap.add_argument("--tune-slack", type=float, default=0.05)
-    ap.add_argument("--tune-margin", type=float, default=0.02, help="a mutant must beat the incumbent by this much")
+    ap.add_argument("--tune-slack", type=float, default=0.15,
+                    help="early stop: no climb for a child that screens below its best parent minus this")
+    ap.add_argument("--tune-margin", type=float, default=0.03, help="a mutant must beat the incumbent by this much")
     ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu (default: all axes)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
@@ -221,8 +224,8 @@ def main():
     def tune_child(parent, text):
         """--tune-children: screen the child; if it is near its best parent and changed constants, hill-climb
         those constants on fresh seeds. Returns (screen result to reuse or None, text, tuned info or None)."""
-        from .tune import changed_constants, climb_child
-        if not changed_constants(parent.text, text):
+        from .tune import climb_child, climb_targets
+        if not climb_targets(parent.text, text):
             return None, text, None
         scr = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed)
         par = parent.metrics.get("screen_score", parent.score)
@@ -280,6 +283,14 @@ def main():
             return
         if args.explore:
             text = keep_header(parents[-1].text, text)
+        from .tune import code_lines
+        if any(code_lines(text) == code_lines(p.text) for p in parents):
+            # comments or blank lines only: same play as a parent, nothing to evaluate or climb
+            pid = db.add(Program(0, island, text, float("-inf"), [p.id for p in parents], model, "no code change",
+                                 {"cost": cost, **({"variant": variant} if variant else {})}))
+            log_proposals(pid, None, model, proposals)
+            print(f"[{pid}] {model} island {island}: no code change (comments only)", flush=True)
+            return
         screened, tuned_info = None, None
         if args.tune_children:
             screened, text, tuned_info = tune_child(parents[-1], text)
