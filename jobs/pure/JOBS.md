@@ -19,7 +19,7 @@ For the EC2 runner (c7a.4xlarge, 16 threads). Resumes pure4 generation 3 where C
 it. **Update 06:40 UTC (Cham via the lead):** remote-server's runs after the snapshot are
 discarded, so resume from the `remote/pure` 04:15 UTC snapshot as it is (3e8dfad: 49 lines in
 `pure4-g3/programs.jsonl`). Their API spend was real but is unrecorded, estimated at ~$1.62, so the
-league budget is **8.09** (was 9.71); see `runs/SPEND.md` on funsearch/pure bbea6ee. Only one
+league budget is **18.10** for g3 and g4 ($20 line cap from 06:35 UTC - 0.28 earlier runs - 1.62 lost); see `runs/SPEND.md` on funsearch/pure bbea6ee. Only one
 machine may run pure4: if remote-server's league is still alive, it must be stopped.
 
 ### Why g3 runs at 81ab84b and not at the tip of funsearch/pure
@@ -76,12 +76,12 @@ opponents from pure4.json; these files take effect at the g3 promotion check (se
   Do not edit it: "fixed"/"target" are frozen for g3.
 - `N=$(wc -l < runs/pure4-g3/programs.jsonl)`
 - `python3 -c "from funsearch.league import spent; print(round(spent('pure4'), 2))"` -> S
-  must print 5.14 at the snapshot. Expected `left` = 8.09 - 5.14 = $2.95. N must be 49.
+  must print 5.14 at the snapshot. Expected `left` = 18.10 - 5.14 = $12.96. N must be 49.
 
 ### 4. Launch g3 (to the end of generation 3)
 
 ```sh
-setsid nohup python3 -m funsearch.league --name pure4 --budget 8.09 \
+setsid nohup python3 -m funsearch.league --name pure4 --budget 18.10 \
   --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt \
   --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd \
   --workers 3 --eval-threads 2 --threads 5 --max-generations 3 --no-commit >> runs/pure.out 2>&1 &
@@ -92,7 +92,7 @@ results, but keep them equal across the line's history for timing.
 
 Proof that it resumed and did not restart:
 - `runs/pure4.log` gets `pure4-g3: +102 programs (to 151), best policies/fs-p2.policy, league
-  ['policies/tune-3.policy', ...], $2.95 left`. A `+150`/`+151` or a gen other than g3 means
+  ['policies/tune-3.policy', ...], $12.96 left`. A `+150`/`+151` or a gen other than g3 means
   it restarted: STOP it at once.
 - `runs/pure4-g3.log` has no new `seed score` line; the next program line is `[<N>] ...`.
 
@@ -114,8 +114,7 @@ Proof that it resumed and did not restart:
    line asks.
 3. Rebuild only if `interp/` changed between 81ab84b and the tip.
 4. Relaunch with `runs/pure_launch.sh` (no `--max-generations`, no `--no-commit`). It carries
-   `--budget 18.10` (pure line cap raised to $20 at 06:35 UTC; funsearch/pure c44a0a3). g3 keeps 8.09:
-   it needs only ~$1.6 of its $2.95, and the cap change takes effect at g4 without a restart. g4 then uses the new
+   the same `--budget 18.10` (funsearch/pure c44a0a3). g4 then uses the new
    prompt and fixed = tune-5. Its first log line must read `pure4-g4: +150 programs (to 151), best
    policies/fs-p3.policy, league ['policies/tune-5.policy', ...], $<about 11> left`.
 5. Report the promotion (all PROMOTED rates, incl. cambc-exact vs tune-5) on PR #2.
