@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 10:43 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.35 14.10 15.38 on 16 threads.
+Updated 2026-10-24 10:49 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 16.46 14.63 15.16 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -13,11 +13,10 @@ Disk: 3.2G used of 38G.
 43738 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 2.60 --max-programs 106 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 55239 python3 -m funsearch.league --name tune-fight2 --budget 2.25 --members policies/tune-v19.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v19.policy --fixed policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy --regress 1.0 --z 2.83 --prefix tune-
 55251 /usr/bin/python3 -m funsearch.run --run tune-fight2-g1 --budget 2.25 --max-programs 60 --seed-policy policies/tune-v19.policy --opponents builtin:starter@0.25,policies/tune-v19.policy@3.0,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy --fresh-seeds --d
-55978 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 23.77 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
+60945 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 23.16 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
 ```
 ## tick.log (last 40 lines)
 ```
-[08:23:09] hybrid: launched hyb4 league
 [08:28:20] style: S4: SIGTERM style8-h pid 17790
 [08:28:20] style: S4: SIGTERM style8-h pid 27479
 [08:28:20] style: S4: SIGTERM style8-b pid 12424
@@ -57,4 +56,5 @@ Disk: 3.2G used of 38G.
 [10:23:16] tune: G2: stopped tune-fight pid 46966
 [10:23:16] tune: G2: tune/fs at de5dc62
 [10:23:16] tune: G2: launched tune-fight2 ($2.25)
+[10:48:59] hybrid: H4: hold set for the next hyb5 boundary
 ```
