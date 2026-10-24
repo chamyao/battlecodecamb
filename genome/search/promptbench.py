@@ -111,13 +111,13 @@ class Bench:
         return json.dumps(outs)
 
     # ---- parents and links
-    def parents(self, state_dir, n, exclude=(), with_seed=True):
+    def parents(self, state_dir, n, exclude=(), with_seed=True, skip=0):
         d = Path(state_dir)
         s = json.loads((d / "state.json").read_text())
         live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"] and m["name"] not in exclude]
         out = [("seed", Path(self.a.seed).read_text())] if with_seed else []
         out += [(f"{d.parent.name}:{m['name']}", (d / m["path"]).read_text())
-                for m in sorted(live, key=lambda m: -m["games"])[:n]]
+                for m in sorted(live, key=lambda m: -m["games"])[skip:skip + n]]
         return out
 
     def links(self, parents, k, seed):
@@ -236,8 +236,8 @@ instructions. Each at most 3 sentences, written to the mutating model. Reply wit
 
     def run(self):
         a = self.a
-        parents = self.parents(a.parents_from, a.parents)
-        cells = self.links(parents, a.links, LINK_SEED)
+        parents = self.parents(a.parents_from, a.parents, with_seed=not a.no_seed_parent, skip=a.skip_parents)
+        cells = self.links(parents, a.links, a.link_seed)
         self.write("rounds", {"event": "setup", "parents": [p[0] for p in parents],
                               "cells": [(c[0], list(c[2])) for c in cells]})
         known = {}
@@ -294,6 +294,9 @@ def main():
     ap.add_argument("--seed", default=str(ROOT / "genome/seeds/v23.genome"))
     ap.add_argument("--parents", type=int, default=4, help="longest-lived live genomes besides the seed")
     ap.add_argument("--links", type=int, default=8)
+    ap.add_argument("--link-seed", type=int, default=LINK_SEED)
+    ap.add_argument("--no-seed-parent", action="store_true", help="parents are arena genomes only (no seed genome)")
+    ap.add_argument("--skip-parents", type=int, default=0, help="skip the N longest-lived genomes (replicates)")
     ap.add_argument("--games", type=int, default=80, help="games per pair (80 = every map from both sides; more "
                                                          "would only repeat the same games)")
     ap.add_argument("--prodigy-screen", type=float, default=0.60)

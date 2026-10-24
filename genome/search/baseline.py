@@ -24,6 +24,7 @@ def main():
     ap.add_argument("--state", required=True, help="arena output dir (state.json, genomes/)")
     ap.add_argument("--top", type=int, default=3)
     ap.add_argument("--min-games", type=int, default=40)
+    ap.add_argument("--all", action="store_true", help="every live genome of the state (ignores --top/--min-games)")
     ap.add_argument("--seed-genome", default=str(ROOT / "genome/seeds/v23.genome"))
     ap.add_argument("--games", type=int, default=200)
     ap.add_argument("--threads", type=int, default=5)
@@ -38,7 +39,10 @@ def main():
     s = json.loads((d / "state.json").read_text())
     live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"] and m["games"] >= args.min_games]
     who = [] if args.no_seed else [("seed", Path(args.seed_genome).read_text(), None)]
-    if args.names:
+    if args.all:
+        allg = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"]]
+        who += [(m["name"], (d / m["path"]).read_text(), m["mu"]) for m in sorted(allg, key=lambda m: -m["mu"])]
+    elif args.names:
         allm = s["members"]
         who += [(n, (d / allm[n]["path"]).read_text(), allm[n]["mu"]) for n in args.names.split(",")]
     else:
