@@ -19,6 +19,8 @@ def danger_at(t: Tile) -> Num:
 - `after() -> None` (optional entry gene): runs at the end of each turn, after the loop's actions, with fresh observations. Like `update()`, it may assign keeps and call `write_shared` / `set_priority`. `acted(kind)` and `acted_tile(kind)` tell it what the loop did this turn (e.g. announce the camp it attacked, so allies acting later in the round see it). Shared bytes written in one gene and read in another are dependency edges, as calls are.
 - Keeps: `Num`, `Bool`, `Tile`, `Tiles`, `Field`. Use a Tiles/Field keep set in `update()` to compute an expensive set or distance field once per turn instead of once per pass (zero-argument genes are recomputed every pass of the loop).
 - Every gene has `@gene(id, description, parents=[...])`. IDs survive inheritance; a duplicated gene gets a new ID.
+  IDs and parent IDs are 1-64 of `A-Z a-z 0-9 _ . -`; a description is one plain line (no control, format or
+  line-separator characters, no backslash), since both are emitted into C++ `//` comments.
 - Statements: assignment (function-scoped locals, type fixed at first assignment), `+= -= *= /=`, `if/elif/else`, `for x in S` (S: Units, Tiles or `range(n)`), `return`.
 - Expressions: arithmetic on Num (`/` by 0 gives 0), comparisons, `and/or/not`, `a if c else b`, `t in S` (Tile in Tiles), Tiles `| & -`, fields (`u.pos`), calls to genes and primitives.
 - Reductions: `sum(e for x in S if c)`, `count(c for x in S)`, `any(...)`, `all(...)`, `max((e for x in S), default=d)` (Python needs the generator in parentheses next to `default=`), `min(...)`, `max(a, b)`, `min(a, b)`; `best(S, lambda x: score)` returns the element with the highest score (an invalid Unit/Tile if S is empty: test with `exists(u)` / `valid(t)`).

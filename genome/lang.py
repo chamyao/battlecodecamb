@@ -17,6 +17,8 @@ turn, the only gene that may assign keep variables or call write_shared).
 import ast
 import hashlib
 import json
+import re
+import unicodedata
 from dataclasses import dataclass, field
 
 TYPES = {"Num", "Bool", "Tile", "Unit", "Units", "Tiles", "Option", "Field", "None"}
@@ -213,10 +215,35 @@ class Genome:
 
 # ---------------------------------------------------------------- parsing
 
+_ID_RE = re.compile(r"[A-Za-z0-9_.-]{1,64}")
+
+
 def _const_str(node, what):
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return node.value
     raise GenomeError(f"{what} must be a string literal")
+
+
+def _gene_id(node, what):
+    s = _const_str(node, what)
+    if not _ID_RE.fullmatch(s):
+        raise GenomeError(f"{what} {s!r}: letters, digits, '_', '.', '-' only (1-64)")
+    return s
+
+
+def _one_line(node, what):
+    # descriptions land in C++ // comments: a line break of any kind (\r, \n, U+2028, ...) would end the
+    # comment, so control, format and separator characters are rejected; a backslash could splice lines
+    s = _const_str(node, what)
+    bad = [c for c in s if unicodedata.category(c) in ("Cc", "Cf", "Zl", "Zp") or c == "\\"]
+    if bad:
+        raise GenomeError(f"{what}: one plain line, no control characters or backslashes (found {bad[0]!r})")
+    return s
+
+
+def _comment(s):
+    """Defensive: printable text only, so nothing can leave a // comment."""
+    return "".join(c if c.isprintable() and c != "\\" else " " for c in s)
 
 
 def _ann(node, what):
@@ -249,12 +276,12 @@ def parse(source):
             d = st.decorator_list[0]
             if len(d.args) != 2:
                 raise GenomeError(f"line {st.lineno}: @gene takes (id, description)")
-            gid, desc = _const_str(d.args[0], "gene id"), _const_str(d.args[1], "gene description")
+            gid, desc = _gene_id(d.args[0], "gene id"), _one_line(d.args[1], "gene description")
             parents = []
             for kw in d.keywords:
                 if kw.arg != "parents" or not isinstance(kw.value, ast.List):
                     raise GenomeError(f"line {st.lineno}: @gene keywords: parents=[...] only")
-                parents = [_const_str(e, "parent id") for e in kw.value.elts]
+                parents = [_gene_id(e, "parent id") for e in kw.value.elts]
             if st.name in genes or st.name in PRIMS or st.name in CONSTANTS or st.name in keeps:
                 raise GenomeError(f"line {st.lineno}: gene {st.name} redefined or shadows a builtin")
             a = st.args
@@ -702,7 +729,7 @@ def to_cpp(genome):
     for n in order:
         g = genome.genes[n]
         params = ", ".join(_param(p, t) for p, t in g.params)
-        lines.append(f"// gene {g.id}: {g.desc.replace(chr(10), ' ')}")
+        lines.append(f"// gene {_comment(g.id)}: {_comment(g.desc)}")
         body = ch.cpp[n]
         memo = not g.params and g.ret not in ("None",) and n not in ("update", "after")
         lines.append(f"{CPP[g.ret]} Genes::{n}({params}) {{")
