@@ -99,6 +99,8 @@
 { "holes()", false, { 105472, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=110 mae=1 (profile fuel)
 { "i_am(Champ)", false, { 447297, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=21600 mean=468 mae=0 (profile fuel)
 { "i_am_ranged()", false, { 250410, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=262 mae=0 (profile fuel)
+{ "unit_is(Unit,Champ)", false, { 451074, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // PROVISIONAL (as i_am); refit pending
+{ "unit_shield(Unit)", false, { 300000, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // PROVISIONAL; refit pending
 { "in_attack_range()", false, { 35363, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=30597 mean=37 mae=0 (profile fuel)
 { "in_danger()", false, { 244168, 0, 0, 0, 0, 0, 0, 87703, 0, 0 } }, // n=11011 mean=5862 mae=1778 (profile fuel)
 { "is_draft()", false, { 43965, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=21335 mean=46 mae=0 (profile fuel)
