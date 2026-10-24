@@ -75,7 +75,7 @@ if [ -f runs/ec2-hyb5 ]; then
   fi
   # H6 (hybrid line, 12:15 UTC): at the next hyb5 boundary merge funsearch/runs 48a1404+ (prompt-only shared-memory
   # change: byte 7 bits 0-1 reserved for tune's lock flags; no interp change) and relaunch with the same flags.
-  if [ -f runs/ec2-h5-checked ] && [ ! -f runs/ec2-h6 ]; then
+  if [ -f runs/ec2-h5 ] && [ ! -f runs/ec2-h6 ]; then
     if [ ! -f runs/ec2-h6-hold ]; then
       grep -c 'hold file present' runs/hyb5.log > runs/ec2-h6-holdmark; touch runs/hyb5.hold runs/ec2-h6-hold
       log "H6: hold set for the next hyb5 boundary"
@@ -135,7 +135,13 @@ if [ -f runs/ec2-hyb5 ]; then
       m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h5-marks); m=${m:-0}
       r="$r$(tail -n +"$((m + 1))" "$f" | grep -oE 're-seeded island [0-9] with [a-z0-9-]+' | tr '\n' ';')"
     done
-    [ -n "$r" ] && { touch runs/ec2-h5-checked; log "H5 check: $r (expected islands 0,1,3 with v20; island 2 kept)"; }
+    g=$(awk -v f=runs/hyb5.log '$1==f{print $2}' runs/ec2-h5-marks 2>/dev/null)
+    newgen=$(grep -E 'PROMOTED|hyb5-g[0-9]+: \+30 programs to the next boundary \(0 so far\)' runs/hyb5.log | tail -n 2 | cut -c1-150 | tr '\n' '|')
+    if [ -n "$r" ]; then
+      touch runs/ec2-h5-checked; log "H5 check: $r (expected islands 0,1,3 with v20; island 2 kept)"
+    elif grep -q 'PROMOTED challenger policies/pool/v20.policy' runs/hyb5.log; then
+      touch runs/ec2-h5-checked; log "H5 check: no re-seed lines; v20 promoted at the boundary, new generation: $newgen"
+    fi
   fi
   pushall; return 0
 fi
