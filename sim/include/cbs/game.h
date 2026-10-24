@@ -87,6 +87,8 @@ struct Champion
 	Vec2 revealed[8];
 	// Camp groups this champion has seen respawning (the engine keeps reporting them until they respawn).
 	std::vector<std::uint8_t> seen_respawning;
+	// Game::update_group_memory's last call: vision key and the groups it found out of sight.
+	std::uint64_t group_memo_key = ~0ull, group_memo_unseen = 0;
 
 	bool has_passive(ItemPassive p) const { return passives >> static_cast<int>(p) & 1; }
 };
@@ -221,6 +223,35 @@ public:
 	bool is_stunned(int c) const;
 	bool incapacitated(int c) const; // dead or stunned
 	void champion_vision(int c, Bitboard& out) const; // own vision + ward + reveals
+	// champion_vision(c, b) followed by b.test(p) for in-map p, without building the board: a
+	// snapshot of what the vision depends on, taken now (later moves or reveals do not change it).
+	struct VisionProbe
+	{
+		const Map* map;
+		Vec2 pos, ward_pos;
+		bool alive, ward_active;
+		int revealed_n;
+		const Vec2* revealed;
+		static bool in_window(const Map::Window& w, Vec2 from, Vec2 p)
+		{
+			const int dx = p.x - from.x + 8, dy = p.y - from.y + 8;
+			return dx >= 0 && dx <= 16 && dy >= 0 && dy <= 16 && (w.rows[dy] >> dx & 1);
+		}
+		bool test(Vec2 p) const
+		{
+			if (!map->in_bounds(p)) return false;
+			if (alive && in_window(map->vision8(pos), pos, p)) return true;
+			if (ward_active && in_window(map->vision6(ward_pos), ward_pos, p)) return true;
+			for (int i = 0; i < revealed_n; ++i)
+				if (revealed[i] == p) return true;
+			return false;
+		}
+	};
+	VisionProbe vision_probe(int c) const
+	{
+		const Champion& ch = champs[c];
+		return { map_.get(), ch.pos, ch.ward_pos, ch.alive, ch.ward_active, ch.revealed_n, ch.revealed };
+	}
 	int champion_at(Vec2 p) const;					   // living champion on tile, or -1
 	int camp_at(Vec2 p) const;						   // living camp on tile, or -1
 	int lock_at(Vec2 p, int team) const;

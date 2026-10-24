@@ -736,7 +736,7 @@ struct SimFieldOps
 	{
 		// distance_field(..., all_dests = true), written straight into the chunked layout.
 		Row128 seen[kMaxDim];
-		std::fill(field, field + field_memo::kFieldWords, kUnreachable);
+		std::fill(field, field + cw * ((H + 7) / 8) * 64, kUnreachable); // the map's chunks (fidx never reads beyond)
 		const Row128 full = W >= 128 ? ~Row128{ 0 } : (Row128{ 1 } << W) - 1;
 		auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
 		auto pop = [](Row128 v) { return std::popcount(static_cast<std::uint64_t>(v)) + std::popcount(static_cast<std::uint64_t>(v >> 64)); };
