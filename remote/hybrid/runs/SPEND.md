@@ -21,3 +21,5 @@ cache reads counted at 0.1x input, which overstates Opus 5.5's real 0.05x, so th
 | 2026-10-24 | hyb4-g2 (best tune-1) — 15 programs; boundary validation of tune-2/tune2-focus/tune-3/tune-4 in progress when the line moved to remote-server | 15 | 0.05 | 3.18 |
 | 2026-10-24 | hyb4-g3 (best tune-4) on remote-server after snapshot bca8693: lost with Cham's machine (g3 verdict and later programs), not in programs.jsonl | ? | ~0.35 | |
 | 2026-10-24 | hybrid line cap raised $10 -> $30 (project cap $90 -> $200). League --budget 29.47 = 30 - 0.18 (hyb, hyb2, hyb3) - 0.35 (lost above) | | | |
+| 2026-10-24 | exploration test xc1/xp1/xp2 (hybrid session container) | 114 | 3.21 | |
+| 2026-10-24 | hyb5 started on v19 (explore), --budget 25.0 | | | |
