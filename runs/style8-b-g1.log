@@ -21,3 +21,4 @@ seed tune5-campreset score 0.723 (islands [0, 1, 2, 3])
 [23] claude-opus-5-5 island 3: error: NameError: line 96: my_reach already defined | best 0.745 (#11) $0.43 | 4105s
 [24] claude-haiku-5-5 island 0: score 0.650 | best 0.745 (#11) $0.44 | 4249s
 [25] claude-haiku-5-5 island 1: score 0.453 | best 0.745 (#11) $0.44 | 4326s
+[26] claude-haiku-5-5 island 3: error: style check: policy never calls team_target | best 0.745 (#11) $0.00 | 17s
