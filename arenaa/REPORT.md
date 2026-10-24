@@ -6,7 +6,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 
 - promptexp-1 tail children on the 13-opponent panel (1,040 games): 11 of 13 keep their gain. Best: A1 T1
   c45 782 vs parent 746 (+36; anchors +30), above arenaA-3's best A723 (780); A0 c87 +26, c64 +23, c28 +20.
-  So the tail is real, both arms produce it; A1's single best is the largest single-mutation gain seen.
+  CORRECTION (00:00): on the 7 held-out opponents alone (560 games) the big anchor gains mostly vanish:
+  c45 (A1, anchors +30) +6, c87 (+24) +2, c82 (+20) -5; 7 of 13 gain, 6 lose; only A0 c64 +16 clearly
+  exceeds noise. The tail gains are largely specific to the anchors (also Arena A's training anchors).
 - arenaA-5 (distinct games + bot-seeded anchors): panel top 3 per milestone m9 786/779/772, m10 782/774/770,
   m11 801/761/761, m12 (birth 1201) 802/793/790 vs arenaA-3's final 780/774/772 (+~20). No control yet:
   queued arenaA-6 = arenaA-3 resumed with its own evaluation for the same $3.50 (control arm).
