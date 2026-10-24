@@ -99,3 +99,19 @@ One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-s
 - Info: 55.4% and 54.0% vs v20 on two 2 x 400 fresh sets; 42/80 bot-seeded; 0 suspensions.
 - Sim fuel (enforce, bot-seeds; big-world/ambush/starvation/lost-world/hooks/gemfight x 2): peak 88.1k, first turn <= 169.2k.
 - vs hunter3 (80 games): wins 75 vs 70%, deaths 3.92 vs 4.44.
+
+## 7. style-gsub2-11k33 (style line), sent 2026-10-24 19:06 UTC
+
+- Policy: `policies/candidates/style-gsub2-11k33.policy` on `funsearch/style` @ 092fc3b. ZIP `dist/deploy-style-gsub2-11k33.zip`
+  (45af074, sha256 9a80ccec…2843), built by the bot session on deploy/v0 ca8f85b.
+- What: v21/v22 policy + (a) group choice found by FunSearch (style8-gsub2 #11, target = gems submitted vs v21): a rich
+  camp group (rich_spawns(15)) up to 5 tiles farther than the nearest camp is taken first, fuel-gated (> 72000, never
+  turn 1, skipped when the goal is already rich or no rich goal lies within distance(goal)+5); (b) from gsub2 #33: any
+  bag tributes at once at an adjacent altar.
+- Upload bar: arena league main3r (engine ca8f85b, bot_seeds off, 160 games per pair; pool: v19-v23 lineage, hunters
+  2a/2b/2c/3, stand-ins icecream/odyssey/metab/metadraft, tune-5): 1710 vs live 1679, bootstrapped 90% interval of the
+  difference +15 to +51.
+- Info: arena vs live (bot_seeds off, 2 x 800): 54.6% (+3.7 SE), submitted +45/game. Real cambc vs v22 ZIP 44/80.
+- Safety (bot session): BOT_VERIFY 0 mismatches, exactness 40/40, 0 crashes, 0 capped turns, first turn <= 182.6k,
+  peak 93.9k; turns > 80k 114 vs v22's 67 in the same games (heavier, ~6k margin).
+- Lineage note: gsub2-11 (unfixed) failed cambc fuel; 11k (fuel fix) cleared safety but was −1.3 short on the bar.
