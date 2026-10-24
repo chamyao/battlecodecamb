@@ -17,3 +17,7 @@ seed tune5-campreset score 0.723 (islands [0, 1, 2, 3])
 [19] claude-haiku-5-5 island 2: score 0.735 | best 0.745 (#11) $0.26 | 3864s
 [20] claude-haiku-5-5 island 0: score 0.430 | best 0.745 (#11) $0.26 | 3935s
 [21] claude-haiku-5-5 island 1: score 0.466 | best 0.745 (#11) $0.27 | 4005s
+[22] claude-haiku-5-5 island 3: score 0.624 | best 0.745 (#11) $0.27 | 4073s
+[23] claude-opus-5-5 island 3: error: NameError: line 96: my_reach already defined | best 0.745 (#11) $0.43 | 4105s
+[24] claude-haiku-5-5 island 0: score 0.650 | best 0.745 (#11) $0.44 | 4249s
+[25] claude-haiku-5-5 island 1: score 0.453 | best 0.745 (#11) $0.44 | 4326s
