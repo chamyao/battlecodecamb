@@ -81,7 +81,7 @@ fi
 if [ ! -f runs/ec2-resume-checked ]; then
   first=$(newlog | grep -m1 -E 'pure4-g[0-9]+: ')
   if [ -n "$first" ]; then
-    if [ "$phase" = g3 ] && { ! echo "$first" | grep -q 'pure4-g3: '; || echo "$first" | grep -qE '\+15[01] programs'; }; then
+    if [ "$phase" = g3 ] && { ! echo "$first" | grep -q 'pure4-g3: ' || echo "$first" | grep -qE '\+15[01] programs'; }; then
       halt "restart detected instead of a resume: $first"
     elif [ "$phase" = g4 ] && ! echo "$first" | grep -q 'pure4-g4: '; then
       halt "g4 did not start as expected: $first"
