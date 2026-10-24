@@ -18,6 +18,7 @@ only CPU. Never submit to the ladder (the coordinator does that). The coordinato
 | tune-2 | tune-1 | `bag_ready`: gems >= 25 (was 10), hurt at 0.3 (was 0.5) | 60.75 / 61.0%, cambc80 46/80 |
 | tune-3 | tune-2 | camp-goal dash only if `fuel_remaining() > 55000` | 41/80 cambc; big-world suspensions 1.06 -> 0.56/game; neutral |
 | **tune-5** | tune-3 | dash from distance > 2 (was 4), `jungle_n = floor(rest / 2)` (was / 3) | 53.25 / 53.25% (seeds 9019/9020), cambc80 47/80 |
+| tune-6 (map fix) | tune-3 | monolith fallback after round 800 + tribute before a group with `group_threat >= 240` | 52.75 / 50.0% (seeds 9021/9022), cambc80 42/80, no map lost both sides; starvation 80/63/92% vs Icecream/v7zg-cast/metab (tune-3 52/48/50) |
 
 - **tune-5 is the newest tune-line promotion** (commit a9567a8, sent to the coordinator). It was
   not yet built or shipped when this was written; tune-3 v2 is live. Ask the coordinator which is
@@ -63,9 +64,7 @@ only CPU. Never submit to the ladder (the coordinator does that). The coordinato
 
 ## What's running and where
 
-- **Here (cloud container):** `funsearch/starv_confirm.py` was still running `r800+T240` when this
-  was written. Its output is in `runs/tune/starvconfirm.log`, which is gitignored and lost with
-  the container. Re-run it if it's needed.
+- **Here (cloud container):** nothing running. `r800+T240` finished and is `policies/tune-6.policy`.
 - **remote-server:** two jobs were sent by session message *before* the GitHub channel existed,
   with no confirmation back yet. Treat them as not done.
   - The jobs: clone `tune/runs` into `~/bc/tune`, build, run tests, then
@@ -127,17 +126,17 @@ Arena house bot metab-v3 (tune-3 scored 33 on 01hooks both sides and 0 on 01star
   - 51.4% (52.75 / 50.0, seeds 9021/9022), cambc80 43/80, every gauntlet opponent up.
   - Starvation vs Icecream / v7zg-cast / metab: 73 / 53 / 75% (tune-3: 52 / 48 / 50).
   - Stampede and shortcut improve; pilgrimage vs v7zg-cast 25% (tune-3 35%, 60 games).
-  - This passes the map-fix bar except the "lost both sides" check, which wasn't run for it.
+  - It fails the "lost both sides" check: it loses 00pilgrimage on both sides in cambc80.
 - Threat banking (tribute first if gems >= 10 and `group_threat(goal) >= T`), screen only:
   - T240: 53.75% all-map, 41/80, starvation +13..+32.
   - T180 is similar. T60/T120 cost about 5 points.
-  - `r800+T240` was being confirmed when this was written.
+  - `r800+T240` confirmed and passes the full map-fix bar (no map lost on both sides): that's tune-6.
 
 ## Open leads / next steps (in order)
 
 1. Agree the base with the coordinator (tune-5 vs tune-3 live).
-2. Re-base `r800` + T240 on tune-5 and confirm under the map-fix bar, including `lost_both_sides`.
-   Send it as a map fix.
+2. tune-6 = tune-3 + the two starvation fixes (sent as a map fix). Re-base the same two edits on tune-5
+   (`mono_fix.mono` + `threat_bank.threat_bank`) and confirm under the map-fix bar.
 3. Altar-count bag for hooks (`funsearch/altar_bag.py`): `keep bag_n = 25 - 15 * floor(k /
    (count(altars()) + 1))` gives bag 10 on 1-altar (k=2) or <= 2-altar (k=3) maps. Screen it alone
    and with the starvation fixes. The real evidence is the arena, not opp-metab.
