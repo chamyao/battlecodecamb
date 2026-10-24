@@ -402,7 +402,7 @@ Everything else in H17-H20 unchanged (--protect-islands 3 --fuel-islands 3 --isl
 
 ## Job H21 (2026-10-24 16:40 UTC, hybrid line session; per the FunSearch lead): screens cover every map
 Fold into H20's pending boundary if it has not fired (one pull), else the next boundary. Require funsearch/runs
-e0fd0c3 or later (contains 166f85c). Python only. Add to the relaunch (run args):
+694a4a3 or later (contains 166f85c). Python only. Add to the relaunch (run args):
 `--screen-maps cover --rescreen-top 3`
 Screens walk seeded shuffles of all 40 maps (same seed for every child, so parent/child stay comparable): v21's 96
 screen games now cover every map on both sides (+8 repeats) instead of ~28 maps drawn with replacement; 32-game
