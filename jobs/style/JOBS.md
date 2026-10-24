@@ -24,6 +24,17 @@ Islands (runs/style_launch.sh, budgets in runs/style_budgets: h 3.95, b 3.5, a 2
 - a/b/c bar and cambc-ref: policies/tune5-campreset.policy (the upload candidate); fixed tune5-reset,
   tune-5, opp-hunter2b/2a, v7zg-cast, fs-2.
 
+## Job S3 (07:35 UTC): islands a and c PAUSED, h gets their threads (lead)
+
+- Pause style8-a and style8-c: STOP files in runs/style8-a-g1/ and runs/style8-c-g1/, then SIGTERM
+  each league and its funsearch.run child by PID. Budgets stay in runs/style_budgets for later
+  (a $2.25, c $2.25 minus what they spent). Don't restart them until a job here says so.
+- Island h on funsearch/style 3d34e37 or later: --round 40 (validates every 40 programs), v18 in its
+  fixed opponents, extra directions in h_hunter.txt. Run it with its own threads:
+  `H_WORKERS=2 H_EVAL_THREADS=2 WORKERS=1 EVAL_THREADS=1 VAL_THREADS=3 sh runs/style_checkin.sh`
+  (restart h only: SIGTERM the h league and child by PID first; b keeps running).
+- Comment h's validation lines (and b's) on PR #3 at each boundary.
+
 ## EC2 resume (2026-10-24 ~06:10 UTC): for the EC2 worker (session_01Knzq5vzttJNCCzc9dRHHkQ)
 
 Compute moves from remote-server to EC2 (c7a.4xlarge, 16 threads). Order: style6-a (finish), then
