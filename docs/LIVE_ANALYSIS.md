@@ -83,3 +83,20 @@ On great_wall and shortcut it's self-inflicted. In v21/v24's policy (`tune-v21.p
 - **We** take `gemx3` only 1-6 times (14 once) and `gemx2` 1-8 times. We spend our captures on single gems (7 gems, 7-36 times), `wolfx2` (8 gems) and **pure gold groups worth 0 gems (5-13 times per game)**.
 
 The map is symmetric, so the rich groups are on our side too. Our camp goal is the *nearest* spawn (`goals = closest(camp spawns − ...)`), not the richest per turn. Sensing needed: `group_rate(Tile)` = gems ÷ (travel + kill + capture turns), with gold-only groups at 0.
+
+## 6. Loss causes across all ranked losses (v21, v22, v24; 75 losses)
+
+Labels come from `analysis/live_digest.py`. A loss can have several.
+
+| cause | share of losses |
+|---|---|
+| low yield (our gems per capture < 70% of theirs) | 59% |
+| fights (we die 2x+ as often to champions, 8+ deaths) | 51% |
+| 250+ gems lost on death | 35% |
+| slow start (their first tribute 60+ rounds earlier, and they lead at round 500) | 32% |
+| monolith (5+ deaths to monoliths) | 19% |
+| no bank (our first tribute after round 600) | 13% |
+
+The most common combinations are fights + low yield (10), slow start alone (7), low yield + slow start (6), and low yield alone (5).
+
+Latest batch (18:00): v24 lost 0-5 to cory. All 5 losses had low yield (their gems per capture were 1.6-2.8x ours), with 18 camp deaths on 00reverse_spiral and 40 champion deaths on 00fragment.
