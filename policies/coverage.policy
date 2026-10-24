@@ -84,7 +84,7 @@ let a1 = weakest(foes)
 let a1h = unit_health_frac(a1)
 let a2 = richest(foes)
 let a3 = nearest(allies)
-let probe_u = count(allies) + unit_health(a1) + unit_gems(a2) + count(foes) + unit_shield(a1) + unit_shield(a3) + unit_max_health(a1) + unit_strength(a3) + unit_focus(a1) + enemies_near(position(), 5) + allies_near(position(), 5) + strength_at(position(), 5) + threat_eta() + altar_eta() + retreat_eta() + group_contested(closest(camp_kinds)) + team_gems() + unseen_enemies_near(8, 20) + bank_detour(closest(camp_kinds)) + monolith_threat(position()) + monolith_threat(closest(monolith_tiles())) + count(altar_safe_tiles())
+let probe_u = count(allies) + unit_health(a1) + unit_gems(a2) + count(foes) + unit_shield(a1) + unit_shield(a3) + unit_max_health(a1) + unit_strength(a3) + unit_focus(a1) + enemies_near(position(), 5) + allies_near(position(), 5) + strength_at(position(), 5) + threat_eta() + altar_eta() + retreat_eta() + group_contested(closest(camp_kinds)) + team_gems() + unseen_enemies_near(8, 20) + bank_detour(closest(camp_kinds)) + monolith_threat(position()) + monolith_threat(closest(monolith_tiles())) + count(altar_safe_tiles()) + camp_threat(position()) + camp_threat(closest(camp_kinds))
 if unit_is(a1, champ_ryth()):
     buy(shard_of(family_power(), stat_strength()), 0)
 if unit_is(a3, champ_tavi()):

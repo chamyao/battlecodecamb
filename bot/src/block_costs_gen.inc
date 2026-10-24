@@ -18,6 +18,7 @@
 { "camp_count()", false, { 56960, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=36 mean=56 mae=0 (profile fuel)
 { "camp_spawn_tiles()", false, { 220720, 0, 1017, 0, 0, 0, 0, 42720, 0, 0 } }, // n=36 mean=3457 mae=0 (profile fuel)
 { "camps_visible()", false, { 416473, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=13458 mean=409 mae=177 (profile fuel)
+{ "camp_threat(Tile)", false, { 688430, 0, 0, 0, 0, 0, 0, 10433, 0, 0 } }, // provisional: as group_hp (camp scan), coordinator
 { "can_attack()", false, { 278697, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=20398 mean=274 mae=0 (profile fuel)
 { "can_move()", false, { 278697, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=20127 mean=274 mae=0 (profile fuel)
 { "capturable_spawns()", false, { 234279, 0, 0, 0, 0, 0, 0, 0, 136443, 0 } }, // n=17798 mean=3553 mae=57 (profile fuel)
