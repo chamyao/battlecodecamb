@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 15:05 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.50 13.89 12.96 on 16 threads.
+Updated 2026-10-24 15:11 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.74 14.16 13.34 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.4G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[13:51:39] hybrid: H8: funsearch/runs fb401ce (has f31c3a4, 896fb6b), rebuilt, 2022 passed in 5.88s; relaunching hyb5 (disengage axis; seeds v21,v21,v20,v19-L1c; --tune-children)
 [13:51:39] hybrid: hyb5 not running: relaunching (resume from runs/)
 [13:51:39] hybrid: launched hyb5 league
 [13:56:48] hybrid: H8b: SIGTERM hyb5 pid 101560 (drop --tune-* flags)
@@ -55,4 +54,5 @@ Disk: 3.4G used of 38G.
 [15:05:51] style: S10: at ec8c33d (has 34f261c), no rebuild; gconv relaunching below
 [15:05:51] style: S8: style8-gconv not running: relaunching (resumes)
 [15:05:51] style: S8: launched style8-gconv ($2.0 total)
+[15:10:59] style: S10 check: gconv relaunched: $1.76 left of $2.0
 ```
