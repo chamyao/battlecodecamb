@@ -698,6 +698,19 @@ public:
 	std::unique_ptr<OptionList> opts_buf = std::make_unique<OptionList>(); // reused by play_turn (24 KB: off the stack)
 	std::vector<Option> failed_buf; // options the engine refused this turn
 	KindFilter* filter = nullptr;			   // set by play_turn
+	// what the loop did this turn, by option kind (read by after() through acted / acted_tile)
+	bool acted_[16] = {};
+	Tile acted_tile_[16];
+	void reset_acted()
+	{
+		for (int k = 0; k < 16; ++k) acted_[k] = false, acted_tile_[k] = Tile{};
+	}
+	void note_acted(const Option& o)
+	{
+		if (o.kind > 0 && o.kind < 16) acted_[o.kind] = true, acted_tile_[o.kind] = o.tile;
+	}
+	bool acted(double k) const { return k > 0 && k < 16 && acted_[static_cast<int>(k)]; }
+	Tile acted_tile(double k) const { return k > 0 && k < 16 ? acted_tile_[static_cast<int>(k)] : Tile{}; }
 	// consider(kind), once per kind per pass; kinds it rejects are neither listed nor scored
 	bool want(int kind)
 	{
@@ -1064,6 +1077,7 @@ struct GenesBase : KindFilter
 	virtual ~GenesBase() = default;
 	virtual double score_option(const Option& o) = 0;
 	virtual void run_update() = 0;
+	virtual void run_after() {}
 	bool consider_kind(int) override { return true; }
 	bool has_consider() const override { return false; }
 	Ctx& X;
@@ -1107,6 +1121,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #endif
 	static const bool trace = GENOME_TRACE_ON || std::getenv("GENOME_TRACE");
 	X.new_pass();
+	X.reset_acted();
 	if (!draft) g.run_update();
 	int acted = 0;
 	for (int pass = 0; pass < max_passes; ++pass)
@@ -1142,12 +1157,17 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 			std::fprintf(GENOME_TRACE_OUT, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %d camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
 						 static_cast<int>(X.round()), X.api.team(), X.api.champ(), X.me_u().pos.x, X.me_u().pos.y, best->kind, bs, best->tile.x,
 						 best->tile.y, best->ukind, best->uh, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me_u().state, X.me_u().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist_raw(X.me_u().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
-		if (ok) ++acted;
+		if (ok) ++acted, X.note_acted(*best);
 		else failed.push_back(*best);
 		if (fuel_trace >= 0 && X.api.spent > fuel_trace)
 			std::fprintf(stderr, "@@FP r%d t%d c%d pass %d spent %lld kind %d ok %d options %d\n", static_cast<int>(X.round()), X.api.team(),
 						 X.api.champ(), pass, static_cast<long long>(X.api.spent), best->kind, ok ? 1 : 0, opts.size());
 		if (draft) break;
+	}
+	if (!draft)
+	{
+		X.new_pass(); // after() sees the state after this turn's actions
+		g.run_after();
 	}
 #ifdef GENOME_PROF
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) % 500 == 0)

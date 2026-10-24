@@ -131,6 +131,9 @@ PRIMS = {
     "write_shared": (("Num", "Num"), "None", "X.write_shared({0}, {1})"),
     # turn order (takes effect next round)
     "set_priority": (("Num",), "None", "X.set_priority({0})"),
+    # what the loop did this turn (for after(): e.g. announce a claim in shared memory)
+    "acted": (("Num",), "Bool", "X.acted({0})"),
+    "acted_tile": (("Num",), "Tile", "X.acted_tile({0})"),
     # draft
     "picked_by_us": (("Num",), "Bool", "X.picked(false, {0})"),
     "picked_by_them": (("Num",), "Bool", "X.picked(true, {0})"),
@@ -140,7 +143,8 @@ PRIMS = {
     "sqrt": (("Num",), "Num", "std::sqrt(std::max(0.0, {0}))"),
     "rand": (("Num",), "Num", "X.rand({0})"),
 }
-EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update()
+EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
+MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
 FIELDS = {
     "Unit": {"pos": ("Tile", "{0}.pos"), "health": ("Num", "double({0}.health)"),
@@ -273,6 +277,8 @@ def parse(source):
         raise GenomeError("score must be score(o: Option) -> Num")
     if "consider" in genes and ([t for _, t in genes["consider"].params] != ["Num"] or genes["consider"].ret != "Bool"):
         raise GenomeError("consider must be consider(kind: Num) -> Bool")
+    if "after" in genes and (genes["after"].params or genes["after"].ret != "None"):
+        raise GenomeError("after must be after() -> None")
     if "update" in genes and (genes["update"].params or genes["update"].ret != "None"):
         raise GenomeError("update must be update() -> None")
     g = Genome(genes, keeps, source)
@@ -387,8 +393,8 @@ class Checker:
             self.err(st, f"cannot assign to parameter {name}")
         t, c, ops = self.expr(value)
         if name in self.g.keeps:
-            if self.cur.name != "update":
-                self.err(st, f"keep {name} can only be assigned in update()")
+            if self.cur.name not in MEMORY_GENES:
+                self.err(st, f"keep {name} can only be assigned in update() or after()")
             kt = self.g.keeps[name][0]
             t = self.coerce(st, t, kt)
             self.cur.keep_writes.add(name)
@@ -546,7 +552,7 @@ class Checker:
             gene = self.g.genes[n]
             if [t for _, t in gene.params] != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(t for _, t in gene.params)})")
-            if n in ("score", "update", "consider"):
+            if n in ("score", "update", "consider", "after"):
                 self.err(e, f"entry gene {n} cannot be called")
             self.cur.calls.add(n)
             return gene.ret, f"{n}(" + ", ".join(c for _, c, _ in args) + ")", ops + 1
@@ -555,8 +561,8 @@ class Checker:
             if list(sig) != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(sig)})")
             if n in EFFECT_PRIMS:
-                if not effect_ok or self.cur.name != "update":
-                    self.err(e, f"{n} only as a statement in update()")
+                if not effect_ok or self.cur.name not in MEMORY_GENES:
+                    self.err(e, f"{n} only as a statement in update() or after()")
             if n == "write_shared":
                 off = e.args[0]
                 self.cur.shared_writes.add(str(int(off.value)) if isinstance(off, ast.Constant) else "*")
@@ -683,10 +689,11 @@ def to_cpp(genome):
         lines.append(f"\t{CPP[g.ret]} {n}({params});")
     for n in order:
         g = genome.genes[n]
-        if not g.params and g.ret != "None" and n != "update":
+        if not g.params and g.ret != "None" and n not in ("update", "after"):
             lines.append(f"\tstd::uint64_t stamp_{n} = ~0ull; {CPP[g.ret]} val_{n}{{}};")
     lines += ["\tdouble score_option(const Option& o) override { return score(o); }",
-              f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}"]
+              f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}",
+              f"\tvoid run_after() override {{ {'after();' if 'after' in genome.genes else ''} }}"]
     if "consider" in genome.genes:
         p = genome.genes["consider"].params[0][0]
         lines += ["\tbool consider_kind(int k) override { return consider(double(k)); }",
@@ -697,7 +704,7 @@ def to_cpp(genome):
         params = ", ".join(_param(p, t) for p, t in g.params)
         lines.append(f"// gene {g.id}: {g.desc.replace(chr(10), ' ')}")
         body = ch.cpp[n]
-        memo = not g.params and g.ret not in ("None",) and n != "update"
+        memo = not g.params and g.ret not in ("None",) and n not in ("update", "after")
         lines.append(f"{CPP[g.ret]} Genes::{n}({params}) {{")
         lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:

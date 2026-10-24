@@ -16,6 +16,7 @@ def danger_at(t: Tile) -> Num:
 ```
 
 - Entry genes: `score(o: Option) -> Num` (required): the value of doing option `o` now; the fixed loop does the best option while its score is > 0 (the draft always picks). `update() -> None` (optional): runs at the start of each turn; the only gene that may assign keeps or call `write_shared` / `set_priority`.
+- `after() -> None` (optional entry gene): runs at the end of each turn, after the loop's actions, with fresh observations. Like `update()`, it may assign keeps and call `write_shared` / `set_priority`. `acted(kind)` and `acted_tile(kind)` tell it what the loop did this turn (e.g. announce the camp it attacked, so allies acting later in the round see it). Shared bytes written in one gene and read in another are dependency edges, as calls are.
 - Keeps: `Num`, `Bool`, `Tile`, `Tiles`, `Field`. Use a Tiles/Field keep set in `update()` to compute an expensive set or distance field once per turn instead of once per pass (zero-argument genes are recomputed every pass of the loop).
 - Every gene has `@gene(id, description, parents=[...])`. IDs survive inheritance; a duplicated gene gets a new ID.
 - Statements: assignment (function-scoped locals, type fixed at first assignment), `+= -= *= /=`, `if/elif/else`, `for x in S` (S: Units, Tiles or `range(n)`), `return`.
@@ -113,6 +114,8 @@ def danger_at(t: Tile) -> Num:
 | `read_shared(Num)` | Num |
 | `write_shared(Num, Num)` | None |
 | `set_priority(Num)` | None |
+| `acted(Num)` | Bool |
+| `acted_tile(Num)` | Tile |
 | `picked_by_us(Num)` | Bool |
 | `picked_by_them(Num)` | Bool |
 | `abs(Num)` | Num |
