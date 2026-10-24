@@ -3,7 +3,7 @@
 cd "$(dirname "$0")/.." || exit 1
 [ -x interp/build/interp_eval ] || { cmake -S interp -B interp/build -DCMAKE_BUILD_TYPE=Release >/dev/null && cmake --build interp/build -j4 --target interp_eval >/dev/null; }
 python3 -c "import anthropic" 2>/dev/null || pip install -q anthropic
-for x in h b a c; do
+for x in h h2 b a c; do
   b=$(grep "^$x " runs/style_budgets 2>/dev/null | cut -d' ' -f2)
   [ -n "$b" ] || continue
   if ! pgrep -f "funsearch.league --name style8-$x " >/dev/null; then

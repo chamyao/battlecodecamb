@@ -1,6 +1,6 @@
 #!/bin/sh
 # STYLE line launcher: one resumable league per style island (state runs/style8-<x>.json).
-# usage: runs/style_launch.sh <a|b|c|h> <budget USD>
+# usage: runs/style_launch.sh <a|b|c|h|h2> <budget USD>
 # a/b/c: style islands vs the bar tune5-campreset (also the cambc-ref). h: hunter island, seeded with
 # opp-hunter2b and scored with a fight score (--fight-weight) against tune5-campreset, tune5-reset and tune-5.
 cd "$(dirname "$0")/.." || exit 1
@@ -10,13 +10,18 @@ case "$1" in
   a) dir=funsearch/styles/a_lockdown.txt; req=buy_altar_lock,place_altar_lock ;;
   b) dir=funsearch/styles/b_combat.txt; req=set_team_target,team_target ;;
   c) dir=funsearch/styles/c_monolith.txt; req=monolith_tiles,claim_count ;;
-  h) dir=funsearch/styles/h_hunter.txt; req=set_team_target ;;
-  *) echo "usage: $0 <a|b|c|h> <budget>"; exit 1 ;;
+  h|h2) dir=funsearch/styles/h_hunter.txt; req=set_team_target ;;
+  *) echo "usage: $0 <a|b|c|h|h2> <budget>"; exit 1 ;;
 esac
-if [ "$1" = h ]; then
+if [ "$1" = h ] || [ "$1" = h2 ]; then
   members=policies/opp-hunter2b.policy; best_w=0.5
   # H_FIGHT_WEIGHT (default 0.5); H_INJECT=policy paths added as parents (one island each, funsearch.run --inject)
   extra="--fight-weight ${H_FIGHT_WEIGHT:-0.5} --round 40${H_INJECT:+ --inject $H_INJECT}"
+  # h2: the stalled-h fallback (lead-approved): seed opp-hunter3, fight weight 0.7, stacking+sustain seed injected
+  if [ "$1" = h2 ]; then
+    members=policies/opp-hunter3.policy
+    extra="--fight-weight 0.7 --round 40 --inject policies/opp-hunter-stack.policy"
+  fi
   # island h may get more threads than the others: H_WORKERS / H_EVAL_THREADS / H_VAL_THREADS
   WORKERS=${H_WORKERS:-$WORKERS}; EVAL_THREADS=${H_EVAL_THREADS:-$EVAL_THREADS}; VAL_THREADS=${H_VAL_THREADS:-$VAL_THREADS}
   FIXED=policies/tune-v19.policy,policies/tune-v18.policy,$BAR,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy

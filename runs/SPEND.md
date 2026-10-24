@@ -25,3 +25,4 @@ cache reads counted at 0.1x input, which overstates Opus 5.5's real 0.05x, so th
 | 2026-10-24 | STYLE style5/style6 (Cham's machine; final style6 numbers lost, treated as sunk): style6 recorded $5.48 by 04:15 UTC, b and c exited at their $2.31 caps | — | ~6.9 | STYLE ~10 of $10 (line cap reached) |
 | 2026-10-24 | STYLE grant for style7: $2 (lead) + $10 (Cham raised the project cap to $200) = $12. Split h (hunter, fight score) 4.0 / b (combat micro) 3.5 / a 2.25 / c 2.25 | — | 0 | STYLE 0 of $12 |
 | 2026-10-24 | style7-{a,b,c}-g1 (old plan on 4f8ce7e, launched on EC2 before the hold; stopped 06:58 UTC, archived) — 8/7/5 programs | 20 | 0.04 | STYLE 0.04 of $12 |
+| 2026-10-24 | STYLE style8 re-split (11:30 UTC): island a's unspent $2.21 (spent $0.04, paused) moves to a new island h2 (hunter fallback: seed opp-hunter3, fight weight 0.7, opp-hunter-stack injected); h 3.95 (≈$3.75 spent, g2 stalled), b 3.5, c 2.25 (paused, $0.02 spent) | — | — | STYLE ≈$5.2 of $12 |
