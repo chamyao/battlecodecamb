@@ -253,3 +253,10 @@ At the next hyb5 round boundary (hold + SIGTERM by PID, as before):
    `--island-seeds policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/pool/v19-L1c.policy`
 3. Check runs/hyb5-g3.log: exactly two new lines `re-seeded island 2 with v20` and `re-seeded island 3 with v19-L1c`
    (islands 0/1 keep v21); new children log axis "disengage" among others.
+
+### H8 addendum (14:15 UTC): child constant hill-climb at the same boundary
+If H8 has not fired yet, apply this with it; otherwise at the following boundary. Require funsearch/runs 896fb6b or later
+(ancestor check; python only, no interp change beyond H8's) and add three flags to the relaunch:
+`--tune-children --tune-steps 6 --tune-games 12`
+Check: some new children in runs/hyb5-g3/programs.jsonl carry metrics.tuned. Each tuned child costs ~12 evaluations of ~135
+games (~4 min at --eval-threads 2); if rounds slow down by more than half, tell the hybrid session.
