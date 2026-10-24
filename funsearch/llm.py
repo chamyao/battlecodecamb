@@ -81,9 +81,13 @@ AXES = {
                   "from an altar; we submit 76% of the gems we capture (they 99%); we bank 18 times a game (they "
                   "26). Ranked, v21 is 30-35 and lost 0-5 to a lower-rated team in three close gem races: gems per capture 8.8 "
                   "vs their 12.9, tributes 17 vs 25 per game, and 4.4 of our deaths per game to camps. Close games are "
-                  "decided by capture yield and conversion, blowouts by pack fights. Levers: when and where gems are banked, bag size, the distance to an altar, routes while "
+                  "decided by capture yield and conversion, blowouts by pack fights. Across all 75 ranked losses of the "
+                  "live bot: low capture yield (our gems per capture under 70% of theirs) in 59%, fights in 51%, 250+ "
+                  "gems lost on death in 35%, a slow start in 32%, monolith deaths in 19%, no bank in 13%. On "
+                  "00lost_world the bot takes the nearest spawn (single gems, gold-only groups) instead of the gemx3 / "
+                  "gemx2 groups: about 350 vs 1000 gems. Levers: when and where gems are banked, bag size, the distance to an altar, routes while "
                   "carrying, which camp groups are taken, what happens to the bag when a fight starts, which camps are hit and with how many champions (gems per capture), "
-                  "camp HP vs our HP",
+                  "camp HP vs our HP, group_rate(spawn tile) and group_gems when choosing a camp group",
     "disengage": "LOW-HP SURVIVAL. Measured: once one of our champions is below 50% HP with an enemy within 5 it "
                  "dies 88% of the time (the top team 6%, similar teams 13-20%), gaining ~1 tile in 5 rounds. "
                  "Measured hand rules: walking away mid-fight at HP below 0.4-0.6 with an enemy within 5-6 scored "
