@@ -1,8 +1,7 @@
 """Run a benchmark/league job on one EC2 instance with no SSH, no S3 and no secrets on the box.
 
-Constraints of the account this was written for (Oct 2026): an SCP allows EC2 only in us-east-2,
-the IAM user may not create S3 buckets, read SSM public parameters or launch spot, and this cloud
-container cannot open outbound SSH. So:
+Written for an IAM user with EC2 rights but no S3 bucket creation or SSM parameter reads, driven
+from a cloud container that cannot open outbound SSH. So:
   code in:     the repo is public; user-data downloads the exact commit from codeload.github.com
                (no token anywhere).
   results out: the instance prints `FSB|`-prefixed lines to the serial console and we poll
@@ -18,8 +17,8 @@ import subprocess
 import time
 
 import boto3
+from botocore.exceptions import ClientError
 
-REGION = "us-east-2"
 UBUNTU = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"
 CANONICAL = "099720109477"
 REPO = "chamyao/battlecodecamb"
@@ -80,13 +79,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--job", default="bench", choices=sorted(JOBS))
     ap.add_argument("--type", default="c7a.4xlarge")
+    ap.add_argument("--region", default="us-east-1")
+    ap.add_argument("--wait-verification", type=int, default=0,
+                    help="minutes to keep retrying while a new account is PendingVerification")
     ap.add_argument("--rev", default="HEAD", help="must be pushed to GitHub")
     ap.add_argument("--max-minutes", type=int, default=85, help="instance self-terminates after this")
     ap.add_argument("--out", default="ec2_out.txt")
     args = ap.parse_args()
     rev = subprocess.run(["git", "rev-parse", args.rev], check=True, capture_output=True, text=True).stdout.strip()
 
-    ec2 = boto3.client("ec2", region_name=REGION)
+    ec2 = boto3.client("ec2", region_name=args.region)
     imgs = ec2.describe_images(Owners=[CANONICAL], Filters=[{"Name": "name", "Values": [UBUNTU]},
                                                             {"Name": "architecture", "Values": ["x86_64"]}])
     ami = max(imgs["Images"], key=lambda i: i["CreationDate"])["ImageId"]
@@ -96,14 +98,25 @@ def main():
                 BlockDeviceMappings=[{"DeviceName": "/dev/sda1",
                                       "Ebs": {"VolumeSize": 30, "VolumeType": "gp3", "DeleteOnTermination": True}}],
                 TagSpecifications=[{"ResourceType": "instance", "Tags": [{"Key": "Name", "Value": "funsearch-test"}]}])
-    market = "spot"
-    try:
-        r = ec2.run_instances(**spec, InstanceMarketOptions={"MarketType": "spot", "SpotOptions": {
-            "SpotInstanceType": "one-time", "InstanceInterruptionBehavior": "terminate"}})
-    except Exception as e:
-        print("spot failed, falling back to on-demand:", type(e).__name__)
-        market = "on-demand"
-        r = ec2.run_instances(**spec)
+    deadline = time.time() + args.wait_verification * 60
+    while True:
+        market = "spot"
+        try:
+            try:
+                r = ec2.run_instances(**spec, InstanceMarketOptions={"MarketType": "spot", "SpotOptions": {
+                    "SpotInstanceType": "one-time", "InstanceInterruptionBehavior": "terminate"}})
+            except ClientError as e:
+                if e.response["Error"]["Code"] == "PendingVerification":
+                    raise
+                print("spot failed, falling back to on-demand:", e.response["Error"]["Code"], flush=True)
+                market = "on-demand"
+                r = ec2.run_instances(**spec)
+            break
+        except ClientError as e:
+            if e.response["Error"]["Code"] != "PendingVerification" or time.time() > deadline:
+                raise
+            print(time.strftime("%H:%M:%S"), "account still PendingVerification; retrying in 2 min", flush=True)
+            time.sleep(120)
     iid = r["Instances"][0]["InstanceId"]
     t0 = time.time()
     lines = []
