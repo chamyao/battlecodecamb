@@ -11,3 +11,5 @@ seed tune5-campreset score 0.723 (islands [0, 1, 2, 3])
 [13] claude-opus-5-5 island 2: score 0.664 | best 0.745 (#11) $0.23 | 2555s
 [14] claude-haiku-5-5 island 3: error: TypeError: line 35: macro cast_on is a step; only a macro whose body is 'return  | best 0.745 (#11) $0.24 | 2583s
 [15] claude-haiku-5-5 island 1: score 0.470 | best 0.745 (#11) $0.24 | 2660s
+[16] claude-haiku-5-5 island 2: score 0.707 | best 0.745 (#11) $0.25 | 3046s
+[17] claude-haiku-5-5 island 0: error: TypeError: line 29: macro cast_on is a step; only a macro whose body is 'return  | best 0.745 (#11) $0.25 | 3070s
