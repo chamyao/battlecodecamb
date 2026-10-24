@@ -182,6 +182,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   18 = tune-r-all-v2 (`deploy/v0` c0024c8, sha256 46ce4da6...; ~07:27 UTC): campreset + monolith-group and
   starvation fixes (T240 gated at fuel > 65000) + no recall with an enemy within 8. Tune line's league 1725
   [1712-1737] vs campreset 1672 [1659-1683]; real cambc 40/80 vs campreset (information only), 0 capped turns.
+  19 = rall2-ca4-lean-g (`deploy/v0` 7ef15b2, sha256 a77fa4e3...; ~08:26 UTC): v18 + hybrid's cast-ahead (cheap
+  version) + low-health retreat dashes gated at fuel_remaining() > 60000 (the bot session traced the 100k caps of the
+  ungated versions to a long retreat on 01big-world; v18 has the same ungated retreat). League (hybrid, lean):
+  1711 [1694-1725] vs v18 1661; real cambc 51/80 vs v18, kills 8.2 vs 6.9, 0 capped turns, peak 89.8k.
+  v18 ranked: 10-10 in its first 20.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
