@@ -1143,40 +1143,8 @@ public:
 		return b.kind == 2 ? amount : incoming(b, amount, false);
 	}
 	double shield(const Unit& u) { return extra(SH_FUEL), fight_data(u).shield; }
-	// basic attacks of a that b survives before dying, plus one: shields absorb first, then health, hit by hit
-	// in float as the engine does (1e9 if a cannot hurt b)
-	double hits_to_kill(const Unit& a, const Unit& b)
-	{
-		PRIM_PROF_BEGIN;
-		last_work = {};
-		const long long f0 = fd_fetches_;
-		const double r = hits_to_kill_(a, b);
-		last_work.relax = fd_fetches_ - f0;
-		PRIM_PROF_END(6);
-		return r;
-	}
-	double hits_to_kill_(const Unit& a, const Unit& b)
-	{
-		const float d = static_cast<float>(attack_damage_(a, b));
-		if (!(d > 0)) return 1e9;
-		float sh = b.kind == 1 ? fight_data(b).shield : 0.0f, hp = b.health;
-		int n = 0;
-		while (hp > 0 && n < 100000)
-		{
-			float amount = d;
-			if (sh > 0)
-			{
-				if (sh > amount) sh -= amount, amount = 0;
-				else amount -= sh, sh = 0;
-			}
-			hp -= amount, ++n;
-		}
-		extra(HK_BASE + HK_HIT * n);
-		last_work.pops = n;
-		return n;
-	}
 	// fitted on cambc probes (FUEL.md): FD a champion's items and buffs read once per pass; the rest per call
-	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60, HK_BASE = 236, HK_HIT = 26;
+	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60;
 
 	// ---- raw unit reads (SDK coverage): the host's data as the SDK reports it, no judgement. Unit handles
 	// index per-pass caches; a unit out of vision reads as 0.
@@ -1373,11 +1341,108 @@ public:
 		const cbs::AltarLockRecord* l = lock_at(p);
 		return l && static_cast<int>(l->team) != api.team();
 	}
+	// visible wards (any team's): ally / enemy ward tiles, built once per pass
+	void load_wards()
+	{
+		if (wards_pass_ == pass_id)
+		{
+			extra(RW_WD_HIT);
+			return;
+		}
+		wards_pass_ = pass_id;
+		auto a = std::make_shared<Bitboard>(), e = std::make_shared<Bitboard>();
+		cbs::WardRecord w[32];
+		std::uint32_t n = 0;
+		api.wards(w, 32, &n);
+		for (std::uint32_t i = 0; i < n && i < 32; ++i) (static_cast<int>(w[i].team) == api.team() ? *a : *e).set(w[i].x, w[i].y);
+		ally_wards_ = { a }, enemy_wards_ = { e };
+		extra(RW_WD_FETCH);
+	}
+	std::uint64_t wards_pass_ = 0;
+	Tiles ally_wards_, enemy_wards_;
+	Tiles ally_wards() { return load_wards(), ally_wards_; }
+	Tiles enemy_wards() { return load_wards(), enemy_wards_; }
+	// my ward resources: charges ready, turns until the next charge; my placed ward (invalid if none)
+	double ward_res(bool cooldown)
+	{
+		cbs::WardResources r{};
+		api.champion_wards(self(), &r);
+		extra(RW_WR);
+		return cooldown ? r.cooldown : r.charges;
+	}
+	Tile my_ward()
+	{
+		Vec2 p[4];
+		std::uint32_t n = 0;
+		api.champion_ward_positions(self(), p, 4, &n);
+		extra(RW_WP);
+		return n ? Tile{ p[0].x, p[0].y } : Tile{};
+	}
+	// what a ward at t would see / a champion of type k standing at t would see
+	Tiles ward_sight(Tile t)
+	{
+		if (!in_bounds(t)) return { std::make_shared<Bitboard>() };
+		return extra(RW_WSIGHT), sdk_mask([&](Bitboard& b) { api.ward_vision(t.v(), b); });
+	}
+	Tiles sight(double k, Tile t)
+	{
+		if (!in_bounds(t) || k < 0 || k >= cbs::kNumChampionTypes) return { std::make_shared<Bitboard>() };
+		return extra(RW_SIGHT), sdk_mask([&](Bitboard& b) { api.hypothetical_vision(static_cast<std::int32_t>(k), t.v(), b); });
+	}
+	// a teleport in flight (visible destination): of champion u, its destination and turns left
+	const cbs::TeleportRecord* teleport_of(const Unit& u)
+	{
+		if (u.kind != 1) return nullptr;
+		if (tps_pass_ != pass_id)
+		{
+			tps_pass_ = pass_id;
+			ntps_ = 0;
+			api.teleports(tps_, 12, &ntps_);
+			ntps_ = std::min<std::uint32_t>(ntps_, 12);
+			extra(RW_TP_FETCH);
+		}
+		else extra(RW_TP_HIT);
+		for (std::uint32_t i = 0; i < ntps_; ++i)
+			if (tps_[i].champion == u.h) return &tps_[i];
+		return nullptr;
+	}
+	cbs::TeleportRecord tps_[12];
+	std::uint32_t ntps_ = 0;
+	std::uint64_t tps_pass_ = 0;
+	Tile teleport_dest(const Unit& u)
+	{
+		const cbs::TeleportRecord* t = teleport_of(u);
+		return t ? Tile{ t->dx, t->dy } : Tile{};
+	}
+	double teleport_left(const Unit& u)
+	{
+		const cbs::TeleportRecord* t = teleport_of(u);
+		return t ? t->timer : 0;
+	}
+	// a visible champion's turn priority this round; whether I may sell now
+	double priority(const Unit& u)
+	{
+		if (u.kind != 1) return 0;
+		std::int32_t p = 0;
+		if (api.champion_priority(u.h, false, &p) != Err::success) p = 0;
+		extra(RW_PRI);
+		return p;
+	}
+	bool can_sell()
+	{
+		std::int32_t v = 0;
+		api.champion_can_sell(self(), &v);
+		extra(RW_SELL);
+		return v != 0;
+	}
 	// fitted on cambc probes (calib5, FUEL.md), beyond the Api's price of the call: a call, a record's fetch
 	// (once per unit per pass), a cached read
 	static constexpr double RW_CD = 40, RW_GOLD = 21, RW_CH = 17, RW_GCD = 47, RW_CAMP_FETCH = 94, RW_CAMP_HIT = 63, RW_AB_FETCH = 73,
 							RW_AB_HIT = 45, RW_IT_FETCH = 206, RW_IT_HIT = 31, RW_BF_FETCH = 99, RW_BF_CAMP_FETCH = 90, RW_BF_HIT = 55,
 							RW_LK_FETCH = 38, RW_LK_HIT = 22;
+	// batch 2 (calib6)
+	static constexpr double RW_WD_FETCH = 1005, RW_WD_HIT = 61, RW_WR = 56, RW_WP = 53, RW_WSIGHT = 384, RW_SIGHT = 423, RW_TP_FETCH = 30,
+							RW_TP_HIT = 20, RW_PRI = 18, RW_SELL = 26;
 
 	// ---- abilities
 	const cbs::AbilityProps& props(int s)

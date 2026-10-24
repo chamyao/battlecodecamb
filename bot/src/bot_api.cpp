@@ -131,7 +131,6 @@ Err Api::champion_gems(std::uint32_t h, std::uint32_t* out) { return E(sdk_champ
 Err Api::champion_gold(std::uint32_t h, std::uint32_t* out) { return E(sdk_champion_gold(h, out)); }
 Err Api::champion_cooldown(std::uint32_t h, std::uint32_t slot, std::int32_t* out) { return E(sdk_champion_cooldown(h, slot, out)); }
 Err Api::champion_consumables(std::uint32_t h, std::uint32_t* out) { return E(sdk_champion_consumables(h, out)); }
-Err Api::champion_channel_time(std::uint32_t h, std::int32_t* out) { return E(sdk_champion_channel_time(h, out)); }
 Err Api::champion_ability_props(std::uint32_t h, std::uint32_t slot, AbilityProps* out)
 {
 	ability_props ap{};
@@ -193,12 +192,6 @@ Err Api::camp(std::uint32_t h, CampRecord* out)
 }
 Err Api::camp_state(std::uint32_t h, std::uint32_t* out) { return E(sdk_camp_state(h, out)); }
 Err Api::camp_group_state(std::uint32_t g, std::uint32_t* out) { return E(sdk_camp_group_state(g, out)); }
-Err Api::camp_group_cooldown(std::uint32_t g, std::int32_t* out) { return E(sdk_camp_group_cooldown(g, out)); }
-Err Api::camp_buffs(std::uint32_t h, CampBuffRecord* out, std::uint32_t cap, std::uint32_t* count)
-{
-	static_assert(sizeof(CampBuffRecord) == sizeof(camp_buff_data));
-	return E(sdk_camp_buffs(h, reinterpret_cast<camp_buff_data*>(out), cap, count));
-}
 Err Api::altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* count)
 {
 	static_assert(sizeof(AltarLockRecord) == sizeof(altar_lock_info));
