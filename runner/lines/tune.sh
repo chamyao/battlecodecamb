@@ -33,3 +33,29 @@ for n in C D D2 E F; do
   [ -f "runs/tune/$n.rc" ] && [ ! -f "runs/tune/$n.reported" ] && { log "job $n exited rc=$(cat runs/tune/$n.rc)"; touch "runs/tune/$n.reported"; }
 done
 push_state remote/tune remote/tune/runs/tune runs/tune
+
+# G (08:30 UTC, FunSearch lead approved $5): fight-block FunSearch seeded from tune-v18, branch tune/fs 9b3ecd5
+# (funsearch/style 3d34e37 + directive funsearch/styles/t_fight.txt + runs/tune_fs_launch.sh). Own clone, own build.
+G=/root/bc/tune-fs
+GREV=9b3ecd5
+if [ ! -f "$G/.setup-$GREV" ]; then
+  clone_nopush "$GREV" "$G" || { log "G: clone failed"; return 1; }
+  build "$G" || { log "G: build failed: $(tail -n 3 "$G/interp/build/build.log")"; return 1; }
+  touch "$G/.setup-$GREV"; log "G: tune/fs set up at $GREV"
+fi
+(
+  cd "$G" || exit 0
+  [ -f runs/tune-fight.done ] && exit 0
+  running "league --name tune-fight " && exit 0
+  if [ -f runs/tune-fight.launched ] && tail -n 1 runs/tune-fight.log 2>/dev/null | grep -q 'budget spent'; then
+    touch runs/tune-fight.done; log "G: tune-fight exited: $(tail -n 1 runs/tune-fight.log)"; exit 0
+  fi
+  [ -f runs/tune-fight.launched ] && log "G: tune-fight not running: relaunching (resumes)"
+  WORKERS=2 EVAL_THREADS=2 VAL_THREADS=3 setsid nohup sh runs/tune_fs_launch.sh 5 >> runs/tune-fight.out 2>&1 < /dev/null &
+  touch runs/tune-fight.launched; log "G: launched tune-fight (\$5)"
+)
+# state: the league log/json, each generation's programs/proposals and any promoted policies
+rm -rf /root/bc/tune-fs-snap && mkdir -p /root/bc/tune-fs-snap
+cp -a "$G"/runs/tune-fight* /root/bc/tune-fs-snap/ 2>/dev/null
+cp -a "$G"/policies/tune-fight-*.policy /root/bc/tune-fs-snap/ 2>/dev/null
+push_state remote/tune remote/tune/fs /root/bc/tune-fs-snap
