@@ -84,7 +84,9 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(slot_range, "slot_range(Num)") X(slot_radius, "slot_radius(Num)") X(slot_stun, "slot_stun(Num)")                                                                    \
 	X(unit_is, "unit_is(Unit,Champ)") X(unit_shield, "unit_shield(Unit)") X(unit_tributing, "unit_tributing(Unit)")                       \
 	X(unit_max_health, "unit_max_health(Unit)") X(unit_strength, "unit_strength(Unit)") X(unit_focus, "unit_focus(Unit)")     \
-	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)")
+	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)") \
+	X(threat_eta, "threat_eta()") X(altar_eta, "altar_eta()") X(retreat_eta, "retreat_eta()") X(enemy_between, "enemy_between(Tile)")   \
+	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)")
 
 enum class Op : std::uint16_t
 {
@@ -742,6 +744,28 @@ struct Interp
 		return api.champion(static_cast<std::uint32_t>(api.my_champion()), &ci) == Err::success;
 	}
 	std::uint32_t self() { return static_cast<std::uint32_t>(api.my_champion()); }
+
+	// Enemy sightings for unseen_enemies_near, refreshed only when that block runs (no cost to other policies).
+	struct Sighting
+	{
+		Vec2 pos{};
+		std::int64_t round = -1;
+	};
+	std::vector<std::pair<std::uint32_t, Sighting>> sightings;
+
+	// Visible living champions of one side with their info (allies include us).
+	template <class F> void each_champion(bool enemies, F f)
+	{
+		std::uint32_t ids[16], n = 0;
+		enemies ? api.enemies(ids, 16, &n) : api.allies(ids, 16, &n);
+		for (std::uint32_t i = 0; i < n && i < 16; ++i)
+		{
+			ChampionInfo ci{};
+			if (api.champion(ids[i], &ci) == Err::success && (ci.state & state_bit::alive)) f(ids[i], ci);
+		}
+	}
+	// Turns to cover d tiles at speed s (Chebyshev steps; walls ignored).
+	static double eta(double d, double s) { return d <= 0 ? 0 : std::ceil(d / std::max(1.0, s)); }
 
 	void print_state()
 	{
@@ -1924,6 +1948,101 @@ struct Interp
 			if (u.kind != EntityKind::champion || api.champion(u.h, &ci) != Err::success) return num(0);
 			const int pick = ci.type <= 3 ? ci.type : ci.type - 1; // as in i_am: Issac shares Cassi's pick
 			return num(pick == c);
+		}
+		case Op::threat_eta:
+		{
+			// fewest turns until a visible enemy champion could hit us: (Chebyshev distance - its attack range) / its speed,
+			// walls ignored; 1000 if none is visible
+			ChampionInfo me_{};
+			if (!me(me_)) return num(1000);
+			double best = 1000;
+			each_champion(true, [&](std::uint32_t, const ChampionInfo& ei) {
+				best = std::min(best, eta(cbs::chebyshev({ me_.x, me_.y }, { ei.x, ei.y }) - ei.attack_range, ei.move_speed));
+			});
+			return num(best);
+		}
+		case Op::altar_eta:
+		case Op::retreat_eta:
+		{
+			// turns to the nearest altar we can tribute at (adjacent, not enemy-locked) / to our spawn region, at our speed
+			ChampionInfo me_{};
+			if (!me(me_)) return num(1000);
+			const Vec2 p{ me_.x, me_.y };
+			int d = 1 << 20;
+			if (e.op == Op::altar_eta)
+			{
+				cbs::AltarLockRecord locks[16];
+				std::uint32_t n = 0;
+				api.altar_locks(locks, 16, &n);
+				m().altars.for_each_unordered(m().H, [&](int x, int y) {
+					for (std::uint32_t i = 0; i < n && i < 16; ++i)
+						if (locks[i].team != static_cast<std::uint32_t>(api.team()) && locks[i].x == x && locks[i].y == y) return;
+					d = std::min(d, std::max(0, cbs::chebyshev(p, { x, y }) - 1));
+				});
+			}
+			else
+				m().spawn_mask[api.team()].for_each_unordered(m().H, [&](int x, int y) { d = std::min(d, cbs::chebyshev(p, { x, y })); });
+			return num(d >= (1 << 20) ? 1000 : eta(d, me_.move_speed));
+		}
+		case Op::enemy_between:
+		{
+			// a visible enemy champion within 3 tiles of the straight segment from us to the tile
+			const Vec2 t = evalt(a[0]);
+			ChampionInfo me_{};
+			if (!has_tile(t) || !me(me_)) return num(0);
+			const double ax = me_.x, ay = me_.y, bx = t.x, by = t.y, L2 = (bx - ax) * (bx - ax) + (by - ay) * (by - ay);
+			bool hit = false;
+			each_champion(true, [&](std::uint32_t, const ChampionInfo& ei) {
+				const double u = L2 > 0 ? std::clamp(((ei.x - ax) * (bx - ax) + (ei.y - ay) * (by - ay)) / L2, 0.0, 1.0) : 0;
+				const double px = ax + u * (bx - ax), py = ay + u * (by - ay);
+				if (std::max(std::abs(ei.x - px), std::abs(ei.y - py)) <= 3) hit = true;
+			});
+			return num(hit);
+		}
+		case Op::group_contested:
+		{
+			// visible enemy champions closer (Chebyshev) to the tile than we are
+			const Vec2 t = evalt(a[0]);
+			ChampionInfo me_{};
+			if (!has_tile(t) || !me(me_)) return num(0);
+			const int dm = cbs::chebyshev({ me_.x, me_.y }, t);
+			int c = 0;
+			each_champion(true, [&](std::uint32_t, const ChampionInfo& ei) { c += cbs::chebyshev({ ei.x, ei.y }, t) < dm; });
+			return num(c);
+		}
+		case Op::team_gems:
+		{
+			// gems carried by our living champions (us included)
+			double g = 0;
+			each_champion(false, [&](std::uint32_t id, const ChampionInfo&) {
+				std::uint32_t v = 0;
+				api.champion_gems(id, &v);
+				g += v;
+			});
+			return num(g);
+		}
+		case Op::unseen_enemies_near:
+		{
+			// enemies not visible now but seen within the last `age` rounds within r of us, as remembered by this
+			// champion's interpreter; sightings are recorded each time this block runs
+			const double r = evaln(a[0]), age = evaln(a[1]);
+			ChampionInfo me_{};
+			if (!me(me_)) return num(0);
+			std::uint32_t now = 0;
+			api.round_number(&now);
+			std::vector<std::uint32_t> seen;
+			each_champion(true, [&](std::uint32_t id, const ChampionInfo& ei) {
+				seen.push_back(id);
+				auto it = std::find_if(sightings.begin(), sightings.end(), [&](const auto& s) { return s.first == id; });
+				if (it == sightings.end()) sightings.push_back({ id, { { ei.x, ei.y }, now } });
+				else it->second = { { ei.x, ei.y }, now };
+			});
+			int c = 0;
+			for (const auto& [id, s] : sightings)
+				if (std::find(seen.begin(), seen.end(), id) == seen.end() && now - s.round <= age &&
+					cbs::chebyshev({ me_.x, me_.y }, s.pos) <= r)
+					++c;
+			return num(c);
 		}
 		case Op::unit_max_health:
 		case Op::unit_strength:
