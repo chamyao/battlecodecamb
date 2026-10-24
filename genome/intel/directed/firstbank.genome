@@ -1,5 +1,9 @@
-"""Directed child (intel, GAPS.md #3 capture yield) of the seed genome v23. Edits: v2, m11; new gene i5, keep GEM_BASE.
-Real games: 31 of our 75 captures per game are gold-only groups (0 gems); ours pay 10.2 gems, theirs 15.3.
+"""Directed child (intel, GAPS.md #4 slow first bank: our first tribute at round 230, theirs 127). Edits on top of
+commit: r11.
+Built on commit (GAPS.md #1). commit: directed child (intel, GAPS.md #1 stuck carriers) of the seed genome v23. Edits: v2, r10, r18; new keeps
+LAST_RULE, LAST_GOAL, BANKING. Real games: 2-cycle walking in 12 of 35 losses (109 champion-rounds per loss,
+mean bag 31); the sim shows the same (67 rounds per game): the bank-walk goal flips between tiles, and bank/camp
+walks alternate when the bag threshold flips with the tile.
 
 Seed genome: the live ladder policy style-gconv1 (v23, policies/candidates/style-gconv1.policy) as genes.
 
@@ -34,13 +38,15 @@ SAFE_RING: Tiles = None
 MONO_GROUPS: Tiles = None
 TERRAIN: Tiles = None   # walls, holes, altars, enemy spawn
 CAMP_BASE: Tiles = None # camp spawns outside monolith/golem groups
-GEM_BASE: Tiles = None  # CAMP_BASE tiles of groups that pay gems (intel)
 BIG_CAMPS: Tiles = None # monolith and golem spawns
 SK0: Num = 0            # ability kind of slot 0
 SK1: Num = 0            # ability kind of slot 1
 BLOCK: Tiles = None     # this turn: tiles I cannot step onto (computed at turn start)
 FIELD: Field = None     # this turn: walking field to GOAL, out to my tile
 OPEN: Bool = False      # this turn: GOAL can be walked to
+LAST_RULE: Num = 0      # last turn's rule (intel: hysteresis)
+LAST_GOAL: Tile = None  # last turn's walk goal
+BANKING: Bool = False   # last turn walked to an altar to bank
 
 # ---------------------------------------------------------------- entry genes
 
@@ -84,7 +90,7 @@ def consider(k: Num) -> Bool:
     return False
 
 
-@gene("v2", "start of turn: choose the rule, its goal and target; shared-memory and priority writes (intel: also the gem-paying camp set, once per game)", parents=["v2"])
+@gene("v2", "start of turn: choose the rule, its goal and target; shared-memory and priority writes (intel: a bank walk keeps last turn's goal while the rule holds)", parents=["v2"])
 def update() -> None:
     if not MAPPED:
         ALTAR_RING = altar_ring()
@@ -93,18 +99,26 @@ def update() -> None:
         TERRAIN = walls() | holes() | altars() | enemy_spawn()
         BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
         CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
-        GEM_BASE = CAMP_BASE & gem_groups()
         SK0 = slot_kind(0)
         SK1 = slot_kind(1)
         MAPPED = True
     RULE = rule()
     GOAL = rule_goal()
+    if RULE == LAST_RULE and (RULE == 11 or RULE == 12 or RULE == 18) and valid(LAST_GOAL) and LAST_GOAL != here() and not (LAST_GOAL in taken()):
+        GOAL = LAST_GOAL
     TGT = rule_target()
     OPEN = False
     if walks() and valid(GOAL) and GOAL != here():
         BLOCK = blocked()
         OPEN = walk_open()
         FIELD = walk_field()
+        if at(FIELD, here()) >= 100000000 and GOAL == LAST_GOAL:
+            GOAL = rule_goal()
+            OPEN = walk_open()
+            FIELD = walk_field()
+    LAST_RULE = RULE
+    LAST_GOAL = GOAL
+    BANKING = RULE == 11 or RULE == 12 or RULE == 13
     LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
     if LOCK_BUY:
         write_shared(7, read_shared(7) + 2)
@@ -281,15 +295,15 @@ def r_prefight() -> Bool:
     return gems() >= 5 and threat_eta() <= 2 and valid(adj_altar())
 
 
-@gene("r10", "bank now: carrying gems and the bag is ready")
+@gene("r10", "bank now: carrying gems and the bag is ready, or last turn already walked to bank (intel: hysteresis)", parents=["r10"])
 def bank_on() -> Bool:
-    return gems() > 0 and bag_ready()
+    return gems() > 0 and (bag_ready() or BANKING)
 
 
-@gene("r11", "bag ready: 15+, or 10+ with an altar 3 turns away or a threat near, or late, or hurt")
+@gene("r11", "bag ready: 15+, or 10+ with an altar 3 turns away or a threat near, or late, or hurt; 8+ while the team has banked nothing (intel GAPS #4)", parents=["r11"])
 def bag_ready() -> Bool:
     g = gems()
-    return g >= 15 or (g >= 10 and altar_eta() <= 3) or (g >= 10 and threat_near()) or round() > 1500 or hurt_below(0.3)
+    return g >= 15 or (g >= 10 and altar_eta() <= 3) or (g >= 10 and threat_near()) or round() > 1500 or hurt_below(0.3) or (g >= 8 and team_gems() == 0)
 
 
 @gene("r12", "threat near: an enemy champion within 5 or able to hit us within 3 turns")
@@ -324,10 +338,10 @@ def r_bankgroup() -> Bool:
     return valid(g) and gems() >= 10 and group_threat(g) >= 240 and fuel() > 65000
 
 
-@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem)")
+@gene("r18", "on a dead camp of an uncleared group, or already walking to a living camp: walk to the nearest living camp (not monolith or golem) (intel: hysteresis)", parents=["r18"])
 def r_live() -> Bool:
     c = live_camp()
-    return dist(camp_goal(), here()) == 0 and exists(c) and not (c.pos in BIG_CAMPS)
+    return (dist(camp_goal(), here()) == 0 or LAST_RULE == 19) and exists(c) and not (c.pos in BIG_CAMPS)
 
 # ---------------------------------------------------------------- option values
 
@@ -631,22 +645,9 @@ def respawning() -> Tiles:
     return acc
 
 
-@gene("m11", "the camp walk's goal: nearest spawn of a live group that pays gems, else of any live group; no monolith or golem groups (intel: gold-only groups were taken as readily)", parents=["m11"])
+@gene("m11", "the camp walk's goal: nearest spawn of a live group, no monolith or golem groups")
 def camp_goal() -> Tile:
-    r = respawning()
-    t = closest(GEM_BASE - r)
-    if valid(t):
-        return t
-    return closest(CAMP_BASE - r)
-
-
-@gene("i5", "spawn tiles of every group whose reward has gems (intel GAPS #3)", parents=["m8"])
-def gem_groups() -> Tiles:
-    acc = camp_spawns() - camp_spawns()
-    for g in range(num_groups()):
-        if group_gems(g) > 0:
-            acc = acc | group_tiles(g)
-    return acc
+    return closest(CAMP_BASE - respawning())
 
 
 @gene("m12", "bank walk: an open safe altar, else any safe altar, else any altar")

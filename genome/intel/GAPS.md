@@ -41,7 +41,7 @@ Each item is written so a mutation prompt can quote it: `gap | evidence | genes 
      but 31 ± 7 per game pay 0 gems. Low yield (under 70% of theirs) is in 49% ± 8 of losses.
    - Genes: `m11` camp_goal (nearest live spawn), `v2` CAMP_BASE, `s12` group_threat, `r17` r_bankgroup.
    - Sim metric: `per_capture`; the seed scores 10.9.
-   - Directed child: `directed/gem-groups.genome` (14.4 per capture, 61 captures, neutral win rate in the sim).
+   - Tried: a gem-groups child (14.4 per capture, 61 captures, neutral win rate in the sim); dropped.
    - A reward-per-turn group choice costs too much fuel if it scans every group each turn: 1,300-2,300
      suspensions per game, measured.
 
@@ -89,7 +89,10 @@ All compile (`python3 -m genome.build`) and run (`genome_eval`). Win rate is sid
 | `mono-spare` | 7 monolith | s14, r14, r13, a0 (i1) | 0.540 | 0.537 | great-wall camp deaths 31.6 → 20.1, self-play monolith deaths 52 → 6; boss-battle worse (0.45 → 0.35, 20 games) |
 | `mono-pack` | 7 monolith | s14, r14, r13, a0 (i2) | 0.542 | 0.500 | as mono-spare, but monolith groups are allowed with both allies within 5 (boss-battle 0.50) |
 | `commit-mono` | 1 + 7 | commit + mono-spare (disjoint genes) | 0.577 (800, seeds 91001-2) | 0.550 | gate set below |
-| `gem-groups` | 3 yield | v2, m11 (i5, keep GEM_BASE) | 0.492 | 0.487 | per capture 10.9 → 14.4, captures 81 → 61 |
+| `firstbank` | 4 slow first bank | commit + r11 (bank 8+ while the team has banked nothing) | 0.565 (seed 92001; commit 0.537 on the same games) | 0.475 vs commit | tributes 41.9 → 42.6 |
+
+Dropped: `gem-groups` (gap 3; neutral, 0.492 / 0.487, fuel risk). Rejected after testing (in `rejected/`): `cashout`
+(gap 2, −19 points vs commit) and `lockfree` (gap 6, neutral; commit already scores 0.725 vs stress/lockall).
 
 Reference: the seed itself scores 0.507 against the original.
 
