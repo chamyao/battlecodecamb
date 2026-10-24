@@ -118,6 +118,26 @@ EOF2
     log "g6 build switch: moved to funsearch/pure $(git rev-parse --short HEAD) (lockfix); g6 restarts on the new build"
   fi
 fi
+# One-shot (pure line, 14:30 UTC, asked by Cham): restart the league on TUNE_REV (per-child hill-climb, helpers-pure,
+# league tuning stage). The current generation RESUMES from runs/ (no state edits); only in-flight programs are lost.
+TUNE_REV=f27e0e2
+if [ "$phase" = g4 ] && [ -f runs/ec2-g6build ] && [ ! -f runs/ec2-tune ]; then
+  gen=$(python3 -c "import json; print(json.load(open('runs/pure4.json'))['gen'])")
+  if running "league --name pure4"; then
+    [ -f "runs/pure4-g$gen/STOP" ] || { touch "runs/pure4-g$gen/STOP"; log "tune restart: STOP requested (gen $gen)"; }
+    push_state remote/pure remote/pure/runs runs; return 0
+  fi
+  rm -f "runs/pure4-g$gen/STOP"
+  rm -rf /root/bc/pure-runs-save && cp -a runs /root/bc/pure-runs-save &&
+    git fetch -q origin funsearch/pure && git checkout -q -f "$TUNE_REV" &&
+    rm -rf runs && cp -a /root/bc/pure-runs-save runs &&
+    git checkout -q "$TUNE_REV" -- runs/pure_launch.sh ||
+    { halt "tune restart: checkout failed"; return 1; }
+  build "$D" || { log "tune restart build failed"; return 1; }
+  wc -l < runs/pure4.log > runs/ec2-resume-mark; rm -f runs/ec2-resume-checked
+  touch runs/ec2-tune; mark=$(cat runs/ec2-resume-mark)
+  log "tune restart: moved to funsearch/pure $(git rev-parse --short HEAD); gen $gen resumes"
+fi
 if ! running "league --name pure4"; then
   if [ "$phase" = g3 ] && [ -f runs/ec2-launched ] && newlog | grep -q 'PROMOTED fs-p3' &&
      python3 -c "import json,sys; sys.exit(json.load(open('runs/pure4.json'))['gen'] != 4)"; then
