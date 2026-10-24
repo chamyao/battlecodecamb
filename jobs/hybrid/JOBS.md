@@ -152,7 +152,7 @@ hyb-t5m-rich15d6f). Changes, in order:
    grep -qx policies/tune5-campreset.policy runs/hyb4.challengers || echo policies/tune5-campreset.policy >> runs/hyb4.challengers
    ```
    tune5-campreset replaces tune5-reset: do not add tune5-reset.
-3. **At the g4 boundary only (optional, better prompt):** STOP, `git pull origin funsearch/runs` (ff56f90 or later,
+3. **At the g4 boundary only (optional, better prompt):** STOP, `git pull origin funsearch/runs` (aa032ba or later: costed slot_* blocks + combat prompt;
    never 9ef3d8b alone), REBUILD interp_eval (op codes changed: `cmake -S interp -B interp/build
    -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j --target interp_eval`), `python3 -m pytest -q tests`,
    relaunch with the same command line (--budget 29.47).
