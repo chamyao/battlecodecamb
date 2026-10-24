@@ -16,6 +16,11 @@ mkdir -p /root/bc/status
 {
   echo "# EC2 runner status"
   echo
+  echo
+  echo "**FINAL (17:58 UTC 2026-10-24): all FunSearch work moved to the arena; nothing runs here.** All lines confirmed:"
+  echo "hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;"
+  echo "pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call."
+  echo
   echo "Updated $(date -u '+%Y-%m-%d %H:%M') UTC. Instance up since $(uptime -s) (UTC); load: $(cut -d' ' -f1-3 /proc/loadavg) on $(nproc) threads."
   echo "Disk: $(df -h / | awk 'NR==2{print $3" used of "$2}')."
   echo
