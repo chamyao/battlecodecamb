@@ -35,6 +35,19 @@ Islands (runs/style_launch.sh, budgets in runs/style_budgets: h 3.95, b 3.5, a 2
   (restart h only: SIGTERM the h league and child by PID first; b keeps running).
 - Comment h's validation lines (and b's) on PR #3 at each boundary.
 
+## Job S13 (16:20 UTC): gyield's reference becomes v23 (= style-gconv1) at its NEXT restart only
+
+style-gconv1 is live as ladder v23. Do not restart gyield for this; when it next restarts (runner restart, crash or a
+later job), relaunch it with the live bot as gap reference and heaviest opponent:
+```
+GAP_REF=policies/style-gconv1.policy \
+GAP_OPPONENTS="builtin:starter@0.25,policies/style-gconv1.policy@3,policies/tune-v21.policy,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gyield 1.27 \
+  conversion:max:0.05,gems_per_capture:max:3 policies/style-gconv1.policy funsearch/styles/g_conversion.txt \
+  >> runs/style8-gyield.out 2>&1 &
+```
+Same run name and total (recorded spend carries over). Its first lines then show the gap baselines measured on v23.
+
 ## Job S12 (16:05 UTC): gconv -> gyield (two-term gap), and b -> b2 (bar v21) after b's boundary verdict
 
 On funsearch/style 983462f or later (deploy/v0 ec9778c group_rate + v22 fix; rebuild interp_eval, configure first;
