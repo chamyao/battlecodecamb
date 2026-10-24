@@ -154,7 +154,8 @@ class Arena:
         return self.specs[m["name"]]
 
     def _add_anchor(self, name, path, rating=None, source=None):
-        m = {"name": name, "kind": "anchor", "path": str(Path(path).resolve()), "mu": MU0, "sigma": SIGMA0,
+        # fixed anchors: absolute paths in the checkout; champions: relative to the output directory
+        m = {"name": name, "kind": "anchor", "path": str(Path(path).resolve()) if source is None else path, "mu": MU0, "sigma": SIGMA0,
              "games": 0, "wins": 0, "alive": True, "born": self.s["births"], "species": None, "parents": [],
              "fingerprint": None, "source": source}
         if rating:
@@ -411,7 +412,7 @@ class Arena:
             if not any(m.get("source") == top["name"] for m in self.anchors()):
                 path = self.out / "genomes" / f"{name}.genome"
                 path.write_text((self.out / top["path"]).read_text())
-                self._add_anchor(name, str(path), (top["mu"], top["sigma"]), source=top["name"])
+                self._add_anchor(name, f"genomes/{name}.genome", (top["mu"], top["sigma"]), source=top["name"])
                 self.log(f"champion anchor {name} (mu {top['mu']:.1f})")
         if b % self.a.summary_every == 0:
             self.summary()
@@ -642,8 +643,29 @@ def main(argv=None):
     ap.add_argument("--tail-matches", type=int, default=200, help="matches played after the budget runs out")
     ap.add_argument("--intel-branch", default="")
     ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
+    ap.add_argument("--resume-from", default="", help="an earlier arena output directory (e.g. the last pushed "
+                                                      "remote/genome copy of a died job): copied into --out to resume")
     args = ap.parse_args(argv)
+    out = Path(args.out)
+    if args.resume_from and not (out / "state.json").exists():
+        import shutil
+        shutil.copytree(args.resume_from, out, dirs_exist_ok=True)
+        # paths in state.json are relative to the output directory, except anchors (absolute, in the checkout)
+        st = json.loads((out / "state.json").read_text())
+        for m in st["members"].values():
+            if m["kind"] == "anchor" and m.get("source") is None:
+                m["path"] = _rebase(m["path"])
+            elif m["kind"] == "anchor":
+                m["path"] = f"genomes/{Path(m['path']).name}"
+        (out / "state.json").write_text(json.dumps(st))
     Arena(args).run()
+
+
+def _rebase(path):
+    """An absolute path from another checkout -> the same repository-relative path in this one."""
+    parts = Path(path).parts
+    i = parts.index("policies") if "policies" in parts else len(parts) - 1
+    return str(ROOT.joinpath(*parts[i:]))
 
 
 if __name__ == "__main__":
