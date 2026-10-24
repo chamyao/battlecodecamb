@@ -5,8 +5,8 @@ first. This line reports to the FunSearch lead (session_01YJxccSM2xmnTtoiFjrAzf3
 
 **Channels (since 17:30 UTC, Cham):** simulator matches, batches and leagues go through the **arena**
 (`docs/REMOTE_WORKER.md` on `main` 1983be7; `$ARENA_URL/docs`), with `X-Arena-Client: hybrid` and the
-deploy/v0 engine sha `545c7b1e644b1e5c82ba07b3a8aa8945ab2dc190` (not the default). Candidates are registered
-under immutable names and join the `main` league (`league add main <name>`) when they would be sent; standings
+deploy/v0 engine sha `2e1ff7edfe75d21b3eee24f60144e04bea8f7b8c` (fuel recalibrated; 545c7b1 under-charged by 1-4k, do not compare across engines) (not the default). Candidates are registered
+under immutable names and join the `main2` league (`league add main2 <name>`) when they would be sent; standings
 go on PR #5. The old `remote/hybrid` -> `jobs/hybrid` PR channel and `jobs/hybrid/JOBS.md` are retired for
 anything the arena covers. FunSearch runs on the arena need a hybrid token from Cham (never commit or message it).
 Verdicts still go on PR #1.
@@ -48,7 +48,7 @@ v7-zerogem -> v7zg-cast (#14 graft) -> tune-1 -> tune-2 -> tune-3.
 - **Candidate checks** (any FLAG or promotion): the 80-game all-maps fights.py check vs v21 (win, gems
   submitted, gems/capture, captures, tributes, camp deaths, out/out2 shares), `funsearch.evaluate.fuel_check`
   (big-world + ambush, --enforce --bot-seeds), the required pool league, conversion. From now on run the
-  matches/leagues on the arena (engine 545c7b1).
+  matches/leagues on the arena (engine 2e1ff7e).
 - **Measured dead ends tonight:** the #82/#76 line (teleport + altar dashes: +2.9 gems/capture but 64 vs 82
   captures, submitted gems level with v21); per-child constant climb (noise); island-3 fuel fitness (fixed
   fuel, kept the low volume).
