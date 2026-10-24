@@ -177,6 +177,11 @@ _b("group_tiles", "TileSet", "TileSet")
 _b("group_gems", "TileSet", "Num")
 _b("group_threat", "Tile", "Num")
 _b("group_hp", "Tile", "Num")
+_b("slot_range", "Num", "Num")
+_b("slot_radius", "Num", "Num")
+_b("slot_stun", "Num", "Num")
+_b("unit_is", "Unit Champ", "Bool")
+_b("unit_shield", "Unit", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)

@@ -335,6 +335,7 @@ void Game::damage_champion(int target, const Hit& hit)
 			t.buffs.remove(best);
 		}
 	}
+	if (hit.src_champ >= 0 && champs[hit.src_champ].team != t.team) teams[champs[hit.src_champ].team].champ_damage += amount;
 	t.hp -= amount;
 	interrupt_channel(t, true);
 	// Ren retaliation (also as he dies).
@@ -399,6 +400,8 @@ void Game::kill_champion(int target, int killer)
 	};
 	die(t);
 	if (t.partner >= 0) die(champs[t.partner]);
+	teams[t.team].deaths++;
+	if (killer >= 0 && champs[killer].team != t.team) teams[t.team].gems_lost_to_champs += gems;
 	check_capture_regions();
 	if (killer >= 0 && champs[killer].team != t.team)
 	{

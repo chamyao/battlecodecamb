@@ -43,7 +43,7 @@ let camp_kinds = union( union( union( wolf_tiles(), elk_tiles() ), union( gem_cl
 # ---- calibration probes (results mostly unused) ----
 let r = round_number()
 let f = fuel_remaining()
-let probe_n = count(terrain) + count(camp_kinds) + claim_count(position()) + allies_within(5) + turns_idle() + strength() + focus() + enemies_within(5) + local_strength(5) + count(rich_spawns(15)) + count(group_tiles(monolith_tiles())) + count(capturable_spawns()) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy()) + group_gems(camp_kinds) + group_threat(closest(camp_kinds)) + group_hp(closest(elk_tiles())) + group_threat(position())
+let probe_n = count(terrain) + count(camp_kinds) + claim_count(position()) + allies_within(5) + turns_idle() + strength() + focus() + enemies_within(5) + local_strength(5) + count(rich_spawns(15)) + count(group_tiles(monolith_tiles())) + count(capturable_spawns()) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy()) + group_gems(camp_kinds) + group_threat(closest(camp_kinds)) + group_hp(closest(elk_tiles())) + group_threat(position()) + slot_range(0) + slot_radius(1) + slot_stun(0) + slot_stun(1)
 if i_am_ranged():
     set_priority(1)
 if in_danger():
@@ -84,7 +84,11 @@ let a1 = weakest(foes)
 let a1h = unit_health_frac(a1)
 let a2 = richest(foes)
 let a3 = nearest(allies)
-let probe_u = count(allies) + unit_health(a1) + unit_gems(a2) + count(foes)
+let probe_u = count(allies) + unit_health(a1) + unit_gems(a2) + count(foes) + unit_shield(a1) + unit_shield(a3)
+if unit_is(a1, champ_ryth()):
+    buy(shard_of(family_power(), stat_strength()), 0)
+if unit_is(a3, champ_tavi()):
+    buy(shard_of(family_power(), stat_strength()), 0)
 let tt = team_target()
 let claimed = claimed_by_allies()
 let st = random_stat()
