@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 12:54 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.27 13.52 12.79 on 16 threads.
+Updated 2026-10-24 12:59 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.58 14.07 13.28 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -11,15 +11,10 @@ Disk: 3.3G used of 38G.
 75545 python3 -m funsearch.league --name style8-h2 --budget 2.2 --members policies/opp-hunter3.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v20.policy,policies/tune-v19.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/
 85991 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.52 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-fight-2s.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,poli
 86583 /usr/bin/python3 -m funsearch.run --run style8-h2-g1 --budget 1.53 --max-programs 40 --seed-policy policies/opp-hunter3.policy --opponents builtin:starter@0.25,policies/opp-hunter3.policy@0.5,policies/tune-v20.policy,policies/tune-v19.policy,policies/tune5-campreset.policy,policies/tune5-reset
-88382 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
+90564 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
 ```
 ## tick.log (last 40 lines)
 ```
-[10:23:16] tune: G2: stopped tune-fight pid 35865
-[10:23:16] tune: G2: stopped tune-fight pid 46966
-[10:23:16] tune: G2: tune/fs at de5dc62
-[10:23:16] tune: G2: launched tune-fight2 ($2.25)
-[10:48:59] hybrid: H4: hold set for the next hyb5 boundary
 [11:04:30] hybrid: H4: SIGTERM hyb5 pid 37632
 [11:04:46] hybrid: H4: funsearch/runs 4a08ddb (has 8c5b4e4), rebuilt, 2012 passed in 5.90s; relaunching hyb5 retuned
 [11:04:46] hybrid: hyb5 not running: relaunching (resume from runs/)
@@ -55,4 +50,9 @@ Disk: 3.3G used of 38G.
 [12:48:58] hybrid: hyb5 not running: relaunching (resume from runs/)
 [12:48:58] hybrid: launched hyb5 league
 [12:54:08] hybrid: H7b check: hyb5-g2: +0 programs to the next boundary (30 so far) best policies/pool/v20.policy $20.13 left
+[12:59:16] hybrid: H7c: SIGTERM hyb5 pid 88382
+21
+[12:59:31] hybrid: H7c: removed 21 stale-build validation cache entries (expected 21; backup validation_cache.jsonl.pre-h7c); relaunching hyb5
+[12:59:31] hybrid: hyb5 not running: relaunching (resume from runs/)
+[12:59:31] hybrid: launched hyb5 league
 ```
