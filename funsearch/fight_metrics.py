@@ -1,6 +1,7 @@
 """TOP_TEAMS metrics (docs/TOP_TEAMS.md on analysis/sprint1) from GAME_EVENTS: per game for policy A, deaths, deaths to
 champions, kills of enemy champions, gems lost dying, recalls started, recalls cut by damage, and deaths within 5
-rounds of a recall start (mid-recall deaths; 23% of tune-5's ladder deaths to the top teams).
+rounds of a recall start (mid-recall deaths; 23% of tune-5's ladder deaths to the top teams); with locks: placements per game,
+mean placement round, tributes the placements cancelled (enemy / ally, totals) and enemy tributes turned into lock hits per game.
 usage as a module: metrics(a_pol, b_pol, maps, games, seed) -> dict"""
 import collections, json, os, subprocess, sys
 sys.path.insert(0, '.')
@@ -36,6 +37,13 @@ def metrics(a_pol, b_pol, maps=None, games=80, seed=1, threads=4):
                 last_recall[f["champ"]] = r
             elif kind == "recallcut" and f["team"] == str(us):
                 agg["recall_cut"] += 1
+            elif kind == "lockplace" and f["team"] == str(us):
+                agg["lock_placed"] += 1
+                agg["lock_round"] += r
+                agg["lock_cancel_enemy"] += int(f["cancel_enemy"])
+                agg["lock_cancel_ally"] += int(f["cancel_ally"])
+            elif kind == "lockhit" and f["team"] != str(us):
+                agg["enemy_lock_hits"] += 1
             elif kind == "death":
                 if f["team"] == str(us):
                     agg["deaths"] += 1
@@ -50,6 +58,10 @@ def metrics(a_pol, b_pol, maps=None, games=80, seed=1, threads=4):
     n = max(1, agg["games"])
     res = {k: round(agg[k] / n, 2) for k in ("wins", "gems", "deaths", "deaths_champ", "kills", "gems_lost", "recalls", "recall_cut", "mid_recall_deaths")}
     res["games"] = agg["games"]
+    if agg["lock_placed"]:
+        res.update(lock_placed=round(agg["lock_placed"] / n, 2), lock_round=round(agg["lock_round"] / agg["lock_placed"]),
+                   lock_cancel_enemy=agg["lock_cancel_enemy"], lock_cancel_ally=agg["lock_cancel_ally"],
+                   enemy_lock_hits=round(agg["enemy_lock_hits"] / n, 2))
     return res
 
 

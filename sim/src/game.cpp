@@ -11,7 +11,7 @@ namespace cbs
 {
 namespace
 {
-// Diagnostics (GAME_EVENTS=1): deaths with their killer, camp kills, captures, recall starts and damage cuts, and champion hits
+// Diagnostics (GAME_EVENTS=1): deaths with their killer, camp kills, captures, recall starts and damage cuts, lock placements (tributes cancelled) and tributes turned into lock hits, and champion hits
 // on camps, one "@@EV" line each. Simulator only (the bot does not link game.cpp).
 bool events_on()
 {
@@ -1232,12 +1232,17 @@ Err Game::use_consumable(int c, int type, Vec2 dest, bool& ok)
 		if (chebyshev(ch.pos, dest) > 2) return Err::lock_out_of_range;
 		if (lock_at(dest, ch.team) >= 0) return Err::lock_already_locked; // each team may hold one lock per altar
 		locks.push_back({ next_lock_handle++, ch.team, dest, settings().altar_lock_hits });
+		int cancel_enemy = 0, cancel_ally = 0;
 		for (auto& o : champs) // cancels every tribute at the altar, allies' included
 			if (o.channel == Channel::tribute && o.channel_target == dest)
 			{
+				(o.team == ch.team ? cancel_ally : cancel_enemy)++;
 				o.channel = Channel::none;
 				o.channel_timer = 0;
 			}
+		if (events_on())
+			std::printf("@@EV r=%d lockplace team=%d champ=%d pos=%d,%d cancel_enemy=%d cancel_ally=%d\n", round, ch.team, c, dest.x, dest.y,
+						cancel_enemy, cancel_ally);
 		ch.cons[type]--;
 		ok = true;
 		return Err::success;
@@ -1307,6 +1312,7 @@ Err Game::submit_gems(int c, Vec2 altar)
 		if (const int li = lock_at(altar, 1 - ch.team); li >= 0)
 		{
 			if (chebyshev(ch.pos, altar) > settings().submit_gems_range) return Err::submit_out_of_range;
+			if (events_on()) std::printf("@@EV r=%d lockhit team=%d champ=%d gems=%u\n", round, ch.team, c, ch.gems);
 			return attack(c, EntityKind::altar_lock, locks[li].handle) == Err::success ? Err::success : Err::submit_altar_locked;
 		}
 	if (is_stunned(c)) return Err::submit_cant_channel; // after the lock check: a stunned tribute at a locked altar is 125
