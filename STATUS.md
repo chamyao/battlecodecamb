@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 08:02 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 18.62 18.32 18.80 on 16 threads.
+Updated 2026-10-24 08:07 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.88 17.19 18.26 on 16 threads.
 Disk: 3.1G used of 38G.
 
 ## python3 processes
@@ -8,7 +8,6 @@ Disk: 3.1G used of 38G.
 5159 python3 -m funsearch.league --name hyb4 --threads 5 --budget 9.82 --members policies/v7-zerogem.policy,policies/v7.policy,policies/v5d-fs2.policy --fixed policies/locker.policy --prefix fs-h --line hybrid --round 30 --cambc-ref policies/tune-5.policy --workers 3 --eval-threads 2
 5462 python3 -m funsearch.league --name pure4 --budget 9.71 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --threads 
 5473 /usr/bin/python3 -m funsearch.run --run pure4-g3 --budget 4.57 --max-programs 102 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/tune-3.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy --workers 3 
-6766 python3 funsearch/draft_meta.py r1 9431 policies/tune5-reset.policy
 12424 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 12444 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 3.50 --max-programs 150 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 17790 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/tune-5.policy,policies/o
@@ -16,7 +15,6 @@ Disk: 3.1G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[06:44:04] hybrid: resume check ok: [06:38:22] hyb4-g3: +0 programs to the next boundary (30 so far), best policies/tune-4.policy, league ['policies/tune-1.policy', 'policies/v7-zerogem.policy', '
 [06:44:05] hybrid: line script exited 1
 [06:44:05] pure: resume check ok: [06:38:41] pure4-g3: +102 programs (to 151), best policies/fs-p2.policy, league ['policies/tune-3.policy', 'policies/v5d.policy', 'policies/v4.policy', 'policie
 The following paths are ignored by one of your .gitignore files:
@@ -56,4 +54,5 @@ hint: "git config advice.addIgnoredFile false"
 [07:36:32] style: S3 h check: tune-v18 in league; $3.93 left
 [07:41:38] hybrid: g4 started: hold set for the g4 boundary upgrade
 [07:46:53] tune: job C exited rc=0
+[08:07:30] tune: job D2 exited rc=0
 ```
