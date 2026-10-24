@@ -78,11 +78,38 @@ search decides whether it is worth paying for.
 - Operators: Claude for gene bodies and new genes (prompt = the edge's two genes plus the signatures and
   descriptions of the rest), evolution strategies for constants (no LLM), crossover as above.
 
+## Gene language
+
+A small typed, Python-like language (the style Claude already writes well for `.policy` files):
+- types `Num`, `Bool`, `Tile`, `Unit`, tile and unit sets, `Option` (a kind plus its target), SDK objects;
+- `let` (per turn), `keep` (persistent), `if/else`, `return`;
+- iteration over finite sets only: `sum`, `count`, `best`, `any`, `for x in set`; no recursion, so every
+  gene finishes;
+- calls to SDK primitives and other genes; genes never act, only the loop does;
+- header: ID, description, parents. The compiler reads the edges (calls, `keep` variables, shared-memory
+  bytes) from the code.
+
+Claude does not write C++ directly: it can crash or hang, its edges cannot be read reliably, and arbitrary
+code is hard to price.
+
+## Execution and fuel: compiled, not interpreted
+
+The deployed bot's interpreter costs ~250-370 fuel per arithmetic or logic operation (`add` ~365, `and`
+~252; `interp/src/block_costs_gen.inc`), against about one fuel per wasm instruction for native code. A
+`score(option)` pass over ~20 options of ~20 operations would cost ~146k fuel interpreted, over the 100k
+turn budget. Under that tax every idea had to become a native block, which is how our hypotheses ended up
+in the vocabulary. So:
+- genes compile to C++, built into the bot; arithmetic costs what native code costs;
+- the sim runs the same generated C++. Fuel per operation and per SDK call is charged by counters that
+  compile away in the bot, calibrated against cambc as `docs/FUEL.md` does today. Later option: run the
+  compiled bot in the sim under cambc's own metering (Wasmtime fuel), exact by construction;
+- a gene's cost is measured at runtime in every game, so nothing is recalculated after a mutation. A static
+  cost formula / worst-case bound (propagated bottom-up through the call graph) is computable and used for
+  prompts and early rejection, not for scoring.
+
 ## Open points
 
-1. Fuel honesty: if the bot interprets genes, it pays interpreter overhead the game does not charge. That
-   is compute outside the game. Option: compile genes to native code at bot build time, and use the same
-   code (or prices measured from it) in the sim.
+1. Compile time per child, and the per-operation price table (or the metered-wasm route).
 2. Seed genome: translate the live policy into genes and check it plays the same (about 50% against the
    original) before searching.
 3. Evolvability check: children beating parents, and crossover children beating both, vs the current format
