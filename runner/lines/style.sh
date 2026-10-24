@@ -237,8 +237,50 @@ if [ -f runs/style8-gconv.ec2-launched ] && [ ! -f runs/style8-gconv.ec2-metric 
   gm=$(grep -m1 'gap metric' runs/style8-gconv.out runs/style8-gconv.log 2>/dev/null | cut -d: -f2- | cut -c1-200)
   [ -n "$gm" ] && { touch runs/style8-gconv.ec2-metric; log "S8 gap line: $gm"; }
 fi
-for x in h h2 b a c; do
+# S12 (jobs/style e9f40ab, 15:58 UTC): funsearch/style 983462f (5b70f04 + deploy/v0 ec9778c group_rate + two-term gap
+# metric) -> rebuild. gconv is done ($0.72; best child committed as policies/style-gconv1.policy): stop it for good.
+# Start the two-term gap run style8-gyield ($1.27) in its place. Restart b now on the new build (resumes mid-validation);
+# once b logs its 150-boundary verdict, STOP + SIGTERM b and let the loop start b2 (bar tune-v21, $0.95).
+if [ -f runs/ec2-s11 ] && [ ! -f runs/ec2-s12 ]; then
+  touch runs/style8-gconv.ec2-done
+  for pid in $(pgrep -a -x python3 | grep -E "league --name style8-b |funsearch.run --run style8-b-|funsearch.run --run style8-gconv " | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "S12: SIGTERM pid $pid"; done
+  sleep 15
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor 983462f HEAD && [ -f policies/style-gconv1.policy ] && build "$D" &&
+     python3 -m pytest -q tests > /root/bc/style-pytest.txt 2>&1; then
+    grep -cE 'no promotion|PROMOTED' runs/style8-b.log > runs/ec2-s12-bverdicts; touch runs/ec2-s12
+    log "S12: at $(git rev-parse --short HEAD) (has 983462f), rebuilt, $(tail -n 1 /root/bc/style-pytest.txt); gconv stopped for good; b restarting; gyield starting"
+  else
+    echo "S12 merge/983462f/build/tests failed; b and gconv stopped" > "$D/HALT"; log "HALT: S12 merge/build/tests failed"; return 1
+  fi
+fi
+if [ -f runs/ec2-s12 ] && [ ! -f runs/style8-gyield.ec2-done ] && ! pgrep -a -x python3 | grep -q 'funsearch.run --run style8-gyield '; then
+  if [ -f runs/style8-gyield.ec2-launched ] && tail -n 3 runs/style8-gyield.out 2>/dev/null | grep -qE '^done:|\$0\.00 left'; then
+    touch runs/style8-gyield.ec2-done; log "S12: style8-gyield finished: $(tail -n 1 runs/style8-gyield.out | cut -c1-160)"
+  else
+    [ -f runs/style8-gyield.ec2-launched ] && log "S12: style8-gyield not running: relaunching (resumes)"
+    GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+      WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gyield 1.27 conversion:max:0.05,gems_per_capture:max:3 policies/style-gconv1.policy funsearch/styles/g_conversion.txt >> runs/style8-gyield.out 2>&1 < /dev/null &
+    touch runs/style8-gyield.ec2-launched; log "S12: launched style8-gyield (\$1.27)"
+  fi
+fi
+if [ -f runs/style8-gyield.ec2-launched ] && [ ! -f runs/style8-gyield.ec2-checked ] && grep -q 'gap: ' runs/style8-gyield.out 2>/dev/null; then
+  touch runs/style8-gyield.ec2-checked
+  log "S12 gyield check: $(grep -E 'left of|gap metric|gap: ' runs/style8-gyield.out | head -n 4 | cut -c1-110 | tr '\n' '|')"
+fi
+# b's 150-boundary verdict -> STOP b, SIGTERM, loop starts b2
+if [ -f runs/ec2-s12 ] && [ ! -f runs/ec2-s12-bstopped ] && [ "$(grep -cE 'no promotion|PROMOTED' runs/style8-b.log)" -gt "$(cat runs/ec2-s12-bverdicts)" ]; then
+  v=$(grep -E 'no promotion|PROMOTED' runs/style8-b.log | tail -n 1 | cut -c1-200)
+  touch runs/style8-b-g1/STOP
+  for pid in $(pgrep -a -x python3 | grep -E "league --name style8-b |funsearch.run --run style8-b-" | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "S12: SIGTERM style8-b pid $pid (boundary verdict in)"; done
+  touch runs/ec2-s12-bstopped; log "S12: b verdict: $v; b stopped (STOP in runs/style8-b-g1), b2 starts below"
+fi
+for x in h h2 b b2 a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
+  [ "$x" = b2 ] && [ ! -f runs/ec2-s12-bstopped ] && continue
   running "league --name style8-$x " && continue
   ls runs/style8-$x-g*/STOP > /dev/null 2>&1 && continue
   if [ -f runs/style8-$x.ec2-launched ] && tail -n 1 runs/style8-$x.log 2>/dev/null | grep -q 'budget spent'; then
