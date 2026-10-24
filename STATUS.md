@@ -5,20 +5,14 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 17:57 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.00 0.87 5.17 on 16 threads.
-Disk: 3.5G used of 38G.
+Updated 2026-10-24 18:03 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.29 0.36 3.69 on 16 threads.
+Disk: 3.6G used of 38G.
 
 ## python3 processes
 ```
 ```
 ## tick.log (last 40 lines)
 ```
-[16:04:07] style: S12: at 16dfcad (has 983462f), rebuilt, 2024 passed in 6.28s; gconv stopped for good; b restarting; gyield starting
-[16:04:07] style: S12: launched style8-gyield ($1.27)
-[16:04:07] style: style8-b not running: relaunching (resumes from its programs.jsonl)
-[16:04:07] style: launched style8-b (budget $3.5)
-[16:09:15] style: S12 gyield check: gap run style8-gyield (conversion:max:0.05,gems_per_capture:max:3 vs policies/tune-v21.policy): $1.27 left of |gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8974|gap metric gems_per_capture (max, scale 3): reference tune-v21 mirror value 10.6992|gap: 2 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5|
-[16:14:20] hybrid: H18 check: 'yield term: 122 logged programs rescaled'; 3 new children carry metrics.yield
 [16:19:29] hybrid: H20: hold set for the next hyb5 boundary
 [16:34:57] hybrid: H20: SIGTERM hyb5 pid 133949
 [16:35:16] hybrid: H20: funsearch/runs 694a4a3 (has 694a4a3/166f85c: v23 style-gconv1, sim fix, #76, H21 cover screens), built interp_eval+fuel_turns, 2029 passed in 7.37s; relaunching hyb5 with style-gconv1 fixed + island-1 seed, island-3 seed #76, --screen-maps cover --rescreen-top 3
@@ -53,4 +47,10 @@ remote:
 [17:52:45] hybrid: FINAL: ec2-final-check.txt + hyb5.cmdline pushed (remote/hybrid c474b96)
 [17:52:45] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [17:57:47] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[18:02:59] genome: started job smoke1 at ff86746cf72a
+remote: 
+remote: Create a pull request for 'remote/genome' on GitHub by visiting:        
+remote:      https://github.com/chamyao/battlecodecamb/pull/new/remote/genome        
+remote: 
+[18:03:01] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
