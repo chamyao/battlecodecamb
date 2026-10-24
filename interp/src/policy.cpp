@@ -94,7 +94,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)") \
 	X(threat_eta, "threat_eta()") X(altar_eta, "altar_eta()") X(retreat_eta, "retreat_eta()") X(enemy_between, "enemy_between(Tile)")   \
 	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)") X(bank_detour, "bank_detour(Tile)") X(group_rate, "group_rate(Tile)")                                \
-	X(monolith_threat, "monolith_threat(Tile)") X(in_monolith_zone, "in_monolith_zone(Tile)") X(altar_safe_tiles, "altar_safe_tiles()") X(camp_threat, "camp_threat(Tile)")
+	X(monolith_threat, "monolith_threat(Tile)") X(in_monolith_zone, "in_monolith_zone(Tile)") X(altar_safe_tiles, "altar_safe_tiles()") X(camp_threat, "camp_threat(Tile)")                                                  \
+	X(enemy_locks, "enemy_locks()") X(lock_hits_left, "lock_hits_left(Tile)")
 
 enum class Op : std::uint16_t
 {
@@ -1262,6 +1263,20 @@ struct Interp
 			hp = cr.health;
 			return true;
 		}
+		if (u.kind == EntityKind::altar_lock)
+		{
+			// health of a lock = basic attacks (or tribute attempts) left to break it
+			cbs::AltarLockRecord locks[16];
+			std::uint32_t n = 0;
+			api.altar_locks(locks, 16, &n);
+			for (std::uint32_t i = 0; i < n && i < 16; ++i)
+				if (locks[i].handle == u.h && locks[i].hits_remaining > 0)
+				{
+					pos = { locks[i].x, locks[i].y };
+					hp = locks[i].hits_remaining;
+					return true;
+				}
+		}
 		return false;
 	}
 
@@ -1521,6 +1536,32 @@ struct Interp
 			r.units->reserve(camp_ids.size());
 			for (std::uint32_t c : camp_ids) r.units->push_back({ EntityKind::camp, c });
 			return r;
+		}
+		case Op::enemy_locks:
+		{
+			// visible enemy altar locks as units: attack() breaks one hit per attack (5 to clear), and the
+			// unit blocks (nearest, filter(..., in_attack_range()), unit_position, unit_health = hits left) apply
+			cbs::AltarLockRecord locks[16];
+			std::uint32_t n = 0;
+			api.altar_locks(locks, 16, &n);
+			Value r;
+			r.units = std::make_shared<std::vector<Unit>>();
+			for (std::uint32_t i = 0; i < n && i < 16; ++i)
+				if (locks[i].team != static_cast<std::uint32_t>(api.team()) && locks[i].hits_remaining > 0)
+					r.units->push_back({ EntityKind::altar_lock, locks[i].handle });
+			return r;
+		}
+		case Op::lock_hits_left:
+		{
+			// hits left on the visible enemy lock on that altar tile; 0 if it isn't enemy-locked (or not seen)
+			const Vec2 t = evalt(a[0]);
+			if (!has_tile(t)) return num(0);
+			cbs::AltarLockRecord locks[16];
+			std::uint32_t n = 0;
+			api.altar_locks(locks, 16, &n);
+			for (std::uint32_t i = 0; i < n && i < 16; ++i)
+				if (locks[i].team != static_cast<std::uint32_t>(api.team()) && locks[i].x == t.x && locks[i].y == t.y) return num(locks[i].hits_remaining);
+			return num(0);
 		}
 		case Op::locked_altars:
 		{
