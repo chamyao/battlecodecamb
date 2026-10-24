@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 12:59 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.58 14.07 13.28 on 16 threads.
+Updated 2026-10-24 13:04 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.10 14.04 13.50 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[11:04:30] hybrid: H4: SIGTERM hyb5 pid 37632
 [11:04:46] hybrid: H4: funsearch/runs 4a08ddb (has 8c5b4e4), rebuilt, 2012 passed in 5.90s; relaunching hyb5 retuned
 [11:04:46] hybrid: hyb5 not running: relaunching (resume from runs/)
 [11:04:46] hybrid: launched hyb5 league
@@ -55,4 +54,5 @@ Disk: 3.3G used of 38G.
 [12:59:31] hybrid: H7c: removed 21 stale-build validation cache entries (expected 21; backup validation_cache.jsonl.pre-h7c); relaunching hyb5
 [12:59:31] hybrid: hyb5 not running: relaunching (resume from runs/)
 [12:59:31] hybrid: launched hyb5 league
+[13:04:40] pure: g6 build switch: STOP requested (gen 5)
 ```
