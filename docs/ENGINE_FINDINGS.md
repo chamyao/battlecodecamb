@@ -323,3 +323,24 @@ the altar was the only path).
   maps with fewer picks). That composition, not the side, is cambc's "A advantage". v4 mirror:
   team A wins 60/80 with bot seeds (identical to cambc) against 199/400 with per-game seeds.
   cambc's 80 games are 80 samples of one draft per pick count; per-game seeds sample drafts.
+
+## Real ladder games (differential replay)
+
+The 50 unranked games of tune-5 against the ladder's top 9 and vc? (24 Oct, `analysis/sprint1`
+`data/top-teams-2026-10-24`) were replayed through the simulator with `oracle/replays/`: both
+teams' recorded inputs, full state compared at every champion turn start. **41/50 replay end
+to end with zero differences** (353k of 414k champion turns compared, same end round and
+score), with real fights: kills, HP after every hit, stuns, dashes, Heart of Ruin, Marcella,
+Prism, Ryth, Vendetta and Vesper Vale abilities, shopping and altar-lock attacks.
+
+Open: the other 9 games stop at a move the engine rejects but the simulator allows. In all
+112 such rejections (50 games) the target tile holds an **allied ward that is not the mover's
+own**, the tile is a bush and neither the mover nor its own ward sees it; enemy wards never
+block (130 moves onto them succeed). But 369 moves in exactly that situation succeed, often
+the same move onto the same ward in another round (01yellow-brick-road: (17,12)->(16,11)
+blocked in round 35, allowed in round 74, where the mover's own ward also saw the tile). Not
+separated by: ward age, owner alive or position, turn order, team, step direction, the
+mover's earlier actions or earlier blocks, the owner's or the ward's view. Every simple rule
+tried (allied/any ward occupies; unseen allied/any ward is a hidden occupant; visible allied
+ward is occupied) breaks more games than it fixes, so the simulator keeps wards passable.
+`oracle/replays/wardmoves.js` lists the cases.

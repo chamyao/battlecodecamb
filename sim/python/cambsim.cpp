@@ -173,7 +173,17 @@ PYBIND11_MODULE(cambsim, m)
 		.def("compute", &Api::compute, "Charge fuel for the policy's own computation.")
 		.def("fuel_remaining", &Api::fuel_remaining)
 		.def("my_champion", &Api::my_champion)
-		.def("my_team", &Api::my_team);
+		.def("my_team", &Api::my_team)
+		// Diagnostics (differential replays): the full, unfogged game state.
+		.def("truth", [](Api& a) {
+			const Game& g = a.game();
+			py::list champs, camps;
+			for (const auto& c : g.champs)
+				champs.append(py::make_tuple(c.id, c.team, static_cast<int>(c.type), c.alive, c.pos.x, c.pos.y, c.hp, c.max_hp, c.gold_int(), c.gems, c.kills,
+											 c.strength, c.focus));
+			for (const auto& c : g.camps) camps.append(py::make_tuple(c.pos.x, c.pos.y, c.hp, static_cast<int>(c.life)));
+			return py::make_tuple(g.round, champs, camps, g.teams[0].submitted, g.teams[1].submitted);
+		});
 #define Q(name, T)                                                                                                                         \
 	api.def(#name, [](Api& a, std::uint32_t h) {                                                                                           \
 		T v{};                                                                                                                             \
