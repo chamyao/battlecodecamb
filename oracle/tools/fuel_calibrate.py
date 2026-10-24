@@ -68,7 +68,7 @@ def allowed(nm):
     if nm=='rich_spawns(Num)': return ['1','groups','camps','ch']  # static loop over groups and camps
     if nm=='group_tiles(TileSet)': return ['1','groups','camps','ch']  # static loop over groups and their camps
     if nm=='group_gems(TileSet)': return ['1','groups','camps','ch']  # static loop over groups and their camps
-    if nm in ('group_threat(Tile)','group_hp(Tile)'): return ['1','camps']  # scan for the tile's camp (camp() calls are API scopes)
+    if nm in ('group_threat(Tile)','group_hp(Tile)','group_rate(Tile)'): return ['1','camps']  # scan for the tile's camp (camp() calls are API scopes)
     if nm=='respawning_visible_spawns()': return ['1','groups']
     if nm in ('ring(TileSet,Num)','filter(TileSet,TilePred)','first(TileSet)','count(TileSet)'): return ['1','H','altars']
     return ['1','H','ch','occ','occ*H','dbits','exp*ch']
