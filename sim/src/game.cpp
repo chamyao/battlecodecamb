@@ -397,6 +397,7 @@ void Game::kill_champion(int target, int killer)
 	};
 	die(t);
 	if (t.partner >= 0) die(champs[t.partner]);
+	teams[t.team].gems_lost += gems;
 	check_capture_regions();
 	if (killer >= 0 && champs[killer].team != t.team)
 	{

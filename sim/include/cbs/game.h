@@ -134,6 +134,7 @@ struct TeamState
 	std::uint32_t submitted = 0;
 	std::int64_t earned_gold_cents = 0;
 	int kills = 0;
+	std::uint32_t gems_lost = 0; // gems carried by this team's champions when they died (stats only)
 	std::uint8_t shared[kSharedMemory] = {};
 	std::uint8_t draft_mem[kDraftMemory] = {};
 	std::uint32_t draft_mem_size = 0;

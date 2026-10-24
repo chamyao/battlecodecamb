@@ -88,6 +88,7 @@ int main(int argc, char** argv)
 
 	std::atomic<int> next{ 0 }, a_wins{ 0 };
 	std::atomic<long> a_gems{ 0 }, b_gems{ 0 }, rounds{ 0 }, a_susp{ 0 }, crashes{ 0 }, a_fuel{ 0 };
+	std::atomic<long> a_kills{ 0 }, b_kills{ 0 }, a_lost{ 0 }, b_lost{ 0 };
 	std::mutex mu;
 	std::vector<int> per_game(games, 0);
 	const auto t0 = std::chrono::steady_clock::now();
@@ -114,6 +115,10 @@ int main(int argc, char** argv)
 				a_susp += static_cast<long>(match.stats.suspensions);
 				crashes += static_cast<long>(match.stats.crashes);
 				a_fuel += static_cast<long>(match.stats.fuel_used[at]);
+				a_kills += match.game.teams[at].kills;
+				b_kills += match.game.teams[1 - at].kills;
+				a_lost += match.game.teams[at].gems_lost;
+				b_lost += match.game.teams[1 - at].gems_lost;
 				std::lock_guard<std::mutex> lk(mu);
 				per_game[g] = won;
 				if (details)
@@ -132,9 +137,11 @@ int main(int argc, char** argv)
 	for (auto& th : pool) th.join();
 	const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 	std::printf("{\"games\": %d, \"a_wins\": %d, \"win_rate\": %.4f, \"a_gems\": %.2f, \"b_gems\": %.2f, \"avg_rounds\": %.1f, "
-				"\"a_suspensions\": %.2f, \"crashes\": %.2f, \"a_fuel_per_game\": %.0f, \"seconds\": %.3f, \"results\": [",
+				"\"a_suspensions\": %.2f, \"crashes\": %.2f, \"a_fuel_per_game\": %.0f, \"a_kills\": %.2f, \"b_kills\": %.2f, "
+				"\"a_gems_lost\": %.1f, \"b_gems_lost\": %.1f, \"seconds\": %.3f, \"results\": [",
 				games, a_wins.load(), double(a_wins) / games, double(a_gems) / games, double(b_gems) / games, double(rounds) / games,
-				double(a_susp) / games, double(crashes) / games, double(a_fuel) / games, s);
+				double(a_susp) / games, double(crashes) / games, double(a_fuel) / games, double(a_kills) / games, double(b_kills) / games,
+				double(a_lost) / games, double(b_lost) / games, s);
 	for (int g = 0; g < games; ++g) std::printf("%s%d", g ? ", " : "", per_game[g]);
 	std::printf("]}\n");
 }
