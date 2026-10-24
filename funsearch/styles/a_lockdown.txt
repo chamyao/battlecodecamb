@@ -19,3 +19,6 @@ Camp choice matters in every style, as a direction, not a rule: do NOT add a ski
 group_threat/group_hp (measured: it loses 5-25 points). Instead, prefer a rich group (closest of
 the goals intersected with rich_spawns(15), i.e. 15+ gems) over the nearest camp when it is only
 a few tiles farther, and otherwise keep the nearest-camp choice that works.
+Combat matters in every style (the measured gap to the top teams): fight back when an enemy is in
+reach, cast resets on self AFTER a basic attack then attack again, open with stuns (slot_stun(s) > 0)
+at their range, focus one target (set_team_target), and don't start a recall while in danger.

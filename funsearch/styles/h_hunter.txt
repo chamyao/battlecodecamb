@@ -1,0 +1,19 @@
+This run evolves a HUNTER: a sparring opponent that reproduces how the ladder's top teams beat our
+bot. It is scored on FIGHTS as much as on wins: the score blends win rate with the champion-kill
+margin per game (kills minus deaths to champions; +12 per game scores full marks). On the ladder
+the top teams kill our bot ~13 times a game and lose ~1.6 champions; the sim matches the real
+engine turn for turn, so the gap is micro our policies lack. Develop that micro:
+- first hit lands first: engage healthy (HP > ~0.8) from vision range, approach so that your opener
+  lands on the turn you arrive (cast range slot_range(s); stun openers have slot_stun(s) > 0:
+  Heart of Ruin's dash from 3, Ryth's AoE stun from 4, Marcella's damage spell from 4);
+- 2v1 focus: name one target with set_team_target(u); every champion that can reach team_target()
+  hits it the same turn; pick the closest visible enemy (usually also the lowest health);
+- ability timing: one ability cast per turn succeeds. Resets are cast on self AFTER a basic attack,
+  then attack again (attack(u); cast_self(reset slot); attack(u)). Stun before burst;
+- ranged champions (i_am_ranged()) keep max range 3: a ranged move and attack share one allowance,
+  so attack from range rather than walking in; melee champions close with the dash;
+- short chase (0-3 tiles, up to 6 for Heart of Ruin/Ryth on a kill), disengage while still healthy
+  (~0.75 HP) and recall only when no enemy is near (damage cancels recall);
+- fight early: the top teams' first fight is around round 86-175, mostly in their own half.
+Keep farming and banking working (the score still counts wins). Every version must keep
+set_team_target; a version that drops focus fire is rejected.

@@ -43,6 +43,8 @@ def main():
     ap.add_argument("--eval-seed", type=int, default=0, help="same games for every program (fair comparison)")
     ap.add_argument("--islands", type=int, default=4)
     ap.add_argument("--directive", default="", help="style directive added to every prompt (text, or @file)")
+    ap.add_argument("--fight-weight", type=float, default=0.0,
+                    help="blend a champion-kill-margin fight score into every evaluation (hunter islands)")
     ap.add_argument("--require", default="", help="comma-separated blocks every child must call (style check)")
     ap.add_argument("--fresh-seeds", action="store_true",
                     help="every evaluation plays fresh games (new seed) instead of the same games for all programs")
@@ -55,6 +57,9 @@ def main():
     opponents = tuple(args.opponents.split(","))
     directive = Path(args.directive[1:]).read_text() if args.directive.startswith("@") else args.directive
     required = [b for b in args.require.split(",") if b]
+    if args.fight_weight > 0:
+        from . import evaluate as ev
+        ev.FIGHT_WEIGHT = args.fight_weight
     seed_lock = threading.Lock()
     seed_counter = [len(db.all)]
 

@@ -27,10 +27,21 @@ class EvalResult:
         return self.error is None
 
 
+# fight score weight (0 = off): set by funsearch.run --fight-weight for hunter islands
+FIGHT_WEIGHT = 0.0
+FIGHT_MARGIN = 12.0  # champion-kill margin per game that scores full marks (TOP_TEAMS: ~12.9 vs ~0.3)
+
+
 def score_of(stats):
-    """Win rate, plus a small bonus for the tributed-gem margin (breaks ties)."""
+    """Win rate, plus a small bonus for the tributed-gem margin (breaks ties). With FIGHT_WEIGHT > 0,
+    blends in a fight score: 0.5 + 0.5 * clip(kill margin / FIGHT_MARGIN, -1, 1)."""
     margin = (stats["a_gems"] - stats["b_gems"]) / 1000.0
-    return stats["win_rate"] + 0.25 * max(-1.0, min(1.0, margin))
+    base = stats["win_rate"] + 0.25 * max(-1.0, min(1.0, margin))
+    if FIGHT_WEIGHT <= 0 or "kills" not in stats:
+        return base
+    kill_margin = (stats["kills"][0] - stats["kills"][1]) / FIGHT_MARGIN
+    fight = 0.5 + 0.5 * max(-1.0, min(1.0, kill_margin))
+    return (1 - FIGHT_WEIGHT) * base + FIGHT_WEIGHT * fight
 
 
 _OPP_CACHE = {}

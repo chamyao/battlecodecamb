@@ -1,0 +1,16 @@
+This run improves COMBAT MICRO, the measured gap to the ladder's top teams: they kill our bot ~13
+times a game and lose ~1.6 champions, at equal items and health, and the sim matches the real engine
+turn for turn. Our bot loses fights it could win. Develop:
+- fight back: when an enemy champion is in reach, hit it and cast your damage/stun ability at it
+  (slot_stun(s) > 0, slot_is_damage(s), slot_range(s)) instead of starting a recall in danger
+  (damage cancels recall: move away first, recall when no enemy is near);
+- ability timing: one ability cast per turn succeeds. Resets are cast on self AFTER a basic attack,
+  then attack again (attack(u); cast_self(reset slot); attack(u)). Stun before burst;
+- 2v1 focus: name one target with set_team_target(u); every champion that can reach team_target()
+  hits it the same turn; target the closest enemy (usually also the lowest health);
+- first hit lands first: engage while healthy with the opener at its range, not by walking into
+  enemy range; ranged champions (i_am_ranged()) attack from max range 3 (a ranged move and attack
+  share one allowance);
+- disengage while still healthy (~0.75 HP) and bank big bags when no enemy is within 8 tiles.
+Keep farming, tributing and recall rules that already work. Every version must keep focus fire
+(set_team_target/team_target); a version that drops it is rejected.
