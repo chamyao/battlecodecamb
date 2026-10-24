@@ -127,3 +127,25 @@ commit-mono itself scores 0.610 vs the original on these games (susp 2.7).
 | `firstbank-cm` | 4 first bank | r11 | 0.610 (susp 2.9) | **0.637** | tributes 42.1 → 43.0 |
 | `yield-rr` (rejected) | 3 yield | v2, m11 (i8) | 0.375 | 0.312 | per capture 21.4, captures 32 |
 
+
+## cm-gf and grafts onto B318 (Arena B; uploaded as ladder v25). Seeds: 96001 vs style-gconv1, 96002 head to head
+
+Baselines here are against style-gconv1 (v23). The live bot before v25 was tune-v20-L1c, so these runs still need redoing on that basis.
+
+| genome | vs style-gconv1 | head to head |
+|---|---|---|
+| B318 | 0.670 | — |
+| `cm-gf` (commit-mono + gem-groups-cm + firstbank-cm) | 0.573 | 0.650 vs commit-mono, 0.450 vs B318 |
+| commit-mono | — | 0.388 vs B318 |
+| B318 + commit (`tools/graft.py`) | 0.637 | 0.412 vs B318 (stuck 43.0 → 0.6) |
+| B318 + mono | 0.675 | 0.512 |
+| B318 + gemgroups | 0.688 | 0.450 |
+| B318 + firstbank | 0.620 | **0.575** |
+| B318 + commit_bank only | — | 0.487 (stuck 18.1) |
+| B318 + commit_live only | — | 0.438 (stuck 14.0) |
+| B318 + commit_live + firstbank | — | **0.588** (stuck 11.4) |
+| B318 + commit + mono (+ gemgroups, + firstbank) | 0.645 / 0.680 / 0.637 | 0.438 / 0.425 / 0.450 |
+
+On B318 the stuck fix removes the stuck rounds but costs win rate, since B318's evolved rules depend on the
+old flip behaviour. Only firstbank, alone or with commit_live, beats B318 at >= 0.53. Both lose to it against
+style-gconv1 (0.620 vs 0.670), so they wait for the rerun against tune-v20-L1c.
