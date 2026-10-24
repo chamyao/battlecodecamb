@@ -81,4 +81,48 @@ The engine is deterministic, and so are most of these bots. So a v19 game and it
   - The 11:30 group, Wildest_Peace 4-1, is probably still v19. Without it, v19 is 51-39.
   - Best: Arasaka 5-0, MFF - Policka 5-0.
   - Worst: Index[0] 0-5, `-` 1-4, Quantum Lock Pickers 1-4, Silent Gem Thieves 1-4.
-- **v20** (groups from 11:40): the record follows at about 20 games.
+- **v20** (groups 11:40-12:10): **15-5**.
+  - newtern 5-0, Quantcoders 2-3, Unharmful 4-1, Apex Gamma 4-1.
+  - newtern beat v18 4-1 this morning, but it may have changed its bot since.
+
+Ranked metrics. v19 excludes the ambiguous 11:30 group. The opponents differ, and v20's are much less fight-heavy (5.3 deaths per game vs v19's 11.1), so this is weak evidence:
+
+| per game | v19 | v20 |
+|---|---|---|
+| games, W-L | 90, 51-39 | 20, 15-5 |
+| gems submitted us / them | 731 / 656 | 815 / 629 |
+| deaths us / them | 11.1 / 14.1 | 5.3 / 6.8 |
+| kills us / them | 7.6 / 6.6 | 3.2 / 2.5 |
+| champion damage us / them | 21.8k / 24.2k | 17.7k / 9.6k |
+| gems per capture us / them | 13.5 / 16.4 | 12.0 / 14.5 |
+| captures us / them | 78.1 / 52.9 | 88.3 / 54.3 |
+| tributes us / them | 23.8 / 24.0 | 23.4 / 27.0 |
+| median bag us / them | 30 / 29 | 30 / 22 |
+| gems lost dying us / them | 130 / 70 | 67 / 58 |
+| gold earned us / them | 8.4k / 5.4k | 7.4k / 4.6k |
+| our deaths with 2+ of theirs within 5 | 63% of 595 | 63% of 49 |
+
+| opponent | v19 W-L (gems us-them) | v20 W-L (gems us-them) |
+|---|---|---|
+| - | 1-4 (426-726) | 0-0 (0-0) |
+| AI Coliseum >>> Cambridge Battlecode | 4-1 (1007-598) | 0-0 (0-0) |
+| Apex Gamma | 0-0 (0-0) | 4-1 (910-554) |
+| Arasaka | 5-0 (995-556) | 0-0 (0-0) |
+| Blame the Altar | 3-2 (596-488) | 0-0 (0-0) |
+| FF 15 pls | 4-1 (811-660) | 0-0 (0-0) |
+| Hungry Hungry Hungry | 3-2 (828-687) | 0-0 (0-0) |
+| Index[0] | 0-5 (242-926) | 0-0 (0-0) |
+| John | 4-1 (849-463) | 0-0 (0-0) |
+| LigaSiur | 3-2 (853-669) | 0-0 (0-0) |
+| MFF - Policka | 5-0 (1023-389) | 0-0 (0-0) |
+| Prompt Beasts | 2-3 (644-705) | 0-0 (0-0) |
+| Quantcoders | 0-0 (0-0) | 2-3 (505-785) |
+| Quantum Lock Pickers | 1-4 (535-824) | 0-0 (0-0) |
+| Silent Gem Thieves | 1-4 (472-1002) | 0-0 (0-0) |
+| Spawn Campers | 2-3 (607-894) | 0-0 (0-0) |
+| TEST-DUMMIES | 2-3 (712-691) | 0-0 (0-0) |
+| Team name | 3-2 (773-678) | 0-0 (0-0) |
+| The Failing Pipelines | 4-1 (979-439) | 0-0 (0-0) |
+| Unharmful | 0-0 (0-0) | 4-1 (823-775) |
+| Velvet Stunners | 4-1 (803-417) | 0-0 (0-0) |
+| newtern | 0-0 (0-0) | 5-0 (1023-400) |
