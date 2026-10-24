@@ -98,6 +98,21 @@ if [ -f runs/ec2-hyb5 ]; then
       fi
     fi
   fi
+  # H7b (12:50 UTC): H6+H7 had already relaunched on a43aede (no lockfix) when the c4341a3 requirement arrived, so
+  # v21 / lock policies were being mis-evaluated. Restart now (no boundary wait): SIGTERM, merge c4341a3+, rebuild,
+  # pytest, relaunch with the same (v21) flags; hyb5 resumes mid-round from programs.jsonl.
+  if [ -f runs/ec2-h6 ] && [ ! -f runs/ec2-h7b ]; then
+    for pid in $(pgrep -a -x python3 | grep -E "league --name hyb5|funsearch.run --run hyb5-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "H7b: SIGTERM hyb5 pid $pid"; done
+    sleep 15
+    if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+       git merge-base --is-ancestor c4341a3 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+      wc -l < runs/hyb5.log > runs/ec2-h7b-mark; touch runs/ec2-h7b
+      log "H7b: funsearch/runs $(git rev-parse --short HEAD) (has c4341a3: lockfix + fuel recalibration), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 (same v21 flags)"
+    else
+      echo "H7b merge/c4341a3/build/tests failed; hyb5 stopped" > "$D/HALT"; log "HALT: H7b upgrade failed"; pushall; return 1
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -157,6 +172,10 @@ if [ -f runs/ec2-hyb5 ]; then
     if [ -n "$r" ]; then touch runs/ec2-h6-checked; log "H7 check: $r (expected islands 0,1,3 with v21; island 2 kept)"
     elif grep -q 'PROMOTED challenger policies/pool/v21.policy' runs/hyb5.log; then
       touch runs/ec2-h6-checked; log "H7 check: no re-seed lines; v21 promoted at the boundary"; fi
+  fi
+  if [ -f runs/ec2-h7b ] && [ ! -f runs/ec2-h7b-checked ]; then
+    f=$(tail -n +"$(( $(cat runs/ec2-h7b-mark) + 1 ))" runs/hyb5.log | grep -m1 'hyb5-g[0-9]*: ')
+    [ -n "$f" ] && { touch runs/ec2-h7b-checked; log "H7b check: $(echo "$f" | grep -oE 'hyb5-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$f" | grep -oE 'best [^,]*') $(echo "$f" | grep -oE '\$[0-9.]+ left')"; }
   fi
   pushall; return 0
 fi
