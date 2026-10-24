@@ -44,3 +44,30 @@ seed screen 0.804 confirm 0.783 (vs builtin:starter: win 0.51, gems 384-400; vs 
 [46] cross : invalid: child equals a parent
 [47] mutate claude-haiku-5-5 isl 1: screen -0.009 confirm -0.001 (9 lines) | best 0.994 (#45) $0.12 | 548s
 [48] mutate claude-haiku-5-5 isl 0: screen +0.000 confirm -0.000 (6 lines) | best 0.994 (#45) $0.12 | 552s
+[49] mutate claude-haiku-5-5 isl 0: screen -0.028 confirm +0.015 (2 lines) | best 1.009 (#49) $0.12 | 565s
+[50] mutate claude-haiku-5-5 isl 3: screen +0.000 twin (5 lines) | best 1.009 (#49) $0.12 | 581s
+[51] mutate claude-haiku-5-5 isl 2: screen +0.036 confirm +0.012 (3 lines) | best 1.009 (#49) $0.12 | 594s
+[52] mutate claude-haiku-5-5 isl 3: screen +0.000 twin (2 lines) | best 1.009 (#49) $0.12 | 598s
+[53] mutate claude-haiku-5-5 isl 3: screen +0.000 confirm +0.000 (9 lines) | best 1.009 (#49) $0.12 | 603s
+[54] mutate claude-haiku-5-5 isl 1: screen -0.014 (5 lines) | best 1.009 (#49) $0.12 | 612s
+[55] mutate claude-haiku-5-5 isl 3: screen -0.001 (8 lines) | best 1.009 (#49) $0.16 | 628s
+[56] mutate claude-opus-5-5 isl 0: screen -0.341 (27 lines) | best 1.009 (#49) $0.16 | 633s
+[57] mutate claude-haiku-5-5 isl 3: screen -0.029 (7 lines) | best 1.009 (#49) $0.16 | 646s
+[58] mutate claude-haiku-5-5 isl 2: screen -0.420 (10 lines) | best 1.009 (#49) $0.16 | 649s
+[59] mutate claude-haiku-5-5 isl 1: screen +0.000 confirm +0.000 twin (1 lines) | best 1.009 (#49) $0.16 | 650s
+[60] mutate claude-haiku-5-5 isl 2: screen +0.000 confirm +0.000 (8 lines) | best 1.009 (#49) $0.16 | 690s
+[61] mutate claude-haiku-5-5 isl 3: screen +0.012 confirm -0.006 (6 lines) | best 1.009 (#49) $0.16 | 694s
+[62] tune  isl 0: screen +0.097 confirm +0.034 (3 lines) | best 1.009 (#49) $0.16 | 696s
+[63] mutate claude-haiku-5-5 isl 3: screen -0.000 (2 lines) | best 1.009 (#49) $0.17 | 707s
+[64] mutate claude-haiku-5-5 isl 1: screen -0.195 (14 lines) | best 1.009 (#49) $0.17 | 716s
+[65] mutate claude-opus-5-5 isl 3: screen -0.242 (22 lines) | best 1.009 (#49) $0.20 | 732s
+[66] mutate claude-haiku-5-5 isl 2: screen +0.077 confirm +0.048 (3 lines) | best 1.009 (#49) $0.20 | 741s
+[67] tune  isl 3: screen +0.000 twin (1 lines) | best 1.009 (#49) $0.20 | 753s
+[68] mutate claude-haiku-5-5 isl 1: screen -0.018 confirm -0.013 (2 lines) | best 1.009 (#49) $0.20 | 765s
+[69] cross  isl 3: screen -0.053 (6 lines) | best 1.009 (#49) $0.20 | 765s
+[70] tune  isl 1: screen +0.000 confirm +0.000 twin (1 lines) | best 1.009 (#49) $0.20 | 775s
+[71] mutate claude-haiku-5-5 isl 1: screen -0.014 (7 lines) | best 1.009 (#49) $0.20 | 782s
+[72] mutate claude-haiku-5-5 isl 2: screen +0.000 twin (9 lines) | best 1.009 (#49) $0.20 | 801s
+[73] mutate claude-haiku-5-5 isl 1: screen +0.002 confirm +0.011 (8 lines) | best 1.009 (#49) $0.20 | 813s
+[74] mutate claude-haiku-5-5 isl 0: screen -0.002 confirm -0.007 (5 lines) | best 1.009 (#49) $0.20 | 826s
+[75] mutate claude-haiku-5-5 isl 0: screen -0.000 confirm -0.015 (6 lines) | best 1.009 (#49) $0.20 | 863s
