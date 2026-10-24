@@ -6,6 +6,10 @@ from funsearch.catalog import GAME
 from .edit import ENTRIES
 
 LANGUAGE = (Path(__file__).resolve().parent.parent / "LANGUAGE.md").read_text()
+# hits_to_kill is leaving the language (a model, not a rule): keep it out of the prompt until lang.py drops it
+LANGUAGE = "\n".join(l for l in LANGUAGE.splitlines() if not l.startswith("| `hits_to_kill("))
+LANGUAGE = LANGUAGE.replace("; `hits_to_kill(a, b)` basic attacks of `a` that kill `b` from now (shields first; 1e9 if "
+                            "none hurts)", "") + "\n"
 
 FACTS = GAME.replace("Every block a bot runs costs fuel", "Every operation and engine call a bot runs costs fuel") + """\
 In a genome, compiled gene code is cheap (a few fuel per operation); engine calls (distance fields
@@ -30,9 +34,8 @@ Pathfinding in our own code is expensive, so use it rarely or locally: wfield() 
 / path_len() (A*) cost ~1.4k + 380 per tile expanded: ~10-20k for a local path with budget ~400 near a camp or
 altar, 1-4.5M across the map. territory(mine, theirs, walls) (tiles strictly nearer by walking to `mine` than to
 `theirs`) costs ~300k on 100x100 (~80k on 90x30): cache it in a Tiles keep from update().
-Fight reads (attack_damage, cast_damage, shield, hits_to_kill) are exact and cheap: per visible enemy, damage and
-hits_to_kill both ways cost ~1.3k fuel on the first call in a pass and ~0.4k after, so a fight can be decided by
-who dies first rather than by health ratios.
+Fight reads (attack_damage, cast_damage, shield) are exact: per visible enemy, the damage reads both ways cost ~1.3k
+fuel on the first call in a pass and ~0.4k after.
 Team coordination: the 8 shared bytes (read_shared anywhere; write_shared in update() or after()) are the only
 channel between allies; vision is not shared. after() can announce what this champion just did."""
 
