@@ -20,7 +20,7 @@ Outside changes enter only at round boundaries, so the search is not restarted m
 - runs/<name>.hold: the league waits at the next boundary until the file is removed (merge or
   rebuild the simulator meanwhile).
 The cambc-exact check (all maps x 2 sides, --bot-seeds) is logged for each promotion; >= --cambc-min
-marks it ladder-ready.
+(vs --cambc-ref, the live ladder bot, when given; else vs the best) marks it ladder-ready.
 """
 import argparse
 import fcntl
@@ -171,6 +171,9 @@ def main():
                                                 "lack, like altar locking); never dropped or promoted")
     ap.add_argument("--cambc-min", type=float, default=0.55,
                     help="cambc-exact win rate vs the best (all maps x 2 sides) that marks a promotion ladder-ready")
+    ap.add_argument("--cambc-ref", default="",
+                    help="live ladder bot: when set, ladder-ready means cambc-exact >= --cambc-min vs this policy "
+                         "(the vs-best check is still logged)")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     ap.add_argument("--prefix", default="fs-", help="promoted policies are policies/<prefix><n>.policy")
     ap.add_argument("--line", default="", help="line tag written into promoted policies' headers")
@@ -272,10 +275,15 @@ def main():
 
         label, text, h2h, n, rates, p = promoted
         exact = cambc_check(text, best, args.threads)
-        ready = exact >= args.cambc_min
-        log(f"    cambc-exact vs {Path(best).stem} (all maps x 2 sides): {exact:.3f}"
-            + (" -> ladder-ready" if ready else ""), logfile)
         rates = {**rates, f"cambc-exact vs {Path(best).stem}": exact}
+        ref = args.cambc_ref if args.cambc_ref and args.cambc_ref != best else ""
+        if ref:
+            log(f"    cambc-exact vs {Path(best).stem} (all maps x 2 sides): {exact:.3f}", logfile)
+            exact = cambc_check(text, ref, args.threads)
+            rates[f"cambc-exact vs {Path(ref).stem}"] = exact
+        ready = exact >= args.cambc_min
+        log(f"    cambc-exact vs {Path(ref or best).stem} (all maps x 2 sides): {exact:.3f}"
+            + (" -> ladder-ready" if ready else ""), logfile)
         summary = ", ".join(f"{k} {v:.1%}" for k, v in rates.items())
         if p is None:  # a challenger won: it becomes the best as it is
             out = ROOT / label
@@ -287,7 +295,8 @@ def main():
             out = ROOT / "policies" / f"{name}.policy"
             tag = f" [{args.line} line]" if args.line else ""
             header = (f"# {name}{tag}: league {run} {label}; beat {Path(best).stem} {h2h:.1%} head to head on "
-                      f"{n} fresh games; cambc-exact {exact:.3f}{' (ladder-ready)' if ready else ''}.\n")
+                      f"{n} fresh games; cambc-exact vs {Path(ref or best).stem} {exact:.3f}"
+                      f"{' (ladder-ready)' if ready else ''}.\n")
             out.write_text(header + text)
             log(f"  PROMOTED {out.name}: {summary}", logfile)
             if not args.no_commit:
