@@ -1,3 +1,4 @@
+#define INTERP_RELEASE
 #include "interp/policy.h"
 #include "interp/program.h"
 #include <algorithm>
@@ -13,6 +14,13 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
+
+#ifndef INTERP_LIST_FEAT
+#define INTERP_LIST_FEAT(n) ((void)0)
+#endif
+// INTERP_RELEASE (bot/sync.sh defines it in the deploy bot's copy): the simulator-only pricing
+// hooks below compile out, so they cost the release bot no fuel and leave its fuel-gate reads
+// where they were (bot/profile_patch.py removes it again for the profiling build).
 
 namespace interp
 {
@@ -677,17 +685,25 @@ struct Interp
 	// same either way; the turn as a whole and its running total never go below zero.
 	// Mid-turn, kGateDeferMilli per block run so far is also held back and charged at the end:
 	// the fitted charges price the turn's total, but the real bot pays part of it after the
-	// policy runs. Measured at fuel_remaining() reads (21.5k first reads per turn, tune-3 with
-	// its gate always passing vs tune-2, 4 maps x 2 sides): without it the simulator read the
-	// gate a median 1.8k low; with it, 0.
-	static constexpr std::int64_t kGateDeferMilli = 24000;
+	// policy runs. Fitted at fuel_remaining() reads: the first read of each turn, in rounds 1-40
+	// of 160 cambc games (style-gconv1, tune-3, tune-v21-g65 and rall2-ca4 vs v7zg-cast, 40 maps),
+	// each compared with the simulator's read at the same turn. With this deferral the simulator's
+	// spend at the read is within a median 0.2k of cambc's for each policy. On a champion's first
+	// turn nothing is deferred: there the median is 0.3-1k low (24 per block: 3.5-4.3k low).
+	static constexpr std::int64_t kGateDeferMilli = 13000;
+	static constexpr std::int64_t kCampTilesMilliPerCamp = 43500;
+	static constexpr std::int64_t kFieldInitMilliPerTile = 2050;
 	std::uint64_t turn_calls0 = 0;
 	std::int64_t turn_spent0 = 0, turn_adj = 0;
 	void charge_turn_cost(bool final)
 	{
 		const auto target = static_cast<std::int64_t>(
 			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0))) -
+#ifndef INTERP_RELEASE
+			(final || turn_no == 1 ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
+#else
 			(final ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
+#endif
 		const std::int64_t raw = api.spent - turn_spent0 - turn_adj; // charges other than the correction
 		const std::int64_t want = std::max<std::int64_t>(target, -std::max<std::int64_t>(0, raw));
 		const std::int64_t d = want - turn_adj;
@@ -724,9 +740,24 @@ struct Interp
 		}
 		api.compute(std::max<std::int64_t>(0, milli / 1000));
 	}
+	// A block looping over a unit list: its length prices the block (simulator: the dests term;
+	// the profiling build records it as the scope's dbits).
+	void note_list(std::size_t n)
+	{
+#ifndef INTERP_RELEASE
+		if (api.count_charges) work.dests += static_cast<std::int64_t>(n);
+		INTERP_LIST_FEAT(n);
+#else
+		(void)n;
+#endif
+	}
 	// Distance field through the API, recording its work for the calling block's cost.
 	int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, Bitboard& visited)
 	{
+#ifndef INTERP_RELEASE
+		if (field.empty() && api.count_charges)
+			api.compute(kFieldInitMilliPerTile * m().W * m().H / 1000); // one-off zero fill (bot profile: 2.05 a tile, 3 maps)
+#endif
 		field.resize(static_cast<std::size_t>(m().W) * m().H);
 		const int n = api.distance_field(walls, roots, dests, cbs::kUnreachable, field.data(), visited);
 		if (api.count_charges)
@@ -800,12 +831,13 @@ struct Interp
 		if (state_trace && api.champ() >= 0) print_state();
 		++turn_no;
 		// The deploy bot's one-off start-up (map, camp layout, allocator; the policy is embedded
-		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 24 cambc games of
-		// v7 / fs-1 as first-turn fuel minus the simulator's charge for that turn (docs/FUEL.md):
-		// mae 1.3k on a mean of 49k.
+		// pre-parsed; bot/src/main.cpp) on a champion's first turn, measured on 160 first turns
+		// (style-gconv1 vs v7zg-cast, 40 maps, both sides, both teams) as first-turn fuel minus the
+		// simulator's charge for that turn (docs/FUEL.md): mae 1.7k. The camp-tile build and the
+		// field zero fill are charged where they happen (refresh_occupancy, distance_field).
 		if (turn_no == 1 && api.champ() >= 0 && api.count_charges)
-			api.compute(22085 + 2216 * m().W * m().H / 1000 + 288 * static_cast<std::int64_t>(m().camps.size()) +
-						394 * static_cast<std::int64_t>(m().groups.size()));
+			api.compute(30623 + 897 * m().W * m().H / 1000 + 247 * static_cast<std::int64_t>(m().camps.size()) +
+						193 * static_cast<std::int64_t>(m().groups.size()));
 		const std::uint64_t calls0 = api.api_calls;
 		const std::int64_t spent0 = api.spent;
 		turn_calls0 = calls0;
@@ -1014,6 +1046,12 @@ struct Interp
 		{
 			for (const auto& cp : m().camps) camp_tiles.set(cp.pos);
 			camp_tiles_ready = true;
+			// One-off loop over every map camp, outside the per-block fits (which pool all turns):
+			// bot profile of style-gconv1, first closest() of the game minus later ones,
+			// 43.5 per camp on 00swirl (106 camps) and 00road-of-riches (132).
+#ifndef INTERP_RELEASE
+			if (api.count_charges) api.compute(kCampTilesMilliPerCamp * static_cast<std::int64_t>(m().camps.size()) / 1000);
+#endif
 		}
 		Bitboard vis, unseen = camp_tiles;
 		api.vision(vis);
@@ -1657,6 +1695,7 @@ struct Interp
 		{
 			const Value l = eval(a[0]);
 			eval(a[1]); // in_attack_range is the only UnitPred so far
+			note_list(l.units->size());
 			Value r;
 			r.units = std::make_shared<std::vector<Unit>>();
 			ChampionInfo ci{};
@@ -1799,6 +1838,7 @@ struct Interp
 			ChampionInfo ci{};
 			const bool have_me = me(ci);
 			double best = 1e18;
+			note_list(l.units->size());
 			for (const Unit& u : *l.units)
 			{
 				Vec2 pos;
