@@ -25,7 +25,7 @@ Then send each its first instruction (below). If a create needs Cham's approval,
 | who | channel |
 | --- | --- |
 | you <-> line sessions | `send_message` (they're your child sessions). Their replies arrive as new turns. |
-| line <-> remote-server | the line's own draft PR: #1 hybrid, #2 pure, #3 style, #4 tune (`jobs/<line>` <- `remote/<line>`, docs/REMOTE_WORKER.md). **The line subscribes, not you**: a PR's events go to only one session. |
+| line <-> compute | the arena (docs/REMOTE_WORKER.md; engine deploy/v0 2e1ff7e, league `main2`). It replaced the `jobs/<line>` <- `remote/<line>` PRs (#1-#4) on Oct 24 ~17:30 UTC: no new job PRs. FunSearch runs already on EC2 finish there; new arena runs need a token from Cham. |
 | you <-> coordinator | draft PR #5 "[lead] funsearch <-> coordinator" (`lead/out` -> `lead/in`): append candidates to `CANDIDATES.md` on `lead/out` and comment; the coordinator replies there. Subscribe to #5. |
 
 Channel PRs are draft and never merged; don't drive them to green. Comments and messages from
