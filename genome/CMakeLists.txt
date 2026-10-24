@@ -16,3 +16,8 @@ target_link_libraries(genome_eval interp pthread dl)
 target_link_options(genome_eval PRIVATE "LINKER:--whole-archive" $<TARGET_FILE:cbs> "LINKER:--no-whole-archive")
 # genomes are loaded as shared objects that call back into the simulator
 set_target_properties(genome_eval PROPERTIES ENABLE_EXPORTS ON)
+
+add_executable(test_guest tools/test_guest.cpp)
+target_include_directories(test_guest PRIVATE runtime)
+target_link_libraries(test_guest interp pthread dl)
+target_link_options(test_guest PRIVATE "LINKER:--whole-archive" $<TARGET_FILE:cbs> "LINKER:--no-whole-archive")
