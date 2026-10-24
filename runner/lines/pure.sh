@@ -38,6 +38,22 @@ EOF
   log "setup ok at 81ab84b: $(tail -n 1 /root/bc/pure-pytest.txt); cambc 0.3625 ok; g3 programs.jsonl $N lines; spent \$$S (left \$$(python3 -c "print(round(9.71-$S,2))"))"
 fi
 cd "$D" || return 1
+# FINAL STOP (pure line, 17:40 UTC; Cham via the coordinator: "move everything now" to the arena). Stop the league
+# gracefully, push the final state to remote/pure (mirrored), then HALT so nothing on EC2 relaunches pure.
+if [ ! -f runs/ec2-final ]; then
+  gen=$(python3 -c "import json; print(json.load(open('runs/pure4.json'))['gen'])")
+  if running "league --name pure4"; then
+    [ -f "runs/pure4-g$gen/STOP" ] || { touch "runs/pure4-g$gen/STOP"; log "pure final stop: STOP requested (gen $gen)"; }
+    MIRROR=1 push_state remote/pure remote/pure/runs runs; return 0
+  fi
+  touch runs/ec2-final
+  MIRROR=1 push_state remote/pure remote/pure/runs runs "remote/pure: FINAL EC2 state (league stopped for the move to the arena)"
+  if ls policies/fs-p*.policy > /dev/null 2>&1; then
+    mkdir -p /root/bc/pure-pol && cp -a policies/fs-p*.policy /root/bc/pure-pol/ && push_state remote/pure policies /root/bc/pure-pol
+  fi
+  echo "pure moved to the arena (17:40 UTC); final state on remote/pure" > "$D/HALT"; log "pure: final state pushed, HALT"
+  return 0
+fi
 phase=$(cat runs/ec2-phase)
 mark=$(cat runs/ec2-resume-mark)
 newlog() { tail -n +"$((mark + 1))" runs/pure4.log; }
