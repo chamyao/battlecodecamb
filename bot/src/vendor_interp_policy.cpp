@@ -86,7 +86,7 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(unit_max_health, "unit_max_health(Unit)") X(unit_strength, "unit_strength(Unit)") X(unit_focus, "unit_focus(Unit)")     \
 	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)") \
 	X(threat_eta, "threat_eta()") X(altar_eta, "altar_eta()") X(retreat_eta, "retreat_eta()") X(enemy_between, "enemy_between(Tile)")   \
-	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)") X(bank_detour, "bank_detour(Tile)")
+	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)") X(bank_detour, "bank_detour(Tile)") X(group_rate, "group_rate(Tile)")
 
 enum class Op : std::uint16_t
 {
@@ -1532,6 +1532,39 @@ struct Interp
 				}
 			}
 			return num(sum);
+		}
+		case Op::group_rate:
+		{
+			// gems per turn of taking the group spawning on the tile: its gems over (turns to walk there + its living
+			// health / our Strength + the capture timer); living health as group_hp (unseen = alive, seen-dead = 0),
+			// 0 if nothing is alive there or off a spawn tile. Chebyshev walk at our speed, walls ignored
+			const Vec2 t = evalt(a[0]);
+			ChampionInfo me_{};
+			if (!has_tile(t) || !me(me_)) return num(0);
+			int k = -1;
+			for (std::size_t c = 0; c < m().camps.size() && k < 0; ++c)
+				if (m().camps[c].pos == t) k = static_cast<int>(c);
+			if (k < 0) return num(0);
+			double gems = 0, hp = 0;
+			Bitboard vis;
+			bool have_vis = false;
+			for (int c : m().groups[m().camps[k].group].camps)
+			{
+				const auto& d = cbs::camp_design(m().camps[c].type);
+				gems += d.gems;
+				cbs::CampRecord cr{};
+				const Err err = api.camp(static_cast<std::uint32_t>(c), &cr);
+				if (err == Err::success) hp += cr.health;
+				else if (err == Err::api_not_in_vision)
+				{
+					if (!have_vis) api.vision(vis), have_vis = true;
+					if (!vis.test(m().camps[c].pos.x, m().camps[c].pos.y)) hp += d.base_health;
+				}
+			}
+			if (hp <= 0 || gems <= 0) return num(0);
+			const double turns = eta(cbs::chebyshev({ me_.x, me_.y }, t), me_.move_speed) + hp / std::max(1.0, static_cast<double>(me_.strength)) +
+								 cbs::settings().capture_time;
+			return num(gems / std::max(1.0, turns));
 		}
 		case Op::respawning_visible_spawns:
 		{

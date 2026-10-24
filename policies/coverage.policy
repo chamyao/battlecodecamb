@@ -43,7 +43,7 @@ let camp_kinds = union( union( union( wolf_tiles(), elk_tiles() ), union( gem_cl
 # ---- calibration probes (results mostly unused) ----
 let r = round_number()
 let f = fuel_remaining()
-let probe_n = count(terrain) + count(camp_kinds) + claim_count(position()) + allies_within(5) + turns_idle() + strength() + focus() + enemies_within(5) + local_strength(5) + count(rich_spawns(15)) + count(group_tiles(monolith_tiles())) + count(capturable_spawns()) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy()) + group_gems(camp_kinds) + group_threat(closest(camp_kinds)) + group_hp(closest(elk_tiles())) + group_threat(position()) + slot_range(0) + slot_radius(1) + slot_stun(0) + slot_stun(1)
+let probe_n = count(terrain) + count(camp_kinds) + claim_count(position()) + allies_within(5) + turns_idle() + strength() + focus() + enemies_within(5) + local_strength(5) + count(rich_spawns(15)) + count(group_tiles(monolith_tiles())) + count(capturable_spawns()) - distance(position(), position()) + read_shared(7) + team_score(ally()) + team_score(enemy()) + group_gems(camp_kinds) + group_threat(closest(camp_kinds)) + group_hp(closest(elk_tiles())) + group_threat(position()) + group_rate(closest(camp_kinds)) + group_rate(position()) + slot_range(0) + slot_radius(1) + slot_stun(0) + slot_stun(1)
 if i_am_ranged():
     set_priority(1)
 if in_danger():
