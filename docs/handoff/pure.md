@@ -41,8 +41,11 @@ with the baseline re-run there.
 3. Running: screen A/B (`--arms screen`, `runs/ab-g4-screen.json`): the screen uses seed 0 = 14 of 40 maps,
    the same for every program; `evaluate(stratify=True)` tiles all maps across opponents at the same
    games. Compared against an all-maps x both-sides truth on 60 g4 programs.
+   RESULT: stratified wins (Pearson 0.83 vs 0.77, Spearman 0.725 vs 0.655, bias −0.003 vs −0.062, top-5 3 vs 2).
+   `funsearch.run --stratify` (screen only) is on branch funsearch/pure-ab d85a9d8 (= f27e0e2 + flag) and is pure's
+   default screen from now on (lead).
 Next (lead's order): live A/B for `--helpers funsearch/helpers-pure.json` (built from pure runs only),
-equal $ per arm, same parent/seeds/opponents; the stratified screen as default if A/B #2 favours it.
+equal $ per arm, same parent/seeds/opponents: arena arms pab-ctl / pab-hlp on ref d85a9d8 with --stratify, $3.2 each.
 
 ## Where things run
 
