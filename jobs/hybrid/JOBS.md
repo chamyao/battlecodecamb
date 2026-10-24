@@ -240,3 +240,16 @@ v21 (tune-v20-L1c = v20 + one altar lock per team, shared byte 7 bits 0-1) is li
    `--cambc-ref policies/pool/v21.policy`
 4. Check runs/hyb5-g2.log: exactly three new lines `re-seeded island 0|1|3 with v21`; island 2 kept. The next boundary's
    `challengers:` line lists policies/pool/v21.policy.
+
+## Job H8 (2026-10-24 13:45 UTC, hybrid line session; per the FunSearch lead): disengage axis + search fixes, next hyb5 boundary
+
+At the next hyb5 round boundary (hold + SIGTERM by PID, as before):
+
+1. `git pull origin funsearch/runs` to f31c3a4 or later (ancestor check). It adds: the "disengage" axis; prompt lists the parent's
+   draft order and asks to keep comments; run.py restores the lineage header when a child drops it; policies/pool/v19-L1c.policy;
+   and (cae2515) a diagnostics-only sim event for tools/fights.py. sim/ CHANGED: rebuild interp_eval; pytest (2012).
+2. Relaunch with the current command line (H7's) changed in two flags only:
+   `--axes items,vision,teleport,team,roles,pairs,macro,abilities,combat,disengage`
+   `--island-seeds policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/pool/v19-L1c.policy`
+3. Check runs/hyb5-g3.log: exactly two new lines `re-seeded island 2 with v20` and `re-seeded island 3 with v19-L1c`
+   (islands 0/1 keep v21); new children log axis "disengage" among others.
