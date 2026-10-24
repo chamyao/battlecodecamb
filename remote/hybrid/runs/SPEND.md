@@ -19,3 +19,5 @@ cache reads counted at 0.1x input, which overstates Opus 5.5's real 0.05x, so th
 | 2026-10-23 | hyb3-g1 (best v7) — 7 programs, replaced when v7-zerogem went live | 7 | 0.01 | 2.83 |
 | 2026-10-24 | hyb4-g1 (best v7-zerogem) — 60 programs; boundary promoted challenger tune-1 | 60 | 0.30 | 3.13 |
 | 2026-10-24 | hyb4-g2 (best tune-1) — 15 programs; boundary validation of tune-2/tune2-focus/tune-3/tune-4 in progress when the line moved to remote-server | 15 | 0.05 | 3.18 |
+| 2026-10-24 | hyb4-g3 (best tune-4) on remote-server after snapshot bca8693: lost with Cham's machine (g3 verdict and later programs), not in programs.jsonl | ? | ~0.35 | |
+| 2026-10-24 | hybrid line cap raised $10 -> $30 (project cap $90 -> $200). League --budget 29.47 = 30 - 0.18 (hyb, hyb2, hyb3) - 0.35 (lost above) | | | |
