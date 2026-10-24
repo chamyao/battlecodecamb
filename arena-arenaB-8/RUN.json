@@ -1,0 +1,47 @@
+{
+ "id": 14,
+ "label": "arenaB-8",
+ "module": "genome.search.arena",
+ "args": [
+  "--out",
+  "runs/arenaB",
+  "--resume-from",
+  "arena-arenaB-7",
+  "--tag",
+  "B",
+  "--seed",
+  "genome/seeds/v23.genome",
+  "--budget",
+  "8",
+  "--threads",
+  "5",
+  "--fixed-anchors",
+  "--recalibrate-anchors",
+  "--gate-every",
+  "100000000",
+  "--intel-branch",
+  "genome/intel"
+ ],
+ "workdir": "fresh",
+ "fresh": 1,
+ "ref": "da0a6d267d2bf85727d289847d428e46b7ef689e (da0a6d267d2b)",
+ "threads": 5,
+ "budget": 8.0,
+ "pid": 140423,
+ "status": "running",
+ "exit_code": null,
+ "error": null,
+ "created_by": "anon:genome-search",
+ "created_at": 1792876663.70132,
+ "started_at": 1792876663.7078846,
+ "finished_at": null,
+ "extra": {
+  "policies": {},
+  "overlay": {
+   "ref": "remote/genome",
+   "paths": [
+    "arena-arenaB-7"
+   ]
+  }
+ }
+}
