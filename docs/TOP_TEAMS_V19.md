@@ -74,6 +74,36 @@ The wins:
 
 - **v18 final** (groups 07:40-08:20): 11-14.
   - JBG fam 2-3, LigaSiur 2-3, Silent Pathfinders 5-0, newtern 1-4, Gobfrey 1-4.
-- **v19** (groups from 08:30): 2-8 so far.
-  - TEST-DUMMIES 2-3, Index[0] 0-5.
-  - The full record follows at about 20 games.
+- **v19** (groups 08:30-09:00): **10-10**.
+  - TEST-DUMMIES 2-3, Index[0] 0-5, Hungry Hungry Hungry 3-2, Arasaka 5-0.
+
+Ranked metrics per version. The opponents differ, so this is weak evidence:
+
+| per game | v17 | v18 | v19 |
+|---|---|---|---|
+| games, W-L | 10, 7-3 | 25, 11-14 | 20, 10-10 |
+| gems submitted us / them | 831 / 685 | 654 / 807 | 694 / 715 |
+| deaths us / them | 10.5 / 12.7 | 11.4 / 15.2 | 9.8 / 15.4 |
+| kills us / them | 9.4 / 8.7 | 8.9 / 7.5 | 6.9 / 4.8 |
+| champion damage us / them | 31.1k / 28.6k | 22.9k / 24.5k | 13.1k / 13.0k |
+| gems per capture us / them | 12.1 / 11.7 | 13.6 / 17.0 | 12.6 / 19.8 |
+| captures us / them | 94.2 / 59.8 | 74.0 / 57.3 | 81.6 / 45.9 |
+| tributes us / them | 26.6 / 34.9 | 19.4 / 37.6 | 23.2 / 25.3 |
+| median bag us / them | 30 / 15 | 30 / 15 | 29 / 29 |
+| gems lost dying us / them | 123 / 41 | 87 / 122 | 116 / 40 |
+| gold earned us / them | 9.6k / 5.3k | 8.2k / 7.0k | 8.9k / 5.0k |
+| our deaths with 2+ of theirs within 5 | 63% of 87 | 62% of 187 | 58% of 97 |
+
+| opponent | v17 W-L (gems us-them) | v18 W-L (gems us-them) | v19 W-L (gems us-them) |
+|---|---|---|---|
+| Arasaka | 0-0 (0-0) | 0-0 (0-0) | 5-0 (995-556) |
+| Gobfrey | 0-0 (0-0) | 1-4 (367-940) | 0-0 (0-0) |
+| Hungry Hungry Hungry | 0-0 (0-0) | 0-0 (0-0) | 3-2 (828-687) |
+| Index[0] | 0-0 (0-0) | 0-0 (0-0) | 0-5 (242-926) |
+| JBG fam | 0-0 (0-0) | 2-3 (767-718) | 0-0 (0-0) |
+| LigaSiur | 0-0 (0-0) | 2-3 (631-819) | 0-0 (0-0) |
+| Rataturing | 4-1 (861-663) | 0-0 (0-0) | 0-0 (0-0) |
+| Silent Pathfinders | 0-0 (0-0) | 5-0 (1017-566) | 0-0 (0-0) |
+| TEST-DUMMIES | 0-0 (0-0) | 0-0 (0-0) | 2-3 (712-691) |
+| newtern | 0-0 (0-0) | 1-4 (490-989) | 0-0 (0-0) |
+| octo's odyssey | 3-2 (801-706) | 0-0 (0-0) | 0-0 (0-0) |
