@@ -1,0 +1,100 @@
+seed score 0.779
+[4] claude-haiku-5-5 island 3: score 0.309 | best 0.779 (#0) $0.01 | 201s
+[7] claude-haiku-5-5 island 2: score 0.376 | best 0.779 (#0) $0.04 | 559s
+[8] claude-haiku-5-5 island 1: error: TypeError: no block filter(UnitList, TilePred) | best 0.779 (#0) $0.04 | 607s
+[9] claude-haiku-5-5 island 2: score 0.213 | best 0.779 (#0) $0.05 | 781s
+[10] claude-haiku-5-5 island 3: score 0.677 | best 0.779 (#0) $0.05 | 801s
+[11] claude-haiku-5-5 island 2: score 0.457 | best 0.779 (#0) $0.06 | 890s
+[12] claude-opus-5-5 island 0: error: TypeError: line 32: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.22 | 931s
+[13] claude-haiku-5-5 island 1: score 0.523 | best 0.779 (#0) $0.22 | 945s
+[14] claude-haiku-5-5 island 2: score 0.284 | best 0.779 (#0) $0.23 | 1097s
+[15] claude-haiku-5-5 island 3: score 0.537 | best 0.779 (#0) $0.23 | 1113s
+[16] claude-haiku-5-5 island 1: score 0.610 | best 0.779 (#0) $0.24 | 1241s
+[17] claude-haiku-5-5 island 2: score 0.084 | best 0.779 (#0) $0.24 | 1276s
+[19] claude-haiku-5-5 island 3: error: TypeError: line 22: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.25 | 1328s
+[20] claude-haiku-5-5 island 2: error: TypeError: line 33: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.26 | 1362s
+[22] claude-haiku-5-5 island 0: score 0.008 | best 0.779 (#0) $0.39 | 1576s
+[23] claude-haiku-5-5 island 3: score 0.431 | best 0.779 (#0) $0.39 | 1753s
+[24] claude-haiku-5-5 island 3: score 0.600 | best 0.779 (#0) $0.40 | 1984s
+[25] claude-haiku-5-5 island 0: score 0.110 | best 0.779 (#0) $0.40 | 2169s
+[26] claude-opus-5-5 island 1: score 0.691 | best 0.779 (#0) $0.41 | 2251s
+[27] claude-haiku-5-5 island 1: score 0.565 | best 0.779 (#0) $0.41 | 2296s
+[28] claude-haiku-5-5 island 2: score 0.348 | best 0.779 (#0) $0.42 | 2416s
+[29] claude-haiku-5-5 island 3: score 0.508 | best 0.779 (#0) $0.42 | 2448s
+[30] claude-haiku-5-5 island 1: score 0.180 | best 0.779 (#0) $0.44 | 2631s
+[31] claude-haiku-5-5 island 2: score 0.213 | best 0.779 (#0) $0.44 | 2673s
+[32] claude-haiku-5-5 island 1: error: TypeError: line 32: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.44 | 2689s
+[33] claude-haiku-5-5 island 3: score 0.631 | best 0.779 (#0) $0.60 | 2887s
+[34] claude-haiku-5-5 island 1: score 0.619 | best 0.779 (#0) $0.61 | 3082s
+[35] claude-haiku-5-5 island 3: score 0.456 | best 0.779 (#0) $0.61 | 3294s
+[36] claude-haiku-5-5 island 2: score 0.233 | best 0.779 (#0) $0.62 | 3434s
+[37] claude-opus-5-5 island 0: score 0.770 | best 0.779 (#0) $0.62 | 3450s
+[39] claude-haiku-5-5 island 3: score 0.470 | best 0.779 (#0) $0.64 | 3585s
+[40] claude-haiku-5-5 island 0: score 0.081 | best 0.779 (#0) $0.64 | 3739s
+[41] claude-haiku-5-5 island 0: error: TypeError: line 28: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.65 | 3783s
+[42] claude-haiku-5-5 island 1: score 0.626 | best 0.779 (#0) $0.81 | 3865s
+[43] claude-haiku-5-5 island 2: score 0.069 | best 0.779 (#0) $0.01 | 184s
+[44] claude-haiku-5-5 island 3: score 0.683 | best 0.779 (#0) $0.02 | 363s
+[45] claude-haiku-5-5 island 2: score 0.100 | best 0.779 (#0) $0.02 | 379s
+[46] claude-haiku-5-5 island 1: score 0.499 | best 0.779 (#0) $0.03 | 505s
+[47] claude-haiku-5-5 island 0: score 0.342 | best 0.779 (#0) $0.03 | 542s
+[48] claude-haiku-5-5 island 2: score 0.669 | best 0.779 (#0) $0.04 | 713s
+[49] claude-haiku-5-5 island 1: score 0.682 | best 0.779 (#0) $0.05 | 883s
+[50] claude-haiku-5-5 island 3: score 0.207 | best 0.779 (#0) $0.05 | 904s
+[51] claude-opus-5-5 island 2: error: NameError: line 88: my_range already defined | best 0.779 (#0) $0.16 | 935s
+[52] claude-haiku-5-5 island 1: score 0.618 | best 0.779 (#0) $0.16 | 980s
+[53] claude-haiku-5-5 island 0: error: TypeError: line 28: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.17 | 998s
+[56] claude-haiku-5-5 island 1: score 0.094 | best 0.779 (#0) $0.20 | 1273s
+[57] claude-haiku-5-5 island 0: score 0.656 | best 0.779 (#0) $0.21 | 1379s
+[58] claude-haiku-5-5 island 3: score 0.199 | best 0.779 (#0) $0.22 | 1418s
+[59] claude-haiku-5-5 island 3: score 0.437 | best 0.779 (#0) $0.22 | 1483s
+[61] claude-opus-5-5 island 2: error: TypeError: line 26: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.39 | 1528s
+[62] claude-haiku-5-5 island 3: score 0.575 | best 0.779 (#0) $0.39 | 1702s
+[63] claude-haiku-5-5 island 1: score 0.586 | best 0.779 (#0) $0.40 | 1887s
+[64] claude-haiku-5-5 island 2: error: TypeError: line 31: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.41 | 1935s
+[65] claude-haiku-5-5 island 1: score 0.296 | best 0.779 (#0) $0.41 | 2143s
+[66] claude-haiku-5-5 island 1: score 0.704 | best 0.779 (#0) $0.42 | 2412s
+[67] claude-haiku-5-5 island 0: score 0.623 | best 0.779 (#0) $0.42 | 2458s
+[68] claude-haiku-5-5 island 1: error: TypeError: line 39: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.43 | 2477s
+[69] claude-haiku-5-5 island 3: score 0.594 | best 0.779 (#0) $0.43 | 2557s
+[70] claude-haiku-5-5 island 3: score 0.645 | best 0.779 (#0) $0.44 | 2615s
+[71] claude-haiku-5-5 island 2: score 0.569 | best 0.779 (#0) $0.59 | 2693s
+[72] claude-haiku-5-5 island 1: score 0.584 | best 0.779 (#0) $0.60 | 2903s
+[73] claude-opus-5-5 island 3: score 0.682 | best 0.779 (#0) $0.60 | 2921s
+[74] claude-haiku-5-5 island 0: error: TypeError: no block group_tiles(Tile) | best 0.779 (#0) $0.60 | 2961s
+[77] claude-haiku-5-5 island 1: score 0.519 | best 0.779 (#0) $0.64 | 3123s
+[78] claude-haiku-5-5 island 0: error: TypeError: no block group_tiles(Tile) | best 0.779 (#0) $0.64 | 3183s
+[79] claude-haiku-5-5 island 0: score 0.388 | best 0.779 (#0) $0.64 | 3185s
+[80] claude-haiku-5-5 island 0: error: TypeError: line 24: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.65 | 3238s
+[81] claude-haiku-5-5 island 1: score 0.219 | best 0.779 (#0) $0.76 | 3357s
+[82] claude-haiku-5-5 island 3: score 0.659 | best 0.779 (#0) $0.76 | 3731s
+[83] claude-haiku-5-5 island 0: score 0.307 | best 0.779 (#0) $0.77 | 3941s
+[84] claude-haiku-5-5 island 2: score 0.635 | best 0.779 (#0) $0.78 | 4159s
+[85] claude-opus-5-5 island 0: score 0.748 | best 0.779 (#0) $0.78 | 4175s
+[86] claude-haiku-5-5 island 3: score 0.670 | best 0.779 (#0) $0.78 | 4504s
+[87] claude-haiku-5-5 island 3: score 0.666 | best 0.779 (#0) $0.78 | 4522s
+[88] claude-haiku-5-5 island 3: score 0.508 | best 0.779 (#0) $0.80 | 4631s
+[89] claude-haiku-5-5 island 1: score 0.671 | best 0.779 (#0) $0.80 | 4697s
+[90] claude-haiku-5-5 island 0: score 0.659 | best 0.779 (#0) $0.81 | 4809s
+[91] claude-opus-5-5 island 3: score 0.692 | best 0.779 (#0) $0.96 | 5154s
+[92] claude-haiku-5-5 island 3: score 0.435 | best 0.779 (#0) $0.96 | 5347s
+[93] claude-haiku-5-5 island 2: error: TypeError: line 31: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.97 | 5387s
+[94] claude-haiku-5-5 island 2: score 0.529 | best 0.779 (#0) $0.98 | 5577s
+[95] claude-haiku-5-5 island 1: score 0.683 | best 0.779 (#0) $0.98 | 5671s
+[96] claude-haiku-5-5 island 3: score 0.627 | best 0.779 (#0) $0.99 | 5725s
+[97] claude-haiku-5-5 island 3: score 0.578 | best 0.779 (#0) $0.99 | 5899s
+[98] claude-haiku-5-5 island 0: score 0.668 | best 0.779 (#0) $1.00 | 6012s
+[99] claude-haiku-5-5 island 2: score 0.287 | best 0.779 (#0) $1.00 | 6061s
+[100] claude-haiku-5-5 island 3: score 0.441 | best 0.779 (#0) $1.01 | 6256s
+[101] claude-opus-5-5 island 1: score 0.693 | best 0.779 (#0) $1.20 | 6643s
+[102] claude-haiku-5-5 island 1: score 0.659 | best 0.779 (#0) $1.20 | 7001s
+[103] claude-haiku-5-5 island 1: score 0.699 | best 0.779 (#0) $1.21 | 7064s
+[104] claude-haiku-5-5 island 3: score 0.592 | best 0.779 (#0) $1.21 | 7461s
+[106] claude-haiku-5-5 island 1: score 0.616 | best 0.779 (#0) $1.22 | 7902s
+[107] claude-haiku-5-5 island 3: score 0.687 | best 0.779 (#0) $1.22 | 7907s
+[108] claude-haiku-5-5 island 2: error: TypeError: line 27: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $1.23 | 7952s
+[109] claude-haiku-5-5 island 0: score 0.261 | best 0.779 (#0) $1.24 | 8096s
+[110] claude-haiku-5-5 island 3: score 0.261 | best 0.779 (#0) $1.24 | 8115s
+[112] claude-haiku-5-5 island 2: error: TypeError: no block group_tiles(Tile) | best 0.779 (#0) $1.43 | 8190s
+[113] claude-opus-5-5 island 0: score 0.643 | best 0.779 (#0) $1.43 | 8223s
+[114] claude-haiku-5-5 island 0: score 0.620 | best 0.779 (#0) $1.44 | 8307s
