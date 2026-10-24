@@ -47,3 +47,9 @@ seed style-gconv1 score 0.731 (islands [0, 1, 2, 3])
 [45] claude-haiku-5-5 island 0: score 0.613 | best 0.822 (#35) $0.98 | 2953s
 [46] claude-haiku-5-5 island 1: score 0.774 | best 0.822 (#35) $0.99 | 3211s
 [47] claude-haiku-5-5 island 0: score 0.765 | best 0.822 (#35) $0.99 | 3219s
+[48] claude-haiku-5-5 island 0: score 0.692 | best 0.822 (#35) $0.99 | 3331s
+[49] claude-haiku-5-5 island 3: score 0.682 | best 0.822 (#35) $0.99 | 3349s
+[50] claude-haiku-5-5 island 3: error: NameError: line 219: rich_slack already defined | best 0.822 (#35) $1.00 | 3372s
+[51] claude-haiku-5-5 island 2: score -0.198 | best 0.822 (#35) $1.00 | 3382s
+[52] claude-haiku-5-5 island 3: error: KeyError: 'VAR:Num:16' | best 0.822 (#35) $1.01 | 3390s
+[53] claude-opus-5-5 island 3: error: KeyError: 'VAR:Num:16' | best 0.822 (#35) $1.22 | 3425s
