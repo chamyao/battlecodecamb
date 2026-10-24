@@ -189,13 +189,19 @@ struct Caster
 };
 } // namespace detail
 
-template <class OnRow, class Done>
-int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow&& on_row,
-			   Done&& done)
+namespace detail
 {
-	using Row = Row128;
-	auto load = [](const Bitboard& b, int y) { return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64; };
-	const Row full = W >= 128 ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
+// Row is std::uint64_t for maps at most 64 wide (word 1 of every row is zero there), else Row128.
+template <class Row, class OnRow, class Done>
+int bfs_layers_impl(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow& on_row,
+					Done& done)
+{
+	auto load = [](const Bitboard& b, int y) {
+		if constexpr (sizeof(Row) == 8) return b.w[y][0];
+		else return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64;
+	};
+	constexpr int bits = 8 * sizeof(Row);
+	const Row full = W >= bits ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
 	// avail = open and not yet reached. front is padded by one zero row on each side and is zero
 	// outside the frontier's rows [y0, y1], so a layer is one pass over [y0 - 1, y1 + 1] that
 	// overwrites front in place (the old rows y and y + 1 are held in registers).
@@ -213,7 +219,7 @@ int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int m
 		{
 			any = true;
 			y0 = std::min(y0, y), y1 = y;
-			on_row(front[y], y, 0);
+			on_row(static_cast<Row128>(front[y]), y, 0);
 		}
 	}
 	int count = 0, depth = 0;
@@ -240,15 +246,24 @@ int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int m
 				if (n1 < 0) n0 = y;
 				n1 = y;
 				avail[y] &= ~nx;
-				on_row(nx, y, d);
+				on_row(static_cast<Row128>(nx), y, d);
 			}
 		}
 		y0 = n0, y1 = n1;
 		++depth;
 		++count;
 	}
-	for (int y = 0; y < H; ++y) seen[y] = ~load(walls, y) & full & ~avail[y];
+	for (int y = 0; y < H; ++y) seen[y] = static_cast<Row128>(~load(walls, y) & full & ~avail[y]);
 	return count;
+}
+} // namespace detail
+
+template <class OnRow, class Done>
+int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int max_distance, Row128* seen, OnRow&& on_row,
+			   Done&& done)
+{
+	if (W <= 64) return detail::bfs_layers_impl<std::uint64_t>(walls, roots, W, H, max_distance, seen, on_row, done);
+	return detail::bfs_layers_impl<Row128>(walls, roots, W, H, max_distance, seen, on_row, done);
 }
 
 template <class Blocking, class Mark>

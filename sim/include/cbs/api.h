@@ -132,6 +132,12 @@ public:
 		const std::int64_t p = price(c, n, n2, n3);
 		spent += p;
 		if (c != Call::compute && c != Call::yield) ++api_calls;
+		if (memo_stats().enabled || (!unlimited && spent > budget)) [[unlikely]]
+			charge_rest(c, p);
+	}
+	// The rest of charge(), rarely needed: diagnostics, then the overrun (throw or suspend).
+	[[gnu::noinline]] void charge_rest(Call c, std::int64_t p)
+	{
 		if (memo_stats().enabled && prices_->bot_memo)
 		{
 			MemoStats& ms = memo_stats();
