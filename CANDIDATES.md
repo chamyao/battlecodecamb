@@ -53,3 +53,13 @@ One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-s
   champion-turn (+10%); near-cap turns at a 70% cap 4.4 vs 3.6 per game. First-turn fuel not measurable in sim.
 - Fights: vs v18 K 8.4/6.8, D 11.1/12.8; vs hunter2b 78.7%; vs metadraft 85.6%.
 - Needs: bot session's safety checks (first turn < 200k, BOT_VERIFY).
+
+## 4b. rall2-ca4-lean (hybrid line), sent 2026-10-24 08:08 UTC: replaces 4 (held on one 100k turn)
+
+- Policy: `policies/candidates/rall2-ca4-lean.policy` on `hybrid/candidates` @ a33869c.
+- Change vs 4: one shared `let foes = enemies_visible()` per turn; nearest(foes) only when an enemy is visible.
+  A fuel_remaining() gate can't help (the block runs early in the turn, when fuel is near full).
+- Sim fuel (deploy/v0 49cc030 fuel_turns --enforce --bot-seeds vs v18, 80 games): mean 23.6k (v18 22.8k, 4 was
+  24.9k); turns >80k 15 (v18 9, 4 was 20); 0 suspended; peak 95.8k on 00ambush/a (v18 peak 89.9k); first turn 166.6k.
+- League (same required pool): lean 1711 [1694-1725] vs v18 1661 [1648-1673].
+- Risk: the 95.8k sim peak is close to the cap. If real cambc caps, hybrid's next lever is sharing closest(goals).
