@@ -3,7 +3,7 @@
 Written by the FunSearch lead session (the hybrid line no longer has its own session); read by
 remote-server when woken (docs/REMOTE_WORKER.md). Clone: `/root/work/battlecodecamb`, branch `funsearch/runs`.
 
-## Job H1 (2026-10-24 04:50 UTC): rebase the league on tune-5 (live ladder v16), resume hyb4-g3
+## Job H1 (DONE on remote-server; superseded by the EC2 resume section below) (2026-10-24 04:50 UTC): rebase the league on tune-5 (live ladder v16), resume hyb4-g3
 
 tune-5 is the live ladder bot. Add it as a challenger against the current best (tune-4) and make it
 the reference of the ladder-ready check. This is a resume, not a fresh start: nothing in
@@ -34,7 +34,7 @@ the reference of the ladder-ready check. This is a resume, not a fresh start: no
 At the g3 boundary tune-5 is judged against tune-4 by the league rule. Comment on PR #1 when the
 boundary verdict is logged (promotion or "no promotion"), with the validation lines.
 
-## Job H2 (2026-10-24 05:20 UTC, hybrid line session): after the g3 verdict, add two g4 challengers and pick up the new prompt
+## Job H2 (NOT RUN; folded into the EC2 resume section below) (2026-10-24 05:20 UTC, hybrid line session): after the g3 verdict, add two g4 challengers and pick up the new prompt
 
 Do this only once the g3 boundary verdict is logged (promotion or "no promotion") and g4 has started.
 Do not touch the g3 validation in progress.
@@ -61,15 +61,15 @@ Compute moves from remote-server to EC2 (c7a.4xlarge spot, 16 threads; bit-ident
 section replaces remote-server for hyb4. It is a RESUME of hyb4, never a fresh start: nothing in
 `runs/hyb4*` or `runs/validation_cache.jsonl` may be deleted, renamed or regenerated.
 
-### State source
+### State source (updated 06:40 UTC: do not wait for Cham's machine)
 
-The hyb4 state lives on branch `remote/hybrid` under `remote/hybrid/runs/`: `hyb4.json`, `hyb4.challengers`,
-`hyb4.log`, `hyb4-g1/`, `hyb4-g2/`, `hyb4-g3/` (programs.jsonl), `validation_cache.jsonl`, `SPEND.md`.
-**It is stale** (snapshot 04:54 UTC: gen 3, 30/30 programs, g3 boundary not yet validated). Wait until
-Cham has pushed his machine's latest `runs/` to `remote/hybrid`, and check that `remote/hybrid/STATUS.md`
-is dated after the remote-server league was stopped. Using the stale snapshot is safe (the league
-re-validates the g3 boundary, and the validation cache makes that cheap), but any g4 programs made
-on remote-server since would be lost and re-bought.
+Resume from the CURRENT `remote/hybrid` snapshot (bca8693) under `remote/hybrid/runs/`: `hyb4.json`,
+`hyb4.challengers`, `hyb4.log`, `hyb4-g1/`, `hyb4-g2/`, `hyb4-g3/` (programs.jsonl), `validation_cache.jsonl`,
+`SPEND.md`. Cham's later runs are treated as never having happened. The snapshot is: gen 3, 30/30 g3
+programs done (34 lines in hyb4-g3/programs.jsonl), g3 boundary NOT validated, tune-5 pending in
+`hyb4.json` ("pending": ["policies/tune-5.policy"]), `hyb4.challengers` empty. So EC2 starts by
+validating the g3 boundary. Lost after the snapshot: the g3 verdict and ~$0.35 of hyb4 spend, which
+programs.jsonl won't show (accounted for in --budget below and in SPEND.md).
 
 ### Commands
 
@@ -86,7 +86,8 @@ python3 -m pip install -q anthropic pytest
 python3 -m pytest -q tests                                            # expect 2012 passed
 ```
 
-H2's challengers: append them only if they are not already in `runs/hyb4.challengers`:
+H2's challengers: append them only if they are not already in `runs/hyb4.challengers`. They are judged at
+the g3 boundary together with the pending tune-5:
 
 ```
 for p in policies/candidates/hyb-t5m.policy policies/candidates/hyb-t5m-rich15d6f.policy; do
@@ -94,11 +95,20 @@ for p in policies/candidates/hyb-t5m.policy policies/candidates/hyb-t5m-rich15d6
 cat runs/hyb4.challengers
 ```
 
-Launch (FUNSEARCH_API_KEY must be set in this shell; budget is the line's cap, already partly spent;
-the league subtracts spend recorded in runs/hyb4-g*/programs.jsonl):
+Log the spend and budget change first (SPEND.md is in runs/ from the snapshot):
 
 ```
-nohup setsid python3 -m funsearch.league --name hyb4 --threads 5 --budget 9.82 \
+cat >> runs/SPEND.md <<'X'
+| 2026-10-24 | hyb4-g3 (best tune-4) on remote-server after snapshot bca8693: lost with Cham's machine (g3 verdict and later programs), not in programs.jsonl | ? | ~0.35 | |
+| 2026-10-24 | hybrid line cap raised $10 -> $30 (project cap $90 -> $200). League --budget 29.47 = 30 - 0.18 (hyb, hyb2, hyb3) - 0.35 (lost above) | | | |
+X
+```
+
+Launch (FUNSEARCH_API_KEY must be set in this shell; the league subtracts spend recorded in
+runs/hyb4-g*/programs.jsonl from --budget):
+
+```
+nohup setsid python3 -m funsearch.league --name hyb4 --threads 5 --budget 29.47 \
   --members policies/v7-zerogem.policy,policies/v7.policy,policies/v5d-fs2.policy \
   --fixed policies/locker.policy --prefix fs-h --line hybrid --round 30 \
   --cambc-ref policies/tune-5.policy --workers 3 --eval-threads 2 >> runs/hyb4.out 2>&1 < /dev/null &
@@ -111,14 +121,13 @@ never `pkill -f`; SIGINT can hang the thread pools).
 
 ### Resume checks (do all before reporting it running)
 
-1. The first new line in `runs/hyb4.log` must be `hyb4-g3: ... (30 so far), best policies/tune-4.policy`
-   with `+0 programs` (the g3 boundary is re-validated), or, if Cham's push already has the g3 verdict,
-   `hyb4-g4: +N programs to the next boundary (M so far), best <g3 winner>` with M matching
-   `wc -l runs/hyb4-g4/programs.jsonl` minus 4.
+1. The first new line in `runs/hyb4.log` must be
+   `hyb4-g3: +0 programs to the next boundary (30 so far), best policies/tune-4.policy, ...`
+   followed by `challengers: [...]` listing tune-5, hyb-t5m and hyb-t5m-rich15d6f (the g3 boundary is validated now).
    **A fresh start shows `hyb4-g1: +30 programs ... (0 so far), best policies/v7-zerogem.policy`:
    if you see that, stop immediately, since the state was not restored.**
-2. The `challengers:` log line at the next boundary lists tune-5 (if g3 is not yet validated) and the
-   two H2 policies.
-3. The `$... left` figure continues from the last logged one (~$9.11 at 04:54 UTC), not $9.82.
+2. After the g3 verdict: `hyb4-g4: +30 programs to the next boundary (0 so far), best <g3 winner>`.
+3. The `$... left` figure is about $28.76 (29.47 minus the $0.71 recorded in hyb4-g*/programs.jsonl; the snapshot
+   logged $9.11 left of 9.82), not $29.47.
 
 Report the first log lines, then each boundary verdict (validation lines + cambc-exact vs tune-5), on PR #1.
