@@ -86,3 +86,16 @@ One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-s
 - Sim fuel (fuel_turns --enforce --bot-seeds; big-world/ambush/starvation x 2 sides): peak 89.8k (non-first), 0 >= 100k,
   first turn <= 167.8k. Note: close to the 90k target.
 - Fights vs hunter3 (80 games): wins 70 vs 64%, deaths 4.44 vs 6.30, kills 8.80 vs 7.76, mid-recall deaths 1.02 vs 1.77.
+
+## 6. tune-v20-L1 (tune line), sent 2026-10-24 12:02 UTC
+
+- Policy: `policies/candidates/tune-v20-L1.policy` on `tune/runs` @ b15465c. Build from deploy/v0 b9452ee or later
+  (needs the lockfix: locked_altars() = enemy locks only; v20's deploy 6d50156 already has it).
+- What: v20 + lock once. At spawn, if shared byte 7 == 0 and no lock held, buy one altar lock; when within 2 of an altar
+  with an empty bag, place it, set byte 7 = 1, end turn. One lock per team per game; locks block only enemy tributes.
+  Old blocks only (buy/place/has_altar_lock, read/write_shared).
+- League (13 policies, 160 games per pair). Pool: v20 (live), v19, tune5-campreset, opp-hunter3, opp-hunter2a/2b/2c,
+  opp-icecream, opp-odyssey, opp-metab, opp-metadraft, + variants. L1 1736 [1724-1752] vs v20 1694 [1681-1709].
+- Info: 55.4% and 54.0% vs v20 on two 2 x 400 fresh sets; 42/80 bot-seeded; 0 suspensions.
+- Sim fuel (enforce, bot-seeds; big-world/ambush/starvation/lost-world/hooks/gemfight x 2): peak 88.1k, first turn <= 169.2k.
+- vs hunter3 (80 games): wins 75 vs 70%, deaths 3.92 vs 4.44.
