@@ -188,3 +188,16 @@ done: 30 programs (1 invalid), spent $0.68; best #11 score 0.736 -> /root/bc/hyb
 [182] claude-haiku-5-5 island 1: score 0.411 | best 0.736 (#11) $0.51 | 762s
 [183] claude-haiku-5-5 island 2: score 0.128 | best 0.736 (#11) $0.51 | 800s
 done: 29 programs (0 invalid), spent $0.51; best #11 score 0.736 -> /root/bc/hybrid/runs/hyb5-g1/best.policy
+[184] claude-haiku-5-5 island 3: score 0.596 | best 0.736 (#11) $0.02 | 65s
+[185] claude-haiku-5-5 island 3: score 0.466 | best 0.736 (#11) $0.02 | 68s
+[186] claude-haiku-5-5 island 0: score 0.318 | best 0.736 (#11) $0.02 | 102s
+[187] claude-haiku-5-5 island 2: score 0.300 | best 0.736 (#11) $0.03 | 123s
+[188] claude-haiku-5-5 island 2: score 0.598 | best 0.736 (#11) $0.03 | 150s
+[189] claude-haiku-5-5 island 0: score 0.268 | best 0.736 (#11) $0.03 | 152s
+[190] claude-haiku-5-5 island 1: score 0.624 | best 0.736 (#11) $0.04 | 181s
+[191] claude-haiku-5-5 island 2: score 0.285 | best 0.736 (#11) $0.04 | 210s
+[192] claude-haiku-5-5 island 3: score 0.386 | best 0.736 (#11) $0.04 | 213s
+[193] claude-opus-5-5 island 1: error: TypeError: no block filter(UnitList, TilePred) | best 0.736 (#11) $0.26 | 239s
+[194] claude-haiku-5-5 island 2: score 0.271 | best 0.736 (#11) $0.26 | 267s
+[195] claude-haiku-5-5 island 3: score 0.565 | best 0.736 (#11) $0.26 | 271s
+[196] claude-haiku-5-5 island 1: score 0.553 | best 0.736 (#11) $0.27 | 304s
