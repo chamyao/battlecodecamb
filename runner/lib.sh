@@ -28,6 +28,9 @@ push_state() {
       { git init -q "$wt" && git -C "$wt" checkout -q --orphan "$br" && git -C "$wt" remote add origin "$REPO"; }
   fi
   git -C "$wt" fetch -q origin "$br" 2>/dev/null && git -C "$wt" reset -q --hard "origin/$br"
+  # MIRROR=1: make <dest> an exact copy of <src> (files deleted on the box are deleted in the branch too);
+  # refused for the branch root so .git and unrelated files can never be wiped
+  if [ "${MIRROR:-0}" = 1 ] && [ -n "$dst" ] && [ "$dst" != "." ]; then rm -rf "${wt:?}/$dst"; fi
   mkdir -p "$wt/$dst"
   cp -a "$src/." "$wt/$dst/"
   git -C "$wt" add -A -f "$dst"

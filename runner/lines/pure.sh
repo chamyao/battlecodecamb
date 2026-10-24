@@ -48,7 +48,7 @@ ADVANCE_G3=1
 if [ "$ADVANCE_G3" = 1 ] && [ "$phase" = g3 ] && [ ! -f runs/ec2-advanced ]; then
   if running "league --name pure4"; then
     [ -f runs/pure4-g3/STOP ] || { touch runs/pure4-g3/STOP; log "g3 advance: STOP requested, waiting for the league to exit"; }
-    push_state remote/pure remote/pure/runs runs; return 0
+    MIRROR=1 push_state remote/pure remote/pure/runs runs; return 0
   fi
   python3 - <<'EOF2' || { halt "g3 advance: runs/pure4.json is not at gen 3: $(cat runs/pure4.json)"; return 1; }
 import json
@@ -95,7 +95,7 @@ if [ "$phase" = g4 ] && [ ! -f runs/ec2-g6build ]; then
   if [ "$gen" -ge 5 ]; then   # moved up to g5 (13:05 UTC): every pool policy uses locked_altars
     if running "league --name pure4"; then
       [ -f "runs/pure4-g$gen/STOP" ] || { mkdir -p "runs/pure4-g$gen"; touch "runs/pure4-g$gen/STOP"; log "g6 build switch: STOP requested (gen $gen)"; }
-      push_state remote/pure remote/pure/runs runs; return 0
+      MIRROR=1 push_state remote/pure remote/pure/runs runs; return 0
     fi
     rm -f "runs/pure4-g$gen/STOP"
     [ -d "runs/pure4-g$gen" ] && mv "runs/pure4-g$gen" "runs/pure4-g$gen-oldbuild"
@@ -126,7 +126,7 @@ if [ "$TUNE_ARMED" = 1 ] && [ "$phase" = g4 ] && [ -f runs/ec2-g6build ] && [ ! 
   gen=$(python3 -c "import json; print(json.load(open('runs/pure4.json'))['gen'])")
   if running "league --name pure4"; then
     [ -f "runs/pure4-g$gen/STOP" ] || { touch "runs/pure4-g$gen/STOP"; log "tune restart: STOP requested (gen $gen)"; }
-    push_state remote/pure remote/pure/runs runs; return 0
+    MIRROR=1 push_state remote/pure remote/pure/runs runs; return 0
   fi
   rm -f "runs/pure4-g$gen/STOP"
   rm -rf /root/bc/pure-runs-save && cp -a runs /root/bc/pure-runs-save &&
@@ -169,9 +169,9 @@ $prom" || { log "fs-p3 push failed"; return 1; }
     log "g3 promoted ($prom); moved to funsearch/pure $(git rev-parse --short HEAD) for g4"
   elif [ -f runs/ec2-launched ] && newlog | tail -n 1 | grep -q 'budget spent'; then
     [ -f runs/ec2-budget-reported ] || { log "league exited: $(newlog | tail -n 1)"; touch runs/ec2-budget-reported; }
-    push_state remote/pure remote/pure/runs runs; return 0
+    MIRROR=1 push_state remote/pure remote/pure/runs runs; return 0
   elif [ -f runs/ec2-launched ] && ls runs/pure4-g*/STOP > /dev/null 2>&1; then
-    log "league not running and a STOP file is present: leaving it paused"; push_state remote/pure remote/pure/runs runs; return 0
+    log "league not running and a STOP file is present: leaving it paused"; MIRROR=1 push_state remote/pure remote/pure/runs runs; return 0
   elif [ "$phase" = g3 ] && [ -f runs/ec2-launched ] && newlog | grep -q 'PROMOTED fs-p3'; then
     log "g3 promoted but the league is gone before gen 4 was written; waiting"; return 0
   fi
@@ -200,7 +200,7 @@ if [ ! -f runs/ec2-resume-checked ]; then
     fi
   fi
 fi
-push_state remote/pure remote/pure/runs runs
+MIRROR=1 push_state remote/pure remote/pure/runs runs
 if ls policies/fs-p*.policy > /dev/null 2>&1; then   # promoted policies (none until a promotion)
   mkdir -p /root/bc/pure-pol && cp -a policies/fs-p*.policy /root/bc/pure-pol/ && push_state remote/pure policies /root/bc/pure-pol
 fi
