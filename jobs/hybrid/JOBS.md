@@ -225,3 +225,17 @@ v20 (tune-fight-2s = v19 + ward our own bush tile when no enemy is visible) is l
 4. Check runs/hyb5-g1.log: exactly three new lines `re-seeded island 0|1|3 with v20`; island 2 (lean-g65) kept.
    At the next boundary `challengers: [...]` lists policies/pool/v20.policy; if it is promoted, hyb5-g2 starts with
    best policies/pool/v20.policy and its islands seeded from the same --island-seeds (v20).
+
+## Job H7 (2026-10-24 12:45 UTC, hybrid line session; per the FunSearch lead): rebase hyb5 on v21, at the H6 boundary
+
+v21 (tune-v20-L1c = v20 + one altar lock per team, shared byte 7 bits 0-1) is live. Do this at the SAME boundary as H6
+(the hold already set for the end of the current hyb5-g2 round), in one relaunch:
+
+1. `git pull origin funsearch/runs` to a43aede or later (ancestor check). It contains 48a1404 (H6: prompt keeps byte 7
+   bits 0-1) and policies/pool/v21.policy. No interp change; pytest.
+2. `grep -qx policies/pool/v21.policy runs/hyb5.challengers || echo policies/pool/v21.policy >> runs/hyb5.challengers`
+3. Relaunch with the current command line (H5's) changed in two flags only:
+   `--island-seeds policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/lean-g65.policy,policies/pool/v21.policy`
+   `--cambc-ref policies/pool/v21.policy`
+4. Check runs/hyb5-g2.log: exactly three new lines `re-seeded island 0|1|3 with v21`; island 2 kept. The next boundary's
+   `challengers:` line lists policies/pool/v21.policy.
