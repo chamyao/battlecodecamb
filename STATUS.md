@@ -5,17 +5,16 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 19:14 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.00 0.03 1.12 on 16 threads.
-Disk: 3.7G used of 38G.
+Updated 2026-10-24 19:19 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.90 0.20 0.84 on 16 threads.
+Disk: 3.9G used of 38G.
 
 ## python3 processes
 ```
+164542 python3 -m genome.search.arena --out /root/bc/genome/out/arenaA-1/arena --tag A --seed genome/seeds/v23.genome --budget 8 --threads 5
+164789 python3 -m genome.search.arena --out /root/bc/genome/out/arenaB-1/arena --tag B --seed genome/seeds/v23.genome --budget 3 --threads 5 --intel-branch genome/intel
 ```
 ## tick.log (last 40 lines)
 ```
-[17:42:12] hybrid: FINAL: SIGTERM hyb5 pid 142461
-[17:42:27] hybrid: FINAL: hyb5 stopped at the boundary, not relaunched; last hyb5.log: [16:35:18]   helpers: 20 helpers kept; top 20: -> hyb5.helpers.json|[17:40:14] hold file present: waiting at the round boundary (remove hyb5.hold to go on)|
-[17:42:29] hybrid: FINAL: state pushed (remote/hybrid fb5107a)
 [17:42:29] pure: pure final stop: STOP requested (gen 5)
 [17:47:37] pure: pure: final state pushed, HALT
 [17:47:38] style: S15: SIGTERM style8-b2 pid 143592
@@ -53,4 +52,7 @@ remote:
 [19:04:04] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [19:09:06] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [19:14:09] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[19:19:21] genome: started job arenaA-1 at 681e2e3a90741660b8a8b51e2c0609461f6fddff
+[19:19:31] genome: started job arenaB-1 at 681e2e3a90741660b8a8b51e2c0609461f6fddff
+[19:19:32] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
