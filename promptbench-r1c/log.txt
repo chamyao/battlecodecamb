@@ -290,3 +290,34 @@ runtime pinned to genome/simspeed 4b60b58 (bit-identical to db3f945)
 [r1 bench] simplify cell 10 (arenaA-3:A690, walk_field->here): GenomeError: walk_field line 623: unknown function box_field $0.303
 [r1 bench] simplify cell 9 (arenaA-3:A690, update->mono_groups): behavioural twin $0.305
 [r1 bench] simplify cell 6 (seed, update->shop_pending): 0.5 $0.306
+[r1 bench] simplify cell 13 (arenaA-3:A690, bank_blocked->bank_t1): behavioural twin $0.307
+[r1 bench] simplify cell 14 (arenaA-3:A690, step_gain->here): behavioural twin $0.307
+[r1 bench] simplify cell 12 (arenaA-3:A690, camp_block->unseen_camps): 0.4875 $0.307
+[r1 bench] simplify cell 11 (arenaA-3:A690, consider->walks): 0.5375 $0.307
+[r1 bench] simplify cell 18 (arenaA-3:A703, ahead_on->ahead_foe): EditError: no change $0.310
+[r1 bench] simplify cell 17 (arenaA-3:A703, r_fight->fight_foe): behavioural twin $0.311
+[r1 bench] simplify cell 15 (arenaA-3:A690, dash_spot->here): 0.475 $0.311
+[r1 bench] simplify cell 19 (arenaA-3:A703, rule->r_run): behavioural twin $0.311
+[r1 bench] simplify cell 20 (arenaA-3:A703, blocked->here): behavioural twin $0.314
+[r1 bench] simplify cell 16 (arenaA-3:A703, walk_open->taken): 0.5125 $0.314
+[r1 bench] simplify cell 25 (arenaA-3:A701, cast_value->dash_value): EditError: no change $0.319
+[r1 bench] simplify cell 24 (arenaA-3:A701, r_camp->in_reach): 0.0 $0.320
+[r1 bench] simplify cell 21 (arenaA-3:A703, update->shop_pending): 0.5625 $0.320
+[r1 bench] simplify cell 22 (arenaA-3:A703, update->bank_t2): 0.5 $0.320
+[r1 bench] simplify cell 23 (arenaA-3:A703, act_value->walks): 0.4875 $0.321
+[r1 bench] simplify cell 26 (arenaA-3:A701, bank_blocked->in_reach): 0.5125 $0.322
+[r1 bench] simplify cell 28 (arenaA-3:A701, rule_goal->live_camp): behavioural twin $0.322
+[r1 bench] simplify cell 30 (arenaA-3:A701, camp_goal->respawning): behavioural twin $0.325
+[r1 bench] simplify cell 27 (arenaA-3:A701, next_shard->shards_done): 0.5125 $0.325
+[r1 bench] simplify cell 29 (arenaA-3:A701, rule->threat_near): 0.475 $0.325
+[r1 bench] simplify cell 31 (arenaA-3:A701, move_value->step_gain): behavioural twin $0.325
+[r1 bench] simplify cell 33 (arenaA-3:A689, foe_in_reach->here): behavioural twin $0.329
+[r1 bench] simplify cell 32 (arenaA-3:A689, r_run->hurt_below): 0.5375 $0.329
+[r1 bench] simplify cell 35 (arenaA-3:A689, threat_eta->here): 0.5 $0.331
+[r1 bench] simplify cell 34 (arenaA-3:A689, score->act_value): 0.425 $0.331
+[r1 bench] simplify cell 36 (arenaA-3:A689, under_fire->enemies_within): 0.5 $0.331
+[r1 bench] simplify cell 37 (arenaA-3:A689, rule->r_recall): 0.5 $0.332
+[r1 bench] simplify cell 38 (arenaA-3:A689, update->shard_until): 0.575 $0.332
+[r1 bench] simplify cell 39 (arenaA-3:A689, reach_camp->in_reach): 0.4875 $0.332
+round 1: simplify 0/40 p90 0.5375; weights 0/40 p90 0.525; missing 0/40 p90 0.525; helper 0/40 p90 0.525; temperament 0/40 p90 0.525; creative 0/40 p90 0.525; default 0/40 p90 0.5125; mechanism 0/40 p90 0.5125
+done: spent $0.332

@@ -1,0 +1,866 @@
+policy v0
+LET:Num
+CONST:Num 15.0
+LET:Num
+CONST:Num 10.0
+LET:Num
+CONST:Num 3.0
+IF
+is_draft()
+LET:ChampList
+unpicked_champions()
+IF
+available(ChampList,Champ)
+VAR:ChampList:0
+champ_vendetta()
+pick(Champ)
+champ_vendetta()
+END
+ELSE
+IF
+available(ChampList,Champ)
+VAR:ChampList:0
+champ_vesper_vale()
+pick(Champ)
+champ_vesper_vale()
+END
+ELSE
+IF
+available(ChampList,Champ)
+VAR:ChampList:0
+champ_tavi()
+pick(Champ)
+champ_tavi()
+END
+ELSE
+IF
+available(ChampList,Champ)
+VAR:ChampList:0
+champ_ryth()
+pick(Champ)
+champ_ryth()
+END
+ELSE
+IF
+available(ChampList,Champ)
+VAR:ChampList:0
+champ_ren()
+pick(Champ)
+champ_ren()
+END
+ELSE
+pick(Champ)
+random_champion(ChampList)
+VAR:ChampList:0
+END
+END
+END
+END
+END
+END_TURN
+END
+KEEP:TileSet
+camp_spawn_tiles()
+KEEP:TileSet
+group_tiles(TileSet)
+monolith_tiles()
+KEEP:TileSet
+ring(TileSet,Num)
+altars()
+CONST:Num 1.0
+KEEP:TileSet
+ring(TileSet,Num)
+minus(TileSet,TileSet)
+altars()
+ring(TileSet,Num)
+monolith_tiles()
+CONST:Num 5.0
+CONST:Num 1.0
+IF
+or(Bool,Bool)
+or(Bool,Bool)
+not(Bool)
+alive()
+channeling()
+and(Bool,Bool)
+not(Bool)
+can_move()
+not(Bool)
+can_attack()
+END_TURN
+END
+LET:Bool
+contains(TileSet,Tile)
+spawn_region(Team)
+ally()
+position()
+LET:UnitList
+enemies_visible()
+IF
+VAR:Bool:0
+LET:Num
+read_shared(Num)
+CONST:Num 7.0
+LET:Num
+sub(Num,Num)
+VAR:Num:3
+mul(Num,Num)
+CONST:Num 2.0
+floor(Num)
+div(Num,Num)
+VAR:Num:3
+CONST:Num 2.0
+LET:Num
+sub(Num,Num)
+floor(Num)
+div(Num,Num)
+VAR:Num:3
+CONST:Num 2.0
+mul(Num,Num)
+CONST:Num 2.0
+floor(Num)
+div(Num,Num)
+VAR:Num:3
+CONST:Num 4.0
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+eq(Num,Num)
+VAR:Num:4
+CONST:Num 0.0
+eq(Num,Num)
+VAR:Num:5
+CONST:Num 0.0
+not(Bool)
+has_altar_lock()
+buy_altar_lock()
+IF
+has_altar_lock()
+write_shared(Num,Num)
+CONST:Num 7.0
+add(Num,Num)
+VAR:Num:3
+CONST:Num 2.0
+END
+END
+LET:Num
+floor(Num)
+div(Num,Num)
+gold()
+CONST:Num 30.0
+LET:Num
+floor(Num)
+div(Num,Num)
+VAR:Num:6
+CONST:Num 2.0
+LET:Num
+sub(Num,Num)
+VAR:Num:6
+VAR:Num:7
+LET:Num
+floor(Num)
+div(Num,Num)
+VAR:Num:8
+CONST:Num 2.0
+LET:Num
+sub(Num,Num)
+VAR:Num:8
+VAR:Num:9
+LET:Num
+floor(Num)
+div(Num,Num)
+VAR:Num:10
+CONST:Num 2.0
+buy(Item,Num)
+shard_of(Family,Stat)
+family_treasure()
+stat_strength()
+VAR:Num:7
+buy(Item,Num)
+shard_of(Family,Stat)
+family_jungle()
+stat_health()
+VAR:Num:9
+buy(Item,Num)
+shard(Stat)
+stat_strength()
+VAR:Num:11
+buy(Item,Num)
+shard(Stat)
+stat_health()
+sub(Num,Num)
+VAR:Num:10
+VAR:Num:11
+IF
+and(Bool,Bool)
+lt(Num,Num)
+health()
+max_health()
+not(Bool)
+exists(Unit)
+first(UnitList)
+filter(UnitList,UnitPred)
+VAR:UnitList:0
+in_attack_range()
+END_TURN
+END
+END
+IF
+and(Bool,Bool)
+not(Bool)
+VAR:Bool:0
+lt(Num,Num)
+health()
+mul(Num,Num)
+CONST:Num 0.3
+max_health()
+IF
+or(Bool,Bool)
+in_danger()
+gt(Num,Num)
+enemies_within(Num)
+CONST:Num 8.0
+CONST:Num 0.0
+LET:Tile
+closest(TileSet)
+spawn_region(Team)
+ally()
+IF
+gt(Num,Num)
+fuel_remaining()
+CONST:Num 60000.0
+IF
+ability_ready(Num)
+CONST:Num 0.0
+IF
+slot_is_dash(Num)
+CONST:Num 0.0
+dash_towards(Num,Tile)
+CONST:Num 0.0
+VAR:Tile:0
+END
+END
+IF
+ability_ready(Num)
+CONST:Num 1.0
+IF
+slot_is_dash(Num)
+CONST:Num 1.0
+dash_towards(Num,Tile)
+CONST:Num 1.0
+VAR:Tile:0
+END
+END
+END
+move_towards(Tile)
+VAR:Tile:0
+END_TURN
+END
+recall()
+END_TURN
+END
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+and(Bool,Bool)
+not(Bool)
+VAR:Bool:0
+gt(Num,Num)
+gems()
+CONST:Num 0.0
+lt(Num,Num)
+health()
+mul(Num,Num)
+CONST:Num 0.5
+max_health()
+not(Bool)
+or(Bool,Bool)
+in_danger()
+gt(Num,Num)
+enemies_within(Num)
+CONST:Num 8.0
+CONST:Num 0.0
+recall()
+END_TURN
+END
+IF
+exists(Unit)
+first(UnitList)
+VAR:UnitList:0
+LET:Unit
+nearest(UnitList)
+VAR:UnitList:0
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+exists(Unit)
+VAR:Unit:0
+le(Num,Num)
+distance(Tile,Tile)
+position()
+unit_position(Unit)
+VAR:Unit:0
+CONST:Num 4.0
+not(Bool)
+contains(TileSet,Tile)
+spawn_region(Team)
+enemy()
+unit_position(Unit)
+VAR:Unit:0
+set_team_target(Unit)
+VAR:Unit:0
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+and(Bool,Bool)
+ability_ready(Num)
+CONST:Num 0.0
+not(Bool)
+slot_is_dash(Num)
+CONST:Num 0.0
+not(Bool)
+slot_is_shield(Num)
+CONST:Num 0.0
+not(Bool)
+slot_is_heal(Num)
+CONST:Num 0.0
+cast_at_unit(Num,Unit)
+CONST:Num 0.0
+VAR:Unit:0
+END
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+and(Bool,Bool)
+ability_ready(Num)
+CONST:Num 1.0
+not(Bool)
+slot_is_dash(Num)
+CONST:Num 1.0
+not(Bool)
+slot_is_shield(Num)
+CONST:Num 1.0
+not(Bool)
+slot_is_heal(Num)
+CONST:Num 1.0
+cast_at_unit(Num,Unit)
+CONST:Num 1.0
+VAR:Unit:0
+END
+END
+END
+LET:Tile
+first(TileSet)
+filter(TileSet,TilePred)
+altars()
+within(Num,Tile)
+CONST:Num 1.0
+position()
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+gt(Num,Num)
+gems()
+CONST:Num 0.0
+exists(Tile)
+VAR:Tile:1
+not(Bool)
+exists(Unit)
+first(UnitList)
+filter(UnitList,UnitPred)
+VAR:UnitList:0
+in_attack_range()
+tribute(Tile)
+VAR:Tile:1
+END_TURN
+END
+LET:Unit
+weakest(UnitList)
+filter(UnitList,UnitPred)
+VAR:UnitList:0
+in_attack_range()
+IF
+and(Bool,Bool)
+exists(Unit)
+VAR:Unit:1
+not(Bool)
+contains(TileSet,Tile)
+spawn_region(Team)
+enemy()
+unit_position(Unit)
+VAR:Unit:1
+IF
+ability_ready(Num)
+CONST:Num 0.0
+IF
+or(Bool,Bool)
+slot_is_shield(Num)
+CONST:Num 0.0
+slot_is_heal(Num)
+CONST:Num 0.0
+cast_self(Num)
+CONST:Num 0.0
+END
+ELSE
+IF
+not(Bool)
+slot_is_dash(Num)
+CONST:Num 0.0
+cast_at_unit(Num,Unit)
+CONST:Num 0.0
+VAR:Unit:1
+END
+END
+END
+IF
+ability_ready(Num)
+CONST:Num 1.0
+IF
+or(Bool,Bool)
+slot_is_shield(Num)
+CONST:Num 1.0
+slot_is_heal(Num)
+CONST:Num 1.0
+cast_self(Num)
+CONST:Num 1.0
+END
+ELSE
+IF
+not(Bool)
+slot_is_dash(Num)
+CONST:Num 1.0
+cast_at_unit(Num,Unit)
+CONST:Num 1.0
+VAR:Unit:1
+END
+END
+END
+attack(Unit)
+VAR:Unit:1
+IF
+and(Bool,Bool)
+ability_ready(Num)
+CONST:Num 0.0
+slot_is_reset(Num)
+CONST:Num 0.0
+cast_self(Num)
+CONST:Num 0.0
+END
+IF
+and(Bool,Bool)
+ability_ready(Num)
+CONST:Num 1.0
+slot_is_reset(Num)
+CONST:Num 1.0
+cast_self(Num)
+CONST:Num 1.0
+END
+attack(Unit)
+VAR:Unit:1
+END_TURN
+END
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+eq(Num,Num)
+gems()
+CONST:Num 0.0
+has_altar_lock()
+gt(Num,Num)
+fuel_remaining()
+CONST:Num 60000.0
+LET:Num
+read_shared(Num)
+CONST:Num 7.0
+IF
+eq(Num,Num)
+sub(Num,Num)
+VAR:Num:12
+mul(Num,Num)
+CONST:Num 2.0
+floor(Num)
+div(Num,Num)
+VAR:Num:12
+CONST:Num 2.0
+CONST:Num 0.0
+LET:Tile
+first(TileSet)
+filter(TileSet,TilePred)
+altars()
+within(Num,Tile)
+CONST:Num 2.0
+position()
+IF
+exists(Tile)
+VAR:Tile:2
+place_altar_lock(Tile)
+VAR:Tile:2
+write_shared(Num,Num)
+CONST:Num 7.0
+add(Num,Num)
+VAR:Num:12
+CONST:Num 1.0
+END_TURN
+END
+END
+END
+LET:Bool
+or(Bool,Bool)
+gt(Num,Num)
+enemies_within(Num)
+CONST:Num 5.0
+CONST:Num 0.0
+le(Num,Num)
+threat_eta()
+CONST:Num 3.0
+LET:Bool
+or(Bool,Bool)
+or(Bool,Bool)
+or(Bool,Bool)
+or(Bool,Bool)
+ge(Num,Num)
+gems()
+VAR:Num:0
+and(Bool,Bool)
+ge(Num,Num)
+gems()
+VAR:Num:1
+le(Num,Num)
+altar_eta()
+VAR:Num:2
+and(Bool,Bool)
+ge(Num,Num)
+gems()
+VAR:Num:1
+VAR:Bool:1
+gt(Num,Num)
+round_number()
+CONST:Num 1500.0
+lt(Num,Num)
+health()
+mul(Num,Num)
+CONST:Num 0.3
+max_health()
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+ge(Num,Num)
+gems()
+CONST:Num 5.0
+le(Num,Num)
+threat_eta()
+CONST:Num 2.0
+exists(Tile)
+VAR:Tile:1
+tribute(Tile)
+VAR:Tile:1
+END_TURN
+END
+IF
+and(Bool,Bool)
+gt(Num,Num)
+gems()
+CONST:Num 0.0
+VAR:Bool:2
+IF
+exists(Tile)
+VAR:Tile:1
+tribute(Tile)
+VAR:Tile:1
+END_TURN
+END
+IF
+VAR:Bool:1
+move_towards(Tile)
+closest(TileSet)
+VAR:TileSet:2
+END_TURN
+END
+LET:Tile
+closest(TileSet)
+minus(TileSet,TileSet)
+VAR:TileSet:3
+ring(TileSet,Num)
+locked_altars()
+CONST:Num 1.0
+IF
+exists(Tile)
+VAR:Tile:3
+move_towards(Tile)
+VAR:Tile:3
+END_TURN
+END
+LET:Tile
+closest(TileSet)
+VAR:TileSet:3
+IF
+exists(Tile)
+VAR:Tile:4
+move_towards(Tile)
+VAR:Tile:4
+END_TURN
+END
+LET:Tile
+closest(TileSet)
+VAR:TileSet:2
+IF
+contains(TileSet,Tile)
+VAR:TileSet:0
+VAR:Tile:5
+LET:Unit
+first(UnitList)
+filter(UnitList,UnitPred)
+camps_visible()
+in_attack_range()
+IF
+exists(Unit)
+VAR:Unit:2
+attack(Unit)
+VAR:Unit:2
+END_TURN
+END
+END
+move_towards(Tile)
+VAR:Tile:5
+END_TURN
+END
+LET:UnitList
+camps_visible()
+LET:Unit
+first(UnitList)
+filter(UnitList,UnitPred)
+VAR:UnitList:1
+in_attack_range()
+IF
+exists(Unit)
+VAR:Unit:3
+IF
+ability_ready(Num)
+CONST:Num 0.0
+IF
+or(Bool,Bool)
+slot_is_shield(Num)
+CONST:Num 0.0
+slot_is_heal(Num)
+CONST:Num 0.0
+cast_self(Num)
+CONST:Num 0.0
+END
+ELSE
+IF
+not(Bool)
+slot_is_dash(Num)
+CONST:Num 0.0
+cast_at_unit(Num,Unit)
+CONST:Num 0.0
+VAR:Unit:3
+END
+END
+END
+IF
+ability_ready(Num)
+CONST:Num 1.0
+IF
+or(Bool,Bool)
+slot_is_shield(Num)
+CONST:Num 1.0
+slot_is_heal(Num)
+CONST:Num 1.0
+cast_self(Num)
+CONST:Num 1.0
+END
+ELSE
+IF
+not(Bool)
+slot_is_dash(Num)
+CONST:Num 1.0
+cast_at_unit(Num,Unit)
+CONST:Num 1.0
+VAR:Unit:3
+END
+END
+END
+attack(Unit)
+VAR:Unit:3
+IF
+and(Bool,Bool)
+ability_ready(Num)
+CONST:Num 0.0
+slot_is_reset(Num)
+CONST:Num 0.0
+cast_self(Num)
+CONST:Num 0.0
+END
+IF
+and(Bool,Bool)
+ability_ready(Num)
+CONST:Num 1.0
+slot_is_reset(Num)
+CONST:Num 1.0
+cast_self(Num)
+CONST:Num 1.0
+END
+attack(Unit)
+VAR:Unit:3
+END_TURN
+END
+IF
+and(Bool,Bool)
+eq(Num,Num)
+team_score(Team)
+ally()
+CONST:Num 0.0
+gt(Num,Num)
+round_number()
+CONST:Num 800.0
+move_towards(Tile)
+closest(TileSet)
+minus(TileSet,TileSet)
+minus(TileSet,TileSet)
+VAR:TileSet:0
+respawning_visible_spawns()
+golem_tiles()
+END_TURN
+END
+LET:TileSet
+minus(TileSet,TileSet)
+minus(TileSet,TileSet)
+minus(TileSet,TileSet)
+minus(TileSet,TileSet)
+VAR:TileSet:0
+respawning_visible_spawns()
+monolith_tiles()
+golem_tiles()
+VAR:TileSet:1
+IF
+contains(TileSet,Tile)
+capturable_spawns()
+position()
+END_TURN
+END
+LET:Tile
+closest(TileSet)
+VAR:TileSet:4
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+and(Bool,Bool)
+exists(Tile)
+VAR:Tile:6
+ge(Num,Num)
+gems()
+VAR:Num:1
+ge(Num,Num)
+group_threat(Tile)
+VAR:Tile:6
+CONST:Num 240.0
+gt(Num,Num)
+fuel_remaining()
+CONST:Num 65000.0
+IF
+exists(Tile)
+VAR:Tile:1
+tribute(Tile)
+VAR:Tile:1
+END_TURN
+END
+move_towards(Tile)
+closest(TileSet)
+VAR:TileSet:3
+END_TURN
+END
+IF
+eq(Num,Num)
+distance(Tile,Tile)
+VAR:Tile:6
+position()
+CONST:Num 0.0
+LET:Unit
+nearest(UnitList)
+VAR:UnitList:1
+IF
+and(Bool,Bool)
+exists(Unit)
+VAR:Unit:4
+not(Bool)
+contains(TileSet,Tile)
+union(TileSet,TileSet)
+monolith_tiles()
+golem_tiles()
+unit_position(Unit)
+VAR:Unit:4
+move_towards(Tile)
+unit_position(Unit)
+VAR:Unit:4
+END_TURN
+END
+END
+IF
+and(Bool,Bool)
+and(Bool,Bool)
+exists(Tile)
+VAR:Tile:6
+gt(Num,Num)
+distance(Tile,Tile)
+position()
+VAR:Tile:6
+CONST:Num 2.0
+gt(Num,Num)
+fuel_remaining()
+CONST:Num 55000.0
+IF
+ability_ready(Num)
+CONST:Num 0.0
+IF
+slot_is_dash(Num)
+CONST:Num 0.0
+dash_towards(Num,Tile)
+CONST:Num 0.0
+VAR:Tile:6
+END
+END
+IF
+ability_ready(Num)
+CONST:Num 1.0
+IF
+slot_is_dash(Num)
+CONST:Num 1.0
+dash_towards(Num,Tile)
+CONST:Num 1.0
+VAR:Tile:6
+END
+END
+END
+IF
+and(Bool,Bool)
+eq(Num,Num)
+count(UnitList)
+VAR:UnitList:0
+CONST:Num 0.0
+contains(TileSet,Tile)
+bushes()
+position()
+place_ward(Tile)
+position()
+END
+move_towards(Tile)
+VAR:Tile:6
+LET:Unit
+first(UnitList)
+filter(UnitList,UnitPred)
+VAR:UnitList:1
+in_attack_range()
+IF
+exists(Unit)
+VAR:Unit:5
+attack(Unit)
+VAR:Unit:5
+END
+set_priority(Num)
+add(Num,Num)
+CONST:Num 1.0
+random_int(Num)
+CONST:Num 100.0
+END_TURN
+END
+
