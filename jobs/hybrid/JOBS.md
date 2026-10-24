@@ -75,9 +75,10 @@ programs.jsonl won't show (accounted for in --budget below and in SPEND.md).
 
 ```
 git clone https://github.com/chamyao/battlecodecamb ~/bc/hybrid && cd ~/bc/hybrid
-git checkout funsearch/runs && git pull origin funsearch/runs        # 13facf9 or later (must include
-                                                                      # 13facf9: combat directions in the prompt)
-git merge-base --is-ancestor 13facf9 HEAD && echo prompt-ok          # must print prompt-ok
+git checkout funsearch/runs && git pull origin funsearch/runs        # 9ef3d8b or later (must include
+                                                                      # 9ef3d8b: new blocks + combat prompt; OP CODES
+                                                                      # CHANGED, so always rebuild after pulling)
+git merge-base --is-ancestor 9ef3d8b HEAD && echo prompt-ok          # must print prompt-ok
 git fetch origin remote/hybrid
 mkdir -p runs && git archive origin/remote/hybrid remote/hybrid/runs | tar -x --strip-components=2 -C .
 ls runs   # hyb4.json hyb4.challengers hyb4.log hyb4-g1 hyb4-g2 hyb4-g3 validation_cache.jsonl SPEND.md ...
@@ -86,11 +87,11 @@ python3 -m pip install -q anthropic pytest
 python3 -m pytest -q tests                                            # expect 2012 passed
 ```
 
-H2's challengers: append them only if they are not already in `runs/hyb4.challengers`. They are judged at
-the g3 boundary together with the pending tune-5:
+Challengers: tune5-reset (coordinator's reset fix, 59.7% vs tune-5) and H2's two. Append them only if they
+are not already in `runs/hyb4.challengers`. They are judged at the g3 boundary together with the pending tune-5:
 
 ```
-for p in policies/candidates/hyb-t5m.policy policies/candidates/hyb-t5m-rich15d6f.policy; do
+for p in policies/tune5-reset.policy policies/candidates/hyb-t5m.policy policies/candidates/hyb-t5m-rich15d6f.policy; do
   grep -qx "$p" runs/hyb4.challengers || echo "$p" >> runs/hyb4.challengers; done
 cat runs/hyb4.challengers
 ```
@@ -119,11 +120,15 @@ nohup setsid python3 -m funsearch.league --name hyb4 --threads 5 --budget 29.47 
 the state. Pause gracefully with `touch runs/hyb4-g<N>/STOP` (stop by PID with SIGTERM if needed,
 never `pkill -f`; SIGINT can hang the thread pools).
 
+If EC2 is ALREADY running on an older funsearch/runs: do not pull into the running generation. At the next
+boundary pause with the STOP file, pull, rebuild (`cmake -S interp -B interp/build ... && cmake --build ...`),
+run the tests, append any missing challengers, and relaunch.
+
 ### Resume checks (do all before reporting it running)
 
 1. The first new line in `runs/hyb4.log` must be
    `hyb4-g3: +0 programs to the next boundary (30 so far), best policies/tune-4.policy, ...`
-   followed by `challengers: [...]` listing tune-5, hyb-t5m and hyb-t5m-rich15d6f (the g3 boundary is validated now).
+   followed by `challengers: [...]` listing tune-5, tune5-reset, hyb-t5m and hyb-t5m-rich15d6f (the g3 boundary is validated now).
    **A fresh start shows `hyb4-g1: +30 programs ... (0 so far), best policies/v7-zerogem.policy`:
    if you see that, stop immediately, since the state was not restored.**
 2. After the g3 verdict: `hyb4-g4: +30 programs to the next boundary (0 so far), best <g3 winner>`.
