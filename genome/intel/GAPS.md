@@ -67,6 +67,9 @@ Each item is written so a mutation prompt can quote it: `gap | evidence | genes 
    - Genes: `m13` bank_t1, `s11` altar_eta, `r6` r_pass, `a0` (TRIBUTE at a locked altar = attack the lock).
    - Sim stress opponent: `stress/lockall.genome` (the seed, plus it locks every altar). The seed loses 0/10
      to it on 00rushbait-v2 (168 to 1014 gems).
+   - Finding: the lock collapse is mostly gap 1. `commit`'s goal hysteresis alone takes lockall from a 0/10
+     collapse on rushbait to 0.75 on rushbait + broken-curve, and to 0.725 over all maps. A lock-specific child
+     (`rejected/lockfree`) adds nothing on top.
 
 7. **Monolith wake-ups.**
    - Evidence: we die to monoliths 3.1 ± 1.3 times per game on monolith maps (great_wall 23 in one game,
