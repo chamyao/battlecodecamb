@@ -1,0 +1,30 @@
+climb #147: {'id': 147, 'climb_seconds': 17.5, 'evals': 3, 'changed': {}}
+climb #97: {'id': 97, 'climb_seconds': 12.8, 'evals': 3, 'changed': {}}
+climb #60: {'id': 60, 'climb_seconds': 11.4, 'evals': 3, 'changed': {}}
+climb #64: {'id': 64, 'climb_seconds': 13.6, 'evals': 3, 'changed': {}}
+climb #72: {'id': 72, 'climb_seconds': 17.0, 'evals': 3, 'changed': {}}
+climb #95: {'id': 95, 'climb_seconds': 16.5, 'evals': 3, 'changed': {}}
+climb #36: {'id': 36, 'climb_seconds': 21.6, 'evals': 5, 'changed': {'182:if exists(rich_target) and group_threat(': '1->2'}, 'untuned': 0.6721, 'tuned': 0.7057, 'delta': 0.0336}
+climb #123: {'id': 123, 'climb_seconds': 27.9, 'evals': 5, 'changed': {'FUEL_GUARD': '40000->93843'}, 'untuned': 0.6695, 'tuned': 0.6483, 'delta': -0.0213}
+climb #125: {'id': 125, 'climb_seconds': 8.4, 'evals': 3, 'changed': {}}
+climb #88: {'id': 88, 'climb_seconds': 12.9, 'evals': 3, 'changed': {}}
+climb #144: {'id': 144, 'climb_seconds': 9.0, 'evals': 3, 'changed': {}}
+climb #59: {'id': 59, 'climb_seconds': 8.5, 'evals': 3, 'changed': {}}
+climb #26: {'id': 26, 'climb_seconds': 11.9, 'evals': 3, 'changed': {}}
+climb #129: {'id': 129, 'climb_seconds': 10.6, 'evals': 3, 'changed': {}}
+climb #105: {'id': 105, 'climb_seconds': 13.7, 'evals': 3, 'changed': {}}
+climb #141: {'id': 141, 'climb_seconds': 17.8, 'evals': 3, 'changed': {}}
+climb #14: {'id': 14, 'climb_seconds': 7.8, 'evals': 3, 'changed': {}}
+climb #50: {'id': 50, 'climb_seconds': 8.9, 'evals': 3, 'changed': {}}
+climb #85: {'id': 85, 'climb_seconds': 14.4, 'evals': 3, 'changed': {}}
+climb #139: {'id': 139, 'climb_seconds': 13.3, 'evals': 3, 'changed': {}}
+climb #99: {'id': 99, 'climb_seconds': 12.3, 'evals': 3, 'changed': {}}
+climb #100: {'id': 100, 'climb_seconds': 7.8, 'evals': 3, 'changed': {}}
+climb #76: {'id': 76, 'climb_seconds': 15.2, 'evals': 3, 'changed': {}}
+climb #112: {'id': 112, 'climb_seconds': 7.8, 'evals': 3, 'changed': {}}
+  tune #147: CLEAR_POWER 60->59, THREAT_RANGE 6->5; tune games 0.777->0.795, holdout 0.773->0.758 (dropped)
+stage #147: {'id': 147, 'stage_seconds': 67.9, 'kept': False, 'untuned': {'h2h': 0.6975, 'rates': {'builtin:starter': 0.9812, 'fs-p2': 0.6975, 'rall2-ca4-lean-g': 0.215, 'v5d': 0.7812, 'v4': 0.8425, 'locker': 0.5525, 'fs-2': 0.8087, 'opp-hunter3': 0.4062}, 'val_seconds': 508.9}}
+  tune #97: no better constants (6 steps, 0.790)
+stage #97: {'id': 97, 'stage_seconds': 57.5, 'kept': False, 'untuned': {'h2h': 0.6925, 'rates': {'builtin:starter': 0.9812, 'fs-p2': 0.6925, 'rall2-ca4-lean-g': 0.2112, 'v5d': 0.7675, 'v4': 0.8313, 'locker': 0.5463, 'fs-2': 0.8025, 'opp-hunter3': 0.4012}, 'val_seconds': 493.4}}
+  tune #60: BAG_MIN 20->10, LATE_ROUND 1500->1865; tune games 0.712->0.754, holdout 0.721->0.649 (dropped)
+stage #60: {'id': 60, 'stage_seconds': 69.0, 'kept': False, 'untuned': {'h2h': 0.6863, 'rates': {'builtin:starter': 0.9812, 'fs-p2': 0.6863, 'rall2-ca4-lean-g': 0.2125, 'v5d': 0.7638, 'v4': 0.8287, 'locker': 0.5463, 'fs-2': 0.8025, 'opp-hunter3': 0.3987}, 'val_seconds': 495.2}}

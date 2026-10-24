@@ -1,0 +1,229 @@
+{
+ "run": "pure4-g4",
+ "best": "policies/fs-p2.policy",
+ "opponents": [
+  "builtin:starter@0.25",
+  "policies/fs-p2.policy@3.0",
+  "policies/rall2-ca4-lean-g.policy",
+  "policies/v5d.policy",
+  "policies/v4.policy",
+  "policies/locker.policy",
+  "policies/fs-2.policy",
+  "policies/opp-hunter3.policy"
+ ],
+ "climb": [
+  {
+   "id": 147,
+   "climb_seconds": 17.5,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 97,
+   "climb_seconds": 12.8,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 60,
+   "climb_seconds": 11.4,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 64,
+   "climb_seconds": 13.6,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 72,
+   "climb_seconds": 17.0,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 95,
+   "climb_seconds": 16.5,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 36,
+   "climb_seconds": 21.6,
+   "evals": 5,
+   "changed": {
+    "182:if exists(rich_target) and group_threat(": "1->2"
+   },
+   "untuned": 0.6721,
+   "tuned": 0.7057,
+   "delta": 0.0336
+  },
+  {
+   "id": 123,
+   "climb_seconds": 27.9,
+   "evals": 5,
+   "changed": {
+    "FUEL_GUARD": "40000->93843"
+   },
+   "untuned": 0.6695,
+   "tuned": 0.6483,
+   "delta": -0.0213
+  },
+  {
+   "id": 125,
+   "climb_seconds": 8.4,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 88,
+   "climb_seconds": 12.9,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 144,
+   "climb_seconds": 9.0,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 59,
+   "climb_seconds": 8.5,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 26,
+   "climb_seconds": 11.9,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 129,
+   "climb_seconds": 10.6,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 105,
+   "climb_seconds": 13.7,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 141,
+   "climb_seconds": 17.8,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 14,
+   "climb_seconds": 7.8,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 50,
+   "climb_seconds": 8.9,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 85,
+   "climb_seconds": 14.4,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 139,
+   "climb_seconds": 13.3,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 99,
+   "climb_seconds": 12.3,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 100,
+   "climb_seconds": 7.8,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 76,
+   "climb_seconds": 15.2,
+   "evals": 3,
+   "changed": {}
+  },
+  {
+   "id": 112,
+   "climb_seconds": 7.8,
+   "evals": 3,
+   "changed": {}
+  }
+ ],
+ "stage": [
+  {
+   "id": 147,
+   "stage_seconds": 67.9,
+   "kept": false,
+   "untuned": {
+    "h2h": 0.6975,
+    "rates": {
+     "builtin:starter": 0.9812,
+     "fs-p2": 0.6975,
+     "rall2-ca4-lean-g": 0.215,
+     "v5d": 0.7812,
+     "v4": 0.8425,
+     "locker": 0.5525,
+     "fs-2": 0.8087,
+     "opp-hunter3": 0.4062
+    },
+    "val_seconds": 508.9
+   }
+  },
+  {
+   "id": 97,
+   "stage_seconds": 57.5,
+   "kept": false,
+   "untuned": {
+    "h2h": 0.6925,
+    "rates": {
+     "builtin:starter": 0.9812,
+     "fs-p2": 0.6925,
+     "rall2-ca4-lean-g": 0.2112,
+     "v5d": 0.7675,
+     "v4": 0.8313,
+     "locker": 0.5463,
+     "fs-2": 0.8025,
+     "opp-hunter3": 0.4012
+    },
+    "val_seconds": 493.4
+   }
+  },
+  {
+   "id": 60,
+   "stage_seconds": 69.0,
+   "kept": false,
+   "untuned": {
+    "h2h": 0.6863,
+    "rates": {
+     "builtin:starter": 0.9812,
+     "fs-p2": 0.6863,
+     "rall2-ca4-lean-g": 0.2125,
+     "v5d": 0.7638,
+     "v4": 0.8287,
+     "locker": 0.5463,
+     "fs-2": 0.8025,
+     "opp-hunter3": 0.3987
+    },
+    "val_seconds": 495.2
+   }
+  }
+ ]
+}
