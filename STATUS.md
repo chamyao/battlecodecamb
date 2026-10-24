@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 16:40 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.18 9.72 11.14 on 16 threads.
+Updated 2026-10-24 16:45 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.86 10.56 11.12 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
@@ -14,10 +14,6 @@ Disk: 3.4G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[15:16:04] hybrid: H16: hold set for the next hyb5 boundary
-[15:16:07] style: S11: SIGTERM pid 112760
-[15:16:07] style: S11: SIGTERM pid 112781
-[15:16:07] style: S11: SIGTERM pid 117552
 [15:16:34] style: S11: at a8682fd (has 5b70f04: v22 dead-camp fix), rebuilt, 2024 passed in 6.18s; relaunching b and gconv
 [15:16:34] style: S8: style8-gconv not running: relaunching (resumes)
 [15:16:34] style: S8: launched style8-gconv ($2.0 total)
@@ -54,4 +50,8 @@ Disk: 3.4G used of 38G.
 [16:40:29] style: S12: SIGTERM style8-b pid 134277 (boundary verdict in)
 [16:40:29] style: S12: b verdict: [15:54:59]   no promotion; style8-b-g1 continues; b stopped (STOP in runs/style8-b-g1), b2 starts below
 [16:40:29] style: launched style8-b2 (budget $0.95)
+[16:45:34] hybrid: H22: SPEND.md lines appended (hybrid total $23.26, cap $40)
+[16:45:34] hybrid: H21b: hold set for the next hyb5 boundary
+[16:45:34] hybrid: H17 check: re-seeded island 3 with hyb5-g3-82 (score -0.649);re-seeded island 3 with hyb5-g3-76 (score 0.657); island-3 children 8: metrics.fuel 8, fuel axis 4 (0.50, expect ~0.5)
+[16:45:34] hybrid: H20 check: re-seeded island 1 with style-gconv1 (score 0.639);re-seeded island 3 with hyb5-g3-76 (score 0.657); 2 new children mention style-gconv1 (metrics opponent)
 ```
