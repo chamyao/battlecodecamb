@@ -4,12 +4,14 @@
 # pure2-g1 $0.10, pure3-g1 $0.016 (all stopped on sim/opponent changes). Resumable via runs/pure4.json + runs/pure4-g*/
 # Fixed opponents: runs/pure_fixed.txt, read at each new generation (frozen per generation in runs/pure4.json);
 # send check (cambc-exact, informational): runs/pure_send.txt.
-# Runs on remote-server (Cham's Ryzen box) since 2026-10-24 03:40: 3 workers x 2 eval threads, 5 validation threads.
+# Ran on remote-server (Cham's Ryzen box) 03:40-?; from 2026-10-24 ~06:30 on EC2 (c7a.4xlarge), resumed from the
+# remote/pure 04:15 snapshot. Budget 8.09 = 9.71 minus ~$1.62 estimated spent by remote-server after that snapshot
+# (lost; see runs/SPEND.md). 3 workers x 2 eval threads, 5 validation threads.
 cd "$(dirname "$0")/.." || exit 1
-exec python3 -m funsearch.league --name pure4 --budget 9.71 \
+exec python3 -m funsearch.league --name pure4 --budget 8.09 \
   --members policies/fs-1.policy --keep 0 \
   --fixed @runs/pure_fixed.txt \
   --cambc-also @runs/pure_send.txt \
   --policy-prefix fs-p --line pure \
-  --session https://claude.ai/code/session_019SuVFgxah8yS3STZJvAcWX \
+  --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd \
   --workers 3 --eval-threads 2 --threads 5
