@@ -280,6 +280,16 @@ fuel), so the simulator took the capped search where the bot did not (an extra ~
 by layer on the chunks of the box within k of origin: mask ≈ 97 + 1.54·Σ_{k≤D} chunks(box
 of radius k, clipped) + 0.29·tiles (mae 93 fuel; masks over 2k: median 0.995).
 
+**`fuel_remaining()` gates.** Until 756d052 the deploy bot's `fuel_remaining()` returned 2^40
+(the simulator's unmetered value; the bot never meters), so any gate on it always passed in
+cambc. Now it asks the engine. Policies that gate on it are exact only when the threshold is
+far from the values the gate actually sees. tune-3 (`fuel_remaining() > 55000`) vs tune-2:
+76/80 identical. Measured on 00ambush (1164 checks, tune-3 as A), the simulator reads the gate
+a median 2.75k lower than cambc (p10 −0.1k, p90 +4.2k fuel spent before the check, sim minus
+real), while turn totals agree within ~1%: the fit constrains turn totals, not when within
+the turn the fuel goes. 117 of the 1164 real reads were within 50-60k. (A probe `printf` in the
+bot costs ~3.0k fuel; subtract it when measuring this way.)
+
 Diagnostics for this kind of check:
 - `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
   trace build): per champion turn, `@@ST` (state seen at turn start), `@@SE` (the `end_turn()`
