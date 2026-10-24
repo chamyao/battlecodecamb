@@ -5,8 +5,8 @@ mean score delta (child vs best parent, over the children that introduced or cha
 log(1 + introductions); kept with >= 2 introductions or a mean delta >= 0.05. Library code: paste and call;
 mind fuel.
 
-## 1. `fight(t)`: rank 0.1147
-mean delta +0.0827 over 3 introductions; used in 100 programs; lines pure; executed None; deps consts: HURT_FRAC
+## 1. `fight(t)`: rank 0.1005
+mean delta +0.0624 over 4 introductions; used in 114 programs; lines pure; executed None; deps consts: HURT_FRAC
 
 ```policy
 HURT_FRAC = 0.5
@@ -401,8 +401,23 @@ def dash_to(slot, t):
             dash_towards(slot, t)
 ```
 
-## 15. `go(t)`: rank 0.0009
-mean delta +0.0008 over 2 introductions; used in 85 programs; lines pure; executed None; deps consts: DASH_FUEL
+## 15. `go(t)`: rank 0.0024
+mean delta +0.0022 over 2 introductions; used in 5 programs; lines pure; executed None; deps consts: FUEL_GUARD
+
+```policy
+FUEL_GUARD = 40000
+def go(t):
+    # dashes are expensive in fuel; skip them when fuel is short
+    if fuel_remaining() > FUEL_GUARD:
+        if ability_ready(0) and slot_is_dash(0):
+            dash_towards(0, t)
+        elif ability_ready(1) and slot_is_dash(1):
+            dash_towards(1, t)
+    move_towards(t)
+```
+
+## 16. `go(t)`: rank 0.0009
+mean delta +0.0008 over 2 introductions; used in 89 programs; lines pure; executed None; deps consts: DASH_FUEL
 
 ```policy
 DASH_FUEL = 45000
@@ -415,7 +430,7 @@ def go(t):
     move_towards(t)
 ```
 
-## 16. `fight(t)`: rank 0.0
+## 17. `fight(t)`: rank 0.0
 mean delta +0.0000 over 2 introductions; used in 2 programs; lines pure; executed None; deps consts: HURT_FRAC
 
 ```policy
