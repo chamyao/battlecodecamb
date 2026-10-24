@@ -9,8 +9,8 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
 
 ## Compute: the arena (Oct 24 ~17:30 UTC)
 - All sim work (matches, batches, leagues, FunSearch runs) goes through our arena (docs/REMOTE_WORKER.md), not the
-  remote/<line> PR channel. Engine for comparisons: deploy/v0 build 2e1ff7e (sim
-  fuel recalibrated; 545c7b1 under-charged fuel). League `main2` (`main` = old engine) rates the ladder versions
+  remote/<line> PR channel. Engine for comparisons: deploy/v0 build ca8f85b (monolith/camp
+  sensors; 2e1ff7e and 545c7b1 are older). League `main3r` (random seeds; `main2`, `main` older) rates the ladder versions
   and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
 
 ## Live and history
