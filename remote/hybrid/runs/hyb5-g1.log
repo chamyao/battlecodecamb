@@ -2,3 +2,9 @@ seed v19 score 0.728 (islands [0])
 seed v19 score 0.728 (islands [1])
 seed lean-g65 score 0.715 (islands [2])
 seed opp-hunter3 score 0.448 (islands [3])
+[4] claude-haiku-5-5 island 3: score 0.386 | best 0.728 (#0) $0.01 | 51s
+[5] claude-haiku-5-5 island 0: score 0.106 | best 0.728 (#0) $0.01 | 67s
+[6] claude-haiku-5-5 island 3: error: SyntaxError: invalid syntax (<unknown>, line 101) | best 0.728 (#0) $0.02 | 90s
+[7] claude-haiku-5-5 island 0: score 0.562 | best 0.728 (#0) $0.02 | 93s
+[8] claude-haiku-5-5 island 1: error: TypeError: no block filter(UnitList, TilePred) | best 0.728 (#0) $0.03 | 116s
+[9] claude-haiku-5-5 island 2: score 0.712 | best 0.728 (#0) $0.04 | 313s
