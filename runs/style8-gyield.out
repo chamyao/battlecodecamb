@@ -34,3 +34,5 @@ seed style-gconv1 score 0.731 (islands [0, 1, 2, 3])
 [32] claude-opus-5-5 island 3: error: NameError: line 138: outnumbered already defined | best 0.789 (#22) $0.73 | 1825s
 [33] claude-haiku-5-5 island 1: error: KeyError: 'VAR:Num:16' | best 0.789 (#22) $0.74 | 1850s
 [34] claude-haiku-5-5 island 3: score 0.673 | best 0.789 (#22) $0.74 | 1973s
+[35] claude-haiku-5-5 island 0: score 0.822 | best 0.822 (#35) $0.75 | 2045s
+[36] claude-haiku-5-5 island 2: score 0.769 | best 0.822 (#35) $0.75 | 2219s
