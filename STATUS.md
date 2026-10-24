@@ -1,25 +1,18 @@
 # EC2 runner status
 
-Updated 2026-10-24 15:26 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.47 13.74 13.77 on 16 threads.
+Updated 2026-10-24 15:32 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.67 11.53 12.70 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
 ```
 92618 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
 92630 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.29 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,polic
-114024 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
-114076 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 18.75 --max-programs 28 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
 120806 python3 -m funsearch.run --run style8-gconv --budget 1.75 --max-programs 400 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.pol
 120843 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
-120864 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.95 --max-programs 6 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hu
+124830 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
 ```
 ## tick.log (last 40 lines)
 ```
-[14:12:46] hybrid: H9 rate: 0 programs in 5 min = 0/h; tuned children 0, mean tuned.games 0 (round ended: [14:10:50]   no promotion; hyb5-g3 continues); before: g2 58/h, g3 49/h
-[14:18:02] hybrid: H8 check: hyb5-g3: re-seeded island 2 with v20;hyb5-g3: re-seeded island 3 with v19-; (expected island 2 with v20, island 3 with v19-L1c; 0/1 keep v21)
-[14:23:07] hybrid: H8 tune check: 3 programs carry metrics.tuned
-[14:23:10] style: S8: SIGTERM style8-b pid 93608
-[14:23:10] style: S8: SIGTERM style8-b pid 93637
 [14:23:38] style: S8: at 834ac00 (has ed49293), rebuilt, 2012 passed in 5.87s; h2 and b restarting, gap run style8-gconv starting
 [14:23:38] style: S8: launched style8-gconv ($2.0 total)
 [14:23:38] style: style8-b not running: relaunching (resumes from its programs.jsonl)
@@ -55,4 +48,9 @@ Disk: 3.4G used of 38G.
 [15:16:35] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [15:16:35] style: launched style8-b (budget $3.5)
 [15:21:43] style: S11 check: gconv $1.75 left of $2.0; b style8-b-g1: +6 programs to the next boundary (144 so far) $0.95 left
+[15:31:58] hybrid: H16: SIGTERM hyb5 pid 114024
+[15:32:21] hybrid: H16: funsearch/runs 44d4dac (has 8b38ce6: dead-camp fix / v22 build), rebuilt, 2029 passed in 7.13s; relaunching hyb5, same flags
+[15:32:21] hybrid: hyb5 not running: relaunching (resume from runs/)
+[15:32:21] hybrid: launched hyb5 league
+[15:32:21] hybrid: H10 check: 28 new programs: conversion 13 (0.46, expect 0.31), disengage 1 (0.04, expect 0.12), vocab 5 (0.18, expect ~0.2)
 ```
