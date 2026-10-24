@@ -1,6 +1,7 @@
-# opp-hunter2c [line: style]: hunter stand-in, variant c: nearest target, radius 5, TOP_TEAMS_RULES gates (own HP > 0.8, enemies_within(5) <= allies_within(5)+1). Built by runs/hunter/gen.py from tune-5.
-# Sim, 400 fresh games (seed 9101), hunter's view: vs tune-5 31.5% / kills 5.8-7.0 / gems lost 113-118; vs tune-3 31.2% / kills 5.6-7.6 / gems lost 117-125.
-# NOT ladder-like yet: TOP_TEAMS has tune-5 dying ~18 vs ~2 kills. These are parity fighters (sim fidelity under check).
+# opp-hunter2c [line: style]: hunter stand-in, variant c: nearest target, radius 5, TOP_TEAMS_RULES gates (own HP > 0.8, enemies_within(5) <= allies_within(5)+1). Built by runs/hunter/gen.py from tune-5,
+# with attack resets cast after the first basic (champions and camps).
+# Sim, 400 fresh games (seed 9101), hunter's view: vs tune-5 35.5% / kills 6.2-6.9 / gems lost 119-117; vs tune5-reset 32.3% / kills 5.2-8.4.
+# NOT ladder-like yet: TOP_TEAMS has tune-5 dying ~18 vs ~2 kills. Parity fighters (sim fidelity under check).
 # opp-hunter (style line): sim stand-in for the ladder's top teams (docs/TOP_TEAMS.md on analysis/sprint1).
 # Meta draft; engages any enemy champion within 5 tiles (focus fire via team_target, short chase);
 # stuns/damage first, then attack + reset + attack; farms and banks like tune-5 otherwise.
@@ -192,6 +193,13 @@ if exists(camp):
     cast_on(0, camp)
     cast_on(1, camp)
     attack(camp)
+    # attack reset: cast after the first basic attack, then hit again (coordinator's tune5-reset fix)
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+        attack(camp)
+    if ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+        attack(camp)
     end_turn()
 
 # nothing tributed by round 300 (00contest: only monoliths carry gems): go for monoliths too

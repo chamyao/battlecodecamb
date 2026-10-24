@@ -90,4 +90,22 @@ o = 'let bag_ready = gems() >= 25 or round_number() > 1500 or health() < 0.3 * m
 assert o in body
 body = body.replace(o, f'let bag_ready = gems() >= {P["BAG_SAFE"]} or (gems() >= {P["BAG_NEAR"]} and enemies_within(8) > 0) or round_number() > 1500 or health() < 0.3 * max_health()')
 body = body.replace('if not at_spawn and health() < 0.3 * max_health():', f'if not at_spawn and health() < {P["RET"]} * max_health():')
+o_camp = """if exists(camp):
+    cast_on(0, camp)
+    cast_on(1, camp)
+    attack(camp)
+    end_turn()"""
+assert o_camp in body
+body = body.replace(o_camp, """if exists(camp):
+    cast_on(0, camp)
+    cast_on(1, camp)
+    attack(camp)
+    # attack reset: cast after the first basic attack, then hit again (coordinator's tune5-reset fix)
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+        attack(camp)
+    if ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+        attack(camp)
+    end_turn()""")
 open(sys.argv[1], 'w').write(head + body)
