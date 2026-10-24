@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 10:38 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 17.76 16.65 16.39 on 16 threads.
+Updated 2026-10-24 10:43 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.35 14.10 15.38 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -11,7 +11,6 @@ Disk: 3.2G used of 38G.
 43700 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies
 43713 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 43738 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 2.60 --max-programs 106 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
-51066 /usr/bin/python3 -m funsearch.run --run style8-h-g2 --budget 1.91 --max-programs 40 --seed-policy policies/style-h1.policy --opponents builtin:starter@0.25,policies/style-h1.policy@0.5,policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy
 55239 python3 -m funsearch.league --name tune-fight2 --budget 2.25 --members policies/tune-v19.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v19.policy --fixed policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy --regress 1.0 --z 2.83 --prefix tune-
 55251 /usr/bin/python3 -m funsearch.run --run tune-fight2-g1 --budget 2.25 --max-programs 60 --seed-policy policies/tune-v19.policy --opponents builtin:starter@0.25,policies/tune-v19.policy@3.0,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy --fresh-seeds --d
 55978 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 23.77 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
