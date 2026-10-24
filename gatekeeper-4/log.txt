@@ -1,1 +1,7 @@
 [20:28:02] gate arenaA-1/arena:A462 (mu 39.83, 256 games)
+[20:28:15] arenaA-1/arena:A462: {"name": "A462", "mu": 39.827928864319475, "games": 256, "ref": "style-gconv1.policy", "screen": 0.5425, "passed": false} -> no
+[20:28:15] gate arenaA-1/arena:A458 (mu 39.61, 256 games)
+[20:30:23] arenaA-1/arena:A458: {"name": "A458", "mu": 39.60969450767583, "games": 256, "ref": "style-gconv1.policy", "screen": 0.56, "h2h": 0.56875, "h2h_games": 800, "clear": true, "anchor_deltas": {"v7": -0.008, "tune-v20-L1": 0.045, "rall2-ca4-lean-g": 0.042, "opp-tune5-metadraft": 0.03}, "h2h_fuel10": 0.5775, "passed": true} -> CANDIDATE
+[20:30:23] gate arenaA-1/arena:A352 (mu 39.58, 1344 games)
+[20:31:49] arenaA-1/arena:A352: {"name": "A352", "mu": 39.5759686630355, "games": 1344, "ref": "style-gconv1.policy", "screen": 0.565, "h2h": 0.5375, "h2h_games": 800, "clear": true, "anchor_deltas": {"v7": 0.007, "tune-v20-L1": 0.017, "rall2-ca4-lean-g": 0.083, "opp-tune5-metadraft": 0.057}, "h2h_fuel10": 0.5375, "passed": true} -> CANDIDATE
+[20:31:49] gate arenaB-1/arena:B471 (mu 42.12, 472 games)

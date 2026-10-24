@@ -3,3 +3,53 @@ arenaA-1 exited rc=stopped; baseline, then resume
 {"tag": "arenaA-1-final@db3f945", "genome": "seed", "mu_old": null, "anchor": "v7", "wins": 186, "games": 200, "win_rate": 0.93, "seeds": [2000003], "t": 1792873672}
 {"tag": "arenaA-1-final@db3f945", "genome": "seed", "mu_old": null, "anchor": "tune-v20-L1", "wins": 118, "games": 200, "win_rate": 0.59, "seeds": [2000003], "t": 1792873677}
 {"tag": "arenaA-1-final@db3f945", "genome": "seed", "mu_old": null, "anchor": "rall2-ca4-lean-g", "wins": 116, "games": 200, "win_rate": 0.58, "seeds": [2000003], "t": 1792873682}
+{"tag": "arenaA-1-final@db3f945", "genome": "seed", "mu_old": null, "anchor": "opp-tune5-metadraft", "wins": 171, "games": 200, "win_rate": 0.855, "seeds": [2000003], "t": 1792873686}
+{"tag": "arenaA-1-final@db3f945", "genome": "A462", "mu_old": 39.827928864319475, "anchor": "style-gconv1", "wins": 108, "games": 200, "win_rate": 0.54, "seeds": [2000003], "t": 1792873694}
+{"tag": "arenaA-1-final@db3f945", "genome": "A462", "mu_old": 39.827928864319475, "anchor": "v7", "wins": 181, "games": 200, "win_rate": 0.905, "seeds": [2000003], "t": 1792873698}
+{"tag": "arenaA-1-final@db3f945", "genome": "A462", "mu_old": 39.827928864319475, "anchor": "tune-v20-L1", "wins": 110, "games": 200, "win_rate": 0.55, "seeds": [2000003], "t": 1792873703}
+{"tag": "arenaA-1-final@db3f945", "genome": "A462", "mu_old": 39.827928864319475, "anchor": "rall2-ca4-lean-g", "wins": 118, "games": 200, "win_rate": 0.59, "seeds": [2000003], "t": 1792873708}
+{"tag": "arenaA-1-final@db3f945", "genome": "A462", "mu_old": 39.827928864319475, "anchor": "opp-tune5-metadraft", "wins": 165, "games": 200, "win_rate": 0.825, "seeds": [2000003], "t": 1792873713}
+{"tag": "arenaA-1-final@db3f945", "genome": "A458", "mu_old": 39.60969450767583, "anchor": "style-gconv1", "wins": 128, "games": 200, "win_rate": 0.64, "seeds": [2000003], "t": 1792873721}
+{"tag": "arenaA-1-final@db3f945", "genome": "A458", "mu_old": 39.60969450767583, "anchor": "v7", "wins": 190, "games": 200, "win_rate": 0.95, "seeds": [2000003], "t": 1792873725}
+{"tag": "arenaA-1-final@db3f945", "genome": "A458", "mu_old": 39.60969450767583, "anchor": "tune-v20-L1", "wins": 116, "games": 200, "win_rate": 0.58, "seeds": [2000003], "t": 1792873731}
+{"tag": "arenaA-1-final@db3f945", "genome": "A458", "mu_old": 39.60969450767583, "anchor": "rall2-ca4-lean-g", "wins": 122, "games": 200, "win_rate": 0.61, "seeds": [2000003], "t": 1792873736}
+{"tag": "arenaA-1-final@db3f945", "genome": "A458", "mu_old": 39.60969450767583, "anchor": "opp-tune5-metadraft", "wins": 173, "games": 200, "win_rate": 0.865, "seeds": [2000003], "t": 1792873740}
+{"tag": "arenaA-1-final@db3f945", "genome": "A352", "mu_old": 39.5759686630355, "anchor": "style-gconv1", "wins": 116, "games": 200, "win_rate": 0.58, "seeds": [2000003], "t": 1792873748}
+{"tag": "arenaA-1-final@db3f945", "genome": "A352", "mu_old": 39.5759686630355, "anchor": "v7", "wins": 182, "games": 200, "win_rate": 0.91, "seeds": [2000003], "t": 1792873752}
+{"tag": "arenaA-1-final@db3f945", "genome": "A352", "mu_old": 39.5759686630355, "anchor": "tune-v20-L1", "wins": 113, "games": 200, "win_rate": 0.565, "seeds": [2000003], "t": 1792873757}
+{"tag": "arenaA-1-final@db3f945", "genome": "A352", "mu_old": 39.5759686630355, "anchor": "rall2-ca4-lean-g", "wins": 127, "games": 200, "win_rate": 0.635, "seeds": [2000003], "t": 1792873762}
+{"tag": "arenaA-1-final@db3f945", "genome": "A352", "mu_old": 39.5759686630355, "anchor": "opp-tune5-metadraft", "wins": 171, "games": 200, "win_rate": 0.855, "seeds": [2000003], "t": 1792873767}
+[20:29:28] [A] resumed: 24 genomes, 487 births, 11855 matches, spent $2.83
+[20:31:33] [A] re-fingerprinted 24 genomes on this runtime
+[20:31:33] [A] fixed anchors: style-gconv1 37.58, v7 28.93, tune-v20-L1 37.58, rall2-ca4-lean-g 37.24, opp-tune5-metadraft 31.28, champ1-A9 38.38, champ2-A23 37.53, champ3-A143 38.12, champ4-A196 39.62, champ5-A215 38.93, champ6-A295 37.58, champ7-A318 39.25, champ8-A293 38.70, champ9-A408 39.58
+[20:31:49] [A] rejected tune : behavioural twin
+[20:31:51] [A] birth A488 (mutate claude-haiku-5-5) of ['A450'] species S0; 24 genomes $2.83
+[20:31:53] [A] rejected mutate claude-haiku-5-5: behavioural twin
+[20:32:01] [A] rejected mutate claude-haiku-5-5: behavioural twin
+[20:32:03] [A] birth A489 (tune ) of ['A485'] species S0; 24 genomes $2.84
+[20:32:10] [A] rejected mutate claude-haiku-5-5: behavioural twin
+[20:32:12] [A] summary: births 490 deaths 467 games 95592 $2.84; top [('A384', 39.83, 0.81, 1040, 'S0'), ('A487', 39.63, 0.87, 112, 'S0'), ('A462', 39.63, 0.79, 296, 'S0')]; top vs anchors {'A384': 0.75, 'A487': 0.75, 'A462': 0.938}
+[20:32:12] [A] birth A490 (mutate claude-haiku-5-5) of ['A458'] species S0; 24 genomes $2.84
+[20:32:16] [A] rejected tune : behavioural twin
+[20:32:17] [A] birth A491 (mutate claude-haiku-5-5) of ['A462'] species S0; 24 genomes $2.84
+[20:32:20] [A] birth A492 (tune ) of ['A368'] species S0; 24 genomes $2.84
+[20:32:28] [A] birth A493 (mutate claude-haiku-5-5) of ['A462'] species S0; 24 genomes $2.84
+[20:32:30] [A] birth A494 (mutate claude-haiku-5-5) of ['A352'] species S0; 24 genomes $2.84
+[20:32:30] [A] rejected cross : behavioural twin
+[20:32:36] [A] rejected mutate claude-haiku-5-5: GenomeError: line 606: gene bank_t3 redefined or shadows a builtin
+[20:32:46] [A] birth A495 (mutate claude-opus-5-5) of ['A494'] species S0; 24 genomes $2.88
+[20:32:47] [A] birth A496 (mutate claude-haiku-5-5) of ['A461'] species S0; 24 genomes $2.88
+[20:32:50] [A] rejected mutate claude-haiku-5-5: behavioural twin
+[20:32:58] [A] rejected tune : behavioural twin
+[20:33:03] [A] rejected mutate claude-haiku-5-5: behavioural twin
+[20:33:04] [A] birth A497 (mutate claude-haiku-5-5) of ['A479'] species S0; 24 genomes $2.88
+[20:33:06] [A] birth A498 (tune ) of ['A418'] species S0; 24 genomes $2.88
+[20:33:10] [A] birth A499 (cross ) of ['A470', 'A384'] species S0; 24 genomes $2.88
+[20:33:17] [A] champion anchor champ10-A497 (mu 40.7)
+[20:33:17] [A] summary: births 500 deaths 477 games 97728 $2.88; top [('A497', 40.69, 0.94, 88, 'S0'), ('A500', 40.69, 6.0, 0, 'S0'), ('A384', 40.07, 0.79, 1168, 'S0')]; top vs anchors {'A497': 1.0, 'A384': 0.75, 'A494': 0.625}
+[20:33:17] [A] birth A500 (mutate claude-haiku-5-5) of ['A497'] species S0; 24 genomes $2.88
+[20:33:19] [A] birth A501 (mutate claude-haiku-5-5) of ['A498'] species S0; 24 genomes $2.88
+[20:33:25] [A] birth A502 (mutate claude-haiku-5-5) of ['A494'] species S0; 24 genomes $2.88
+[20:33:27] [A] birth A503 (tune ) of ['A452'] species S0; 24 genomes $2.88
+[20:33:36] [A] birth A504 (mutate claude-haiku-5-5) of ['A485'] species S0; 24 genomes $2.92
+[20:33:37] [A] birth A505 (mutate claude-haiku-5-5) of ['A368'] species S0; 24 genomes $2.92
