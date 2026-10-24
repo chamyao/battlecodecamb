@@ -196,17 +196,19 @@ int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int m
 	using Row = Row128;
 	auto load = [](const Bitboard& b, int y) { return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64; };
 	const Row full = W >= 128 ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
-	// front is padded by one zero row on each side and is zero outside the frontier's rows [y0, y1].
-	Row open[kMaxDim], front_[kMaxDim + 2], next[kMaxDim];
+	// avail = open and not yet reached. front is padded by one zero row on each side and is zero
+	// outside the frontier's rows [y0, y1], so a layer is one pass over [y0 - 1, y1 + 1] that
+	// overwrites front in place (the old rows y and y + 1 are held in registers).
+	Row avail[kMaxDim], front_[kMaxDim + 2];
 	Row* front = front_ + 1;
 	front[-1] = front[H] = 0;
 	bool any = false;
 	int y0 = H, y1 = -1; // rows spanned by the frontier
 	for (int y = 0; y < H; ++y)
 	{
-		open[y] = ~load(walls, y) & full;
-		front[y] = load(roots, y) & open[y];
-		seen[y] = front[y];
+		const Row open = ~load(walls, y) & full;
+		front[y] = load(roots, y) & open;
+		avail[y] = open & ~front[y];
 		if (front[y])
 		{
 			any = true;
@@ -221,30 +223,31 @@ int bfs_layers(const Bitboard& walls, const Bitboard& roots, int W, int H, int m
 		if (depth >= max_distance) break;
 		any = false;
 		const int lo = std::max(0, y0 - 1), hi = std::min(H - 1, y1 + 1);
+		const int d = depth + 1;
 		int n0 = H, n1 = -1;
+		Row up = front[lo - 1], cur = front[lo];
 		for (int y = lo; y <= hi; ++y)
 		{
-			Row h = front[y - 1] | front[y] | front[y + 1];
+			const Row down = front[y + 1];
+			Row h = up | cur | down;
 			h |= h << 1 | h >> 1;
-			next[y] = h & open[y] & ~seen[y];
-			if (next[y])
+			const Row nx = h & avail[y];
+			front[y] = nx;
+			up = cur, cur = down;
+			if (nx)
 			{
 				any = true;
-				n0 = std::min(n0, y), n1 = y;
+				if (n1 < 0) n0 = y;
+				n1 = y;
+				avail[y] &= ~nx;
+				on_row(nx, y, d);
 			}
-		}
-		const int d = depth + 1;
-		for (int y = lo; y <= hi; ++y)
-		{
-			front[y] = next[y];
-			if (!next[y]) continue;
-			seen[y] |= next[y];
-			on_row(next[y], y, d);
 		}
 		y0 = n0, y1 = n1;
 		++depth;
 		++count;
 	}
+	for (int y = 0; y < H; ++y) seen[y] = ~load(walls, y) & full & ~avail[y];
 	return count;
 }
 
