@@ -168,6 +168,25 @@ PY
       kill -TERM "$pid" && log "H8b: SIGTERM hyb5 pid $pid (drop --tune-* flags)"; done
     sleep 15; touch runs/ec2-h8b
   fi
+  # H9 (jobs/hybrid, 14:04 UTC): restart NOW mid-round: fb401ce's default climb replays ~4.7k games per child, breaking
+  # the programs/hour cap. Merge c6eb17a+ (python only; cheaper defaults: games 8, steps 4, stop after 2 rejects) and
+  # relaunch with the H8 command plus a reduced climb opponent set.
+  H9TUNE="--tune-opponents builtin:starter@0.25,policies/pool/v21.policy@3,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-metadraft.policy"
+  [ -f runs/ec2-h9 ] && TUNE=$H9TUNE
+  if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h9 ]; then
+    for pid in $(pgrep -a -x python3 | grep -E "league --name hyb5|funsearch.run --run hyb5-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "H9: SIGTERM hyb5 pid $pid"; done
+    sleep 15
+    if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+       git merge-base --is-ancestor c6eb17a HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+      wc -l < runs/hyb5.log > runs/ec2-h9-mark; date +%s > runs/ec2-h9-time
+      cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h9-progs
+      touch runs/ec2-h9; TUNE=$H9TUNE
+      log "H9: funsearch/runs $(git rev-parse --short HEAD) (has c6eb17a), $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with --tune-opponents (5)"
+    else
+      echo "H9 merge/c6eb17a/tests failed; hyb5 stopped" > "$D/HALT"; log "HALT: H9 upgrade failed"; pushall; return 1
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -243,6 +262,29 @@ PY
       touch runs/ec2-h8-checked; log "H8 check: no re-seed lines 30 min after relaunch; last: $(grep 'hyb5-g[0-9]*: ' runs/hyb5.log | tail -n 1 | cut -c1-120)"
     fi
     [ -f runs/ec2-h8-wait ] || date +%s > runs/ec2-h8-wait
+  fi
+  if [ -f runs/ec2-h9 ] && [ ! -f runs/ec2-h9-rate ]; then
+    # first round boundary after H9: programs/hour over the round, and mean metrics.tuned.games of children since H9
+    b=$(tail -n +"$(( $(cat runs/ec2-h9-mark) + 1 ))" runs/hyb5.log | grep -E 'hold file present|no promotion|PROMOTED' | head -n 1)
+    if [ -n "$b" ]; then
+      touch runs/ec2-h9-rate
+      st=$(python3 - "$(cat runs/ec2-h9-time)" "$(cat runs/ec2-h9-progs)" <<'PY'
+import json, glob, sys, time
+t0, n0 = float(sys.argv[1]), int(sys.argv[2])
+rows = []
+for f in sorted(glob.glob("runs/hyb5-g*/programs.jsonl")):
+    for l in open(f):
+        try: rows.append(json.loads(l))
+        except Exception: pass
+new = rows[n0:]
+tg = [r.get("metrics", {}).get("tuned", {}).get("games") for r in new]
+tg = [g for g in tg if isinstance(g, (int, float))]
+hrs = (time.time() - t0) / 3600
+print(f"{len(new)} programs in {hrs*60:.0f} min = {len(new)/hrs:.0f}/h; tuned children {len(tg)}, mean tuned.games {sum(tg)/len(tg) if tg else 0:.0f}")
+PY
+)
+      log "H9 rate: $st (round ended: $(echo "$b" | cut -c1-60)); before: g2 58/h, g3 49/h"
+    fi
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
