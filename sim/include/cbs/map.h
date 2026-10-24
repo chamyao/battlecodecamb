@@ -2,7 +2,6 @@
 #pragma once
 #include <atomic>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <vector>
 #include "cbs/bitboard.h"
@@ -58,23 +57,23 @@ struct Map
 	const Window& vision8(Vec2 from) const
 	{
 		const int i = idx(from);
-		if (!window_ready_[i].load(std::memory_order_acquire)) fill_windows(i);
+		if (window_ready_[i].load(std::memory_order_acquire) != 2) fill_windows(i);
 		return vision_cache_[i];
 	}
 	const Window& vision6(Vec2 from) const
 	{
 		const int i = idx(from);
-		if (!window_ready_[i].load(std::memory_order_acquire)) fill_windows(i);
+		if (window_ready_[i].load(std::memory_order_acquire) != 2) fill_windows(i);
 		return ward_vision_cache_[i];
 	}
 	void add_window(const Window& w, Vec2 from, Bitboard& out) const;
 
-	// Filled per tile on first use (a map is shared by concurrent matches: filled under a lock, then
-	// published by window_ready_). The radius-6 window is the radius-8 one cut to Chebyshev 6: the
-	// shadowcaster's depth is the Chebyshev distance and depth d depends only on depths below d.
+	// Filled per tile on first use. A map is shared by concurrent matches: window_ready_ is 0 (empty),
+	// 1 (being filled by one thread; the others wait) or 2 (ready). The radius-6 window is the radius-8
+	// one cut to Chebyshev 6: the shadowcaster's depth is the Chebyshev distance and depth d depends
+	// only on depths below d.
 	mutable std::vector<Window> vision_cache_, ward_vision_cache_;
 	mutable std::unique_ptr<std::atomic<std::uint8_t>[]> window_ready_;
-	mutable std::mutex window_mu_;
 	void fill_windows(int i) const;
 };
 
