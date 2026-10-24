@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 14:12 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 8.85 9.99 10.74 on 16 threads.
+Updated 2026-10-24 14:18 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 8.46 8.97 10.06 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -14,7 +14,6 @@ Disk: 3.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[12:48:58] hybrid: H7b: funsearch/runs c4341a3 (has c4341a3: lockfix + fuel recalibration), rebuilt, 2012 passed in 5.87s; relaunching hyb5 (same v21 flags)
 [12:48:58] hybrid: hyb5 not running: relaunching (resume from runs/)
 [12:48:58] hybrid: launched hyb5 league
 [12:54:08] hybrid: H7b check: hyb5-g2: +0 programs to the next boundary (30 so far) best policies/pool/v20.policy $20.13 left
@@ -54,4 +53,5 @@ Disk: 3.3G used of 38G.
 [14:07:38] hybrid: launched hyb5 league
 [14:12:46] hybrid: H10: hold set for the next hyb5 boundary
 [14:12:46] hybrid: H9 rate: 0 programs in 5 min = 0/h; tuned children 0, mean tuned.games 0 (round ended: [14:10:50]   no promotion; hyb5-g3 continues); before: g2 58/h, g3 49/h
+[14:18:02] hybrid: H8 check: hyb5-g3: re-seeded island 2 with v20;hyb5-g3: re-seeded island 3 with v19-; (expected island 2 with v20, island 3 with v19-L1c; 0/1 keep v21)
 ```
