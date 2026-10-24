@@ -112,6 +112,10 @@ class Arena:
             m = self._add_genome(text, "seed", [], {"op": "seed"})
             self.log(f"new arena {args.tag}: seed {m['name']} in species {m['species']}, "
                      f"{len(self.anchors())} anchors")
+        if args.refingerprint:  # resumed on another runtime: redo the twin-check games of every live genome
+            for m in self.genomes():
+                m["fingerprint"] = self.fingerprint((self.out / m["path"]).read_text())
+            self.log(f"re-fingerprinted {len(self.genomes())} genomes on this runtime")
         if args.fixed_anchors:  # freeze every anchor at its current mu (keeps the scale, fixed from here on)
             for m in self.anchors():
                 m["sigma"] = args.anchor_sigma
@@ -643,6 +647,8 @@ def main(argv=None):
     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
     ap.add_argument("--anchor-sigma", type=float, default=1.0)
+    ap.add_argument("--refingerprint", action="store_true",
+                    help="recompute live genomes' twin-check outcomes at start (after a runtime change)")
     ap.add_argument("--intel-branch", default="")
     ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
     ap.add_argument("--resume-from", default="", help="an earlier arena output directory (e.g. the last pushed "

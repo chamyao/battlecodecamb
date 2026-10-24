@@ -1,0 +1,48 @@
+"""Baseline of genomes vs the fixed anchors on fixed seeds (e.g. at a resume onto a new runtime).
+
+    python3 -m genome.search.baseline --out base.jsonl --state arenaA-1/arena --top 3 --seed-genome genome/seeds/v23.genome
+
+Plays the seed genome and the top --top live genomes (by mu, >= --min-games games) of an arena state against
+each fixed anchor, --games games on fixed seeds, and appends one JSON line per (genome, anchor).
+"""
+import argparse
+import json
+import time
+from pathlib import Path
+
+from funsearch.evaluate import ROOT
+
+from .gate import ANCHORS, REF, rate, spec_of
+
+SEEDS = (2_000_003,)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--state", required=True, help="arena output dir (state.json, genomes/)")
+    ap.add_argument("--top", type=int, default=3)
+    ap.add_argument("--min-games", type=int, default=40)
+    ap.add_argument("--seed-genome", default=str(ROOT / "genome/seeds/v23.genome"))
+    ap.add_argument("--games", type=int, default=200)
+    ap.add_argument("--threads", type=int, default=5)
+    ap.add_argument("--tag", default="")
+    args = ap.parse_args()
+    d = Path(args.state)
+    s = json.loads((d / "state.json").read_text())
+    live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"] and m["games"] >= args.min_games]
+    who = [("seed", Path(args.seed_genome).read_text(), None)]
+    who += [(m["name"], (d / m["path"]).read_text(), m["mu"]) for m in sorted(live, key=lambda m: -m["mu"])[:args.top]]
+    for name, text, mu in who:
+        spec = spec_of(text, "genome")
+        for anc in (REF,) + ANCHORS:
+            w, n = rate(spec, spec_of(str(ROOT / anc)), SEEDS, args.games, args.threads)
+            rec = {"tag": args.tag, "genome": name, "mu_old": mu, "anchor": Path(anc).stem, "wins": w, "games": n,
+                   "win_rate": w / n, "seeds": list(SEEDS), "t": round(time.time())}
+            with open(args.out, "a") as f:
+                f.write(json.dumps(rec) + "\n")
+            print(json.dumps(rec), flush=True)
+
+
+if __name__ == "__main__":
+    main()
