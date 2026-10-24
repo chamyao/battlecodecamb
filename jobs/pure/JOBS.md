@@ -129,5 +129,7 @@ g3 ended WITHOUT a promotion (best #124 h2h 0.529 < 0.55). The lead approved ski
 extension, and ec2/runner's one-shot ADVANCE_G3 block (7ef7a8c) moved the state to gen 4, best still
 fs-p2. g4 has been running on EC2 since 09:25 UTC on funsearch/pure 2b65f8d:
 `pure4-g4: +151 programs (to 151), best policies/fs-p2.policy, league ['policies/rall2-ca4-lean-g.policy', ...], $7.73 left`
-(seed score 0.570). Section 5 above (fs-p3 from g3) no longer applies. The next switch, g4 -> g5 on a
-promotion, is not automated for a pinned rev yet: the pure line will set it up before g4 validates.
+(seed score 0.570). Section 5 above (fs-p3 from g3) no longer applies. On a g4 promotion the league
+continues into g5 by itself on the same code. Its own `git push origin HEAD` fails on the detached
+HEAD, which is harmless: the runner pushes policies/fs-p*.policy to remote/pure each tick, and the
+pure line commits the promotion to funsearch/pure from there.
