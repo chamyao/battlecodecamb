@@ -187,7 +187,8 @@ PY
       echo "H9 merge/c6eb17a/tests failed; hyb5 stopped" > "$D/HALT"; log "HALT: H9 upgrade failed"; pushall; return 1
     fi
   fi
-  # H11-H13 (jobs/hybrid 36027f7/0af49e3/ee2917f, 14:25-14:35 UTC) folded into H10: require 14df19b (contains fe36f47,
+  # H11-H14 (jobs/hybrid ... 965de08, 14:25-14:40 UTC) folded into H10: require d915b03 (contains 14df19b, e71632d,
+  # bank_detour sensor); (contains fe36f47,
   # 1d748cf exec_blocks refresh, deploy/v0 f6a56b7 calibrated fuel) (gap-sensor batches 1+2, vocab
   # variant on by default, exec_blocks vs builtin:starter); same command line.
   # H10 (jobs/hybrid, 14:20 UTC): next hyb5 boundary after H9: merge funsearch/runs 4174c28+ (coord/capture-metric:
@@ -207,10 +208,10 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H10: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 7a6038d HEAD && git merge-base --is-ancestor 14df19b HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+         git merge-base --is-ancestor 7a6038d HEAD && git merge-base --is-ancestor d915b03 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h10-progs
         rm -f runs/hyb5.hold; touch runs/ec2-h10; AXES=$H10AXES; HELP=$H10HELP
-        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 7a6038d, 14df19b: H10-H13: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
+        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 7a6038d, d915b03: H10-H14: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
       else
         echo "H10 merge/4174c28/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H10 upgrade failed"; pushall; return 1
       fi

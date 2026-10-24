@@ -150,6 +150,23 @@ fi
 # 14:17 UTC (style line): HOLD the gconv gap run until a new commit + launch command arrive. Stop it if running;
 # its spend carries over on relaunch (the launcher subtracts programs.jsonl cost). Set GCONV_HOLD=0 to release.
 GCONV_HOLD=1
+# S9 (jobs/style 8bd0586, 14:43 UTC): release gconv on funsearch/style 6e8cc17 (deploy/v0 d23c1cb: 15 calibrated gap
+# sensors + sim recalibration -> rebuild; hill-climb + helpers; trimmed directive). Restart b first; a/c/h2 stay off.
+if [ -f runs/ec2-s8 ] && [ ! -f runs/ec2-s9 ]; then
+  for pid in $(pgrep -a -x python3 | grep -E "league --name style8-b |funsearch.run --run style8-b-|funsearch.run --run style8-gconv " | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "S9: SIGTERM pid $pid"; done
+  sleep 15
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor 6e8cc17 HEAD && build "$D" && python3 -m pytest -q tests > /root/bc/style-pytest.txt 2>&1; then
+    wc -l < runs/style8-gconv.out > runs/ec2-s9-outmark 2>/dev/null || echo 0 > runs/ec2-s9-outmark
+    touch runs/ec2-s9
+    log "S9: at $(git rev-parse --short HEAD) (has 6e8cc17), rebuilt, $(tail -n 1 /root/bc/style-pytest.txt); restarting b, releasing gconv"
+  else
+    echo "S9 merge/6e8cc17/build/tests failed; b and gconv stopped" > "$D/HALT"; log "HALT: S9 merge/build/tests failed"; return 1
+  fi
+fi
+[ -f runs/ec2-s9 ] && GCONV_HOLD=0
 if [ "$GCONV_HOLD" = 1 ]; then
   for pid in $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gconv ' | cut -d' ' -f1); do
     kill -TERM "$pid" && log "S8 HOLD: SIGTERM style8-gconv pid $pid"; done
@@ -169,6 +186,13 @@ if [ "$GCONV_HOLD" != 1 ] && [ -f runs/ec2-s8 ] && [ ! -f runs/style8-gconv.ec2-
     GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
       WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gconv 2.0 conversion:max:0.05 policies/tune-v21.policy funsearch/styles/g_conversion.txt >> runs/style8-gconv.out 2>&1 < /dev/null &
     touch runs/style8-gconv.ec2-launched; log "S8: launched style8-gconv (\$2.0 total)"
+  fi
+fi
+if [ -f runs/ec2-s9 ] && [ ! -f runs/ec2-s9-checked ]; then
+  o=$(tail -n +"$(( $(cat runs/ec2-s9-outmark) + 1 ))" runs/style8-gconv.out 2>/dev/null)
+  if echo "$o" | grep -q 'mirror value'; then
+    touch runs/ec2-s9-checked
+    log "S9 check: $(echo "$o" | grep -m1 -oE '\$[0-9.]+ left of \$[0-9.]+'); $(echo "$o" | grep -m1 -oE 'reference [^;]*')"
   fi
 fi
 if [ -f runs/style8-gconv.ec2-launched ] && [ ! -f runs/style8-gconv.ec2-metric ]; then
