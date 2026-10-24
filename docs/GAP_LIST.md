@@ -143,3 +143,62 @@ v22 is v21's policy plus a bot fix to `group_threat`, so that dead camps no long
   - gems lost on death: 164 ± 30 against 144 ± 18;
   - deaths to camps: 4.1 against 4.2.
 - So the fix is neutral at this tier. The capture-yield gap (#2) needs a change in which groups we choose, not in how threat is counted.
+
+## v23 check: sensor-driven banking (style-gconv1), same 50 band games
+
+v23 is v21's policy plus banking that FunSearch found with the `threat_eta` / `altar_eta` sensors. It went live at 16:10 UTC; the band groups were queued at 16:11.
+
+| per game | v21 | v22 | v23 |
+|---|---|---|---|
+| games, W-L | 50, 15-35 | 50, 17-33 | 50, 14-36 |
+| gems submitted us / them | 617 / 887 | 626 / 876 | 578 / 883 |
+| deaths us / them | 15.4 / 8.0 | 15.2 / 8.0 | 17.2 / 6.7 |
+| kills us / them | 2.9 / 11.1 | 3.6 / 11.1 | 2.9 / 12.3 |
+| champion damage us / them | 23.9k / 35.3k | 23.6k / 35.0k | 20.8k / 35.9k |
+| gems per capture us / them | 13.6 / 19.3 | 13.5 / 19.3 | 13.2 / 19.2 |
+| captures us / them | 74.9 / 60.1 | 73.2 / 59.9 | 65.7 / 61.8 |
+| tributes us / them | 18.0 / 26.2 | 17.9 / 27.2 | 28.3 / 28.0 |
+| median bag us / them | 30 / 34 | 30 / 36 | 18 / 34 |
+| gems lost dying us / them | 185 / 104 | 206 / 125 | 130 / 83 |
+| gold earned us / them | 7.1k / 7.3k | 7.1k / 7.3k | 6.3k / 7.6k |
+| our deaths with 2+ of theirs within 5 | 62% of 556 | 63% of 555 | 66% of 613 |
+
+| opponent | v21 W-L (gems us-them) | v22 W-L (gems us-them) | v23 W-L (gems us-them) |
+|---|---|---|---|
+| Ding | 1-4 (560-982) | 0-5 (602-1016) | 1-4 (584-993) |
+| Gem_alert | 0-5 (408-999) | 0-5 (408-999) | 1-4 (529-915) |
+| Kingstonks | 1-4 (657-868) | 2-3 (654-820) | 2-3 (640-796) |
+| Memory? | 3-2 (734-836) | 3-2 (730-834) | 1-4 (784-944) |
+| Mommy Shogun | 1-4 (574-964) | 1-4 (561-961) | 2-3 (717-921) |
+| Monarch | 0-5 (541-1044) | 1-4 (563-930) | 1-4 (305-1042) |
+| NotSoLonely | 3-2 (733-682) | 3-2 (754-736) | 3-2 (767-599) |
+| WHIM | 3-2 (765-774) | 3-2 (772-759) | 1-4 (548-931) |
+| vc? | 2-3 (622-899) | 2-3 (622-899) | 1-4 (478-880) |
+| ❤️Quantom❤️ | 1-4 (574-822) | 2-3 (590-803) | 1-4 (422-811) |
+
+| metric | v21 | v22 | v23 |
+|---|---|---|---|
+| win rate | 30% ± 6 | 34% ± 7 | 28% ± 6 |
+| gems submitted, us | 617 ± 52 | 626 ± 50 | 578 ± 50 |
+| tributes per game | 18.0 ± 1.6 | 17.9 ± 1.5 | **28.3 ± 2.8** |
+| median bag | 30 | 30 | **18** |
+| gems lost on death (to champions) | 144 ± 18 | 164 ± 30 | **89 ± 16** |
+| share of our deaths while carrying | 54% ± 7 | 55% ± 7 | **38% ± 5** |
+| share of captured gems submitted | 76% ± 4 | 77% ± 4 | **82% ± 3** |
+| gems captured per game | 815 ± 58 | 814 ± 59 | **707 ± 51** |
+| captures per game | 74.9 | 73.2 | 65.7 |
+| gems per capture | 10.9 ± 1.1 | 11.1 ± 1.1 | 10.8 ± 1.0 |
+| our deaths to champions / to camps | 11.1 / 4.2 | 11.1 / 4.1 | 12.3 / 4.9 |
+
+Paired game by game:
+- **v22 → v23:** 3 identical, 47 changed. 4 flipped to a win and 7 to a loss. Our gems changed by −51 ± 44 per game.
+- **v21 → v23:** 2 identical, 48 changed. 5 flipped to a win and 6 to a loss. Our gems changed by −41 ± 50 per game.
+
+**Reading:** the banking sensors do what they were found for.
+- Tributes go up 58%, with smaller bags.
+- Gems lost on death fall by about 40%: 89 against 144-164.
+- Conversion rises from 76-77% to 82%.
+
+But the extra trips cost farming time: we capture 108 fewer gems per game (707 against 815), we die slightly more (+1.2 to champions, +0.7 to camps), and the net submitted gems fall by 40-50 (within about 1 SE). The record is 14-36 against v22's 17-33 (paired: 4 wins, 7 losses), within noise but not better.
+
+**Verdict:** v23 trades about 75 gems saved on death for about 108 gems not captured. **Revert to v22** unless the bank rule can keep the capture rate, for example by banking early only when `threat_eta` is short, rather than on every short trip. The median bag of 18 suggests it banks too readily when no threat is near.
