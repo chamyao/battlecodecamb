@@ -5,17 +5,16 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 18:08 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.00 0.15 2.68 on 16 threads.
-Disk: 3.6G used of 38G.
+Updated 2026-10-24 18:13 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.59 0.18 1.92 on 16 threads.
+Disk: 3.7G used of 38G.
 
 ## python3 processes
 ```
+158746 python3 -m genome.search.run --run evo-policy --out /root/bc/genome/out/evo-policy-1/run --arm policy --seed policies/candidates/style-gconv1.policy --opponents policies/v7.policy,policies/candidates/tune-v20-L1.policy,policies/candidates/rall2-ca4-lean-g.policy --budget 1.5 --max-programs 40
+158956 python3 -m genome.search.run --run evo-starter-pilot --out /root/bc/genome/out/evo-starter-pilot/run --arm genome --seed genome/examples/starter.genome --opponents builtin:starter,genome/examples/farmer.genome --budget 0.3 --max-programs 150 --workers 3 --eval-threads 2
 ```
 ## tick.log (last 40 lines)
 ```
-[16:35:16] hybrid: H20: funsearch/runs 694a4a3 (has 694a4a3/166f85c: v23 style-gconv1, sim fix, #76, H21 cover screens), built interp_eval+fuel_turns, 2029 passed in 7.37s; relaunching hyb5 with style-gconv1 fixed + island-1 seed, island-3 seed #76, --screen-maps cover --rescreen-top 3
-[16:35:16] hybrid: hyb5 not running: relaunching (resume from runs/)
-[16:35:16] hybrid: launched hyb5 league
 [16:40:29] style: S12b: b's first verdict predates S12; stopping b now
 [16:40:29] style: S12: SIGTERM style8-b pid 134253 (boundary verdict in)
 [16:40:29] style: S12: SIGTERM style8-b pid 134277 (boundary verdict in)
@@ -53,4 +52,7 @@ remote:
 [18:03:01] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [18:08:03] genome: job smoke1 exited rc=0
 [18:08:04] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[18:13:16] genome: started job evo-policy-1 at fb14c783bda3090568092fef92757f19af026464
+[18:13:26] genome: started job evo-starter-pilot at fb14c783bda3090568092fef92757f19af026464
+[18:13:27] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
