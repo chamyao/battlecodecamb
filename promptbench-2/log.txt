@@ -88,3 +88,92 @@
 [r1 bench] missing cell 2 (seed, rule->r_hold): 0.4875 $0.089
 [r1 bench] missing cell 3 (seed, update->rule_target): 0.5 $0.089
 [r1 bench] missing cell 7 (seed, bank_goal->bank_t2): behavioural twin $0.089
+[r1 bench] missing cell 4 (seed, altar_eta->here): 0.425 $0.090
+[r1 bench] missing cell 6 (seed, taken->camp_block): 0.4875 $0.092
+[r1 bench] missing cell 11 (arenaA-1:A352, score->shop_pending): behavioural twin $0.092
+[r1 bench] missing cell 8 (arenaA-1:A352, r_run->hurt_below): 0.325 $0.093
+[r1 bench] missing cell 9 (arenaA-1:A352, under_fire->in_danger): 0.4125 $0.094
+[r1 bench] missing cell 10 (arenaA-1:A352, at_spawn->here): 0.3875 $0.094
+[r1 bench] missing cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.55 $0.098
+[r1 bench] missing cell 13 (arenaA-1:A352, ahead_value->ahead_foe): 0.45 $0.098
+[r1 bench] missing cell 14 (arenaA-1:A352, bank_blocked->reach_camp): 0.4625 $0.099
+[r1 bench] missing cell 16 (arenaA-1:A344, rule->r_prefight): 0.5 $0.099
+[r1 bench] missing cell 15 (arenaA-1:A352, rule->r_recall): 0.5 $0.099
+[r1 bench] missing cell 19 (arenaA-1:A344, bank_goal->bank_t1): behavioural twin $0.102
+[r1 bench] missing cell 17 (arenaA-1:A344, bag_ready->threat_near): 0.475 $0.102
+[r1 bench] missing cell 18 (arenaA-1:A344, live_camp->here): 0.5 $0.104
+[r1 bench] missing cell 20 (arenaA-1:A344, threat_near->hurt_below): 0.5 $0.105
+[r1 bench] missing cell 24 (arenaA-1:A368, bank_t3->closest): behavioural twin $0.105
+[r1 bench] missing cell 21 (arenaA-1:A344, rule->r_recall): 0.4375 $0.106
+[r1 bench] missing cell 22 (arenaA-1:A344, bag_ready->altar_eta): 0.4875 $0.106
+[r1 bench] missing cell 23 (arenaA-1:A344, under_fire->in_danger): 0.4375 $0.106
+[r1 bench] missing cell 26 (arenaA-1:A368, update->consider): behavioural twin $0.109
+[r1 bench] missing cell 25 (arenaA-1:A368, enemies_within->here): 0.5 $0.111
+[r1 bench] missing cell 30 (arenaA-1:A368, under_fire->enemies_within): behavioural twin $0.113
+[r1 bench] missing cell 27 (arenaA-1:A368, update->cast_value): 0.575 $0.113
+[r1 bench] missing cell 29 (arenaA-1:A368, bag_ready->altar_eta): 0.5 $0.115
+[r1 bench] missing cell 28 (arenaA-1:A368, unseen_camps->here): 0.3875 $0.115
+[r1 bench] missing cell 31 (arenaA-1:A368, rule->r_cashout): 0.275 $0.117
+[r1 bench] missing cell 32 (arenaA-1:A354, altar_eta->here): 0.4875 $0.118
+[r1 bench] missing cell 33 (arenaA-1:A354, dash_value->dash_gate): 0.5 $0.118
+[r1 bench] missing cell 34 (arenaA-1:A354, altar_eta->eta): 0.5 $0.120
+[r1 bench] missing cell 36 (arenaA-1:A354, camp_goal->closest): 0.525 $0.121
+[r1 bench] missing cell 39 (arenaA-1:A354, cast_value->ahead_value): behavioural twin $0.122
+[r1 bench] missing cell 37 (arenaA-1:A354, r_cashout->at_spawn): 0.5125 $0.122
+[r1 bench] missing cell 38 (arenaA-1:A354, rule->r_live): 0.2875 $0.122
+[r1 bench] weights cell 3 (seed, update->rule_target): behavioural twin $0.125
+[r1 bench] weights cell 0 (seed, r_lock->lock_altar): 0.5125 $0.125
+[r1 bench] weights cell 1 (seed, cast_value->strike_cast): 0.4 $0.126
+[r1 bench] weights cell 2 (seed, rule->r_hold): 0.4375 $0.127
+[r1 bench] weights cell 5 (seed, bank_blocked->bank_t1): behavioural twin $0.127
+[r1 bench] weights cell 7 (seed, bank_goal->bank_t2): behavioural twin $0.130
+[r1 bench] weights cell 4 (seed, altar_eta->here): 0.525 $0.130
+[r1 bench] weights cell 6 (seed, taken->camp_block): 0.075 $0.132
+[r1 bench] weights cell 8 (arenaA-1:A352, r_run->hurt_below): 0.3375 $0.132
+[r1 bench] weights cell 9 (arenaA-1:A352, under_fire->in_danger): 0.4125 $0.134
+[r1 bench] weights cell 11 (arenaA-1:A352, score->shop_pending): behavioural twin $0.134
+[r1 bench] weights cell 10 (arenaA-1:A352, at_spawn->here): 0.5 $0.135
+[r1 bench] weights cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.5375 $0.136
+[r1 bench] weights cell 13 (arenaA-1:A352, ahead_value->ahead_foe): 0.4625 $0.137
+[r1 bench] weights cell 16 (arenaA-1:A344, rule->r_prefight): behavioural twin $0.137
+[r1 bench] weights cell 14 (arenaA-1:A352, bank_blocked->reach_camp): 0.45 $0.138
+[r1 bench] weights cell 15 (arenaA-1:A352, rule->r_recall): 0.425 $0.138
+[r1 bench] weights cell 19 (arenaA-1:A344, bank_goal->bank_t1): behavioural twin $0.141
+[r1 bench] weights cell 17 (arenaA-1:A344, bag_ready->threat_near): 0.55 $0.141
+[r1 bench] weights cell 18 (arenaA-1:A344, live_camp->here): 0.5 $0.141
+[r1 bench] weights cell 20 (arenaA-1:A344, threat_near->hurt_below): 0.475 $0.141
+[r1 bench] missing cell 35 (arenaA-1:A354, threat_eta->eta): 0.6 $0.144
+[r1 bench] weights cell 24 (arenaA-1:A368, bank_t3->closest): behavioural twin $0.144
+[r1 bench] weights cell 21 (arenaA-1:A344, rule->r_recall): 0.4375 $0.144
+[r1 bench] weights cell 22 (arenaA-1:A344, bag_ready->altar_eta): 0.5125 $0.148
+[r1 bench] weights cell 23 (arenaA-1:A344, under_fire->in_danger): 0.425 $0.148
+[r1 bench] weights cell 26 (arenaA-1:A368, update->consider): behavioural twin $0.148
+[r1 bench] weights cell 25 (arenaA-1:A368, enemies_within->here): 0.475 $0.150
+[r1 bench] weights cell 27 (arenaA-1:A368, update->cast_value): 0.4875 $0.151
+[r1 bench] weights cell 28 (arenaA-1:A368, unseen_camps->here): 0.475 $0.153
+[r1 bench] weights cell 30 (arenaA-1:A368, under_fire->enemies_within): 0.5 $0.153
+[r1 bench] weights cell 29 (arenaA-1:A368, bag_ready->altar_eta): 0.5 $0.153
+[r1 bench] weights cell 31 (arenaA-1:A368, rule->r_cashout): 0.25 $0.155
+[r1 bench] weights cell 32 (arenaA-1:A354, altar_eta->here): 0.4875 $0.156
+[r1 bench] weights cell 34 (arenaA-1:A354, altar_eta->eta): 0.5 $0.158
+[r1 bench] weights cell 33 (arenaA-1:A354, dash_value->dash_gate): 0.55 $0.158
+[r1 bench] weights cell 36 (arenaA-1:A354, camp_goal->closest): 0.2 $0.160
+[r1 bench] weights cell 37 (arenaA-1:A354, r_cashout->at_spawn): 0.5125 $0.160
+[r1 bench] mechanism cell 0 (seed, r_lock->lock_altar): behavioural twin $0.162
+[r1 bench] weights cell 38 (arenaA-1:A354, rule->r_live): 0.2875 $0.162
+[r1 bench] mechanism cell 1 (seed, cast_value->strike_cast): behavioural twin $0.162
+[r1 bench] weights cell 39 (arenaA-1:A354, cast_value->ahead_value): 0.475 $0.162
+[r1 bench] mechanism cell 5 (seed, bank_blocked->bank_t1): behavioural twin $0.167
+[r1 bench] mechanism cell 2 (seed, rule->r_hold): 0.4375 $0.167
+[r1 bench] mechanism cell 3 (seed, update->rule_target): 0.4875 $0.168
+[r1 bench] mechanism cell 4 (seed, altar_eta->here): 0.475 $0.169
+[r1 bench] mechanism cell 6 (seed, taken->camp_block): 0.4875 $0.171
+[r1 bench] weights cell 35 (arenaA-1:A354, threat_eta->eta): 0.6 $0.171
+[r1 bench] mechanism cell 7 (seed, bank_goal->bank_t2): 0.5 $0.171
+[r1 bench] mechanism cell 9 (arenaA-1:A352, under_fire->in_danger): 0.3625 $0.174
+[r1 bench] mechanism cell 8 (arenaA-1:A352, r_run->hurt_below): 0.525 $0.174
+[r1 bench] mechanism cell 11 (arenaA-1:A352, score->shop_pending): behavioural twin $0.174
+[r1 bench] mechanism cell 14 (arenaA-1:A352, bank_blocked->reach_camp): GenomeError: bank_blocked line 283: expected Bool, got Num $0.176
+[r1 bench] mechanism cell 10 (arenaA-1:A352, at_spawn->here): 0.5 $0.177
+[r1 bench] mechanism cell 16 (arenaA-1:A344, rule->r_prefight): GenomeError: r_prefight line 259: cannot assign to eta $0.178
+[r1 bench] mechanism cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.5375 $0.179
