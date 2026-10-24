@@ -261,9 +261,13 @@ if [ -f runs/ec2-s12 ] && [ ! -f runs/style8-gyield.ec2-done ] && ! pgrep -a -x 
     touch runs/style8-gyield.ec2-done; log "S12: style8-gyield finished: $(tail -n 1 runs/style8-gyield.out | cut -c1-160)"
   else
     [ -f runs/style8-gyield.ec2-launched ] && log "S12: style8-gyield not running: relaunching (resumes)"
-    GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+    # S13 (jobs/style 443877f, 16:20 UTC): style-gconv1 is live as v23; any (re)launch from now on uses it as gap
+    # reference and heaviest opponent (same name and total, spend carries over). No restart just for this.
+    GAP_REF=policies/style-gconv1.policy \
+    GAP_OPPONENTS="builtin:starter@0.25,policies/style-gconv1.policy@3,policies/tune-v21.policy,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
       WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gyield 1.27 conversion:max:0.05,gems_per_capture:max:3 policies/style-gconv1.policy funsearch/styles/g_conversion.txt >> runs/style8-gyield.out 2>&1 < /dev/null &
-    touch runs/style8-gyield.ec2-launched; log "S12: launched style8-gyield (\$1.27)"
+    [ -f runs/style8-gyield.ec2-launched ] && touch runs/ec2-s13-relaunched
+    touch runs/style8-gyield.ec2-launched; log "S12/S13: launched style8-gyield (\$1.27 total; gap ref style-gconv1 = v23)"
   fi
 fi
 if [ -f runs/style8-gyield.ec2-launched ] && [ ! -f runs/style8-gyield.ec2-checked ] && grep -q 'gap: ' runs/style8-gyield.out 2>/dev/null; then
@@ -343,6 +347,11 @@ open(sys.argv[2], "w").writelines(out)' "$d$f" "/root/bc/style-snap/$d$f"
   done
 done
 cp runs/style8-*.json runs/style8-*.log runs/style8-*.out /root/bc/style-snap/runs/ 2>/dev/null
+if [ -f runs/ec2-s13-relaunched ] && [ ! -f runs/ec2-s13-checked ] && grep -q 'vs policies/style-gconv1.policy' runs/style8-gyield.out 2>/dev/null &&
+   [ "$(grep -A3 'vs policies/style-gconv1.policy' runs/style8-gyield.out | grep -c 'gap metric')" -ge 2 ]; then
+  touch runs/ec2-s13-checked
+  log "S13 check: $(grep -A4 'vs policies/style-gconv1.policy' runs/style8-gyield.out | tail -n 5 | grep -E 'left of|gap metric|gap: ' | cut -c1-110 | tr '\n' '|')"
+fi
 for gr in gconv gyield; do [ -f runs/style8-$gr/programs.jsonl ] || continue   # gap runs (plain funsearch.run)
   mkdir -p /root/bc/style-snap/runs/style8-$gr
   python3 -c '
