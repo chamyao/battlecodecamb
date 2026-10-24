@@ -3,6 +3,8 @@ from pathlib import Path
 
 from funsearch.catalog import GAME
 
+from .edit import ENTRIES
+
 LANGUAGE = (Path(__file__).resolve().parent.parent / "LANGUAGE.md").read_text()
 
 FACTS = GAME.replace("Every block a bot runs costs fuel", "Every operation and engine call a bot runs costs fuel") + """\
@@ -17,7 +19,12 @@ calls score(o) on each, and does the best one while its score is > 0.
 # The game
 {FACTS}
 # The gene language
-{LANGUAGE}"""
+{LANGUAGE}
+Also: `consider(kind: Num) -> Bool` (optional entry gene) is asked once per option kind each pass;
+kinds it rejects are neither listed nor scored, which saves the fuel of listing and scoring them.
+Expensive sets and distance fields can be computed once per turn into a Tiles/Field keep in update()
+instead of in a zero-argument gene (recomputed every pass of the loop). A mutation may add consider()
+or update() if the genome has none."""
 
 MUTATE_TASK = """# Your task: mutate one link of the genome
 You are shown the genome's genes. Exactly the genes marked EDITABLE (the two ends of one dependency
@@ -75,7 +82,7 @@ def mutate_user(genome, source_genes, editable, edges, stats=None):
     out.append("")
     for name in editable:
         g = genome.genes[name]
-        who = ", ".join(sorted(callers.get(name, []))) or ("the fixed loop" if name in ("score", "update") else "nobody")
+        who = ", ".join(sorted(callers.get(name, []))) or ("the fixed loop" if name in ENTRIES else "nobody")
         out.append(f"## EDITABLE gene {g.name} (called by {who})\n```python\n{source_genes[g.id].strip()}\n```\n")
     out.append("Write the mutation.")
     return "\n".join(out)

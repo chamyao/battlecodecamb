@@ -10,6 +10,9 @@ import re
 from .. import lang
 
 
+ENTRIES = ("score", "update", "consider")  # genes the fixed loop calls
+
+
 class EditError(Exception):
     """An operator result that breaks a rule (not a type error: those are lang.GenomeError)."""
 
@@ -105,7 +108,7 @@ def set_header(gene_text, gid=None, desc=None, parents=None):
 
 def reachable(genome):
     """Gene names reachable by calls from the entry genes."""
-    seen, todo = set(), [n for n in ("score", "update") if n in genome.genes]
+    seen, todo = set(), [n for n in ENTRIES if n in genome.genes]
     while todo:
         n = todo.pop()
         if n in seen:

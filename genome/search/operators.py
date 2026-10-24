@@ -31,6 +31,8 @@ class Child:
 def pick_edges(genome, rng, two_prob=0.25):
     """One edge, sometimes two (distinct). A genome without edges mutates score alone."""
     edges = genome.edges()
+    if "consider" in genome.genes:  # the loop links consider() and score(): consider gates what score sees
+        edges.append(("score", "consider", "loop"))
     if not edges:
         return [("score", "score", "self")]
     n = 2 if len(edges) > 1 and rng.random() < two_prob else 1
@@ -145,7 +147,7 @@ def crossover(a_src, b_src, rng, tries=20):
             return side
 
         todo = []
-        for entry in ("score", "update"):
+        for entry in edit.ENTRIES:
             for side in ("A", "B"):
                 g = by[side][0].genes.get(entry)
                 if g is not None:
