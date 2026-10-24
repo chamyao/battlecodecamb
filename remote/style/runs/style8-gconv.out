@@ -6,3 +6,6 @@ seed tune-v21 score 0.628 (islands [0, 1, 2, 3])
 [6] claude-haiku-5-5 island 3: score 0.748 | best 0.859 (#5) $0.02 | 291s
 [7] claude-haiku-5-5 island 2: score 0.617 | best 0.859 (#5) $0.02 | 377s
 gap run style8-gconv (conversion:max:0.05 vs policies/tune-v21.policy): $1.98 left of $2.0
+gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8999; win floor 0.5 vs it; weight 0.5
+[8] claude-haiku-5-5 island 3: score 0.812 | best 0.859 (#5) $0.01 | 221s
+[9] claude-haiku-5-5 island 2: score 0.752 | best 0.859 (#5) $0.01 | 255s
