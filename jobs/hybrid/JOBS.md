@@ -261,3 +261,15 @@ If H8 has not fired yet, apply this with it; otherwise at the following boundary
 --tune-children / --tune-steps / --tune-games flags from the previous addendum.
 Check: new children in runs/hyb5-g3/programs.jsonl carry metrics.tuned (with "seconds"), and comment-only children are
 logged as error "no code change". Report programs/hour in hyb5 before and after (from the [N] lines' timestamps).
+
+## Job H9 (2026-10-24 14:10 UTC, hybrid line session; per the FunSearch lead): cheap climb NOW (not at a boundary)
+
+The climb running since H8b (fb401ce defaults) re-plays the incumbent each step on all 10 opponents (~4.7k games per
+child) and breaks the cap (programs/hour must stay >= half the untuned ~49-58/h). Restart immediately, mid-round:
+
+1. SIGTERM hyb5 (league + run) by PID; merge funsearch/runs to c6eb17a or later (ancestor check; python only); pytest.
+2. Relaunch with the current (H8) command line plus:
+   `--tune-opponents builtin:starter@0.25,policies/pool/v21.policy@3,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-metadraft.policy`
+   (defaults now: --tune-games 8 --tune-steps 4 --tune-rejects 2 --tune-margin 0.03 --tune-slack 0.15; ~250 games per
+   climbed child at most.)
+3. Report programs/hour for the first full round after this (children only), and mean metrics.tuned.games.
