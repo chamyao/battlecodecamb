@@ -145,3 +145,11 @@ v24's camp goals exclude golem tiles (`minus(..., golem_tiles())`), and the near
 - **Our only win** was against cory at 20:10 (captured 792).
 
 Same root cause as 5 and 5b: the camp goal is the nearest spawn, and gold-only groups look like goals although they give 0 gems. On this map the bot would need to observe that the only gem value is the contested central group. `group_gems` = 0 for gold groups, plus `group_contested`, is what would steer it.
+
+### 5d. 01starvation: 1-17, with elk deaths
+
+- 18 games of v21-v26 on 01starvation; we won 1.
+- **Per game we die 30.8 times to champions and 13.2 times to elks** (0.6 to monoliths).
+- The map has 22 gold, 8 gem, 4 elk, 4 wolf and 2 monolith camps, and two altars at (35,15) and (44,15).
+- Even under B792 (23:30 and 23:40) we died to camps 16-23 times per game there.
+- What the bot would need to observe: whether it can finish an elk group before the elks kill it (`camp_threat`, `group_dps` / `survive_turns`).
