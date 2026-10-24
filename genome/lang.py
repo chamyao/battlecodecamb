@@ -191,6 +191,16 @@ UNCALIBRATED = set()
 # the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
 # group_cooldown, lock_hits, lock_enemy; ally_wards, enemy_wards, ward_charges, ward_cooldown, my_ward,
 # ward_sight, sight, teleport_dest, teleport_left, priority, can_sell
+# Primitives whose inlined bot code takes a local's address, so a gene using one gets a shadow-stack frame
+# (prologue and epilogue on every call, ~12 fuel). Found by compiling each primitive alone with the bot's
+# flags (wasi-sdk -O3) and checking for the stack-pointer write (FUEL.md).
+FRAMED_PRIMS = {"alive", "ally_tiles", "altars", "at", "box_field", "bushes", "camp_spawns", "camp_tiles", "can_attack",
+                "can_move", "channel_left", "channeling", "dash_field", "enemy_gems", "enemy_spawn", "enemy_tiles", "field",
+                "field_avoid", "group_cooldown", "group_respawning", "group_reward", "group_tiles", "holes", "is_awake",
+                "locked_altars", "me", "my_spawn", "my_ward", "near", "nearest", "path_len", "path_step", "priority",
+                "read_shared", "round", "sight", "size", "spawn_group", "spawn_type", "team_gems", "territory",
+                "type_spawns", "unit_gems", "unit_gold", "visible", "vision", "walk_nearest", "walls", "ward_sight",
+                "wfield", "write_shared"}
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
@@ -227,6 +237,7 @@ class Gene:
     keep_writes: set = field(default_factory=set)
     shared_reads: set = field(default_factory=set)   # constant offsets, or "*"
     shared_writes: set = field(default_factory=set)
+    framed: bool = False     # uses a FRAMED_PRIMS primitive (simulator charges the bot's frame)
 
 
 @dataclass
@@ -646,7 +657,11 @@ class Checker:
             if n == "read_shared":
                 off = e.args[0]
                 self.cur.shared_reads.add(str(int(off.value)) if isinstance(off, ast.Constant) else "*")
-            return ret, tpl.format(*[c for _, c, _ in args]), ops + 1
+            code = tpl.format(*[c for _, c, _ in args])
+            if n in FRAMED_PRIMS:
+                self.cur.framed = True
+                code = f"(FU_, {code})"
+            return ret, code, ops + 1
         self.err(e, f"unknown function {n}")
 
     def comp(self, gen):
@@ -791,11 +806,12 @@ def to_cpp(genome):
             # a hit costs ~73 fuel in the bot for a scalar, ~78 for a shared set or field (fitted per turn on identical games)
             hit = 78 if g.ret in ("Tiles", "Field", "Units") else 73
             lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({hit}); return val_{n}; }}",
+                      *(["\tFRAME_GUARD;"] if g.framed else []),
                       f"\t{CPP[g.ret]} v = [&]() -> {CPP[g.ret]} {{"]
             lines += ["\t" + l for l in body]
             lines += ["\t}();", f"\tstamp_{n} = X.pass_id; val_{n} = v;", "\treturn v;"]
         else:
-            lines += body
+            lines += (["\tFRAME_GUARD;"] if g.framed else []) + body
         lines.append("}")
     lines += ["} // namespace genome_gen", "", "extern \"C\" genome::GenesBase* genome_make(genome::Ctx& X) "
               "{ return new genome_gen::Genes(X); }",

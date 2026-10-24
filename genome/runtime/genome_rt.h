@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <exception>
 #include <atomic>
 #include <cstdio>
 #include <cstdlib>
@@ -243,6 +244,25 @@ public:
 	std::uint64_t pass_id = 0;
 
 	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
+	// Simulator only: a gene whose bot code needs a shadow-stack frame (it inlines a primitive with an
+	// address-taken local: lang.FRAMED_PRIMS) pays the frame (~12 fuel) on every call. The framed
+	// primitives' prices already carry one frame, so a call is charged it only when it ran none of them
+	// (e.g. a score gene using me() only on MOVE options still pays the frame on every option).
+	bool frame_open = false;
+	double frame_acc = 0;
+	static constexpr double FRAME_FUEL = 12;
+	void frame_used() { frame_open = false; }
+	void frame_close(bool saved)
+	{
+		if (frame_open && std::uncaught_exceptions() == 0)
+		{
+			frame_acc += FRAME_FUEL;
+			const double whole = std::floor(frame_acc);
+			frame_acc -= whole;
+			extra(whole);
+		}
+		frame_open = saved;
+	}
 	void* prof_top = nullptr; // GENOME_PROF: the innermost open gene scope
 #ifdef GENOME_PROF
 	int turn_calls_buf[256] = {};
@@ -552,7 +572,7 @@ public:
 			const int d = cbs::chebyshev({ x, y }, t.v());
 			if (d < bd || (d == bd && (y < best.y || (y == best.y && x < best.x)))) bd = d, best = { x, y };
 		});
-		extra(46 + 52.0 * s.b->count(m.H));
+		extra(66 + 52.0 * s.b->count(m.H) + 2.0 * chunks()); // + chunks: the bot's unordered walk visits every chunk (score variants, FUEL.md)
 		return best;
 	}
 	double size(const Tiles& s)
@@ -1980,6 +2000,22 @@ private:
 	}
 };
 
+// FRAME_GUARD at the top of a framed gene, FU_ before each framed primitive (simulator only; nothing in the bot)
+struct FrameGuard
+{
+	Ctx& X;
+	bool saved;
+	explicit FrameGuard(Ctx& x) : X(x), saved(x.frame_open) { X.frame_open = true; }
+	~FrameGuard() { X.frame_close(saved); }
+};
+#ifdef GENOME_BOT
+#define FRAME_GUARD ((void)0)
+#define FU_ ((void)0)
+#else
+#define FRAME_GUARD FrameGuard frame_guard_(X)
+#define FU_ X.frame_used()
+#endif
+
 // Generated genes derive from this.
 struct GenesBase : KindFilter
 {
@@ -2049,6 +2085,9 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	if (t1) t1_mark(X.api.fuel_remaining()); // play_turn start
 	// GENOME_TURN_CALLS=1 (simulator): team 0's calls per gene and options listed, every play turn (@@TC lines)
 	static const bool turn_calls = std::getenv("GENOME_TURN_CALLS") != nullptr;
+#if defined(GENOME_BOT) && defined(GENOME_TURN_ORDER)
+	if (!draft) std::printf("@@O %d\n", X.api.champ()), std::fflush(stdout); // which instance each fuel-file turn is (calibration)
+#endif
 	if (turn_calls && !draft) std::fill(std::begin(X.turn_calls_buf), std::end(X.turn_calls_buf), 0), GeneScope::turn_calls = X.turn_calls_buf;
 #endif
 	X.new_pass();
