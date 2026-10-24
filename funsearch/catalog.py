@@ -53,6 +53,9 @@ like .x, indexing, lists/tuples, for/while, def inside a block, return outside a
 Comments start with #.
 """
 
+# the game without the ladder observations and directions below (exploration's "lean" prompt)
+GAME_BASE = GAME
+
 GAME += """\
 Observations from today's top-12 ladder games (current rules), for inspiration, not rules:
 - Long games (median ~1,100 rounds); more gems captured predicts the winner 92%, more gold 86%,
@@ -115,28 +118,30 @@ Observations from 50 games vs the ladder's top 10 (live bot, v16): 0-50. COMBAT 
 - In the 5 rounds before each of our deaths to a champion the victim attacked an enemy champion only
   59% of the time, cast an ability on one only 16% (casts went to self or dash 32%), had started a
   recall (damage cancels it) 23%, attacked a camp 18%. 52% of our dead carried no gems.
-- How they fight (1,317 engagements, docs/TOP_TEAMS_RULES.md; medians): ENGAGE EARLY AND HEALTHY at
-  vision range: own HP 0.9-1.0 at the first hit, distance ~7 five rounds before; usually 2v1 (one ally
-  within 5, enemies_within(5) <= allies_within(5) + 1). TARGET THE CLOSEST visible enemy (87-94%; usually
-  also the weakest; carriers are not sought). OPEN WITH THE ABILITY ON THE FIRST-HIT TURN: HoR stunning
-  dash (slot 1) from 3; Vendetta dash (slot 1) from 3 or basic > reset (slot 0) > basic; Marcella damage
-  (slot 1) from 4; Ryth AoE stun (slot 0) from 4, then basic > reset (slot 1); Prism AoE (slot 1) from 5
-  then damage-stun (slot 0); Vesper Vale basic > reset (slot 0) > basic, keeping range 3; Tavi stun
-  (slot 1) from 4; Cassi stun (slot 1) from 5. i_am(champ_x()) tells which champion you are. CHASE ONLY
-  0-2 tiles (3-6 for HoR/Ryth on a low target). DISENGAGE AT ~0.8 HP (walk away, recall once safe), not
-  at 0.3: they die 1.6 times per game. Most fights are in their own half, the first at round ~86.
-  Meta draft core: Vesper Vale + Heart of Ruin, then Vendetta / Marcella / Ryth / Prism / Tavi / Willow.
-- Directions: build that loop (healthy engage at 7-9 tiles with numbers, closest target, ability
-  opener, short chase, early disengage) and name the target with set_team_target so allies converge;
-  never start a recall while in_danger() (move away first); tribute at once when an enemy is near
-  while carrying.
-- MEASURED in the simulator (160 games each): a plain chase rule (go to the weakest enemy within 6 when
-  local_strength(6) >= 1) LOST to the live bot (33%) and did not raise kills; a 3-4 tile fight-back
-  rule was neutral; the meta draft alone with that rule lost more. So a naive chase is not it: what
-  is missing is winning the fight once in it (ability timing, stun then burst, focus, kiting, not
-  splitting attention with camps). Simulator opponents are passive and the simulator's combat is
-  still being checked against the real engine; judge combat changes by kills, deaths and damage, not
-  only by the win rate against the live bot, and do not drop a combat idea on one bad score.
+- How they fight (1,317 engagements, docs/TOP_TEAMS_RULES.md; medians): engage healthy (HP 0.9-1.0 at
+  the first hit), usually 2v1; target the closest visible enemy (usually also the weakest); open with
+  the ability on the first-hit turn; chase only 0-2 tiles; they leave around 0.8 HP and die 1.6 times a
+  game. Openers: Heart of Ruin stunning dash from 3; Vendetta dash from 3; Marcella damage from 4; Ryth
+  AoE stun from 4; Prism AoE from 5 then damage-stun; Tavi stun from 4; Cassi stun from 5. Vesper Vale,
+  Vendetta, Tavi and Ryth have an attack RESET: self-cast it (cast_self) right AFTER a basic attack,
+  then attack again. Casting a reset at the enemy fails. Fixing just that in the live bot gained
+  +9.7 points (59.7% over 1600 games), kills 7.3 vs 5.1.
+- Ability blocks: slot_stun(slot) = stun turns on hit (HoR's dash and Ryth's AoE included),
+  slot_range(slot) / slot_radius(slot) = cast range and area radius, slot_is_reset / slot_is_dash /
+  slot_is_shield / slot_is_heal for the type, i_am(champ_heart_of_ruin()) etc. for who you are.
+  Opener: if ability_ready(1) and slot_stun(1) > 0 and distance(position(), unit_position(enemy))
+  <= slot_range(1) + slot_radius(1): dash_towards(1, ...) for a dash, else cast_at_unit(1, enemy).
+- The simulator matches the real engine in fights (119/120 games turn for turn), so fight results
+  here are real. MEASURED: an ability opener plus basic > reset > basic inside attack reach, focused
+  on the team target, gained ~+7 points. Engaging from 8 tiles at HP >= 0.8 LOST (24% vs the live bot),
+  disengaging at 0.75 HP lost more (13%), and a naive chase of the weakest within 6 lost (33%). So the
+  macro rules alone are not the gap. The MICRO is: landing the first hit (turn order via
+  set_priority, approaching from out of vision), 2v1 focus where both hit the same target on the same
+  turn, kiting at max range for ranged champions (i_am_ranged, move_away_from after the attack),
+  ability timing (stun before burst, reset after a basic), and spending gold on stats we don't buy.
+  Explore these.
+- Also: never start a recall while in_danger() (move away first); tribute at once when an enemy is
+  near while carrying.
 """
 
 GRAMMAR += """\
@@ -244,11 +249,16 @@ def _typical_fuel():
     return prices
 
 
+# blocks without a calibrated fuel cost yet (interp/src/block_costs_gen.inc): a policy using them is
+# rejected, so they stay out of the prompt until the coordinator adds the cost entries
+UNCOSTED = set()
+
+
 def block_catalog():
     fuel = _typical_fuel()
     lines = []
     for b in REGISTRY:
-        if b.infix or b.name == "not":
+        if b.infix or b.name == "not" or b.name in UNCOSTED:
             continue
         sig = f"{b.name}({', '.join(b.args)})"
         ret = "effect" if b.ret == VOID else b.ret

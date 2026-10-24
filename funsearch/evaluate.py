@@ -105,3 +105,26 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         return EvalResult(error="evaluation timed out")
     finally:
         Path(pol).unlink(missing_ok=True)
+
+
+def executed_blocks(text, games=4, seed=0, timeout=120):
+    """Blocks a policy actually executes (interp_eval --block-hits) in a few games against builtin:idle,
+    which runs no blocks, so every hit is the policy's. Returns a set of block names, or None on error."""
+    try:
+        prefix = to_prefix(parse(text))
+    except Exception:
+        return None
+    rng = random.Random(seed)
+    chosen = [rng.choice(MAPS) for _ in range(games // 2)]
+    with tempfile.NamedTemporaryFile("w", suffix=".pol", delete=False) as f:
+        f.write(prefix)
+        pol = f.name
+    try:
+        out = subprocess.run([str(EVAL_BIN), "--a", pol, "--b", "builtin:idle", "--games", str(games), "--threads", "1",
+                              "--seed", str(seed), "--block-hits", *chosen], capture_output=True, text=True, timeout=timeout)
+        hits = json.loads(out.stdout.strip().splitlines()[-1]).get("block_hits", {})
+        return {k.split("(", 1)[0] for k, v in hits.items() if v > 0}
+    except Exception:
+        return None
+    finally:
+        Path(pol).unlink(missing_ok=True)

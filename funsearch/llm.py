@@ -5,7 +5,7 @@ import threading
 
 import anthropic
 
-from .catalog import GAME, GRAMMAR, block_catalog
+from .catalog import DOCS, GAME, GAME_BASE, GRAMMAR, block_catalog
 
 # $ per million tokens (input, output). Cache reads/writes priced relative to input.
 PRICES = {
@@ -37,6 +37,119 @@ champions ran out of fuel (each one is a lost turn). Write one new version that
 should score higher. Make a focused, meaningful change: a better rule, a missing behaviour, a
 better threshold, or a cheaper way to do the same thing. Keep everything that already works.
 Reply with the complete new policy in a single ```policy code block, then nothing else."""
+
+
+# ---- exploration mode (--explore): the prompt varies per call; each child logs its variant ----
+_EXPLORE_HEAD = "You write bot policies for a programming competition, in a small typed language.\n\n# The game\n"
+_EXPLORE_TAIL = f"""
+# The policy language
+{GRAMMAR}
+# Blocks (signature -> return type)
+{block_catalog()}
+"""
+EXPLORE_SYSTEM = {"full": _EXPLORE_HEAD + GAME + _EXPLORE_TAIL, "lean": _EXPLORE_HEAD + GAME_BASE + _EXPLORE_TAIL}
+
+AXES = {
+    "draft": "the DRAFT: a different champion composition, including champions our bots never pick (prism, "
+             "heart_of_ruin, marcella, cassi_issac, stellar, willow, varg), and play that suits it",
+    "items": "ITEMS AND STATS: what each champion buys and when (other emblem families, focus vs strength vs "
+             "health per champion, stacking one stat on a carry, teleport crystals, altar locks)",
+    "vision": "VISION: wards (place_ward), bushes, fighting from or around fog, denying the enemy's vision",
+    "teleport": "MOBILITY: teleport crystals (buy_teleport, teleport_to), dashes, recall timing",
+    "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, claims, "
+            "set_team_target): roles, grouping, calling targets, splitting the map",
+    "roles": "PER-CHAMPION ROLES: give champions different jobs by i_am(champ_vesper_vale()) etc. (carry, farmer, hunter, "
+             "altar guard, monolith taker) instead of one shared behaviour",
+    "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
+             "where to stand between fights, early vs late game plans",
+    "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
+                 "slot_stun / slot_range / slot_radius, shields and heals on allies",
+    "combat": "COMBAT MICRO: landing the first hit, 2v1 focus on the same turn, kiting at max range, "
+              "retreat and re-engage, never idling when hit",
+}
+TOP_RULES = [
+    "Top teams engage healthy (HP 0.9+) and usually 2v1; they leave around 0.8 HP and die 1.6 times a game.",
+    "Top teams target the closest visible enemy and open with an ability on the first-hit turn.",
+    "Before round 150, 89% of our deaths are 2+ of theirs vs 1 of ours: they arrive together.",
+    "34% of our dying champions were hitting a camp while the killer was visible for 5 rounds.",
+    "A melee champion hit from range 2-4 must dash in or walk out that turn, never idle.",
+    "Top teams stack one stat per carry: strength on Vesper Vale (235 per basic by round 192), focus on "
+    "Heart of Ruin, Prism and Ryth.",
+    "Top teams bank big bags (median 57) only when no enemy is within 8 tiles; tribute at once when one is.",
+    "One top team casts recall after every action, every round (a free auto-escape when hit).",
+]
+RARE_BLOCKS = ["place_ward", "bushes", "cast_at_tile", "teleport_to", "buy_teleport", "write_draft", "walls",
+               "holes", "focus", "random_stat", "unit_health", "camp_count", "read_shared", "write_shared",
+               "slot_is_reset", "stat_focus", "gold_cluster_tiles", "group_gems", "claim_count", "slot_stun",
+               "slot_radius", "buy_altar_lock", "place_altar_lock", "set_priority"]
+CHANGE_TYPES = {
+    "edit": "Make one focused change on that axis to the latest version, keeping everything else.",
+    "plan": "First write a short plan (3-6 lines, as # comments at the top of the policy) for how to "
+            "exploit that axis, then implement it in the latest version.",
+    "rewrite": "Write a NEW policy from scratch with a different overall plan built around that axis. "
+               "You may reuse ideas from the versions shown, not their code. Start with a short plan as # "
+               "comments.",
+}
+FRAMINGS = {
+    "captain": "Think as the team captain: write per-champion roles (i_am(champ_heart_of_ruin()) etc.) that work together.",
+    "champion": "Think as one champion: what should a single champion do turn by turn to win its fights and farm.",
+}
+
+
+def sample_variant(rng, n_parents):
+    """One prompt variant for an exploration call."""
+    change = rng.choices(list(CHANGE_TYPES), [0.55, 0.3, 0.15])[0]
+    return {
+        "axis": rng.choice(list(AXES)),
+        "change": change,
+        "framing": rng.choice(list(FRAMINGS)),
+        "catalog": rng.choice(["full", "lean"]),
+        "evidence": rng.choice(["worst", "rule", "block", "none"]),
+        "parents": "crossover" if n_parents >= 2 and change != "rewrite" and rng.random() < 0.3 else "single",
+    }
+
+
+def _evidence(kind, parent_metrics, rng):
+    if kind == "worst":
+        per = {k: m for k, m in (parent_metrics or {}).items() if isinstance(m, dict) and "win_rate" in m}
+        if per:
+            k, m = min(per.items(), key=lambda kv: kv[1]["win_rate"])
+            extra = ""
+            if "kills" in m:
+                extra = (f", kills {m['kills'][0]:.1f} vs {m['kills'][1]:.1f}, deaths {m['deaths'][0]:.1f} vs "
+                         f"{m['deaths'][1]:.1f}, damage to champions {m['champ_damage'][0]:.0f} vs "
+                         f"{m['champ_damage'][1]:.0f} per game")
+            return (f"Weakest matchup of the latest version: vs {k}, win rate {m['win_rate']:.0%}, gems "
+                    f"{m['a_gems']:.0f}-{m['b_gems']:.0f}{extra}. Make the change help here.")
+    if kind == "rule":
+        return "Observed in the ladder's top teams: " + rng.choice(TOP_RULES)
+    if kind == "block":
+        b = rng.choice(RARE_BLOCKS)
+        return f"Try something with the block {b} (almost never used so far): {DOCS.get(b, 'see the block list')}"
+    return ""
+
+
+def explore_user(parents, variant, rng):
+    """User message for an exploration call. parents: (text, score, metrics), worst first."""
+    def per_line(metrics):
+        per = {k: m for k, m in (metrics or {}).items() if isinstance(m, dict) and "win_rate" in m}
+        return ", ".join(f"vs {k} {m['win_rate']:.0%}" for k, m in per.items())
+    shown = parents if variant["parents"] == "crossover" else parents[-1:]
+    parts = []
+    for i, (text, score, metrics) in enumerate(shown):
+        code = "" if variant["change"] == "rewrite" else f"\n```policy\n{text.strip()}\n```"
+        parts.append(f"## Version {i} (score {score:.3f}; {per_line(metrics)}){code}")
+    task = [f"Your change must be about {AXES[variant['axis']]}.", CHANGE_TYPES[variant["change"]],
+            FRAMINGS[variant["framing"]]]
+    if variant["parents"] == "crossover":
+        task.append("The versions above come from different lines of play: combine their strengths into one policy.")
+    ev = _evidence(variant["evidence"], shown[-1][2], rng)
+    if ev:
+        task.append(ev)
+    task.append("Scores are win rate against reference bots plus a small gem-margin bonus. A new idea may "
+                "start weaker; that is fine, but the policy must be valid. Reply with the complete policy "
+                "in a single ```policy code block, then nothing else.")
+    return "\n\n".join(parts) + "\n\n## Your task\n" + "\n".join(task)
 
 
 class BudgetExceeded(Exception):
@@ -73,12 +186,15 @@ class Proposer:
                      + CACHE_WRITE * (usage.cache_creation_input_tokens or 0))
         return (tokens_in * pin + usage.output_tokens * pout) / 1e6
 
-    def propose(self, parents):
-        """parents: list of (text, score, metrics), worst first; metrics holds per-opponent stats. Returns (policy text or None, model, cost, proposals)."""
+    def propose(self, parents, variant=None, rng=None):
+        """parents: list of (text, score, metrics), worst first; metrics holds per-opponent stats. With a
+        variant (exploration), the prompt follows it. Returns (policy text or None, model, cost, proposals)."""
         with self.lock:
             if self.spent >= self.budget:
                 raise BudgetExceeded(f"spent ${self.spent:.2f} of ${self.budget:.2f}")
         model = self._model()
+        if variant is not None and variant["change"] == "rewrite":
+            model = "claude-opus-5-5"
         def header(i, score, metrics):
             per = {k: m for k, m in (metrics or {}).items() if isinstance(m, dict) and "win_rate" in m}
             lines = [f"## Version {i} (score {score:.3f})"]
@@ -96,10 +212,15 @@ class Proposer:
         if self.directive:
             user += f"## Style directive for this run (overrides the usual advice where they conflict)\n{self.directive.strip()}\n\n"
         user += f"## Version {len(parents)}\nWrite it."
+        system = SYSTEM
+        if variant is not None:
+            import random as _random
+            user = explore_user(parents, variant, rng or _random.Random())
+            system = EXPLORE_SYSTEM[variant["catalog"]]
         kwargs = dict(
             model=model,
             max_tokens=self.max_tokens,
-            system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
+            system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": user}],
         )
         if model == "claude-opus-5-5":

@@ -15,8 +15,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from .database import Database, Program
-from .evaluate import ROOT, EvalResult, evaluate
+from .database import Database, Program, cell_of
+from .evaluate import ROOT, EvalResult, evaluate, executed_blocks
 from .tune import mutate_constants
 
 
@@ -48,11 +48,28 @@ def main():
     ap.add_argument("--require", default="", help="comma-separated blocks every child must call (style check)")
     ap.add_argument("--fresh-seeds", action="store_true",
                     help="every evaluation plays fresh games (new seed) instead of the same games for all programs")
+    # exploration mode (opt-in): per-call prompt variants (axis, change type, framing, catalog, evidence,
+    # crossover), a quality-diversity archive of behaviour cells, gentler selection, per-island bases
+    ap.add_argument("--explore", action="store_true")
+    ap.add_argument("--temperature", type=float, default=None, help="parent softmax temperature (default 0.05; "
+                                                                    "0.2 with --explore)")
+    ap.add_argument("--reset-every", type=int, default=None, help="programs between island resets (default 200; "
+                                                                  "500 with --explore)")
+    ap.add_argument("--archive-share", type=float, default=0.5,
+                    help="with --explore: share of parent draws taken from random behaviour cells")
+    ap.add_argument("--novelty-lambda", type=float, default=0.0,
+                    help="with --explore: weight of the executed-block rarity novelty in parent selection "
+                         "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
+    ap.add_argument("--island-seeds", default="", help="comma-separated policies, one per island (cycled), "
+                                                      "instead of --seed-policy on every island")
     args = ap.parse_args()
+    temperature = args.temperature if args.temperature is not None else (0.2 if args.explore else 0.05)
+    reset_every = args.reset_every if args.reset_every is not None else (500 if args.explore else 200)
 
     out = ROOT / "runs" / args.run
     out.mkdir(parents=True, exist_ok=True)
-    db = Database(out / "programs.jsonl", islands=args.islands)
+    db = Database(out / "programs.jsonl", islands=args.islands, temperature=temperature, reset_every=reset_every)
+    db.novelty_lambda = args.novelty_lambda if args.explore else 0.0
     db.load()
     opponents = tuple(args.opponents.split(","))
     directive = Path(args.directive[1:]).read_text() if args.directive.startswith("@") else args.directive
@@ -124,13 +141,20 @@ def main():
         return r
 
     if not db.all:
-        seed_text = Path(args.seed_policy).read_text()
-        r = score(seed_text, confirm=True)
-        if not r.ok:
-            raise SystemExit(f"seed policy failed: {r.error}")
-        db.seed(seed_text, r.score, r.per_opponent)
-        confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
-        print(f"seed score {r.score:.3f}")
+        seeds = [x for x in args.island_seeds.split(",") if x] or [args.seed_policy]
+        for k, path in enumerate(seeds[: args.islands]):
+            seed_text = Path(path).read_text()
+            r = score(seed_text, confirm=True)
+            if not r.ok:
+                raise SystemExit(f"seed policy {path} failed: {r.error}")
+            if args.explore:
+                blocks = executed_blocks(seed_text)
+                if blocks is not None:
+                    r.per_opponent["exec_blocks"] = sorted(blocks)
+            islands = range(k, args.islands, len(seeds[: args.islands]))
+            db.seed(seed_text, r.score, r.per_opponent, islands=islands)
+            confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
+            print(f"seed {Path(path).stem} score {r.score:.3f} (islands {list(islands)})")
     have = {p.text for p in db.all}
     for k, path in enumerate(x for x in args.inject.split(",") if x):
         text = Path(path).read_text()
@@ -147,6 +171,9 @@ def main():
     if args.proposer == "claude":
         from .llm import BudgetExceeded, Proposer
         proposer = Proposer(args.budget, opus_every=args.opus_every, directive=directive)
+    if args.explore:
+        from .llm import sample_variant
+    variant_lock = threading.Lock()
     proposals_lock = threading.Lock()
 
     def log_proposals(pid, score, model, proposals):
@@ -167,12 +194,22 @@ def main():
             stop.set()
         if stop.is_set() or len(db.all) - started >= args.max_programs:
             return
-        island, parents = db.sample(k=2)
+        variant = None
+        with variant_lock:
+            use_archive = args.explore and rng.random() < args.archive_share
+        drawn = db.sample_archive(k=2) if use_archive else None
+        island, parents = drawn or db.sample(k=2)
         if not parents:
             return
+        if args.explore:
+            with variant_lock:
+                variant = sample_variant(rng, len(parents))
+                vrng = random.Random(rng.random())
+            variant["source"] = "archive" if drawn else "island"
         if proposer:
             try:
-                text, model, cost, proposals = proposer.propose([(p.text, p.score, p.metrics) for p in parents])
+                text, model, cost, proposals = proposer.propose([(p.text, p.score, p.metrics) for p in parents],
+                                                                variant=variant, rng=vrng if variant else None)
             except BudgetExceeded as e:
                 print(e)
                 stop.set()
@@ -181,11 +218,18 @@ def main():
             text, model, cost, proposals = mutate_constants(parents[-1].text, rng, n_changes=2), "mutate", 0.0, []
         if text is None:
             pid = db.add(Program(0, island, "", float("-inf"), [p.id for p in parents], model, "no policy in reply",
-                                 {"cost": cost}))
+                                 {"cost": cost, **({"variant": variant} if variant else {})}))
             log_proposals(pid, None, model, proposals)
             return
         r = score(text)
         r.per_opponent["cost"] = cost
+        if variant:
+            r.per_opponent["variant"] = variant
+            if r.ok:
+                r.per_opponent["cell"] = cell_of(text, r.per_opponent)
+                blocks = executed_blocks(text)
+                if blocks is not None:
+                    r.per_opponent["exec_blocks"] = sorted(blocks)
         p = Program(0, island, text, r.score, [p.id for p in parents], model, r.error, r.per_opponent)
         pid = db.add(p)
         if r.ok and r.per_opponent.get("confirmed") and "same_play_as" not in r.per_opponent:
