@@ -29,3 +29,6 @@ economy; one-stat stacking out-damaged the live bot 26k to 21k but died 20 times
 - fight-only grouping: farm apart, converge on team_target() when an ally engages.
 Keep farming and banking working (the score still counts wins). Every version must keep
 set_team_target; a version that drops focus fire is rejected.
+Fuel rule (bot session): every dash or host search that can run along a long path (dash_towards,
+move_towards to far tiles, closest on big sets) must sit behind a fuel_remaining() gate (e.g.
+`if fuel_remaining() > 55000:`), or it can hit the real 100k per-turn cap on big maps.

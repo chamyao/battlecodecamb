@@ -14,3 +14,6 @@ turn for turn. Our bot loses fights it could win. Develop:
 - disengage while still healthy (~0.75 HP) and bank big bags when no enemy is within 8 tiles.
 Keep farming, tributing and recall rules that already work. Every version must keep focus fire
 (set_team_target/team_target); a version that drops it is rejected.
+Fuel rule (bot session): every dash or host search that can run along a long path (dash_towards,
+move_towards to far tiles, closest on big sets) must sit behind a fuel_remaining() gate (e.g.
+`if fuel_remaining() > 55000:`), or it can hit the real 100k per-turn cap on big maps.
