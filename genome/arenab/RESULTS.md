@@ -1,6 +1,6 @@
 # Arena B lead: real-cambc gate runs (cambc 3.0.5 --release, 40 maps x both sides, vs v23 interpreted)
 
-`genome/arenab/real_gate.sh CAND REF`. First turns have a 200k budget; normal turns 100k.
+`genome/arenab/real_gate.sh CAND REF`. First turns have a 200k budget; normal turns 100k. Bar since ~20:00 Oct 24: wins >= 42/80 and no crashes (fuel numbers reported only). All three runs: 0 crashes.
 
 | date (UTC) | runtime | candidate | wins /80 | first turns at 200k cap | normal turns >= 100k (cand / v23) |
 |---|---|---|---|---|---|

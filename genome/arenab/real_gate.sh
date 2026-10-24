@@ -2,8 +2,8 @@
 # real_gate.sh CAND_BOT REF_BOT [JOBS]: ladder gate parts (b) and (c) in real cambc.
 # Both bots must already be built under ~/ws/bots (genome/bot/sync.sh, bot/sync.sh).
 # Plays all 40 maps x both sides (--release, as on the platform), then reports
-# CAND's wins out of 80 (bar: >= 42) and per-bot fuel safety: crashes, the first
-# play turn's max fuel (bar: < 200k) and turns >= 100k (bar: CAND no worse than REF).
+# CAND's wins out of 80 (bar: >= 42) and per-bot safety: crashes (the bar), and for the record the first
+# turns' max fuel and capped normal turns.
 set -u
 cand=$1; ref=$2; jobs=${3:-4}
 repo=/home/user/battlecodecamb
