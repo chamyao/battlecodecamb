@@ -18,8 +18,8 @@ fi
 cd "$D" || return 1
 pushall() {
   push_state remote/hybrid remote/hybrid/runs runs
-  if ls policies/fs-h*.policy > /dev/null 2>&1; then
-    mkdir -p /root/bc/hybrid-pol && cp -a policies/fs-h*.policy /root/bc/hybrid-pol/ && push_state remote/hybrid policies /root/bc/hybrid-pol
+  if ls policies/fs-h*.policy policies/fsh*.policy > /dev/null 2>&1; then
+    mkdir -p /root/bc/hybrid-pol && cp -a policies/fs-h*.policy policies/fsh*.policy /root/bc/hybrid-pol/ 2>/dev/null; push_state remote/hybrid policies /root/bc/hybrid-pol
   fi
 }
 # ---- FINAL (hybrid line by message, 17:39 UTC; Cham: "just move everything now"): hyb5 moves to the arena. Replaces
@@ -31,6 +31,9 @@ if [ -f runs/ec2-final ]; then
 fi
 if [ -f runs/ec2-hyb5 ]; then
   [ -f runs/hyb5.hold ] || { touch runs/hyb5.hold; log "FINAL: hold file re-created"; }
+  # hybrid line check (17:43): promoted policies present + PROMOTED lines -> runs/ec2-final-check.txt (pushed with runs/)
+  { echo "# $(date -u +%FT%TZ) in $D"; echo "\$ ls -la policies/fs-h* policies/fsh*"; ls -la policies/fs-h* policies/fsh* 2>&1
+    echo "\$ grep -h PROMOTED runs/*.log"; grep -h PROMOTED runs/*.log 2>&1; } > runs/ec2-final-check.txt
   # exact launch command of the live league (from /proc), for the arena resume: runs/hyb5.cmdline (one arg per line + one-liner)
   lp=$(pgrep -a -x python3 | grep -F 'league --name hyb5 ' | head -n 1 | cut -d' ' -f1)
   if [ -n "$lp" ] && [ -r /proc/$lp/cmdline ]; then
