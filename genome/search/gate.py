@@ -133,6 +133,8 @@ def main():
     ap.add_argument("--every", type=float, default=600)
     ap.add_argument("--threads", type=int, default=5)
     ap.add_argument("--min-wins", type=int, default=43, help="head-to-head wins out of 80 to pass")
+    ap.add_argument("--regate-from", default="", help="OLDREF:N: genomes gated vs OLDREF (file stem) with fewer than "
+                                                      "N head-to-head wins are not re-gated vs the new --ref")
     ap.add_argument("--arena-engine", default="", help="play the gate's matches on the arena service at this engine "
                                                       "(commit sha or ref) instead of locally")
     ap.add_argument("--max-hours", type=float, default=12)
@@ -152,6 +154,13 @@ def main():
             txt = subprocess.run(["git", "-C", str(ROOT), "show", f"origin/remote/genome:{path}"],
                                  capture_output=True, text=True).stdout
             seen |= {json.loads(l)["key"] for l in txt.splitlines() if l.strip()}
+            if args.regate_from:  # after a live-bot change: re-gate only genomes that beat the old live bot
+                old, _, need = args.regate_from.partition(":")
+                for l in txt.splitlines():
+                    r = json.loads(l) if l.strip() else {}
+                    if f"@{old}/80" in r.get("key", "") and r.get("h2h_wins", 0) < int(need or 43):
+                        seen.add(r["key"].replace(f"@{old}/80", f"@{Path(args.ref).stem}/80"))
+    ref_text = Path(args.ref).read_text() if args.ref.endswith(".genome") else None
 
     def log(msg):
         line = f"[{time.strftime('%H:%M:%S')}] {msg}"
@@ -220,6 +229,8 @@ def main():
                 if key in seen:
                     continue
                 seen.add(key)
+                if ref_text is not None and m.get("path") and fetch(m["path"]).strip() == ref_text.strip():
+                    continue  # the live bot itself
                 try:
                     text = fetch(m["path"])
                 except Exception:
