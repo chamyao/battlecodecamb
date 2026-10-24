@@ -429,3 +429,15 @@ screen games; scale 50 gems/game). Gems per capture stays in metrics.yield.gpc_d
 --yield-weight 0.25 and all H17-H21b flags (island 1 gconv1 as diversity, v21 the bar, island 3 #76 with its fuel
 term). Programs scored under the old gems-per-capture term are re-derived at startup.
 Check: "yield term: N logged programs rescaled"; new children's metrics.yield has metric "submitted".
+
+## Job H24 (2026-10-24 17:05 UTC, hybrid line session; per the FunSearch lead): island 3 back to v21, fuel island off
+Fold into the H21b/H23 pending restart (one restart). Require funsearch/runs f8fe74a or later (contains f0cbbce).
+Python only. Relaunch changes:
+1. --island-seeds policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/pool/v21.policy
+   (island 3: hyb5-g3-76 -> v21; #76 has no submitted-gems gain over v21)
+2. DROP --protect-islands 3, --fuel-islands 3 and --island-axes (island 3 uses the general menu again)
+3. --axes: add fuel:1, i.e.
+   `--axes conversion:5,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1,fuel:1`
+Keep: --yield-weight 0.25 (submitted gems, H23), --screen-maps cover --rescreen-top 3, --no-tune-children, --fixed with
+style-gconv1, v21 the bar.
+Check: "re-seeded island 3 with v21"; new island-3 children carry no metrics.fuel; about 1 in 17 children log axis "fuel".
