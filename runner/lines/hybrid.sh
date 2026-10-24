@@ -73,6 +73,25 @@ if [ -f runs/ec2-hyb5 ]; then
       fi
     fi
   fi
+  # H6 (hybrid line, 12:15 UTC): at the next hyb5 boundary merge funsearch/runs 48a1404+ (prompt-only shared-memory
+  # change: byte 7 bits 0-1 reserved for tune's lock flags; no interp change) and relaunch with the same flags.
+  if [ -f runs/ec2-h5-checked ] && [ ! -f runs/ec2-h6 ]; then
+    if [ ! -f runs/ec2-h6-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h6-holdmark; touch runs/hyb5.hold runs/ec2-h6-hold
+      log "H6: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h6-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H6: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor 48a1404 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        rm -f runs/hyb5.hold; touch runs/ec2-h6
+        log "H6: funsearch/runs $(git rev-parse --short HEAD) (has 48a1404), $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5, same flags"
+      else
+        echo "H6 merge/48a1404/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H6 upgrade failed"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
