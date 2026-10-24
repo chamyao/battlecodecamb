@@ -6,10 +6,16 @@ principle: compute is part of the action space; fuel is a rule, not a constraint
 
 ## Arena (current; read this before the older sections below)
 
-- Engine for new work: deploy/v0 `ca8f85bf63d15abf15d26a966f911ed6c4913011` (18:27 UTC: adds
-  monolith_threat, in_monolith_zone, altar_safe_tiles, camp_threat ~7k). Before it: 2e1ff7e (fuel
-  recalibrated), 545c7b1 (under-charged fuel by 1-4k). Never compare results across engines; pass
-  `"engine"` on every registration and match. funsearch/style carries ca8f85b from c282ae6.
+- Engine for new work: deploy/v0 `7ea42c7c4bc4d9f0750062812316f0d7d22bec4c` (19:15 UTC: adds
+  enemy_locks() ~0.24k, lock_hits_left(Tile) ~0.29k). Before it: ca8f85b (monolith_threat,
+  in_monolith_zone, altar_safe_tiles, camp_threat ~7k), 2e1ff7e (fuel recalibrated), 545c7b1 (under-charged
+  fuel). Never compare results across engines; pass `"engine"` on every registration and match.
+  funsearch/style carries 7ea42c7 from 7722a34. New candidates go to league `main4r` (bot_seeds off,
+  160/pair); `main3r` (ca8f85b) holds candidate 7's rating.
+- Analysis facts for future directives (info, not rules): carriers stall in 18% of live games (22% vs 39%
+  win), e.g. 01the-farm's camp-sealed pocket with enemy-locked altars; attack() breaks a lock from attack
+  range. 98% of our 00great-wall monolith deaths are self-inflicted (v21's first(filter(camps,
+  in_attack_range())) hits monoliths at the altar ring). Low capture yield in 59% of 75 ranked losses.
 - **bot_seeds:true (the arena default) is deterministic**: 800 games = the same 80 (40 maps x 2
   sides) repeated, whatever the seed. Use `"bot_seeds": false` for sample size.
 - The arena's `client.py` is a download; this container's permission policy blocked running it,
@@ -20,8 +26,8 @@ principle: compute is part of the action space; fuel is a rule, not a constraint
   tune-v20-L1c; `v23-style-gconv1` = style-gconv1). Names are immutable: a changed policy gets a
   new name.
 - Candidate checks: 800 games vs `v22-tune-v20-L1c` (floor 50%) as a match; then
-  `POST /leagues/main3r/members {"policy": NAME}` (upload-bar league `main3r`: engine ca8f85b,
-  bot_seeds false, 160/pair, required pool included; `main`/`main2` are retired) (priority -1) and post standings on PR #5.
+  `POST /leagues/main4r/members {"policy": NAME}` (upload-bar league `main4r`: engine 7ea42c7,
+  bot_seeds false, 160/pair; `main`/`main2`/`main3r` are older engines) (priority -1) and post standings on PR #5.
   Real-cambc checks and uploads stay with the coordinator (each upload needs Cham's go-ahead).
 - EC2 is retired for style (17:47 UTC; final state on `style/arena-overlay` 391f2d4). Arena runs (no
   token needed): run 5 style8-gsub2 ($1.00, --strict-floor, ref 1784c8d = engine 2e1ff7e) and run 6
