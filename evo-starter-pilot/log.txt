@@ -20,3 +20,27 @@ seed screen 0.804 confirm 0.783 (vs builtin:starter: win 0.51, gems 384-400; vs 
 [22] mutate claude-haiku-5-5 isl 2: screen -0.019 confirm +0.003 (5 lines) | best 0.853 (#5) $0.06 | 226s
 [23] mutate claude-haiku-5-5: invalid: GenomeError: progress line 43: expected Bool, got Unit
 [24] mutate claude-haiku-5-5: invalid: GenomeError: progress line 43: expected Bool, got Num
+[25] tune  isl 3: screen +0.000 confirm +0.000 twin (2 lines) | best 0.853 (#5) $0.06 | 266s
+[26] cross  isl 2: screen +0.034 confirm -0.012 (10 lines) | best 0.853 (#5) $0.06 | 274s
+[27] mutate claude-haiku-5-5 isl 0: screen +0.019 confirm +0.047 (3 lines) | best 0.853 (#5) $0.06 | 275s
+[28] cross : invalid: child equals a parent
+[29] mutate claude-opus-5-5 isl 1: screen -0.194 (24 lines) | best 0.853 (#5) $0.08 | 300s
+[30] mutate claude-haiku-5-5 isl 3: screen +0.000 confirm +0.000 (3 lines) | best 0.853 (#30) $0.08 | 311s
+[31] tune  isl 1: screen +0.019 confirm +0.034 (1 lines) | best 0.853 (#30) $0.08 | 316s
+[32] mutate claude-haiku-5-5 isl 0: screen -0.022 confirm -0.029 (5 lines) | best 0.853 (#30) $0.08 | 347s
+[33] cross  isl 3: screen -0.141 confirm -0.063 (4 lines) | best 0.853 (#30) $0.08 | 353s
+[34] mutate claude-haiku-5-5 isl 1: screen +0.096 confirm +0.085 (9 lines) | best 0.902 (#34) $0.08 | 362s
+[35] cross  isl 3: screen +0.000 confirm +0.000 twin (1 lines) | best 0.902 (#34) $0.08 | 388s
+[36] mutate claude-haiku-5-5 isl 2: screen -0.001 confirm -0.019 (2 lines) | best 0.902 (#34) $0.08 | 398s
+[37] mutate claude-haiku-5-5 isl 3: screen -0.000 confirm -0.008 (9 lines) | best 0.902 (#34) $0.08 | 410s
+[38] mutate claude-haiku-5-5 isl 1: screen +0.001 confirm +0.000 (5 lines) | best 0.903 (#38) $0.08 | 436s
+[39] tune  isl 0: screen +0.043 confirm +0.049 (3 lines) | best 0.903 (#38) $0.08 | 441s
+[40] mutate claude-haiku-5-5 isl 0: screen -0.028 (8 lines) | best 0.903 (#38) $0.08 | 453s
+[41] mutate claude-haiku-5-5 isl 1: screen +0.019 confirm +0.019 (8 lines) | best 0.921 (#41) $0.08 | 456s
+[42] mutate claude-haiku-5-5 isl 1: screen +0.000 confirm +0.000 (5 lines) | best 0.921 (#41) $0.12 | 488s
+[43] mutate claude-haiku-5-5 isl 0: screen +0.000 confirm +0.000 twin (5 lines) | best 0.921 (#41) $0.12 | 500s
+[44] mutate claude-haiku-5-5 isl 0: screen -0.043 (3 lines) | best 0.921 (#41) $0.12 | 504s
+[45] mutate claude-opus-5-5 isl 0: screen +0.180 confirm +0.142 (39 lines) | best 0.994 (#45) $0.12 | 515s
+[46] cross : invalid: child equals a parent
+[47] mutate claude-haiku-5-5 isl 1: screen -0.009 confirm -0.001 (9 lines) | best 0.994 (#45) $0.12 | 548s
+[48] mutate claude-haiku-5-5 isl 0: screen +0.000 confirm -0.000 (6 lines) | best 0.994 (#45) $0.12 | 552s

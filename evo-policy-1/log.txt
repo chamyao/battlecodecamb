@@ -11,3 +11,21 @@ seed screen 0.686 confirm 0.768 (vs v7: win 0.97, gems 965-437; vs tune-v20-L1: 
 [13] llm claude-haiku-5-5 isl 2: screen +0.000 confirm -0.011 twin (12 lines) | best 0.772 (#8) $0.18 | 217s
 [14] llm claude-opus-5-5 isl 3: screen -0.053 (42 lines) | best 0.772 (#8) $0.18 | 221s
 [15] llm claude-haiku-5-5 isl 1: screen -0.008 confirm -0.062 (15 lines) | best 0.772 (#8) $0.19 | 259s
+[16] llm claude-haiku-5-5 isl 2: screen +0.112 confirm -0.035 (14 lines) | best 0.772 (#8) $0.19 | 280s
+[17] llm claude-haiku-5-5 isl 0: screen +0.031 confirm -0.038 (13 lines) | best 0.772 (#8) $0.19 | 283s
+[18] llm claude-haiku-5-5 isl 0: screen -0.021 (12 lines) | best 0.772 (#8) $0.19 | 307s
+[19] tune  isl 3: screen +0.000 confirm +0.000 twin (162 lines) | best 0.772 (#8) $0.19 | 308s
+[20] llm claude-haiku-5-5 isl 2: screen -0.022 (5 lines) | best 0.772 (#8) $0.19 | 310s
+[21] llm: eval error: TypeError: no block group_tiles(Tile)
+[22] llm claude-haiku-5-5 isl 1: screen -0.003 confirm -0.093 (9 lines) | best 0.772 (#8) $0.20 | 376s
+[23] tune  isl 3: screen +0.000 confirm +0.000 twin (168 lines) | best 0.772 (#8) $0.20 | 378s
+[24] llm claude-haiku-5-5 isl 3: screen +0.049 confirm -0.004 (22 lines) | best 0.772 (#8) $0.20 | 378s
+[25] llm claude-haiku-5-5 isl 2: screen -0.003 confirm -0.069 (5 lines) | best 0.772 (#8) $0.33 | 443s
+[26] llm claude-opus-5-5 isl 1: screen +0.074 confirm -0.058 (20 lines) | best 0.772 (#8) $0.33 | 460s
+[27] llm claude-haiku-5-5 isl 0: screen -0.011 confirm +0.008 (12 lines) | best 0.776 (#27) $0.33 | 475s
+[28] llm claude-haiku-5-5 isl 2: screen -0.020 (5 lines) | best 0.776 (#27) $0.34 | 502s
+[29] llm claude-haiku-5-5 isl 3: screen +0.017 confirm -0.058 (6 lines) | best 0.776 (#27) $0.34 | 506s
+[30] tune  isl 1: screen +0.000 confirm +0.000 twin (168 lines) | best 0.776 (#27) $0.34 | 509s
+[31] llm claude-haiku-5-5 isl 1: screen -0.090 (6 lines) | best 0.776 (#27) $0.34 | 529s
+[32] llm claude-haiku-5-5 isl 0: screen -0.011 (5 lines) | best 0.776 (#27) $0.34 | 533s
+[33] llm claude-haiku-5-5 isl 3: screen -0.075 (7 lines) | best 0.776 (#27) $0.34 | 537s
