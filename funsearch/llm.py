@@ -103,9 +103,9 @@ FRAMINGS = {
 }
 
 
-def sample_variant(rng, n_parents):
-    """One prompt variant for an exploration call."""
-    change = rng.choices(list(CHANGE_TYPES), [0.55, 0.3, 0.15])[0]
+def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15)):
+    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite."""
+    change = rng.choices(list(CHANGE_TYPES), change_weights)[0]
     return {
         "axis": rng.choice(list(AXES)),
         "change": change,

@@ -50,6 +50,9 @@ def main():
                                                                   "500 with --explore)")
     ap.add_argument("--archive-share", type=float, default=0.5,
                     help="with --explore: share of parent draws taken from random behaviour cells")
+    ap.add_argument("--change-weights", default="0.55,0.3,0.15",
+                    help="with --explore: weights of the edit, plan and rewrite change types (rewrites always use "
+                         "Opus; in the first test they all scored ~-0.2)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
                          "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
@@ -146,6 +149,7 @@ def main():
         proposer = Proposer(args.budget, opus_every=args.opus_every)
     if args.explore:
         from .llm import sample_variant
+    change_weights = tuple(float(x) for x in args.change_weights.split(","))
     variant_lock = threading.Lock()
     proposals_lock = threading.Lock()
 
@@ -176,7 +180,7 @@ def main():
             return
         if args.explore:
             with variant_lock:
-                variant = sample_variant(rng, len(parents))
+                variant = sample_variant(rng, len(parents), change_weights)
                 vrng = random.Random(rng.random())
             variant["source"] = "archive" if drawn else "island"
         if proposer:
