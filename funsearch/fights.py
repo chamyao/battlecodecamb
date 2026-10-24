@@ -130,6 +130,9 @@ def play(a_pol, b_pol, games=40, seed=1, maps=None, timeout=3600):
             "their_deaths_in_fights": sum(e["their_deaths"] for e in engs),
             "their_out_deaths": sum(e["their_out_deaths"] for e in engs),
             "low_hp": low_hp_episodes(ev, us), "opp_low_hp": low_hp_episodes(ev, 1 - us),
+            "gems_captured": d.get("gems_captured", [0, 0])[us], "opp_gems_captured": d.get("gems_captured", [0, 0])[1 - us],
+            "tributes": d.get("tributes", [0, 0])[us], "captures": d.get("captures", [0, 0])[us],
+            "gems_lost_to_champs": d.get("gems_lost_to_champs", [0, 0])[us],
         })
         ev = []
     return {"games": per_game, "summary": summarize(per_game)}
@@ -161,6 +164,13 @@ def summarize(per_game):
         "out_deaths": sum(g["our_out_deaths"] for g in per_game) / n,
         "fight_deaths": our_d / n,
         "fights_won": sum(e["dealt"] > e["taken"] for e in engs) / m,
+        # gem conversion (GAP_LIST): tributed gems / gems captured, plus the leaks
+        "conversion": sum(g["gems"] for g in per_game) / max(1, sum(g["gems_captured"] for g in per_game)),
+        "opp_conversion": sum(g["opp_gems"] for g in per_game) / max(1, sum(g["opp_gems_captured"] for g in per_game)),
+        "gems_captured": sum(g["gems_captured"] for g in per_game) / n,
+        "gems_lost_to_champs": sum(g["gems_lost_to_champs"] for g in per_game) / n,
+        "tributes": sum(g["tributes"] for g in per_game) / n,
+        "captures": sum(g["captures"] for g in per_game) / n,
         # P(death within LOW_HP_WINDOW rounds | below LOW_HP health with an enemy champion within LOW_HP_RANGE)
         "low_hp_death_rate": sum(g["low_hp"][1] for g in per_game) / max(1, sum(g["low_hp"][0] for g in per_game)),
         "low_hp_episodes": sum(g["low_hp"][0] for g in per_game) / n,

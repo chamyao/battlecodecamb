@@ -17,7 +17,7 @@ echo "gap run $run ($metric vs $ref): \$$left left of \$$total"
 [ "$left" = "0.00" ] && exit 0
 PYTHONUNBUFFERED=1 exec python3 -m funsearch.run --run "$run" --budget "$left" --max-programs "${MAX_PROGRAMS:-400}" \
   --seed-policy "$seed" \
-  --opponents "builtin:starter@0.25,$ref@3,policies/tune-v20.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy" \
+  --opponents "${GAP_OPPONENTS:-builtin:starter@0.25,$ref@3,policies/tune-v20.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy}" \
   --gap-metric "$metric" --gap-ref "$ref" --gap-weight "${GAP_WEIGHT:-0.5}" --gap-games "${GAP_GAMES:-40}" \
   --win-floor "${WIN_FLOOR:-0.5}" --fresh-seeds --workers "${WORKERS:-2}" --eval-threads "${EVAL_THREADS:-2}" \
   --directive "@$directive"
