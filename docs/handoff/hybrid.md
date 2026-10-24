@@ -33,6 +33,17 @@ v7-zerogem -> v7zg-cast (#14 graft) -> tune-1 -> tune-2 -> tune-3.
 
 ## What's running, and where
 
+- **PAUSED (2026-10-24 19:27 UTC, Cham: "Pause all training").** hyb5 stopped on EC2 at the hyb5-g3 round boundary
+  (17:40, 186 programs, $9.61 spent; g3 boundary validation not yet run) and moved to the arena; arena run 11 was
+  cancelled before it started. Start no FunSearch runs until Cham resumes. To resume: POST /runs with
+  `runs/arena_resume_v2.json` from branch `hybrid/hyb5-state` (head 25dca56: funsearch/runs 90e8aae = deploy/v0
+  7ea42c7 code, all 22 sensors in the vocab, runs/ state committed). Note the arena counts a cancelled run's full
+  --budget against its total cap, and the league's --budget is cumulative ($9.61 already counted).
+- If style-gsub2-11k33 has gone live by then, make it the bar and the yield/fuel reference (island 0 seed,
+  --cambc-ref, --yield-ref). Candidates join the main4r league (deploy/v0 7ea42c7, bot_seeds off).
+
+### Before the pause
+
 - **hyb5** (league `--name hyb5`, exploration mode) runs on **EC2** (session_01Knzq5vzttJNCCzc9dRHHkQ, state
   pushed to `remote/hybrid/runs/` every ~5 min). It stays there until Cham issues an arena token for FS runs.
   Changes reach EC2 by send_message; it applies them at round boundaries (hold + SIGTERM by PID, merge
