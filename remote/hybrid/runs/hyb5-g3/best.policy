@@ -54,12 +54,8 @@
 # 3. Carriers dash toward a far altar (dash_to), fuel-gated, to shorten the walk under threat.
 # 4. Recall and low-health retreat keep their existing safety gates (no recall with an enemy within 8).
 # 5. Teleport is a 3-turn channel, so damage cancels it: only used while the threat is far.
-# mobility-2: engage dash (in the cast-ahead block) closes 3-4 tiles on a near enemy champion with a dash slot when healthy (>= 0.7) and fuel allows, so the first hit and stun land on our turn.
-# MOBILITY-2 PLAN (fighting axis, dashes only):
-# a. Dash-in: a healthy champion with a ready dash closes on a lone-ish enemy 3-4 tiles away, taking the first hit.
-# b. Stun-dash (Heart of Ruin, Ryth) lands its stun on the dash, so the basic attack and reset follow on the same turn.
-# c. Gated on fuel_remaining() > 55000 and health >= 0.7 so the dash never happens on heavy turns or while hurt.
-# d. Teleport and recall logic are unchanged (damage cancels both channels; recall stays gated on no enemy within 8).
+# fuel-1: goal set built once per turn from one kept exclusion set (2 minus instead of 4) and one shared non-gold set (no repeated minus).
+# fuel-id: champion identity cached as keeps (i_am once a game, not 3-8 calls a turn in set_priority/partner_of_me/Ren), capture hold checked before the goal set is built (skips respawning_visible_spawns + 2 minus while holding), live-camp check reuses excl_static.
 
 # zg14: ability-type-aware casting from hybrid #14 (Opus): shield/heal on self, dash kept for escape/travel
 def cast_on(slot, u):
@@ -75,8 +71,9 @@ def dash_to(slot, t):
             dash_towards(slot, t)
 
 # pairs-1: true when unit u is my draft partner (vendetta<->vesper_vale, tavi<->ryth)
+# fuel-id: uses the kept identity flags instead of i_am calls
 def partner_of_me(u):
-    return (i_am(champ_vendetta()) and unit_is(u, champ_vesper_vale())) or (i_am(champ_vesper_vale()) and unit_is(u, champ_vendetta())) or (i_am(champ_tavi()) and unit_is(u, champ_ryth())) or (i_am(champ_ryth()) and unit_is(u, champ_tavi()))
+    return (me_vend and unit_is(u, champ_vesper_vale())) or (me_vv and unit_is(u, champ_vendetta())) or (me_tavi and unit_is(u, champ_ryth())) or (me_ryth and unit_is(u, champ_tavi()))
 
 # ---- draft ----
 if is_draft():
@@ -103,12 +100,20 @@ keep altar_ring = ring( altars(), 1 )
 keep safe_altar_ring = ring( minus( altars(), ring(monolith_tiles(), 5) ), 1 )
 # roles-gold: gold-only cluster spawns (static)
 keep gold_spawns = gold_cluster_tiles()
+# fuel-1: static camp exclusions (monoliths, golems, monolith groups), computed once a game
+keep excl_static = union( union( monolith_tiles(), golem_tiles() ), mono_groups )
+# fuel-id: who I am never changes: one i_am per champion per game
+keep me_vend = i_am(champ_vendetta())
+keep me_vv = i_am(champ_vesper_vale())
+keep me_tavi = i_am(champ_tavi())
+keep me_ryth = i_am(champ_ryth())
+keep me_ren = i_am(champ_ren())
 
 # roles-1: turn order by role, set every turn so it holds next round whatever branch ends this one.
 # Frontliners (vendetta, tavi) open fights first; ryth second; vesper vale and ren act last.
-if i_am(champ_vendetta()) or i_am(champ_tavi()):
+if me_vend or me_tavi:
     set_priority(90)
-elif i_am(champ_ryth()):
+elif me_ryth:
     set_priority(60)
 else:
     set_priority(30)
@@ -173,11 +178,6 @@ if exists( first(foes) ):
             cast_at_unit(0, near_foe)
         if ability_ready(1) and not slot_is_dash(1) and not slot_is_shield(1) and not slot_is_heal(1):
             cast_at_unit(1, near_foe)
-        # mobility-2 engage dash: a healthy champion 3-4 tiles from the enemy dashes in to take the first hit
-        # (dash only; the attack block below then strikes from the new tile). Fuel-gated, dash_to checks readiness.
-        if distance(position(), unit_position(near_foe)) >= 3 and health() >= 0.6243 * max_health() and fuel_remaining() > 55000:
-            dash_to(0, unit_position(near_foe))
-            dash_to(1, unit_position(near_foe))
 
 # gemconv: a carrier of 5+ gems that dies to two of our hits is finished first (its bag drops to us)
 let rich = richest( filter( foes, in_attack_range() ) )
@@ -282,15 +282,18 @@ if not exists(first(foes)) and health() >= 0.5 * max_health():
 if team_score(ally()) == 0 and round_number() > 800:
     move_towards( closest( minus( minus( camp_spawns, respawning_visible_spawns() ), golem_tiles() ) ) )
     end_turn()
-let goals = minus( minus( minus( minus( camp_spawns, respawning_visible_spawns() ), monolith_tiles() ), golem_tiles() ), mono_groups )
 
 # already standing on a cleared camp spawn: hold here so the capture timer keeps running
+# fuel-id: checked before the goal set is built (holding needs no goals)
 if contains(capturable_spawns(), position()):
     end_turn()
 
+# fuel-1: two minus() calls against the kept exclusion set instead of four
+let goals = minus( minus( camp_spawns, respawning_visible_spawns() ), excl_static )
+
 # roles-gold: Ren is the team's gold farmer: safe gold clusters first (no damage) until round 1000, buying the
 # shards the fighters need; falls through to normal play when no gold cluster is available
-if i_am(champ_ren()) and round_number() < 1000:
+if me_ren and round_number() < 730:
     let gg = closest( minus( goals, minus( goals, gold_spawns ) ) )
     if exists(gg):
         if distance(position(), gg) > 2 and fuel_remaining() > 55000:
@@ -301,8 +304,10 @@ if i_am(champ_ren()) and round_number() < 1000:
 
 # roles-gold: everyone else skips gold-only clusters while any other camp goal remains
 # (gk = 199 keeps every goal when no non-gold goal exists, else -1 keeps none of the gold ones)
-let gk = 200 * floor( 1 / ( 1 + count( minus( goals, gold_spawns ) ) ) ) - 1
-let goal = closest( union( minus( goals, gold_spawns ), filter( goals, within(gk, position()) ) ) )
+# fuel-1: the non-gold goal set is built once and shared by the count and the closest query
+let non_gold = minus( goals, gold_spawns )
+let gk = 200 * floor( 1 / ( 1 + count( non_gold ) ) ) - 1
+let goal = closest( union( non_gold, filter( goals, within(gk, position()) ) ) )
 # bank before a dangerous group (tune line, 01starvation): elk 60, wolf 20 per camp
 # fuel guard: the bank walk is a second distance query this turn
 if exists(goal) and gems() >= 10 and group_threat(goal) >= 240 and fuel_remaining() > 65000:
@@ -314,9 +319,10 @@ if exists(goal) and gems() >= 10 and group_threat(goal) >= 240 and fuel_remainin
     end_turn()
 # on a dead camp of a group that is not cleared yet, the closest goal is our own tile: walk to the
 # nearest living camp instead (not a monolith or golem), so the group can be finished
+# fuel-id: the kept exclusion set replaces a per-turn union of monolith and golem tiles
 if distance(goal, position()) == 0:
     let live = nearest(camps)
-    if exists(live) and not contains( union( monolith_tiles(), golem_tiles() ), unit_position(live) ):
+    if exists(live) and not contains( excl_static, unit_position(live) ):
         move_towards( unit_position(live) )
         end_turn()
 # tunable: dash toward a camp goal only when it is farther than this
