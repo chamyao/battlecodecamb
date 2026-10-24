@@ -273,3 +273,13 @@ child) and breaks the cap (programs/hour must stay >= half the untuned ~49-58/h)
    (defaults now: --tune-games 8 --tune-steps 4 --tune-rejects 2 --tune-margin 0.03 --tune-slack 0.15; ~250 games per
    climbed child at most.)
 3. Report programs/hour for the first full round after this (children only), and mean metrics.tuned.games.
+
+## Job H10 (2026-10-24 14:20 UTC, hybrid line session; per the FunSearch lead): conversion axis, next boundary after H9
+
+At the next hyb5 round boundary after H9 (hold + SIGTERM by PID):
+1. `git pull origin funsearch/runs` to 4174c28 or later (ancestor check). It merges coord/capture-metric 2dc29a7: sim/ and
+   policygen/blocks.py CHANGED (new block unit_tributing; interp_eval reports captures, gems_captured, tributes), so
+   reconfigure + rebuild interp_eval and run pytest (2024).
+2. Relaunch with the current (H9) command line, changing only --axes to the weighted menu:
+   `--axes conversion:3,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1`
+3. Check: new children log axis "conversion" about 3 in 14 draws, "disengage" 2 in 14.
