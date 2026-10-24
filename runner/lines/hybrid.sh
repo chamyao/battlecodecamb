@@ -22,6 +22,27 @@ pushall() {
     mkdir -p /root/bc/hybrid-pol && cp -a policies/fs-h*.policy /root/bc/hybrid-pol/ && push_state remote/hybrid policies /root/bc/hybrid-pol
   fi
 }
+# ---- FINAL (hybrid line by message, 17:39 UTC; Cham: "just move everything now"): hyb5 moves to the arena. Replaces
+# the pending H21b/H23/H24/H25 restart. At the hyb5-g3 boundary (hold already set): SIGTERM hyb5 by PID, NO relaunch,
+# hold file left in place, one final full state push. Nothing below this block runs again (no restarts, no checks).
+if [ -f runs/ec2-final ]; then
+  [ -f runs/ec2-final-pushed ] || { pushall && touch runs/ec2-final-pushed && log "FINAL: state pushed (remote/hybrid $(git -C /root/bc/state/remote_hybrid rev-parse --short HEAD))"; }
+  return 0
+fi
+if [ -f runs/ec2-hyb5 ]; then
+  [ -f runs/hyb5.hold ] || { touch runs/hyb5.hold; log "FINAL: hold file re-created"; }
+  if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h21b-holdmark)" ]; then
+    for pid in $(pgrep -a -x python3 | grep -E 'league --name hyb5 |funsearch.run --run hyb5-' | cut -d' ' -f1); do kill -TERM "$pid" && log "FINAL: SIGTERM hyb5 pid $pid"; done
+    sleep 15
+    touch runs/ec2-final
+    log "FINAL: hyb5 stopped at the boundary, not relaunched; last hyb5.log: $(tail -n 2 runs/hyb5.log | cut -c1-140 | tr '\n' '|')"
+    pushall && touch runs/ec2-final-pushed && log "FINAL: state pushed (remote/hybrid $(git -C /root/bc/state/remote_hybrid rev-parse --short HEAD))"
+  else
+    log "FINAL: waiting for the hyb5-g3 boundary (hold set); no restart will follow"
+    pushall
+  fi
+  return 0
+fi
 # ---- Job H3 (jobs/hybrid dc9280f, 09:00 UTC, lead-approved): hyb4 ends at its g4 verdict; hyb5 on v19 with exploration
 if [ -f runs/ec2-hyb5 ]; then
   # Job H4 (jobs/hybrid, 10:55 UTC, lead-approved): retune hyb5 at its next round boundary (90 so far or later):
