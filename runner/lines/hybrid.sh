@@ -191,7 +191,10 @@ PY
   # sim/ + policygen/blocks.py changed, new block unit_tributing: rebuild), pytest, relaunch with H9's command and the
   # weighted axis menu (conversion:3, disengage:2, the rest 1).
   H10AXES="--axes conversion:3,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1"
-  [ -f runs/ec2-h10 ] && AXES=$H10AXES
+  # H10 addendum (14:30 UTC): require 7a6038d (contains 4174c28) and add the shared helper library built from all three
+  # FunSearch lines' runs/ on this box; the league rebuilds runs/hyb5.helpers.json + HELPERS.md at every boundary.
+  H10HELP="--helpers-runs /root/bc/hybrid/runs,/root/bc/pure/runs,/root/bc/style/runs"; HELP=
+  [ -f runs/ec2-h10 ] && { AXES=$H10AXES; HELP=$H10HELP; }
   if [ -f runs/ec2-h9 ] && [ ! -f runs/ec2-h10 ]; then
     if [ ! -f runs/ec2-h10-hold ]; then
       grep -c 'hold file present' runs/hyb5.log > runs/ec2-h10-holdmark; touch runs/hyb5.hold runs/ec2-h10-hold
@@ -201,10 +204,10 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H10: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 4174c28 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+         git merge-base --is-ancestor 4174c28 HEAD && git merge-base --is-ancestor 7a6038d HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h10-progs
-        rm -f runs/hyb5.hold; touch runs/ec2-h10; AXES=$H10AXES
-        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 4174c28), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu"
+        rm -f runs/hyb5.hold; touch runs/ec2-h10; AXES=$H10AXES; HELP=$H10HELP
+        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 4174c28, 7a6038d), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
       else
         echo "H10 merge/4174c28/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H10 upgrade failed"; pushall; return 1
       fi
@@ -222,7 +225,7 @@ PY
         --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy \
         --prefix fs-h --line hybrid --round 30 --cambc-ref "$CREF" --workers 3 --eval-threads 2 \
         --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share "$ARCH" \
-        --island-seeds "$SEEDS" $AXES $TUNE \
+        --island-seeds "$SEEDS" $AXES $TUNE $HELP \
         >> runs/hyb5.out 2>&1 < /dev/null &
       touch runs/hyb5.ec2-launched; log "launched hyb5 league"
     fi
@@ -328,6 +331,11 @@ if len(new) >= 28:
 PY
 )
     [ -n "$st" ] && { touch runs/ec2-h10-checked; log "H10 check: $st"; }
+  fi
+  if [ -f runs/ec2-h10 ] && [ ! -f runs/ec2-h10-helpers ]; then
+    hk=$(tail -n +"$(( $(cat runs/ec2-h10-progs 2>/dev/null || echo 0) * 0 + 1 ))" runs/hyb5.log | grep -o 'helpers: [0-9]* helpers kept' | tail -n 1)
+    lh=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h10-progs) + 1 ))" | grep -c 'lib_helpers')
+    [ -n "$hk" ] && [ "$lh" -gt 0 ] && { touch runs/ec2-h10-helpers; log "H10 helpers check: '$hk'; $lh new children carry metrics.lib_helpers; HELPERS.md $( [ -f runs/hyb5.HELPERS.md ] && echo present || echo MISSING)"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
