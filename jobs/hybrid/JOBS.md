@@ -399,3 +399,14 @@ policies/candidates/hyb5-g3-76.policy instead of hyb5-g3-82 (#82 measured broadl
 24% vs v21 over 80 games). Require funsearch/runs 166f85c or later (contains dccd4b1). Final seeds:
 `--island-seeds policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-76.policy`
 Everything else in H17-H20 unchanged (--protect-islands 3 --fuel-islands 3 --island-axes as H17, --yield-weight 0.25).
+
+## Job H21 (2026-10-24 16:40 UTC, hybrid line session; per the FunSearch lead): screens cover every map
+Fold into H20's pending boundary if it has not fired (one pull), else the next boundary. Require funsearch/runs
+e0fd0c3 or later (contains 166f85c). Python only. Add to the relaunch (run args):
+`--screen-maps cover --rescreen-top 3`
+Screens walk seeded shuffles of all 40 maps (same seed for every child, so parent/child stay comparable): v21's 96
+screen games now cover every map on both sides (+8 repeats) instead of ~28 maps drawn with replacement; 32-game
+opponents get 16 distinct maps. Same game count. At startup each island's top 3 and the overall top 3 are re-screened
+on the new maps (about 15 programs; their old score is kept in metrics.rescreened_from).
+Check: hyb5.log shows "re-screened #N (island I): old -> new" lines and "re-screen (cover maps): N programs in Ts";
+new children carry metrics.screen_maps = "cover".
