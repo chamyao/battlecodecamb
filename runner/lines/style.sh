@@ -147,7 +147,21 @@ if [ -f runs/ec2-s7-checked ] && [ ! -f runs/ec2-s8 ]; then
     echo "S8 merge/ed49293/build/tests failed; h2 and b stopped" > "$D/HALT"; log "HALT: S8 merge/build/tests failed"; return 1
   fi
 fi
-if [ -f runs/ec2-s8 ] && [ ! -f runs/style8-gconv.ec2-done ] && ! pgrep -a -x python3 | grep -q 'funsearch.run --run style8-gconv '; then
+# 14:17 UTC (style line): HOLD the gconv gap run until a new commit + launch command arrive. Stop it if running;
+# its spend carries over on relaunch (the launcher subtracts programs.jsonl cost). Set GCONV_HOLD=0 to release.
+GCONV_HOLD=1
+if [ "$GCONV_HOLD" = 1 ]; then
+  for pid in $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gconv ' | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "S8 HOLD: SIGTERM style8-gconv pid $pid"; done
+  if [ ! -f runs/style8-gconv.ec2-held ]; then
+    sleep 5; touch runs/style8-gconv.ec2-held
+    log "S8 HOLD: gconv stopped; spend \$$(python3 -c "
+import json, pathlib
+p = pathlib.Path('runs/style8-gconv/programs.jsonl')
+print(round(sum(json.loads(l)['metrics'].get('cost', 0.0) for l in open(p)), 3) if p.exists() else 0.0)") over $(cat runs/style8-gconv/programs.jsonl 2>/dev/null | wc -l) lines"
+  fi
+fi
+if [ "$GCONV_HOLD" != 1 ] && [ -f runs/ec2-s8 ] && [ ! -f runs/style8-gconv.ec2-done ] && ! pgrep -a -x python3 | grep -q 'funsearch.run --run style8-gconv '; then
   if [ -f runs/style8-gconv.ec2-launched ] && tail -n 3 runs/style8-gconv.out 2>/dev/null | grep -qE '^done:|\$0\.00 left'; then
     touch runs/style8-gconv.ec2-done; log "S8: style8-gconv finished: $(tail -n 1 runs/style8-gconv.out | cut -c1-160)"
   else
