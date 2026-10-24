@@ -128,7 +128,8 @@ def main():
                          "(e.g. arenaB-1/arena+arenaB-2/arena): the latest pushed one is read, and the chain is "
                          "finished when its last job has an rc file")
     ap.add_argument("--ref", default=str(ROOT / REF), help="the live ladder bot")
-    ap.add_argument("--anchors", default=",".join(str(ROOT / a) for a in ANCHORS))
+    ap.add_argument("--anchors", action="append", default=None,
+                    help="comma list of anchors for the drop check; may be repeated (lists are joined)")
     ap.add_argument("--top", type=int, default=3)
     ap.add_argument("--min-games", type=int, default=200)
     ap.add_argument("--every", type=float, default=600)
@@ -142,7 +143,7 @@ def main():
     args = ap.parse_args()
     out = Path(args.out)
     (out / "candidates").mkdir(parents=True, exist_ok=True)
-    anchors = args.anchors.split(",")
+    anchors = [a for part in (args.anchors or [",".join(str(ROOT / a) for a in ANCHORS)]) for a in part.split(",") if a]
     seen, bars = set(), {}
     gates = out / "gates.jsonl"
     if gates.exists():
