@@ -50,3 +50,9 @@ seed score 0.779
 [52] claude-haiku-5-5 island 0: score 0.735 | best 0.779 (#0) $0.44 | 8103s
 [53] claude-haiku-5-5 island 1: error: TypeError: line 30: macro cast_on is a step; only a macro whose body is 'return  | best 0.779 (#0) $0.45 | 8126s
 [54] claude-haiku-5-5 island 3: score 0.547 | best 0.779 (#0) $0.46 | 8314s
+[55] claude-haiku-5-5 island 3: error: TypeError: no block group_tiles(Tile) | best 0.779 (#0) $0.01 | 40s
+[56] claude-haiku-5-5 island 2: score 0.672 | best 0.779 (#0) $0.01 | 96s
+[57] claude-haiku-5-5 island 2: score 0.658 | best 0.779 (#0) $0.02 | 169s
+[58] claude-haiku-5-5 island 1: error: TypeError: no block minus(TileSet, TilePred) | best 0.779 (#0) $0.02 | 199s
+[59] claude-haiku-5-5 island 0: score 0.735 | best 0.779 (#0) $0.02 | 531s
+[60] claude-haiku-5-5 island 1: error: SyntaxError: line 127: unsupported expression in_attack_range()(carrier) | best 0.779 (#0) $0.03 | 547s
