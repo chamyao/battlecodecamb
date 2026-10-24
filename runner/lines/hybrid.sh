@@ -303,6 +303,26 @@ X
       fi
     fi
   fi
+  # H21b (jobs/hybrid H21 addendum, 16:42 UTC, lead): --no-tune-children (per-child climb off). H20/H21 had fired at
+  # 16:35, so this is a hold-based restart at the next boundary; same checkout (694a4a3 has the flag), no rebuild.
+  [ -f runs/ec2-h21b ] && EXTRA="$EXTRA --no-tune-children"
+  if [ -f runs/ec2-h20 ] && [ ! -f runs/ec2-h21b ]; then
+    if [ ! -f runs/ec2-h21b-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h21b-holdmark; touch runs/hyb5.hold runs/ec2-h21b-hold
+      log "H21b: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h21b-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H21b: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if grep -q 'no-tune-children' funsearch/run.py; then
+        cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h21b-progs; date +%s > runs/ec2-h21b-t0
+        rm -f runs/hyb5.hold; touch runs/ec2-h21b; EXTRA="$EXTRA --no-tune-children"
+        log "H21b: relaunching hyb5 at $(git rev-parse --short HEAD) with --no-tune-children"
+      else
+        echo "H21b: funsearch/run.py lacks --no-tune-children; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H21b flag missing"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -479,6 +499,22 @@ PY
     rt=$(grep -ho 're-screen (cover maps): [0-9]* programs' runs/hyb5*.log runs/hyb5.out runs/hyb5-g*.log 2>/dev/null | tail -n 1)
     nc=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h20-progs) + 1 ))" | grep -cE "screen_maps.{1,4}cover")
     [ -n "$rt" ] && [ "$nc" -gt 0 ] && { touch runs/ec2-h21-checked; log "H21 check: $rs 're-screened #' lines, '$rt'; $nc new children with screen_maps=cover"; }
+  fi
+  if [ -f runs/ec2-h21b ] && [ ! -f runs/ec2-h21b-checked ]; then
+    st=$(python3 - "$(cat runs/ec2-h21b-progs)" "$(cat runs/ec2-h21b-t0)" <<'PY2'
+import json, glob, sys, time
+n0, t0 = int(sys.argv[1]), int(sys.argv[2]); rows = []
+for f in sorted(glob.glob("runs/hyb5-g*/programs.jsonl")):
+    for l in open(f):
+        try: rows.append(json.loads(l))
+        except Exception: pass
+new = rows[n0:]; h = (time.time() - t0) / 3600
+if len(new) >= 15 and h > 0.25:
+    tuned = sum(1 for r in new if isinstance(r.get("metrics"), dict) and "tuned" in r["metrics"])
+    print(f"{len(new)} new children in {h:.2f} h ({len(new)/h:.0f}/h, expect 49-58); {tuned} carry metrics.tuned (expect 0)")
+PY2
+)
+    [ -n "$st" ] && { touch runs/ec2-h21b-checked; log "H21b check: $st"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
