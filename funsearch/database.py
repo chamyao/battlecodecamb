@@ -141,7 +141,7 @@ class Database:
             # distinct programs only
             uniq = {}
             for key, p in sorted(cells.items()):
-                uniq.setdefault(p.id if p.model != "seed" else (p.id, p.island), (key, p))
+                uniq.setdefault((p.id, p.island if p.model == "seed" else -1), (key, p))
             if len(uniq) < 2:
                 return None
             picks = self.rng.sample(sorted(uniq), min(k, len(uniq)))
