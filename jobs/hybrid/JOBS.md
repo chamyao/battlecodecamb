@@ -156,3 +156,39 @@ hyb-t5m-rich15d6f). Changes, in order:
    never 9ef3d8b alone), REBUILD interp_eval (op codes changed: `cmake -S interp -B interp/build
    -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j --target interp_eval`), `python3 -m pytest -q tests`,
    relaunch with the same command line (--budget 29.47).
+
+## Job H3 (2026-10-24 09:00 UTC, hybrid line session; approved by the FunSearch lead): stop hyb4, start hyb5 on v19 with exploration
+
+hyb4's best (hyb-t5m) is far behind live v19, so its next generations search a stale base. hyb4 ends at its
+g4 verdict and hyb5 starts on v19.
+
+1. Let hyb4 finish validating its g4 boundary (tune5-campreset challenger). When `hyb4-g5:` appears in
+   runs/hyb4.log, stop the league: `touch runs/hyb4-g5/STOP`, wait for the league and run PIDs to exit
+   (SIGTERM by PID if one hangs > 15 min; never `pkill -f`). Push runs/ to remote/hybrid as usual, and post the
+   g4 verdict lines on PR #1. Nothing in runs/hyb4* is deleted.
+2. `git pull origin funsearch/runs` (557ce2c or later: exploration mode, --change-weights, per-generation
+   explore_report, policies/pool/). Rebuild interp_eval (configure + build) and run `python3 -m pytest -q tests`
+   (2012 pass).
+3. Launch (FUNSEARCH_API_KEY from SSM as before):
+   ```
+   nohup setsid python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 \
+     --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy \
+     --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy \
+     --prefix fs-h --line hybrid --round 30 --cambc-ref policies/pool/v19.policy --workers 3 --eval-threads 2 \
+     --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share 0.3 \
+     --island-seeds policies/pool/v19.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.policy \
+     >> runs/hyb5.out 2>&1 < /dev/null &
+   ```
+   Budget: the hybrid cap is $30; ~$5.0 is spent (0.18 hyb..hyb3, 1.26 hyb4, 0.35 lost, 3.21 exploration test),
+   so hyb5 gets 25.0. Append to runs/SPEND.md:
+   `| 2026-10-24 | exploration test xc1/xp1/xp2 (hybrid session container) | 114 | 3.21 | |` and
+   `| 2026-10-24 | hyb5 started on v19 (explore), --budget 25.0 | | | |`.
+4. Checks: the first runs/hyb5.log line is `hyb5-g1: +30 programs to the next boundary (0 so far), best
+   policies/pool/v19.policy, ...`; runs/hyb5-g1.log shows `seed v19 score ...` (islands 0,1), `seed lean-g65`
+   (island 2) and `seed opp-hunter3` (island 3); children log a variant (metrics.variant in programs.jsonl).
+5. After each generation the league writes runs/hyb5-gN.explore.txt (drafts, executed-block coverage, behaviour
+   cells, per-variant validity/novelty/score). Push it with the state and post its first lines with each boundary
+   verdict on PR #1.
+
+The upload-evidence league is separate (tools/league.py with the full required pool: v19, hunters 2a/2b/2c/3,
+icecream, odyssey, metab, metadraft); the hybrid session runs it for any hyb5 promotion.
