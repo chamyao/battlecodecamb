@@ -4,7 +4,8 @@
     python3 -m genome.search.panelwatch --out panel.jsonl --state <arena out dir> --opponents p1,p2,... \
         [--every 100] [--top 3] [--threads 5] [--until <file>]
 
-Milestone 0 is the seed. A milestone's genomes are snapshotted (name, mu, sigma, games, text) when the arena reaches
+Milestone 0 is the seed (or, with --after-births B for a resumed arena, the first milestone is the first multiple
+of --every above B). A milestone's genomes are snapshotted (name, mu, sigma, games, text) when the arena reaches
 it and played afterwards, so a slow panel never mixes generations. Stops when --until exists and every reached
 milestone is played.
 """
@@ -28,6 +29,8 @@ def main():
     ap.add_argument("--threads", type=int, default=5)
     ap.add_argument("--until", default="", help="stop once this file exists (e.g. the arena job's rc)")
     ap.add_argument("--poll", type=float, default=60)
+    ap.add_argument("--after-births", type=int, default=-1,
+                    help="a resumed arena: only milestones after this many births (no milestone 0)")
     a = ap.parse_args()
     d, out = Path(a.state), Path(a.out)
     snap_dir = out.parent / "panel-genomes"
@@ -53,7 +56,7 @@ def main():
             s = json.loads(sp.read_text())
             k = s["births"] // a.every
             for m in range(k + 1):
-                if m in snaps:
+                if m in snaps or m * a.every <= a.after_births:
                     continue
                 if m < k and m > 0:
                     continue  # passed while we were not watching: only the latest reached milestone is snapshotted
