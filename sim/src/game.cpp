@@ -514,8 +514,8 @@ void Game::on_position_changed(int c)
 void Game::update_group_memory(int c)
 {
 	Champion& ch = champs[c];
-	bool any = false;
-	for (const auto& G : groups) any |= G.state == GroupState::respawning;
+	bool any = false; // a respawning group this champion has not yet seen respawning
+	for (std::size_t g = 0; g < groups.size(); ++g) any |= groups[g].state == GroupState::respawning && !ch.seen_respawning[g];
 	if (!any) return;
 	Bitboard vis;
 	champion_vision(c, vis);
