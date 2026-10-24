@@ -5,8 +5,8 @@
 D=/root/bc/pure
 SESSION=https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd
 # g4 runs from this vetted funsearch/pure commit, not the moving tip (set by the pure line session only).
-# 2a4782b: coord/blocks 7db639b merged (rebuild); prompt = funsearch/runs aa032ba catalog; fixed tune5-campreset, v5d, v4, locker, fs-2; budget 18.10.
-G4_REV=2a4782b
+# 10eafc0: coord/blocks 7db639b merged (rebuild); prompt = funsearch/runs aa032ba catalog; fixed tune5-campreset, v5d, v4, locker, fs-2, opp-hunter2b; budget 18.10.
+G4_REV=10eafc0
 [ -f "$D/HALT" ] && { log "halted: $(cat "$D/HALT")"; return 0; }
 p1() {   # P1 contents (JOBS.md section 2)
   printf 'policies/tune-5.policy\npolicies/v5d.policy\npolicies/v4.policy\npolicies/locker.policy\npolicies/fs-2.policy\n' > runs/pure_fixed.txt
