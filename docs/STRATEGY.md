@@ -169,6 +169,15 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   could ever read its real fuel. The core principle's main self-aware block was
   inert on the ladder; the sim applied it. Fixed; a rebuilt tune-3 follows.
   Lesson: every block that reads game/host state needs a cambc-vs-sim check.
+  15 = tune-3 v2 (`deploy/v0` 61a88d6): tune-3 with fuel_remaining() fixed. 16 = tune-5 (`deploy/v0`
+  aec1e76, sha256 cbd8405c...; live Oct 24 03:44 UTC): camp-goal dash from > 2, jungle shards rest/2. Real cambc
+  46/80 vs tune-3 v2, but 11-19 ranked and 0-50 in unranked games vs ladder #1-#9 and vc?: it doesn't fight back
+  (deaths 17.8 vs 1.6, kills 0.3 vs 12.9 per game; `docs/TOP_TEAMS*.md` on analysis/sprint1). Sim and deployed
+  bot were both verified exact in fights, so the gap is behaviour.
+  17 = tune5-campreset (`deploy/v0` 0f49154, sha256 433aa2bd...; submitted Oct 24 ~07:08 UTC, first upload under
+  the league bar): tune-5 casting attack-reset abilities after the first basic attack and attacking again, vs
+  champions and camps (tune-5 cast them at the target first, where they fail). Real cambc 65/80 vs tune-5,
+  kills ~7.8 vs ~4.1; league 1729 [1715-1743] vs tune-5 1603 [1591-1616] (14-bot pool with hunters).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
