@@ -19,6 +19,8 @@ passing genomes in <out>/candidates/. Stops when every arena's job has an rc fil
 """
 import argparse
 import json
+import os
+import urllib.request
 import subprocess
 import time
 from pathlib import Path
@@ -41,6 +43,15 @@ def rate(a, b, threads, fuel_mult=1.0):
     if "error" in st:
         raise RuntimeError(st["error"])
     return st["a_wins"], st["games"]
+
+
+ARENA_URL = os.environ.get("ARENA_URL", "https://138-201-121-171.sslip.io/arena")
+
+
+def _http(url):
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"X-Arena-Client": "genome-search"}),
+                                timeout=60) as r:
+        return r.read().decode()
 
 
 def spec_of(path_or_text, kind=None):
@@ -117,7 +128,20 @@ def main():
         finished = 0
         git("fetch", "-q", "origin", "jobs/genome")
         for chain in args.arena:
-            if chain.endswith("*"):  # every job <prefix>N on jobs/genome, in order: a chain of resumes
+            if chain.startswith("api:"):  # an arena-service run: api:<run id>:<dir under the worktree>[=<key name>]
+                spec, _, keyname = chain[4:].partition("=")
+                run_id, _, rdir = spec.partition(":")
+                base = f"{ARENA_URL}/runs/{run_id}"
+                try:
+                    status = json.loads(_http(base))["status"]
+                    s = json.loads(_http(f"{base}/files/{rdir}/state.json"))
+                except Exception as e:
+                    log(f"{chain}: {type(e).__name__}: {e}")
+                    continue
+                finished += status in ("exited", "failed", "stopped", "cancelled")
+                fetch = lambda p, base=base, rdir=rdir: _http(f"{base}/files/{rdir}/{p}")
+                dirs, arena, job = [keyname or chain], chain, f"run{run_id}"
+            elif chain.endswith("*"):  # every job <prefix>N on jobs/genome, in order: a chain of resumes
                 import re
                 names = git("ls-tree", "--name-only", "origin/jobs/genome").stdout.split()
                 jobs = sorted({n[:-3] for n in names if n.startswith(chain[:-1]) and n.endswith(".sh")},
@@ -127,17 +151,24 @@ def main():
             else:
                 dirs = chain.split("+")
                 done = git("cat-file", "-e", f"origin/remote/genome:{dirs[-1].split('/')[0]}/rc").returncode == 0
-            if not dirs:
-                continue
-            finished += done
-            have = [d for d in dirs if git("cat-file", "-e", f"origin/remote/genome:{d}/state.json").returncode == 0]
-            arena = have[-1] if have else dirs[0]
-            job = arena.split("/")[0]
-            st = git("show", f"origin/remote/genome:{arena}/state.json")
-            if st.returncode != 0:
-                log(f"{arena}: no state yet")
-                continue
-            s = json.loads(st.stdout)
+            if not chain.startswith("api:"):
+                if not dirs:
+                    continue
+                finished += done
+                have = [d for d in dirs if git("cat-file", "-e", f"origin/remote/genome:{d}/state.json").returncode == 0]
+                arena = have[-1] if have else dirs[0]
+                job = arena.split("/")[0]
+                st = git("show", f"origin/remote/genome:{arena}/state.json")
+                if st.returncode != 0:
+                    log(f"{arena}: no state yet")
+                    continue
+                s = json.loads(st.stdout)
+
+                def fetch(p, arena=arena):
+                    g = git("show", f"origin/remote/genome:{arena}/{p}")
+                    if g.returncode != 0:
+                        raise FileNotFoundError(p)
+                    return g.stdout
             live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"]
                     and m["games"] >= args.min_games]
             for m in sorted(live, key=lambda m: -m["mu"])[:args.top]:
@@ -146,13 +177,14 @@ def main():
                 if key in seen:
                     continue
                 seen.add(key)
-                g = git("show", f"origin/remote/genome:{arena}/{m['path']}")
-                if g.returncode != 0:
+                try:
+                    text = fetch(m["path"])
+                except Exception:
                     log(f"{key}: genome file missing")
                     continue
                 log(f"gate {key} (mu {m['mu']:.2f}, {m['games']} games)")
                 try:
-                    rec = gate(g.stdout, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log)
+                    rec = gate(text, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log)
                 except Exception as e:
                     log(f"{key}: {type(e).__name__}: {e}")
                     continue
@@ -163,7 +195,7 @@ def main():
                 log(f"{key}: {json.dumps({k: v for k, v in rec.items() if k not in ('key', 'arena', 't')})}"
                     f" -> {'CANDIDATE' if rec['passed'] else 'no'}")
                 if rec["passed"]:
-                    (out / "candidates" / f"{job}-{m['name']}.genome").write_text(g.stdout)
+                    (out / "candidates" / f"{job}-{m['name']}.genome").write_text(text)
         if finished == len(args.arena):
             log("all arenas finished")
             break
