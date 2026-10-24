@@ -1,13 +1,12 @@
 # EC2 runner status
 
-Updated 2026-10-24 09:41 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 18.64 16.97 15.45 on 16 threads.
+Updated 2026-10-24 09:47 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 16.92 17.07 15.97 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
 ```
 35865 python3 -m funsearch.league --name tune-fight --budget 5 --members policies/tune-v18g.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v18.policy --fixed policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campreset.policy --regress 1.0 
 37632 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
-37639 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 25.00 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
 40768 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
 40780 /usr/bin/python3 -m funsearch.run --run pure4-g4 --budget 7.73 --max-programs 151 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/rall2-ca4-lean-g.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,p
 43700 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies
