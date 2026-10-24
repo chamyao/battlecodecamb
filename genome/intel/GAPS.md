@@ -1,5 +1,51 @@
 # GAPS: our live bot's measurable weaknesses in real band games (Arena B evidence)
 
+## v2: batch 2, B318 live (ladder v25), 24 Oct 2026, 20:47 UTC
+
+Data: 50 unranked games of B318 on batch 1's exact plan (same 10 teams rated +55..+145, maps and sides), so every game pairs with a batch-1
+game played by v22 (`paired.py`). The bot is confirmed by banking: 81% of tributes are under 25 gems (batch 1: 14%). Raw tables:
+`batches/b2.md`. ± is one bootstrap SE over games.
+
+**v22 → B318, paired (50 games):**
+- Record 15-35 → 18-32: 8 flips to a win, 5 to a loss.
+- Gems submitted 579 → 684 (+105 ± 49).
+- Gems lost on death 155 → 93 (−63 ± 17).
+- First tribute at round 230 → 112.
+- Tributes 18.5 → 36.2.
+- Stuck spells carrying gems 61 → 4.
+- Unchanged: deaths to champions (10.2 → 9.7), to camps (4.0 → 3.9) and to monoliths (1.4 → 1.1), and gems per capture (10.2 → 10.2).
+
+Adding X gems to every loss flips 1 game at +25, 4 at +100, 5 at +200 and 11 at +300.
+
+Ranked for B318 (genes are B318's, same IDs as the seed):
+
+1. **Capture yield**
+   - Evidence: our captures pay 10.2 ± 0.9 gems, theirs 15.2 ± 1.1. 28.7 of our 76 captures per game pay 0 gems. Low yield is a cause in 50% ± 9 of losses.
+   - Genes: `m11` camp_goal (still the nearest live spawn), `v2` CAMP_BASE.
+   - Sim: B318 + gemgroups scores 14.4 gems per capture but loses to B318 0.450 (0.688 vs style-gconv1).
+2. **Fights**
+   - Evidence: 9.7 ± 1.3 deaths per game to champions, 11.0 in losses against 7.4 in wins. Fights are a cause in 44% ± 9 of losses.
+   - Genes: `r7` / `s13` / `a3` / `a4` (B318 retuned `s13` and `a4`), and `s8` under_fire (B318 uses threat_eta <= 5).
+   - Sim: `stress/hunter`; the sim under-counts these deaths, see gap 2 in v1.
+3. **Zero-gem maps: idle champions**
+   - Evidence: 00contest submits 0 and 0 (they make 600). There, 3,529 champion-rounds over 2 games are spent standing idle with an empty bag. On 01elk_arena we submit 14 (they make 1008; our gems per capture there are 0.0, theirs 14.2).
+   - On 00contest the only gems are in two monoliths (`docs/ZERO_GEM_MAPS.md`). B318's `r15` r_mono waits for round 1000, 3+ allies alive and team gems under 100.
+   - Genes: `r15` r_mono, `m11` camp_goal / CAMP_BASE (excludes monolith and golem groups).
+   - Sim: B318 on 00contest makes 100 to 200.
+4. **Monolith deaths**
+   - Evidence: 2.6 ± 1.0 per game on monolith maps (great_wall 17, boss_battle 11, contest 5, shortcut 4). A cause in 12% ± 6 of losses; it was 6% with v22.
+   - Genes: `s14` / `r14` (B318: never wake a sleeping monolith, but a hit on another camp of its group still wakes it), `r13`, `a0`.
+   - Sim: B318 + mono scores 0.512 vs B318.
+5. **01shortcut: no bank** in both games (first tribute at round 1580, 80 gems submitted against 848). Both altars sit next to a monolith.
+   - Genes: `m6` safe_altar_ring (B318: radius 6), `m12`-`m15`.
+6. **Slow start: smaller now.** It is a cause in 19% of losses (was 29%). Our first tribute comes at round 112, theirs at 121, but they lead by round 500 in losses (245 vs 147).
+7. **Stuck carriers: largely fixed in real games.** Spells carrying gems fell from 61 to 4. The remaining stuck rounds are the idle champions of gap 3. The sim still shows 43 stuck rounds per game for B318, and the commit graft that removes them loses (0.412).
+
+---
+
+## v1 (batch 1)
+
+
 v1, batch 1 (24 Oct 2026). Data: 50 fresh unranked games of our live submission (v22 = tune-v20-L1c, see the correction below;
 record 15-35) against 10 teams rated +55..+145 above us (1596),
 all 40 maps. ± is one bootstrap SE over games. Raw tables: `batches/b1.md`. Sim numbers: seed genome vs the

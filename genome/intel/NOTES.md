@@ -21,3 +21,13 @@ same bot, other band teams):
   mechanism, and the fix is cheap.
 
 Directed children pushed: commit, mono-spare, mono-pack, gem-groups (see GAPS.md).
+
+## Batch 2: 24 Oct 2026, 20:47 UTC, 50 games, 18-32 (B318 live, ladder v25)
+
+This batch reruns batch 1's exact plan, so the games pair one to one: v22 → B318.
+- Better: gems submitted +105 ± 49 per game, gems lost on death −63, first tribute at round 112 (was 230),
+  twice the tributes, and carrier stuck spells 61 → 4.
+- Unchanged: deaths to champions, camps and monoliths, and gems per capture (10.2 vs their 15.2).
+- New: zero-gem maps. On 00contest we submit 0 and stand idle; its gems are only in monoliths, and B318's
+  r_mono waits for round 1000. On 01elk_arena we submit 14.
+- Top gaps for B318: yield (50% of losses), fights (44%), zero-gem maps, monoliths (12%), 01shortcut.
