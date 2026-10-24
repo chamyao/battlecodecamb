@@ -64,6 +64,27 @@ fi
   WORKERS=2 EVAL_THREADS=2 VAL_THREADS=3 setsid nohup sh runs/tune_fs_launch.sh 5 >> runs/tune-fight.out 2>&1 < /dev/null &
   touch runs/tune-fight.launched; log "G: launched tune-fight (\$5)"
 )
+# G2 (10:20 UTC, lead): the rest of G's budget ($2.25) restarted as tune-fight2 on tune/fs de5dc62, seeded from tune-v19.
+# tune-fight (v18-based) is stopped for good; the checkout moves in place (python, policies, directive only).
+G2REV=de5dc62
+if [ -f "$G/.setup-$GREV" ] && [ ! -f "$G/.g2-$G2REV" ]; then
+  touch "$G/runs/tune-fight.done"
+  for pid in $(pgrep -a -x python3 | grep -E "league --name tune-fight |funsearch.run --run tune-fight-" | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "G2: stopped tune-fight pid $pid"; done
+  git -C "$G" fetch -q origin tune/fs && git -C "$G" checkout -q -f "$G2REV" && touch "$G/.g2-$G2REV" && log "G2: tune/fs at $G2REV"
+fi
+(
+  cd "$G" || exit 0
+  [ -f "$G/.g2-$G2REV" ] || exit 0
+  [ -f runs/tune-fight2.done ] && exit 0
+  running "league --name tune-fight2 " && exit 0
+  if [ -f runs/tune-fight2.launched ] && tail -n 1 runs/tune-fight2.log 2>/dev/null | grep -q 'budget spent'; then
+    touch runs/tune-fight2.done; log "G2: tune-fight2 exited: $(tail -n 1 runs/tune-fight2.log)"; exit 0
+  fi
+  [ -f runs/tune-fight2.launched ] && log "G2: tune-fight2 not running: relaunching (resumes)"
+  WORKERS=2 EVAL_THREADS=2 VAL_THREADS=3 setsid nohup sh runs/tune_fs_launch.sh 2.25 tune-fight2 >> runs/tune-fight2.out 2>&1 < /dev/null &
+  touch runs/tune-fight2.launched; log "G2: launched tune-fight2 (\$2.25)"
+)
 # state: the league log/json, each generation's programs/proposals and any promoted policies
 rm -rf /root/bc/tune-fs-snap && mkdir -p /root/bc/tune-fs-snap
 cp -a "$G"/runs/tune-fight* /root/bc/tune-fs-snap/ 2>/dev/null
