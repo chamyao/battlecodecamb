@@ -1,0 +1,226 @@
+# rall2-ca4-lean-g: rall2-ca4-lean + fuel_remaining() > 60000 gate on the low-health retreat dash.
+# rall2-ca4-lean [hybrid line]: rall2-ca4 with one enemies_visible() per turn (shared by the spawn-heal check, cast-ahead and the in-range fight) and nearest() only when an enemy is visible (fuel: bot session saw one 100k turn on 01big-world); tune-r-all-v2 + cast damage/stun at the nearest enemy champion within 4 tiles (no move).
+# tune-r-all-v2 [line: tune]: tune5-campreset + map fixes (r800 monolith fallback, T240 threat bank, monolith-group
+# goal exclusion) + safe recall R8-H0.3; fuel: monolith groups as a keep, threat-bank branch gated on fuel_remaining() > 65000.
+# tune5-reset: tune-5 + attack reset cast after the first basic attack, then a second attack.
+# tune-5 [line: tune]: parent tune-3. Camp-goal dash from distance > 2 (was 4) and Jungle shards = half the rest after
+# Treasure (was a third). Each was ~+4 in the tune-3 constant grid (54 variants screened, top 8 confirmed).
+# Together, on 2 x 400 fresh games (seeds 9019/9020, sim @ interp/v0 c92239d): 53.25% / 53.25% vs tune-3
+# (promoted under Cham's > 52% bar); cambc-exact 80 vs tune-3 47/80. Gauntlet tune-5 (tune-3): v4 86.6 (85.1),
+# locker 95.3 (93.9), fs-2 86.7 (84.6), starter 98.0 (98.2), v5d-fs2 77.4 (77.8), v7 76.7 (74.8), v7-zerogem 76.5 (73.1),
+# v7zg-cast 67.4 (65.1), Icecream 77.5 (75.6), Odyssey 85.4 (83.5), metab stand-in 85.6 (86.6).
+# (tune-4 is the coordinator's unshipped monolith-fallback variant on interp/v0, hence 5.)
+# tune-3 [line: tune]: parent tune-2. Policy-level fuel guard: the optional dash toward a far camp goal only when
+# fuel_remaining() > 55000 (the near-cap turns are far camp trips: dash + long move search). Sim @ interp/v0 7a19520
+# (80/80 cambc match). 01big-world as A vs tune-2, 600 per-game-seeded games: suspensions 0.56/game (tune-2 1.06),
+# win rate 50.7% (tune-2 mirror 50.3%). cambc-exact 80-game check vs tune-2: 41/80; 400 all-map games 52.0%.
+# Sweep: F 45k-70k, goal dash vs all dashes; F <= 45k never fires, F >= 70k loses (27% on big-world).
+# tune-2 [line: tune]: parent tune-1. Tribute bag 25 gems (was 10) and tribute-when-hurt below 0.3 health (was 0.5):
+# each alone was ~+3.5 (constant grid, 50 variants screened, top 8 confirmed), together they interact.
+# 2 x 400 fresh games (seeds 9005/9006, sim @ interp/v0 340ce89, 80/80 cambc match): 60.75%/61.0% vs tune-1;
+# cambc-exact 80-game check vs tune-1 57.5%. Gauntlet tune-2 (tune-1): v4 84.5 (85.9), locker 95.5 (96.4),
+# fs-2 87.1 (85.9), starter 98.6 (98.2), v5d-fs2 78.1 (78.6), v7 74.4 (73.0), v7-zerogem 73.1 (71.6),
+# v7zg-cast 64.8 (58.0), Icecream draft 76.4 (67.0), Odyssey draft 82.6 (80.9).
+# tune-1 [line: tune]: parent v7zg-cast. Draft order vendetta, vesper_vale, tavi, ryth, ren (frontliner first,
+# ryth/ren replace marcella/stellar). Racing draft search: 233 orders screened at 200 games, top 8 confirmed on
+# 2 x 400 fresh seeds (sim @ interp/v0 f848dcd): 60.8%/57.0% vs v7zg-cast; cambc-exact 80-game check 62.5%;
+# vs v4 86.0 (+1.4), locker 95.4 (+1.3), fs-2 83.1 (+2.3), starter 98.6 (+0.1), v5d-fs2 75.8 (+1.6), v7 71.8 (+5.1),
+# v7-zerogem 72.8 (+8.5), Icecream draft 68.1 (+10.1), Odyssey draft 80.1 (+2.8) (in brackets: change vs v7zg-cast).
+# v7zg-cast [hybrid line]: v7-zerogem + ability-type-aware casting grafted from hybrid #14 (Opus, runs/hyb2-g1 #14): shield/heal on self, dash kept for escape and far camp goals, damage/aoe/stun/reset at the target.
+# v7-zerogem: v7 + fixes for the three maps where a v7 mirror tributes nothing (docs/ZERO_GEM_MAPS.md):
+# no fighting enemies on their own spawn, fight a camp that is the only way to an altar, and go
+# for monoliths when nothing is tributed by round 300. Proposal from the sim-calibration session.
+# v7: v5d-fs2 + idle fix (docs/FARM_DIAGNOSIS.md on deploy/v0): when standing on a dead camp of an
+# uncleared group, walk to the nearest living camp instead of idling.
+# v5d-fs2 [hybrid line]: v5d plus fs-2's league finds (Treasure/Jungle shards; tribute at >= 10 gems, when hurt, or after round 1500).
+# v5d: v5 with a fixed draft order (the composition that won 75% of a v4 mirror).
+# v5: v4 attacking the weakest enemy in range (focus fire) instead of the first.
+# v4: v3 + altar fixes from docs/LADDER_LOSSES_V3.md: never freeze when every altar is locked
+# (tributing a locked altar attacks the lock), and prefer altars out of monolith reach.
+# v3: fs-1 + three fixes from the ladder-loss analysis (docs/LADDER_LOSSES.md on analysis/sprint1):
+# retreat toward spawn below 30% health while in_danger() and recall only once clear; hold on a
+# camp tile only when its group is capturable; skip monoliths and golems.
+# Based on fs-1: FunSearch pilot #146 (5 Haiku edits from v1): split strength/health shards, heal on spawn,
+# retreat at 50% health when carrying gems, hold on a cleared camp spawn to capture, one camps_visible() per turn.
+
+# zg14: ability-type-aware casting from hybrid #14 (Opus): shield/heal on self, dash kept for escape/travel
+def cast_on(slot, u):
+    if ability_ready(slot):
+        if slot_is_shield(slot) or slot_is_heal(slot):
+            cast_self(slot)
+        elif not slot_is_dash(slot):
+            cast_at_unit(slot, u)
+
+def dash_to(slot, t):
+    if ability_ready(slot):
+        if slot_is_dash(slot):
+            dash_towards(slot, t)
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vendetta()):
+        pick(champ_vendetta())
+    elif available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    elif available(pool, champ_tavi()):
+        pick(champ_tavi())
+    elif available(pool, champ_ryth()):
+        pick(champ_ryth())
+    elif available(pool, champ_ren()):
+        pick(champ_ren())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+# monolith groups never change: one group_tiles() per game (fuel; bot-session check)
+keep mono_groups = group_tiles( monolith_tiles() )
+keep altar_ring = ring( altars(), 1 )
+keep safe_altar_ring = ring( minus( altars(), ring(monolith_tiles(), 5) ), 1 )
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally()), position() )
+# one enemies_visible() query per turn, reused below (no move happens before its last use)
+let foes = enemies_visible()
+if at_spawn:
+    let shards_bought = floor( gold() / 30 )
+    let treasure_n = floor( shards_bought / 2 )
+    let rest_after_treasure = shards_bought - treasure_n
+    let jungle_n = floor( rest_after_treasure / 2 )
+    let rest_after_jungle = rest_after_treasure - jungle_n
+    let strength_shards = floor( rest_after_jungle / 2 )
+    buy( shard_of(family_treasure(), stat_strength()), treasure_n )
+    buy( shard_of(family_jungle(), stat_health()), jungle_n )
+    buy( shard(stat_strength()), strength_shards )
+    buy( shard(stat_health()), rest_after_jungle - strength_shards )
+    # heal on spawn before heading back out, unless an enemy is already in reach
+    if health() < max_health() and not exists(first(filter(foes, in_attack_range()))):
+        end_turn()
+
+# retreat at 20% health normally, but at 50% when carrying gems
+# safe recall (tune line): never start a recall with an enemy champion within 8; retreat first, recall when clear
+if not at_spawn and health() < 0.3 * max_health():
+    if (in_danger() or enemies_within(8) > 0):
+        let home = closest( spawn_region(ally()) )
+        # fuel gate (bot-session profile): a long retreat's dash search can push the turn past 100k (01big-world)
+        if fuel_remaining() > 60000:
+            dash_to(0, home)
+            dash_to(1, home)
+        move_towards(home)
+        end_turn()
+    recall()
+    end_turn()
+if not at_spawn and gems() > 0 and health() < 0.5 * max_health() and not (in_danger() or enemies_within(8) > 0):
+    recall()
+    end_turn()
+
+# CAST-AHEAD (docs/TOP_TEAMS.md: only 16% of our dying champions cast at the enemy): cast damage/stun
+# at a close enemy champion before it reaches us, without moving or ending the turn
+if exists( first(foes) ):
+    let near_foe = nearest( foes )
+    if exists(near_foe) and distance(position(), unit_position(near_foe)) <= 4 and not contains( spawn_region(enemy()), unit_position(near_foe) ):
+        set_team_target(near_foe)
+        if ability_ready(0) and not slot_is_dash(0) and not slot_is_shield(0) and not slot_is_heal(0):
+            cast_at_unit(0, near_foe)
+        if ability_ready(1) and not slot_is_dash(1) and not slot_is_shield(1) and not slot_is_heal(1):
+            cast_at_unit(1, near_foe)
+
+let enemy = weakest( filter( foes, in_attack_range() ) )
+# an enemy on its own spawn is healed every turn: fighting it there never ends (00reverse-spiral)
+if exists(enemy) and not contains( spawn_region(enemy()), unit_position(enemy) ):
+    cast_on(0, enemy)
+    cast_on(1, enemy)
+    attack(enemy)
+    # attack reset: a second basic attack after the first (it does nothing before one)
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+    if ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+    attack(enemy)
+    end_turn()
+
+# tribute only with a worthwhile bag (or when hurt / late game)
+let bag_ready = gems() >= 25 or round_number() > 1500 or health() < 0.3 * max_health()
+if gems() > 0 and bag_ready:
+    # an altar next to us works even when locked: tributing there attacks the lock (5 hits clear it)
+    let altar = first( filter( altars(), within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    # walk to an open altar out of monolith reach (5); else any altar out of reach; else any altar
+    let target = closest( minus( safe_altar_ring, ring(locked_altars(), 1) ) )
+    if exists(target):
+        move_towards(target)
+        end_turn()
+    let target2 = closest(safe_altar_ring)
+    if exists(target2):
+        move_towards(target2)
+        end_turn()
+    let altar_goal = closest(altar_ring)
+    # every altar-adjacent tile is taken by a camp (01boss-battle: holes and a monolith): fight it
+    if contains(camp_spawns, altar_goal):
+        let blocker = first( filter( camps_visible(), in_attack_range() ) )
+        if exists(blocker):
+            attack(blocker)
+            end_turn()
+    move_towards( altar_goal )
+    end_turn()
+
+# one camps_visible() query per turn, reused for both attack checks
+let camps = camps_visible()
+
+let camp = first( filter( camps, in_attack_range() ) )
+if exists(camp):
+    cast_on(0, camp)
+    cast_on(1, camp)
+    attack(camp)
+    # attack reset on camps too (tune line): a second basic attack after the first
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+    if ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+    attack(camp)
+    end_turn()
+
+# nothing tributed by round 300 (00contest: only monoliths carry gems): go for monoliths too
+if team_score(ally()) == 0 and round_number() > 800:
+    move_towards( closest( minus( minus( camp_spawns, respawning_visible_spawns() ), golem_tiles() ) ) )
+    end_turn()
+let goals = minus( minus( minus( minus( camp_spawns, respawning_visible_spawns() ), monolith_tiles() ), golem_tiles() ), mono_groups )
+
+# already standing on a cleared camp spawn: hold here so the capture timer keeps running
+if contains(capturable_spawns(), position()):
+    end_turn()
+
+let goal = closest(goals)
+# bank before a dangerous group (tune line, 01starvation): elk 60, wolf 20 per camp
+# fuel guard: the bank walk is a second distance query this turn
+if exists(goal) and gems() >= 10 and group_threat(goal) >= 240 and fuel_remaining() > 65000:
+    let bank_altar = first( filter( altars(), within(1, position()) ) )
+    if exists(bank_altar):
+        tribute(bank_altar)
+        end_turn()
+    move_towards( closest(safe_altar_ring) )
+    end_turn()
+# on a dead camp of a group that is not cleared yet, the closest goal is our own tile: walk to the
+# nearest living camp instead (not a monolith or golem), so the group can be finished
+if distance(goal, position()) == 0:
+    let live = nearest(camps)
+    if exists(live) and not contains( union( monolith_tiles(), golem_tiles() ), unit_position(live) ):
+        move_towards( unit_position(live) )
+        end_turn()
+# tunable: dash toward a camp goal only when it is farther than this
+# fuel guard (tune line): skip the optional dash on a near-cap turn
+if exists(goal) and distance(position(), goal) > 2 and fuel_remaining() > 55000:
+    dash_to(0, goal)
+    dash_to(1, goal)
+move_towards( goal )
+let camp2 = first( filter( camps, in_attack_range() ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
