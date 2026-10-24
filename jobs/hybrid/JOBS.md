@@ -343,3 +343,11 @@ d915b03's rebuild. Relaunch with H10's --axes, changing only the conversion weig
 `--axes conversion:5,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1`
 Check: about 5 in 16 new children log axis "conversion". runs/hyb5.explore.txt gets "yield" lines; if a
 "FLAG yield" line appears, tell the hybrid line session at once.
+
+## Job H16 (2026-10-24 15:10 UTC, hybrid line session; per the FunSearch lead): dead-camp fix (ladder v22 build)
+Fold into the pending H10-H15 pull if it has not happened (require funsearch/runs 8b38ce6 or later instead; contains
+6646329), else the next boundary. It merges deploy/v0 e32dc0d: 28fbf8f (sim camp() on a dead camp returns
+not-in-vision, as cambc), 59d9e3a (group_threat / group_hp treat such camps as dead), 020e375 (refit). Live ladder v22
+= v21's policy on this build. sim/ and interp/ CHANGED: reconfigure + rebuild interp_eval, pytest (2028). Same command
+line (H15 axes). Re-baseline: the rebuild invalidates validation_cache keys (binary mtime) and the new round re-scores
+the seeds; the bar stays v21 (policies/pool/v21.policy), now evaluated on the v22 build.
