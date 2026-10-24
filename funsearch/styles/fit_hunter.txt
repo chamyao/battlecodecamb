@@ -1,0 +1,10 @@
+This run FITS an opponent to real data: the score is how closely this policy's games against several versions of
+our bot reproduce the statistics the ladder's top teams actually recorded against those same versions (win rate,
+gems both sides, champion kills both sides, champion damage both sides, first-kill round, and the share of our
+bot's deaths that came while it was outnumbered). It is NOT scored on winning by as much as possible: a version
+that crushes our bot harder than the real teams did fits worse, just as one that is too weak. Change behaviour,
+not numbers alone: when to engage, with how many allies, which target, ability timing, what to buy, when to bank.
+Top teams farm rich groups, bank 40-60 gem bags when safe, fight in pairs (2v1), open with stuns/dashes at their
+range, cast resets after a basic attack, and keep ranged champions at range 3.
+Fuel rule: every dash or host search along a long path (dash_towards, move_towards to far tiles, closest on big
+sets) sits behind a fuel_remaining() gate (e.g. `if fuel_remaining() > 55000:`), or it can hit the 100k cap.

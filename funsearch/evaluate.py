@@ -29,6 +29,8 @@ class EvalResult:
 
 # fight score weight (0 = off): set by funsearch.run --fight-weight for hunter islands
 FIGHT_WEIGHT = 0.0
+# fitting mode (funsearch.run --fit-target): a loaded funsearch/fit.py target; scores become fit fitness
+FIT_TARGET = None
 FIGHT_MARGIN = 12.0  # champion-kill margin per game that scores full marks (TOP_TEAMS: ~12.9 vs ~0.3)
 
 
@@ -72,6 +74,17 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         prefix = to_prefix(steps)
     except Exception as e:  # syntax or type error in the policy
         return EvalResult(error=f"{type(e).__name__}: {e}")
+    if FIT_TARGET is not None:  # fitting run: distance to the real top-team stats, opponents come from the target
+        from . import fit
+        try:
+            fitness, dist, sim, _ = fit.fit(text, FIT_TARGET, games=games, seed=seed, threads=threads)
+        except RuntimeError as e:  # interp_eval rejected the policy (e.g. fuel)
+            return EvalResult(error=str(e))
+        except subprocess.TimeoutExpired:
+            return EvalResult(error="evaluation timed out")
+        per = {name: {k: (round(v, 4) if isinstance(v, float) else v) for k, v in st.items()} for name, st in sim.items()}
+        per["fit_distance"] = round(dist, 4)
+        return EvalResult(score=fitness, per_opponent=per)
     # "spec@w" weights an opponent: w times the games and w times the share of the score
     weights = [float(o.rsplit("@", 1)[1]) if "@" in o else 1.0 for o in opponents]
     opponents = [o.rsplit("@", 1)[0] if "@" in o else o for o in opponents]

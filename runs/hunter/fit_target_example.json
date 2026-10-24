@@ -1,0 +1,10 @@
+{
+  "_note": "EXAMPLE ONLY: tune-5 numbers from docs/TOP_TEAMS.md (analysis/sprint1, 50 games, top teams' view); v21 row uses TOP_TEAMS_V19.md's 2v1 share and damage as placeholders. Replace with analysis's fitting target.",
+  "versions": {
+    "tune-5": {"policy": "policies/tune-5.policy",
+               "stats": {"win": 1.0, "gems": 983, "opp_gems": 347, "kills": 12.9, "opp_kills": 0.3,
+                         "champ_dmg": 21100, "opp_champ_dmg": 7200, "first_kill_round": 175, "draft": "VV,HoR,..."}},
+    "v21": {"policy": "policies/tune-v21.policy",
+            "stats": {"win": 0.92, "champ_dmg": 23000, "opp_champ_dmg": 9600, "opp_out_death_share": 0.71}}
+  }
+}
