@@ -24,3 +24,17 @@ One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-s
 - Info: bot-seeded 44/80 vs tune5-campreset; 0 sim suspensions, 0 crashes. Fight metrics vs tune5-campreset
   (80 games): vs v7zg-cast deaths 4.59 vs 5.76, mid-recall deaths 1.88 vs 2.54; vs metadraft wins 93 vs 80%.
 - Needs: real-cambc safety checks (bot session). Supersedes candidate 1 (hyb-t5m), which only cleared tune-5.
+
+## 3. tune-r-all-v2 (tune line), sent 2026-10-24 07:19 UTC
+
+- Policy: `policies/candidates/tune-r-all-v2.policy` on branch `tune/runs` @ 3f16905.
+- What: tune-r-all (candidate 2) with its fuel fixes: the monolith-group exclusion set is now a `keep`
+  (computed once per game), and the T240 threat-bank branch is gated on fuel_remaining() > 65000.
+- League (tools/league.py, 19 policies, 160 games per pair, seed 1). Pool: live tune5-campreset (as
+  r-campreset, play-identical); hunters opp-hunter2a/2b/2c + opp-hunter; ladder stand-ins opp-icecream,
+  opp-odyssey, opp-metab, opp-metadraft; v7zg-cast, v7-zerogem, tune-3, tune-5, tune5-reset; tune variants.
+  r-all-v2 1725 [1712-1737] vs tune5-campreset 1672 [1659-1683], beyond the 90% interval. v2 vs r-all 50%.
+- Sim fuel (fuel_turns --enforce --bot-seeds vs campreset; starvation, big-world, lost-world; 24 games):
+  0 turns >= 100k, 24 turns > 80k (campreset 100), max non-first turn 87.1k, first turn up to 167k.
+- Needs: real-cambc safety checks. Supersedes candidate 2 (failed fuel). If starvation still caps in real
+  cambc, the tune line will raise the gate or drop T240.
