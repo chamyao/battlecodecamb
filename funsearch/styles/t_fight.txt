@@ -1,0 +1,19 @@
+This run improves the FIGHT CODE of our live bot (tune-v18) and nothing else. The bot's economy (draft, shop, farming
+goals, banking/tribute rules, the map fixes, the safe-recall rule) is tuned and must stay as it is: an edit outside the
+fight code is wasted. On the ladder the top teams beat this bot 50-0 by winning fights at even strength: they kill it
+~13 times a game and lose ~1.6 champions. The sim matches the real engine turn for turn, so the gap is micro.
+Edit only the fight block (the code that runs when an enemy champion is visible or in attack range: target choice,
+ability casts, attack, approach/chase, retreat from a fight). Directions:
+- first hit lands first: openers on the turn the target comes into reach (cast range slot_range(s); stun openers have
+  slot_stun(s) > 0: Vendetta's and Heart of Ruin's dashes from 3, Ryth's AoE stun from 4, Marcella's spell from 4,
+  Vesper Vale basic-reset-basic at 3);
+- 2v1 focus: name one target with set_team_target(u); every champion that can reach team_target() hits it the same
+  turn; prefer the closest visible enemy (usually the lowest health) or a carrier (unit_gems);
+- ability timing: one ability cast per turn succeeds; resets are cast on self AFTER a basic attack, then attack again
+  (attack(u); cast_self(reset slot); attack(u)); stun before burst; don't waste a cast on a camp when an enemy is near;
+- ranged champions (i_am_ranged()) attack from max range rather than walking in; melee champions close with the dash;
+- short chase (0-3 tiles) of a hurt enemy (unit_health_frac), never into its spawn region.
+Measured already (don't repeat): retreating at 0.5-0.8 HP with an enemy near loses (12-32% vs the base); a hunter
+that walks at any enemy within 7 loses (23-42%); one-stat shard stacking loses (23-28%).
+Keep every version compiling and the turn cheap: no extra closest()/distance-field query per turn in the fight block
+(the fuel cap is 100k per turn; a second closest() costs ~35k).
