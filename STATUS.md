@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 22:51 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 9.79 6.63 4.62 on 16 threads.
+Updated 2026-10-24 22:56 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.61 9.31 6.23 on 16 threads.
 Disk: 7.8G used of 38G.
 
 ## python3 processes
@@ -13,10 +13,10 @@ Disk: 7.8G used of 38G.
 340214 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-1/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-1/starter.genome --budget 3 --threads 5 --fixed-anchors --gate-every 100000000
 341711 python3 -m genome.search.panelwatch --out /root/bc/genome/out/panelZ-1/panel.jsonl --state /root/bc/genome/out/panelZ-1/../arenaZ-1/arena --until /root/bc/genome/out/panelZ-1/../arenaZ-1/rc --every 100 --top 3 --threads 5 --opponents policies/fs-1.policy,/root/bc/genome/out/panelZ-1/fs-p2.pol
 351143 python3 -m genome.search.arena --out /root/bc/genome/out/arenaA-5/arena --resume-from /root/bc/genome/out/arenaA-5/../arenaA-3/arena --tag A --seed genome/seeds/v23.genome --budget 7.77 --threads 5 --fixed-anchors --refingerprint --gate-every 100000000
+351678 python3 -m genome.search.panelwatch --out /root/bc/genome/out/panelA-5/panel.jsonl --state /root/bc/genome/out/panelA-5/../arenaA-5/arena --until /root/bc/genome/out/panelA-5/../arenaA-5/rc --every 100 --after-births 737 --top 3 --threads 5 --opponents policies/candidates/style-gconv1.policy,
 ```
 ## tick.log (last 40 lines)
 ```
-[21:33:47] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [21:38:49] genome: job simspeed-exact-2 exited rc=0
 fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
 [21:38:51] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -56,4 +56,5 @@ fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/b
 [22:51:18] genome: started job arenaA-5 at 7e40b6f9582dc78a054cc969f81077bf58ea5294
 [22:51:30] genome: started job panelA-5 at 08770916c1dfbe9ddd9968b747ba090107b37f55
 [22:51:34] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[22:56:42] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
