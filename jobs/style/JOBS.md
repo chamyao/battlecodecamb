@@ -10,23 +10,19 @@ remote-server when woken (docs/REMOTE_WORKER.md). Clone: `~/bc/style`, branch `f
   comment on PR #3 with that island's validation lines ("h2h", "cambc", "PROMOTED").
 - Do not launch style7 or any new run: the line is out of budget until the lead writes a new job here.
 
-## Job S2 (re-aimed 06:55 UTC): style7 = hunter + combat islands, $12. RELEASED, GATED on fuel costs
+## Job S2 (07:15 UTC): style8 = hunter + combat islands, $12. RELEASED: launch now
 
-Status: RELEASED by the lead ($12; sim fidelity confirmed), but DO NOT LAUNCH until the gate below
-holds. Code: funsearch/style 486cc5b or later.
+Status: RELEASED (lead). Code: funsearch/style 5c47501 or later (slot_* fuel costs merged).
+The old-plan style7-a/b/c (4f8ce7e, stopped 06:58 UTC, $0.04) stay archived. Leave their STOP
+files and state in place; the new islands use NEW names style8-h/b/a/c and start fresh.
 
-Gate: slot_stun/slot_range/slot_radius (new blocks, coord/blocks 84f3aa9) must have calibrated
-entries in interp/src/block_costs_gen.inc. Today they don't, and any policy using them fails ("no
-calibrated fuel cost"). The catalog tells children to use them, so launching now would waste spend
-on invalid children. The line will name the commit that fixes this here and comment on PR #3.
-Check: `grep -c 'slot_stun\|slot_range\|slot_radius' interp/src/block_costs_gen.inc` prints 3.
-
-Islands (runs/style_launch.sh, budgets in runs/style_budgets):
-- h 4.0: HUNTER island. Seed opp-hunter2b (self weight 0.5), fixed tune5-reset, tune-5, opp-hunter2a,
-  fight score (--fight-weight 0.5: champion-kill margin blended with the usual score).
-- b 3.5: combat micro (funsearch/styles/b_combat.txt), requires set_team_target/team_target.
-- a 2.25 lockdown, c 2.25 monolith, both with a combat note.
-- a/b/c bar and cambc-ref: policies/tune5-reset.policy; fixed tune-5, opp-hunter2b/2a, v7zg-cast, fs-2.
+Islands (runs/style_launch.sh, budgets in runs/style_budgets: h 3.95, b 3.5, a 2.25, c 2.25):
+- h: HUNTER island (group hunter / opp-hunter3 work). Seed opp-hunter2b (self weight 0.5); fixed
+  tune5-campreset, tune5-reset, tune-5, opp-hunter2a; fight score --fight-weight 0.5.
+- b: combat micro (funsearch/styles/b_combat.txt), requires set_team_target/team_target.
+- a lockdown and c monolith, both with a combat note.
+- a/b/c bar and cambc-ref: policies/tune5-campreset.policy (the upload candidate); fixed tune5-reset,
+  tune-5, opp-hunter2b/2a, v7zg-cast, fs-2.
 
 ## EC2 resume (2026-10-24 ~06:10 UTC): for the EC2 worker (session_01Knzq5vzttJNCCzc9dRHHkQ)
 
@@ -71,21 +67,19 @@ PYTHONUNBUFFERED=1 python3 -m funsearch.league --name style6-a --budget 2.3 --me
 ```
 When it exits, post its h2h/cambc/PROMOTED lines on PR #3 and push state to `remote/style`.
 
-### S2 (style7) on EC2
-Starts when the S2 gate holds. The style6 runs are skipped (sunk). Use the style clone on
-funsearch/style at 486cc5b or later:
+### S2 (style8) on EC2
+In the style clone on funsearch/style (5c47501 or later):
 ```
 cd ~/bc/style && git fetch origin funsearch/style && git checkout funsearch/style && git merge --ff-only origin/funsearch/style
 cmake -S interp -B interp/build -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j8 --target interp_eval
 python3 -m pytest -q tests          # expect 2012 passed
 grep -c 'slot_stun\|slot_range\|slot_radius' interp/src/block_costs_gen.inc   # must print 3
-WORKERS=1 EVAL_THREADS=2 VAL_THREADS=4 sh runs/style_checkin.sh
+WORKERS=1 EVAL_THREADS=1 VAL_THREADS=3 sh runs/style_checkin.sh    # shared box: the reduced threads
 ```
-style_checkin.sh launches style7-h/b/a/c via runs/style_launch.sh (budgets h 4.0, b 3.5, a 2.25,
-c 2.25 = $12). That is 4 islands at about 6 threads each; on 16 threads use WORKERS=1
-EVAL_THREADS=2 VAL_THREADS=3 if anything else shares the box. Rerun the same command after any
-restart: it restarts only dead leagues, and each resumes from its programs.jsonl. Restart checks:
-program counts in runs/style7-*-g1/programs.jsonl only grow, and "$ left" in runs/style7-*.log never
-goes up. Comment on PR #3 when style7 starts and whenever a league exits (h2h/cambc/PROMOTED
-lines). Push state with runs/style_push_state.sh (funsearch/style-state), or to remote/style if
-that fails. Kill only with SIGTERM, by PID: `pkill -f` patterns match your own shell.
+style_checkin.sh launches style8-h/b/a/c via runs/style_launch.sh. Rerun the same command after any
+restart: it restarts only dead leagues, and each resumes from its programs.jsonl. In
+runner/lines/style.sh, point the restart loop at style8 (names, budgets from runs/style_budgets),
+not style7. Restart checks: program counts in runs/style8-*-g1/programs.jsonl only grow, and "$ left"
+in runs/style8-*.log never goes up. Comment on PR #3 when style8 starts and whenever a league exits
+(h2h/cambc/PROMOTED lines). Push state with runs/style_push_state.sh (funsearch/style-state) or to
+remote/style. Kill only with SIGTERM, by PID: `pkill -f` patterns match your own shell.
