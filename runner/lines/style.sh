@@ -105,7 +105,7 @@ if [ -f runs/ec2-s6 ] && [ ! -f runs/ec2-s6b ]; then
   fi
 fi
 # S7 (style line, 12:40 UTC): once h2's current boundary validation logs its verdict ("no promotion" or "PROMOTED"),
-# restart h2 only on funsearch/style ffac9e9 (tune-v21 replaces v19 in h2's fixed; directive uses shared-memory
+# restart h2 only on funsearch/style 45b71ea (amended from ffac9e9: 8-byte shared memory, pair roles in byte 7 bits 2-7; tune-v21 replaces v19 in h2's fixed; directive uses shared-memory
 # offsets 8+; script/policy/directive only, no rebuild). A promoted policy file stays in place. b keeps running.
 if [ -f runs/ec2-s6b-checked ] && [ ! -f runs/ec2-s7 ]; then
   verdicts() { grep -cE 'no promotion|PROMOTED' runs/style8-h2.log 2>/dev/null; }
@@ -117,11 +117,11 @@ if [ -f runs/ec2-s6b-checked ] && [ ! -f runs/ec2-s7 ]; then
     sleep 10
     if git fetch -q origin funsearch/style &&
        { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
-       git merge-base --is-ancestor ffac9e9 HEAD; then
+       git merge-base --is-ancestor 45b71ea HEAD; then
       wc -l < runs/style8-h2.log > runs/ec2-s7-lmark; touch runs/ec2-s7
-      log "S7: h2 verdict: $v; at $(git rev-parse --short HEAD) (has ffac9e9); h2 restarting below; promoted files kept: $(ls policies/style-h2*.policy 2>/dev/null | tr '\n' ' ')"
+      log "S7: h2 verdict: $v; at $(git rev-parse --short HEAD) (has 45b71ea); h2 restarting below; promoted files kept: $(ls policies/style-h2*.policy 2>/dev/null | tr '\n' ' ')"
     else
-      log "S7: merge to ffac9e9 failed; h2 relaunches on the old checkout"; touch runs/ec2-s7-failed
+      log "S7: merge to 45b71ea failed; h2 relaunches on the old checkout"; touch runs/ec2-s7-failed
     fi
   fi
 fi
