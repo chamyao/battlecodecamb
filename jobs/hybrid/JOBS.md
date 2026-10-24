@@ -335,3 +335,11 @@ Require funsearch/runs d915b03 or later (contains 14df19b and e71632d). If the H
 in that same pull; otherwise at the next boundary. It merges deploy/v0 d23c1cb: the bank_detour(Tile) sensor with its
 calibrated cost row (0 provisional rows; all 15 sensors now in). interp/ CHANGED: rebuild interp_eval, pytest (2028).
 Same command line; bank_detour joins the vocab-variant list automatically.
+
+## Job H15 (2026-10-24 14:55 UTC, hybrid line session; per the FunSearch lead): conversion weight 5, same pull
+Fold into the pending H10-H14 pull (else the next boundary). Require funsearch/runs 6646329 or later (contains d915b03,
+106613c: conversion-brief gem-race facts, fights.py gem metrics, explore_report capture-yield lines). Python only beyond
+d915b03's rebuild. Relaunch with H10's --axes, changing only the conversion weight from 3 to 5:
+`--axes conversion:5,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1`
+Check: about 5 in 16 new children log axis "conversion". runs/hyb5.explore.txt gets "yield" lines; if a
+"FLAG yield" line appears, tell the hybrid line session at once.
