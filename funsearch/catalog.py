@@ -123,8 +123,11 @@ Observations from 50 games vs the ladder's top 10 (live bot, v16): 0-50. COMBAT 
   Vendetta, Tavi and Ryth have an attack RESET: self-cast it (cast_self) right AFTER a basic attack,
   then attack again. Casting a reset at the enemy fails. Fixing just that in the live bot gained
   +9.7 points (59.7% over 1600 games), kills 7.3 vs 5.1.
-- Ability blocks: slot_is_reset / slot_is_dash / slot_is_shield / slot_is_heal give an ability's type,
-  i_am(champ_heart_of_ruin()) etc. who you are.
+- Ability blocks: slot_stun(slot) = stun turns on hit (HoR's dash and Ryth's AoE included),
+  slot_range(slot) / slot_radius(slot) = cast range and area radius, slot_is_reset / slot_is_dash /
+  slot_is_shield / slot_is_heal for the type, i_am(champ_heart_of_ruin()) etc. for who you are.
+  Opener: if ability_ready(1) and slot_stun(1) > 0 and distance(position(), unit_position(enemy))
+  <= slot_range(1) + slot_radius(1): dash_towards(1, ...) for a dash, else cast_at_unit(1, enemy).
 - The simulator matches the real engine in fights (119/120 games turn for turn), so fight results
   here are real. MEASURED: an ability opener plus basic > reset > basic inside attack reach, focused
   on the team target, gained ~+7 points. Engaging from 8 tiles at HP >= 0.8 LOST (24% vs the live bot),
@@ -245,7 +248,7 @@ def _typical_fuel():
 
 # blocks without a calibrated fuel cost yet (interp/src/block_costs_gen.inc): a policy using them is
 # rejected, so they stay out of the prompt until the coordinator adds the cost entries
-UNCOSTED = {"slot_stun", "slot_range", "slot_radius"}
+UNCOSTED = set()
 
 
 def block_catalog():
