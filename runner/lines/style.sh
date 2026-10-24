@@ -110,7 +110,8 @@ fi
 if [ -f runs/ec2-s6b-checked ] && [ ! -f runs/ec2-s7 ]; then
   verdicts() { grep -cE 'no promotion|PROMOTED' runs/style8-h2.log 2>/dev/null; }
   [ -f runs/ec2-s7-mark ] || { verdicts > runs/ec2-s7-mark; log "S7: waiting for h2's boundary verdict (verdict lines so far: $(cat runs/ec2-s7-mark))"; }
-  if [ "$(verdicts)" -gt "$(cat runs/ec2-s7-mark)" ]; then
+  # 13:04 UTC (style line): h2's verdict landed at 12:39:50, before S7's baseline was taken, so run S7 now (no gate)
+  if true; then
     v=$(grep -E 'no promotion|PROMOTED' runs/style8-h2.log | tail -n 1 | cut -c1-160)
     # final amendment (12:44 UTC): 3f7dae9 = 45b71ea + funsearch/runs a43aede (league/run code changed, no interp/sim),
     # so b restarts right after h2 to keep both on one code version (b resumes mid-round from programs.jsonl)
