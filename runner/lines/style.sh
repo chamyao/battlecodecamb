@@ -8,6 +8,38 @@ export WORKERS=1 EVAL_THREADS=1 VAL_THREADS=3
 [ -f "$D/HALT" ] && { log "halted: $(cat "$D/HALT")"; return 0; }
 if [ ! -d "$D/.git" ]; then clone_nopush "$REV" "$D" || { log "clone failed"; return 1; }; fi
 cd "$D" || return 1
+# ---- S15 (style line by message, 17:42 UTC; Cham: "move everything now"; last style job): everything moves to the arena.
+# b2: STOP + SIGTERM now; gsub: let it finish its last $0.05, SIGTERM if still running at 17:55 UTC. Once nothing
+# style8 runs: push the saved state to a NEW branch style/arena-overlay (base funsearch/style 9fb9b17, runs/ at root,
+# add -f), then the style tick does nothing more.
+if [ -f runs/ec2-s15-done ]; then return 0; fi
+if [ ! -f runs/ec2-s15 ]; then
+  touch runs/ec2-s15
+  mkdir -p runs/style8-b2-g1 && touch runs/style8-b2-g1/STOP
+  for pid in $(pgrep -a -x python3 | grep -E 'league --name style8-b2 |funsearch.run --run style8-b2-' | cut -d' ' -f1); do kill -TERM "$pid" && log "S15: SIGTERM style8-b2 pid $pid"; done
+fi
+if pgrep -a -x python3 | grep -q 'funsearch.run --run style8-gsub ' && [ "$(date -u +%H%M)" -ge 1755 ]; then
+  for pid in $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gsub ' | cut -d' ' -f1); do kill -TERM "$pid" && log "S15: SIGTERM style8-gsub pid $pid (still running at 17:55)"; done
+fi
+if pgrep -a -x python3 | grep -qE 'league --name style8-|funsearch.run --run style8-'; then
+  log "S15: waiting for: $(pgrep -a -x python3 | grep -oE 'league --name style8-[a-z0-9]+|funsearch.run --run style8-[a-z0-9-]+' | tr '\n' ' ')"
+  return 0
+fi
+O=/root/bc/style-overlay
+rm -rf "$O" && git clone -q --no-checkout "$REPO" "$O" && git -C "$O" checkout -q -b style/arena-overlay 9fb9b17 || { log "S15: overlay clone failed"; return 1; }
+mkdir -p "$O/runs" "$O/policies"
+cp -a runs/style8-*.json runs/style8-*.out runs/style8-*.log "$O/runs/" 2>/dev/null
+cp -a runs/style8-*.challengers runs/*.hold "$O/runs/" 2>/dev/null
+for d in runs/style8-*/; do [ -f "$d/programs.jsonl" ] || continue; mkdir -p "$O/$d"; cp -a "$d/programs.jsonl" "$O/$d"; cp -a "$d"/*.policy "$O/$d" 2>/dev/null; [ -f "$d/STOP" ] && cp -a "$d/STOP" "$O/$d"; done
+cp -a policies/style-*.policy "$O/policies/" 2>/dev/null   # promoted policies (league --prefix style-<island>); unchanged ones drop out of the diff
+git -C "$O" add -f runs policies
+git -C "$O" -c user.name="ec2-runner" -c user.email="ec2-runner@users.noreply.github.com" commit -q -m "style/arena-overlay: style8 state from EC2 at $(date -u +%H:%M) UTC (S15)" &&
+  { for i in 1 2 3; do git -C "$O" push -q origin HEAD:refs/heads/style/arena-overlay && break; sleep $((i * 5)); done; } &&
+  git ls-remote origin refs/heads/style/arena-overlay | grep -q "$(git -C "$O" rev-parse HEAD)" ||
+  { log "S15: overlay commit/push failed"; return 1; }
+touch runs/ec2-s15-done
+log "S15: pushed style/arena-overlay $(git -C "$O" rev-parse --short HEAD): $(git -C "$O" diff --stat 9fb9b17 HEAD | tail -n 1); style tick stops here"
+return 0
 if [ ! -f "$D/.setup-$REV" ]; then
   git fetch -q origin funsearch/style && git checkout -q -f "$REV" || { log "checkout $REV failed"; return 1; }
   n=$(grep -c 'slot_stun\|slot_range\|slot_radius' interp/src/block_costs_gen.inc)
