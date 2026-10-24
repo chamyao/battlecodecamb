@@ -118,9 +118,9 @@ EOF2
     log "g6 build switch: moved to funsearch/pure $(git rev-parse --short HEAD) (lockfix); g6 restarts on the new build"
   fi
 fi
-# One-shot (pure line, 14:30 UTC, asked by Cham): restart the league on TUNE_REV (gap blocks batch 1, per-child hill-climb, helpers-pure,
+# One-shot (pure line, 14:30 UTC, asked by Cham): restart the league on TUNE_REV (gap blocks batches 1+2, per-child hill-climb, helpers-pure,
 # league tuning stage). The current generation RESUMES from runs/ (no state edits); only in-flight programs are lost.
-TUNE_REV=b0c0651
+TUNE_REV=3fd8eb0
 if [ "$phase" = g4 ] && [ -f runs/ec2-g6build ] && [ ! -f runs/ec2-tune ]; then
   gen=$(python3 -c "import json; print(json.load(open('runs/pure4.json'))['gen'])")
   if running "league --name pure4"; then
