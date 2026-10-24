@@ -10,17 +10,17 @@ remote-server when woken (docs/REMOTE_WORKER.md). Clone: `~/bc/style`, branch `f
   comment on PR #3 with that island's validation lines ("h2h", "cambc", "PROMOTED").
 - Do not launch style7 or any new run: the line is out of budget until the lead writes a new job here.
 
-## Job S2 (2026-10-24 ~05:00 UTC): style7 vs tune-5. HELD again (05:12 UTC): do not act until this line reads "APPROVED"
+## Job S2 (2026-10-24 ~05:00 UTC): style7 vs tune-5. APPROVED (lead, re-approved 05:20 UTC on funsearch/style 24a4393)
 
-Status: HELD. The directives are being changed (the camp-skip formula is out). The line will name
-the new commit here and comment on PR #3.
+Status: APPROVED. Code is funsearch/style 24a4393: the directives no longer carry the camp-skip formula
+(measured harmful). Block check and tests (2012 passed) are done on 24a4393.
 
 Supersedes S1's "do not start style7" ($2 granted for style7). Start only after
 ALL THREE style6 leagues (style6-a, -b, -c) have exited and their validation lines (h2h, cambc,
 PROMOTED) are pushed to `remote/style` and commented on PR #3 (job S1). Then, in `~/bc/style`:
 
 1. `git fetch origin funsearch/style && git checkout funsearch/style && git merge --ff-only origin/funsearch/style`
-   (expect 1b03fa5 or later). Keep the untracked `runs/` data: style7 uses new run names.
+   (expect 24a4393 or later). Keep the untracked `runs/` data: style7 uses new run names.
 2. `cmake -S interp -B interp/build -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j4 --target interp_eval`
    then `python3 -m pytest -q tests` (expect 2012 passed). On a failure, stop and comment.
 3. `WORKERS=1 EVAL_THREADS=2 VAL_THREADS=4 sh runs/style_checkin.sh` (needs FUNSEARCH_API_KEY in
