@@ -6,7 +6,7 @@ log(1 + introductions); kept with >= 2 introductions or a mean delta >= 0.05. Li
 mind fuel.
 
 ## 1. `fight(t)`: rank 0.1005
-mean delta +0.0624 over 4 introductions; used in 114 programs; lines pure; executed None; deps consts: HURT_FRAC
+mean delta +0.0624 over 4 introductions; used in 123 programs; lines pure; executed None; deps consts: HURT_FRAC
 
 ```policy
 HURT_FRAC = 0.5
@@ -377,7 +377,42 @@ def opener(s, f):
         end_turn()
 ```
 
-## 13. `go(t)`: rank 0.0167
+## 13. `fight(t)`: rank 0.017
+mean delta +0.0154 over 2 introductions; used in 65 programs; lines pure; executed None; deps consts: HURT_FRAC
+
+```policy
+HURT_FRAC = 0.5
+def fight(t):
+    # self-shield / self-heal when hurt
+    if health() < HURT_FRAC * max_health():
+        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):
+            cast_self(0)
+        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):
+            cast_self(1)
+    # stun first so the target loses its turn, then damage abilities
+    if ability_ready(0) and slot_is_stun(0):
+        cast_at_unit(0, t)
+    elif ability_ready(1) and slot_is_stun(1):
+        cast_at_unit(1, t)
+    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):
+        cast_at_unit(0, t)
+    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):
+        cast_at_unit(1, t)
+    # ranged champions step away from an adjacent enemy, then still attack from range
+    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():
+        move_away_from( unit_position(t) )
+    attack(t)
+    # attack reset: self-cast after the basic attack, then attack again
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+        attack(t)
+    elif ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+        attack(t)
+    end_turn()
+```
+
+## 14. `go(t)`: rank 0.0167
 mean delta +0.0120 over 3 introductions; used in 26 programs; lines pure; executed None; deps consts: DASH_FUEL_MIN
 
 ```policy
@@ -391,7 +426,7 @@ def go(t):
     move_towards(t)
 ```
 
-## 14. `dash_to(slot, t)`: rank 0.0099
+## 15. `dash_to(slot, t)`: rank 0.0099
 mean delta +0.0090 over 2 introductions; used in 23 programs; lines style; executed None; deps none
 
 ```policy
@@ -401,7 +436,7 @@ def dash_to(slot, t):
             dash_towards(slot, t)
 ```
 
-## 15. `go(t)`: rank 0.0024
+## 16. `go(t)`: rank 0.0024
 mean delta +0.0022 over 2 introductions; used in 5 programs; lines pure; executed None; deps consts: FUEL_GUARD
 
 ```policy
@@ -416,8 +451,8 @@ def go(t):
     move_towards(t)
 ```
 
-## 16. `go(t)`: rank 0.0009
-mean delta +0.0008 over 2 introductions; used in 89 programs; lines pure; executed None; deps consts: DASH_FUEL
+## 17. `go(t)`: rank 0.001
+mean delta +0.0008 over 3 introductions; used in 94 programs; lines pure; executed None; deps consts: DASH_FUEL
 
 ```policy
 DASH_FUEL = 45000
@@ -430,7 +465,7 @@ def go(t):
     move_towards(t)
 ```
 
-## 17. `fight(t)`: rank 0.0
+## 18. `fight(t)`: rank 0.0
 mean delta +0.0000 over 2 introductions; used in 2 programs; lines pure; executed None; deps consts: HURT_FRAC
 
 ```policy

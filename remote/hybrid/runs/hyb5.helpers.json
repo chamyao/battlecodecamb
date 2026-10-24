@@ -6,7 +6,7 @@
   ],
   "source": "def fight(t):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n        end_turn()\n    attack(t)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(t)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(t)\n    end_turn()",
   "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n        end_turn()\n    attack(P0)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(P0)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(P0)\n    end_turn()",
-  "uses": 114,
+  "uses": 123,
   "introduced": 4,
   "mean_delta": 0.0624,
   "rank": 0.1005,
@@ -368,6 +368,39 @@
   "bundle": []
  },
  {
+  "name": "fight",
+  "params": [
+   "t"
+  ],
+  "source": "def fight(t):\n    # self-shield / self-heal when hurt\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    # stun first so the target loses its turn, then damage abilities\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, t)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, t)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, t)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, t)\n    # ranged champions step away from an adjacent enemy, then still attack from range\n    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():\n        move_away_from( unit_position(t) )\n    attack(t)\n    # attack reset: self-cast after the basic attack, then attack again\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(t)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(t)\n    end_turn()",
+  "normalised": "def F(P0):\n    if health() < HURT_FRAC * max_health():\n        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):\n            cast_self(0)\n        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):\n            cast_self(1)\n    if ability_ready(0) and slot_is_stun(0):\n        cast_at_unit(0, P0)\n    elif ability_ready(1) and slot_is_stun(1):\n        cast_at_unit(1, P0)\n    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):\n        cast_at_unit(0, P0)\n    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):\n        cast_at_unit(1, P0)\n    if i_am_ranged() and distance( unit_position(P0), position() ) <= 1 and can_move():\n        move_away_from( unit_position(P0) )\n    attack(P0)\n    if ability_ready(0) and slot_is_reset(0):\n        cast_self(0)\n        attack(P0)\n    elif ability_ready(1) and slot_is_reset(1):\n        cast_self(1)\n        attack(P0)\n    end_turn()",
+  "uses": 65,
+  "introduced": 2,
+  "mean_delta": 0.0154,
+  "rank": 0.017,
+  "lines": [
+   "pure"
+  ],
+  "runs": [
+   "pure:pure4-g4",
+   "pure:pure4-g5"
+  ],
+  "executed": null,
+  "deps": {
+   "defs": [],
+   "keeps": [],
+   "consts": [
+    "HURT_FRAC"
+   ],
+   "unknown": [],
+   "const_lines": [
+    "HURT_FRAC = 0.5"
+   ]
+  },
+  "self_contained": true,
+  "bundle": []
+ },
+ {
   "name": "go",
   "params": [
    "t"
@@ -469,10 +502,10 @@
   ],
   "source": "def go(t):\n    if fuel_remaining() > DASH_FUEL:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, t)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, t)\n    move_towards(t)",
   "normalised": "def F(P0):\n    if fuel_remaining() > DASH_FUEL:\n        if ability_ready(0) and slot_is_dash(0):\n            dash_towards(0, P0)\n        elif ability_ready(1) and slot_is_dash(1):\n            dash_towards(1, P0)\n    move_towards(P0)",
-  "uses": 89,
-  "introduced": 2,
+  "uses": 94,
+  "introduced": 3,
   "mean_delta": 0.0008,
-  "rank": 0.0009,
+  "rank": 0.001,
   "lines": [
    "pure"
   ],
