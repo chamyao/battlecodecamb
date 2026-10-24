@@ -99,6 +99,19 @@ def report(run, step=25):
         executed = sum(1 for r in kids if b in execd.get(r["id"], set()))
         watch_line.append(f"{b} {executed}/{present}")
     print(f"  new blocks, children executing/containing (of {len(kids)}): " + ", ".join(watch_line))
+    # uptake over time, split by whether the prompt listed the new blocks (vocab variant)
+    def uptake(rs):
+        if not rs:
+            return "-"
+        has = sum(1 for r in rs if any(re.search(rf"\b{b}\(", r["text"]) for b in WATCH))
+        ran = sum(1 for r in rs if execd.get(r["id"], set()) & set(WATCH))
+        return f"{ran}/{has}/{len(rs)}"
+    seg = []
+    for lo in range(0, (rows[-1]["id"] + 1) if rows else 0, 2 * step):
+        part = [r for r in kids if lo <= r["id"] < lo + 2 * step]
+        voc = [r for r in part if (r["metrics"].get("variant") or {}).get("vocab")]
+        seg.append(f"{lo}-{lo + 2 * step - 1}: vocab {uptake(voc)} other {uptake([r for r in part if r not in voc])}")
+    print("  new-block uptake by programs (executing/containing/valid children): " + "  ".join(seg))
     for dim in per:
         print(f"  {dim}:")
         for val, s in sorted(per[dim].items(), key=lambda kv: -kv[1]["n"]):

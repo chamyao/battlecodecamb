@@ -5,6 +5,8 @@ import threading
 
 import anthropic
 
+from policygen.blocks import REGISTRY
+
 from .catalog import DOCS, GAME, GAME_BASE, GRAMMAR, block_catalog
 
 # $ per million tokens (input, output). Cache reads/writes priced relative to input.
@@ -50,28 +52,29 @@ _EXPLORE_TAIL = f"""
 EXPLORE_SYSTEM = {"full": _EXPLORE_HEAD + GAME + _EXPLORE_TAIL, "lean": _EXPLORE_HEAD + GAME_BASE + _EXPLORE_TAIL}
 
 AXES = {
-    "draft": "the DRAFT: a different champion composition, including champions our bots never pick (prism, "
-             "heart_of_ruin, marcella, cassi_issac, stellar, willow, varg), and play that suits it",
-    "items": "ITEMS AND STATS: what each champion buys and when (other emblem families, focus vs strength vs "
-             "health per champion, stacking one stat on a carry, teleport crystals, altar locks)",
-    "vision": "VISION: wards (place_ward), bushes, fighting from or around fog, denying the enemy's vision. A "
-              "measured start: the free ward on the nearest altar when within 3 (let a = first( filter( altars(), "
-              "within(3, position()) ) ), then place_ward(a); it recharges over 10 turns) was +4 points vs a hunter",
-    "teleport": "MOBILITY: teleport crystals (buy_teleport, teleport_to), dashes, recall timing",
-    "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, bits 2-7 only: bits 0-1 are the lock flags; claims, "
-            "set_team_target): roles, grouping, calling targets, splitting the map",
-    "roles": "PER-CHAMPION ROLES: give champions different jobs by i_am(champ_vesper_vale()) etc. (carry, farmer, hunter, "
-             "altar guard, monolith taker) instead of one shared behaviour",
-    "pairs": "PAIRS: keep farming but never alone (71% of our deaths are 2-vs-1). Make two-champion pairs: give "
-             "each champion a partner by i_am(champ_vendetta()) etc. (e.g. vendetta with vesper_vale, tavi with ryth), have "
-             "partners farm neighbouring camp groups (claim / claim_count / claimed_by_allies tell which groups "
-             "your partner took), and converge when either sees an enemy. Vision is not shared, so signal it: "
-             "shared memory has 8 bytes and only byte 7 is free (0-6 are claims and the team target), and bits 0-1 "
-             "of byte 7 are the live bot's lock flags: keep them. Put a beacon in bits 2-7, e.g. let v = "
-             "read_shared(7), beacon = floor(v / 4), write_shared(7, 4 * b + (v - 4 * floor(v / 4))) for a new "
-             "beacon b (0-63), e.g. which pair is in a fight. Retreating "
-             "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
-             "tests, so stay close WHILE farming rather than walking across the map to regroup",
+    "draft": "the DRAFT. Measured: our bots have never picked prism, heart_of_ruin, marcella, cassi_issac, stellar, "
+             "willow or varg; top teams draft heart_of_ruin, prism and ryth as focus carries. Levers: the pick order, "
+             "the composition, and the play each champion gets",
+    "items": "ITEMS AND STATS. Measured: top teams stack one stat per carry (strength on vesper_vale, 235 per basic "
+             "by round 192; focus on heart_of_ruin, prism and ryth). Levers: what each champion buys and when, the "
+             "emblem family, focus vs strength vs health, teleport crystals, altar locks",
+    "vision": "VISION. Measured: the free ward on the nearest altar when within 3 (place_ward; it recharges over 10 "
+              "turns) scored +4 points vs a hunter; vision is not shared between champions. Levers: wards, bushes, "
+              "fog, the enemy's vision",
+    "teleport": "MOBILITY. Levers: teleport crystals (buy_teleport, teleport_to), dashes, recall timing (damage "
+                "cancels a recall)",
+    "team": "TEAM COORDINATION. Measured: shared memory has 8 bytes; 0-6 hold claims and the team target, byte 7 "
+            "bits 0-1 hold the lock flags and bits 2-7 are free (floor(v / 4)). Levers: write_shared / read_shared, "
+            "claims, set_team_target, grouping, splitting the map",
+    "roles": "PER-CHAMPION ROLES. Measured: the live bot runs one shared behaviour for all champions. Levers: "
+             "i_am(champ_vesper_vale()) etc., the job each champion has (carry, farmer, hunter, altar guard, "
+             "monolith taker)",
+    "pairs": "PAIRS. Measured: 71% of our deaths are 2-vs-1; before round 150, 89% are 2+ of theirs vs 1 of ours. "
+             "Measured hand rules: retreating to an ally instead of spawn doubled deaths; walking to allies when "
+             "outnumbered cost 10 points. Vision is not shared; byte 7 bits 2-7 of shared memory are free for a "
+             "beacon (bits 0-1 are the lock flags: v = read_shared(7), beacon = floor(v / 4), write_shared(7, 4 * b "
+             "+ (v - 4 * floor(v / 4)))). Levers: partners (i_am), which camp groups each takes (claim, claim_count, "
+             "claimed_by_allies), distance between allies while farming, signals",
     "conversion": "GEM CONVERSION, the biggest measured gap to the band above us (docs/GAP_LIST.md). Measured: we "
                   "lose 184 gems per game on death; 54% of our deaths happen while carrying gems, a median 7 tiles "
                   "from an altar; we submit 76% of the gems we capture (they 99%); we bank 18 times a game (they "
@@ -82,24 +85,30 @@ AXES = {
                  "Measured hand rules: walking away mid-fight at HP below 0.4-0.6 with an enemy within 5-6 scored "
                  "18-34% vs the live bot, with more deaths. Levers: which fights are entered, local numbers and "
                  "strength, range, movement and dashes, recall timing (damage cancels a recall), allies' help",
-    "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
-             "where to stand between fights, early vs late game plans",
-    "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
-                 "slot_stun / slot_range / slot_radius, shields and heals on allies",
-    "combat": "COMBAT MICRO: landing the first hit, 2v1 focus on the same turn, kiting at max range, "
-              "retreat and re-engage, never idling when hit",
+    "macro": "MACRO ROUTE AND TIMING. Measured: we bank 18 times a game (top teams 26). Levers: which camps when, "
+             "monolith takes (claim_count), when to bank, where to stand between fights, early vs late game plans",
+    "abilities": "ABILITIES. Measured: top teams open with an ability on the first-hit turn. Levers: AoE at tiles "
+                 "(cast_at_tile), stuns, resets after a basic (slot_is_reset), slot_stun / slot_range / "
+                 "slot_radius, shields and heals on allies",
+    "combat": "COMBAT MICRO. Measured: top teams engage at HP 0.9+, usually 2v1, target the closest visible enemy, "
+              "leave around 0.8 HP and die 1.6 times a game; 34% of our dying champions were hitting a camp while "
+              "the killer was visible for 5 rounds. Levers: the first hit, focus on one target, range, kiting, "
+              "dashes, what a champion does the turn it is hit",
 }
 TOP_RULES = [
     "Top teams engage healthy (HP 0.9+) and usually 2v1; they leave around 0.8 HP and die 1.6 times a game.",
     "Top teams target the closest visible enemy and open with an ability on the first-hit turn.",
     "Before round 150, 89% of our deaths are 2+ of theirs vs 1 of ours: they arrive together.",
     "34% of our dying champions were hitting a camp while the killer was visible for 5 rounds.",
-    "A melee champion hit from range 2-4 must dash in or walk out that turn, never idle.",
+    "Our melee champions hit from range 2-4 often stand still that turn; top teams dash in or walk out.",
     "Top teams stack one stat per carry: strength on Vesper Vale (235 per basic by round 192), focus on "
     "Heart of Ruin, Prism and Ryth.",
-    "Top teams bank big bags (median 57) only when no enemy is within 8 tiles; tribute at once when one is.",
+    "Top teams bank big bags (median 57) only when no enemy is within 8 tiles; they tribute at once when one is.",
     "One top team casts recall after every action, every round (a free auto-escape when hit).",
 ]
+# Newest blocks, listed by the "new vocabulary" variant (only those in the registry are shown).
+NEW_BLOCKS = ["unit_max_health", "unit_strength", "unit_focus", "enemies_near", "allies_near", "strength_at",
+              "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius"]
 RARE_BLOCKS = ["place_ward", "bushes", "cast_at_tile", "teleport_to", "buy_teleport", "write_draft", "walls",
                "holes", "focus", "random_stat", "unit_health", "camp_count", "read_shared", "write_shared",
                "slot_is_reset", "stat_focus", "gold_cluster_tiles", "group_gems", "claim_count", "slot_stun",
@@ -118,9 +127,10 @@ FRAMINGS = {
 }
 
 
-def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None):
+def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None, vocab_share=0.2):
     """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu, a
-    list of names or {name: weight} (default all of AXES, equal weights)."""
+    list of names or {name: weight} (default all of AXES, equal weights); vocab_share: the share of calls that
+    list the newest blocks (NEW_BLOCKS)."""
     change = rng.choices(list(CHANGE_TYPES), change_weights)[0]
     menu = axes if isinstance(axes, dict) else {a: 1.0 for a in (axes or AXES)}
     return {
@@ -130,6 +140,7 @@ def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None):
         "catalog": rng.choice(["full", "lean"]),
         "evidence": rng.choice(["worst", "rule", "block", "none"]),
         "parents": "crossover" if n_parents >= 2 and change != "rewrite" and rng.random() < 0.3 else "single",
+        "vocab": rng.random() < vocab_share,
     }
 
 
@@ -144,7 +155,7 @@ def _evidence(kind, parent_metrics, rng):
                          f"{m['deaths'][1]:.1f}, damage to champions {m['champ_damage'][0]:.0f} vs "
                          f"{m['champ_damage'][1]:.0f} per game")
             return (f"Weakest matchup of the latest version: vs {k}, win rate {m['win_rate']:.0%}, gems "
-                    f"{m['a_gems']:.0f}-{m['b_gems']:.0f}{extra}. Make the change help here.")
+                    f"{m['a_gems']:.0f}-{m['b_gems']:.0f}{extra}.")
     if kind == "rule":
         return "Observed in the ladder's top teams: " + rng.choice(TOP_RULES)
     if kind == "block":
@@ -172,6 +183,13 @@ def explore_user(parents, variant, rng):
                     ". Code for other champions never runs, so don't spend the change on it.")
     task.append("Keep the existing comments. The # lines at the very top are the lineage header: keep them "
                 "unchanged and add one line at their end describing your change.")
+    if variant.get("vocab"):
+        known = {b.name for b in REGISTRY}
+        new = [b for b in NEW_BLOCKS if b in known and b in DOCS]
+        if new:
+            task.append("Newest blocks in the language:\n" +
+                        "\n".join(f"- {b}: {DOCS[b]}" for b in new) +
+                        "\nUse at least one of them where it informs a decision.")
     if variant["parents"] == "crossover":
         task.append("The versions above come from different lines of play: combine their strengths into one policy.")
     ev = _evidence(variant["evidence"], shown[-1][2], rng)

@@ -89,6 +89,8 @@ def main():
     ap.add_argument("--helpers-budget", type=int, default=2500, help="characters of helper source in the prompt")
     ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu, each optionally "
                                              "name:weight (default: all axes, equal weights)")
+    ap.add_argument("--vocab-share", type=float, default=0.2,
+                    help="with --explore: share of calls whose prompt lists the newest blocks (llm.NEW_BLOCKS)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
                          "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
@@ -284,7 +286,7 @@ def main():
             return
         if args.explore:
             with variant_lock:
-                variant = sample_variant(rng, len(parents), change_weights, axes)
+                variant = sample_variant(rng, len(parents), change_weights, axes, args.vocab_share)
                 vrng = random.Random(rng.random())
             variant["source"] = "archive" if drawn else "island"
         if proposer:
