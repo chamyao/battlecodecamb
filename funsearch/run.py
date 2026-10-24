@@ -65,7 +65,8 @@ def main():
                          "(e.g. out_death_share:min:0.1); blended into the score, with --win-floor enforced")
     ap.add_argument("--gap-ref", default=str(ROOT / "policies" / "tune-v21.policy"), help="reference bot for the gap metric")
     ap.add_argument("--gap-weight", type=float, default=0.5)
-    ap.add_argument("--gap-games", type=int, default=40, help="games vs the reference per evaluation (events on)")
+    ap.add_argument("--gap-games", type=int, default=80,
+                    help="games vs the reference per evaluation (events on); a multiple of 2 x #maps covers every map")
     ap.add_argument("--win-floor", type=float, default=0.5,
                     help="gap search: children below this win rate vs --gap-ref score 1 lower (never preferred)")
     ap.add_argument("--win-floor-tol", type=float, default=2.0,
@@ -131,7 +132,9 @@ def main():
         from . import fights
         from .evaluate import _compiled_opponent
         ref = _compiled_opponent(args.gap_ref)
-        base = fights.play(ref, ref, 200, 7)["summary"]  # the reference's own values, once (mirror, 200 games)
+        # the reference's own values, once: a mirror over every map x both sides x 2 (gap games should also be a
+        # multiple of 2 x #maps, or per-map differences bias the comparison)
+        base = fights.play(ref, ref, 4 * len(fights.MAPS), 7)["summary"]
         terms = []
         for spec in args.gap_metric.split(","):  # several terms are averaged with equal weight
             name, direction, scale = spec.split(":")

@@ -170,6 +170,8 @@ def summarize(per_game):
         "opp_conversion": sum(g["opp_gems"] for g in per_game) / max(1, sum(g["opp_gems_captured"] for g in per_game)),
         "gems_captured": sum(g["gems_captured"] for g in per_game) / n,
         "gems_lost_to_champs": sum(g["gems_lost_to_champs"] for g in per_game) / n,
+        # tributed gems minus the opponent's in the same games (a same-games comparison: no map-sample bias)
+        "gem_margin": sum(g["gems"] - g["opp_gems"] for g in per_game) / n,
         "tributes": sum(g["tributes"] for g in per_game) / n,
         "captures": sum(g["captures"] for g in per_game) / n,
         "gems_per_capture": sum(g["gems_captured"] for g in per_game) / max(1, sum(g["captures"] for g in per_game)),

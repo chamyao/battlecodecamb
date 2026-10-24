@@ -1,0 +1,13 @@
+This run targets GEMS SUBMITTED per game (gems tributed), the measure that decides our close ladder losses.
+Measured on the ladder (band groups): our v23, which banked early and often, raised tributes 18 -> 28, cut gems lost
+on death 164 -> 89 and raised conversion 77% -> 82%, but captured 108 fewer gems a game (captures 73 -> 66, median
+bag 30 -> 18), so net gems submitted FELL 626 -> 578 and it lost more often. Banking costs capture time; a gem only
+counts once it is both captured and tributed. The band teams submit more because they capture more AND bank safely.
+The score blends the usual win score with gems submitted per game vs the live bot in the same games; staying >= 50%
+vs the live bot is required. The levers are capture rate (group choice, routing between groups), bag size, banking
+cadence and safe routing with gems; how to trade them is for you to find.
+Sensor blocks available (see the block list): unit_max_health, unit_strength, unit_focus, enemies_near, allies_near,
+strength_at, unit_tributing, threat_eta, altar_eta, retreat_eta, enemy_between, group_contested, team_gems,
+unseen_enemies_near, bank_detour, group_rate.
+Fuel rule: every dash or host search along a long path (dash_towards, move_towards to far tiles, closest on big
+sets) sits behind a fuel_remaining() gate, or it can hit the 100k per-turn cap.
