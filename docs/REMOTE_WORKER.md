@@ -41,4 +41,8 @@ directly. The old channel is retired for anything the arena covers.
 - **The `main2` league** (coordinator, engine 2e1ff7e; `main` is the older 545c7b1 run) holds the live lineage and baselines. A
   candidate joins with `python3 arena.py league add main2 <name>`, which plays a gauntlet against
   every member; post the standings with your candidate on PR #5.
+- **Sample size** (style line, Oct 24): with `bot_seeds: true` (the default) a game depends only on
+  its map and side, so there are only 80 distinct games (40 maps x 2 sides); 800 games repeat them,
+  and league `/rounds` on fresh seeds add nothing. Use `bot_seeds: true` with 80 games for the
+  exact deploy result, and `bot_seeds: false` for a real sample (e.g. 1600 games).
 - Budgets and promotion rules are the lines' own (docs/STRATEGY.md and the line handoffs).
