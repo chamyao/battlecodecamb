@@ -1,0 +1,11 @@
+# 2026-10-24T17:52:44Z in /root/bc/hybrid (after the 17:42 stop)
+$ ls -la policies/fs-h* policies/fsh*
+ls: cannot access 'policies/fs-h*': No such file or directory
+ls: cannot access 'policies/fsh*': No such file or directory
+$ grep -h PROMOTED runs/*.log
+[00:48:33]   PROMOTED challenger policies/tune-1.policy: builtin:starter 97.6%, v7-zerogem 69.8%, v7 69.9%, v5d-fs2 72.0%, v5d 79.9%, v4 84.9%, locker 95.1%, fs-2 83.9%, cambc-exact vs v7-zerogem 70.0%
+[06:04:13]   PROMOTED challenger policies/tune-4.policy: builtin:starter 98.2%, tune-1 64.5%, v7-zerogem 77.5%, v7 77.4%, v5d-fs2 80.6%, locker 94.9%, v7zg-cast 67.5%, v8 67.1%, v7zg-monozone 69.4%, cambc-exact vs tune-1 58.8%
+[07:41:31]   PROMOTED challenger policies/candidates/hyb-t5m.policy: builtin:starter 97.6%, tune-4 56.4%, tune-1 65.8%, v7-zerogem 81.2%, v7 81.6%, locker 94.8%, v7zg-cast 71.9%, v8 69.4%, v7zg-monozone 71.9%, tune-2 56.5%, tune2-focus 58.4%, tune-3 56.4%, cambc-exact vs tune-4 55.0%, cambc-exact vs tune-5 53.8%
+[08:58:47]   PROMOTED challenger policies/tune5-campreset.policy: builtin:starter 97.4%, hyb-t5m 71.0%, tune-4 73.4%, tune-1 77.4%, v7-zerogem 86.9%, locker 95.0%, v7zg-cast 80.9%, v8 79.6%, v7zg-monozone 81.4%, tune-2 75.5%, tune2-focus 76.4%, tune-3 75.2%, tune-5 72.4%, hyb-t5m-rich15d6f 61.0%, cambc-exact vs hyb-t5m 76.2%, cambc-exact vs tune-5 81.2%
+[12:10:40]   PROMOTED challenger policies/pool/v20.policy: builtin:starter 99.2%, v19 55.6%, lean-g65 55.6%, v18 59.2%, opp-hunter3 71.9%, opp-hunter2b 79.9%, opp-hunter2a 79.1%, opp-metadraft 87.1%, opp-icecream 91.0%, cambc-exact vs v19 55.0%, cambc-exact vs v20 50.0%
+[13:12:38]   PROMOTED challenger policies/pool/v21.policy: builtin:starter 99.0%, v20 58.2%, v19 61.4%, lean-g65 62.7%, v18 61.3%, opp-hunter3 75.8%, opp-hunter2b 81.2%, opp-hunter2a 79.8%, opp-metadraft 87.9%, opp-icecream 92.0%, cambc-exact vs v20 58.8%, cambc-exact vs v21 50.0%

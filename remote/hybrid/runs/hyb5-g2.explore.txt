@@ -1,0 +1,37 @@
+== hyb5-g2: 34 programs, 34 valid, $0.59; distinct drafts 1; blocks present 114/143, EXECUTED 115/143; behaviour cells 13; best 0.744 (#0)
+  curve (programs:best/executed blocks): 25:0.744/107  34:0.744/115
+  all:
+    all            n  30  valid 100%  mean 0.580  max 0.743  new cell  37%  new block  80%  new draft   0%
+  model:
+    claude-haiku-5-5 n  27  valid 100%  mean 0.576  max 0.743  new cell  37%  new block  78%  new draft   0%
+    claude-opus-5-5 n   3  valid 100%  mean 0.613  max 0.663  new cell  33%  new block 100%  new draft   0%
+  axis:
+    roles          n   5  valid 100%  mean 0.562  max 0.652  new cell  20%  new block  80%  new draft   0%
+    abilities      n   5  valid 100%  mean 0.601  max 0.677  new cell  40%  new block  80%  new draft   0%
+    items          n   4  valid 100%  mean 0.481  max 0.663  new cell  50%  new block 100%  new draft   0%
+    vision         n   4  valid 100%  mean 0.672  max 0.743  new cell   0%  new block  25%  new draft   0%
+    macro          n   3  valid 100%  mean 0.603  max 0.736  new cell  67%  new block 100%  new draft   0%
+    pairs          n   3  valid 100%  mean 0.547  max 0.624  new cell  67%  new block  67%  new draft   0%
+    teleport       n   3  valid 100%  mean 0.600  max 0.663  new cell  33%  new block 100%  new draft   0%
+    team           n   2  valid 100%  mean 0.585  max 0.656  new cell  50%  new block 100%  new draft   0%
+    combat         n   1  valid 100%  mean 0.547  max 0.547  new cell   0%  new block 100%  new draft   0%
+  change:
+    edit           n  19  valid 100%  mean 0.602  max 0.743  new cell  37%  new block  74%  new draft   0%
+    plan           n  11  valid 100%  mean 0.542  max 0.663  new cell  36%  new block  91%  new draft   0%
+  framing:
+    champion       n  20  valid 100%  mean 0.623  max 0.743  new cell  30%  new block  75%  new draft   0%
+    captain        n  10  valid 100%  mean 0.494  max 0.656  new cell  50%  new block  90%  new draft   0%
+  catalog:
+    lean           n  15  valid 100%  mean 0.558  max 0.743  new cell  60%  new block  87%  new draft   0%
+    full           n  15  valid 100%  mean 0.602  max 0.741  new cell  13%  new block  73%  new draft   0%
+  evidence:
+    none           n  12  valid 100%  mean 0.568  max 0.741  new cell  25%  new block  67%  new draft   0%
+    worst          n   7  valid 100%  mean 0.633  max 0.743  new cell  43%  new block  71%  new draft   0%
+    block          n   6  valid 100%  mean 0.531  max 0.656  new cell  33%  new block 100%  new draft   0%
+    rule           n   5  valid 100%  mean 0.592  max 0.677  new cell  60%  new block 100%  new draft   0%
+  parents:
+    single         n  19  valid 100%  mean 0.573  max 0.743  new cell  42%  new block  84%  new draft   0%
+    crossover      n  11  valid 100%  mean 0.591  max 0.677  new cell  27%  new block  73%  new draft   0%
+  source:
+    island         n  29  valid 100%  mean 0.580  max 0.743  new cell  38%  new block  79%  new draft   0%
+    archive        n   1  valid 100%  mean 0.567  max 0.567  new cell   0%  new block 100%  new draft   0%
