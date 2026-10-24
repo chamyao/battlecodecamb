@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 15:16 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.40 14.12 13.61 on 16 threads.
+Updated 2026-10-24 15:21 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 15.39 14.50 13.86 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.4G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[14:12:46] hybrid: H10: hold set for the next hyb5 boundary
 [14:12:46] hybrid: H9 rate: 0 programs in 5 min = 0/h; tuned children 0, mean tuned.games 0 (round ended: [14:10:50]   no promotion; hyb5-g3 continues); before: g2 58/h, g3 49/h
 [14:18:02] hybrid: H8 check: hyb5-g3: re-seeded island 2 with v20;hyb5-g3: re-seeded island 3 with v19-; (expected island 2 with v20, island 3 with v19-L1c; 0/1 keep v21)
 [14:23:07] hybrid: H8 tune check: 3 programs carry metrics.tuned
@@ -55,4 +54,5 @@ Disk: 3.4G used of 38G.
 [15:16:34] style: S8: launched style8-gconv ($2.0 total)
 [15:16:35] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [15:16:35] style: launched style8-b (budget $3.5)
+[15:21:43] style: S11 check: gconv $1.75 left of $2.0; b style8-b-g1: +6 programs to the next boundary (144 so far) $0.95 left
 ```
