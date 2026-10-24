@@ -305,7 +305,11 @@ X
   fi
   # H21b (jobs/hybrid H21 addendum, 16:42 UTC, lead): --no-tune-children (per-child climb off). H20/H21 had fired at
   # 16:35, so this is a hold-based restart at the next boundary; same checkout (694a4a3 has the flag), no rebuild.
-  [ -f runs/ec2-h21b ] && EXTRA="$EXTRA --no-tune-children"
+  # H24 (jobs/hybrid a16bafc, lead) folded into H21b/H23: funsearch/runs f8fe74a+; island 3 back to v21, no protected/fuel
+  # island or per-island axes, fuel:1 on the global axis menu; keep yield 0.25, cover screens, no-tune-children, gconv1 fixed.
+  H24SEEDS=policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/pool/v21.policy
+  H24EXTRA="--yield-weight 0.25 --screen-maps cover --rescreen-top 3 --no-tune-children"
+  [ -f runs/ec2-h21b ] && { SEEDS=$H24SEEDS; EXTRA=$H24EXTRA; AXES="$H10AXES,fuel:1"; }
   if [ -f runs/ec2-h20 ] && [ ! -f runs/ec2-h21b ]; then
     if [ ! -f runs/ec2-h21b-hold ]; then
       grep -c 'hold file present' runs/hyb5.log > runs/ec2-h21b-holdmark; touch runs/hyb5.hold runs/ec2-h21b-hold
@@ -316,14 +320,15 @@ X
       sleep 10
       # H23 (jobs/hybrid f6ae0df, lead) folded in: funsearch/runs f0cbbce+ (python only: yield term = gems submitted/game vs v21)
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor f0cbbce HEAD && grep -q 'no-tune-children' funsearch/run.py && build "$D" fuel_turns &&
+         git merge-base --is-ancestor f8fe74a HEAD && git merge-base --is-ancestor f0cbbce HEAD && grep -q 'no-tune-children' funsearch/run.py && build "$D" fuel_turns &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h21b-progs; date +%s > runs/ec2-h21b-t0
         grep -c 'yield term: ' runs/hyb5.out runs/hyb5*.log 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}' > runs/ec2-h23-yieldmark
-        rm -f runs/hyb5.hold; touch runs/ec2-h21b; EXTRA="$EXTRA --no-tune-children"
-        log "H21b+H23: funsearch/runs $(git rev-parse --short HEAD) (has f0cbbce: submitted-gems yield), $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with --no-tune-children"
+        for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h24-marks
+        rm -f runs/hyb5.hold; touch runs/ec2-h21b; SEEDS=$H24SEEDS; EXTRA=$H24EXTRA; AXES="$H10AXES,fuel:1"
+        log "H21b+H23: funsearch/runs $(git rev-parse --short HEAD) (has f8fe74a/f0cbbce: submitted-gems yield, H24), $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5: --no-tune-children, island 3 = v21, no fuel island, --axes +fuel:1"
       else
-        echo "H21b/H23 merge/f0cbbce/flag/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H21b/H23 upgrade failed"; pushall; return 1
+        echo "H21b/H23/H24 merge/f8fe74a/flag/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H21b/H23 upgrade failed"; pushall; return 1
       fi
     fi
   fi
@@ -525,6 +530,27 @@ PY2
     yt=$(grep -ho 'yield term: [0-9]* logged programs rescaled' runs/hyb5.out runs/hyb5*.log 2>/dev/null | tail -n 1)
     ns=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h21b-progs) + 1 ))" | grep -cE '"metric": *"submitted"|.metric.: .submitted.')
     [ "$yc" -gt "$(cat runs/ec2-h23-yieldmark)" ] && [ "$ns" -gt 0 ] && { touch runs/ec2-h23-checked; log "H23 check: '$yt'; $ns new children with metrics.yield.metric == submitted"; }
+  fi
+  if [ -f runs/ec2-h21b ] && [ ! -f runs/ec2-h24-checked ]; then
+    r=""; for f in runs/hyb5-g*.log; do
+      m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h24-marks); m=${m:-0}
+      r="$r$(tail -n +"$((m + 1))" "$f" | grep -E 're-seeded island 3' | cut -c1-120 | tr '\n' ';')"
+    done
+    st=$(python3 - "$(cat runs/ec2-h21b-progs)" <<'PY2'
+import json, glob, sys
+n0 = int(sys.argv[1]); rows = []
+for f in sorted(glob.glob("runs/hyb5-g*/programs.jsonl")):
+    for l in open(f):
+        try: rows.append(json.loads(l))
+        except Exception: pass
+new = [r for r in rows[n0:] if isinstance(r.get("metrics"), dict)]
+if len(new) >= 17:
+    fuel = sum(1 for r in new if r["metrics"].get("fuel") is not None)
+    fax = sum(1 for r in new if (r["metrics"].get("variant") or {}).get("axis") == "fuel")
+    print(f"{len(new)} new children: metrics.fuel {fuel} (expect 0), fuel axis {fax} ({fax/len(new):.2f}, expect ~0.06)")
+PY2
+)
+    [ -n "$r" ] && [ -n "$st" ] && { touch runs/ec2-h24-checked; log "H24 check: $r $st"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
