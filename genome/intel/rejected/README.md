@@ -72,3 +72,15 @@ Choosing richer groups raises gems per capture in the sim but loses head to head
 real yield gap. In the real games yield barely separates wins from losses (11.3 vs 9.4 gems per capture), so it
 may be a consequence (being pushed off contested groups) more than a choice. Testing it needs real games, e.g.
 b318-gg6 vs B318 in real cambc.
+
+## b318-reach (GAPS v2 #3, 01elk_arena idle; --bot-seeds, runtime genome/v0 212a505)
+
+The hypothesis: closest() (w4) treats candidate camp spawns as passable while walk_field (w5) does not, so a
+camp-walk goal could be unreachable. The edit: when rule 20's field cannot reach its goal, re-target a free tile
+next to a live camp. Result: 39/80 vs B318 (anchors: L1c 46 vs B318's 45, gconv1 52 vs 51, v7 76 = 76, L1 49 vs 47,
+rall2 52 = 52, metadraft 70 vs 69). The re-target never fires on 01elk-arena: the rule pings stay at 980 idle
+rule-20 turns with a valid, open goal and a reachable field. So the freeze is elsewhere: no downhill
+step outside BLOCK, or refused moves. The sim also does not reproduce the real 01elk_arena loss (B318 beats L1c
+16/20 there), so this gap needs a real-replay look first.
+
+Anchor row of B318 itself at 212a505: L1c 45, gconv1 51, v7 76, L1 47, rall2 52, metadraft 69 (/80).

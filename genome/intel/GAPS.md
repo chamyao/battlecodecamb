@@ -43,6 +43,9 @@ Ranked for B318 (genes are B318's, same IDs as the seed):
      champion is on the group" (`rejected/b318-hold`) flips 00contest (2/2, tiebreak) but is neutral overall (40/80).
      The real 00contest idle spells were not on camp tiles, so the real cause may differ. 01elk_arena idles under
      rule 20 (no live camp goal) and 01shortcut under rule 12 (bank walk to monolith-guarded altars): three causes.
+   - 01elk_arena: the idle rule-20 turns have a valid, open goal and a reachable field, yet no move. An unreachable-goal
+     re-target (`rejected/b318-reach`, 39/80) never fires. The sim does not reproduce the real loss there either (B318
+     beats L1c 16/20 on that map in the sim), so the next step is the real replays.
 4. **Monolith deaths**
    - Evidence: 2.6 ± 1.0 per game on monolith maps (great_wall 17, boss_battle 11, contest 5, shortcut 4). A cause in 12% ± 6 of losses; it was 6% with v22.
    - Genes: `s14` / `r14` (B318: never wake a sleeping monolith, but a hit on another camp of its group still wakes it), `r13`, `a0`.
