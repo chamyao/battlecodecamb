@@ -1,4 +1,6 @@
-# Top-team fitting target
+# Top-team progress tracker (formerly "fitting target")
+
+**Update (13:20 UTC):** Cham decided against building a cloned top-team opponent ("if we could build a good copy we would just use that copy"). The table below is kept as a **progress tracker for our versions**: the same 10 teams, maps and sides played by each version. The clone sections are kept for the record only. The current priorities are in `docs/GAP_LIST.md`.
 
 ## Goal
 
