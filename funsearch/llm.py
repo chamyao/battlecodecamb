@@ -54,12 +54,24 @@ AXES = {
              "heart_of_ruin, marcella, cassi_issac, stellar, willow, varg), and play that suits it",
     "items": "ITEMS AND STATS: what each champion buys and when (other emblem families, focus vs strength vs "
              "health per champion, stacking one stat on a carry, teleport crystals, altar locks)",
-    "vision": "VISION: wards (place_ward), bushes, fighting from or around fog, denying the enemy's vision",
+    "vision": "VISION: wards (place_ward), bushes, fighting from or around fog, denying the enemy's vision. A "
+              "measured start: the free ward on the nearest altar when within 3 (let a = first( filter( altars(), "
+              "within(3, position()) ) ), then place_ward(a); it recharges over 10 turns) was +4 points vs a hunter",
     "teleport": "MOBILITY: teleport crystals (buy_teleport, teleport_to), dashes, recall timing",
-    "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, claims, "
+    "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, bits 2-7 only: bits 0-1 are the lock flags; claims, "
             "set_team_target): roles, grouping, calling targets, splitting the map",
     "roles": "PER-CHAMPION ROLES: give champions different jobs by i_am(champ_vesper_vale()) etc. (carry, farmer, hunter, "
              "altar guard, monolith taker) instead of one shared behaviour",
+    "pairs": "PAIRS: keep farming but never alone (71% of our deaths are 2-vs-1). Make two-champion pairs: give "
+             "each champion a partner by i_am(champ_vendetta()) etc. (e.g. vendetta with vesper_vale, tavi with ryth), have "
+             "partners farm neighbouring camp groups (claim / claim_count / claimed_by_allies tell which groups "
+             "your partner took), and converge when either sees an enemy. Vision is not shared, so signal it: "
+             "shared memory has 8 bytes and only byte 7 is free (0-6 are claims and the team target), and bits 0-1 "
+             "of byte 7 are the live bot's lock flags: keep them. Put a beacon in bits 2-7, e.g. let v = "
+             "read_shared(7), beacon = floor(v / 4), write_shared(7, 4 * b + (v - 4 * floor(v / 4))) for a new "
+             "beacon b (0-63), e.g. which pair is in a fight. Retreating "
+             "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
+             "tests, so stay close WHILE farming rather than walking across the map to regroup",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
              "where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
@@ -96,11 +108,12 @@ FRAMINGS = {
 }
 
 
-def sample_variant(rng, n_parents):
-    """One prompt variant for an exploration call."""
-    change = rng.choices(list(CHANGE_TYPES), [0.55, 0.3, 0.15])[0]
+def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None):
+    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu
+    (default all of AXES)."""
+    change = rng.choices(list(CHANGE_TYPES), change_weights)[0]
     return {
-        "axis": rng.choice(list(AXES)),
+        "axis": rng.choice(list(axes or AXES)),
         "change": change,
         "framing": rng.choice(list(FRAMINGS)),
         "catalog": rng.choice(["full", "lean"]),

@@ -57,6 +57,10 @@ def main():
                                                                   "500 with --explore)")
     ap.add_argument("--archive-share", type=float, default=0.5,
                     help="with --explore: share of parent draws taken from random behaviour cells")
+    ap.add_argument("--change-weights", default="0.55,0.3,0.15",
+                    help="with --explore: weights of the edit, plan and rewrite change types (rewrites always use "
+                         "Opus; in the first test they all scored ~-0.2)")
+    ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu (default: all axes)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
                          "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
@@ -155,6 +159,27 @@ def main():
             db.seed(seed_text, r.score, r.per_opponent, islands=islands)
             confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
             print(f"seed {Path(path).stem} score {r.score:.3f} (islands {list(islands)})")
+    elif args.island_seeds:
+        # resume with a changed island-seed list: re-seed only the islands whose latest seed differs
+        seeds = [x for x in args.island_seeds.split(",") if x][: args.islands]
+        latest = {}
+        for p in db.all:
+            if p.model == "seed":
+                latest[p.island] = p.text
+        for k, path in enumerate(seeds):
+            seed_text = Path(path).read_text()
+            for i in range(k, args.islands, len(seeds)):
+                if latest.get(i) == seed_text:
+                    continue
+                r = score(seed_text, confirm=True)
+                if not r.ok:
+                    raise SystemExit(f"seed policy {path} failed: {r.error}")
+                if args.explore:
+                    blocks = executed_blocks(seed_text)
+                    if blocks is not None:
+                        r.per_opponent["exec_blocks"] = sorted(blocks)
+                db.seed(seed_text, r.score, r.per_opponent, islands=[i])
+                print(f"re-seeded island {i} with {Path(path).stem} (score {r.score:.3f})")
     have = {p.text for p in db.all}
     for k, path in enumerate(x for x in args.inject.split(",") if x):
         text = Path(path).read_text()
@@ -173,6 +198,13 @@ def main():
         proposer = Proposer(args.budget, opus_every=args.opus_every, directive=directive)
     if args.explore:
         from .llm import sample_variant
+    change_weights = tuple(float(x) for x in args.change_weights.split(","))
+    axes = [a for a in args.axes.split(",") if a]
+    if args.explore and axes:
+        from .llm import AXES
+        unknown = [a for a in axes if a not in AXES]
+        if unknown:
+            raise SystemExit(f"unknown --axes {unknown}; known: {list(AXES)}")
     variant_lock = threading.Lock()
     proposals_lock = threading.Lock()
 
@@ -203,7 +235,7 @@ def main():
             return
         if args.explore:
             with variant_lock:
-                variant = sample_variant(rng, len(parents))
+                variant = sample_variant(rng, len(parents), change_weights, axes)
                 vrng = random.Random(rng.random())
             variant["source"] = "archive" if drawn else "island"
         if proposer:
