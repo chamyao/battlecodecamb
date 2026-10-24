@@ -33,3 +33,24 @@ the reference of the ladder-ready check. This is a resume, not a fresh start: no
 
 At the g3 boundary tune-5 is judged against tune-4 by the league rule. Comment on PR #1 when the
 boundary verdict is logged (promotion or "no promotion"), with the validation lines.
+
+## Job H2 (2026-10-24 05:20 UTC, hybrid line session): after the g3 verdict, add two g4 challengers and pick up the new prompt
+
+Do this only once the g3 boundary verdict is logged (promotion or "no promotion") and g4 has started.
+Do not touch the g3 validation in progress.
+
+1. Pause gracefully: `touch runs/hyb4-g4/STOP`, then wait for the league and run PIDs to exit. Do not kill
+   them; if one hangs > 15 min, SIGTERM by PID (never `pkill -f`).
+2. `git pull origin funsearch/runs` (to bfd869c or later). It adds:
+   - 3654e36: prompt fix. The KEY TOOL camp-skip formula cost 25 points (half of g2's children used it);
+     the stale ladder-loss list is trimmed. This is why the restart is needed.
+   - bfd869c: `policies/candidates/hyb-t5m.policy` and `policies/candidates/hyb-t5m-rich15d6f.policy`.
+   No simulator change, so no rebuild. Run `python3 -m pytest -q tests` (2012 pass).
+3. `printf 'policies/candidates/hyb-t5m.policy\npolicies/candidates/hyb-t5m-rich15d6f.policy\n' >> runs/hyb4.challengers`
+4. `rm runs/hyb4-g4/STOP`, then relaunch with exactly the H1 command line (including
+   `--cambc-ref policies/tune-5.policy`).
+5. Check the log line `hyb4-g4: +N programs to the next boundary (M so far)` and that runs/hyb4.challengers
+   holds both files. Push state to `remote/hybrid` and comment on PR #1 with the log tail.
+
+At the g4 boundary both are judged against the best by the league rule. Comment on PR #1 with the
+validation lines when the verdict is logged.
