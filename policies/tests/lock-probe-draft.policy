@@ -1,0 +1,27 @@
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vendetta()):
+        pick(champ_vendetta())
+    elif available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    elif available(pool, champ_tavi()):
+        pick(champ_tavi())
+    elif available(pool, champ_ryth()):
+        pick(champ_ryth())
+    elif available(pool, champ_ren()):
+        pick(champ_ren())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+let k = nearest(enemy_locks())
+if exists(k):
+    if lock_hits_left(unit_position(k)) > 0:
+        unclaim()
+    let l = first(filter(enemy_locks(), in_attack_range()))
+    if exists(l):
+        attack(l)
+        end_turn()
+    move_towards(unit_position(k))
+    end_turn()
+move_towards(closest(ring(altars(), 1)))
+end_turn()
