@@ -167,6 +167,13 @@
 { "weakest(UnitList)", false, { 432376, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=17022 mean=456 mae=44 (profile fuel)
 { "within(Num,Tile)", false, { 249254, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=1638 mean=263 mae=0 (profile fuel)
 { "wolf_tiles()", false, { 853371, 0, 8756, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=1442 mae=457 (profile fuel)
+{ "threat_eta()", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (visible-champion scan), coordinator
+{ "enemy_between(Tile)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (visible-champion scan), coordinator
+{ "group_contested(Tile)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (visible-champion scan), coordinator
+{ "team_gems()", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (visible-champion scan), coordinator
+{ "unseen_enemies_near(Num,Num)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (visible-champion scan), coordinator
+{ "altar_eta()", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (map scan), coordinator
+{ "retreat_eta()", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (map scan), coordinator
 // Per turn: the step loop outside blocks (profile fit 120 + 59.62*blocks + 0.108*blocks*H, mae 682),
 // scaled by 0.948, plus the profiler-distortion terms per block, per API call and per turn.
 #define INTERP_TURN_COST(BLOCKS, H, API) (165 + -51.03 * (BLOCKS) + 0.103 * (BLOCKS) * (H) + -50.62 * (API))
