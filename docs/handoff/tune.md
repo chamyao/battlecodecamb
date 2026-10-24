@@ -209,6 +209,11 @@ session runs the real-cambc safety checks (crashes, 100k-cap turns, first turn <
 - Tools: funsearch/fight_metrics.py, fuel_check.py, hand_fight.py, vision.py, explore.py (drafts/switches),
   tools/league.py.
 
+- **Candidate (12:20 UTC): policies/candidates/tune-v20-L1.policy** = v20 + lock once (one altar lock per team, shared
+  byte 7; placed next to an altar with an empty bag). League 1736 [1724-1752] vs v20 1694 [1681-1709]; 54.0% fresh vs
+  v20; peak 88.1k. Needs the lockfix (deploy/v0 b9452ee+). Bush ambush (funsearch/ambush_lock.py): A1+A2 52.1% (not
+  offered); lock near the enemy spawn only: 48.1%.
+
 ## Things only I know
 
 - `--bot-seeds` with a single map replays the same two games; use per-game seeds for one-map
