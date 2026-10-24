@@ -35,6 +35,22 @@ Islands (runs/style_launch.sh, budgets in runs/style_budgets: h 3.95, b 3.5, a 2
   (restart h only: SIGTERM the h league and child by PID first; b keeps running).
 - Comment h's validation lines (and b's) on PR #3 at each boundary.
 
+## Job S14 (17:00 UTC): stop gyield; start style8-gsub (gems submitted, vs v21) NOW. S13 is cancelled.
+
+v23 (style-gconv1) was reverted on the ladder (banking up, captures down, net submitted fell). New target: gems
+submitted vs the live v21 policy in the same games. On funsearch/style 35595b0 or later (Python/scripts only, no rebuild):
+1. SIGTERM gyield's funsearch.run by PID and leave it stopped ($0.75 spent of $1.27). Drop S13 from the runner.
+2. Launch (resumable; add to the restart loop in place of gyield):
+```
+ISLAND_SEEDS=policies/style-gconv1.policy,policies/tune-v21.policy \
+GAP_REF=policies/tune-v21.policy \
+GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/style-gconv1.policy,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gsub 0.52 gem_margin:max:50 \
+  policies/tune-v21.policy funsearch/styles/g_submitted.txt >> runs/style8-gsub.out 2>&1 &
+```
+   First lines: "gap metric gem_margin (max, scale 50): reference tune-v21 mirror value ...", "gap: 1 term(s)". The
+   launcher passes --no-tune-children and 160 gap games by default.
+
 ## Job S13 (16:20 UTC): gyield's reference becomes v23 (= style-gconv1) at its NEXT restart only
 
 style-gconv1 is live as ladder v23. Do not restart gyield for this; when it next restarts (runner restart, crash or a
