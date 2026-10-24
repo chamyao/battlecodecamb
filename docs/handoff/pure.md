@@ -46,23 +46,23 @@ equal $ per arm, same parent/seeds/opponents; the stratified screen as default i
 
 ## Where things run
 
-- **EC2** (`ec2/runner`, `runner/lines/pure.sh`, state pushed to `remote/pure`, mirrored): pure4 league,
+- **EC2** (stopped and HALTed 17:45 UTC; final state on `pure/arena-state` 4a4aeb6, runs/ at the root) (`ec2/runner`, `runner/lines/pure.sh`, state pushed to `remote/pure`, mirrored): pure4 league,
   g5 extension on 0af36c4 with the old cap; it stops at "budget spent" soon. The runner file holds several
   one-shot blocks (advance without promotion, opponent syncs, lockfix build switch, a DISARMED tune restart,
   stale-STOP cleanup); read it before changing anything. Promotions there are committed to funsearch/pure
   by hand from `remote/pure` (the league's own push fails on the detached HEAD).
 - **Arena** (Cham, 24 Oct; replaces the remote/pure -> jobs/pure PR channel and JOBS.md): matches, batches,
   leagues now (`X-Arena-Client: pure`, leagues at priority -1). FunSearch runs there need a pure
-  ARENA_TOKEN from Cham (asked for via the coordinator); never put it in the repo or a message. Until a
-  token exists, FunSearch runs stay on EC2, and the A/B does not start (coordinator). After g5's extension, pure's runs
+  ARENA_TOKEN from Cham (asked for via the coordinator); never put it in the repo or a message. No token is
+  needed for runs any more (caps $16/run, $60 total). Arena runs (17:55 UTC, ref f27e0e2): #7 pure4 resume
+  (overlay pure/arena-state), #8 pab-ctl, #9 pab-hlp (+ --helpers), all --no-tune-children, 4 threads each. After g5's extension, pure's runs
   move to the arena on a pure engine built from a pinned funsearch/pure commit (POST /engines), both arms on it.
 
 ## Budget
 
-Pure line cap $30 (raised from $20 by the lead for the A/B work). Spent ~$15.5: 0.28 (pure/pure2/pure3) +
-9.71 recorded/lost on remote-server (it kept running after the 04:15 snapshot until 09:16 UTC) + ~5.5 on
-EC2 (g3 rest, g4, g5). League `--budget` 15.15 in `runs/pure_launch.sh` reflects the old $20 cap; the A/B
-arms are funded from the extra $10. `runs/SPEND.md` is current through the remote-server correction.
+Pure line cap $30. Spent ~$19.61: 0.28 (pure/pure2/pure3) + 4.57 lost on remote-server (it ran past the 04:15
+snapshot until 09:16 UTC) + 14.76 recorded in pure4 programs (5.14 before the snapshot + 9.62 on EC2). Committed in
+the arena: pure4 resume <= 0.39 (league --budget 15.15) + A/B arms 3.2 + 3.2. `runs/SPEND.md` is current.
 
 ## Code on funsearch/pure (vs funsearch/runs)
 
