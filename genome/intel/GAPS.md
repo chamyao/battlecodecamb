@@ -59,6 +59,16 @@ Ranked for B318 (genes are B318's, same IDs as the seed):
    - Tried: avoid the fed carry when alone (`rejected/b318-fed18`, 40/80; fed14, 34/80). The sim has no fed carries
      (no band opponents), so it cannot price this. Levers worth a real test: our own item concentration (our victims
      carry 16 points), and denying the carry's kills. Both need a stress opponent that snowballs, or real games.
+   - **Economy behind the fed carry** (`economy.py`, b2 / B318; b1 / v22 the same within noise). In our losses they earn
+     8,146 gold to our 6,103 (−2,043). The gap splits about evenly:
+     - **Kill bounties:** 1,358 against 261 (11 kills to our 2), −1,097.
+     - **Gem-group capture gold:** 5,542 against 4,448 from a similar capture count (61 vs 67), −1,094.
+     - Gold-only groups favour us (+386). Their other income (camp kills, passives) is about 240.
+     - In our wins the picture reverses: we earn 9,773 to their 5,542, mainly from gem-group captures, 7,273 against 3,761.
+     - Timing: the gap is −280 by round 250, −755 by 500, −1,256 by 750 and −1,638 by 1000, so it opens from the start
+       and grows steadily, with no single swing.
+     - So the levers are dying less early (each death pays them 100+ gold and feeds the carry) and holding the rich
+       gem groups. A champion pick is not indicated: their "other" income is only about 240 per game.
 3. **Zero-gem maps: idle champions**
    - Evidence: 00contest submits 0 and 0 (they make 600). There, 3,529 champion-rounds over 2 games are spent standing idle with an empty bag. On 01elk_arena we submit 14 (they make 1008; our gems per capture there are 0.0, theirs 14.2).
    - On 00contest the only gems are in two monoliths (`docs/ZERO_GEM_MAPS.md`). B318's `r15` r_mono waits for round 1000, 3+ allies alive and team gems under 100.
