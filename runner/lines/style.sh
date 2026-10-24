@@ -104,6 +104,27 @@ if [ -f runs/ec2-s6 ] && [ ! -f runs/ec2-s6b ]; then
     log "S6b: merge to ac873bb failed"; return 1
   fi
 fi
+# S7 (style line, 12:40 UTC): once h2's current boundary validation logs its verdict ("no promotion" or "PROMOTED"),
+# restart h2 only on funsearch/style ffac9e9 (tune-v21 replaces v19 in h2's fixed; directive uses shared-memory
+# offsets 8+; script/policy/directive only, no rebuild). A promoted policy file stays in place. b keeps running.
+if [ -f runs/ec2-s6b-checked ] && [ ! -f runs/ec2-s7 ]; then
+  verdicts() { grep -cE 'no promotion|PROMOTED' runs/style8-h2.log 2>/dev/null; }
+  [ -f runs/ec2-s7-mark ] || { verdicts > runs/ec2-s7-mark; log "S7: waiting for h2's boundary verdict (verdict lines so far: $(cat runs/ec2-s7-mark))"; }
+  if [ "$(verdicts)" -gt "$(cat runs/ec2-s7-mark)" ]; then
+    v=$(grep -E 'no promotion|PROMOTED' runs/style8-h2.log | tail -n 1 | cut -c1-160)
+    for pid in $(pgrep -a -x python3 | grep -E "league --name style8-h2 |funsearch.run --run style8-h2-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "S7: SIGTERM style8-h2 pid $pid"; done
+    sleep 10
+    if git fetch -q origin funsearch/style &&
+       { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+       git merge-base --is-ancestor ffac9e9 HEAD; then
+      wc -l < runs/style8-h2.log > runs/ec2-s7-lmark; touch runs/ec2-s7
+      log "S7: h2 verdict: $v; at $(git rev-parse --short HEAD) (has ffac9e9); h2 restarting below; promoted files kept: $(ls policies/style-h2*.policy 2>/dev/null | tr '\n' ' ')"
+    else
+      log "S7: merge to ffac9e9 failed; h2 relaunches on the old checkout"; touch runs/ec2-s7-failed
+    fi
+  fi
+fi
 for x in h h2 b a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
   running "league --name style8-$x " && continue
@@ -147,6 +168,10 @@ fi
 if [ -f runs/ec2-s6b ] && [ ! -f runs/ec2-s6b-checked ]; then
   f2=$(tail -n +"$(( $(cat runs/ec2-s6b-mark) + 1 ))" runs/style8-h2.log | grep -m1 'style8-h2-g')
   [ -n "$f2" ] && { touch runs/ec2-s6b-checked; log "S6b check: h2: $(echo "$f2" | grep -q "league \['policies/tune-v20.policy'" && echo 'tune-v20 first in league' || echo 'tune-v20 NOT first') $(echo "$f2" | grep -oE 'best [^,]*') $(echo "$f2" | grep -oE '\$[0-9.]+ left')"; }
+fi
+if [ -f runs/ec2-s7 ] && [ ! -f runs/ec2-s7-checked ]; then
+  f2=$(tail -n +"$(( $(cat runs/ec2-s7-lmark) + 1 ))" runs/style8-h2.log | grep -m1 'style8-h2-g')
+  [ -n "$f2" ] && { touch runs/ec2-s7-checked; log "S7 check: h2: $(echo "$f2" | grep -q "league \['policies/tune-v21.policy'" && echo 'tune-v21 first in league' || echo 'tune-v21 NOT first') $(echo "$f2" | grep -oE 'style8-h2-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$f2" | grep -oE 'best [^,]*') $(echo "$f2" | grep -oE '\$[0-9.]+ left')"; }
 fi
 # snapshot: complete JSON lines only (like runs/style_push_state.sh), never scripts or budgets
 rm -rf /root/bc/style-snap && mkdir -p /root/bc/style-snap/runs
