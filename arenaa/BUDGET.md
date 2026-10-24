@@ -9,4 +9,7 @@ experiments, Arena Z). Ask Cham before going beyond it.
 | promptbench-2 | 0.80 | 0.40 |
 | promptbench-r1b, r1c | 1.20 | ~0.62 |
 | prompt experiment 1 | 0.40 | 0.10 (running) |
-| Arena Z (from starter) | 3.00 | 0 (queued) |
+| prompt experiment 1 (final) | | 0.263 |
+| Arena Z (from starter) | 3.00 | 3.07 (done) |
+| arenaA-5 (distinct games) | 3.50 | ~3.5 |
+| arenaA-6 (control for A-5) | 3.50 | queued |

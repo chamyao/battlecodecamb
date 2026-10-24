@@ -2,6 +2,16 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-24 23:55 UTC
+
+- promptexp-1 tail children on the 13-opponent panel (1,040 games): 11 of 13 keep their gain. Best: A1 T1
+  c45 782 vs parent 746 (+36; anchors +30), above arenaA-3's best A723 (780); A0 c87 +26, c64 +23, c28 +20.
+  So the tail is real, both arms produce it; A1's single best is the largest single-mutation gain seen.
+- arenaA-5 (distinct games + bot-seeded anchors): panel top 3 per milestone m9 786/779/772, m10 782/774/770,
+  m11 801/761/761, m12 (birth 1201) 802/793/790 vs arenaA-3's final 780/774/772 (+~20). No control yet:
+  queued arenaA-6 = arenaA-3 resumed with its own evaluation for the same $3.50 (control arm).
+- arenaZ-1 final top Z474/Z449/Z468 being panel-scored.
+
 ## 2026-10-24 23:50 UTC: Arena Z vs PURE per dollar
 
 - arenaZ-1 done ($3.07, 475 births). Panel (11 graded opponents, 880 games): starter 46 -> best 104 at
