@@ -138,6 +138,8 @@ struct TeamState
 	int deaths = 0;
 	double champ_damage = 0;
 	std::uint32_t gems_lost_to_champs = 0;
+	int captures = 0, tributes = 0; // camp-group captures and completed tributes
+	std::uint32_t gems_captured = 0;
 	std::uint8_t shared[kSharedMemory] = {};
 	std::uint8_t draft_mem[kDraftMemory] = {};
 	std::uint32_t draft_mem_size = 0;

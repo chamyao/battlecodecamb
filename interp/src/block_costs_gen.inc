@@ -155,6 +155,13 @@
 { "unit_is(Unit,Champ)", false, { 325739, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=21600 mean=340 mae=58 (profile fuel)
 { "unit_position(Unit)", false, { 267235, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=10944 mean=279 mae=2 (profile fuel)
 { "unit_shield(Unit)", false, { 125303, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=21600 mean=131 mae=58 (profile fuel)
+{ "unit_tributing(Unit)", false, { 325739, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as unit_is (same champion() lookup), coordinator
+{ "unit_max_health(Unit)", false, { 325739, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as unit_is (one champion() lookup), coordinator
+{ "unit_strength(Unit)", false, { 325739, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as unit_is, coordinator
+{ "unit_focus(Unit)", false, { 325739, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as unit_is, coordinator
+{ "enemies_near(Tile,Num)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (same scan), coordinator
+{ "allies_near(Tile,Num)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (same scan), coordinator
+{ "strength_at(Tile,Num)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (same scan), coordinator
 { "unpicked_champions()", false, { 9705638, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=155 mean=10120 mae=32 (profile fuel)
 { "walls()", false, { 105663, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=21600 mean=110 mae=0 (profile fuel)
 { "weakest(UnitList)", false, { 437527, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=17022 mean=456 mae=44 (profile fuel)

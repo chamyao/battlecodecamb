@@ -182,6 +182,13 @@ _b("slot_radius", "Num", "Num")
 _b("slot_stun", "Num", "Num")
 _b("unit_is", "Unit Champ", "Bool")
 _b("unit_shield", "Unit", "Num")
+_b("unit_tributing", "Unit", "Bool")
+_b("unit_max_health", "Unit", "Num")
+_b("unit_strength", "Unit", "Num")
+_b("unit_focus", "Unit", "Num")
+_b("enemies_near", "Tile Num", "Num")
+_b("allies_near", "Tile Num", "Num")
+_b("strength_at", "Tile Num", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)
