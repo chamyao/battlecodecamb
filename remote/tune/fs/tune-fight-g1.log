@@ -113,3 +113,5 @@ TypeError: '<' not supported between instances of 'tuple' and 'int'
 [60] claude-haiku-5-5 island 0: score 0.505 | best 0.677 (#30) $1.97 | 2008s
 [61] claude-haiku-5-5 island 1: score 0.662 | best 0.677 (#30) $1.97 | 2045s
 [62] claude-haiku-5-5 island 3: score 0.284 | best 0.677 (#30) $2.17 | 2080s
+[63] claude-opus-5-5 island 3: score 0.661 | best 0.677 (#30) $2.17 | 2204s
+done: 51 programs (4 invalid), spent $2.17; best #30 score 0.677 -> /root/bc/tune-fs/runs/tune-fight-g1/best.policy
