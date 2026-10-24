@@ -82,10 +82,14 @@ struct Tiles
 {
 	std::shared_ptr<const Bitboard> b;
 };
+// A distance field: row-major W x H in the simulator, the host's chunked layout in the bot.
 struct Field
 {
-	std::shared_ptr<const std::vector<std::uint16_t>> d;
+	std::shared_ptr<std::uint16_t[]> d;
 };
+#ifdef GENOME_BOT
+constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map (100 x 100)
+#endif
 enum OptionKind
 {
 	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK
@@ -445,35 +449,50 @@ public:
 	// themselves are allowed). One engine distance-field call, priced by the Api.
 	Field field(const Tiles& goals)
 	{
-		auto d = std::make_shared<std::vector<std::uint16_t>>(static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
-		if (goals.b && goals.b->any(m.H))
-		{
-			Bitboard blocked = m.walls, visited;
-			blocked |= m.holes;
-			blocked |= m.altars;
-			blocked |= m.spawn_mask[1 - api.team()];
-			blocked.andnot(*goals.b);
-			api.distance_field(blocked, *goals.b, nullptr, cbs::kUnreachable, d->data(), visited);
-			extra(97 * chunks() - 320);
-		}
-		return { d };
+		if (!goals.b || !goals.b->any(m.H)) return empty_field();
+		Bitboard blocked = m.walls;
+		blocked |= m.holes;
+		blocked |= m.altars;
+		blocked |= m.spawn_mask[1 - api.team()];
+		blocked.andnot(*goals.b);
+		return run_field(blocked, *goals.b, nullptr);
 	}
 	// Walking distance field to `goals` over every tile not in `walls` (goal tiles always allowed). The
 	// search stops after the first distance layer that reaches a tile of `stop` (empty: the whole map);
 	// tiles beyond it read as unreachable.
 	Field field_avoid(const Tiles& goals, const Tiles& walls, const Tiles& stop)
 	{
-		auto d = std::make_shared<std::vector<std::uint16_t>>(static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
-		if (goals.b && goals.b->any(m.H))
-		{
-			Bitboard blocked, visited;
-			if (walls.b) blocked = *walls.b;
-			blocked.andnot(*goals.b);
-			const bool stops = stop.b && stop.b->any(m.H);
-			api.distance_field(blocked, *goals.b, stops ? stop.b.get() : nullptr, cbs::kUnreachable, d->data(), visited);
-		}
-		return { d };
+		if (!goals.b || !goals.b->any(m.H)) return empty_field();
+		Bitboard blocked;
+		if (walls.b) blocked = *walls.b;
+		blocked.andnot(*goals.b);
+		const bool stops = stop.b && stop.b->any(m.H);
+		return run_field(blocked, *goals.b, stops ? stop.b.get() : nullptr);
 	}
+	// A full-map field the genome can read anywhere. Simulator: the Api's search, row-major. Bot: the
+	// host search straight into a buffer we own, read in the host's chunked layout. (The bot's
+	// Api::distance_field fills only the champion's box and the dests, for the interpreter's needs, and
+	// filling a 20 KB array costs ~1 fuel per byte; the host initialises every entry itself.)
+	Field run_field(const Bitboard& blocked, const Bitboard& roots, const Bitboard* dests)
+	{
+#ifdef GENOME_BOT
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[kBotFieldWords]); // uninitialised: the host writes all of it
+		Bitboard visited;
+		std::uint16_t c = 0;
+		if (dests) cambc::detail::sdk_DistanceField_ComputeToWithExpansionCount(blocked.w, roots.w, dests->w, visited.w, d.get(), cbs::kUnreachable, &c);
+		else cambc::detail::sdk_DistanceField_ComputeWithExpansionCount(blocked.w, roots.w, visited.w, d.get(), cbs::kUnreachable, &c);
+		return { d };
+#else
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
+		std::fill(d.get(), d.get() + static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
+		Bitboard visited;
+		api.distance_field(blocked, roots, dests, cbs::kUnreachable, d.get(), visited);
+		extra(field_price(dests != nullptr));
+		return { d };
+#endif
+	}
+	Field empty_field() { return {}; }
+	double field_price(bool stopped) const { return stopped ? 97 * chunks() - 320 : 97 * chunks() - 320; } // re-fit (see FUEL.md)
 	// Nearest tile of `cand` from `from` by walking over tiles not in `walls` (ties: row-major); invalid if none.
 	Tile walk_nearest(const Tiles& cand, Tile from, const Tiles& walls)
 	{
@@ -487,7 +506,12 @@ public:
 	double field_at(const Field& f, Tile t) const
 	{
 		if (!f.d || !in_bounds(t)) return 1e9;
-		const std::uint16_t v = (*f.d)[m.idx(t.v())];
+#ifdef GENOME_BOT
+		const int i = ((t.y >> 3) * static_cast<int>(cbs::hostbb::md.chunked_width) + (t.x >> 3)) * 64 + (t.y & 7) * 8 + (t.x & 7);
+		const std::uint16_t v = f.d[i];
+#else
+		const std::uint16_t v = f.d[m.idx(t.v())];
+#endif
 		return v == cbs::kUnreachable ? 1e9 : v;
 	}
 
