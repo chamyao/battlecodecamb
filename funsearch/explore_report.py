@@ -36,40 +36,38 @@ def exec_blocks_of(run, rows, valid):
     return {k: set(v) for k, v in got.items()}
 
 
-def gems_per_capture(metrics):
-    """Our gems per capture pooled over the screen opponents (builtin:starter excluded); None when not logged."""
-    cap = gem = 0.0
-    for k, m in (metrics or {}).items():
-        if isinstance(m, dict) and "captures" in m and k != "builtin:starter":
-            cap += m["captures"][0] * m["games"]
-            gem += m["gems_captured"][0] * m["games"]
-    return gem / cap if cap else None
+def yield_vs(metrics, ref_name):
+    """(our gems per capture - ref's, our win rate) in the screen games against ref_name: both sides' yield is
+    measured in the same games, so no seed baseline is needed. None when not logged."""
+    m = (metrics or {}).get(ref_name)
+    if not isinstance(m, dict) or "captures" not in m or not m["captures"][0] or not m["captures"][1]:
+        return None
+    ours = m["gems_captured"][0] / m["captures"][0]
+    theirs = m["gems_captured"][1] / m["captures"][1]
+    return ours - theirs, ours, theirs, m["win_rate"]
 
 
 def yield_report(rows, valid, ref_name="v21", top=8, flag_delta=1.0):
-    """Capture yield next to the score: top children by score with gems per capture vs the best seed's, and a FLAG
-    for any child with gems per capture >= seed + flag_delta while winning >= 50% vs ref_name in its screen."""
-    seeds = [r for r in valid if r["model"] == "seed" and gems_per_capture(r["metrics"]) is not None]
-    kids = [r for r in valid if r["model"] not in ("seed", "reset") and gems_per_capture(r["metrics"]) is not None]
-    if not seeds or not kids:
+    """Capture yield next to the score: top children by score with gems per capture against ref_name in the same
+    games (child vs ref), and a FLAG for any child at >= ref + flag_delta while winning >= 50% vs ref_name."""
+    kids = [r for r in valid if r["model"] not in ("seed", "reset") and yield_vs(r["metrics"], ref_name)]
+    if not kids:
         print("  yield: not logged yet (needs the capture metrics build)")
         return
-    base = gems_per_capture(max(seeds, key=lambda r: r["score"])["metrics"])
-    def ref_wr(r):
-        m = r["metrics"].get(ref_name)
-        return m["win_rate"] if isinstance(m, dict) else None
     line = []
     for r in sorted(kids, key=lambda r: -r["score"])[:top]:
-        g, w = gems_per_capture(r["metrics"]), ref_wr(r)
-        line.append(f"#{r['id']} {r['score']:.3f} gpc {g:.1f} ({g - base:+.1f}) vs {ref_name} {w if w is None else f'{w:.0%}'}")
-    print(f"  yield (gems per capture, seed {base:.1f}; top by score): " + "  ".join(line))
-    best = max(kids, key=lambda r: gems_per_capture(r["metrics"]))
-    print(f"  yield best: #{best['id']} gpc {gems_per_capture(best['metrics']):.1f} score {best['score']:.3f}")
+        d, ours, theirs, w = yield_vs(r["metrics"], ref_name)
+        line.append(f"#{r['id']} {r['score']:.3f} gpc {ours:.1f} vs {theirs:.1f} ({d:+.1f}) win {w:.0%}")
+    print(f"  yield vs {ref_name} (gems per capture, child vs {ref_name} in the same games; top by score): " +
+          "  ".join(line))
+    best = max(kids, key=lambda r: yield_vs(r["metrics"], ref_name)[0])
+    d, ours, theirs, w = yield_vs(best["metrics"], ref_name)
+    print(f"  yield best: #{best['id']} gpc {ours:.1f} vs {theirs:.1f} ({d:+.1f}), win {w:.0%}, score {best['score']:.3f}")
     for r in kids:
-        g, w = gems_per_capture(r["metrics"]), ref_wr(r)
-        if g - base >= flag_delta and w is not None and w >= 0.5:
-            print(f"  FLAG yield: #{r['id']} gems per capture {g:.1f} ({g - base:+.1f} vs seed) with {w:.0%} vs {ref_name} "
-                  f"(score {r['score']:.3f})")
+        d, ours, theirs, w = yield_vs(r["metrics"], ref_name)
+        if d >= flag_delta and w >= 0.5:
+            print(f"  FLAG yield: #{r['id']} gems per capture {ours:.1f} vs {ref_name} {theirs:.1f} ({d:+.1f}) with "
+                  f"{w:.0%} vs {ref_name} (score {r['score']:.3f})")
 
 
 def report(run, step=25):
