@@ -382,3 +382,15 @@ Fold into the H17/H18 pull if it has not happened (one pull), else the next boun
 later (contains fc797d0). It merges deploy/v0 ec9778c: group_rate(Tile) with its calibrated cost row (~564 + 29/camp;
 16 sensors, 0 provisional rows). interp/ and sim/ CHANGED: rebuild interp_eval + fuel_turns, pytest (2029). Same
 command line as H17/H18; group_rate joins the vocab-variant list automatically.
+
+## Job H20 (2026-10-24 16:20 UTC, hybrid line session; per the FunSearch lead): ladder v23 (style-gconv1)
+Fold into the H17-H19 pull if it has not happened (one pull), else the next boundary. Require funsearch/runs dccd4b1 or
+later (contains fce1ade). It merges deploy/v0 84bc6a6 (v23 = policies/candidates/style-gconv1.policy, v21 + sensor-
+driven banking; sim fix 13894d4: nearest_by_walk from an off-map origin). sim/ CHANGED: rebuild interp_eval +
+fuel_turns, pytest (2029). Relaunch changes (on top of H17/H18):
+1. League arg: add policies/pool/style-gconv1.policy to --fixed (comma-separated with any current --fixed entries).
+2. --island-seeds: replace island 1's v21 with style-gconv1, i.e.
+   `--island-seeds policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-82.policy`
+   (island 0 keeps v21 first: the fuel checks and the bar use it.)
+The bar stays v21 (no change to members/best); --yield-ref stays v21.
+Check: "re-seeded island 1 with style-gconv1"; new children's metrics include a "style-gconv1" opponent.
