@@ -70,6 +70,14 @@ def main():
     ap.add_argument("--change-weights", default="0.55,0.3,0.15",
                     help="with --explore: weights of the edit, plan and rewrite change types (rewrites always use "
                          "Opus; in the first test they all scored ~-0.2)")
+    # constant hill-climb on a promising child before confirmation (no API cost)
+    ap.add_argument("--tune-children", action="store_true",
+                    help="a child that screens within --tune-slack of its best parent and whose constants differ "
+                         "from it gets a (1+1)-ES on the constants it added or changed before confirmation")
+    ap.add_argument("--tune-steps", type=int, default=8)
+    ap.add_argument("--tune-games", type=int, default=16, help="games per opponent per tuning evaluation")
+    ap.add_argument("--tune-slack", type=float, default=0.05)
+    ap.add_argument("--tune-margin", type=float, default=0.02, help="a mutant must beat the incumbent by this much")
     ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu (default: all axes)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
@@ -97,8 +105,9 @@ def main():
     confirmed = {p.metrics["screen_fp"]: p for p in db.all
                  if p.metrics.get("confirmed") and "screen_fp" in p.metrics}
 
-    def score(text, confirm=False):
-        r = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed)
+    def score(text, confirm=False, screened=None):
+        r = screened or evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads,
+                                 seed=args.eval_seed)
         if not r.ok:
             return r
         fp = fingerprint(r.per_opponent)
@@ -207,6 +216,32 @@ def main():
                 f.write(json.dumps({"program": pid, "score": score, "model": model, "proposal": text}) + "\n")
 
     rng = random.Random(len(db.all))
+    tune_lock = threading.Lock()
+
+    def tune_child(parent, text):
+        """--tune-children: screen the child; if it is near its best parent and changed constants, hill-climb
+        those constants on fresh seeds. Returns (screen result to reuse or None, text, tuned info or None)."""
+        from .tune import changed_constants, climb_child
+        if not changed_constants(parent.text, text):
+            return None, text, None
+        scr = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed)
+        par = parent.metrics.get("screen_score", parent.score)
+        if not scr.ok or scr.score < par - args.tune_slack:
+            return scr, text, None
+        with tune_lock:
+            seed0 = 100000 + rng.randrange(10 ** 6)
+            crng = random.Random(rng.random())
+
+        def ev(t, k):
+            r = evaluate(t, opponents=opponents, games=args.tune_games, threads=args.eval_threads, seed=seed0 + k)
+            return r.score if r.ok else None
+        t0 = time.time()
+        tuned, info = climb_child(parent.text, text, ev, steps=args.tune_steps, rng=crng, margin=args.tune_margin)
+        if info is None:
+            return scr, text, None
+        info.update(screen=round(scr.score, 4), parent_screen=round(par, 4), seconds=round(time.time() - t0, 1))
+        # an unchanged text keeps its screen; a tuned one is screened again (fingerprint of the tuned text)
+        return (scr if tuned == text else None), tuned, info
     stop = threading.Event()
     started = len(db.all)
     t0 = time.time()
@@ -245,8 +280,13 @@ def main():
             return
         if args.explore:
             text = keep_header(parents[-1].text, text)
-        r = score(text)
+        screened, tuned_info = None, None
+        if args.tune_children:
+            screened, text, tuned_info = tune_child(parents[-1], text)
+        r = score(text, screened=screened)
         r.per_opponent["cost"] = cost
+        if tuned_info:
+            r.per_opponent["tuned"] = tuned_info
         if variant:
             r.per_opponent["variant"] = variant
             if r.ok:
