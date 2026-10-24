@@ -38,3 +38,18 @@ One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-s
   0 turns >= 100k, 24 turns > 80k (campreset 100), max non-first turn 87.1k, first turn up to 167k.
 - Needs: real-cambc safety checks. Supersedes candidate 2 (failed fuel). If starvation still caps in real
   cambc, the tune line will raise the gate or drop T240.
+
+## 4. rall2-ca4 (hybrid line), sent 2026-10-24 07:52 UTC
+
+- Policy: `policies/candidates/rall2-ca4.policy` on branch `hybrid/candidates` @ 7933e00.
+- What: live v18 (tune-r-all-v2) + cast-ahead: before the in-range fight, cast damage/stun (not
+  dash/shield/heal/reset) at the nearest enemy champion within 4 tiles; no move, turn continues, sets
+  team_target. Uses no slot_*/unit_* blocks.
+- League (tools/league.py, 160 games per pair, all maps x both sides). Pool: tune5-campreset (v17),
+  tune-r-all-v2 (v18, bar), tune-5, opp-hunter2a/2b/2c, opp-icecream, opp-odyssey, opp-metab, opp-metadraft,
+  cr-m, cr-m-ca4, hyb-t5m-r-camp. rall2-ca4 1711 [1696-1723] vs v18 1659 [1645-1673]: beyond the 90% interval.
+  Worst matchup cr-m-ca4 55%; vs v18 57%.
+- Sim safety (80-game --bot-seeds set vs v18): 50/80; 0 capped turns, 0 crashes; fuel 23.0k vs 21.0k per
+  champion-turn (+10%); near-cap turns at a 70% cap 4.4 vs 3.6 per game. First-turn fuel not measurable in sim.
+- Fights: vs v18 K 8.4/6.8, D 11.1/12.8; vs hunter2b 78.7%; vs metadraft 85.6%.
+- Needs: bot session's safety checks (first turn < 200k, BOT_VERIFY).
