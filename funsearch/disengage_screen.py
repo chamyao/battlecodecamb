@@ -33,15 +33,22 @@ if not at_spawn and health() < {d} * max_health() and enemies_within(8) > 0:
 V = {"R8": None, "D0.5": (0.5,), "D0.7": (0.7,), "D0.8": (0.8,), "D0.7-C0.5": (0.7, 0.5), "D0.8-C0.6": (0.8, 0.6)}
 
 
+BASE = "policies/tune-5.policy"  # DISENGAGE_BASE overrides: a base that already has the safe recall
+
+
 def run(name):
-    base = open("policies/tune-5.policy").read()
-    r8 = safe_recall(base, 8, 0.3)
+    import os
+    bf = os.environ.get("DISENGAGE_BASE")
+    base = open(bf or BASE).read()
+    r8 = base if bf else safe_recall(base, 8, 0.3)
     t = r8 if V[name] is None else disengage(r8, *V[name])
     pol = compile_text(t)
     r = {}
     for on in ("v7zg-cast", "opp-metadraft"):
         r[on] = metrics(pol, compile_file(f"policies/{on}.policy"), games=80, seed=9421)
-    r["vs_t5"] = h2h(pol, compile_text(base), 400, 9422, threads=1)["win_rate"]
+    if V[name] is None:
+        return name, r
+    r["vs_base"] = h2h(pol, compile_text(r8), 400, 9422, threads=1)["win_rate"]
     return name, r
 
 
