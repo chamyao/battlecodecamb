@@ -70,6 +70,9 @@ def allowed(nm):
     if nm=='group_gems(TileSet)': return ['1','groups','camps','ch']  # static loop over groups and their camps
     if nm in ('group_threat(Tile)','group_hp(Tile)','group_rate(Tile)'): return ['1','camps']  # scan for the tile's camp (camp() calls are API scopes)
     if nm=='respawning_visible_spawns()': return ['1','groups']
+    if nm in ('wolf_tiles()','elk_tiles()','gem_cluster_tiles()','gold_cluster_tiles()','monolith_tiles()','golem_tiles()'): return ['1','ch','camps']  # loop over every map camp
+    if nm=='camp_spawn_tiles()': return ['1','ch','camps']
+    if nm in ('filter(UnitList,UnitPred)','weakest(UnitList)','richest(UnitList)','nearest(UnitList)'): return ['1','dbits']  # dbits = list length (note_list)
     if nm in ('ring(TileSet,Num)','filter(TileSet,TilePred)','first(TileSet)','count(TileSet)'): return ['1','H','altars']
     return ['1','H','ch','occ','occ*H','dbits','exp*ch']
 res={}

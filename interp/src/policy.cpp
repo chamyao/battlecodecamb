@@ -14,6 +14,10 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#ifndef INTERP_LIST_FEAT
+#define INTERP_LIST_FEAT(n) ((void)0)
+#endif
+
 namespace interp
 {
 using cbs::Api;
@@ -681,6 +685,8 @@ struct Interp
 	// its gate always passing vs tune-2, 4 maps x 2 sides): without it the simulator read the
 	// gate a median 1.8k low; with it, 0.
 	static constexpr std::int64_t kGateDeferMilli = 24000;
+	static constexpr std::int64_t kCampTilesMilliPerCamp = 43500;
+	static constexpr std::int64_t kFieldInitMilliPerTile = 2050;
 	std::uint64_t turn_calls0 = 0;
 	std::int64_t turn_spent0 = 0, turn_adj = 0;
 	void charge_turn_cost(bool final)
@@ -724,9 +730,18 @@ struct Interp
 		}
 		api.compute(std::max<std::int64_t>(0, milli / 1000));
 	}
+	// A block looping over a unit list: its length prices the block (simulator: the dests term;
+	// the profiling build records it as the scope's dbits).
+	void note_list(std::size_t n)
+	{
+		if (api.count_charges) work.dests += static_cast<std::int64_t>(n);
+		INTERP_LIST_FEAT(n);
+	}
 	// Distance field through the API, recording its work for the calling block's cost.
 	int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, Bitboard& visited)
 	{
+		if (field.empty() && api.count_charges)
+			api.compute(kFieldInitMilliPerTile * m().W * m().H / 1000); // one-off zero fill (bot profile: 2.05 a tile, 3 maps)
 		field.resize(static_cast<std::size_t>(m().W) * m().H);
 		const int n = api.distance_field(walls, roots, dests, cbs::kUnreachable, field.data(), visited);
 		if (api.count_charges)
@@ -1014,6 +1029,10 @@ struct Interp
 		{
 			for (const auto& cp : m().camps) camp_tiles.set(cp.pos);
 			camp_tiles_ready = true;
+			// One-off loop over every map camp, outside the per-block fits (which pool all turns):
+			// bot profile of style-gconv1, first closest() of the game minus later ones,
+			// 43.5 per camp on 00swirl (106 camps) and 00road-of-riches (132).
+			if (api.count_charges) api.compute(kCampTilesMilliPerCamp * static_cast<std::int64_t>(m().camps.size()) / 1000);
 		}
 		Bitboard vis, unseen = camp_tiles;
 		api.vision(vis);
@@ -1657,6 +1676,7 @@ struct Interp
 		{
 			const Value l = eval(a[0]);
 			eval(a[1]); // in_attack_range is the only UnitPred so far
+			note_list(l.units->size());
 			Value r;
 			r.units = std::make_shared<std::vector<Unit>>();
 			ChampionInfo ci{};
@@ -1799,6 +1819,7 @@ struct Interp
 			ChampionInfo ci{};
 			const bool have_me = me(ci);
 			double best = 1e18;
+			note_list(l.units->size());
 			for (const Unit& u : *l.units)
 			{
 				Vec2 pos;

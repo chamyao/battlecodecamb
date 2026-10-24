@@ -55,7 +55,7 @@ inline void exclude(long long t0) { if (depth > 0) stack[depth - 1].excl += t0 -
 ''')
 # interpreter blocks
 p=f'{src}/vendor_interp_policy.cpp';s=open(p).read()
-s=s.replace('#include "interp/policy.h"','#include "interp/policy.h"\n#include "sprof.h"',1)
+s=s.replace('#include "interp/policy.h"','#include "interp/policy.h"\n#include "sprof.h"\n#define INTERP_LIST_FEAT(n) sprof::feat(0, static_cast<long long>(n))',1)
 for a,tag in [("""		Charge charge{ *this, e.op, false };
 		const auto& a = e.args;
 		switch (e.op)""","static_cast<int>(e.op)"),("""		Charge charge{ *this, e.op, true };
