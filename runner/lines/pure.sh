@@ -77,6 +77,14 @@ if [ "$phase" = g4 ] && [ ! -f runs/ec2-v20 ]; then
     touch runs/ec2-v20 && log "pure: v20 opponent files from $V20_REV (fixed from g5): $(tr '\n' ' ' < runs/pure_fixed.txt)" ||
     log "pure: v20 opponent file sync failed"
 fi
+# One-shot (pure line, 12:50 UTC): live v21 tune-v20-L1c from g6 (g5 started 12:36 with v20 frozen in pure4.json).
+V21_REV=0fcb030
+if [ "$phase" = g4 ] && [ -f runs/ec2-v20 ] && [ ! -f runs/ec2-v21 ]; then
+  git fetch -q origin funsearch/pure &&
+    git checkout -q "$V21_REV" -- policies/tune-v20-L1c.policy policies/fs-p3.policy runs/pure_fixed.txt runs/pure_send.txt &&
+    touch runs/ec2-v21 && log "pure: v21 opponent files from $V21_REV (fixed from g6): $(tr '\n' ' ' < runs/pure_fixed.txt)" ||
+    log "pure: v21 opponent file sync failed"
+fi
 if ! running "league --name pure4"; then
   if [ "$phase" = g3 ] && [ -f runs/ec2-launched ] && newlog | grep -q 'PROMOTED fs-p3' &&
      python3 -c "import json,sys; sys.exit(json.load(open('runs/pure4.json'))['gen'] != 4)"; then
