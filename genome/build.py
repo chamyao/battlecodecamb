@@ -46,7 +46,9 @@ def build(source, op_fuel=None):
 
 
 def _rt_stamp():
-    return "".join(hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(RT.glob("*.h")))
+    # the simulator's headers too: genomes inline cbs::Api (charges, layout)
+    hs = sorted(RT.glob("*.h")) + sorted((ROOT / "sim" / "include" / "cbs").glob("*.h"))
+    return "".join(hashlib.sha256(p.read_bytes()).hexdigest() for p in hs)
 
 
 if __name__ == "__main__":
