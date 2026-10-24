@@ -508,8 +508,7 @@ public:
 		FIELD_PROF_END(c, dests != nullptr);
 		return { d };
 #else
-		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
-		std::fill(d.get(), d.get() + static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]); // cbs::distance_field writes every entry
 		Bitboard visited;
 		FIELD_PROF_BEGIN;
 		// the bot runs the host search directly (no memo), so it is priced here on its own expansions

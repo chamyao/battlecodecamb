@@ -419,10 +419,16 @@ void Api::visible_camps(std::vector<std::uint32_t>& out)
 		charge(Call::visible_camps, 0, occ.count(g_.map().H)); // n2: tiles (calibrated as dbits)
 		count_charges = false;
 	}
-	for (std::uint32_t c = 0; c < g_.map().camps.size(); ++c)
+	// camp(c) succeeding with health > 0, on each camp (vision looked up once)
+	if (playing())
 	{
-		CampRecord cr{};
-		if (camp(c, &cr) == Err::success && cr.health > 0) out.push_back(c);
+		const Bitboard& v = vis();
+		const std::size_t n = std::min(g_.map().camps.size(), g_.camps.size());
+		for (std::uint32_t c = 0; c < n; ++c)
+		{
+			const Camp& k = g_.camps[c];
+			if (g_.map().in_bounds(k.pos) && v.test(k.pos) && k.life != CampLife::dead && k.hp > 0) out.push_back(c);
+		}
 	}
 	if (bot) count_charges = true;
 }
