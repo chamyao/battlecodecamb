@@ -35,6 +35,24 @@ Islands (runs/style_launch.sh, budgets in runs/style_budgets: h 3.95, b 3.5, a 2
   (restart h only: SIGTERM the h league and child by PID first; b keeps running).
 - Comment h's validation lines (and b's) on PR #3 at each boundary.
 
+## Job S12 (16:05 UTC): gconv -> gyield (two-term gap), and b -> b2 (bar v21) after b's boundary verdict
+
+On funsearch/style 983462f or later (deploy/v0 ec9778c group_rate + v22 fix; rebuild interp_eval, configure first;
+pytest 2024).
+1. gconv: SIGTERM its funsearch.run by PID and leave it stopped (it is done at $0.72; its best child is
+   policies/style-gconv1.policy). Start the fresh two-term run:
+```
+GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gyield 1.27 \
+  conversion:max:0.05,gems_per_capture:max:3 policies/style-gconv1.policy funsearch/styles/g_conversion.txt \
+  >> runs/style8-gyield.out 2>&1 &
+```
+   Resumable like gconv (rerun the same command after a restart). First lines: two "gap metric ..." lines and
+   "gap: 2 term(s)".
+2. b: when runs/style8-b.log logs its first boundary verdict ("no promotion" / "PROMOTED"), put a STOP file in
+   runs/style8-b-g1/, SIGTERM b by PID, and let the check-in start b2 (bar/cambc-ref tune-v21, $0.95, same
+   directive and threads as b). If b PROMOTED, comment the lines on PR #3 first.
+
 ## Job S8 (14:20 UTC; released 14:45 on 6e8cc17): conversion gap run, $2 (lead-released)
 
 On funsearch/style 6e8cc17 or later (deploy/v0 d23c1cb: all 15 sensors calibrated; hill-climb + helpers). Rebuild interp_eval (configure first)
