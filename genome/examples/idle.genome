@@ -1,0 +1,7 @@
+"""Idle: lists the options and scores them all 0 (per-turn fixed cost + listing)."""
+
+@gene("i1", "nothing is worth doing (picks: the first)")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    return 0
