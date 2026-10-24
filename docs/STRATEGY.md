@@ -162,6 +162,13 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   Hits the 100k cap on 4 of 240 test turns (01big-world as A, long tribute
   trips); the fix goes in the policy (a fuel_remaining() guard on optional
   searches, tuned by the tune line), not in the bot.
+  14 = tune-3 (`deploy/v0` 0812ad5): tune-2 + camp-goal dash only if
+  fuel_remaining() > 55000. **But in the cambc bot fuel_remaining() returned
+  2^40 until `deploy/v0` 756d052** (an inline 'unlimited' branch the bot always
+  took), so version 14 plays exactly like tune-2, and no earlier ladder policy
+  could ever read its real fuel. The core principle's main self-aware block was
+  inert on the ladder; the sim applied it. Fixed; a rebuilt tune-3 follows.
+  Lesson: every block that reads game/host state needs a cambc-vs-sim check.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
