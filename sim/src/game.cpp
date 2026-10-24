@@ -568,6 +568,11 @@ void Game::process_captures()
 		if (events_on())
 			std::printf("@@EV r=%d capture group=%d team=%d gems=%d gold=%d champs=%d\n", round, static_cast<int>(g), n ? champs[who[0]].team : -1,
 						static_cast<int>(info.gems), static_cast<int>(info.gold), n);
+		if (n)
+		{
+			teams[champs[who[0]].team].captures++;
+			teams[champs[who[0]].team].gems_captured += info.gems;
+		}
 		for (int i = 0; i < n; ++i)
 		{
 			Champion& ch = champs[who[i]];
@@ -737,6 +742,7 @@ void Game::complete_channel(int c)
 		const std::uint32_t g = ch.gems;
 		ch.gems = 0;
 		teams[ch.team].submitted += g;
+		teams[ch.team].tributes++;
 		if (champion_design(ch.type).passive == Passive::stun_immunity) grant_gold(ch, 2 * g, true);
 		recompute_stats(ch);
 		check_win(ch.team);
