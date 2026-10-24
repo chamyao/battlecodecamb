@@ -20,6 +20,8 @@ void Api::fold_prices()
 		folded_[i] = { prices_->base[i] + prices_->per_row[i] * ctx.map_h + prices_->per_chunk[i] * ch,
 					   prices_->per_n_milli[i] + prices_->per_n_chunk_milli[i] * ch, prices_->per_n2_milli[i],
 					   prices_->per_n3_milli[i] + prices_->per_n3_chunk_milli[i] * ch };
+	const Folded& c = folded_[static_cast<int>(Call::compute)];
+	compute_identity_ = c.fixed == 0 && c.kn == 1000 && c.kn2 == 0 && c.kn3 == 0;
 }
 
 const Bitboard& Api::vis()
@@ -713,6 +715,19 @@ void Api::reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
 
 namespace
 {
+// A search the simulator has just run for the same request (Api::distance_field): when the memo
+// misses on exactly that search, its field is copied instead of searched again. Set only around
+// one memo query (no charge, so no suspension, can happen in between).
+struct FieldHint
+{
+	const Bitboard *walls, *roots, *dests;
+	int max_distance;
+	const std::uint16_t* dist; // row-major
+	const Bitboard* visited;
+	int count;
+};
+thread_local const FieldHint* field_hint = nullptr;
+
 // field_memo Ops over the simulator's BFS, with the host's ComputeTo semantics (all dests).
 struct SimFieldOps
 {
@@ -734,9 +749,18 @@ struct SimFieldOps
 	std::uint16_t compute(const Board& walls, const Board& roots, const Board* dests, std::uint16_t maxd, std::uint16_t* field,
 						  Board& visited) const
 	{
+		std::fill(field, field + cw * ((H + 7) / 8) * 64, kUnreachable); // the map's chunks (fidx never reads beyond)
+		// The hint's search is this one when walls, roots and the limit are the same and both stop at
+		// the same single tile (first dest reached == all dests reached).
+		if (const FieldHint* h = field_hint; h && &walls == h->walls && &roots == h->roots && h->max_distance == maxd && dests && h->dests &&
+											   dests->count(H) == 1 && *dests == *h->dests)
+		{
+			visited = *h->visited;
+			visited.for_each_unordered(H, [&](int x, int y) { field[fidx(x, y)] = h->dist[y * W + x]; });
+			return static_cast<std::uint16_t>(h->count);
+		}
 		// distance_field(..., all_dests = true), written straight into the chunked layout.
 		Row128 seen[kMaxDim];
-		std::fill(field, field + cw * ((H + 7) / 8) * 64, kUnreachable); // the map's chunks (fidx never reads beyond)
 		const Row128 full = W >= 128 ? ~Row128{ 0 } : (Row128{ 1 } << W) - 1;
 		auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
 		auto pop = [](Row128 v) { return std::popcount(static_cast<std::uint64_t>(v)) + std::popcount(static_cast<std::uint64_t>(v >> 64)); };
@@ -802,7 +826,10 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	const Vec2 me = have_me ? g_.champs[champ_].pos : Vec2{};
 	int qr = 1;
 	if (dests && have_me) dests->for_each(H, [&](int x, int y) { qr = std::max(qr, field_memo::cheb(x, y, me)); });
+	const FieldHint hint{ &walls, &roots, dests, max_distance, dist, &visited, n };
+	field_hint = &hint;
 	const MemoCharge mc = memo_query(walls, roots, dests, max_distance, me, have_me, std::min(qr, 3));
+	field_hint = nullptr;
 	last_field = { mc.layers, nd };
 	charge(Call::distance_field, mc.layers, nd, mc.misses);
 	return n;

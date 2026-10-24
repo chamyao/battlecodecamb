@@ -93,11 +93,8 @@ struct MemoStats
 	long long calls = 0, misses = 0, layers = 0;
 	long long call_n[static_cast<int>(Call::count)] = {}, call_fuel[static_cast<int>(Call::count)] = {}; // by Call, all charges
 };
-inline MemoStats& memo_stats()
-{
-	static MemoStats s;
-	return s;
-}
+inline MemoStats memo_stats_v; // a plain global: no guard on the charge path
+inline MemoStats& memo_stats() { return memo_stats_v; }
 
 class Api
 {
@@ -155,7 +152,15 @@ public:
 			}
 	}
 	// Charge a policy's own computation (building blocks) explicitly.
-	void compute(std::int64_t fuel) { charge(Call::compute, fuel); }
+	void compute(std::int64_t fuel)
+	{
+		if (!compute_identity_) return charge(Call::compute, fuel);
+		// charge(Call::compute, fuel) when its price is exactly the fuel
+		if (!count_charges) return;
+		spent += fuel;
+		if (memo_stats().enabled || (!unlimited && spent > budget)) [[unlikely]]
+			charge_rest(Call::compute, fuel);
+	}
 	// Yield the rest of this turn.
 	void end_turn()
 	{
@@ -273,6 +278,7 @@ private:
 	};
 	Folded folded_[static_cast<int>(Call::count)];
 	bool custom_price_ = true;
+	bool compute_identity_ = false; // Call::compute costs exactly n
 	void fold_prices();
 	std::int64_t price(Call c, std::int64_t n, std::int64_t n2, std::int64_t n3) const
 	{
