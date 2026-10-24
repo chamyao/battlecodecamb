@@ -211,6 +211,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   conversion 77% -> 82%) but cost farming (captured -108 per game, median bag 30 -> 18): net submitted 626 -> 578.
   24 = revert to v22's ZIP (d86fbda6, ~16:50 UTC). Lesson: bank early only when a threat is near; a small-bag
   bank rule costs more capture time than it saves.
+  25 = genome B318 (genome line, genome/v0 2013533, B318.genome sha256 00e1711a..., bundle genome-b318.zip
+  sha256 548bb21d...; submitted by the genome line's intel session ~20:40 UTC with Cham's go). Gate vs live v22:
+  sim 0.589 over 800, real cambc 46/80, 0 crashes; runs capped turns by design (Cham accepted turns for compute).
+  Revert target: v22's ZIP (d86fbda6). FunSearch candidate style-gsub2-11k33 (cleared the main3r bar) not uploaded.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any

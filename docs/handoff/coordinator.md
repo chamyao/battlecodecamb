@@ -14,10 +14,10 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
 
 ## Live and history
-- Live (Oct 24 ~16:50 UTC): ladder version 24 = re-upload of v22 = v21b (deploy/v0 ee85727, sha256 d86fbda6...): v21's
-  policy on the dead-camp-fixed bot. v23 (style-gconv1, sensor banking) was reverted after 14-36 on the band groups. v20 = tune-fight-2s (6d50156), v19 = rall2-ca4-lean-g (7ef15b2). Chain tonight: v17 tune5-campreset (attack -> reset ->
-  attack), v18 tune-r-all-v2 (+ map fixes, no recall with an enemy within 8), v19 (+ cast-ahead, retreat dash gated
-  at fuel_remaining() > 60000). History: STRATEGY.md "Ladder versions".
+- Live (Oct 24 ~20:40 UTC): ladder version 25 = genome B318 (genome line, separate from the FunSearch lines;
+  bundle sha256 548bb21d...), uploaded by the genome line with Cham's go. Revert target: v24 = v22's ZIP
+  (deploy/v0 ee85727, sha256 d86fbda6...). The genome line shares the ladder slot; it tells the coordinator
+  before uploading. Pending Cham: style-gsub2-11k33 (cleared main3r +15..+51, cambc-safe, ZIP 9a80ccec...).
 - Ranked: tune-5 11-19; v17 7-3; v18 about 11-14. Unranked vs ladder #1-#9 + vc? (same 10 groups each time):
   tune-5 0-50, v17 0-50 (docs/TOP_TEAMS*.md on analysis/sprint1). v19's groups were queued ~08:30 UTC.
 - Why we lose to the top: not sim or bot fidelity (both verified exact in fights). They fight in groups: 70-85% of our
