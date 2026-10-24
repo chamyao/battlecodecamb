@@ -107,17 +107,34 @@ Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights 
   A direction worth trying instead (early screen +4, unconfirmed): choose a rich group (closest of
   goals intersected with rich_spawns(15)) over the nearest camp when it is only a few tiles farther.
 - Constant tuning around the current best finds nothing better (its thresholds are locally
-  optimal). The open lever is STRUCTURAL camp choice: today the goal is simply the closest camp
-  spawn. Try scoring candidate camps by gems per turn of travel and fighting (group value vs
-  distance and danger), splitting the team between rich groups, or committing together to the
-  richest one, rather than adjusting the existing numbers.
+  optimal). Camp choice is the second lever: today the goal is simply the closest camp spawn.
+Observations from 50 games vs the ladder's top 10 (live bot, v16): 0-50. COMBAT IS NOW THE TOP PRIORITY.
+- Per game: our deaths 17.8 vs their 1.6, our kills 0.3 vs their 12.9, damage to champions 7.2k vs
+  21.1k. Max HP is equal at round 100, yet their first kill comes at a median of round 175: they win
+  fights at even strength, mostly with 1-2 champions, not packs. The item gap comes from the kills.
+- In the 5 rounds before each of our deaths to a champion the victim attacked an enemy champion only
+  59% of the time, cast an ability on one only 16% (casts went to self or dash 32%), had started a
+  recall (damage cancels it) 23%, attacked a camp 18%. 52% of our dead carried no gems.
+- They engage any enemy in vision within ~5-6 tiles (killers travel 4-6 tiles in the 10 rounds before
+  a kill), use damage/stun/reset abilities on champions, focus one target, and bank big bags
+  (median 57) only when no enemy is within 8 tiles. Meta draft core: Vesper Vale + Heart of Ruin, then
+  Vendetta / Marcella / Ryth / Prism / Tavi / Willow.
+- Directions: fight back when an enemy champion is close (cast damage/stun at it, attack it, name it
+  with set_team_target so allies converge, keep attacking it rather than a camp); never start a recall
+  while in_danger() (move away first); tribute at once when an enemy is near while carrying.
+- MEASURED in the simulator (160 games each): a plain chase rule (go to the weakest enemy within 6 when
+  local_strength(6) >= 1) LOST to the live bot (33%) and did not raise kills; a 3-4 tile fight-back
+  rule was neutral; the meta draft alone with that rule lost more. So a naive chase is not it: what
+  is missing is winning the fight once in it (ability timing, stun then burst, focus, kiting, not
+  splitting attention with camps). Simulator opponents are passive; judge combat changes by kills,
+  deaths and damage, not only by the win rate against the live bot.
 """
 
 GRAMMAR += """\
 Macros (the one exception to "no functions"): top-level `def name(a, b):` definitions are
 expanded inline where called. A macro whose whole body is `return <expr>` is used as a
 value; any other macro is used as a step. Arguments are re-evaluated at each use (bind them
-with let first to pay their fuel once). No recursion. Build reusable helpers this way.
+with let first to pay their fuel once). No recursion. Build reusable helpers this way. A step macro cannot call another step macro (inline it).
 If you need a capability that no block or macro can express, write a comment line
 `# PROPOSE: <block signature> -> <type>: <what it does and why>` above your policy; it will
 be reviewed for adding to the language. Write the policy with the existing blocks anyway.
