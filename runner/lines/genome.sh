@@ -5,7 +5,7 @@
 # threads it may use, FUNSEARCH_API_KEY in the environment) and pushes $OUT to remote/genome under
 # <name>/ when it exits (and every tick while it runs). At most $MAXJOBS jobs at once.
 G=/root/bc/genome
-MAXJOBS=3; export THREADS=5
+MAXJOBS=4; export THREADS=5  # 4 slots: a job waiting on another (e.g. a resume) only sleeps
 mkdir -p "$G/out" "$G/w"
 # (19:27 UTC pause removed 19:31: Cham confirmed the pause did not include the genome line.)
 if [ ! -d "$G/jobs/.git" ]; then
