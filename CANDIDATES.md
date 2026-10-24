@@ -63,3 +63,13 @@ One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-s
   24.9k); turns >80k 15 (v18 9, 4 was 20); 0 suspended; peak 95.8k on 00ambush/a (v18 peak 89.9k); first turn 166.6k.
 - League (same required pool): lean 1711 [1694-1725] vs v18 1661 [1648-1673].
 - Risk: the 95.8k sim peak is close to the cap. If real cambc caps, hybrid's next lever is sharing closest(goals).
+
+## 4c. rall2-ca4-lean2-d65 (hybrid line), sent 2026-10-24 08:20 UTC: replaces 4b (one real 100k turn)
+
+- Policy: `policies/candidates/rall2-ca4-lean2-d65.policy` on `hybrid/candidates` @ 9c0c7e8.
+- Change vs 4b: v18's camp-goal dash gated at fuel_remaining() > 65000 (was 55000). Lean's worst turn was v18's own
+  far-camp trip (closest(goals) ~20k + dash + move distance fields ~17k each); cast-ahead cost ~0 there.
+- Sim fuel (fuel_turns --enforce --bot-seeds vs v18, all 80 games, first turns excluded): peak 89.3k
+  (v18 89.9k; target <= 90k met), 9 turns >80k (v18 9), mean 23.6k, 0 suspended, first turn max 158.5k.
+- League (required pool + variants, 160 games per pair): d65 1682 [1668-1696] vs v18 1636 [1623-1650], beyond the
+  90% interval. (d70 loses the gain: 1641.)
