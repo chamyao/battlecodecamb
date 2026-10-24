@@ -31,6 +31,9 @@ class EvalResult:
 FIGHT_WEIGHT = 0.0
 # fitting mode (funsearch.run --fit-target): a loaded funsearch/fit.py target; scores become fit fitness
 FIT_TARGET = None
+# gap mode (funsearch.run --gap-metric): {"metric", "sign" (+1 = lower is better), "scale", "weight", "floor",
+# "ref" (compiled reference policy), "baseline" (the reference's own value in a mirror), "games"}
+GAP = None
 FIGHT_MARGIN = 12.0  # champion-kill margin per game that scores full marks (TOP_TEAMS: ~12.9 vs ~0.3)
 
 
@@ -113,6 +116,19 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
             stats.pop("results", None)
             result.per_opponent[name] = stats
             result.score += score_of(stats) * w / sum(weights)
+        if GAP is not None:  # search against one gap metric of our bot, with a win-rate floor vs the reference
+            from . import fights
+            g = fights.play(pol, GAP["ref"], GAP["games"], seed)["summary"]
+            value = g[GAP["metric"]]
+            term = 0.5 + 0.5 * max(-1.0, min(1.0, GAP["sign"] * (GAP["baseline"] - value) / GAP["scale"]))
+            # screening noise: only clearly-below-floor children are penalised (floor minus tol standard errors);
+            # the exact floor is enforced on the final large validation
+            tol = GAP.get("floor_tol", 2.0) * (0.25 / max(1, g["games"])) ** 0.5
+            below = g["win"] < GAP["floor"] - tol
+            result.per_opponent["gap"] = {"metric": GAP["metric"], "value": round(value, 4), "term": round(term, 4),
+                                          "ref_win": round(g["win"], 4), "below_floor": below,
+                                          "floor_used": round(GAP["floor"] - tol, 4)}
+            result.score = (1 - GAP["weight"]) * result.score + GAP["weight"] * term - (1.0 if below else 0.0)
         return result
     except subprocess.TimeoutExpired:
         return EvalResult(error="evaluation timed out")

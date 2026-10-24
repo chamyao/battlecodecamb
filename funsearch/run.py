@@ -43,6 +43,16 @@ def main():
     ap.add_argument("--eval-seed", type=int, default=0, help="same games for every program (fair comparison)")
     ap.add_argument("--islands", type=int, default=4)
     ap.add_argument("--directive", default="", help="style directive added to every prompt (text, or @file)")
+    ap.add_argument("--gap-metric", default="",
+                    help="gap search: NAME:min|max:SCALE, a funsearch/fights.py summary stat of our bot vs --gap-ref "
+                         "(e.g. out_death_share:min:0.1); blended into the score, with --win-floor enforced")
+    ap.add_argument("--gap-ref", default=str(ROOT / "policies" / "tune-v21.policy"), help="reference bot for the gap metric")
+    ap.add_argument("--gap-weight", type=float, default=0.5)
+    ap.add_argument("--gap-games", type=int, default=40, help="games vs the reference per evaluation (events on)")
+    ap.add_argument("--win-floor", type=float, default=0.5,
+                    help="gap search: children below this win rate vs --gap-ref score 1 lower (never preferred)")
+    ap.add_argument("--win-floor-tol", type=float, default=2.0,
+                    help="gap search: screening penalises only win < floor - tol * SE (SE of the --gap-games sample)")
     ap.add_argument("--fit-target", default="",
                     help="fitting run: score = fit to the real top-team stats in this JSON (funsearch/fit.py); "
                          "the target's versions are the opponents and --opponents is ignored for scoring")
@@ -81,6 +91,21 @@ def main():
     opponents = tuple(args.opponents.split(","))
     directive = Path(args.directive[1:]).read_text() if args.directive.startswith("@") else args.directive
     required = [b for b in args.require.split(",") if b]
+    if args.gap_metric:
+        from . import evaluate as ev
+        from . import fights
+        from .evaluate import _compiled_opponent
+        name, direction, scale = args.gap_metric.split(":")
+        ref = _compiled_opponent(args.gap_ref)
+        base = fights.play(ref, ref, 200, 7)["summary"]  # the reference's own value, once (mirror, 200 games)
+        if name not in base:
+            raise SystemExit(f"--gap-metric: unknown stat {name}; choose from {sorted(base)}")
+        ev.GAP = {"metric": name, "sign": 1.0 if direction == "min" else -1.0, "scale": float(scale),
+                  "weight": args.gap_weight, "floor": args.win_floor, "floor_tol": args.win_floor_tol, "ref": ref,
+                  "baseline": base[name],
+                  "games": args.gap_games}
+        print(f"gap metric {name} ({direction}, scale {scale}): reference {Path(args.gap_ref).stem} mirror value "
+              f"{base[name]:.4f}; win floor {args.win_floor} vs it; weight {args.gap_weight}", flush=True)
     if args.fit_target:
         from . import evaluate as ev
         from .fit import load_target

@@ -111,6 +111,7 @@ def summarize(per_game):
     m = max(1, len(engs))
     fk = [g["first_kill_round"] for g in per_game if g["first_kill_round"] is not None]
     their_d = sum(g["their_deaths_in_fights"] for g in per_game)
+    our_d = sum(g["our_deaths_in_fights"] for g in per_game)
     return {
         "games": len(per_game),
         "win": sum(g["win"] for g in per_game) / n,
@@ -125,4 +126,11 @@ def summarize(per_game):
         "engagements": len(engs) / n,
         # share of the OPPONENT's deaths in fights that came while it was outnumbered (TOP_TEAMS "2v1 share")
         "opp_out_death_share": sum(g["their_out_deaths"] for g in per_game) / max(1, their_d),
+        # the same for A itself (gap metrics for our own bot), and A's per-game death counts in fights
+        "out_death_share": sum(g["our_out_deaths"] for g in per_game) / max(1, our_d),
+        "out_deaths": sum(g["our_out_deaths"] for g in per_game) / n,
+        "fight_deaths": our_d / n,
+        "fights_won": sum(e["dealt"] > e["taken"] for e in engs) / m,
+        "dealt_per_fight": sum(e["dealt"] for e in engs) / m,
+        "taken_per_fight": sum(e["taken"] for e in engs) / m,
     }
