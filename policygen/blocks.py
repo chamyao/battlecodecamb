@@ -182,6 +182,7 @@ _b("slot_radius", "Num", "Num")
 _b("slot_stun", "Num", "Num")
 _b("unit_is", "Unit Champ", "Bool")
 _b("unit_shield", "Unit", "Num")
+_b("unit_tributing", "Unit", "Bool")
 
 # Effects
 _b("move_towards", "Tile", VOID)
