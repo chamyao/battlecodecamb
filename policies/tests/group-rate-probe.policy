@@ -1,0 +1,10 @@
+if is_draft():
+    pick(champ_vendetta())
+    end_turn()
+let goal = closest( camp_spawn_tiles() )
+if exists(goal):
+    if group_rate(goal) > 0.3:
+        move_towards(goal)
+        end_turn()
+    move_away_from(goal)
+    end_turn()

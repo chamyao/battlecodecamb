@@ -121,6 +121,7 @@ DOCS = {
     "team_gems": "gems carried by all your living champions together",
     "unseen_enemies_near": "unseen_enemies_near(r, age): enemy champions not visible now that you saw within the last `age` rounds within r tiles of you (sightings are remembered each time you call this, so call it every turn)",
     "bank_detour": "bank_detour(goal): extra turns it would cost to tribute at the best altar on the way to the goal tile instead of going straight there (0 if an altar is on the way; walls ignored)",
+    "group_rate": "group_rate(spawn tile): gems per turn of taking that camp group yourself: its gems over (turns to walk there + its living health / your Strength + the capture timer); 0 if nothing there is alive (walls ignored)",
     "dash_towards": "cast the dash in slot (0/1) up to 2 tiles along the walking path to the tile",
     "weakest": "lowest-health member, or none", "richest": "member carrying the most gems, or none",
     "nearest": "closest member by Chebyshev distance, or none",

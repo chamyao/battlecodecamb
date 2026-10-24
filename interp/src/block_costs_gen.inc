@@ -96,6 +96,7 @@
 { "group_contested(Tile)", false, { 1221712, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=1288 mae=126 (profile fuel)
 { "group_gems(TileSet)", false, { 197942, 0, 0, 0, 0, 0, 0, 47498, 70083, 0 } }, // n=10800 mean=4877 mae=2 (profile fuel)
 { "group_hp(Tile)", false, { 439337, 0, 0, 0, 0, 0, 0, 13740, 0, 0 } }, // n=10800 mean=1348 mae=424 (profile fuel)
+{ "group_rate(Tile)", false, { 439337, 0, 0, 0, 0, 0, 0, 13740, 0, 0 } }, // provisional: as group_hp (same camp scan), coordinator
 { "group_threat(Tile)", false, { 258681, 0, 0, 0, 0, 0, 0, 27729, 0, 0 } }, // n=21600 mean=2059 mae=571 (profile fuel)
 { "group_tiles(TileSet)", false, { 306089, 0, 1272, 0, 0, 0, 0, 56127, 12224, 0 } }, // n=10800 mean=4297 mae=18 (profile fuel)
 { "gt(Num,Num)", false, { 220708, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=36575 mean=233 mae=41 (profile fuel)

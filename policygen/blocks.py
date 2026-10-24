@@ -197,6 +197,7 @@ _b("group_contested", "Tile", "Num")
 _b("team_gems", "", "Num")
 _b("unseen_enemies_near", "Num Num", "Num")
 _b("bank_detour", "Tile", "Num")
+_b("group_rate", "Tile", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)
