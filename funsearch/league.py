@@ -51,13 +51,13 @@ def tune_candidate(p, opponents, args, logfile, run):
 
     def scorer(seed):
         def score(text):
-            r = evaluate(text, opponents=tuple(opponents), games=args.tune_games, threads=args.threads, seed=seed)
+            r = evaluate(text, opponents=tuple(opponents), games=args.stage_tune_games, threads=args.threads, seed=seed)
             return r.score if r.ok else -1.0
         return score
 
-    tuned, s, s0 = tune_named(p["text"], scorer(TUNE_SEED), steps=args.tune_steps, seed=p["id"], log=lambda m: None)
+    tuned, s, s0 = tune_named(p["text"], scorer(TUNE_SEED), steps=args.stage_tune_steps, seed=p["id"], log=lambda m: None)
     if tuned == p["text"]:
-        log(f"  tune #{p['id']}: no better constants ({args.tune_steps} steps, {s0:.3f})", logfile)
+        log(f"  tune #{p['id']}: no better constants ({args.stage_tune_steps} steps, {s0:.3f})", logfile)
         return p
     hold = scorer(HOLDOUT_SEED)
     new, old = hold(tuned), hold(p["text"])
@@ -177,11 +177,11 @@ def main():
                                               "(e.g. pure: programs descend only from FunSearch outputs)")
     ap.add_argument("--session", default="https://claude.ai/code/session_019XKtAwh5HoipabJVsbdMKj",
                     help="Claude-Session trailer for promotion commits")
-    ap.add_argument("--tune-steps", type=int, default=0,
+    ap.add_argument("--stage-tune-steps", type=int, default=0,
                     help="rough tuning stage before validation: hill-climb steps over the top candidates' named "
                          "constants (0 = off; 6 is the intended rough setting)")
-    ap.add_argument("--tune-games", type=int, default=8, help="games per opponent per tuning evaluation (kept tiny)")
-    ap.add_argument("--tune-k", type=int, default=3, help="how many of the top candidates get the tuning stage")
+    ap.add_argument("--stage-tune-games", type=int, default=8, help="games per opponent per tuning evaluation (kept tiny)")
+    ap.add_argument("--stage-tune-k", type=int, default=3, help="how many of the top candidates get the tuning stage")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     args, run_args = ap.parse_known_args()  # anything else goes to funsearch.run
 
@@ -226,8 +226,8 @@ def main():
         bar = win_rates(Path(best).read_text(), older, args.val_games, args.threads) if older else {}
         promoted = None
         cands = top_distinct(run, 3)
-        if args.tune_steps:
-            cands = [tune_candidate(p, opponents, args, logfile, run) if i < args.tune_k else p
+        if args.stage_tune_steps:
+            cands = [tune_candidate(p, opponents, args, logfile, run) if i < args.stage_tune_k else p
                      for i, p in enumerate(cands)]
         for p in cands:
             rates = win_rates(p["text"], ["builtin:starter", *league], args.val_games, args.threads)

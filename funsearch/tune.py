@@ -5,7 +5,6 @@ scored on the same games as the parent (common random numbers), and kept if it
 is at least as good. Also serves as an LLM-free proposer for testing the loop.
 """
 import random
-import re
 
 from policygen.text import format_policy, parse
 from policygen.tree import Call, Const, Do, If, Let
@@ -78,12 +77,141 @@ def tune(text, evaluate, steps=20, seed=0, log=print):
     return best, best_score
 
 
-_NAMED = re.compile(r"^([A-Z][A-Z0-9_]*)\s*=\s*(-?\d+(?:\.\d+)?)\s*$", re.M)
+# ---- child constant hill-climb (run.py --tune-children): text-level, so comments and headers survive ----
+import re as _re
+
+_NUM = _re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.])")
+_NAMED = _re.compile(r"^([A-Z][A-Z0-9_]*)\s*=\s*(-?\d+(?:\.\d+)?)\s*(#.*)?$")
+_INDEX_CALL = _re.compile(r"\b(" + "|".join(sorted({b for b, _ in _INDEX_ARGS})) + r")\(\s*$")
+# bit/byte arithmetic on shared memory (e.g. lk_v - 2 * floor(lk_v / 2)): never tuned
+_BITWISE = _re.compile(r"read_shared|write_shared|floor\(\s*\(*\s*\w+\s*/\s*\d")
+
+
+def _code_part(line):
+    i = line.find("#")
+    return line if i < 0 else line[:i]
+
+
+def literals(text):
+    """Numeric literals in code (comments excluded), as dicts: start/end offsets in text, value string, line
+    number, the line with its numbers masked, and the constant's name for NAME = number lines. Slot/offset index
+    arguments (ability_ready(0), write_shared(7, ...) ...) and lines doing shared-memory bit arithmetic
+    (read_shared / write_shared / floor(x / N)) are left out."""
+    out, pos = [], 0
+    for ln, line in enumerate(text.split("\n")):
+        code = _code_part(line)
+        if _BITWISE.search(code):
+            pos += len(line) + 1
+            continue
+        named = _NAMED.match(line.strip())
+        masked = _NUM.sub("N", code).strip()
+        for m in _NUM.finditer(code):
+            if _INDEX_CALL.search(code[: m.start()]):
+                continue
+            # equality tests (flag == 0, lock_bought != 1) are discrete, not tunable quantities
+            if _re.search(r"(==|!=)\s*\(*\s*$", code[: m.start()]) or _re.match(r"\s*\)*\s*(==|!=)", code[m.end():]):
+                continue
+            out.append(dict(start=pos + m.start(), end=pos + m.end(), value=m.group(0), line=ln, masked=masked,
+                            name=named.group(1) if named else None))
+        pos += len(line) + 1
+    return out
+
+
+def code_lines(text):
+    """Code lines with comments and surrounding blanks stripped (for no-code-change and edit detection)."""
+    return [c.rstrip() for c in (_code_part(l) for l in text.split("\n")) if c.strip()]
+
+
+def climb_targets(parent, child, rewrite_share=0.5):
+    """Literals of `child` to hill-climb: named constants (NAME = number) that are new or changed, plus the numbers
+    on code lines the child edited (lines not in the parent). If more than `rewrite_share` of the child's code
+    lines are edited (a rewrite or a reformat: no clean diff), every literal. Empty when nothing tunable changed."""
+    c = literals(child)
+    p_named = {x["name"]: x["value"] for x in literals(parent) if x["name"]}
+    p_lines = {}
+    for l in code_lines(parent):
+        p_lines[l.strip()] = p_lines.get(l.strip(), 0) + 1
+    lines = child.split("\n")
+    code_idx = [i for i, l in enumerate(lines) if _code_part(l).strip()]
+    edited = set()
+    for i in code_idx:
+        key = _code_part(lines[i]).strip()
+        if p_lines.get(key, 0) > 0:
+            p_lines[key] -= 1
+        else:
+            edited.add(i)
+    if code_idx and len(edited) > rewrite_share * len(code_idx):
+        return c
+    named = [x for x in c if x["name"] and p_named.get(x["name"]) != x["value"]]
+    region = [x for x in c if not x["name"] and x["line"] in edited]
+    return named + region
+
+
+def changed_constants(parent, child):
+    """Backwards-compatible name for climb_targets."""
+    return climb_targets(parent, child)
+
+
+def mutate_literal(text, lit, rng, sigma=0.3):
+    """Rescale one literal in place (integers >= 2 stay integers, 0 becomes a small number)."""
+    v = float(lit["value"])
+    is_int = "." not in lit["value"]
+    if v == 0:
+        # thresholds at 0 (counts, scores) only move up; negative values are rarely meaningful there
+        new = 1 if is_int else round(rng.uniform(0.01, 0.2), 4)
+    elif is_int and abs(v) >= 2:
+        new = max(0, round(v * rng.lognormvariate(0, sigma)))
+        if new == v:
+            new = int(v) + rng.choice([1, -1])
+    elif is_int:
+        new = int(v) + rng.choice([1, -1])
+    else:
+        new = round(v * rng.lognormvariate(0, sigma), 4)
+    s = str(int(new)) if is_int else repr(float(new))
+    return text[: lit["start"]] + s + text[lit["end"]:], s
+
+
+def climb_child(parent, child, evaluate, steps=4, rng=None, margin=0.03, max_rejects=2, base=None):
+    """(1+1)-ES on the constants the child added or changed (climb_targets), on ONE fixed set of games:
+    evaluate(text) -> score or None always plays the same games, so the incumbent is scored once (or `base` is
+    used) and each step scores only the mutant. A mutant replaces the incumbent only with a clear gain (> margin);
+    the climb stops after `max_rejects` rejections in a row. Returns (text, info) with info = {steps, evals,
+    before, after, changed: {name or line:code: "old->new"}}, or (child, None) when there is nothing to tune."""
+    rng = rng or random.Random(0)
+    if not climb_targets(parent, child):
+        return child, None
+    inc = base if base is not None else evaluate(child)
+    evals = 0 if base is not None else 1
+    if inc is None:
+        return child, None
+    best, before, changed, rejects, k = child, inc, {}, 0, 0
+    for k in range(steps):
+        targets = climb_targets(parent, best)
+        if not targets:
+            break
+        lit = rng.choice(targets)
+        cand, new = mutate_literal(best, lit, rng)
+        s = evaluate(cand)
+        evals += 1
+        if s is not None and s > inc + margin:
+            key = lit["name"] or f"{lit['line']}:{lit['masked'][:40]}"
+            old = changed.get(key, lit["value"]).split("->")[0]
+            changed[key] = f"{old}->{new}"
+            best, inc, rejects = cand, s, 0
+        else:
+            rejects += 1
+            if rejects >= max_rejects:
+                break
+    return best, dict(steps=k + 1, evals=evals, before=before, after=inc, changed=changed)
+
+
+# ---- whole-policy named-constant climb (pure line: league tuning stage between generation and validation) ----
+_NAMED_LINES = _re.compile(r"^([A-Z][A-Z0-9_]*)\s*=\s*(-?\d+(?:\.\d+)?)\s*$", _re.M)
 
 
 def named_constants(text):
     """Top-level named constants (`NAME = number` lines) as {name: value}."""
-    return {m.group(1): float(m.group(2)) for m in _NAMED.finditer(text)}
+    return {m.group(1): float(m.group(2)) for m in _NAMED_LINES.finditer(text)}
 
 
 def set_named(text, values):
@@ -93,7 +221,7 @@ def set_named(text, values):
             return m.group(0)
         v = values[m.group(1)]
         return f"{m.group(1)} = {int(v) if float(v).is_integer() else round(v, 4)}"
-    return _NAMED.sub(sub, text)
+    return _NAMED_LINES.sub(sub, text)
 
 
 def mutate_named(text, rng, sigma=0.3):

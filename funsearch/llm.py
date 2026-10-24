@@ -5,7 +5,7 @@ import threading
 
 import anthropic
 
-from .catalog import GAME, GRAMMAR, block_catalog
+from .catalog import DOCS, GAME, GAME_BASE, GRAMMAR, block_catalog
 
 # $ per million tokens (input, output). Cache reads/writes priced relative to input.
 PRICES = {
@@ -26,9 +26,10 @@ SYSTEM = f"""You improve bot policies for a programming competition, written in 
 # Already in the current best (do not re-add; improve on them only with a new idea)
 Retreat toward spawn when hurt while in_danger() and recall once clear; heal on spawn; Treasure then
 Jungle shards plus strength shards; a fixed draft order; tribute with 20+ gem bags (or when hurt or
-late); stun-first, type-aware ability casting; leave a held camp spawn after 25 idle turns; rich
-groups when threat * hp fits the health pool, else the closest gem/elk group. Constant tuning
-around these is exhausted (see Observations).
+late) and bank at an adjacent altar when an enemy champion is within 6; stun-first, type-aware casting
+with an ability opener gated on slot_stun/slot_range/slot_radius plus set_team_target, and a reset
+self-cast after a basic attack; leave a held camp spawn after 25 idle turns; rich groups when only a
+few tiles farther; a fuel_remaining() guard on optional expensive steps.
 
 # Your task
 You are shown earlier policy versions, worst first, with their scores (win rate against the
@@ -40,12 +41,153 @@ better threshold, or a cheaper way to do the same thing. Keep everything that al
 Reply with the complete new policy in a single ```policy code block, then nothing else."""
 
 
+# ---- exploration mode (--explore): the prompt varies per call; each child logs its variant ----
+_EXPLORE_HEAD = "You write bot policies for a programming competition, in a small typed language.\n\n# The game\n"
+_EXPLORE_TAIL = f"""
+# The policy language
+{GRAMMAR}
+# Blocks (signature -> return type)
+{block_catalog()}
+"""
+EXPLORE_SYSTEM = {"full": _EXPLORE_HEAD + GAME + _EXPLORE_TAIL, "lean": _EXPLORE_HEAD + GAME_BASE + _EXPLORE_TAIL}
+
+AXES = {
+    "draft": "the DRAFT: a different champion composition, including champions our bots never pick (prism, "
+             "heart_of_ruin, marcella, cassi_issac, stellar, willow, varg), and play that suits it",
+    "items": "ITEMS AND STATS: what each champion buys and when (other emblem families, focus vs strength vs "
+             "health per champion, stacking one stat on a carry, teleport crystals, altar locks)",
+    "vision": "VISION: wards (place_ward), bushes, fighting from or around fog, denying the enemy's vision. A "
+              "measured start: the free ward on the nearest altar when within 3 (let a = first( filter( altars(), "
+              "within(3, position()) ) ), then place_ward(a); it recharges over 10 turns) was +4 points vs a hunter",
+    "teleport": "MOBILITY: teleport crystals (buy_teleport, teleport_to), dashes, recall timing",
+    "team": "TEAM COORDINATION through shared memory (write_shared / read_shared byte 7, bits 2-7 only: bits 0-1 are the lock flags; claims, "
+            "set_team_target): roles, grouping, calling targets, splitting the map",
+    "roles": "PER-CHAMPION ROLES: give champions different jobs by i_am(champ_vesper_vale()) etc. (carry, farmer, hunter, "
+             "altar guard, monolith taker) instead of one shared behaviour",
+    "pairs": "PAIRS: keep farming but never alone (71% of our deaths are 2-vs-1). Make two-champion pairs: give "
+             "each champion a partner by i_am(champ_vendetta()) etc. (e.g. vendetta with vesper_vale, tavi with ryth), have "
+             "partners farm neighbouring camp groups (claim / claim_count / claimed_by_allies tell which groups "
+             "your partner took), and converge when either sees an enemy. Vision is not shared, so signal it: "
+             "shared memory has 8 bytes and only byte 7 is free (0-6 are claims and the team target), and bits 0-1 "
+             "of byte 7 are the live bot's lock flags: keep them. Put a beacon in bits 2-7, e.g. let v = "
+             "read_shared(7), beacon = floor(v / 4), write_shared(7, 4 * b + (v - 4 * floor(v / 4))) for a new "
+             "beacon b (0-63), e.g. which pair is in a fight. Retreating "
+             "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
+             "tests, so stay close WHILE farming rather than walking across the map to regroup",
+    "disengage": "DISENGAGE, i.e. not being caught in losing fights at low HP: once one of our champions is "
+                 "below 50% HP with an enemy within 5 it dies 88% of the time (the top team 6%, similar teams "
+                 "13-20%). MEASURED: walking away mid-fight (HP below 0.4-0.6 with an enemy within 5-6) is strongly "
+                 "NEGATIVE (18-34% vs the live bot, more deaths: a fleeing champion takes free hits). So avoid the "
+                 "losing fight instead of fleeing it: engage only with local numbers or strength ahead "
+                 "(enemies_within, allies_within, local_strength), keep range, back off BEFORE the first exchange "
+                 "when outnumbered, never start a recall within reach of an enemy (damage cancels it), and let a "
+                 "healthy ally peel for a hurt one",
+    "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
+             "where to stand between fights, early vs late game plans",
+    "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
+                 "slot_stun / slot_range / slot_radius, shields and heals on allies",
+    "combat": "COMBAT MICRO: landing the first hit, 2v1 focus on the same turn, kiting at max range, "
+              "retreat and re-engage, never idling when hit",
+}
+TOP_RULES = [
+    "Top teams engage healthy (HP 0.9+) and usually 2v1; they leave around 0.8 HP and die 1.6 times a game.",
+    "Top teams target the closest visible enemy and open with an ability on the first-hit turn.",
+    "Before round 150, 89% of our deaths are 2+ of theirs vs 1 of ours: they arrive together.",
+    "34% of our dying champions were hitting a camp while the killer was visible for 5 rounds.",
+    "A melee champion hit from range 2-4 must dash in or walk out that turn, never idle.",
+    "Top teams stack one stat per carry: strength on Vesper Vale (235 per basic by round 192), focus on "
+    "Heart of Ruin, Prism and Ryth.",
+    "Top teams bank big bags (median 57) only when no enemy is within 8 tiles; tribute at once when one is.",
+    "One top team casts recall after every action, every round (a free auto-escape when hit).",
+]
+RARE_BLOCKS = ["place_ward", "bushes", "cast_at_tile", "teleport_to", "buy_teleport", "write_draft", "walls",
+               "holes", "focus", "random_stat", "unit_health", "camp_count", "read_shared", "write_shared",
+               "slot_is_reset", "stat_focus", "gold_cluster_tiles", "group_gems", "claim_count", "slot_stun",
+               "slot_radius", "buy_altar_lock", "place_altar_lock", "set_priority"]
+CHANGE_TYPES = {
+    "edit": "Make one focused change on that axis to the latest version, keeping everything else.",
+    "plan": "First write a short plan (3-6 lines, as # comments at the top of the policy) for how to "
+            "exploit that axis, then implement it in the latest version.",
+    "rewrite": "Write a NEW policy from scratch with a different overall plan built around that axis. "
+               "You may reuse ideas from the versions shown, not their code. Start with a short plan as # "
+               "comments.",
+}
+FRAMINGS = {
+    "captain": "Think as the team captain: write per-champion roles (i_am(champ_heart_of_ruin()) etc.) that work together.",
+    "champion": "Think as one champion: what should a single champion do turn by turn to win its fights and farm.",
+}
+
+
+def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None):
+    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu
+    (default all of AXES)."""
+    change = rng.choices(list(CHANGE_TYPES), change_weights)[0]
+    return {
+        "axis": rng.choice(list(axes or AXES)),
+        "change": change,
+        "framing": rng.choice(list(FRAMINGS)),
+        "catalog": rng.choice(["full", "lean"]),
+        "evidence": rng.choice(["worst", "rule", "block", "none"]),
+        "parents": "crossover" if n_parents >= 2 and change != "rewrite" and rng.random() < 0.3 else "single",
+    }
+
+
+def _evidence(kind, parent_metrics, rng):
+    if kind == "worst":
+        per = {k: m for k, m in (parent_metrics or {}).items() if isinstance(m, dict) and "win_rate" in m}
+        if per:
+            k, m = min(per.items(), key=lambda kv: kv[1]["win_rate"])
+            extra = ""
+            if "kills" in m:
+                extra = (f", kills {m['kills'][0]:.1f} vs {m['kills'][1]:.1f}, deaths {m['deaths'][0]:.1f} vs "
+                         f"{m['deaths'][1]:.1f}, damage to champions {m['champ_damage'][0]:.0f} vs "
+                         f"{m['champ_damage'][1]:.0f} per game")
+            return (f"Weakest matchup of the latest version: vs {k}, win rate {m['win_rate']:.0%}, gems "
+                    f"{m['a_gems']:.0f}-{m['b_gems']:.0f}{extra}. Make the change help here.")
+    if kind == "rule":
+        return "Observed in the ladder's top teams: " + rng.choice(TOP_RULES)
+    if kind == "block":
+        b = rng.choice(RARE_BLOCKS)
+        return f"Try something with the block {b} (almost never used so far): {DOCS.get(b, 'see the block list')}"
+    return ""
+
+
+def explore_user(parents, variant, rng):
+    """User message for an exploration call. parents: (text, score, metrics), worst first."""
+    def per_line(metrics):
+        per = {k: m for k, m in (metrics or {}).items() if isinstance(m, dict) and "win_rate" in m}
+        return ", ".join(f"vs {k} {m['win_rate']:.0%}" for k, m in per.items())
+    shown = parents if variant["parents"] == "crossover" else parents[-1:]
+    parts = []
+    for i, (text, score, metrics) in enumerate(shown):
+        code = "" if variant["change"] == "rewrite" else f"\n```policy\n{text.strip()}\n```"
+        parts.append(f"## Version {i} (score {score:.3f}; {per_line(metrics)}){code}")
+    task = [f"Your change must be about {AXES[variant['axis']]}.", CHANGE_TYPES[variant["change"]],
+            FRAMINGS[variant["framing"]]]
+    picks = list(dict.fromkeys(re.findall(r"pick\(\s*champ_(\w+)\(\)\s*\)", shown[-1][0])))
+    if picks:
+        task.append("The latest version drafts, in this order when available: " + ", ".join(picks[:5]) +
+                    (" (then: " + ", ".join(picks[5:]) + ")" if picks[5:] else "") +
+                    ". Code for other champions never runs, so don't spend the change on it.")
+    task.append("Keep the existing comments. The # lines at the very top are the lineage header: keep them "
+                "unchanged and add one line at their end describing your change.")
+    if variant["parents"] == "crossover":
+        task.append("The versions above come from different lines of play: combine their strengths into one policy.")
+    ev = _evidence(variant["evidence"], shown[-1][2], rng)
+    if ev:
+        task.append(ev)
+    task.append("Scores are win rate against reference bots plus a small gem-margin bonus. A new idea may "
+                "start weaker; that is fine, but the policy must be valid. Reply with the complete policy "
+                "in a single ```policy code block, then nothing else.")
+    return "\n\n".join(parts) + "\n\n## Your task\n" + "\n".join(task)
+
+
 class BudgetExceeded(Exception):
     pass
 
 
 class Proposer:
-    def __init__(self, budget_usd, opus_every=10, max_tokens=16000):
+    def __init__(self, budget_usd, opus_every=10, max_tokens=16000, helpers=""):
         # The cloud environment reserves ANTHROPIC_API_KEY for Claude Code's own login and does not
         # pass it to processes, so the key is stored as FUNSEARCH_ANTHROPIC_KEY (or FUNSEARCH_API_KEY) there. It may also
         # point ANTHROPIC_BASE_URL at Claude Code's endpoint, so the API URL is pinned.
@@ -59,6 +201,8 @@ class Proposer:
         self.opus_every = opus_every
         self.max_tokens = max_tokens
         self.lock = threading.Lock()
+        # shared helper library section (funsearch.helpers.prompt_section), appended to the cached system prompt
+        self.helpers = helpers
 
     def _model(self):
         with self.lock:
@@ -73,12 +217,15 @@ class Proposer:
                      + CACHE_WRITE * (usage.cache_creation_input_tokens or 0))
         return (tokens_in * pin + usage.output_tokens * pout) / 1e6
 
-    def propose(self, parents):
-        """parents: list of (text, score, metrics), worst first; metrics holds per-opponent stats. Returns (policy text or None, model, cost, proposals)."""
+    def propose(self, parents, variant=None, rng=None):
+        """parents: list of (text, score, metrics), worst first; metrics holds per-opponent stats. With a
+        variant (exploration), the prompt follows it. Returns (policy text or None, model, cost, proposals)."""
         with self.lock:
             if self.spent >= self.budget:
                 raise BudgetExceeded(f"spent ${self.spent:.2f} of ${self.budget:.2f}")
         model = self._model()
+        if variant is not None and variant["change"] == "rewrite":
+            model = "claude-opus-5-5"
         def header(i, score, metrics):
             per = {k: m for k, m in (metrics or {}).items() if isinstance(m, dict) and "win_rate" in m}
             lines = [f"## Version {i} (score {score:.3f})"]
@@ -93,10 +240,17 @@ class Proposer:
             f"{header(i, score, metrics)}\n```policy\n{text.strip()}\n```"
             for i, (text, score, metrics) in enumerate(parents))
         user = f"{shown}\n\n## Version {len(parents)}\nWrite it."
+        system = SYSTEM
+        if variant is not None:
+            import random as _random
+            user = explore_user(parents, variant, rng or _random.Random())
+            system = EXPLORE_SYSTEM[variant["catalog"]]
+        if self.helpers:
+            system = system + "\n" + self.helpers
         kwargs = dict(
             model=model,
             max_tokens=self.max_tokens,
-            system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
+            system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": user}],
         )
         if model == "claude-opus-5-5":
