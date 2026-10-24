@@ -28,7 +28,7 @@ monolith: avoid those zones only where they are not the main income, and take th
 team when they are.
 Camp choice matters in every style: many of our deaths are to camps we cannot clear. Use
 group_threat(g), group_hp(g) and group_gems(...) to choose camps by value against danger and
-distance: skip a goal g when group_threat(g) * group_hp(g) / (my_dps * (1 + allies_within(4)))
-> health(), with `keep my_dps = 60` a tunable constant for your damage per turn (there is no
-strength() block), i.e. skip when the damage taken while clearing exceeds what you can absorb, and
+distance: skip a goal g when group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4)))
+> health() (strength() is your damage per hit, items included; scale it by a named, tunable factor
+if useful), i.e. skip when the damage taken while clearing exceeds what you can absorb, and
 otherwise prefer groups with more gems per turn of walking and clearing.

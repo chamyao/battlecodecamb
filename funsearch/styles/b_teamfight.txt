@@ -23,7 +23,7 @@ i_am_ranged() and a melee enemy is adjacent, move_away_from it toward allies, th
 range) while allies converge on the diver and focus it down.
 Camp choice matters in every style: many of our deaths are to camps we cannot clear. Use
 group_threat(g), group_hp(g) and group_gems(...) to choose camps by value against danger and
-distance: skip a goal g when group_threat(g) * group_hp(g) / (my_dps * (1 + allies_within(4)))
-> health(), with `keep my_dps = 60` a tunable constant for your damage per turn (there is no
-strength() block), i.e. skip when the damage taken while clearing exceeds what you can absorb, and
+distance: skip a goal g when group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4)))
+> health() (strength() is your damage per hit, items included; scale it by a named, tunable factor
+if useful), i.e. skip when the damage taken while clearing exceeds what you can absorb, and
 otherwise prefer groups with more gems per turn of walking and clearing.

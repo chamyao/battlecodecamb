@@ -20,7 +20,7 @@ Outside changes enter only at round boundaries, so the search is not restarted m
 - runs/<name>.hold: the league waits at the next boundary until the file is removed (merge or
   rebuild the simulator meanwhile).
 The cambc-exact check (all maps x 2 sides, --bot-seeds) is logged for each promotion; >= --cambc-min
-marks it ladder-ready.
+(vs --cambc-ref, the live ladder bot, when given; else vs the best) marks it ladder-ready.
 """
 import argparse
 import fcntl
@@ -171,6 +171,9 @@ def main():
                                                 "lack, like altar locking); never dropped or promoted")
     ap.add_argument("--cambc-min", type=float, default=0.55,
                     help="cambc-exact win rate vs the best (all maps x 2 sides) that marks a promotion ladder-ready")
+    ap.add_argument("--cambc-ref", default="",
+                    help="live ladder bot: when set, ladder-ready means cambc-exact >= --cambc-min vs this policy "
+                         "(the vs-best check is still logged)")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     ap.add_argument("--prefix", default="fs-", help="promoted policies are policies/<prefix><n>.policy")
     ap.add_argument("--line", default="", help="line tag written into promoted policies' headers")
@@ -198,13 +201,16 @@ def main():
         db_file = ROOT / "runs" / run / "programs.jsonl"
         done = max(0, sum(1 for _ in open(db_file)) - 4) if db_file.exists() else 0
         todo = args.round - done % args.round
+        if done and done % args.round == 0 and state.get("validated", {}).get(run, 0) < done:
+            todo = 0  # restarted exactly at a boundary that was never validated: validate it now
         log(f"{run}: +{todo} programs to the next boundary ({done} so far), best {best}, league {older}, "
             f"${left:.2f} left", logfile)
-        subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
-                        "--max-programs", str(todo), "--seed-policy", best,
-                        "--opponents", ",".join(opponents),
-                        *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
-                       cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
+        if todo:
+            subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
+                            "--max-programs", str(todo), "--seed-policy", best,
+                            "--opponents", ",".join(opponents),
+                            *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
+                           cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
         if (ROOT / "runs" / run / "STOP").exists():
             log("STOP file present: pausing the league", logfile)
             break
@@ -220,13 +226,16 @@ def main():
         cfile = ROOT / "runs" / f"{args.name}.challengers"
         queued = [c.strip() for c in cfile.read_text().splitlines() if c.strip()] if cfile.exists() else []
         queued = [c for c in queued if c not in state.get("challengers", []) and c != best]
+        # challengers taken from the file but not yet judged (a restart during validation)
+        queued = list(dict.fromkeys(state.get("pending", []) + queued))
         missing = [c for c in queued if not (ROOT / c).exists()]
         if missing:  # not merged yet: keep them queued for the next boundary
             log(f"  challengers not found yet, kept queued: {missing}", logfile)
             queued = [c for c in queued if c not in missing]
         if queued or missing:
             cfile.write_text("".join(f"{c}\n" for c in missing))
-            state.setdefault("challengers", []).extend(queued)
+            state["challengers"] = list(dict.fromkeys(state.get("challengers", []) + queued))
+            state["pending"] = queued
             state_path.write_text(json.dumps(state))
             log(f"  challengers: {queued}", logfile)
         tried = set(state.get("tried", []))  # candidates already judged against this best
@@ -254,6 +263,9 @@ def main():
             if ok and worst >= -args.regress and (promoted is None or h2h > promoted[2]):
                 promoted = (label, text, h2h, n, rates, p)
         state["tried"] = sorted(tried)
+        state["pending"] = []
+        db_done = max(0, sum(1 for _ in open(db_file)) - 4) if db_file.exists() else 0
+        state.setdefault("validated", {})[run] = db_done
         state_path.write_text(json.dumps(state))
         if queued:
             # challengers become parents of this run and fixed opponents from the next generation
@@ -265,10 +277,15 @@ def main():
 
         label, text, h2h, n, rates, p = promoted
         exact = cambc_check(text, best, args.threads)
-        ready = exact >= args.cambc_min
-        log(f"    cambc-exact vs {Path(best).stem} (all maps x 2 sides): {exact:.3f}"
-            + (" -> ladder-ready" if ready else ""), logfile)
         rates = {**rates, f"cambc-exact vs {Path(best).stem}": exact}
+        ref = args.cambc_ref if args.cambc_ref and args.cambc_ref != best else ""
+        if ref:
+            log(f"    cambc-exact vs {Path(best).stem} (all maps x 2 sides): {exact:.3f}", logfile)
+            exact = cambc_check(text, ref, args.threads)
+            rates[f"cambc-exact vs {Path(ref).stem}"] = exact
+        ready = exact >= args.cambc_min
+        log(f"    cambc-exact vs {Path(ref or best).stem} (all maps x 2 sides): {exact:.3f}"
+            + (" -> ladder-ready" if ready else ""), logfile)
         summary = ", ".join(f"{k} {v:.1%}" for k, v in rates.items())
         if p is None:  # a challenger won: it becomes the best as it is
             out = ROOT / label
@@ -280,7 +297,8 @@ def main():
             out = ROOT / "policies" / f"{name}.policy"
             tag = f" [{args.line} line]" if args.line else ""
             header = (f"# {name}{tag}: league {run} {label}; beat {Path(best).stem} {h2h:.1%} head to head on "
-                      f"{n} fresh games; cambc-exact {exact:.3f}{' (ladder-ready)' if ready else ''}.\n"
+                      f"{n} fresh games; cambc-exact vs {Path(ref or best).stem} {exact:.3f}"
+                      f"{' (ladder-ready)' if ready else ''}.\n"
                       + (f"# line: {args.line}\n" if args.line else ""))
             out.write_text(header + text)
             log(f"  PROMOTED {out.name}: {summary}", logfile)
