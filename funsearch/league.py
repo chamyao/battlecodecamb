@@ -176,6 +176,9 @@ def main():
                          "(the vs-best check is still logged)")
     ap.add_argument("--no-commit", action="store_true", help="don't git-commit promoted policies (tests)")
     ap.add_argument("--prefix", default="fs-", help="promoted policies are policies/<prefix><n>.policy")
+    ap.add_argument("--helpers-runs", default="",
+                    help="comma-separated run dirs / globs (e.g. /root/bc/*/runs) to harvest the shared helper "
+                         "library from at every boundary; the run gets --helpers runs/<name>.helpers.json")
     ap.add_argument("--line", default="", help="line tag written into promoted policies' headers")
     args, run_args = ap.parse_known_args()  # anything else goes to funsearch.run
 
@@ -203,11 +206,24 @@ def main():
             todo = 0  # restarted exactly at a boundary that was never validated: validate it now
         log(f"{run}: +{todo} programs to the next boundary ({done} so far), best {best}, league {older}, "
             f"${left:.2f} left", logfile)
+        helper_args = []
+        if todo and args.helpers_runs:
+            # refresh the shared helper library at every boundary from all lines' runs on this box
+            out = ROOT / "runs" / f"{args.name}.helpers.json"
+            r = subprocess.run([sys.executable, "-m", "funsearch.helpers", "--runs", *args.helpers_runs.split(","),
+                                "--out", str(out), "--md", str(ROOT / "runs" / f"{args.name}.HELPERS.md")],
+                               cwd=ROOT, capture_output=True, text=True)
+            if r.returncode == 0 and out.exists():
+                helper_args = ["--helpers", str(out)]
+                log(f"  helpers: {r.stdout.splitlines()[0] if r.stdout else '?'} -> {out.name}", logfile)
+            else:
+                log(f"  helpers refresh failed, run continues without: {r.stderr[-200:]}", logfile)
         if todo:
             subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
                             "--max-programs", str(todo), "--seed-policy", best,
                             "--opponents", ",".join(opponents),
-                            *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
+                            *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args,
+                            *helper_args],
                            cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
         if todo and "--explore" in run_args:
             # exploration runs: diversity and per-variant report for the generation so far

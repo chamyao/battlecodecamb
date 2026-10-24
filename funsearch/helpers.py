@@ -11,6 +11,7 @@ helpers with dependencies on other defs are bundled with them. Runs whose direct
 skipped (scored on a stale simulator build).
 """
 import argparse
+import glob
 import json
 import math
 import re
@@ -91,7 +92,7 @@ def valid(r):
     return r.get("error") is None and r.get("score") is not None and r["score"] > float("-inf")
 
 
-def harvest(paths):
+def harvest(paths, min_introductions=2, min_delta=0.05):
     lib = {}
     for line, run, rows in load_runs(paths):
         by_id = {r["id"]: r for r in rows}
@@ -131,9 +132,12 @@ def harvest(paths):
         if not h["deltas"]:
             continue
         mean = sum(h["deltas"]) / len(h["deltas"])
+        # inherited copies are not evidence: rank on introductions only, and require 2 of them or a clear delta
+        if len(h["deltas"]) < min_introductions and mean < min_delta:
+            continue
         out.append(dict(name=h["name"], params=h["params"], source=h["source"], normalised=key, uses=h["uses"],
                         introduced=len(h["deltas"]), mean_delta=round(mean, 4),
-                        rank=round(mean * math.log(1 + h["uses"]), 4), lines=sorted(h["lines"]),
+                        rank=round(mean * math.log(1 + len(h["deltas"])), 4), lines=sorted(h["lines"]),
                         runs=sorted(h["runs"]), executed=h["executed"], deps=h["deps"],
                         self_contained=not (h["deps"]["defs"] or h["deps"]["keeps"] or h["deps"]["unknown"])))
     out.sort(key=lambda h: -h["rank"])
@@ -147,7 +151,8 @@ def markdown(lib, top=20):
     lines = ["# Shared helper library", "",
              "Harvested by `python3 -m funsearch.helpers` from children that scored >= their best parent. Ranked by",
              "mean score delta (child vs best parent, over the children that introduced or changed the helper) x",
-             "log(1 + uses). Library code: paste and call; mind fuel.", ""]
+             "log(1 + introductions); kept with >= 2 introductions or a mean delta >= 0.05. Library code: paste and call;",
+             "mind fuel.", ""]
     for k, h in enumerate(lib[:top], 1):
         deps = ", ".join(f"{t}: {', '.join(v)}" for t, v in h["deps"].items() if v and t != "const_lines") or "none"
         lines += [f"## {k}. `{h['name']}({', '.join(h['params'])})`: rank {h['rank']}",
@@ -195,12 +200,15 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--md", default="")
     ap.add_argument("--top", type=int, default=20)
+    ap.add_argument("--min-introductions", type=int, default=2)
+    ap.add_argument("--min-delta", type=float, default=0.05)
     args = ap.parse_args()
-    lib = harvest(args.runs)
+    runs = [x for r in args.runs for x in (sorted(glob.glob(r)) or [r])]
+    lib = harvest(runs, args.min_introductions, args.min_delta)
     Path(args.out).write_text(json.dumps(lib, indent=1))
     if args.md:
         Path(args.md).write_text(markdown(lib, args.top))
-    print(f"{len(lib)} helpers with a non-negative introduction; top {min(args.top, len(lib))}:")
+    print(f"{len(lib)} helpers kept; top {min(args.top, len(lib))}:")
     for h in lib[: args.top]:
         print(f"  {h['rank']:+.4f}  {h['name']}  delta {h['mean_delta']:+.4f} x{h['introduced']}  uses {h['uses']}  "
               f"{','.join(h['lines'])}  self-contained {h['self_contained']}")
