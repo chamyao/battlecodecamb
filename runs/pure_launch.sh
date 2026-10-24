@@ -5,10 +5,11 @@
 # Fixed opponents: runs/pure_fixed.txt, read at each new generation (frozen per generation in runs/pure4.json);
 # send check (cambc-exact, informational): runs/pure_send.txt.
 # Ran on remote-server (Cham's Ryzen box) 03:40-?; from 2026-10-24 ~06:30 on EC2 (c7a.4xlarge), resumed from the
-# remote/pure 04:15 snapshot. Budget 8.09 = 9.71 minus ~$1.62 estimated spent by remote-server after that snapshot
-# (lost; see runs/SPEND.md). 3 workers x 2 eval threads, 5 validation threads.
+# remote/pure 04:15 snapshot. g3 runs with --budget 8.09 (old $10 line cap: 9.71 minus ~$1.62 estimated
+# lost remote-server spend). From g4 (this script) 18.10 = $20 line cap - 0.28 (pure/pure2/pure3) - 1.62 (lost est.).
+# 3 workers x 2 eval threads, 5 validation threads.
 cd "$(dirname "$0")/.." || exit 1
-exec python3 -m funsearch.league --name pure4 --budget 8.09 \
+exec python3 -m funsearch.league --name pure4 --budget 18.10 \
   --members policies/fs-1.policy --keep 0 \
   --fixed @runs/pure_fixed.txt \
   --cambc-also @runs/pure_send.txt \
