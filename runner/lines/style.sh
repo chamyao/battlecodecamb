@@ -16,6 +16,21 @@ if [ ! -f "$D/.setup-done" ]; then
   log "setup ok at funsearch/style $(git rev-parse --short HEAD): $(tail -n 1 /root/bc/style-pytest.txt); budgets: $(tr '\n' ' ' < runs/style_budgets)"
 fi
 cd "$D" || return 1
+# 06:33 UTC HOLD (lead + style line): S2 held until the sim-fidelity check; stop style7 with SIGTERM, never SIGINT.
+# STOP files keep the loop below from relaunching; the style line lifts the hold by editing this block.
+HOLD=1
+if [ "$HOLD" = 1 ]; then
+  for x in a b c; do
+    for pid in $(pgrep -a -x python3 | grep -E "league --name style7-$x |funsearch.run --run style7-$x-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "HOLD: SIGTERM style7-$x pid $pid"; done
+    for g in runs/style7-$x-g*/; do [ -d "$g" ] && touch "${g}STOP"; done
+  done
+  if [ ! -f runs/ec2-hold-reported ]; then
+    sleep 20
+    log "HOLD: style7 stopped; spend a/b/c: $(for x in a b c; do python3 -c "import funsearch.league as l; print(round(l.spent('style7-$x'), 3))"; done | tr '\n' ' ')$(for x in a b c; do echo -n " $x:$(cat runs/style7-$x-g1/programs.jsonl 2>/dev/null | wc -l)lines"; done)"
+    touch runs/ec2-hold-reported
+  fi
+fi
 for x in a b c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
   running "league --name style7-$x " && continue
