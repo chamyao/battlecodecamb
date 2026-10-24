@@ -98,3 +98,21 @@ Do not repeat fixed genes. A new gene that nothing calls is deleted.
    knows when the link matters?
 3. Option (b) lets the new gene ignore under_fire entirely. Allowed, or must it call the callee?
 4. One example of a valid change in the task (as above), or none (less steering)?
+
+## Proposal: pre-chosen mutation type (Cham, 22:2x)
+
+The search draws the link AND the mutation type (fixed mix per run), and the Task section states only
+that type. Each type has its own mechanical check. Draft types, rendered for caller A = r_run, callee
+B = under_fire:
+
+| type | instruction (Task section) | check |
+| --- | --- | --- |
+| T1 both | Rewrite both A and B: each must compute something different from now. No new genes. | both bodies differ (normalised); no new gene |
+| T2 insert | Create a new gene N between them: A calls N instead of B, and N calls B and changes or extends its result. A and N may change; B stays. | A no longer calls B directly; A calls N; N calls B |
+| T3 helper | Create a new gene N that computes something A and B do not compute now, and use it in A, B or both. | new gene called by A or B; computes with at least one call/primitive not in A or B before |
+| T4 replace | A stops calling B and calls a new gene N instead: a different way to decide what B decides. B stays as it is for its other callers. | A does not call B; A calls N; N does not call B |
+| T5 specialise | Duplicate B as a new gene N adapted to A's use (different parameters, thresholds or logic), and make A call N. B stays for its other callers. | N's parent is B; A calls N, not B; N's body differs from B's |
+
+Mix: equal (20% each) unless Cham sets one. Each child logs its type, so evolvability per type is measured
+between runs. Rules 5-7 and 9-10 and the Reply section apply to every type; rule 8 is replaced by the
+type's own check.
