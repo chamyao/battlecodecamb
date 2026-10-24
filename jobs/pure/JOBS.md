@@ -100,7 +100,7 @@ Proof that it resumed and did not restart:
 
 1. Promotion: `runs/pure4.log` shows `PROMOTED fs-p3.policy: ...` and `policies/fs-p3.policy`
    exists but is uncommitted. `runs/pure4.json` is now gen 4 with no fixed/target.
-2. Check out the tip of funsearch/pure (2f59f64 or later: prompt with the COMBAT + TOP_TEAMS_RULES section). `runs/` holds tracked files that you changed, so a plain
+2. Check out the tip of funsearch/pure (82701f3 or later: COMBAT + TOP_TEAMS_RULES prompt, tune5-reset opponent files). `runs/` holds tracked files that you changed, so a plain
    checkout refuses. Keep your state and take the tip's launcher and opponent files:
    ```sh
    cp -a runs ~/runs-g3-backup
@@ -115,8 +115,8 @@ Proof that it resumed and did not restart:
 3. Rebuild only if `interp/` changed between 81ab84b and the tip.
 4. Relaunch with `runs/pure_launch.sh` (no `--max-generations`, no `--no-commit`). It carries
    the same `--budget 18.10` (funsearch/pure c44a0a3). g4 then uses the new
-   prompt and fixed = tune-5. Its first log line must read `pure4-g4: +150 programs (to 151), best
-   policies/fs-p3.policy, league ['policies/tune-5.policy', ...], $<about 11> left`.
+   prompt and fixed = tune5-reset (send check vs tune5-reset and tune-5). Its first log line must read `pure4-g4: +150 programs (to 151), best
+   policies/fs-p3.policy, league ['policies/tune5-reset.policy', ...], $<about 11> left`.
 5. Report the promotion (all PROMOTED rates, incl. cambc-exact vs tune-5) on PR #2.
 
 If the spot instance is reclaimed mid-g3, redo steps 2-4 from the runner's own last `runs/`. Never
