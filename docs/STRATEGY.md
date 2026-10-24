@@ -207,6 +207,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   by the style line's FunSearch (threat_eta, altar_eta). INFORMATIONAL upload approved by Cham: league not required;
   sim vs v21 51.4%, conversion 0.946 vs 0.896, tributes 38 vs 23, gems lost 51 vs 64; real cambc 46/80 vs v22, 0 caps
   (heavier: 188 turns > 80k, peak 96.5k). Judged on the same 50 band groups; revert to v22 if not better.
+  Result: 14-36 on the band (v22 17-33). The banking worked (tributes 18 -> 28, gems lost on death 164 -> 89,
+  conversion 77% -> 82%) but cost farming (captured -108 per game, median bag 30 -> 18): net submitted 626 -> 578.
+  24 = revert to v22's ZIP (d86fbda6, ~16:50 UTC). Lesson: bank early only when a threat is near; a small-bag
+  bank rule costs more capture time than it saves.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
