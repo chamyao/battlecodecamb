@@ -12,6 +12,7 @@
 //        genome_eval --list-blocks
 // A and B are a compiled policy file (.pol), genome:path.so or builtin:starter / builtin:idle.
 // Game g uses map g % #maps; A plays team A on even games and team B on odd games.
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdio>
@@ -106,8 +107,41 @@ int main(int argc, char** argv)
 		std::printf("{\"error\": \"%s\"}\n", e.what());
 		return 1;
 	}
-	std::vector<std::shared_ptr<const Map>> loaded;
-	for (auto& m : maps) loaded.push_back(load_map(m));
+	// Maps decode in parallel (vision windows are precomputed per tile: ~15 ms a map).
+	std::vector<std::shared_ptr<const Map>> loaded(maps.size());
+	{
+		std::atomic<std::size_t> next_map{ 0 };
+		std::string load_error;
+		std::mutex load_mu;
+		std::vector<std::thread> loaders;
+		for (int t = 0; t < std::max(1, threads); ++t)
+			loaders.emplace_back([&] {
+				for (std::size_t i; (i = next_map++) < maps.size();)
+					try
+					{
+						loaded[i] = load_map(maps[i]);
+					}
+					catch (const std::exception& e)
+					{
+						std::lock_guard<std::mutex> lk(load_mu);
+						load_error = e.what();
+					}
+			});
+		for (auto& th : loaders) th.join();
+		if (!load_error.empty())
+		{
+			std::printf("{\"error\": \"%s\"}\n", load_error.c_str());
+			return 1;
+		}
+	}
+	// Play the biggest maps first so the threads finish together (each game's seed depends only on g).
+	std::vector<int> order(games);
+	for (int g = 0; g < games; ++g) order[g] = g;
+	std::stable_sort(order.begin(), order.end(), [&](int x, int y) {
+		const Map& mx = *loaded[(x / 2) % loaded.size()];
+		const Map& my = *loaded[(y / 2) % loaded.size()];
+		return mx.W * mx.H > my.W * my.H;
+	});
 
 	std::atomic<int> next{ 0 }, a_wins{ 0 };
 	std::atomic<long> a_gems{ 0 }, b_gems{ 0 }, rounds{ 0 }, a_susp{ 0 }, crashes{ 0 }, a_fuel{ 0 };
@@ -118,8 +152,9 @@ int main(int argc, char** argv)
 	std::vector<std::thread> pool;
 	for (int t = 0; t < threads; ++t)
 		pool.emplace_back([&] {
-			for (int g; (g = next++) < games;)
+			for (int gi; (gi = next++) < games;)
 			{
+				const int g = order[gi];
 				const bool swap = g % 2 == 1; // A plays team B
 				const std::uint64_t gs = seed * 1000003ull + static_cast<std::uint64_t>(g);
 				auto pa = a.make(2 * gs + 1, bot_seeds), pb = b.make(2 * gs + 2, bot_seeds);
