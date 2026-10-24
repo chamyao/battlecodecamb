@@ -209,6 +209,10 @@ def main():
                             "--opponents", ",".join(opponents),
                             *(["--inject", ",".join(state["inject"])] if state.get("inject") else []), *run_args],
                            cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
+        if todo and "--explore" in run_args:
+            # exploration runs: diversity and per-variant report for the generation so far
+            subprocess.run([sys.executable, "-m", "funsearch.explore_report", run], cwd=ROOT,
+                           stdout=open(ROOT / "runs" / f"{run}.explore.txt", "w"), stderr=subprocess.STDOUT)
         if (ROOT / "runs" / run / "STOP").exists():
             log("STOP file present: pausing the league", logfile)
             break
