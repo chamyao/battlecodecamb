@@ -91,5 +91,6 @@ if [ ! -f runs/ec2-resume-checked ]; then
   fi
 fi
 push_state remote/pure remote/pure/runs runs
-mkdir -p /root/bc/pure-pol && cp -a policies/fs-p*.policy /root/bc/pure-pol/ 2>/dev/null &&
-  push_state remote/pure policies /root/bc/pure-pol
+if ls policies/fs-p*.policy > /dev/null 2>&1; then   # promoted policies (none until a promotion)
+  mkdir -p /root/bc/pure-pol && cp -a policies/fs-p*.policy /root/bc/pure-pol/ && push_state remote/pure policies /root/bc/pure-pol
+fi

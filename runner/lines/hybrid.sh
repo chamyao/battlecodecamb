@@ -42,5 +42,6 @@ if [ ! -f runs/ec2-resume-checked ]; then
   fi
 fi
 push_state remote/hybrid remote/hybrid/runs runs
-mkdir -p /root/bc/hybrid-pol && cp -a policies/fs-h*.policy /root/bc/hybrid-pol/ 2>/dev/null &&
-  push_state remote/hybrid policies /root/bc/hybrid-pol
+if ls policies/fs-h*.policy > /dev/null 2>&1; then   # promoted policies (none until a promotion)
+  mkdir -p /root/bc/hybrid-pol && cp -a policies/fs-h*.policy /root/bc/hybrid-pol/ && push_state remote/hybrid policies /root/bc/hybrid-pol
+fi

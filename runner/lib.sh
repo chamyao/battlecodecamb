@@ -30,7 +30,7 @@ push_state() {
   git -C "$wt" fetch -q origin "$br" 2>/dev/null && git -C "$wt" reset -q --hard "origin/$br"
   mkdir -p "$wt/$dst"
   cp -a "$src/." "$wt/$dst/"
-  git -C "$wt" add -A "$dst"
+  git -C "$wt" add -A -f "$dst"
   git -C "$wt" diff --cached --quiet && return 0
   git -C "$wt" -c user.name="ec2-runner" -c user.email="ec2-runner@users.noreply.github.com" \
     commit -q -m "${msg:-$br: ec2 state $(date -u +%H:%M) UTC}"
