@@ -44,5 +44,5 @@ n = len(list(out.glob("*.repl26a")))
 print(f"{cand} vs {ref}: {wins}/{n} wins ({draws} draws); bar >= 42/80 -> {'PASS' if wins >= 42 and n == 80 else 'FAIL'}")
 for bot, s in stats.items():
     print(f"  {bot}: crashes {s['crash']}, first turns max {s['first']} (at the 200k cap: {s['first200']}), normal turns >= 100k {s['cap']}")
-ok = stats[cand]["crash"] == 0 and stats[cand]["first"] < 200000 and stats[cand]["cap"] <= stats[ref]["cap"]
+ok = n == 80 and stats[cand]["crash"] == 0 and stats[cand]["first"] < 200000 and stats[cand]["cap"] <= stats[ref]["cap"]
 print(f"  safety -> {'PASS' if ok else 'FAIL'}; batch failed: {failed[-1] if failed else '?'}; unparsed results: {len(missing)}")

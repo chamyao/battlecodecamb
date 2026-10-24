@@ -8,7 +8,7 @@ set -u
 cand=$1; ref=$2; jobs=${3:-4}
 repo=/home/user/battlecodecamb
 out=${OUT:-$repo/genome/arenab/runs/$cand-vs-$ref}
-mkdir -p "$out"; rm -f "$out"/*.repl26a "$out"/manifest.txt
+mkdir -p "$out"; out=$(cd "$out" && pwd); rm -f "$out"/*.repl26a "$out"/manifest.txt
 for m in "$repo"/maps/*.map26a; do
   cp -n "$m" ~/ws/maps/ 2>/dev/null
   n=$(basename "$m" .map26a)
