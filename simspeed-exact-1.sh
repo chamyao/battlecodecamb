@@ -1,4 +1,4 @@
-# rev: 60c0a60138fadbb8b68b87c4cb0ea3972dd49fb3
+# rev: 16aa3b56ec2ffb0c2b52b08a01b08eedd25dc21b
 # genome/simspeed: bit-exactness of the sped-up simulator vs the original (genome/v0 5ed2e97), 10 seeds
 # (3,440 games per binary: genome vs .pol, .pol vs .pol, genome vs starter, starter vs .pol, --bot-seeds, genome vs genome)
 git cat-file -e 5ed2e97^{commit} 2>/dev/null || git fetch -q --unshallow origin 2>/dev/null || git fetch -q origin genome/v0
