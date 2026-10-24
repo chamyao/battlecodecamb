@@ -346,3 +346,62 @@ round 1: temperament 1/40 p90 0.525; weights 1/40 p90 0.525; missing 1/40 p90 0.
 [r1 retest] temperament cell 20 (arenaA-3:A654, under_fire->enemies_within): 0.5 $0.349
 [r1 retest] temperament cell 22 (arenaA-3:A654, rule->r_idle): behavioural twin $0.351
 [r1 retest] temperament cell 21 (arenaA-3:A654, dash_gate->walks): 0.575 $0.353
+[r1 retest] temperament cell 23 (arenaA-3:A654, bank_blocked->reach_camp): 0.5375 $0.353
+[r1 retest] temperament cell 24 (arenaA-3:A662, score->act_value): 0.475 $0.353
+[r1 retest] temperament cell 25 (arenaA-3:A662, foe_in_reach->in_reach): 0.475 $0.354
+[r1 retest] temperament cell 26 (arenaA-3:A662, adj_altar->here): 0.5125 $0.355
+[r1 retest] temperament cell 29 (arenaA-3:A662, shop_pending->next_shard): behavioural twin $0.356
+[r1 retest] temperament cell 27 (arenaA-3:A662, update->walk_open): 0.5 $0.357
+[r1 retest] temperament cell 28 (arenaA-3:A662, r_bankgroup->camp_goal): 0.5125 $0.357
+[r1 retest] temperament cell 30 (arenaA-3:A662, rule->r_live): 0.3375 $0.360
+[r1 retest] temperament cell 31 (arenaA-3:A662, rule_target->reach_camp): 0.5 $0.360
+[r1 retest] temperament cell 34 (arenaA-3:A685, bank_t2->closest): behavioural twin $0.361
+[r1 retest] temperament cell 35 (arenaA-3:A685, update->rule_target): behavioural twin $0.363
+[r1 retest] temperament cell 37 (arenaA-3:A685, bank_goal->bank_t2): behavioural twin $0.364
+[r1 retest] temperament cell 32 (arenaA-3:A685, rule->r_bankgroup): 0.4375 $0.364
+[r1 retest] temperament cell 33 (arenaA-3:A685, walk_field->blocked): 0.35 $0.364
+[r1 retest] temperament cell 36 (arenaA-3:A685, next_shard->shard_until): 0.4625 $0.366
+[r1 retest] default cell 0 (arenaA-3:A611, fight_foe->in_reach): behavioural twin $0.369
+[r1 retest] temperament cell 38 (arenaA-3:A685, bag_ready->hurt_below): 0.4125 $0.369
+[r1 retest] temperament cell 39 (arenaA-3:A685, rule->r_camp): 0.4875 $0.371
+[r1 retest] default cell 1 (arenaA-3:A611, rule->adj_altar): 0.3625 $0.371
+[r1 retest] default cell 2 (arenaA-3:A611, rule->bank_on): 0.4375 $0.373
+[r1 retest] default cell 6 (arenaA-3:A611, altar_eta->eta): behavioural twin $0.373
+[r1 retest] default cell 4 (arenaA-3:A611, dash_gate->walks): 0.45 $0.374
+[r1 retest] default cell 3 (arenaA-3:A611, blocked->here): 0.4875 $0.374
+[r1 retest] default cell 7 (arenaA-3:A611, bank_blocked->in_reach): behavioural twin $0.375
+[r1 retest] default cell 5 (arenaA-3:A611, update->walk_open): 0.5125 $0.377
+[r1 retest] default cell 9 (arenaA-3:A659, lock_altar->first_tile): behavioural twin $0.377
+[r1 retest] default cell 8 (arenaA-3:A659, camp_goal->respawning): 0.0625 $0.379
+[r1 retest] default cell 10 (arenaA-3:A659, shard_left->shard_until): 0.475 $0.379
+[r1 retest] default cell 11 (arenaA-3:A659, dash_spot->dash_path_ok): 0.5125 $0.379
+[r1 retest] default cell 12 (arenaA-3:A659, rule->r_hold): 0.4 $0.382
+[r1 retest] default cell 13 (arenaA-3:A659, update->mono_groups): 0.5125 $0.382
+[r1 retest] default cell 15 (arenaA-3:A659, rule_goal->rule): behavioural twin $0.382
+[r1 retest] default cell 14 (arenaA-3:A659, ahead_on->ahead_foe): 0.575 $0.385
+[r1 retest] default cell 16 (arenaA-3:A654, score->act_value): 0.5375 $0.385
+[r1 retest] default cell 19 (arenaA-3:A654, score->pick_value): 0.4 $0.386
+[r1 retest] default cell 18 (arenaA-3:A654, rule->r_cashout): 0.4375 $0.386
+[r1 retest] default cell 17 (arenaA-3:A654, rule_goal->respawning): 0.475 $0.387
+[r1 retest] default cell 22 (arenaA-3:A654, rule->r_idle): behavioural twin $0.390
+[r1 retest] default cell 20 (arenaA-3:A654, under_fire->enemies_within): 0.5 $0.390
+[r1 retest] default cell 21 (arenaA-3:A654, dash_gate->walks): 0.4125 $0.390
+[r1 retest] default cell 23 (arenaA-3:A654, bank_blocked->reach_camp): 0.1625 $0.392
+[r1 retest] default cell 25 (arenaA-3:A662, foe_in_reach->in_reach): behavioural twin $0.393
+[r1 retest] default cell 24 (arenaA-3:A662, score->act_value): 0.475 $0.393
+[r1 retest] default cell 28 (arenaA-3:A662, r_bankgroup->camp_goal): behavioural twin $0.396
+[r1 retest] default cell 29 (arenaA-3:A662, shop_pending->next_shard): behavioural twin $0.396
+[r1 retest] default cell 26 (arenaA-3:A662, adj_altar->here): 0.3875 $0.397
+[r1 retest] default cell 27 (arenaA-3:A662, update->walk_open): 0.5 $0.397
+[r1 retest] default cell 32 (arenaA-3:A685, rule->r_bankgroup): behavioural twin $0.399
+[r1 retest] default cell 30 (arenaA-3:A662, rule->r_live): 0.275 $0.399
+[r1 retest] default cell 34 (arenaA-3:A685, bank_t2->closest): behavioural twin $0.400
+[r1 retest] default cell 31 (arenaA-3:A662, rule_target->reach_camp): 0.475 $0.403
+[r1 retest] default cell 37 (arenaA-3:A685, bank_goal->bank_t2): behavioural twin $0.403
+[r1 retest] default cell 33 (arenaA-3:A685, walk_field->blocked): 0.5125 $0.404
+[r1 retest] default cell 36 (arenaA-3:A685, next_shard->shard_until): 0.5125 $0.404
+[r1 retest] default cell 35 (arenaA-3:A685, update->rule_target): 0.5125 $0.404
+[r1 retest] default cell 38 (arenaA-3:A685, bag_ready->hurt_below): 0.4375 $0.404
+[r1 retest] default cell 39 (arenaA-3:A685, rule->r_camp): 0.4625 $0.404
+retest round 1: {"temperament": {"children": 40, "valid": 29, "prodigies": 0, "prodigy_rate": 0.0, "prodigy_anchor_gain": null, "p90": 0.5125, "max": 0.575, "mean_vs_parent": 0.456, "twin_rate": 0.275, "invalid_rate": 0.0, "lines_mean": 3.5, "genes_added_mean": 0.0, "usd_per_child": 0.00101, "prodigy_min_wins": 48}, "default": {"children": 40, "valid": 28, "prodigies": 0, "prodigy_rate": 0.0, "prodigy_anchor_gain": null, "p90": 0.5125, "max": 0.575, "mean_vs_parent": 0.438, "twin_rate": 0.3, "invalid_rate": 0.0, "lines_mean": 3.5, "genes_added_mean": 0.0, "usd_per_child": 0.001, "prodigy_min_wins": 48}}
+done: spent $0.404
