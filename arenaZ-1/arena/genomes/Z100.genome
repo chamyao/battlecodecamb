@@ -1,0 +1,108 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene('s1', 'value of doing this option now: draft by preference, buy, recall when hurt off spawn, cast, attack, tribute, step toward goals', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 105 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.4:
+            if me().pos in my_spawn():
+                return 0
+            return 90
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: unlocked altar when carrying gems; else a cleared group awaiting capture; else a living camp group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    rew = near(tile(-5, -5), 0)
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    return acc
+
+@gene("s3", "distance field to the goals", parents=['s3'])
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'distance gain of a step on the cached goal field, discounted near enemy champions when hurt', parents=['s4'])
+def progress(t: Tile) -> Num:
+    gain = at(GF, me().pos) - at(GF, t)
+    if me().health_frac < 0.5:
+        for u in enemies():
+            if u.is_champion and dist(u.pos, t) <= u.attack_range + 1:
+                gain -= 2
+    return gain
+
+@gene('Z26a', 'cache the goal distance field once per turn', parents=['s4'])
+def update() -> None:
+    GF = goal_field()
+
+@gene('Z102a', 'draft preference following the top ladder drafts', parents=['s1'])
+def pick_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 6
+    if c == HEART_OF_RUIN:
+        return 5
+    if c == MARCELLA:
+        return 4
+    if c == VENDETTA:
+        return 3
+    if c == RYTH:
+        return 3
+    return 1
+
+@gene('Z26b', 'value of casting an ability: damage/cc on targets, shield/heal when hurt, shield harder when enemies are close, dash toward goals when healthy', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + 10 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and gems() == 0:
+                return 65
+        return 0
+    if k == AB_HEAL:
+        if me().health_frac < 0.7:
+            return 75
+        return 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.8:
+            if any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+                return 80
+            return 72
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and me().health_frac > 0.4:
+            p = progress(o.tile)
+            if p > 0:
+                return 40 + 3 * p
+        return 0
+    return 0
