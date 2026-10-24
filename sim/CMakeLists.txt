@@ -12,6 +12,13 @@ add_compile_options(-Wall -Wextra -Wno-unused-parameter)
 file(GLOB CBS_SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(cbs STATIC ${CBS_SOURCES})
 target_include_directories(cbs PUBLIC include)
+# Integer bit-manipulation instructions only (std::popcount / countr_zero would otherwise be libgcc
+# calls). No FMA or other float-changing ISA: results must stay bit-identical (-ffp-contract=off
+# keeps it so even if a later flag enables FMA). Every x86-64 CPU since ~2013 has these.
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+  set(CBS_ISA_FLAGS -mpopcnt -mbmi -mbmi2 -mlzcnt -ffp-contract=off)
+  target_compile_options(cbs PUBLIC ${CBS_ISA_FLAGS})
+endif()
 
 enable_testing()
 add_executable(geomtest tests/geomtest.cpp)

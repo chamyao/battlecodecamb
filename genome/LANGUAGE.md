@@ -16,8 +16,11 @@ def danger_at(t: Tile) -> Num:
 ```
 
 - Entry genes: `score(o: Option) -> Num` (required): the value of doing option `o` now; the fixed loop does the best option while its score is > 0 (the draft always picks). `update() -> None` (optional): runs at the start of each turn; the only gene that may assign keeps or call `write_shared` / `set_priority`. `consider(kind: Num) -> Bool` (optional): option kinds it rejects are neither listed nor scored this pass. `reserve() -> Num` (optional, default 15000): read once per turn after `update()`; the loop starts no pass after the first with less fuel left than this (a turn that runs out of fuel is suspended and the next turn is lost).
+- `after() -> None` (optional entry gene): runs at the end of each turn, after the loop's actions, with fresh observations. Like `update()`, it may assign keeps and call `write_shared` / `set_priority`. `acted(kind)` and `acted_tile(kind)` tell it what the loop did this turn (e.g. announce the camp it attacked, so allies acting later in the round see it). Shared bytes written in one gene and read in another are dependency edges, as calls are.
 - Keeps: `Num`, `Bool`, `Tile`, `Tiles`, `Field`. Use a Tiles/Field keep set in `update()` to compute an expensive set or distance field once per turn instead of once per pass (zero-argument genes are recomputed every pass of the loop).
 - Every gene has `@gene(id, description, parents=[...])`. IDs survive inheritance; a duplicated gene gets a new ID.
+  IDs and parent IDs are 1-64 of `A-Z a-z 0-9 _ . -`; a description is one plain line (no control, format or
+  line-separator characters, no backslash), since both are emitted into C++ `//` comments.
 - Statements: assignment (function-scoped locals, type fixed at first assignment), `+= -= *= /=`, `if/elif/else`, `for x in S` (S: Units, Tiles or `range(n)`), `return`.
 - Expressions: arithmetic on Num (`/` by 0 gives 0), comparisons, `and/or/not`, `a if c else b`, `t in S` (Tile in Tiles), Tiles `| & -`, fields (`u.pos`), calls to genes and primitives.
 - Reductions: `sum(e for x in S if c)`, `count(c for x in S)`, `any(...)`, `all(...)`, `max((e for x in S), default=d)` (Python needs the generator in parentheses next to `default=`), `min(...)`, `max(a, b)`, `min(a, b)`; `best(S, lambda x: score)` returns the element with the highest score (an invalid Unit/Tile if S is empty: test with `exists(u)` / `valid(t)`).
@@ -114,6 +117,8 @@ def danger_at(t: Tile) -> Num:
 | `read_shared(Num)` | Num |
 | `write_shared(Num, Num)` | None |
 | `set_priority(Num)` | None |
+| `acted(Num)` | Bool |
+| `acted_tile(Num)` | Tile |
 | `picked_by_us(Num)` | Bool |
 | `picked_by_them(Num)` | Bool |
 | `abs(Num)` | Num |

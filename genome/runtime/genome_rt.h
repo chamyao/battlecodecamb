@@ -789,6 +789,19 @@ public:
 	std::unique_ptr<OptionList> opts_buf = std::make_unique<OptionList>(); // reused by play_turn (24 KB: off the stack)
 	std::vector<Option> failed_buf; // options the engine refused this turn
 	KindFilter* filter = nullptr;			   // set by play_turn
+	// what the loop did this turn, by option kind (read by after() through acted / acted_tile)
+	bool acted_[16] = {};
+	Tile acted_tile_[16];
+	void reset_acted()
+	{
+		for (int k = 0; k < 16; ++k) acted_[k] = false, acted_tile_[k] = Tile{};
+	}
+	void note_acted(const Option& o)
+	{
+		if (o.kind > 0 && o.kind < 16) acted_[o.kind] = true, acted_tile_[o.kind] = o.tile;
+	}
+	bool acted(double k) const { return k > 0 && k < 16 && acted_[static_cast<int>(k)]; }
+	Tile acted_tile(double k) const { return k > 0 && k < 16 ? acted_tile_[static_cast<int>(k)] : Tile{}; }
 	// consider(kind), once per kind per pass; kinds it rejects are neither listed nor scored
 	bool want(int kind)
 	{
@@ -1191,6 +1204,7 @@ struct GenesBase : KindFilter
 	virtual ~GenesBase() = default;
 	virtual double score_option(const Option& o) = 0;
 	virtual void run_update() = 0;
+	virtual void run_after() {}
 	// The optional reserve() entry gene: no new pass of the loop starts with less fuel left than this
 	// (read once per turn, after update()).
 	static constexpr double kDefaultReserve = 15000;
@@ -1255,6 +1269,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	if (turn_calls && !draft) std::fill(std::begin(X.turn_calls_buf), std::end(X.turn_calls_buf), 0), GeneScope::turn_calls = X.turn_calls_buf;
 #endif
 	X.new_pass();
+	X.reset_acted();
 	if (!draft) g.run_update();
 #ifdef GENOME_PROF
 	if (t1) t1_mark(X.api.fuel_remaining()); // after update()
@@ -1300,12 +1315,17 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #ifdef GENOME_PROF
 		if (t1) t1_mark(f_opt), t1_mark(f_score), t1_mark(X.api.fuel_remaining()); // per pass: listing, scoring so far; fuel left
 #endif
-		if (ok) ++acted;
+		if (ok) ++acted, X.note_acted(*best);
 		else failed.push_back(*best);
 		if (fuel_trace >= 0 && X.api.spent > fuel_trace)
 			std::fprintf(stderr, "@@FP r%d t%d c%d pass %d spent %lld kind %d ok %d options %d\n", static_cast<int>(X.round()), X.api.team(),
 						 X.api.champ(), pass, static_cast<long long>(X.api.spent), best->kind, ok ? 1 : 0, opts.size());
 		if (draft) break;
+	}
+	if (!draft)
+	{
+		X.new_pass(); // after() sees the state after this turn's actions
+		g.run_after();
 	}
 #ifdef GENOME_PROF
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) % 500 == 0)
