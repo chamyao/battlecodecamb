@@ -82,3 +82,21 @@ seed screen 0.686 confirm 0.768 (vs v7: win 0.97, gems 965-437; vs tune-v20-L1: 
 [84] llm claude-haiku-5-5 isl 2: screen -0.014 (5 lines) | best 0.777 (#65) $1.05 | 1443s
 [85] llm claude-haiku-5-5 isl 0: screen -0.023 (5 lines) | best 0.777 (#65) $1.05 | 1469s
 [86] llm claude-haiku-5-5 isl 2: screen -0.110 confirm -0.003 (5 lines) | best 0.777 (#65) $1.05 | 1475s
+[87] llm claude-haiku-5-5 isl 3: screen +0.035 confirm -0.058 (8 lines) | best 0.777 (#65) $1.05 | 1490s
+[88] tune  isl 2: screen -0.008 confirm -0.002 (162 lines) | best 0.777 (#65) $1.06 | 1519s
+[89] llm claude-haiku-5-5 isl 0: screen +0.007 confirm +0.000 (6 lines) | best 0.777 (#65) $1.06 | 1539s
+[90] llm claude-haiku-5-5 isl 3: screen +0.024 confirm -0.035 (12 lines) | best 0.777 (#65) $1.06 | 1558s
+[91] llm claude-opus-5-5 isl 1: screen -0.015 (11 lines) | best 0.777 (#65) $1.17 | 1580s
+[92] llm claude-haiku-5-5 isl 3: screen -0.014 confirm -0.058 (3 lines) | best 0.777 (#65) $1.17 | 1584s
+[93] tune  isl 2: screen -0.230 (162 lines) | best 0.777 (#65) $1.17 | 1594s
+[94] llm claude-haiku-5-5 isl 0: screen -0.023 (5 lines) | best 0.777 (#65) $1.17 | 1611s
+[95] llm claude-haiku-5-5 isl 1: screen +0.000 confirm -0.001 twin (5 lines) | best 0.777 (#65) $1.17 | 1623s
+[96] llm claude-haiku-5-5 isl 1: screen -0.024 (6 lines) | best 0.777 (#65) $1.18 | 1638s
+[97] llm claude-haiku-5-5 isl 2: screen -0.012 confirm +0.003 (1 lines) | best 0.777 (#65) $1.18 | 1657s
+[98] llm claude-haiku-5-5 isl 1: screen -0.012 confirm -0.009 (5 lines) | best 0.777 (#65) $1.19 | 1689s
+[99] llm claude-haiku-5-5 isl 2: screen -0.119 confirm -0.089 (6 lines) | best 0.777 (#65) $1.19 | 1721s
+[100] llm claude-haiku-5-5 isl 0: screen -0.007 confirm -0.092 (6 lines) | best 0.777 (#65) $1.19 | 1738s
+[101] llm claude-haiku-5-5 isl 2: screen -0.019 (5 lines) | best 0.777 (#65) $1.19 | 1747s
+[102] llm claude-haiku-5-5 isl 3: screen +0.006 confirm +0.005 (2 lines) | best 0.777 (#65) $1.19 | 1755s
+[103] llm claude-opus-5-5 isl 3: screen -0.183 (15 lines) | best 0.777 (#65) $1.31 | 1780s
+[104] llm claude-haiku-5-5 isl 3: screen -0.056 (2 lines) | best 0.777 (#65) $1.31 | 1781s
