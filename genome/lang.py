@@ -15,6 +15,7 @@ Entry genes: score(o: Option) -> Num (required); update() -> None (optional; run
 turn, the only gene that may assign keep variables or call write_shared).
 """
 import ast
+import os
 import hashlib
 import json
 import re
@@ -112,6 +113,9 @@ PRIMS = {
     "field": (("Tiles",), "Field", "X.field({0})"),
     "field_avoid": (("Tiles", "Tiles", "Tiles"), "Field", "X.field_avoid({0}, {1}, {2})"),
     "box_field": (("Tiles", "Tiles"), "Field", "X.box_field({0}, {1})"),
+    "wfield": (("Tiles", "Tiles", "Tiles", "Num"), "Field", "X.wfield({0}, {1}, {2}, {3})"),
+    "path_step": (("Tile", "Tile", "Tiles", "Num"), "Tile", "X.path_step({0}, {1}, {2}, {3})"),
+    "path_len": (("Tile", "Tile", "Tiles", "Num"), "Num", "X.path_len({0}, {1}, {2}, {3})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
@@ -146,6 +150,9 @@ PRIMS = {
     "sqrt": (("Num",), "Num", "std::sqrt(std::max(0.0, {0}))"),
     "rand": (("Num",), "Num", "X.rand({0})"),
 }
+# Primitives whose simulator price is not yet calibrated against cambc (genome/FUEL.md): rejected unless
+# GENOME_UNCALIBRATED=1 (calibration probes), so the search cannot use them before they are priced.
+UNCALIBRATED = set()  # wfield, path_step, path_len: calibrated Oct 24 (genome/FUEL.md)
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
@@ -587,6 +594,8 @@ class Checker:
             self.cur.calls.add(n)
             return gene.ret, f"{n}(" + ", ".join(c for _, c, _ in args) + ")", ops + 1
         if n in PRIMS:
+            if n in UNCALIBRATED and not os.environ.get("GENOME_UNCALIBRATED"):
+                self.err(e, f"{n} is not calibrated yet (GENOME_UNCALIBRATED=1 for probes)")
             sig, ret, tpl = PRIMS[n]
             if list(sig) != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(sig)})")
