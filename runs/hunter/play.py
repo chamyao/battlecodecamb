@@ -10,4 +10,6 @@ def comp(p):
 a, b = comp(sys.argv[1]), comp(sys.argv[2])
 g = int(sys.argv[3]) if len(sys.argv) > 3 else 80; seed = sys.argv[4] if len(sys.argv) > 4 else '1'
 r = json.loads(subprocess.run([str(EVAL_BIN), '--a', a, '--b', b, '--games', str(g), '--threads', '8', '--seed', seed, *MAPS], capture_output=True, text=True).stdout.strip().splitlines()[-1])
-print(f"{os.path.basename(sys.argv[1])} vs {os.path.basename(sys.argv[2])}: win {r['win_rate']:.3f} gems {r['a_gems']:.0f}-{r['b_gems']:.0f} kills {r['a_kills']:.1f}-{r['b_kills']:.1f} gems_lost {r['a_gems_lost']:.0f}-{r['b_gems_lost']:.0f} rounds {r['avg_rounds']:.0f} ({r['seconds']:.0f}s)")
+print(f"{os.path.basename(sys.argv[1])} vs {os.path.basename(sys.argv[2])}: win {r['win_rate']:.3f} gems {r['a_gems']:.0f}-{r['b_gems']:.0f} "
+      f"kills {r['kills'][0]:.1f}-{r['kills'][1]:.1f} deaths {r['deaths'][0]:.1f}-{r['deaths'][1]:.1f} "
+      f"champ_dmg {r['champ_damage'][0]:.0f}-{r['champ_damage'][1]:.0f} gems_lost {r['gems_lost_to_champs'][0]:.0f}-{r['gems_lost_to_champs'][1]:.0f} ({r['seconds']:.0f}s)")
