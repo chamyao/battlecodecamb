@@ -85,4 +85,9 @@ Next candidates, in order:
 
 ## Ranked
 
-v17 is 13-7 in its first 20 ranked games: 4-1 vs Rataturing, 4-1 vs Lucky Boy, 3-2 vs octo's odyssey, 2-3 vs JBG fam. For comparison, tune-5 went 11-19 in its first 30 (`docs/LADDER_LOSSES_V16.md`), against different opponents, so this is not a like-for-like comparison.
+v18 (tune-r-all-v2) was submitted at ~07:27 UTC, so only the ranked groups created at 07:10 and 07:20 are v17:
+- **v17: 7-3** (Rataturing 4-1, octo's odyssey 3-2).
+- The 07:30 group is ambiguous: Lucky Boy 4-1.
+- The 07:40 group onward is v18: JBG fam 2-3.
+
+The top-team groups above all finished by 07:20:40, so they are all v17.
