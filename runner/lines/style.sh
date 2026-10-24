@@ -105,23 +105,27 @@ if [ -f runs/ec2-s6 ] && [ ! -f runs/ec2-s6b ]; then
   fi
 fi
 # S7 (style line, 12:40 UTC): once h2's current boundary validation logs its verdict ("no promotion" or "PROMOTED"),
-# restart h2 only on funsearch/style 45b71ea (amended from ffac9e9: 8-byte shared memory, pair roles in byte 7 bits 2-7; tune-v21 replaces v19 in h2's fixed; directive uses shared-memory
+# restart h2 (then b) on funsearch/style 3f7dae9 (amended from ffac9e9/45b71ea: 8-byte shared memory, pair roles in byte 7 bits 2-7; tune-v21 replaces v19 in h2's fixed; directive uses shared-memory
 # offsets 8+; script/policy/directive only, no rebuild). A promoted policy file stays in place. b keeps running.
 if [ -f runs/ec2-s6b-checked ] && [ ! -f runs/ec2-s7 ]; then
   verdicts() { grep -cE 'no promotion|PROMOTED' runs/style8-h2.log 2>/dev/null; }
   [ -f runs/ec2-s7-mark ] || { verdicts > runs/ec2-s7-mark; log "S7: waiting for h2's boundary verdict (verdict lines so far: $(cat runs/ec2-s7-mark))"; }
   if [ "$(verdicts)" -gt "$(cat runs/ec2-s7-mark)" ]; then
     v=$(grep -E 'no promotion|PROMOTED' runs/style8-h2.log | tail -n 1 | cut -c1-160)
-    for pid in $(pgrep -a -x python3 | grep -E "league --name style8-h2 |funsearch.run --run style8-h2-" | cut -d' ' -f1); do
-      kill -TERM "$pid" && log "S7: SIGTERM style8-h2 pid $pid"; done
+    # final amendment (12:44 UTC): 3f7dae9 = 45b71ea + funsearch/runs a43aede (league/run code changed, no interp/sim),
+    # so b restarts right after h2 to keep both on one code version (b resumes mid-round from programs.jsonl)
+    for x in h2 b; do
+      for pid in $(pgrep -a -x python3 | grep -E "league --name style8-$x |funsearch.run --run style8-$x-" | cut -d' ' -f1); do
+        kill -TERM "$pid" && log "S7: SIGTERM style8-$x pid $pid"; done
+    done
     sleep 10
     if git fetch -q origin funsearch/style &&
        { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
-       git merge-base --is-ancestor 45b71ea HEAD; then
-      wc -l < runs/style8-h2.log > runs/ec2-s7-lmark; touch runs/ec2-s7
-      log "S7: h2 verdict: $v; at $(git rev-parse --short HEAD) (has 45b71ea); h2 restarting below; promoted files kept: $(ls policies/style-h2*.policy 2>/dev/null | tr '\n' ' ')"
+       git merge-base --is-ancestor 3f7dae9 HEAD && python3 -m pytest -q tests > /root/bc/style-pytest.txt 2>&1; then
+      wc -l < runs/style8-h2.log > runs/ec2-s7-lmark; wc -l < runs/style8-b.log > runs/ec2-s7-bmark; touch runs/ec2-s7
+      log "S7: h2 verdict: $v; at $(git rev-parse --short HEAD) (has 3f7dae9), $(tail -n 1 /root/bc/style-pytest.txt); h2 and b restarting below; promoted files kept: $(ls policies/style-h2*.policy 2>/dev/null | tr '\n' ' ')"
     else
-      log "S7: merge to 45b71ea failed; h2 relaunches on the old checkout"; touch runs/ec2-s7-failed
+      echo "S7 merge/3f7dae9/pytest failed; h2 and b stopped" > "$D/HALT"; log "HALT: S7 merge/3f7dae9/pytest failed"; return 1
     fi
   fi
 fi
@@ -171,7 +175,8 @@ if [ -f runs/ec2-s6b ] && [ ! -f runs/ec2-s6b-checked ]; then
 fi
 if [ -f runs/ec2-s7 ] && [ ! -f runs/ec2-s7-checked ]; then
   f2=$(tail -n +"$(( $(cat runs/ec2-s7-lmark) + 1 ))" runs/style8-h2.log | grep -m1 'style8-h2-g')
-  [ -n "$f2" ] && { touch runs/ec2-s7-checked; log "S7 check: h2: $(echo "$f2" | grep -q "league \['policies/tune-v21.policy'" && echo 'tune-v21 first in league' || echo 'tune-v21 NOT first') $(echo "$f2" | grep -oE 'style8-h2-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$f2" | grep -oE 'best [^,]*') $(echo "$f2" | grep -oE '\$[0-9.]+ left')"; }
+  fb=$(tail -n +"$(( $(cat runs/ec2-s7-bmark) + 1 ))" runs/style8-b.log | grep -m1 'style8-b-g')
+  [ -n "$f2" ] && [ -n "$fb" ] && { touch runs/ec2-s7-checked; log "S7 check: h2: $(echo "$f2" | grep -q "league \['policies/tune-v21.policy'" && echo 'tune-v21 first in league' || echo 'tune-v21 NOT first') $(echo "$f2" | grep -oE 'style8-h2-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$f2" | grep -oE 'best [^,]*') $(echo "$f2" | grep -oE '\$[0-9.]+ left'); b: $(echo "$fb" | grep -oE 'style8-b-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$fb" | grep -oE '\$[0-9.]+ left')"; }
 fi
 # snapshot: complete JSON lines only (like runs/style_push_state.sh), never scripts or budgets
 rm -rf /root/bc/style-snap && mkdir -p /root/bc/style-snap/runs
