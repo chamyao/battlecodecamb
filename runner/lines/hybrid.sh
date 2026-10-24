@@ -113,6 +113,26 @@ if [ -f runs/ec2-hyb5 ]; then
       echo "H7b merge/c4341a3/build/tests failed; hyb5 stopped" > "$D/HALT"; log "HALT: H7b upgrade failed"; pushall; return 1
     fi
   fi
+  # H7c (12:58 UTC, hybrid line): the g2 boundary validation that ran on the stale a43aede build (12:43:24-12:48:58)
+  # appended 21 entries to runs/validation_cache.jsonl (lines 807-827 of remote/hybrid c6840e8). Stop hyb5, drop those
+  # keys, relaunch so the boundary is re-validated on the lockfix build only. Entries after H7b are kept.
+  if [ -f runs/ec2-h7b ] && [ ! -f runs/ec2-h7c ]; then
+    for pid in $(pgrep -a -x python3 | grep -E "league --name hyb5|funsearch.run --run hyb5-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "H7c: SIGTERM hyb5 pid $pid"; done
+    sleep 15
+    cp runs/validation_cache.jsonl runs/validation_cache.jsonl.pre-h7c
+    STALE="b7081cf2f78b3dae118903b5e0c4885bc2ee9928d2d986a119fb22d19daff992 771205884b94b9ef633e363651444cfe84678ea6df63a4a3575ddd8966a02081 f8e3e9dadf9894695acee461d092ca384fb782c8cb733f13dc960a2226d8eb7c 83a35d5392a2a2865ca601e5f6626edb2463b72607b05d96137254563065861d 5dd8a7bdb39abe13c6c26a749247ac52c4054fd5cc9b07948a920795bb79fe19 d33075bd666f5105b822eb391cde401cd744ae788894b235f3a452cc85a0de18 0531858814c68be9fab74a798070715a5961191cbd35948c3408a804932a6781 8d4b6ead169a6e93f04309d788de61155b30bdcfcdf537f7256085e9866f3fe6 4781fa0fac6c9adc079e9cafd3d899cfbed07c770623c1cd132ea45cc2992cf8 e87e58f489a2d742d9436874413af9a950e4a97db0ac62b4b4c965351d4deb7b 41c9a25e1bd6b82d02ecc5dd2d4f58dd5498753ec132f933e55536132f2bc748 82d95d3e69051dac4009e69920967e8f5903a6dba7bff8e024dbba043b2e1382 527836d9dd1d1ebd524db7b0b564d32a66b65ea1a4795bea716f0a7f65292e44 ad5a03fed51066d5307090947d050b6e7ee71728269e7d6d48d021ec18adba70 81a6f8309bb4344111d3d7ed3d6b7610c6bd4a78cda05b46cddab8656e020e73 2062287d710fe4c28b6619019993cfbdad89e37bc44488bf1aa073acc1ebc571 256b258fe63dfd1487eaed80d99fe218e7aff1c070770959b8bea99f2298332c 3fef3e1602010edbf56165226c9aa2b38882a6922ec955d843b7763d6c77f1be d44df922a0bc0f3c6e9440d27ccf70f9e8e73f12db939c33cbe73df19e5ab09b 4fb5a0ebe8612f9d302720169766575c6ce8533e56e0b6abf837456e7a5ca5dc 26e49efcec7ab0f06900266d4d377a42639cbd258901834a570aa2c6dc228926" python3 - <<'PY'
+import json, os
+stale = set(os.environ["STALE"].split())
+lines = open("runs/validation_cache.jsonl").read().splitlines(keepends=True)
+keep = [l for l in lines if not l.strip() or json.loads(l).get("key") not in stale]
+open("runs/validation_cache.jsonl", "w").writelines(keep)
+print(len(lines) - len(keep))
+PY
+    n=$(( $(wc -l < runs/validation_cache.jsonl.pre-h7c) - $(wc -l < runs/validation_cache.jsonl) ))
+    wc -l < runs/hyb5.log > runs/ec2-h7c-mark; touch runs/ec2-h7c
+    log "H7c: removed $n stale-build validation cache entries (expected 21; backup validation_cache.jsonl.pre-h7c); relaunching hyb5"
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
