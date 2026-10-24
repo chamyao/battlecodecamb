@@ -314,12 +314,16 @@ X
     if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h21b-holdmark)" ]; then
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H21b: SIGTERM hyb5 pid $pid"; done
       sleep 10
-      if grep -q 'no-tune-children' funsearch/run.py; then
+      # H23 (jobs/hybrid f6ae0df, lead) folded in: funsearch/runs f0cbbce+ (python only: yield term = gems submitted/game vs v21)
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor f0cbbce HEAD && grep -q 'no-tune-children' funsearch/run.py && build "$D" fuel_turns &&
+         python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h21b-progs; date +%s > runs/ec2-h21b-t0
+        grep -c 'yield term: ' runs/hyb5.out runs/hyb5*.log 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}' > runs/ec2-h23-yieldmark
         rm -f runs/hyb5.hold; touch runs/ec2-h21b; EXTRA="$EXTRA --no-tune-children"
-        log "H21b: relaunching hyb5 at $(git rev-parse --short HEAD) with --no-tune-children"
+        log "H21b+H23: funsearch/runs $(git rev-parse --short HEAD) (has f0cbbce: submitted-gems yield), $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with --no-tune-children"
       else
-        echo "H21b: funsearch/run.py lacks --no-tune-children; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H21b flag missing"; pushall; return 1
+        echo "H21b/H23 merge/f0cbbce/flag/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H21b/H23 upgrade failed"; pushall; return 1
       fi
     fi
   fi
@@ -515,6 +519,12 @@ if len(new) >= 15 and h > 0.25:
 PY2
 )
     [ -n "$st" ] && { touch runs/ec2-h21b-checked; log "H21b check: $st"; }
+  fi
+  if [ -f runs/ec2-h21b ] && [ ! -f runs/ec2-h23-checked ]; then
+    yc=$(grep -c 'yield term: ' runs/hyb5.out runs/hyb5*.log 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}')
+    yt=$(grep -ho 'yield term: [0-9]* logged programs rescaled' runs/hyb5.out runs/hyb5*.log 2>/dev/null | tail -n 1)
+    ns=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h21b-progs) + 1 ))" | grep -cE '"metric": *"submitted"|.metric.: .submitted.')
+    [ "$yc" -gt "$(cat runs/ec2-h23-yieldmark)" ] && [ "$ns" -gt 0 ] && { touch runs/ec2-h23-checked; log "H23 check: '$yt'; $ns new children with metrics.yield.metric == submitted"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
