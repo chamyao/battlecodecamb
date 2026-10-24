@@ -25,7 +25,7 @@ r_run  ->  under_fire        (r_run calls under_fire)
 def r_run() -> Bool:
     return not at_spawn() and hurt_below(0.3) and under_fire()
 
-# Editable gene 2: under_fire   [s8]   called by: r_run, r_cashout, a13
+# Editable gene 2: under_fire   [s8]   called by: r_run, r_cashout
 @gene("s8", "under fire: in danger or an enemy champion within 8")
 def under_fire() -> Bool:
     return in_danger() or enemies_within(8) > 0
@@ -37,8 +37,7 @@ in_danger() -> Bool                [s7]  in danger: an awake camp can hit me, or
 enemies_within(r: Num) -> Num      [s6]  visible enemy champions within r tiles
 
 # Other callers of under_fire (fixed; they must still type-check)
-r_cashout() -> Bool   [r5]
-a13() -> Bool         [a13]
+r_cashout() -> Bool   [r5]  recall with gems when below half health and nothing near
 
 # Task
 Change the interaction between r_run and under_fire. Do one of:
