@@ -173,6 +173,7 @@
 { "team_gems()", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (visible-champion scan), coordinator
 { "unseen_enemies_near(Num,Num)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (visible-champion scan), coordinator
 { "altar_eta()", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (map scan), coordinator
+{ "bank_detour(Tile)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as altar_eta (altar scan), coordinator
 { "retreat_eta()", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as local_strength (map scan), coordinator
 // Per turn: the step loop outside blocks (profile fit 120 + 59.62*blocks + 0.108*blocks*H, mae 682),
 // scaled by 0.948, plus the profiler-distortion terms per block, per API call and per turn.

@@ -196,6 +196,7 @@ _b("enemy_between", "Tile", "Bool")
 _b("group_contested", "Tile", "Num")
 _b("team_gems", "", "Num")
 _b("unseen_enemies_near", "Num Num", "Num")
+_b("bank_detour", "Tile", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)
