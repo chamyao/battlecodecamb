@@ -14,7 +14,9 @@ case "$1" in
   *) echo "usage: $0 <a|b|c|h> <budget>"; exit 1 ;;
 esac
 if [ "$1" = h ]; then
-  members=policies/opp-hunter2b.policy; best_w=0.5; extra="--fight-weight 0.5"
+  members=policies/opp-hunter2b.policy; best_w=0.5; extra="--fight-weight 0.5 --round 40"
+  # island h may get more threads than the others: H_WORKERS / H_EVAL_THREADS / H_VAL_THREADS
+  WORKERS=${H_WORKERS:-$WORKERS}; EVAL_THREADS=${H_EVAL_THREADS:-$EVAL_THREADS}; VAL_THREADS=${H_VAL_THREADS:-$VAL_THREADS}
   FIXED=policies/tune-v18.policy,$BAR,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy
 else
   members=$BAR; best_w=3.0; extra=""

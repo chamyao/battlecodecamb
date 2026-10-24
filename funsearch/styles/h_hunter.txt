@@ -21,5 +21,11 @@ front as shield-bait, open with the reach stun or dash, fire both resets in the 
 pre-empt camp attacks when an enemy is within 8. Stat stacking is an axis to try, not a rule: one
 stat per carry from round 1 (strength on Vesper Vale, focus on Heart of Ruin/Prism/Ryth) fed the
 top teams' snowball, but stacking alone cut our farming bot to 23-28%, so pair it with group play.
+Directions to explore explicitly (measured in the sim vs the live bot: hand-written grouping lost
+economy; one-stat stacking out-damaged the live bot 26k to 21k but died 20 times a game):
+- STACK + SUSTAIN: one damage stat per carry, but Health shards on Heart of Ruin (the front
+  champion) and a recall/retreat rule that keeps the stacked carries alive;
+- EARLY FIGHTS: fight from round ~50-150, before the farming bot's items, near your own half;
+- fight-only grouping: farm apart, converge on team_target() when an ally engages.
 Keep farming and banking working (the score still counts wins). Every version must keep
 set_team_target; a version that drops focus fire is rejected.
