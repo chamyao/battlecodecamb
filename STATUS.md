@@ -1,29 +1,20 @@
 # EC2 runner status
 
-Updated 2026-10-24 15:11 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.74 14.16 13.34 on 16 threads.
+Updated 2026-10-24 15:16 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.40 14.12 13.61 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
 ```
 92618 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
 92630 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 4.29 --max-programs 151 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,polic
-112760 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
-112781 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.97 --max-programs 12 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 114024 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
 114076 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 18.75 --max-programs 28 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
-117552 python3 -m funsearch.run --run style8-gconv --budget 1.76 --max-programs 400 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.pol
+120806 python3 -m funsearch.run --run style8-gconv --budget 1.75 --max-programs 400 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.pol
+120843 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
+120864 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 0.95 --max-programs 6 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hu
 ```
 ## tick.log (last 40 lines)
 ```
-[13:51:39] hybrid: hyb5 not running: relaunching (resume from runs/)
-[13:51:39] hybrid: launched hyb5 league
-[13:56:48] hybrid: H8b: SIGTERM hyb5 pid 101560 (drop --tune-* flags)
-[13:57:03] hybrid: hyb5 not running: relaunching (resume from runs/)
-[13:57:03] hybrid: launched hyb5 league
-[14:07:16] hybrid: H9: SIGTERM hyb5 pid 102351
-[14:07:38] hybrid: H9: funsearch/runs 41e1191 (has c6eb17a), 2024 passed in 6.46s; relaunching hyb5 with --tune-opponents (5)
-[14:07:38] hybrid: hyb5 not running: relaunching (resume from runs/)
-[14:07:38] hybrid: launched hyb5 league
 [14:12:46] hybrid: H10: hold set for the next hyb5 boundary
 [14:12:46] hybrid: H9 rate: 0 programs in 5 min = 0/h; tuned children 0, mean tuned.games 0 (round ended: [14:10:50]   no promotion; hyb5-g3 continues); before: g2 58/h, g3 49/h
 [14:18:02] hybrid: H8 check: hyb5-g3: re-seeded island 2 with v20;hyb5-g3: re-seeded island 3 with v19-; (expected island 2 with v20, island 3 with v19-L1c; 0/1 keep v21)
@@ -55,4 +46,13 @@ Disk: 3.4G used of 38G.
 [15:05:51] style: S8: style8-gconv not running: relaunching (resumes)
 [15:05:51] style: S8: launched style8-gconv ($2.0 total)
 [15:10:59] style: S10 check: gconv relaunched: $1.76 left of $2.0
+[15:16:04] hybrid: H16: hold set for the next hyb5 boundary
+[15:16:07] style: S11: SIGTERM pid 112760
+[15:16:07] style: S11: SIGTERM pid 112781
+[15:16:07] style: S11: SIGTERM pid 117552
+[15:16:34] style: S11: at a8682fd (has 5b70f04: v22 dead-camp fix), rebuilt, 2024 passed in 6.18s; relaunching b and gconv
+[15:16:34] style: S8: style8-gconv not running: relaunching (resumes)
+[15:16:34] style: S8: launched style8-gconv ($2.0 total)
+[15:16:35] style: style8-b not running: relaunching (resumes from its programs.jsonl)
+[15:16:35] style: launched style8-b (budget $3.5)
 ```
