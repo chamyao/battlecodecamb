@@ -5,8 +5,8 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 19:49 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.55 13.30 11.58 on 16 threads.
-Disk: 4.0G used of 38G.
+Updated 2026-10-24 19:55 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.46 13.28 12.05 on 16 threads.
+Disk: 4.1G used of 38G.
 
 ## python3 processes
 ```
@@ -15,7 +15,6 @@ Disk: 4.0G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-remote:      https://github.com/chamyao/battlecodecamb/pull/new/style/arena-overlay        
 remote: 
 [17:47:41] style: S15: pushed style/arena-overlay 391f2d4:  45 files changed, 2901 insertions(+); style tick stops here
 [17:52:45] hybrid: FINAL: ec2-final-check.txt + hyb5.cmdline pushed (remote/hybrid c474b96)
@@ -55,4 +54,5 @@ remote:
 [19:39:49] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [19:44:54] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [19:49:58] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[19:55:03] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
