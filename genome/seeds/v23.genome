@@ -665,7 +665,12 @@ def walk_open() -> Bool:
 def dash_path_ok(p: Tile) -> Bool:
     if dist(here(), p) <= 1:
         return True
-    return any(dist(q, p) <= 1 and not (q in walls()) and not (q in enemy_spawn()) for q in near(here(), 1))
+    return any(dist(q, p) <= 1 for q in dash_mids())
+
+
+@gene("w11", "tiles next to me a dash may pass through (not wall, not enemy spawn)")
+def dash_mids() -> Tiles:
+    return near(here(), 1) - walls() - enemy_spawn()
 
 
 @gene("w8", "a landing tile within 2 that is closer to GOAL than I am")
