@@ -8,8 +8,8 @@ Merge the lines' work, keep the simulator and the bot consistent, pick and uploa
 add blocks to the language when a diagnosis needs one, and keep Cham informed (short, times in ET).
 
 ## Live and history
-- Live (Oct 24 ~15:05 UTC): ladder version 22 = v21b (deploy/v0 ee85727, dist/deploy-v21b.zip, sha256 d86fbda6...):
-  v21's policy (tune-v20-L1c) on bot code with the dead-camp group_threat fix. v21 = tune-v20-L1c (d9d2897). v20 = tune-fight-2s (6d50156), v19 = rall2-ca4-lean-g (7ef15b2). Chain tonight: v17 tune5-campreset (attack -> reset ->
+- Live (Oct 24 ~16:10 UTC): ladder version 23 = style-gconv1 (deploy/v0 84bc6a6, sha256 ade608f2...), an informational
+  upload approved by Cham, judged on the same 50 band groups; revert target v22 = v21b (ee85727, d86fbda6...). v20 = tune-fight-2s (6d50156), v19 = rall2-ca4-lean-g (7ef15b2). Chain tonight: v17 tune5-campreset (attack -> reset ->
   attack), v18 tune-r-all-v2 (+ map fixes, no recall with an enemy within 8), v19 (+ cast-ahead, retreat dash gated
   at fuel_remaining() > 60000). History: STRATEGY.md "Ladder versions".
 - Ranked: tune-5 11-19; v17 7-3; v18 about 11-14. Unranked vs ladder #1-#9 + vc? (same 10 groups each time):

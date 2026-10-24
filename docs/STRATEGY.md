@@ -202,6 +202,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   dead-camp fix (cambc's camp() reports dead camps as not-in-vision, so group_threat/group_hp counted seen-dead
   camps as alive in the deployed bot; policies were tuned on seen-dead = 0; deploy/v0 59d9e3a). Bug-fix bar (no
   regression): real cambc 40/80 vs v21, 0 caps; sim vs v7zg-cast gems/capture 11.03 vs 10.93, tributes 27.4 vs 27.1.
+  v22: 17-33 on the same 50 band games as v21 (15-35): the fix is neutral at that tier.
+  23 = style-gconv1 (`deploy/v0` 84bc6a6, sha256 ade608f2...; ~16:10 UTC): v21's policy + sensor-driven banking found
+  by the style line's FunSearch (threat_eta, altar_eta). INFORMATIONAL upload approved by Cham: league not required;
+  sim vs v21 51.4%, conversion 0.946 vs 0.896, tributes 38 vs 23, gems lost 51 vs 64; real cambc 46/80 vs v22, 0 caps
+  (heavier: 188 turns > 80k, peak 96.5k). Judged on the same 50 band groups; revert to v22 if not better.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
