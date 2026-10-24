@@ -72,20 +72,16 @@ AXES = {
              "beacon b (0-63), e.g. which pair is in a fight. Retreating "
              "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
              "tests, so stay close WHILE farming rather than walking across the map to regroup",
-    "conversion": "GEM CONVERSION (the biggest measured gap to the band above us, docs/GAP_LIST.md): we lose 184 "
-                  "gems per game on death, 54% of our deaths happen while carrying gems (a median 7 tiles from an "
-                  "altar), we submit 76% of the gems we capture (they 99%), and we bank 18 times a game (they 26). "
-                  "Work on bank cadence, bag size against the distance to the nearest safe altar (gems(), "
-                  "closest(safe altars), distance), carrying routes that avoid enemies (in_danger(), enemies_within), "
-                  "tributing before a fight, and taking richer camp groups closer to altars",
-    "disengage": "DISENGAGE, i.e. not being caught in losing fights at low HP: once one of our champions is "
-                 "below 50% HP with an enemy within 5 it dies 88% of the time (the top team 6%, similar teams "
-                 "13-20%). MEASURED: walking away mid-fight (HP below 0.4-0.6 with an enemy within 5-6) is strongly "
-                 "NEGATIVE (18-34% vs the live bot, more deaths: a fleeing champion takes free hits). So avoid the "
-                 "losing fight instead of fleeing it: engage only with local numbers or strength ahead "
-                 "(enemies_within, allies_within, local_strength), keep range, back off BEFORE the first exchange "
-                 "when outnumbered, never start a recall within reach of an enemy (damage cancels it), and let a "
-                 "healthy ally peel for a hurt one",
+    "conversion": "GEM CONVERSION, the biggest measured gap to the band above us (docs/GAP_LIST.md). Measured: we "
+                  "lose 184 gems per game on death; 54% of our deaths happen while carrying gems, a median 7 tiles "
+                  "from an altar; we submit 76% of the gems we capture (they 99%); we bank 18 times a game (they "
+                  "26). Levers: when and where gems are banked, bag size, the distance to an altar, routes while "
+                  "carrying, which camp groups are taken, what happens to the bag when a fight starts",
+    "disengage": "LOW-HP SURVIVAL. Measured: once one of our champions is below 50% HP with an enemy within 5 it "
+                 "dies 88% of the time (the top team 6%, similar teams 13-20%), gaining ~1 tile in 5 rounds. "
+                 "Measured hand rules: walking away mid-fight at HP below 0.4-0.6 with an enemy within 5-6 scored "
+                 "18-34% vs the live bot, with more deaths. Levers: which fights are entered, local numbers and "
+                 "strength, range, movement and dashes, recall timing (damage cancels a recall), allies' help",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
              "where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "

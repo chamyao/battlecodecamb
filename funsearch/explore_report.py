@@ -18,6 +18,9 @@ from .database import cell_of, draft_core
 from .evaluate import ROOT, executed_blocks
 
 NAMES = {b.name for b in REGISTRY if not b.infix}
+# recently added blocks whose uptake we track (gap sensors, capture metric, ability/unit info)
+WATCH = [b for b in ("unit_max_health", "unit_strength", "unit_focus", "enemies_near", "allies_near", "strength_at",
+                     "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius") if b in NAMES]
 
 
 def blocks_used(text):
@@ -88,6 +91,14 @@ def report(run, step=25):
         if r["id"] % step == step - 1 or r is rows[-1]:
             curve.append(f"{r['id'] + 1}:{top:.3f}/{len(seen)}")
     print("  curve (programs:best/executed blocks): " + "  ".join(curve))
+    # newly added blocks: are children picking them up? (contained in the text / executed in play)
+    kids = [r for r in valid if r["model"] not in ("seed", "reset") and not r["model"].startswith("inject")]
+    watch_line = []
+    for b in WATCH:
+        present = sum(1 for r in kids if re.search(rf"\b{b}\(", r["text"]))
+        executed = sum(1 for r in kids if b in execd.get(r["id"], set()))
+        watch_line.append(f"{b} {executed}/{present}")
+    print(f"  new blocks, children executing/containing (of {len(kids)}): " + ", ".join(watch_line))
     for dim in per:
         print(f"  {dim}:")
         for val, s in sorted(per[dim].items(), key=lambda kv: -kv[1]["n"]):
