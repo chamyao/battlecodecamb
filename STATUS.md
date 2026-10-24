@@ -1,23 +1,20 @@
 # EC2 runner status
 
-Updated 2026-10-24 17:01 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.60 11.37 11.17 on 16 threads.
+Updated 2026-10-24 17:06 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.57 11.00 11.05 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
 ```
 92618 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
-134213 python3 -m funsearch.run --run style8-gyield --budget 1.27 --max-programs 400 --seed-policy policies/style-gconv1.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraf
 142461 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
 142565 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 16.30 --max-programs 29 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
 143592 python3 -m funsearch.league --name style8-b2 --budget 0.95 --members policies/tune-v21.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v21.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/v7zg-cast
 143612 /usr/bin/python3 -m funsearch.run --run style8-b2-g1 --budget 0.95 --max-programs 150 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.poli
 145998 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 1.04 --max-programs 146 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,poli
+148638 python3 -m funsearch.run --run style8-gsub --budget 0.52 --max-programs 400 --seed-policy policies/tune-v21.policy --island-seeds policies/style-gconv1.policy,policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/style-gconv1.policy,policies/opp-finishe
 ```
 ## tick.log (last 40 lines)
 ```
-[15:16:34] style: S11: at a8682fd (has 5b70f04: v22 dead-camp fix), rebuilt, 2024 passed in 6.18s; relaunching b and gconv
-[15:16:34] style: S8: style8-gconv not running: relaunching (resumes)
-[15:16:34] style: S8: launched style8-gconv ($2.0 total)
 [15:16:35] style: style8-b not running: relaunching (resumes from its programs.jsonl)
 [15:16:35] style: launched style8-b (budget $3.5)
 [15:21:43] style: S11 check: gconv $1.75 left of $2.0; b style8-b-g1: +6 programs to the next boundary (144 so far) $0.95 left
@@ -55,4 +52,7 @@ Disk: 3.4G used of 38G.
 [16:45:34] hybrid: H21b: hold set for the next hyb5 boundary
 [16:45:34] hybrid: H17 check: re-seeded island 3 with hyb5-g3-82 (score -0.649);re-seeded island 3 with hyb5-g3-76 (score 0.657); island-3 children 8: metrics.fuel 8, fuel axis 4 (0.50, expect ~0.5)
 [16:45:34] hybrid: H20 check: re-seeded island 1 with style-gconv1 (score 0.639);re-seeded island 3 with hyb5-g3-76 (score 0.657); 2 new children mention style-gconv1 (metrics opponent)
+[17:06:09] style: S14: SIGTERM style8-gyield pid 134213
+[17:06:16] style: S14: at d446d2b (has 35595b0), 2024 passed in 6.32s; gyield stopped for good; gsub starting
+[17:06:16] style: S14: launched style8-gsub ($0.52)
 ```
