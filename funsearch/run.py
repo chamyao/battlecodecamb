@@ -56,6 +56,8 @@ def main():
     ap.add_argument("--seed-policy", default=str(ROOT / "policies" / "v1.policy"))
     ap.add_argument("--inject", default="", help="policy paths added as parents (one island each, scored with "
                                                  "the run's opponents) unless already in the database")
+    ap.add_argument("--stratify", action="store_true", help="screen games tile every map across opponents "
+                    "(evaluate stratify=True) instead of one seed's fixed map sample; confirmation is unchanged")
     ap.add_argument("--eval-seed", type=int, default=0, help="same games for every program (fair comparison)")
     ap.add_argument("--islands", type=int, default=4)
     # exploration mode (opt-in): per-call prompt variants (axis, change type, framing, catalog, evidence,
@@ -115,7 +117,7 @@ def main():
                  if p.metrics.get("confirmed") and "screen_fp" in p.metrics}
 
     def score(text, confirm=False, screened=None):
-        r = screened or evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads,
+        r = screened or evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, stratify=args.stratify,
                                  seed=args.eval_seed)
         if not r.ok:
             return r
@@ -245,7 +247,8 @@ def main():
         from .tune import climb_child, climb_targets
         if not climb_targets(parent.text, text):
             return None, text, None
-        scr = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed)
+        scr = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=args.eval_seed,
+                       stratify=args.stratify)
         par = parent.metrics.get("screen_score", parent.score)
         if not scr.ok or scr.score < par - args.tune_slack:
             return scr, text, None
