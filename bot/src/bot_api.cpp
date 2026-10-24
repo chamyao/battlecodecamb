@@ -435,7 +435,7 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	champion_info ci{};
 	const bool have_me = champ_ >= 0 && sdk_champion(static_cast<std::uint32_t>(champ_), &ci) == 0 && ci.x == origin.x && ci.y == origin.y;
 	bool found = false;
-	// Per candidate set (keyed by its first tile): the last D and what the reachable mask cost.
+	// Per candidate set (keyed by its first tile and size): the last D and what the reachable mask cost.
 	// The mask's cost depends on the map (a few k in a compact region, ~a search for long walks
 	// across an open map), so after a memo miss, when the last mask was dear, the simulator's
 	// own algorithm runs instead on one search rooted at origin, capped at the last D + 2 per turn since: the
@@ -444,6 +444,7 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	struct Hist
 	{
 		Vec2 root0{ -1, -1 };
+		int n = 0; // candidate count: sets sharing a first tile are told apart
 		int D = 0;
 		std::uint32_t round = 0;
 		long long mask = 0;
@@ -453,15 +454,16 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	static std::uint64_t hist_clock = 0;
 	Vec2 root0{ -1, -1 };
 	cand.first(H, root0);
+	const int ncand = cand.count(H);
 	Hist* h = nullptr;
 	for (Hist& e : hist)
-		if (e.root0 == root0) h = &e;
+		if (e.root0 == root0 && e.n == ncand) h = &e;
 	const int chunks = static_cast<int>(md.chunked_width * md.chunked_height);
 	std::uint32_t round = 0;
 	sdk_bc_round_number(&round);
 	// D changes by at most 2 per turn (a dash) unless the walls change.
 	const int cap = h ? h->D + 2 + 2 * static_cast<int>(std::min<std::uint32_t>(round - h->round, 8)) : 0;
-	const bool origin_on_miss = have_me && h && cap <= h->D + 6 && h->mask > (cap - h->D) * chunks + 2500; // the extra layers + the candidate scan
+	const bool origin_on_miss = have_me && h && h->mask > (cap - h->D) * chunks + 2500; // the extra layers + the candidate scan
 	Bitboard o;
 	o.set(origin);
 	FieldAnswer ans = field_query(walls, cand, &o, kUnreachable, have_me, origin, 0, W, H, !origin_on_miss); // reads only origin
@@ -473,7 +475,8 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 		sdk_DistanceField_ComputeWithExpansionCount(walls.w, o.w, v.w, f, static_cast<std::uint16_t>(cap), &c);
 		int bd = cap + 1;
 		Vec2 best{};
-		cand.for_each_unordered(H, [&](int x, int y) {
+		v &= cand; // the candidates the search reached (it writes every reached tile into v)
+		v.for_each_unordered(H, [&](int x, int y) {
 			const int d = f[fidx(x, y)];
 			if (d < bd || (d == bd && (y < best.y || (y == best.y && x < best.x)))) bd = d, best = { x, y };
 		});
@@ -508,6 +511,7 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 					for (Hist& e : hist)
 						if (e.used < h->used) h = &e;
 					h->root0 = root0;
+					h->n = ncand;
 				}
 				h->D = D;
 				h->round = round;
