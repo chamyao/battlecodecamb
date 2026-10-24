@@ -317,3 +317,12 @@ H12 update (14:40 UTC): require funsearch/runs 1d748cf or later (contains fe36f4
 funsearch.run re-measures exec_blocks vs builtin:starter for every valid program of the current run that was logged
 vs idle (8 threads, ~0.2 s each in wall time, cached in runs/hyb5/exec_blocks_v2.json), before the database builds
 its novelty counts. Check: hyb5.log prints "exec_blocks vs starter for N programs (Ts)" at startup. pytest (2028).
+
+## Job H13 (2026-10-24 14:45 UTC, hybrid line session; per the FunSearch lead): fuel recalibration, with H11/H12
+Require funsearch/runs 7fff19f or later (contains 1d748cf). Same boundary as H11/H12 if they have not run (one pull),
+else the next one. It merges deploy/v0 90e1d5b: the sim fuel recalibration 54b0640 (all block cost rows refit; gap
+sensors batch 1 calibrated, batch 2 still provisional; v21 vs v20 --bot-seeds 47 -> 46/80). interp/ and sim/ CHANGED:
+reconfigure + rebuild interp_eval, pytest (2028). The rebuild changes the binary mtime, so validation_cache.jsonl
+keys miss and validations re-run on the new costs (no manual cache cleanup). Seeds are re-scored by the league on the
+new round; the child climb measures parent and child on the same build per child. Same command line.
+bank_detour (coord/bank-detour) is on the vocab list already and appears once merged (H14).
