@@ -21,3 +21,7 @@ seed v21 score 0.741 (islands [3])
 [20] claude-haiku-5-5 island 2: score 0.595 | best 0.742 (#14) $0.21 | 878s
 [21] claude-haiku-5-5 island 0: score 0.742 | best 0.742 (#14) $0.21 | 879s
 [22] claude-haiku-5-5 island 2: score 0.550 | best 0.742 (#14) $0.21 | 881s
+[23] claude-haiku-5-5 island 3: score 0.690 | best 0.742 (#14) $0.40 | 1170s
+[24] claude-haiku-5-5 island 3: score 0.703 | best 0.742 (#14) $0.40 | 1172s
+[25] claude-opus-5-5 island 1: score 0.689 | best 0.742 (#14) $0.40 | 1192s
+[26] claude-haiku-5-5 island 1: error: TypeError: no block eq(Bool, Num) | best 0.742 (#14) $0.41 | 1196s
