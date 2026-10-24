@@ -36,6 +36,42 @@ def exec_blocks_of(run, rows, valid):
     return {k: set(v) for k, v in got.items()}
 
 
+def gems_per_capture(metrics):
+    """Our gems per capture pooled over the screen opponents (builtin:starter excluded); None when not logged."""
+    cap = gem = 0.0
+    for k, m in (metrics or {}).items():
+        if isinstance(m, dict) and "captures" in m and k != "builtin:starter":
+            cap += m["captures"][0] * m["games"]
+            gem += m["gems_captured"][0] * m["games"]
+    return gem / cap if cap else None
+
+
+def yield_report(rows, valid, ref_name="v21", top=8, flag_delta=1.0):
+    """Capture yield next to the score: top children by score with gems per capture vs the best seed's, and a FLAG
+    for any child with gems per capture >= seed + flag_delta while winning >= 50% vs ref_name in its screen."""
+    seeds = [r for r in valid if r["model"] == "seed" and gems_per_capture(r["metrics"]) is not None]
+    kids = [r for r in valid if r["model"] not in ("seed", "reset") and gems_per_capture(r["metrics"]) is not None]
+    if not seeds or not kids:
+        print("  yield: not logged yet (needs the capture metrics build)")
+        return
+    base = gems_per_capture(max(seeds, key=lambda r: r["score"])["metrics"])
+    def ref_wr(r):
+        m = r["metrics"].get(ref_name)
+        return m["win_rate"] if isinstance(m, dict) else None
+    line = []
+    for r in sorted(kids, key=lambda r: -r["score"])[:top]:
+        g, w = gems_per_capture(r["metrics"]), ref_wr(r)
+        line.append(f"#{r['id']} {r['score']:.3f} gpc {g:.1f} ({g - base:+.1f}) vs {ref_name} {w if w is None else f'{w:.0%}'}")
+    print(f"  yield (gems per capture, seed {base:.1f}; top by score): " + "  ".join(line))
+    best = max(kids, key=lambda r: gems_per_capture(r["metrics"]))
+    print(f"  yield best: #{best['id']} gpc {gems_per_capture(best['metrics']):.1f} score {best['score']:.3f}")
+    for r in kids:
+        g, w = gems_per_capture(r["metrics"]), ref_wr(r)
+        if g - base >= flag_delta and w is not None and w >= 0.5:
+            print(f"  FLAG yield: #{r['id']} gems per capture {g:.1f} ({g - base:+.1f} vs seed) with {w:.0%} vs {ref_name} "
+                  f"(score {r['score']:.3f})")
+
+
 def report(run, step=25):
     rows = [json.loads(line) for line in open(ROOT / "runs" / run / "programs.jsonl")]
     by_id = {r["id"]: r for r in rows}
@@ -102,6 +138,7 @@ def report(run, step=25):
         voc = [r for r in part if (r["metrics"].get("variant") or {}).get("vocab")]
         seg.append(f"{lo}-{lo + 2 * step - 1}: vocab {uptake(voc)} other {uptake([r for r in part if r not in voc])}")
     print("  new-block uptake by programs (executing/containing/valid children): " + "  ".join(seg))
+    yield_report(rows, valid)
     for dim in per:
         print(f"  {dim}:")
         for val, s in sorted(per[dim].items(), key=lambda kv: -kv[1]["n"]):
