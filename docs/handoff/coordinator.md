@@ -7,6 +7,11 @@ action space; fuel is a rule the policy plays within, never a separate fitting l
 Merge the lines' work, keep the simulator and the bot consistent, pick and upload ladder versions,
 add blocks to the language when a diagnosis needs one, and keep Cham informed (short, times in ET).
 
+## Compute: the arena (Oct 24 ~17:30 UTC)
+- All sim work (matches, batches, leagues, FunSearch runs) goes through our arena (docs/REMOTE_WORKER.md), not the
+  remote/<line> PR channel. Engine for comparisons: deploy/v0 build 545c7b1. League `main` rates the ladder versions
+  and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
+
 ## Live and history
 - Live (Oct 24 ~16:50 UTC): ladder version 24 = re-upload of v22 = v21b (deploy/v0 ee85727, sha256 d86fbda6...): v21's
   policy on the dead-camp-fixed bot. v23 (style-gconv1, sensor banking) was reverted after 14-36 on the band groups. v20 = tune-fight-2s (6d50156), v19 = rall2-ca4-lean-g (7ef15b2). Chain tonight: v17 tune5-campreset (attack -> reset ->
