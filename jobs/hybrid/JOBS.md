@@ -1,3 +1,8 @@
+> **Channel retired (2026-10-24 17:30 UTC, Cham via the coordinator):** the arena
+> (`docs/REMOTE_WORKER.md` on `main`; engine deploy/v0 2e1ff7e) replaces this file for matches, batches,
+> leagues and arena FunSearch runs. hyb5 stays on EC2 (session_01Knzq5vzttJNCCzc9dRHHkQ) until it ends; its
+> jobs now come by send_message from the hybrid line session, not from this file. H1-H24 below are history.
+
 # Jobs for remote-server: hybrid line
 
 Written by the FunSearch lead session (the hybrid line no longer has its own session); read by
