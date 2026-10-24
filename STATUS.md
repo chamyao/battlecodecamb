@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 08:54 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 15.31 15.93 15.66 on 16 threads.
+Updated 2026-10-24 09:00 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.82 16.13 15.91 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -11,16 +11,13 @@ Disk: 3.2G used of 38G.
 29242 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 29257 /usr/bin/python3 -m funsearch.run --run style8-h-g2 --budget 3.32 --max-programs 34 --seed-policy policies/style-h1.policy --opponents builtin:starter@0.25,policies/style-h1.policy@0.5,policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy
 29270 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 3.06 --max-programs 128 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
-29566 python3 -m funsearch.league --name tune-fight --budget 5 --members policies/tune-v18g.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v18.policy --fixed policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campreset.policy --regress 1.0 
-34253 /usr/bin/python3 -m funsearch.run --run tune-fight-g1 --budget 4.43 --max-programs 54 --seed-policy policies/tune-v18g.policy --opponents builtin:starter@0.25,policies/tune-v18g.policy@3.0,policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campres
 34422 /usr/bin/python3 -m funsearch.run --run pure4-g3 --budget 2.85 --max-programs 150 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/tune-3.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy --workers 3
+35404 /usr/bin/python3 -m funsearch.run --run hyb4-g5 --budget 28.21 --max-programs 30 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/candidates/hyb-t5m.policy,policies/tune-4.policy,policies/tune-1.policy,policies/locker.p
+35865 python3 -m funsearch.league --name tune-fight --budget 5 --members policies/tune-v18g.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v18.policy --fixed policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campreset.policy --regress 1.0 
+35879 /usr/bin/python3 -m funsearch.run --run tune-fight-g1 --budget 4.42 --max-programs 51 --seed-policy policies/tune-v18g.policy --opponents builtin:starter@0.25,policies/tune-v18g.policy@3.0,policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campres
 ```
 ## tick.log (last 40 lines)
 ```
-[06:54:25] style: HOLD: SIGTERM style7-b pid 5790
-[06:54:25] style: HOLD: SIGTERM style7-b pid 5803
-[06:54:25] style: HOLD: SIGTERM style7-c pid 5801
-[06:54:25] style: HOLD: SIGTERM style7-c pid 5813
 [06:54:45] style: HOLD: style7 stopped; spend a/b/c: 0.02 0.017 0.007  a:8lines b:7lines c:5lines
 [06:54:49] tune: job F exited rc=0
 [07:10:25] style: style8 setup ok at 5c47501: gate 3, 2012 passed in 6.26s; budgets: h 3.95 b 3.5 a 2.25 c 2.25 
@@ -57,4 +54,8 @@ Disk: 3.2G used of 38G.
 [08:28:56] tune: G: tune/fs set up at 6cba5f0
 [08:28:56] tune: G: launched tune-fight ($5)
 [08:34:03] style: S4 check: h: g2 best style-h1 ok tune-v19 in league $3.32 left; b: style8-b-g1: +128 programs to the next boundary (22 so far) $3.06 left; before: h 3.34 b 3.50
+[08:59:55] hybrid: H3: g4 verdict logged; STOP placed in runs/hyb4-g5, waiting for hyb4 to exit
+[09:00:00] tune: G: restarting tune-fight on 45acc49 (pid 29566)
+[09:00:00] tune: G: tune-fight not running: relaunching (resumes)
+[09:00:00] tune: G: launched tune-fight ($5)
 ```
