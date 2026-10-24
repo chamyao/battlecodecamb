@@ -313,3 +313,7 @@ Require funsearch/runs fe36f47 or later instead of e82cb4a (same boundary as H11
 next boundary). It merges deploy/v0 9d607af (batch 2: threat_eta, altar_eta, retreat_eta, enemy_between,
 group_contested, team_gems, unseen_enemies_near; BOT_VERIFY running at the lead's end, revert if told). interp/ CHANGED:
 rebuild interp_eval, pytest (2027). Same command line. The new sensors join the vocab variant list automatically.
+H12 update (14:40 UTC): require funsearch/runs 1d748cf or later (contains fe36f47). On relaunch with --explore,
+funsearch.run re-measures exec_blocks vs builtin:starter for every valid program of the current run that was logged
+vs idle (8 threads, ~0.2 s each in wall time, cached in runs/hyb5/exec_blocks_v2.json), before the database builds
+its novelty counts. Check: hyb5.log prints "exec_blocks vs starter for N programs (Ts)" at startup. pytest (2028).
