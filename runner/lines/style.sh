@@ -275,6 +275,11 @@ if [ -f runs/style8-gyield.ec2-launched ] && [ ! -f runs/style8-gyield.ec2-check
   log "S12 gyield check: $(grep -E 'left of|gap metric|gap: ' runs/style8-gyield.out | head -n 4 | cut -c1-110 | tr '\n' '|')"
 fi
 # b's 150-boundary verdict -> STOP b, SIGTERM, loop starts b2
+# S12b (16:40 UTC fix): b's first boundary verdict ("no promotion", 15:54) came BEFORE S12 fired (16:04), so the baseline
+# count above was 1 and the watcher waited for a second verdict. S12 says stop b at its FIRST verdict: reset the baseline.
+if [ -f runs/ec2-s12 ] && [ ! -f runs/ec2-s12b ] && [ ! -f runs/ec2-s12-bstopped ]; then
+  echo 0 > runs/ec2-s12-bverdicts; touch runs/ec2-s12b; log "S12b: b's first verdict predates S12; stopping b now"
+fi
 if [ -f runs/ec2-s12 ] && [ ! -f runs/ec2-s12-bstopped ] && [ "$(grep -cE 'no promotion|PROMOTED' runs/style8-b.log)" -gt "$(cat runs/ec2-s12-bverdicts)" ]; then
   v=$(grep -E 'no promotion|PROMOTED' runs/style8-b.log | tail -n 1 | cut -c1-200)
   touch runs/style8-b-g1/STOP
