@@ -1420,7 +1420,10 @@ struct Interp
 			api.altar_locks(locks, 16, &n);
 			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
 			Bitboard& b = *bp;
-			for (std::uint32_t i = 0; i < n && i < 16; ++i) b.set(locks[i].x, locks[i].y);
+			// enemy locks only: our own lock never blocks our tributes, and policies use this set to
+			// avoid blocked altars (with both teams' locks, a team walked away from the altar it locked)
+			for (std::uint32_t i = 0; i < n && i < 16; ++i)
+				if (locks[i].team != static_cast<std::uint32_t>(api.team())) b.set(locks[i].x, locks[i].y);
 			return set_ptr(bp);
 		}
 		case Op::rich_spawns:
