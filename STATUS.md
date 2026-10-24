@@ -1,6 +1,11 @@
 # EC2 runner status
 
-Updated 2026-10-24 17:52 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.01 2.43 7.20 on 16 threads.
+
+**FINAL (17:58 UTC 2026-10-24): all FunSearch work moved to the arena; nothing runs here.** All lines confirmed:
+hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
+pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
+
+Updated 2026-10-24 17:57 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.00 0.87 5.17 on 16 threads.
 Disk: 3.5G used of 38G.
 
 ## python3 processes
@@ -8,7 +13,6 @@ Disk: 3.5G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[16:03:41] style: S12: SIGTERM pid 131479
 [16:04:07] style: S12: at 16dfcad (has 983462f), rebuilt, 2024 passed in 6.28s; gconv stopped for good; b restarting; gyield starting
 [16:04:07] style: S12: launched style8-gyield ($1.27)
 [16:04:07] style: style8-b not running: relaunching (resumes from its programs.jsonl)
@@ -48,4 +52,5 @@ remote:
 [17:47:41] style: S15: pushed style/arena-overlay 391f2d4:  45 files changed, 2901 insertions(+); style tick stops here
 [17:52:45] hybrid: FINAL: ec2-final-check.txt + hyb5.cmdline pushed (remote/hybrid c474b96)
 [17:52:45] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[17:57:47] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
