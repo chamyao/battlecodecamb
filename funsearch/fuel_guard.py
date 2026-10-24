@@ -20,9 +20,10 @@ def guard(base, f, scope):
                                   f"if exists(goal) and distance(position(), goal) > 4 and fuel_remaining() > {f}:\n")
 
 
-def big_world(pol, opp, games=240, seed=31):
+def big_world(pol, opp, games=200, seed=31):
+    # per-game seeds (no --bot-seeds): with --bot-seeds every game on one map is the same pair of games
     out = subprocess.run([str(EVAL_BIN), "--a", pol, "--b", opp, "--games", str(games), "--threads", "4",
-                          "--seed", str(seed), "--bot-seeds", str(ROOT / "maps" / "01big-world.map26a")],
+                          "--seed", str(seed), str(ROOT / "maps" / "01big-world.map26a")],
                          capture_output=True, text=True, timeout=7200)
     return json.loads(out.stdout.strip().splitlines()[-1])
 
@@ -30,15 +31,17 @@ def big_world(pol, opp, games=240, seed=31):
 if __name__ == "__main__":
     base = open("policies/tune-2.policy").read()
     bpol = compile_text(base)
-    log = open("runs/tune/fuel-guard.log", "a")
+    log = open("runs/tune/fuel-guard2.log", "a")
     cands = {"tune-2": base}
     for scope in ("all", "goal"):
-        for f in (15000, 25000, 35000, 45000, 60000):
+        for f in (45000, 50000, 55000, 60000, 70000):
             cands[f"{scope}-{f}"] = guard(base, f, scope)
     for name, text in cands.items():
         pol = compile_text(text)
         bw = big_world(pol, bpol)
         chk = h2h(pol, bpol, 80, 1, bot_seeds=True)
+        allm = h2h(pol, bpol, 400, 9007)
         r = {"bigworld_susp": bw["a_suspensions"], "bigworld_wr": bw["win_rate"], "bigworld_fuel": bw["a_fuel_per_game"],
-             "cambc_check": chk["win_rate"], "check_susp": chk["a_suspensions"]}
+             "cambc_check": chk["win_rate"], "check_susp": chk["a_suspensions"],
+             "all400_wr": allm["win_rate"], "all400_susp": allm["a_suspensions"]}
         log.write(f"{name}: {json.dumps(r)}\n"); log.flush()
