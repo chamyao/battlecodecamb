@@ -139,6 +139,15 @@ if [ "$TUNE_ARMED" = 1 ] && [ "$phase" = g4 ] && [ -f runs/ec2-g6build ] && [ ! 
   touch runs/ec2-tune; mark=$(cat runs/ec2-resume-mark)
   log "tune restart: moved to funsearch/pure $(git rev-parse --short HEAD); gen $gen resumes"
 fi
+# One-shot cleanup (14:40 UTC): the tune restart touched runs/pure4-g5/STOP at 14:28 and was then disarmed. Once the
+# league has paused, remove the stale STOP files so the normal path resumes g5 on the SAME checkout (no code change).
+if [ "$TUNE_ARMED" != 1 ] && [ ! -f runs/ec2-tune ] && [ ! -f runs/ec2-unstop ] && ! running "league --name pure4"; then
+  if ls runs/pure4-g*/STOP > /dev/null 2>&1; then
+    rm -f runs/pure4-g*/STOP
+    wc -l < runs/pure4.log > runs/ec2-resume-mark; rm -f runs/ec2-resume-checked; mark=$(cat runs/ec2-resume-mark)
+    touch runs/ec2-unstop; log "pure: removed stale STOP files after the disarmed tune restart; g5 resumes on $(git rev-parse --short HEAD)"
+  fi
+fi
 if ! running "league --name pure4"; then
   if [ "$phase" = g3 ] && [ -f runs/ec2-launched ] && newlog | grep -q 'PROMOTED fs-p3' &&
      python3 -c "import json,sys; sys.exit(json.load(open('runs/pure4.json'))['gen'] != 4)"; then
