@@ -268,3 +268,50 @@ style-gconv1 (0.620 vs 0.670), so they wait for the rerun against tune-v20-L1c.
 
 Both B318 grafts beat B318 head to head but lose 3-7 points against the anchors, so they fail the upload gate's
 "no drop > 3" rule. They go to Arena B for selection, not upload.
+
+## Fitness vs the band (pooled b1-b3: 150 games, bots v22 / B318 / B792; `predictors.py`)
+
+| feature (ours minus theirs where d_) | AUC for a win | win rate, top / bottom third |
+|---|---|---|
+| d_submitted by r500 | 0.75 | 54% / 14% |
+| d_gold earned by r500 | 0.74 | 54% / 14% |
+| d_gold by r250 | 0.65 | 48% / 20% |
+| d_gem-group captures by r500 | 0.64 | 42% / 22% |
+| their deaths by r500 | 0.61 | 46% / 28% |
+| our deaths by r500 | 0.45 | 28% / 38% |
+| d_first tribute (ours minus theirs) | 0.34 | 22% / 48% |
+
+Logistic regression on the r500 features with batch dummies, so each term is independent of which bot played:
+- d_first_tribute −1.71 ± 0.59, the strongest term: bank before they do.
+- their deaths by r500 +0.85 ± 0.31.
+- d_gold by r500 +0.82 ± 0.37.
+- d_submitted by r500 +0.65 ± 0.38.
+- our deaths by r500 −0.00 ± 0.39.
+- d_gem-group captures −0.08 ± 0.29.
+- batch b2 −0.07, b3 −0.29: the bot adds nothing once these are known.
+
+So a fitness term vs the band should reward an early gold and submission lead by r500, banking first, and kills.
+Our own early deaths add nothing once those are known.
+
+Caveat: the 150 games are 50 matchups × 3 bots. 17 maps were lost in every game and 3 won in every game, so the
+matchup (opponent and map) dominates; treat the coefficients as directions, not sizes.
+
+### The 5 band teams we lose to most (b1-b3), and how
+
+| team | W-L | tributes / median bag / first tribute | gems per capture | kills on us | gold | their spread | type |
+|---|---|---|---|---|---|---|---|
+| NotSoLonely | 1-14 | 34 / 45 / r103 | 30.4 | 6.7 | 4,581 | 15.0 | **rich farmer**: richest groups, big bags, few fights, spread out |
+| Sloppy Joe Pirates | 3-12 | 11 / 88 / r130 | 17.6 | 18.6 | 8,448 | 7.9 | **deathball fighter**: a tight pack that kills, banks rarely and big |
+| noobers | 4-11 | 28 / 34 / r37 | 20.7 | 12.3 | 6,937 | 10.5 | **rush banker**: first tribute at r37, then fights |
+| lETHal | 4-11 | 30 / 30 / r111 | 13.0 | 11.2 | 7,021 | 13.1 | balanced |
+| Tozo's Disciples | 5-10 | 27 / 32 / r133 | 16.5 | 19.2 | 6,103 | 13.1 | **hunter**: the most kills on us |
+
+Their spread is the mean distance between their champions. For comparison, the team we beat most is tst (10-5):
+first tribute r150, 4.7 kills on us, spread 18.5.
+
+Behaviours an exploiter population should find:
+- the rich-group farmer, which takes the 30-gem groups;
+- the deathball, which keeps its champions within about 8 tiles and fights;
+- the rush banker, with a first tribute before r50.
+
+`stress/hunter` and `stress/hunter-carry` cover only the hunter type.
