@@ -17,6 +17,9 @@
 #ifndef INTERP_LIST_FEAT
 #define INTERP_LIST_FEAT(n) ((void)0)
 #endif
+// INTERP_RELEASE (bot/sync.sh defines it in the deploy bot's copy): the simulator-only pricing
+// hooks below compile out, so they cost the release bot no fuel and leave its fuel-gate reads
+// where they were (bot/profile_patch.py removes it again for the profiling build).
 
 namespace interp
 {
@@ -695,7 +698,11 @@ struct Interp
 	{
 		const auto target = static_cast<std::int64_t>(
 			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0))) -
+#ifndef INTERP_RELEASE
 			(final || turn_no == 1 ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
+#else
+			(final ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
+#endif
 		const std::int64_t raw = api.spent - turn_spent0 - turn_adj; // charges other than the correction
 		const std::int64_t want = std::max<std::int64_t>(target, -std::max<std::int64_t>(0, raw));
 		const std::int64_t d = want - turn_adj;
@@ -736,14 +743,20 @@ struct Interp
 	// the profiling build records it as the scope's dbits).
 	void note_list(std::size_t n)
 	{
+#ifndef INTERP_RELEASE
 		if (api.count_charges) work.dests += static_cast<std::int64_t>(n);
 		INTERP_LIST_FEAT(n);
+#else
+		(void)n;
+#endif
 	}
 	// Distance field through the API, recording its work for the calling block's cost.
 	int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard* dests, Bitboard& visited)
 	{
+#ifndef INTERP_RELEASE
 		if (field.empty() && api.count_charges)
 			api.compute(kFieldInitMilliPerTile * m().W * m().H / 1000); // one-off zero fill (bot profile: 2.05 a tile, 3 maps)
+#endif
 		field.resize(static_cast<std::size_t>(m().W) * m().H);
 		const int n = api.distance_field(walls, roots, dests, cbs::kUnreachable, field.data(), visited);
 		if (api.count_charges)
@@ -1035,7 +1048,9 @@ struct Interp
 			// One-off loop over every map camp, outside the per-block fits (which pool all turns):
 			// bot profile of style-gconv1, first closest() of the game minus later ones,
 			// 43.5 per camp on 00swirl (106 camps) and 00road-of-riches (132).
+#ifndef INTERP_RELEASE
 			if (api.count_charges) api.compute(kCampTilesMilliPerCamp * static_cast<std::int64_t>(m().camps.size()) / 1000);
+#endif
 		}
 		Bitboard vis, unseen = camp_tiles;
 		api.vision(vis);
