@@ -650,17 +650,38 @@ struct Interp
 		}
 	};
 	std::int64_t blocks_this_turn = 0;
+	std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> blocks0{};
+	cbs::MemoStats memo0;
+	bool gate_pending = false;
+	// Charges by block and API call since the turn's snapshot (blocks0, memo0).
+	void print_charges_since(const char* bt, const char* ct)
+	{
+		for (int e = 0; e < 2; ++e)
+			for (int i = 0; i < kNumBlocks; ++i)
+				if (const long long n = charge_stats_table()[e][i][0] - blocks0[e][i][0])
+					std::printf("%s %s%s %lld %lld\n", bt, e ? "exec:" : "", kBlockTable[i].key, n, charge_stats_table()[e][i][1] - blocks0[e][i][1]);
+		const cbs::MemoStats& ms = cbs::memo_stats();
+		for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
+			if (const long long n = ms.call_n[c] - memo0.call_n[c]) std::printf("%s %d %lld %lld\n", ct, c, n, ms.call_fuel[c] - memo0.call_fuel[c]);
+	}
 	// The per-turn correction (INTERP_TURN_COST: per block, per API call, may be negative) is
 	// charged as the turn goes, after every block, so the running total follows the real meter:
 	// charged only at the end, its negative part let a turn's running total pass the budget
 	// (and suspend the bot) when the real bot stayed well under it. The turn's total is the
 	// same either way; the turn as a whole and its running total never go below zero.
+	// Mid-turn, kGateDeferMilli per block run so far is also held back and charged at the end:
+	// the fitted charges price the turn's total, but the real bot pays part of it after the
+	// policy runs. Measured at fuel_remaining() reads (21.5k first reads per turn, tune-3 with
+	// its gate always passing vs tune-2, 4 maps x 2 sides): without it the simulator read the
+	// gate a median 1.8k low; with it, 0.
+	static constexpr std::int64_t kGateDeferMilli = 24000;
 	std::uint64_t turn_calls0 = 0;
 	std::int64_t turn_spent0 = 0, turn_adj = 0;
 	void charge_turn_cost(bool final)
 	{
 		const auto target = static_cast<std::int64_t>(
-			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0)));
+			INTERP_TURN_COST(blocks_this_turn, m().H, static_cast<std::int64_t>(api.api_calls - turn_calls0))) -
+			(final ? 0 : kGateDeferMilli * blocks_this_turn / 1000);
 		const std::int64_t raw = api.spent - turn_spent0 - turn_adj; // charges other than the correction
 		const std::int64_t want = std::max<std::int64_t>(target, -std::max<std::int64_t>(0, raw));
 		const std::int64_t d = want - turn_adj;
@@ -777,9 +798,11 @@ struct Interp
 			api.count_charges = counting;
 			detail = static_cast<int>(round_now) == dr && static_cast<int>(self()) == dc;
 		}
-		static std::array<std::array<std::array<long long, 2>, kNumBlocks>, 2> blocks0;
-		static cbs::MemoStats memo0;
-		if (detail) blocks0 = charge_stats_table(), memo0 = cbs::memo_stats();
+		// FUEL_GATE_DETAIL (with memo_stats enabled): the same breakdown up to the turn's first
+		// fuel_remaining() read, with what it returned (to price the part of a turn before a gate).
+		static const bool gate_env = std::getenv("FUEL_GATE_DETAIL") != nullptr;
+		gate_pending = gate_env && cbs::memo_stats().enabled && api.champ() >= 0;
+		if (detail || gate_pending) blocks0 = charge_stats_table(), memo0 = cbs::memo_stats();
 		last_end = last_do = nullptr;
 		trace_target = trace_step = trace_dash = kNoTile;
 		trace_dash_ok = -3;
@@ -844,15 +867,7 @@ struct Interp
 				std::printf("@@DT r=%u champ=%u total=%lld blocks=%d calls=%llu adj=%lld\n", round_now, self(),
 							static_cast<long long>(api.spent - spent0), blocks_this_turn,
 							static_cast<unsigned long long>(api.api_calls - calls0), static_cast<long long>(adj));
-				for (int e = 0; e < 2; ++e)
-					for (int i = 0; i < kNumBlocks; ++i)
-						if (const long long n = charge_stats_table()[e][i][0] - blocks0[e][i][0])
-							std::printf("@@DTB %s%s %lld %lld\n", e ? "exec:" : "", kBlockTable[i].key, n,
-										charge_stats_table()[e][i][1] - blocks0[e][i][1]);
-				const cbs::MemoStats& ms = cbs::memo_stats();
-				for (int c = 0; c < static_cast<int>(cbs::Call::count); ++c)
-					if (const long long n = ms.call_n[c] - memo0.call_n[c])
-						std::printf("@@DTC %d %lld %lld\n", c, n, ms.call_fuel[c] - memo0.call_fuel[c]);
+				print_charges_since("@@DTB", "@@DTC");
 			}
 		}
 	}
@@ -1336,7 +1351,24 @@ struct Interp
 			api.round_number(&r);
 			return num(r);
 		}
-		case Op::fuel_remaining: return num(static_cast<double>(api.fuel_remaining()));
+		case Op::fuel_remaining:
+		{
+			const auto v = api.fuel_remaining();
+			if (gate_pending)
+			{
+				gate_pending = false;
+				const bool c = api.count_charges;
+				api.count_charges = false;
+				std::uint32_t rr = 0;
+				api.round_number(&rr);
+				api.count_charges = c;
+				std::printf("@@GD r=%u champ=%u rem=%lld blocks=%lld calls=%llu turn_adj=%lld\n", rr, self(), static_cast<long long>(v),
+							static_cast<long long>(blocks_this_turn), static_cast<unsigned long long>(api.api_calls - turn_calls0),
+							static_cast<long long>(turn_adj));
+				print_charges_since("@@GDB", "@@GDC");
+			}
+			return num(static_cast<double>(v));
+		}
 		case Op::altars: api.charge(cbs::Call::map_mask); return map_set(0, m().altars);
 		case Op::walls: api.charge(cbs::Call::map_mask); return map_set(1, m().walls);
 		case Op::holes: api.charge(cbs::Call::map_mask); return map_set(2, m().holes);
