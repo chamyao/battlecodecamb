@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 09:10 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.22 12.54 14.17 on 16 threads.
+Updated 2026-10-24 09:15 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.91 12.35 13.64 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -17,7 +17,6 @@ Disk: 3.2G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[07:10:25] style: launched style8-h (budget $3.95)
 [07:10:25] style: launched style8-b (budget $3.5)
 [07:10:25] style: launched style8-a (budget $2.25)
 [07:10:25] style: launched style8-c (budget $2.25)
@@ -57,4 +56,5 @@ Disk: 3.2G used of 38G.
 [09:05:05] hybrid: H3: hyb4 stopped. g4 verdict: [08:36:55]   #33: builtin:starter 0.973, hyb-t5m 0.511, tune-4 0.568, tune-1 0.682, v7-zerogem 0.792, locker 0.944, v7zg-cast 0.720, v8 0.724, v7zg-monozone 0.7|[08:44:09]   #29: builtin:starter 0.976, hyb-t5m 0.481, tune-4 0.527, tune-1 0.652, v7-zerogem 0.787, locker 0.946, v7zg-cast 0.713, v8 0.704, v7zg-monozone 0.7|[08:51:28]   #23: builtin:starter 0.976, hyb-t5m 0.486, tune-4 0.532, tune-1 0.649, v7-zerogem 0.787, locker 0.946, v7zg-cast 0.710, v8 0.700, v7zg-monozone 0.7|[08:58:41]   policies/tune5-campreset.policy: builtin:starter 0.974, hyb-t5m 0.710, tune-4 0.734, tune-1 0.774, v7-zerogem 0.869, locker 0.950, v7zg-cast 0.809,|[08:58:47]   PROMOTED challenger policies/tune5-campreset.policy: builtin:starter 97.4%, hyb-t5m 71.0%, tune-4 73.4%, tune-1 77.4%, v7-zerogem 86.9%, locker 95.|
 [09:05:12] hybrid: H3: funsearch/runs 557ce2c (has 557ce2c), rebuilt, 2012 passed in 5.94s; SPEND lines appended; hyb5 launches next tick
 [09:10:20] hybrid: launched hyb5 league
+[09:15:29] hybrid: hyb5 check ok: [09:10:20] hyb5-g1: +30 programs to the next boundary (0 so far), best policies/pool/v19.policy, league ['poli; seeds:  2 seed v19;
 ```
