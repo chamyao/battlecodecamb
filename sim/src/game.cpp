@@ -11,7 +11,7 @@ namespace cbs
 {
 namespace
 {
-// Diagnostics (GAME_EVENTS=1): deaths with their killer, camp kills, captures and champion hits
+// Diagnostics (GAME_EVENTS=1): deaths with their killer, camp kills, captures, recall starts and damage cuts, and champion hits
 // on camps, one "@@EV" line each. Simulator only (the bot does not link game.cpp).
 bool events_on()
 {
@@ -302,6 +302,8 @@ void Game::interrupt_channel(Champion& ch, bool by_damage)
 {
 	if (ch.channel == Channel::none) return;
 	if (by_damage && ch.channel != Channel::recall) return;
+	if (by_damage && events_on())
+		std::printf("@@EV r=%d recallcut team=%d champ=%d\n", round, ch.team, static_cast<int>(&ch - champs.data()));
 	ch.channel = Channel::none;
 	ch.channel_timer = 0;
 }
@@ -1273,6 +1275,7 @@ Err Game::recall(int c)
 	ch.channel_timer = ch.has_passive(ItemPassive::home) ? (t + 1) / 2 : t;
 	ch.channel_target = ch.pos;
 	ch.recall_started = true;
+	if (events_on()) std::printf("@@EV r=%d recall team=%d champ=%d\n", round, ch.team, c);
 	return Err::success;
 }
 
