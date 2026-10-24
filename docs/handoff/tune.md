@@ -96,6 +96,10 @@ Constants:
 - Strong negatives (screen): never dash 36%; all-Treasure shards 17.5%; all-strength 36.5%;
   retreat at 0.5 health 34%; dash > 12 41.5%.
 
+- On tune-5 (grid seed 9311, confirm seeds 9331/9332): the grid is flat (best 53.0 screen). Confirms: jungle /3
+  50.75 (cambc 41/80), jungle 0 50.75 (33/80), baground 1000 47.9, jungle/3 + baground1000 47.25. **tune-5's
+  constants are locally optimal; no more grid work on this base.**
+
 Fuel (tune-3 work):
 - Goal-dash gate F, 600 big-world games + cambc80 + 400 all-map:
   - F <= 45k never fires (identical to tune-2).
