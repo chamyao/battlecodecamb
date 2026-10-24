@@ -16,6 +16,71 @@ if [ ! -f "$D/.setup-done" ]; then
   log "setup ok at $(git rev-parse --short HEAD): $(tail -n 1 runs/ec2-pytest.txt); challengers: $(tr '\n' ' ' < runs/hyb4.challengers)"
 fi
 cd "$D" || return 1
+pushall() {
+  push_state remote/hybrid remote/hybrid/runs runs
+  if ls policies/fs-h*.policy > /dev/null 2>&1; then
+    mkdir -p /root/bc/hybrid-pol && cp -a policies/fs-h*.policy /root/bc/hybrid-pol/ && push_state remote/hybrid policies /root/bc/hybrid-pol
+  fi
+}
+# ---- Job H3 (jobs/hybrid dc9280f, 09:00 UTC, lead-approved): hyb4 ends at its g4 verdict; hyb5 on v19 with exploration
+if [ -f runs/ec2-hyb5 ]; then
+  if ! running "league --name hyb5"; then
+    if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
+      log "hyb5 not running and a STOP file is present: leaving it paused"
+    elif [ -f runs/hyb5.ec2-launched ] && tail -n 1 runs/hyb5.log 2>/dev/null | grep -q 'budget spent'; then
+      [ -f runs/hyb5.ec2-reported ] || { log "hyb5 exited: $(tail -n 1 runs/hyb5.log)"; touch runs/hyb5.ec2-reported; }
+    else
+      [ -f runs/hyb5.ec2-launched ] && log "hyb5 not running: relaunching (resume from runs/)"
+      setsid nohup python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 \
+        --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy \
+        --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy \
+        --prefix fs-h --line hybrid --round 30 --cambc-ref policies/pool/v19.policy --workers 3 --eval-threads 2 \
+        --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share 0.3 \
+        --island-seeds policies/pool/v19.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.policy \
+        >> runs/hyb5.out 2>&1 < /dev/null &
+      touch runs/hyb5.ec2-launched; log "launched hyb5 league"
+    fi
+  fi
+  if [ ! -f runs/hyb5.ec2-checked ] && [ -f runs/hyb5.log ] && grep -q 'seed' runs/hyb5-g1.log 2>/dev/null; then
+    first=$(grep -m1 'hyb5-g' runs/hyb5.log)
+    if echo "$first" | grep -q 'hyb5-g1: +30 programs to the next boundary (0 so far), best policies/pool/v19.policy'; then
+      sleep 0; touch runs/hyb5.ec2-checked
+      log "hyb5 check ok: $(echo "$first" | cut -c1-110); seeds: $(grep -oE 'seed [a-z0-9-]+' runs/hyb5-g1.log | sort | uniq -c | tr -s ' ' | tr '\n' ';')"
+    else
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid"; done
+      echo "hyb5 first line unexpected: $first" > "$D/HALT"; log "HALT: hyb5 first line unexpected: $first"
+    fi
+  fi
+  pushall; return 0
+fi
+if grep -q 'hyb4-g5: ' runs/hyb4.log; then
+  if [ ! -f runs/hyb4-g5/STOP ]; then
+    mkdir -p runs/hyb4-g5 && touch runs/hyb4-g5/STOP && date +%s > runs/ec2-h3-stop
+    log "H3: g4 verdict logged; STOP placed in runs/hyb4-g5, waiting for hyb4 to exit"
+  fi
+  pids=$(pgrep -a -x python3 | grep -E "league --name hyb4|funsearch.run --run hyb4-" | cut -d' ' -f1)
+  if [ -n "$pids" ]; then
+    if [ $(( $(date +%s) - $(cat runs/ec2-h3-stop) )) -gt 900 ]; then
+      for pid in $pids; do kill -TERM "$pid" && log "H3: SIGTERM hung hyb4 pid $pid"; done
+    fi
+    pushall; return 0
+  fi
+  pushall
+  log "H3: hyb4 stopped. g4 verdict: $(sed -n '/hyb4-g4: +0 programs/,/hyb4-g5: /p' runs/hyb4.log | grep -E 'PROMOTED|no promotion|h2h' | cut -c1-160 | tr '\n' '|')"
+  if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+     git merge-base --is-ancestor 557ce2c HEAD && build "$D" &&
+     python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+    cat >> runs/SPEND.md <<'X'
+| 2026-10-24 | exploration test xc1/xp1/xp2 (hybrid session container) | 114 | 3.21 | |
+| 2026-10-24 | hyb5 started on v19 (explore), --budget 25.0 | | | |
+X
+    touch runs/ec2-hyb5
+    log "H3: funsearch/runs $(git rev-parse --short HEAD) (has 557ce2c), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); SPEND lines appended; hyb5 launches next tick"
+  else
+    echo "H3 merge/557ce2c/build/tests failed; hyb4 stopped, hyb5 not started" > "$D/HALT"; log "HALT: H3 upgrade failed"
+  fi
+  pushall; return 0
+fi
 BUDGET=$(cat runs/ec2-budget 2>/dev/null || echo 9.82)   # launched at 9.82; 29.47 from the g4 boundary (JOBS.md)
 # EC2 update U1 step 2 (jobs/hybrid da1a09c): tune5-campreset as a challenger now, no restart; never tune5-reset
 if [ ! -f runs/ec2-u1 ]; then
