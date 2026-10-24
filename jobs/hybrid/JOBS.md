@@ -54,3 +54,69 @@ Do not touch the g3 validation in progress.
 
 At the g4 boundary both are judged against the best by the league rule. Comment on PR #1 with the
 validation lines when the verdict is logged.
+
+## EC2 resume (2026-10-24 06:05 UTC, hybrid line session)
+
+Compute moves from remote-server to EC2 (c7a.4xlarge spot, 16 threads; bit-identical results). This
+section replaces remote-server for hyb4. It is a RESUME of hyb4, never a fresh start: nothing in
+`runs/hyb4*` or `runs/validation_cache.jsonl` may be deleted, renamed or regenerated.
+
+### State source
+
+The hyb4 state lives on branch `remote/hybrid` under `remote/hybrid/runs/`: `hyb4.json`, `hyb4.challengers`,
+`hyb4.log`, `hyb4-g1/`, `hyb4-g2/`, `hyb4-g3/` (programs.jsonl), `validation_cache.jsonl`, `SPEND.md`.
+**It is stale** (snapshot 04:54 UTC: gen 3, 30/30 programs, g3 boundary not yet validated). Wait until
+Cham has pushed his machine's latest `runs/` to `remote/hybrid`, and check that `remote/hybrid/STATUS.md`
+is dated after the remote-server league was stopped. Using the stale snapshot is safe (the league
+re-validates the g3 boundary, and the validation cache makes that cheap), but any g4 programs made
+on remote-server since would be lost and re-bought.
+
+### Commands
+
+```
+git clone https://github.com/chamyao/battlecodecamb ~/bc/hybrid && cd ~/bc/hybrid
+git checkout funsearch/runs && git pull origin funsearch/runs        # bfd869c or later
+git fetch origin remote/hybrid
+mkdir -p runs && git archive origin/remote/hybrid remote/hybrid/runs | tar -x --strip-components=2 -C .
+ls runs   # hyb4.json hyb4.challengers hyb4.log hyb4-g1 hyb4-g2 hyb4-g3 validation_cache.jsonl SPEND.md ...
+cmake -S interp -B interp/build -DCMAKE_BUILD_TYPE=Release && cmake --build interp/build -j --target interp_eval
+python3 -m pip install -q anthropic pytest
+python3 -m pytest -q tests                                            # expect 2012 passed
+```
+
+H2's challengers: append them only if they are not already in `runs/hyb4.challengers`:
+
+```
+for p in policies/candidates/hyb-t5m.policy policies/candidates/hyb-t5m-rich15d6f.policy; do
+  grep -qx "$p" runs/hyb4.challengers || echo "$p" >> runs/hyb4.challengers; done
+cat runs/hyb4.challengers
+```
+
+Launch (FUNSEARCH_API_KEY must be set in this shell; budget is the line's cap, already partly spent;
+the league subtracts spend recorded in runs/hyb4-g*/programs.jsonl):
+
+```
+nohup setsid python3 -m funsearch.league --name hyb4 --threads 5 --budget 9.82 \
+  --members policies/v7-zerogem.policy,policies/v7.policy,policies/v5d-fs2.policy \
+  --fixed policies/locker.policy --prefix fs-h --line hybrid --round 30 \
+  --cambc-ref policies/tune-5.policy --workers 3 --eval-threads 2 >> runs/hyb4.out 2>&1 < /dev/null &
+```
+
+(`--members` is ignored on resume; members come from runs/hyb4.json.) On a promotion the league
+`git commit`s the new policy locally; push it to `remote/hybrid` (not funsearch/*) like the rest of
+the state. Pause gracefully with `touch runs/hyb4-g<N>/STOP` (stop by PID with SIGTERM if needed,
+never `pkill -f`; SIGINT can hang the thread pools).
+
+### Resume checks (do all before reporting it running)
+
+1. The first new line in `runs/hyb4.log` must be `hyb4-g3: ... (30 so far), best policies/tune-4.policy`
+   with `+0 programs` (the g3 boundary is re-validated), or, if Cham's push already has the g3 verdict,
+   `hyb4-g4: +N programs to the next boundary (M so far), best <g3 winner>` with M matching
+   `wc -l runs/hyb4-g4/programs.jsonl` minus 4.
+   **A fresh start shows `hyb4-g1: +30 programs ... (0 so far), best policies/v7-zerogem.policy`:
+   if you see that, stop immediately, since the state was not restored.**
+2. The `challengers:` log line at the next boundary lists tune-5 (if g3 is not yet validated) and the
+   two H2 policies.
+3. The `$... left` figure continues from the last logged one (~$9.11 at 04:54 UTC), not $9.82.
+
+Report the first log lines, then each boundary verdict (validation lines + cambc-exact vs tune-5), on PR #1.
