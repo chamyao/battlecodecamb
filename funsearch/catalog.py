@@ -67,7 +67,7 @@ DOCS = {
     "pick": "draft pick", "write_draft": "write bytes to draft memory (draft bot only)",
     "alive": "this champion is alive", "channeling": "recalling, tributing or teleporting",
     "can_move": "move still available this turn", "can_attack": "attack still available this turn",
-    "position": "this champion's tile", "health": "", "max_health": "",
+    "position": "this champion's tile", "health": "", "max_health": "", "strength": "your Strength: basic attack damage per hit (items included)", "focus": "your Focus: ability damage scaling (items included)",
     "gems": "carried gems", "gold": "carried gold", "round_number": "", "fuel_remaining": "fuel left this turn",
     "altars": "all altar tiles", "walls": "", "holes": "", "bushes": "",
     "camp_spawn_tiles": "every camp's spawn tile",
