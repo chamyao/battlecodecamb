@@ -214,6 +214,19 @@ session runs the real-cambc safety checks (crashes, 100k-cap turns, first turn <
   v20; peak 88.1k. Needs the lockfix (deploy/v0 b9452ee+). Bush ambush (funsearch/ambush_lock.py): A1+A2 52.1% (not
   offered); lock near the enemy spawn only: 48.1%.
 
+### 17:30 UTC: arena replaces the job channel
+
+- All matches, batches, leagues and FunSearch runs go through the arena (Cham's instruction via the coordinator):
+  `export ARENA_URL=https://138-201-121-171.sslip.io/arena ARENA_CLIENT=tune`; `curl -fsS $ARENA_URL/docs`;
+  `curl -fsS $ARENA_URL/client.py -o arena.py`; docs/REMOTE_WORKER.md on main (1983be7). No new job PRs; the
+  jobs/tune / remote/tune / ec2/runner channel is retired.
+- Compare against live with the deploy/v0 engine (sha 545c7b1e644b1e5c82ba07b3a8aa8945ab2dc190); names are immutable;
+  leagues at priority -1; batches over single matches. A token (ask Cham via the coordinator; never in the repo) is
+  needed only for FunSearch runs and run-file writes.
+- League `main`: v23 (style-gconv1, sensor-driven banking) 1684, v22 (= tune-v20-L1c = our v21) 1679, ...
+- State at the switch: tune line idle (method change: analysis gaps become blocks for the FunSearch lines). Live
+  uploads from this line tonight: v18 (tune-r-all-v2), v20 (tune-fight-2s), v21 (tune-v20-L1c).
+
 ## Things only I know
 
 - `--bot-seeds` with a single map replays the same two games; use per-game seeds for one-map
