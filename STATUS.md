@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 07:20 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 25.74 24.52 21.89 on 16 threads.
+Updated 2026-10-24 07:26 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 21.72 23.22 22.16 on 16 threads.
 Disk: 3.1G used of 38G.
 
 ## python3 processes
@@ -10,7 +10,6 @@ Disk: 3.1G used of 38G.
 5462 python3 -m funsearch.league --name pure4 --budget 9.71 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --threads 
 5473 /usr/bin/python3 -m funsearch.run --run pure4-g3 --budget 4.57 --max-programs 102 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/tune-3.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy --workers 3 
 6766 python3 funsearch/draft_meta.py r1 9431 policies/tune5-reset.policy
-7792 python3 funsearch/explore.py drafts 9471 400
 12414 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy --regr
 12424 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 12433 /usr/bin/python3 -m funsearch.run --run style8-h-g1 --budget 3.95 --max-programs 150 --seed-policy policies/opp-hunter2b.policy --opponents builtin:starter@0.25,policies/opp-hunter2b.policy@0.5,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunt
@@ -22,7 +21,6 @@ Disk: 3.1G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[06:38:22] hybrid: launched hyb4 league
 [06:38:23] hybrid: line script exited 1
 [06:38:41] pure: setup ok at 81ab84b: 2012 passed in 5.60s; cambc 0.3625 ok; g3 programs.jsonl 49 lines; spent $5.14 (left $4.57)
 [06:38:41] pure: launched pure4 league (g3)
@@ -62,4 +60,5 @@ hint: "git config advice.addIgnoredFile false"
 [07:10:25] style: launched style8-b (budget $3.5)
 [07:10:25] style: launched style8-a (budget $2.25)
 [07:10:25] style: launched style8-c (budget $2.25)
+[07:26:00] tune: job E exited rc=0
 ```
