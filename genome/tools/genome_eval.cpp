@@ -53,6 +53,10 @@ static Side load_side(const std::string& spec)
 		if (!h) throw std::runtime_error(std::string("dlopen: ") + dlerror());
 		s.genes = reinterpret_cast<genome::MakeGenes>(dlsym(h, "genome_make"));
 		if (!s.genes) throw std::runtime_error("no genome_make in " + spec);
+		// a genome compiled against another runtime layout would crash: rebuild genome_eval after runtime changes
+		if (auto sz = reinterpret_cast<unsigned long (*)()>(dlsym(h, "genome_ctx_size")); sz && sz() != sizeof(genome::Ctx))
+			throw std::runtime_error(spec + " was compiled against another runtime (Ctx " + std::to_string(sz()) + " bytes, this genome_eval " +
+									 std::to_string(sizeof(genome::Ctx)) + "): rebuild genome_eval");
 	}
 	else if (spec.rfind("builtin:", 0) != 0) s.prog = interp::load_program_file(spec);
 	return s;

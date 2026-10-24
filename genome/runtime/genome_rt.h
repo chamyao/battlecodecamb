@@ -1061,6 +1061,123 @@ public:
 		return v == cbs::kUnreachable ? 1e9 : v;
 	}
 
+	// ---- fights: exact single-hit damage from the game's formulas and the units' host data (items' emblem
+	// passives, shields), as the engine applies it (float, in its order). Per pass, per champion: one items
+	// read and one buffs read.
+	struct FightData
+	{
+		std::uint64_t pass = 0;
+		std::uint32_t passives = 0;
+		float shield = 0;
+	};
+	FightData fight_[32];
+	const FightData& fight_data(const Unit& u)
+	{
+		static const FightData none{};
+		if (u.kind != 1 || u.h >= 32) return none;
+		FightData& f = fight_[u.h];
+		if (f.pass != pass_id)
+		{
+			f = FightData{};
+			f.pass = pass_id;
+			std::uint32_t items[cbs::kNumItems] = {};
+			if (api.champion_items(u.h, items) == Err::success)
+				for (int i = 0; i < cbs::kNumItems; ++i)
+					if (items[i] && cbs::item_design(i).passive != cbs::ItemPassive::none) f.passives |= 1u << static_cast<int>(cbs::item_design(i).passive);
+			cbs::BuffRecord b[8];
+			std::uint32_t n = 0;
+			if (api.champion_buff_data(u.h, b, 8, &n) == Err::success)
+				for (std::uint32_t i = 0; i < n && i < 8; ++i)
+					if (b[i].type == 0) f.shield += b[i].value; // BuffType::shield
+			extra(FD_FUEL);
+			++fd_fetches_;
+		}
+		return f;
+	}
+	long long fd_fetches_ = 0;
+	static bool has_ip(const FightData& f, cbs::ItemPassive p) { return f.passives >> static_cast<int>(p) & 1; }
+	// Game::apply_outgoing: the missing-health passive, then the monster emblem against camps
+	float outgoing(const Unit& a, float amount, bool vs_camp)
+	{
+		if (a.kind != 1 || a.type < 0) return amount;
+		if (cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).passive == cbs::Passive::missing_health_damage)
+			amount *= 1.0f + 0.5f * (1.0f - a.health / a.max_health);
+		if (vs_camp && has_ip(fight_data(a), cbs::ItemPassive::monster)) amount *= 1.1f;
+		return amount;
+	}
+	// Game::damage_champion's reductions before shields: durability, then jungle against camps
+	float incoming(const Unit& b, float amount, bool from_camp)
+	{
+		const FightData& f = fight_data(b);
+		if (has_ip(f, cbs::ItemPassive::durability)) amount *= 0.9f;
+		if (from_camp && has_ip(f, cbs::ItemPassive::jungle)) amount *= 0.7f;
+		return amount;
+	}
+	// what one basic attack of a takes off b (before b's shields); 0 if a cannot hurt b that way
+	double attack_damage(const Unit& a, const Unit& b)
+	{
+		PRIM_PROF_BEGIN;
+		last_work = {};
+		const long long f0 = fd_fetches_;
+		extra(AD_FUEL);
+		const double r = attack_damage_(a, b);
+		last_work.relax = fd_fetches_ - f0, last_work.tiles = b.kind;
+		PRIM_PROF_END(5);
+		return r;
+	}
+	double attack_damage_(const Unit& a, const Unit& b)
+	{
+		if (!a.valid() || !b.valid() || a.kind == b.kind && a.kind == 2) return 0;
+		if (a.kind == 2) return incoming(b, a.strength, true); // a camp's attack on a champion
+		if (b.kind == 2) return outgoing(a, a.strength, true) * cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).camp_damage_multiplier;
+		return incoming(b, outgoing(a, a.strength, false), false);
+	}
+	// what a's ability in `slot` takes off b (damage, stun and area damage abilities; 0 otherwise)
+	double cast_damage(const Unit& a, double slot, const Unit& b)
+	{
+		extra(CD_FUEL);
+		if (a.kind != 1 || !b.valid() || slot < 0 || slot > 1) return 0;
+		const auto& ab = cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).abilities[static_cast<int>(slot)];
+		if (ab.kind != cbs::AbilityKind::damage && ab.kind != cbs::AbilityKind::cc && ab.kind != cbs::AbilityKind::aoe_damage) return 0;
+		const float amount = outgoing(a, ab.modifier * a.focus, b.kind == 2);
+		return b.kind == 2 ? amount : incoming(b, amount, false);
+	}
+	double shield(const Unit& u) { return extra(SH_FUEL), fight_data(u).shield; }
+	// basic attacks of a that b survives before dying, plus one: shields absorb first, then health, hit by hit
+	// in float as the engine does (1e9 if a cannot hurt b)
+	double hits_to_kill(const Unit& a, const Unit& b)
+	{
+		PRIM_PROF_BEGIN;
+		last_work = {};
+		const long long f0 = fd_fetches_;
+		const double r = hits_to_kill_(a, b);
+		last_work.relax = fd_fetches_ - f0;
+		PRIM_PROF_END(6);
+		return r;
+	}
+	double hits_to_kill_(const Unit& a, const Unit& b)
+	{
+		const float d = static_cast<float>(attack_damage_(a, b));
+		if (!(d > 0)) return 1e9;
+		float sh = b.kind == 1 ? fight_data(b).shield : 0.0f, hp = b.health;
+		int n = 0;
+		while (hp > 0 && n < 100000)
+		{
+			float amount = d;
+			if (sh > 0)
+			{
+				if (sh > amount) sh -= amount, amount = 0;
+				else amount -= sh, sh = 0;
+			}
+			hp -= amount, ++n;
+		}
+		extra(HK_BASE + HK_HIT * n);
+		last_work.pops = n;
+		return n;
+	}
+	// fitted on cambc probes (FUEL.md): FD a champion's items and buffs read once per pass; the rest per call
+	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60, HK_BASE = 236, HK_HIT = 26;
+
 	// ---- abilities
 	const cbs::AbilityProps& props(int s)
 	{
@@ -1146,6 +1263,7 @@ public:
 	// the target unit of an option of this pass (an entry of the pass's cached unit lists)
 	const Unit& unit_of(const Option& o) const
 	{
+		extra(20); // o.unit in a gene: ~20 in the bot (score variants)
 		static const Unit none{};
 		const Units* us = o.usrc == 1 ? &enemies_ : o.usrc == 2 ? &camps_ : o.usrc == 3 ? &allies_ : nullptr;
 		if (o.usrc == 4) return me_;
@@ -1362,6 +1480,41 @@ public:
 
 	// Do one option; false if the engine refused it (it is then skipped for the rest of the turn).
 	bool execute(const Option& o)
+	{
+#ifndef GENOME_BOT
+		// GENOME_CHECK_FIGHT=1 (simulator): every attack / damage cast checks the predicted damage against the
+		// target's actual health and shield loss (@@FC lines on stderr)
+		static const bool check = std::getenv("GENOME_CHECK_FIGHT") != nullptr;
+		if (check && (o.kind == ATTACK || o.kind == CAST) && o.ukind != 0)
+		{
+			const Unit tgt = unit_of(o), self = me_u();
+			const double pred = o.kind == ATTACK ? attack_damage(self, tgt) : cast_damage(self, o.slot, tgt);
+			auto pool = [&]() -> double {
+				const auto& g = api.game();
+				if (o.ukind == 1)
+				{
+					const auto& c = g.champs[o.uh];
+					double sh = 0;
+					for (int i = 0; i < c.buffs.n; ++i)
+						if (c.buffs.b[i].type == cbs::BuffType::shield) sh += c.buffs.b[i].value;
+					return c.alive ? c.hp + sh : 0;
+				}
+				return g.camps[o.uh].life == cbs::CampLife::dead ? 0 : g.camps[o.uh].hp;
+			};
+			const double before = pool();
+			const bool r = execute_(o);
+			const double after = pool();
+			const bool splash = cbs::champion_design(static_cast<cbs::ChampionType>(self.type)).passive == cbs::Passive::splash_attack;
+			if (r && after > 0 && !splash && o.ukind == 1 && !(cbs::champion_design(static_cast<cbs::ChampionType>(tgt.type)).passive == cbs::Passive::retaliation))
+				std::fprintf(stderr, "@@FC kind %d pred %.4f actual %.4f %s\n", o.kind, pred, before - after, std::fabs(pred - (before - after)) < 1e-3 ? "ok" : "BAD");
+			else if (r && after > 0 && o.ukind == 2)
+				std::fprintf(stderr, "@@FC kind %d camp pred %.4f actual %.4f %s\n", o.kind, pred, before - after, std::fabs(pred - (before - after)) < 1e-3 ? "ok" : "BAD");
+			return r;
+		}
+#endif
+		return execute_(o);
+	}
+	bool execute_(const Option& o)
 	{
 		std::int32_t ok = 0;
 		Err e = Err::invalid_action;
