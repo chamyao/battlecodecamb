@@ -98,3 +98,12 @@ TypeError: '<' not supported between instances of 'tuple' and 'int'
 [44] claude-opus-5-5 island 2: score -0.023 | best 0.677 (#30) $1.45 | 1450s
 [45] claude-haiku-5-5 island 2: score 0.602 | best 0.677 (#30) $1.45 | 1480s
 [47] claude-haiku-5-5 island 2: score 0.577 | best 0.677 (#30) $1.45 | 1518s
+[48] claude-haiku-5-5 island 0: score 0.564 | best 0.677 (#30) $1.46 | 1564s
+[49] claude-haiku-5-5 island 1: score 0.526 | best 0.677 (#30) $1.46 | 1600s
+[50] claude-haiku-5-5 island 3: score 0.575 | best 0.677 (#30) $1.77 | 1641s
+[51] claude-opus-5-5 island 3: score -0.083 | best 0.677 (#30) $1.77 | 1657s
+[52] claude-haiku-5-5 island 2: score 0.390 | best 0.677 (#30) $1.77 | 1706s
+[53] claude-opus-5-5 island 2: error: NameError: line 86: rng already defined | best 0.677 (#30) $1.94 | 1718s
+[54] claude-haiku-5-5 island 2: error: NameError: line 198: goal already defined | best 0.677 (#30) $1.95 | 1736s
+[55] claude-haiku-5-5 island 3: score 0.543 | best 0.677 (#30) $1.95 | 1786s
+[56] claude-haiku-5-5 island 3: score 0.343 | best 0.677 (#30) $1.95 | 1819s
