@@ -19,6 +19,23 @@ from .evaluate import ROOT, evaluate, executed_blocks
 from .tune import mutate_constants
 
 
+def keep_header(parent, child):
+    """Exploration: the parent's leading # comment block is the lineage header; a child that dropped or edited it
+    gets it back, followed by the child's own new header lines."""
+    def head(t):
+        lines = t.split("\n")
+        n = 0
+        while n < len(lines) and lines[n].startswith("#"):
+            n += 1
+        return lines[:n], lines[n:]
+    ph, _ = head(parent)
+    ch, body = head(child)
+    if not ph or ch[: len(ph)] == ph:
+        return child
+    extra = [l for l in ch if l not in ph]
+    return "\n".join(ph + extra + body)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
@@ -226,6 +243,8 @@ def main():
                                  {"cost": cost, **({"variant": variant} if variant else {})}))
             log_proposals(pid, None, model, proposals)
             return
+        if args.explore:
+            text = keep_header(parents[-1].text, text)
         r = score(text)
         r.per_opponent["cost"] = cost
         if variant:

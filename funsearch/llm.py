@@ -72,6 +72,11 @@ AXES = {
              "beacon b (0-63), e.g. which pair is in a fight. Retreating "
              "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
              "tests, so stay close WHILE farming rather than walking across the map to regroup",
+    "disengage": "DISENGAGE at low HP: once one of our champions is below 50% HP with an enemy within 5 it "
+                 "dies 88% of the time (the top team 6%, similar teams 13-20%) and gains only ~1 tile in 5 rounds. "
+                 "Decide when to break off (HP, enemies_within, local_strength), which way to run (away from the "
+                 "nearest enemy, toward allies or spawn, out of in_danger()), when to use a dash to escape, when a "
+                 "recall is safe (damage cancels it), and whether a healthy ally should peel for the hurt one",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
              "where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
@@ -154,6 +159,13 @@ def explore_user(parents, variant, rng):
         parts.append(f"## Version {i} (score {score:.3f}; {per_line(metrics)}){code}")
     task = [f"Your change must be about {AXES[variant['axis']]}.", CHANGE_TYPES[variant["change"]],
             FRAMINGS[variant["framing"]]]
+    picks = list(dict.fromkeys(re.findall(r"pick\(\s*champ_(\w+)\(\)\s*\)", shown[-1][0])))
+    if picks:
+        task.append("The latest version drafts, in this order when available: " + ", ".join(picks[:5]) +
+                    (" (then: " + ", ".join(picks[5:]) + ")" if picks[5:] else "") +
+                    ". Code for other champions never runs, so don't spend the change on it.")
+    task.append("Keep the existing comments. The # lines at the very top are the lineage header: keep them "
+                "unchanged and add one line at their end describing your change.")
     if variant["parents"] == "crossover":
         task.append("The versions above come from different lines of play: combine their strengths into one policy.")
     ev = _evidence(variant["evidence"], shown[-1][2], rng)
