@@ -187,7 +187,8 @@ PY
       echo "H9 merge/c6eb17a/tests failed; hyb5 stopped" > "$D/HALT"; log "HALT: H9 upgrade failed"; pushall; return 1
     fi
   fi
-  # H11/H12 (jobs/hybrid 36027f7/30b727b, 14:25 UTC) folded into H10: require fe36f47 (gap-sensor batches 1+2, vocab
+  # H11-H13 (jobs/hybrid 36027f7/0af49e3/ee2917f, 14:25-14:35 UTC) folded into H10: require 14df19b (contains fe36f47,
+  # 1d748cf exec_blocks refresh, deploy/v0 f6a56b7 calibrated fuel) (gap-sensor batches 1+2, vocab
   # variant on by default, exec_blocks vs builtin:starter); same command line.
   # H10 (jobs/hybrid, 14:20 UTC): next hyb5 boundary after H9: merge funsearch/runs 4174c28+ (coord/capture-metric:
   # sim/ + policygen/blocks.py changed, new block unit_tributing: rebuild), pytest, relaunch with H9's command and the
@@ -206,10 +207,10 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H10: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 7a6038d HEAD && git merge-base --is-ancestor fe36f47 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+         git merge-base --is-ancestor 7a6038d HEAD && git merge-base --is-ancestor 14df19b HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h10-progs
         rm -f runs/hyb5.hold; touch runs/ec2-h10; AXES=$H10AXES; HELP=$H10HELP
-        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 7a6038d, fe36f47: H10 + H11/H12 gap sensors, vocab variant), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
+        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 7a6038d, 14df19b: H10-H13: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
       else
         echo "H10 merge/4174c28/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H10 upgrade failed"; pushall; return 1
       fi
@@ -334,6 +335,10 @@ if len(new) >= 28:
 PY
 )
     [ -n "$st" ] && { touch runs/ec2-h10-checked; log "H10 check: $st"; }
+  fi
+  if [ -f runs/ec2-h10 ] && [ ! -f runs/ec2-h10-exec ]; then
+    eb=$(grep -ho 'exec_blocks vs starter for [0-9]* programs[^)]*)' runs/hyb5*.log runs/hyb5.out 2>/dev/null | tail -n 1)
+    [ -n "$eb" ] && { touch runs/ec2-h10-exec; log "H10 startup check: '$eb'"; }
   fi
   if [ -f runs/ec2-h10 ] && [ ! -f runs/ec2-h10-helpers ]; then
     hk=$(tail -n +"$(( $(cat runs/ec2-h10-progs 2>/dev/null || echo 0) * 0 + 1 ))" runs/hyb5.log | grep -o 'helpers: [0-9]* helpers kept' | tail -n 1)
