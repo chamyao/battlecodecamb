@@ -102,7 +102,10 @@ AXES = {
             "filter over unit lists and tile sets, respawning_visible_spawns and capturable_spawns. A suspended "
             "turn is a champion that does nothing that turn. Levers: keep (computed once a game), let (once a "
             "turn), fuel_remaining(), which branches call the costly blocks and how often, the size of the sets they scan",
-    "macro": "MACRO ROUTE AND TIMING. Measured: we bank 18 times a game (top teams 26). Levers: which camps when, "
+    "macro": "MACRO ROUTE AND TIMING. Measured: we bank 18 times a game (top teams 26). 98% of our monolith deaths "
+             "on great_wall are self-inflicted: the live bot's first(filter(camps, in_attack_range())) hits monoliths "
+             "at the altar ring (01shortcut's altar-blocker branch does the same); monolith deaths are in 19% of our "
+             "ranked losses. Levers: which camps when, "
              "monolith takes (claim_count), when to bank, where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES. Measured: top teams open with an ability on the first-hit turn. Levers: AoE at tiles "
                  "(cast_at_tile), stuns, resets after a basic (slot_is_reset), slot_stun / slot_range / "
@@ -127,7 +130,8 @@ TOP_RULES = [
 NEW_BLOCKS = ["unit_max_health", "unit_strength", "unit_focus", "enemies_near", "allies_near", "strength_at",
               "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius",
               "threat_eta", "altar_eta", "retreat_eta", "enemy_between", "group_contested", "team_gems",
-              "unseen_enemies_near", "bank_detour", "group_rate"]
+              "unseen_enemies_near", "bank_detour", "group_rate",
+              "monolith_threat", "in_monolith_zone", "altar_safe_tiles", "camp_threat"]
 RARE_BLOCKS = ["place_ward", "bushes", "cast_at_tile", "teleport_to", "buy_teleport", "write_draft", "walls",
                "holes", "focus", "random_stat", "unit_health", "camp_count", "read_shared", "write_shared",
                "slot_is_reset", "stat_focus", "gold_cluster_tiles", "group_gems", "claim_count", "slot_stun",
