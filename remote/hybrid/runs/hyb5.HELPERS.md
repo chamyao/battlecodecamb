@@ -6,7 +6,7 @@ log(1 + introductions); kept with >= 2 introductions or a mean delta >= 0.05. Li
 mind fuel.
 
 ## 1. `fight(t)`: rank 0.1005
-mean delta +0.0624 over 4 introductions; used in 123 programs; lines pure; executed None; deps consts: HURT_FRAC
+mean delta +0.0624 over 4 introductions; used in 130 programs; lines pure; executed None; deps consts: HURT_FRAC
 
 ```policy
 HURT_FRAC = 0.5
@@ -250,7 +250,26 @@ def go_camp(goal):
     end_turn()
 ```
 
-## 10. `hunt(u)`: rank 0.0387
+## 10. `go_camp(g)`: rank 0.0399
+mean delta +0.0576 over 1 introductions; used in 1 programs; lines style; executed None; deps unknown: camps, foes
+
+```policy
+def go_camp(g):
+    if fuel_remaining() > 55000 and distance(position(), g) > 1:
+        if ability_ready(0) and slot_is_dash(0):
+            dash_towards(0, g)
+        elif ability_ready(1) and slot_is_dash(1):
+            dash_towards(1, g)
+    if count(foes) == 0 and contains( bushes(), position() ):
+        place_ward( position() )
+    move_towards( g )
+    if exists(first(filter(camps, in_attack_range()))):
+        attack( first(filter(camps, in_attack_range())) )
+    set_priority( 1 + random_int(100) )
+    end_turn()
+```
+
+## 11. `hunt(u)`: rank 0.0387
 mean delta +0.0558 over 1 introductions; used in 146 programs; lines hybrid, style; executed None; deps none
 
 ```policy
@@ -326,7 +345,7 @@ def hunt(u):
     end_turn()
 ```
 
-## 11. `fight(t)`: rank 0.0349
+## 12. `fight(t)`: rank 0.0349
 mean delta +0.0504 over 1 introductions; used in 10 programs; lines pure; executed None; deps consts: HURT_FRAC, KITE_FRAC
 
 ```policy
@@ -364,7 +383,7 @@ def fight(t):
     end_turn()
 ```
 
-## 12. `opener(s, f)`: rank 0.0349
+## 13. `opener(s, f)`: rank 0.0349
 mean delta +0.0504 over 1 introductions; used in 7 programs; lines pure; executed None; deps none
 
 ```policy
@@ -377,8 +396,8 @@ def opener(s, f):
         end_turn()
 ```
 
-## 13. `fight(t)`: rank 0.017
-mean delta +0.0154 over 2 introductions; used in 65 programs; lines pure; executed None; deps consts: HURT_FRAC
+## 14. `fight(t)`: rank 0.0207
+mean delta +0.0149 over 3 introductions; used in 69 programs; lines pure; executed None; deps consts: HURT_FRAC
 
 ```policy
 HURT_FRAC = 0.5
@@ -412,7 +431,7 @@ def fight(t):
     end_turn()
 ```
 
-## 14. `go(t)`: rank 0.0167
+## 15. `go(t)`: rank 0.0167
 mean delta +0.0120 over 3 introductions; used in 26 programs; lines pure; executed None; deps consts: DASH_FUEL_MIN
 
 ```policy
@@ -426,7 +445,7 @@ def go(t):
     move_towards(t)
 ```
 
-## 15. `dash_to(slot, t)`: rank 0.0099
+## 16. `dash_to(slot, t)`: rank 0.0099
 mean delta +0.0090 over 2 introductions; used in 23 programs; lines style; executed None; deps none
 
 ```policy
@@ -436,8 +455,8 @@ def dash_to(slot, t):
             dash_towards(slot, t)
 ```
 
-## 16. `go(t)`: rank 0.0024
-mean delta +0.0022 over 2 introductions; used in 5 programs; lines pure; executed None; deps consts: FUEL_GUARD
+## 17. `go(t)`: rank 0.0078
+mean delta +0.0049 over 4 introductions; used in 7 programs; lines pure; executed None; deps consts: FUEL_GUARD
 
 ```policy
 FUEL_GUARD = 40000
@@ -451,8 +470,42 @@ def go(t):
     move_towards(t)
 ```
 
-## 17. `go(t)`: rank 0.001
-mean delta +0.0008 over 3 introductions; used in 94 programs; lines pure; executed None; deps consts: DASH_FUEL
+## 18. `fight(t)`: rank 0.0034
+mean delta +0.0031 over 2 introductions; used in 16 programs; lines pure; executed None; deps consts: HURT_FRAC
+
+```policy
+HURT_FRAC = 0.5
+def fight(t):
+    if health() < HURT_FRAC * max_health():
+        if ability_ready(0) and (slot_is_shield(0) or slot_is_heal(0)):
+            cast_self(0)
+        elif ability_ready(1) and (slot_is_shield(1) or slot_is_heal(1)):
+            cast_self(1)
+    if ability_ready(0) and slot_is_stun(0):
+        cast_at_unit(0, t)
+    elif ability_ready(1) and slot_is_stun(1):
+        cast_at_unit(1, t)
+    if ability_ready(0) and not slot_is_shield(0) and not slot_is_dash(0) and not slot_is_heal(0) and not slot_is_reset(0):
+        cast_at_unit(0, t)
+    if ability_ready(1) and not slot_is_shield(1) and not slot_is_dash(1) and not slot_is_heal(1) and not slot_is_reset(1):
+        cast_at_unit(1, t)
+    if i_am_ranged() and distance( unit_position(t), position() ) <= 1 and can_move():
+        move_away_from( unit_position(t) )
+        if distance( unit_position(t), position() ) <= 3:
+            attack(t)
+        end_turn()
+    attack(t)
+    if ability_ready(0) and slot_is_reset(0):
+        cast_self(0)
+        attack(t)
+    elif ability_ready(1) and slot_is_reset(1):
+        cast_self(1)
+        attack(t)
+    end_turn()
+```
+
+## 19. `go(t)`: rank 0.001
+mean delta +0.0008 over 3 introductions; used in 98 programs; lines pure; executed None; deps consts: DASH_FUEL
 
 ```policy
 DASH_FUEL = 45000
@@ -465,7 +518,7 @@ def go(t):
     move_towards(t)
 ```
 
-## 18. `fight(t)`: rank 0.0
+## 20. `fight(t)`: rank 0.0
 mean delta +0.0000 over 2 introductions; used in 2 programs; lines pure; executed None; deps consts: HURT_FRAC
 
 ```policy
