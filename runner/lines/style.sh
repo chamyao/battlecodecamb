@@ -256,25 +256,45 @@ if [ -f runs/ec2-s11 ] && [ ! -f runs/ec2-s12 ]; then
     echo "S12 merge/983462f/build/tests failed; b and gconv stopped" > "$D/HALT"; log "HALT: S12 merge/build/tests failed"; return 1
   fi
 fi
+# S14 (jobs/style 4265b50, 17:00 UTC; S13 cancelled): v23 reverted on the ladder. Stop gyield for good ($0.75 of $1.27)
+# and start style8-gsub (gem_margin vs v21, $0.52) on funsearch/style 35595b0+ (python/scripts only, no rebuild).
+if [ -f runs/ec2-s12 ] && [ ! -f runs/ec2-s14 ]; then
+  touch runs/style8-gyield.ec2-done
+  for pid in $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gyield ' | cut -d' ' -f1); do kill -TERM "$pid" && log "S14: SIGTERM style8-gyield pid $pid"; done
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor 35595b0 HEAD && [ -f funsearch/styles/g_submitted.txt ] &&
+     python3 -m pytest -q tests > /root/bc/style-pytest.txt 2>&1; then
+    touch runs/ec2-s14
+    log "S14: at $(git rev-parse --short HEAD) (has 35595b0), $(tail -n 1 /root/bc/style-pytest.txt); gyield stopped for good; gsub starting"
+  else
+    git merge --abort 2>/dev/null
+    echo "S14 merge/35595b0/tests failed; gyield stopped, gsub not started" > "$D/HALT"; log "HALT: S14 merge/tests failed"; return 1
+  fi
+fi
+if [ -f runs/ec2-s14 ] && [ ! -f runs/style8-gsub.ec2-done ] && ! pgrep -a -x python3 | grep -q 'funsearch.run --run style8-gsub '; then
+  if [ -f runs/style8-gsub.ec2-launched ] && tail -n 3 runs/style8-gsub.out 2>/dev/null | grep -qE '^done:|\$0\.00 left'; then
+    touch runs/style8-gsub.ec2-done; log "S14: style8-gsub finished: $(tail -n 1 runs/style8-gsub.out | cut -c1-160)"
+  else
+    [ -f runs/style8-gsub.ec2-launched ] && log "S14: style8-gsub not running: relaunching (resumes)"
+    ISLAND_SEEDS=policies/style-gconv1.policy,policies/tune-v21.policy GAP_REF=policies/tune-v21.policy \
+    GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/style-gconv1.policy,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+      WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gsub 0.52 gem_margin:max:50 policies/tune-v21.policy funsearch/styles/g_submitted.txt >> runs/style8-gsub.out 2>&1 < /dev/null &
+    touch runs/style8-gsub.ec2-launched; log "S14: launched style8-gsub (\$0.52)"
+  fi
+fi
+if [ -f runs/style8-gsub.ec2-launched ] && [ ! -f runs/style8-gsub.ec2-checked ] && grep -q 'gap: ' runs/style8-gsub.out 2>/dev/null; then
+  touch runs/style8-gsub.ec2-checked
+  log "S14 gsub check: $(grep -E 'left of|gap metric|gap: ' runs/style8-gsub.out | head -n 3 | cut -c1-110 | tr '\n' '|')"
+fi
 if [ -f runs/ec2-s12 ] && [ ! -f runs/style8-gyield.ec2-done ] && ! pgrep -a -x python3 | grep -q 'funsearch.run --run style8-gyield '; then
   if [ -f runs/style8-gyield.ec2-launched ] && tail -n 3 runs/style8-gyield.out 2>/dev/null | grep -qE '^done:|\$0\.00 left'; then
     touch runs/style8-gyield.ec2-done; log "S12: style8-gyield finished: $(tail -n 1 runs/style8-gyield.out | cut -c1-160)"
   else
     [ -f runs/style8-gyield.ec2-launched ] && log "S12: style8-gyield not running: relaunching (resumes)"
-    # S13 addendum (jobs/style d17fb2d): on a RElaunch, first move to funsearch/style 1babf5a+ (script-only: the gap
-    # launcher passes --no-tune-children); no rebuild. A failed merge is logged and the run launches on the old code.
-    if [ -f runs/style8-gyield.ec2-launched ] && ! git merge-base --is-ancestor 1babf5a HEAD 2>/dev/null; then
-      if git fetch -q origin funsearch/style && { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
-         git merge-base --is-ancestor 1babf5a HEAD; then log "S13: funsearch/style $(git rev-parse --short HEAD) (has 1babf5a: gap launcher --no-tune-children)"
-      else git merge --abort 2>/dev/null; log "S13: WARNING could not move to 1babf5a; relaunching gyield on $(git rev-parse --short HEAD)"; fi
-    fi
-    # S13 (jobs/style 443877f, 16:20 UTC): style-gconv1 is live as v23; any (re)launch from now on uses it as gap
-    # reference and heaviest opponent (same name and total, spend carries over). No restart just for this.
-    GAP_REF=policies/style-gconv1.policy \
-    GAP_OPPONENTS="builtin:starter@0.25,policies/style-gconv1.policy@3,policies/tune-v21.policy,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
+    GAP_OPPONENTS="builtin:starter@0.25,policies/tune-v21.policy@3,policies/opp-finisher.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/pool/opp-metadraft.policy" \
       WORKERS=2 EVAL_THREADS=2 setsid nohup sh runs/style_gap_launch.sh style8-gyield 1.27 conversion:max:0.05,gems_per_capture:max:3 policies/style-gconv1.policy funsearch/styles/g_conversion.txt >> runs/style8-gyield.out 2>&1 < /dev/null &
-    [ -f runs/style8-gyield.ec2-launched ] && touch runs/ec2-s13-relaunched
-    touch runs/style8-gyield.ec2-launched; log "S12/S13: launched style8-gyield (\$1.27 total; gap ref style-gconv1 = v23)"
+    touch runs/style8-gyield.ec2-launched; log "S12: launched style8-gyield (\$1.27)"
   fi
 fi
 if [ -f runs/style8-gyield.ec2-launched ] && [ ! -f runs/style8-gyield.ec2-checked ] && grep -q 'gap: ' runs/style8-gyield.out 2>/dev/null; then
@@ -359,12 +379,7 @@ open(sys.argv[2], "w").writelines(out)' "$d$f" "/root/bc/style-snap/$d$f"
   done
 done
 cp runs/style8-*.json runs/style8-*.log runs/style8-*.out /root/bc/style-snap/runs/ 2>/dev/null
-if [ -f runs/ec2-s13-relaunched ] && [ ! -f runs/ec2-s13-checked ] && grep -q 'vs policies/style-gconv1.policy' runs/style8-gyield.out 2>/dev/null &&
-   [ "$(grep -A3 'vs policies/style-gconv1.policy' runs/style8-gyield.out | grep -c 'gap metric')" -ge 2 ]; then
-  touch runs/ec2-s13-checked
-  log "S13 check: $(grep -A4 'vs policies/style-gconv1.policy' runs/style8-gyield.out | tail -n 5 | grep -E 'left of|gap metric|gap: ' | cut -c1-110 | tr '\n' '|'); no-tune-children in the live run: $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gyield ' | grep -c 'no-tune-children')"
-fi
-for gr in gconv gyield; do [ -f runs/style8-$gr/programs.jsonl ] || continue   # gap runs (plain funsearch.run)
+for gr in gconv gyield gsub; do [ -f runs/style8-$gr/programs.jsonl ] || continue   # gap runs (plain funsearch.run)
   mkdir -p /root/bc/style-snap/runs/style8-$gr
   python3 -c '
 import sys, json
