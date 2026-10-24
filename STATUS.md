@@ -5,18 +5,17 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 20:10 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.33 13.16 12.77 on 16 threads.
-Disk: 4.2G used of 38G.
+Updated 2026-10-24 20:15 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.73 13.28 12.92 on 16 threads.
+Disk: 4.3G used of 38G.
 
 ## python3 processes
 ```
 164542 python3 -m genome.search.arena --out /root/bc/genome/out/arenaA-1/arena --tag A --seed genome/seeds/v23.genome --budget 8 --threads 5
 164789 python3 -m genome.search.arena --out /root/bc/genome/out/arenaB-1/arena --tag B --seed genome/seeds/v23.genome --budget 3 --threads 5 --intel-branch genome/intel
+223838 python3 -m genome.search.gate --out /root/bc/genome/out/gatekeeper-2 --arena arenaA-1/arena --arena arenaB-1/arena+arenaB-2/arena --threads 5
 ```
 ## tick.log (last 40 lines)
 ```
-[17:57:47] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[18:02:59] genome: started job smoke1 at ff86746cf72a
 remote: 
 remote: Create a pull request for 'remote/genome' on GitHub by visiting:        
 remote:      https://github.com/chamyao/battlecodecamb/pull/new/remote/genome        
@@ -55,4 +54,6 @@ remote:
 [20:05:13] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [20:10:27] genome: started job arenaB-2 at 681e2e3a90741660b8a8b51e2c0609461f6fddff
 [20:10:30] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[20:15:44] genome: started job gatekeeper-2 at 56b76c429afb2813653d39dc499e654918f2db47
+[20:15:47] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
