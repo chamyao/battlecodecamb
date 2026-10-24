@@ -80,7 +80,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")                \
 	X(rich_spawns, "rich_spawns(Num)") X(group_tiles, "group_tiles(TileSet)") X(group_gems, "group_gems(TileSet)")       \
 	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")                                 \
-	X(strength, "strength()") X(focus, "focus()")
+	X(strength, "strength()") X(focus, "focus()")                                                       \
+	X(slot_range, "slot_range(Num)") X(slot_radius, "slot_radius(Num)") X(slot_stun, "slot_stun(Num)")
 
 enum class Op : std::uint16_t
 {
@@ -1695,6 +1696,9 @@ struct Interp
 		case Op::slot_is_heal:
 		case Op::slot_is_shield:
 		case Op::slot_is_reset:
+		case Op::slot_range:
+		case Op::slot_radius:
+		case Op::slot_stun:
 		{
 			const int slot = std::clamp(static_cast<int>(evaln(a[0])), 0, 1);
 			if (api.champ() < 0) return num(0);
@@ -1710,6 +1714,10 @@ struct Interp
 			case Op::slot_is_stun: return num(k == K::cc);
 			case Op::slot_is_heal: return num(k == K::heal);
 			case Op::slot_is_shield: return num(k == K::shield);
+			case Op::slot_range: return num(ap.range);
+			case Op::slot_radius: return num(ap.radius);
+			// stun turns applied on hit: cc, and damage/dash abilities with a duration (HoR's dash, Ryth's AoE)
+			case Op::slot_stun: return num(k == K::shield || k == K::heal ? 0 : ap.duration);
 			default: return num(k == K::attack_reset);
 			}
 		}
