@@ -1,25 +1,22 @@
 # EC2 runner status
 
-Updated 2026-10-24 09:20 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.76 13.22 13.64 on 16 threads.
+Updated 2026-10-24 09:26 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.13 12.97 13.46 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
 ```
-5462 python3 -m funsearch.league --name pure4 --budget 9.71 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --threads 
 29229 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies
 29242 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 29270 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 3.06 --max-programs 128 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
-34422 /usr/bin/python3 -m funsearch.run --run pure4-g3 --budget 2.85 --max-programs 150 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/tune-3.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy --workers 3
 35865 python3 -m funsearch.league --name tune-fight --budget 5 --members policies/tune-v18g.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v18.policy --fixed policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campreset.policy --regress 1.0 
 35879 /usr/bin/python3 -m funsearch.run --run tune-fight-g1 --budget 4.42 --max-programs 51 --seed-policy policies/tune-v18g.policy --opponents builtin:starter@0.25,policies/tune-v18g.policy@3.0,policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campres
 37632 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
 37639 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 25.00 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
+40768 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
+40780 /usr/bin/python3 -m funsearch.run --run pure4-g4 --budget 7.73 --max-programs 151 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/rall2-ca4-lean-g.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,p
 ```
 ## tick.log (last 40 lines)
 ```
-[07:10:25] style: launched style8-a (budget $2.25)
-[07:10:25] style: launched style8-c (budget $2.25)
-[07:26:00] tune: job E exited rc=0
 [07:36:16] style: S3: paused style8-a (SIGTERM pid 12435)
 [07:36:16] style: S3: paused style8-a (SIGTERM pid 12451)
 [07:36:16] style: S3: paused style8-c (SIGTERM pid 12446)
@@ -57,4 +54,7 @@ Disk: 3.2G used of 38G.
 [09:10:20] hybrid: launched hyb5 league
 [09:15:29] hybrid: hyb5 check ok: [09:10:20] hyb5-g1: +30 programs to the next boundary (0 so far), best policies/pool/v19.policy, league ['poli; seeds:  2 seed v19;
 [09:20:39] pure: g3 advance: STOP requested, waiting for the league to exit
+[09:25:56] pure: g3 ended without promotion (best stays fs-p2); moved to funsearch/pure 2b65f8d for g4
+[09:25:56] pure: league not running: relaunching (g4, resume from runs/)
+[09:25:56] pure: launched pure4 league (g4)
 ```
