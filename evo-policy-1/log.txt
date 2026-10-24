@@ -119,3 +119,30 @@ seed screen 0.686 confirm 0.768 (vs v7: win 0.97, gems 965-437; vs tune-v20-L1: 
 [121] llm claude-haiku-5-5 isl 3: screen -0.000 confirm -0.063 (6 lines) | best 0.777 (#65) $1.46 | 2046s
 [122] llm claude-haiku-5-5 isl 0: screen -0.047 (9 lines) | best 0.777 (#65) $1.46 | 2066s
 [123] llm claude-haiku-5-5 isl 2: screen -0.024 (3 lines) | best 0.777 (#65) $1.46 | 2074s
+[124] llm claude-haiku-5-5 isl 1: screen -0.002 confirm -0.001 (6 lines) | best 0.777 (#65) $1.46 | 2095s
+[125] llm claude-opus-5-5 isl 1: screen -0.069 (36 lines) | best 0.777 (#65) $1.58 | 2116s
+spent $1.58 of $1.50
+[126] llm claude-haiku-5-5 isl 1: screen -0.002 confirm -0.000 (11 lines) | best 0.777 (#65) $1.58 | 2130s
+[127] llm claude-haiku-5-5 isl 3: screen +0.017 confirm -0.058 (6 lines) | best 0.777 (#65) $1.58 | 2157s
+done: 124 programs (1 invalid), spent $1.58; best #65 0.777
+## run
+
+seed confirm 0.768; best confirmed #65 0.777
+
+| op | children | invalid | twins | screen_up | beats_parent | two_parent_beats_both | cost | cost_per_gain |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| llm | 111 | 1/111 = 0.9% (±0.9) | 4/110 = 3.6% (±1.8) | 30/110 = 27.3% (±4.2) | 0/111 = 0.0% (±0.6) | 0/102 = 0.0% (±0.7) | $1.58 | - |
+| tune | 13 | 0/13 = 0.0% (±5.4) | 5/13 = 38.5% (±13.5) | 1/13 = 7.7% (±7.4) | 0/13 = 0.0% (±5.4) | - | $0.00 | - |
+| all | 124 | 1/124 = 0.8% (±0.8) | 9/123 = 7.3% (±2.3) | 31/123 = 25.2% (±3.9) | 0/124 = 0.0% (±0.6) | 0/102 = 0.0% (±0.7) | $1.58 | - |
+
+Edit size (Claude children):
+
+| lines | children | beats_parent | median_screen_delta |
+| --- | --- | --- | --- |
+| 1-2 | 6 | 0/6 = 0.0% (±11.8) | -0.010 |
+| 3-5 | 22 | 0/22 = 0.0% (±3.2) | -0.020 |
+| 6-10 | 35 | 0/35 = 0.0% (±2.0) | -0.003 |
+| 11-20 | 36 | 0/35 = 0.0% (±2.0) | -0.009 |
+| 21-40 | 7 | 0/7 = 0.0% (±10.1) | -0.024 |
+| 41+ | 5 | 0/5 = 0.0% (±14.1) | -0.036 |
+
