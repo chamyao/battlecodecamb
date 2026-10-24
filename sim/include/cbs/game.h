@@ -134,6 +134,10 @@ struct TeamState
 	std::uint32_t submitted = 0;
 	std::int64_t earned_gold_cents = 0;
 	int kills = 0;
+	// Diagnostics only (no effect on play): champion deaths, damage dealt to enemy champions, gems lost when killed by one.
+	int deaths = 0;
+	double champ_damage = 0;
+	std::uint32_t gems_lost_to_champs = 0;
 	std::uint8_t shared[kSharedMemory] = {};
 	std::uint8_t draft_mem[kDraftMemory] = {};
 	std::uint32_t draft_mem_size = 0;
