@@ -24,7 +24,7 @@ if [ "$1" = h ] || [ "$1" = h2 ]; then
   fi
   # island h may get more threads than the others: H_WORKERS / H_EVAL_THREADS / H_VAL_THREADS
   WORKERS=${H_WORKERS:-$WORKERS}; EVAL_THREADS=${H_EVAL_THREADS:-$EVAL_THREADS}; VAL_THREADS=${H_VAL_THREADS:-$VAL_THREADS}
-  FIXED=policies/tune-v20.policy,policies/tune-v19.policy,$BAR,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy
+  FIXED=policies/tune-v21.policy,policies/tune-v20.policy,$BAR,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy
 else
   members=$BAR; best_w=3.0; extra=""
 fi

@@ -29,7 +29,7 @@ economy; one-stat stacking out-damaged the live bot 26k to 21k but died 20 times
 - fight-only grouping: farm apart, converge on team_target() when an ally engages.
 TOP PRIORITY (TOP_TEAMS_V19.md: vs the live bot, 71% of its deaths are still 2v1, and the top teams'
 champion damage is ~23k vs its 9.6k): FARM IN PAIRS AND CONVERGE ON VISIBLE ENEMIES. Pair roles via
-shared memory (write_shared(i, v)/read_shared(i), offsets 7+; 0-6 are claims and the team target):
+shared memory (write_shared(i, v)/read_shared(i), offsets 8+; 0-6 are claims and the team target, 7 is used by our live bot):
 e.g. each champion takes a pair slot, pairs farm neighbouring camps of the same group (claim /
 claim_count), and both partners converge on any enemy one of them sees (set_team_target), so every
 fight starts 2v1. Damage dealt to champions matters as much as kills.
