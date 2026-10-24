@@ -1,23 +1,21 @@
 # EC2 runner status
 
-Updated 2026-10-24 11:30 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.99 13.56 13.79 on 16 threads.
+Updated 2026-10-24 11:35 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.08 11.33 12.77 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
 ```
 40768 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
 40780 /usr/bin/python3 -m funsearch.run --run pure4-g4 --budget 7.73 --max-programs 151 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/rall2-ca4-lean-g.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,p
-43700 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies
 43713 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
 43738 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 2.60 --max-programs 106 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 65847 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
-69792 /usr/bin/python3 -m funsearch.run --run style8-h-g2 --budget 0.20 --max-programs 40 --seed-policy policies/style-h1.policy --opponents builtin:starter@0.25,policies/style-h1.policy@0.5,policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy
+72351 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 21.86 --max-programs 29 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
+72978 python3 -m funsearch.league --name style8-h2 --budget 2.2 --members policies/opp-hunter3.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune-v20.policy,policies/tune-v19.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/
+72998 /usr/bin/python3 -m funsearch.run --run style8-h2-g1 --budget 2.20 --max-programs 40 --seed-policy policies/opp-hunter3.policy --opponents builtin:starter@0.25,policies/opp-hunter3.policy@0.5,policies/tune-v20.policy,policies/tune-v19.policy,policies/tune5-campreset.policy,policies/tune5-reset
 ```
 ## tick.log (last 40 lines)
 ```
-[08:28:45] style: launched style8-h (budget $3.95)
-[08:28:45] style: style8-b not running: relaunching (resumes from its programs.jsonl)
-[08:28:45] style: launched style8-b (budget $3.5)
 [08:28:56] tune: G: tune/fs set up at 6cba5f0
 [08:28:56] tune: G: launched tune-fight ($5)
 [08:34:03] style: S4 check: h: g2 best style-h1 ok tune-v19 in league $3.32 left; b: style8-b-g1: +128 programs to the next boundary (22 so far) $3.06 left; before: h 3.34 b 3.50
@@ -55,4 +53,7 @@ Disk: 3.3G used of 38G.
 [11:04:46] hybrid: launched hyb5 league
 [11:09:57] hybrid: H4 check: 're-seeded island 3 with v19' x1 (expected 1), other islands re-seeded: 0
 [11:10:03] tune: G2: tune-fight2 exited: [11:05:26] budget spent ($2.43)
+[11:35:47] style: S6: at ace8582 (has 97e64e9), no rebuild; budgets: h 3.95 h2 2.2 b 3.5 a 0.04 c 2.25 
+[11:35:47] style: style8-h exited: [11:31:47] budget spent ($3.95)
+[11:35:47] style: launched style8-h2 (budget $2.2)
 ```
