@@ -236,6 +236,7 @@ Err Api::use_consumable(std::int32_t type, Vec2 p, std::int32_t* ok)
 Err Api::recall() { return E(sdk_recall()); }
 Err Api::submit_gems(Vec2 altar) { return E(sdk_submit_gems(altar.x, altar.y)); }
 Err Api::place_ward(Vec2 p, std::int32_t* ok) { return E(sdk_place_ward(p.x, p.y, ok)); }
+std::int64_t Api::fuel_remaining() { return static_cast<std::int64_t>(sdk_fuel_remaining()); }
 Err Api::set_priority(std::int32_t p) { return E(sdk_set_priority(p)); }
 Err Api::champion_priority(std::uint32_t h, bool next, std::int32_t* out) { return E(sdk_bc_champion_priority(h, next ? 1 : 0, out)); }
 

@@ -251,11 +251,9 @@ public:
 	Err draft_get(std::int32_t team, std::uint32_t round, std::int32_t* out);
 	Err draft_champion(std::int32_t choice);
 
-	std::int64_t fuel_remaining()
-	{
-		charge(Call::fuel_remaining);
-		return unlimited ? (std::int64_t{ 1 } << 40) : budget - spent;
-	}
+	// Fuel left this turn: the simulator's meter (2^40 when unlimited); the deploy bot asks the
+	// engine (bot_api.cpp). Defined out of line so the bot cannot fall back to the simulator's.
+	std::int64_t fuel_remaining();
 
 private:
 	Game& g_;
