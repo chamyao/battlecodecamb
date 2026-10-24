@@ -52,6 +52,7 @@
 { "cast_self(Num)", true, { 480136, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4 mean=496 mae=0 (profile fuel)
 { "claim(Tile)", true, { 236196, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=5746 mean=244 mae=0 (profile fuel)
 { "dash_towards(Num,Tile)", true, { 1627129, 0, 4773, 0, 29627, 57212, 0, 0, 0, 0 } }, // n=631 mean=4097 mae=347 (profile fuel)
+{ "focus()", false, { 267172, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // PROVISIONAL (as health()) until calibrated
 { "move_away_from(Tile)", true, { 1584221, 0, 8777, 0, 5343, 0, 0, 0, 0, 0 } }, // n=4580 mean=2369 mae=53 (profile fuel)
 { "move_towards(Tile)", true, { 1289200, 0, 11850, 0, 22626, 0, 0, 0, 0, 0 } }, // n=10961 mean=2645 mae=100 (profile fuel)
 { "pick(Champ)", true, { 329126, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=155 mean=340 mae=0 (profile fuel)
@@ -60,6 +61,7 @@
 { "recall()", true, { 127778, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=464 mean=132 mae=0 (profile fuel)
 { "set_priority(Num)", true, { 180642, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=70548 mean=187 mae=25 (profile fuel)
 { "set_team_target(Unit)", true, { 175211, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4862 mean=181 mae=0 (profile fuel)
+{ "strength()", false, { 267172, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // PROVISIONAL (as health()) until calibrated
 { "teleport_to(Tile)", true, { 181019, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4080 mean=187 mae=0 (profile fuel)
 { "tribute(Tile)", true, { 161659, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=132 mean=167 mae=0 (profile fuel)
 { "unclaim()", true, { 165531, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=5140 mean=171 mae=0 (profile fuel)

@@ -79,7 +79,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(unit_health_frac, "unit_health_frac(Unit)") X(capturable_spawns, "capturable_spawns()") X(turns_idle, "turns_idle()")   \
 	X(enemies_within, "enemies_within(Num)") X(local_strength, "local_strength(Num)")                \
 	X(rich_spawns, "rich_spawns(Num)") X(group_tiles, "group_tiles(TileSet)") X(group_gems, "group_gems(TileSet)")       \
-	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")
+	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")                                 \
+	X(strength, "strength()") X(focus, "focus()")
 
 enum class Op : std::uint16_t
 {
@@ -1312,6 +1313,14 @@ struct Interp
 			ChampionInfo ci{};
 			if (!me(ci)) return num(0);
 			return num(e.op == Op::health ? ci.health : ci.max_health);
+		}
+		case Op::strength:
+		case Op::focus:
+		{
+			// this champion's current Strength (basic attack damage) / Focus (ability scaling), items included
+			ChampionInfo ci{};
+			if (!me(ci)) return num(0);
+			return num(e.op == Op::strength ? ci.strength : ci.focus);
 		}
 		case Op::gems:
 		case Op::gold:
