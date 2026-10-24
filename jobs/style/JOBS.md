@@ -10,10 +10,10 @@ remote-server when woken (docs/REMOTE_WORKER.md). Clone: `~/bc/style`, branch `f
   comment on PR #3 with that island's validation lines ("h2h", "cambc", "PROMOTED").
 - Do not launch style7 or any new run: the line is out of budget until the lead writes a new job here.
 
-## Job S2 (2026-10-24 ~05:00 UTC): style7 vs tune-5. APPROVED (lead, re-approved 05:20 UTC on funsearch/style 24a4393)
+## Job S2 (2026-10-24 ~05:00 UTC): style7 vs tune-5. HELD (06:35 UTC, lead): do not start; stop it (SIGTERM) if running
 
-Status: APPROVED. Code is funsearch/style 24a4393: the directives no longer carry the camp-skip formula
-(measured harmful). Block check and tests (2012 passed) are done on 24a4393.
+Status: HELD until the sim-fidelity check is back (the lead holds style7 and its budget). Cham's
+style6 runs count as never having happened: skip the style6-a resume (Gate 0 fallback).
 
 Supersedes S1's "do not start style7" ($2 granted for style7). Start only after
 ALL THREE style6 leagues (style6-a, -b, -c) have exited and their validation lines (h2h, cambc,
