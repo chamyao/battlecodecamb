@@ -54,6 +54,32 @@ def score(o: Option) -> Num:
     return act_value(o)
 
 
+@gene("v3", "option kinds worth listing this pass: only those this turn's rule (or shopping, cast-ahead) can use")
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == CAST:
+        return r == 7 or r == 14 or ((r == 3 or r == 20) and dash_gate() and (SK0 == AB_DASH or SK1 == AB_DASH)) or (r >= 6 and ahead_on())
+    if k == ATTACK:
+        return r == 7 or r == 13 or r == 14 or r == 20
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == WARD:
+        return r == 20 and here() in bushes() and count_units(enemies()) == 0
+    return False
+
+
 @gene("v2", "start of turn: choose the rule, its goal and target; shared-memory and priority writes")
 def update() -> None:
     if not MAPPED:
@@ -649,8 +675,13 @@ def blocked() -> Tiles:
 def closest(s: Tiles) -> Tile:
     if here() in s:
         return here()
-    cand = s - (blocked() - camp_block())
+    cand = s - taken()
     return walk_nearest(cand, here(), blocked() - cand)
+
+
+@gene("w12", "tiles held by something other than a camp (never a goal)")
+def taken() -> Tiles:
+    return blocked() - camp_block()
 
 
 @gene("w5", "walking field to GOAL, searched out to my own tile")
@@ -668,7 +699,7 @@ def step_gain(t: Tile) -> Num:
 
 @gene("w10", "GOAL can be walked to: valid, not here, not held by a unit other than a camp")
 def walk_open() -> Bool:
-    return valid(GOAL) and GOAL != here() and not (GOAL in (blocked() - camp_block()))
+    return valid(GOAL) and GOAL != here() and not (GOAL in taken())
 
 
 @gene("w7", "a dash may land on p: a free middle tile next to both ends unless p is adjacent")
@@ -683,14 +714,17 @@ def dash_mids() -> Tiles:
     return near(here(), 1) - walls() - enemy_spawn()
 
 
-@gene("w8", "a landing tile within 2 that is closer to GOAL than I am")
-def dash_land(t: Tile) -> Bool:
-    return t != here() and not (t in BLOCK) and at(FIELD, t) < at(FIELD, here()) and dash_path_ok(t)
-
-
-@gene("w9", "the dash landing tile closest to GOAL by walking, invalid if none")
+@gene("w9", "the dash landing tile closest to GOAL by walking (first in row-major order on ties), invalid if none")
 def dash_spot() -> Tile:
     if not valid(GOAL) or GOAL == here():
         return tile(-1, -1)
-    s = best(near(here(), 2), lambda t: -at(FIELD, t) if dash_land(t) else -INF)
-    return s if valid(s) and dash_land(s) else tile(-1, -1)
+    mine = at(FIELD, here())
+    bd = mine
+    s = tile(-1, -1)
+    for t in near(here(), 2):
+        d = at(FIELD, t)
+        if d < bd and t != here() and not (t in BLOCK):
+            if dash_path_ok(t):
+                bd = d
+                s = t
+    return s
