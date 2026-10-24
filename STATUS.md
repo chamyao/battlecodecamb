@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 18:03 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.29 0.36 3.69 on 16 threads.
+Updated 2026-10-24 18:08 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.00 0.15 2.68 on 16 threads.
 Disk: 3.6G used of 38G.
 
 ## python3 processes
@@ -13,8 +13,6 @@ Disk: 3.6G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[16:19:29] hybrid: H20: hold set for the next hyb5 boundary
-[16:34:57] hybrid: H20: SIGTERM hyb5 pid 133949
 [16:35:16] hybrid: H20: funsearch/runs 694a4a3 (has 694a4a3/166f85c: v23 style-gconv1, sim fix, #76, H21 cover screens), built interp_eval+fuel_turns, 2029 passed in 7.37s; relaunching hyb5 with style-gconv1 fixed + island-1 seed, island-3 seed #76, --screen-maps cover --rescreen-top 3
 [16:35:16] hybrid: hyb5 not running: relaunching (resume from runs/)
 [16:35:16] hybrid: launched hyb5 league
@@ -53,4 +51,6 @@ remote: Create a pull request for 'remote/genome' on GitHub by visiting:
 remote:      https://github.com/chamyao/battlecodecamb/pull/new/remote/genome        
 remote: 
 [18:03:01] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[18:08:03] genome: job smoke1 exited rc=0
+[18:08:04] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
