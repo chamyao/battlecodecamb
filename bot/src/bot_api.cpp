@@ -141,6 +141,45 @@ Err Api::champion_ability_props(std::uint32_t h, std::uint32_t slot, AbilityProp
 	out->max_charges = ap.max_charges;
 	out->targets = ap.targets;
 	out->attributes = ap.attributes;
+	// The payload is tagged by kind (same numbering as cbs::AbilityKind); the sim fills these too.
+	switch (static_cast<AbilityKind>(ap.kind))
+	{
+	case AbilityKind::attack_reset: out->enhanced_attack = ap.payload.enhanced_attack; break;
+	case AbilityKind::damage:
+	case AbilityKind::heal:
+		out->range = ap.payload.damage.range;
+		out->modifier = ap.payload.damage.modifier;
+		break;
+	case AbilityKind::aoe_damage:
+		out->range = ap.payload.aoe_damage.range;
+		out->radius = ap.payload.aoe_damage.radius;
+		out->modifier = ap.payload.aoe_damage.modifier;
+		out->duration = ap.payload.aoe_damage.duration;
+		break;
+	case AbilityKind::cc:
+	case AbilityKind::shield:
+		out->range = ap.payload.cc.range;
+		out->modifier = ap.payload.cc.modifier;
+		out->duration = ap.payload.cc.duration;
+		break;
+	case AbilityKind::dash:
+		out->range = ap.payload.dash.range;
+		out->radius = ap.payload.dash.radius;
+		out->modifier = ap.payload.dash.modifier;
+		out->duration = ap.payload.dash.duration;
+		break;
+	default: break;
+	}
+	return E(rc);
+}
+Err Api::champion_buff_data(std::uint32_t h, BuffRecord* out, std::uint32_t cap, std::uint32_t* count)
+{
+	buff_data raw[8];
+	std::uint32_t n = 0;
+	const std::int32_t rc = sdk_champion_buff_data(h, raw, 8, &n);
+	*count = n;
+	for (std::uint32_t i = 0; i < n && i < cap && i < 8; ++i)
+		out[i] = { raw[i].type, raw[i].data.shield.duration, raw[i].type == 0 ? raw[i].data.shield.value : 0.0f };
 	return E(rc);
 }
 Err Api::camp(std::uint32_t h, CampRecord* out)
