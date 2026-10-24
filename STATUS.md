@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 09:26 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.13 12.97 13.46 on 16 threads.
+Updated 2026-10-24 09:31 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 17.67 14.21 13.68 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -14,10 +14,10 @@ Disk: 3.2G used of 38G.
 37639 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 25.00 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
 40768 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
 40780 /usr/bin/python3 -m funsearch.run --run pure4-g4 --budget 7.73 --max-programs 151 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/rall2-ca4-lean-g.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,p
+41062 /usr/bin/python3 -m funsearch.run --run style8-h-g2 --budget 2.65 --max-programs 40 --seed-policy policies/style-h1.policy --opponents builtin:starter@0.25,policies/style-h1.policy@0.5,policies/tune-v19.policy,policies/tune-v18.policy,policies/tune5-campreset.policy,policies/tune5-reset.policy
 ```
 ## tick.log (last 40 lines)
 ```
-[07:36:16] style: S3: paused style8-a (SIGTERM pid 12435)
 [07:36:16] style: S3: paused style8-a (SIGTERM pid 12451)
 [07:36:16] style: S3: paused style8-c (SIGTERM pid 12446)
 [07:36:16] style: S3: paused style8-c (SIGTERM pid 12461)
@@ -57,4 +57,5 @@ Disk: 3.2G used of 38G.
 [09:25:56] pure: g3 ended without promotion (best stays fs-p2); moved to funsearch/pure 2b65f8d for g4
 [09:25:56] pure: league not running: relaunching (g4, resume from runs/)
 [09:25:56] pure: launched pure4 league (g4)
+[09:31:05] pure: resume check ok: [09:25:56] pure4-g4: +151 programs (to 151), best policies/fs-p2.policy, league ['policies/rall2-ca4-lean-g.policy', 'policies/v5d.policy', 'policies/v4.policy'
 ```
