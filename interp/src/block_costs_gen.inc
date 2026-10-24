@@ -174,6 +174,7 @@
 { "weakest(UnitList)", false, { 432709, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=17022 mean=456 mae=44 (profile fuel)
 { "within(Num,Tile)", false, { 249447, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=1638 mean=263 mae=0 (profile fuel)
 { "wolf_tiles()", false, { 854030, 0, 8763, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=1442 mae=457 (profile fuel)
+{ "bank_detour(Tile)", false, { 2417913, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as altar_eta (altar scan), coordinator
 // Per turn: the step loop outside blocks (profile fit 119 + 59.51*blocks + 0.113*blocks*H, mae 730),
 // scaled by 0.948, plus the profiler-distortion terms per block, per API call and per turn.
 #define INTERP_TURN_COST(BLOCKS, H, API) (165 + -51.42 * (BLOCKS) + 0.107 * (BLOCKS) * (H) + -50.39 * (API))
