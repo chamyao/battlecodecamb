@@ -14,10 +14,10 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
 
 ## Live and history
-- Live (Oct 24 ~20:40 UTC): ladder version 25 = genome B318 (genome line, separate from the FunSearch lines;
-  bundle sha256 548bb21d...), uploaded by the genome line with Cham's go. Revert target: v24 = v22's ZIP
-  (deploy/v0 ee85727, sha256 d86fbda6...). The genome line shares the ladder slot; it tells the coordinator
-  before uploading. Pending Cham: style-gsub2-11k33 (cleared main3r +15..+51, cambc-safe, ZIP 9a80ccec...).
+- Live (Oct 24 21:25 UTC): ladder version 26 = genome B792 (genome line; bundle sha256 f03df323...), after
+  v25 = genome B318 (548bb21d, 20:40). Both uploaded by the genome line, which shares the ladder slot and
+  tells the coordinator before uploading. Last FunSearch-line bot: v24 = v22's ZIP (deploy/v0 ee85727,
+  d86fbda6), 63-47 ranked. Pending Cham: style-gsub2-11k33 (cleared main3r +15..+51, cambc-safe, ZIP 9a80ccec...).
 - Ranked: tune-5 11-19; v17 7-3; v18 about 11-14. Unranked vs ladder #1-#9 + vc? (same 10 groups each time):
   tune-5 0-50, v17 0-50 (docs/TOP_TEAMS*.md on analysis/sprint1). v19's groups were queued ~08:30 UTC.
 - Why we lose to the top: not sim or bot fidelity (both verified exact in fights). They fight in groups: 70-85% of our

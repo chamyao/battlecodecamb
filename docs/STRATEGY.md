@@ -215,6 +215,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   sha256 548bb21d...; submitted by the genome line's intel session ~20:40 UTC with Cham's go). Gate vs live v22:
   sim 0.589 over 800, real cambc 46/80, 0 crashes; runs capped turns by design (Cham accepted turns for compute).
   Revert target: v22's ZIP (d86fbda6). FunSearch candidate style-gsub2-11k33 (cleared the main3r bar) not uploaded.
+  First 50 unranked vs the band: 18-32 (v24 on the same teams/maps 2-8, B318 1-9); loss causes yield 50%,
+  fights 44%; ~9 fuel-out turns per game, same in wins and losses.
+  26 = genome B792 (genome line Arena B, genome/v0 b5d606b, genome sha256 fa178e51..., bundle sha256 f03df323...;
+  submitted by the genome line's intel session 21:24:48 UTC). Gate vs v25: sim 47/80, real cambc 43/80, 0 crashes;
+  11 first turns at the 200k cap (B318 110), 279 capped normal turns (B318 692). Revert target: v25 (548bb21d).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
