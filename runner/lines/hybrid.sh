@@ -31,6 +31,13 @@ if [ -f runs/ec2-final ]; then
 fi
 if [ -f runs/ec2-hyb5 ]; then
   [ -f runs/hyb5.hold ] || { touch runs/hyb5.hold; log "FINAL: hold file re-created"; }
+  # exact launch command of the live league (from /proc), for the arena resume: runs/hyb5.cmdline (one arg per line + one-liner)
+  lp=$(pgrep -a -x python3 | grep -F 'league --name hyb5 ' | head -n 1 | cut -d' ' -f1)
+  if [ -n "$lp" ] && [ -r /proc/$lp/cmdline ]; then
+    { echo "# hyb5 league as launched by the ec2 runner (pid $lp, cwd $(readlink /proc/$lp/cwd)), captured $(date -u +%FT%TZ)"
+      echo "# one-liner:"; tr '\0' '\n' < /proc/$lp/cmdline | sed "s/'/'\\\\''/g; s/^/'/; s/\$/'/" | paste -sd' '
+      echo "# args, one per line:"; tr '\0' '\n' < /proc/$lp/cmdline; } > runs/hyb5.cmdline
+  fi
   if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h21b-holdmark)" ]; then
     for pid in $(pgrep -a -x python3 | grep -E 'league --name hyb5 |funsearch.run --run hyb5-' | cut -d' ' -f1); do kill -TERM "$pid" && log "FINAL: SIGTERM hyb5 pid $pid"; done
     sleep 15
