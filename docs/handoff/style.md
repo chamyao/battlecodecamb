@@ -6,20 +6,24 @@ principle: compute is part of the action space; fuel is a rule, not a constraint
 
 ## Arena (current; read this before the older sections below)
 
-- Engine for anything compared with live: deploy/v0 `545c7b1e644b1e5c82ba07b3a8aa8945ab2dc190`;
-  pass it as `"engine"` on every policy registration and match (the default engine is older).
+- Engine for anything compared with live: deploy/v0 `2e1ff7edfe75d21b3eee24f60144e04bea8f7b8c`
+  (fuel recalibrated, 17:29 UTC); pass it as `"engine"` on every policy registration and match.
+  The earlier 545c7b1 under-charged fuel by 1-4k: never compare results across the two engines,
+  and re-run anything measured there. The default engine is older still.
 - The arena's `client.py` is a download; this container's permission policy blocked running it,
   so call the API with `curl` + JSON bodies (POST /policies, /matches, /batches,
   /leagues/main/members; `?wait=N` long-polls).
-- Registered by style on 545c7b1: opp-finisher, opp-hunter3 (= style-h1), opp-hunter2a/b/c,
+- Registered by style (compile-checked on 545c7b1 and 2e1ff7e): opp-finisher, opp-hunter3 (= style-h1), opp-hunter2a/b/c,
   opp-hunter-stack. Live lineage is already there (`v22-tune-v20-L1c` = live = our v21 reference
   tune-v20-L1c; `v23-style-gconv1` = style-gconv1). Names are immutable: a changed policy gets a
   new name.
 - Candidate checks: 800 games vs `v22-tune-v20-L1c` (floor 50%) as a match; then
-  `POST /leagues/main/members {"policy": NAME}` (priority -1) and post standings on PR #5.
+  `POST /leagues/main2/members {"policy": NAME}` (league `main2`, engine 2e1ff7e; `main` is the
+  retired 545c7b1 league) (priority -1) and post standings on PR #5.
   Real-cambc checks and uploads stay with the coordinator (each upload needs Cham's go-ahead).
 - Still on EC2 until Cham issues a token: style8-gsub (gems-submitted gap vs v21, $0.52) and b2
   (bar v21, $0.95). State on `funsearch/style-state`. Their candidates go through the arena.
+  Merge deploy/v0 2e1ff7e into funsearch/style at gsub's next restart (lead, 17:29).
 
 ## Goal
 
