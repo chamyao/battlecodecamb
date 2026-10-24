@@ -568,6 +568,12 @@ Value tile(Vec2 p)
 	r.tile = p;
 	return r;
 }
+Value set_ptr(std::shared_ptr<Bitboard> b)
+{
+	Value r;
+	r.set = std::move(b);
+	return r;
+}
 Value set_of(const Bitboard& b)
 {
 	Value r;
@@ -1205,6 +1211,17 @@ struct Interp
 		}
 	}
 
+	// Static map masks, shared instead of copied per evaluation (nothing writes to a set that
+	// is shared: minus/union copy unless they hold the only reference).
+	std::shared_ptr<Bitboard> map_sets[6];
+	Value map_set(int k, const Bitboard& b)
+	{
+		if (!map_sets[k]) map_sets[k] = std::make_shared<Bitboard>(b);
+		Value r;
+		r.set = map_sets[k];
+		return r;
+	}
+
 	// eval(e).tile / .unit / .set, without copying a variable's whole Value.
 	Vec2 evalt(const Expr& e) { return e.op == Op::var ? vars[e.var].tile : eval(e).tile; }
 	Unit evalu(const Expr& e) { return e.op == Op::var ? vars[e.var].unit : eval(e).unit; }
@@ -1311,10 +1328,10 @@ struct Interp
 			return num(r);
 		}
 		case Op::fuel_remaining: return num(static_cast<double>(api.fuel_remaining()));
-		case Op::altars: api.charge(cbs::Call::map_mask); return set_of(m().altars);
-		case Op::walls: api.charge(cbs::Call::map_mask); return set_of(m().walls);
-		case Op::holes: api.charge(cbs::Call::map_mask); return set_of(m().holes);
-		case Op::bushes: api.charge(cbs::Call::map_mask); return set_of(m().bushes);
+		case Op::altars: api.charge(cbs::Call::map_mask); return map_set(0, m().altars);
+		case Op::walls: api.charge(cbs::Call::map_mask); return map_set(1, m().walls);
+		case Op::holes: api.charge(cbs::Call::map_mask); return map_set(2, m().holes);
+		case Op::bushes: api.charge(cbs::Call::map_mask); return map_set(3, m().bushes);
 		case Op::wolf_tiles:
 		case Op::elk_tiles:
 		case Op::gem_cluster_tiles:
@@ -1324,23 +1341,25 @@ struct Interp
 		{
 			// order matches cbs::CampType: wolf, elk, gem_cluster, gold_cluster, monolith, golem
 			const int want = static_cast<int>(e.op) - static_cast<int>(Op::wolf_tiles);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (auto& c : m().camps)
 				if (static_cast<int>(c.type) == want) b.set(c.pos);
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::camp_spawn_tiles:
 		{
 			api.charge(cbs::Call::map_camp_query, static_cast<std::int64_t>(m().camps.size()));
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (auto& c : m().camps) b.set(c.pos);
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::spawn_region:
 		{
 			api.charge(cbs::Call::spawn_region);
 			const int t = static_cast<int>(evaln(a[0]));
-			return set_of(m().spawn_mask[t == 0 ? 0 : 1]);
+			return t == 0 ? map_set(4, m().spawn_mask[0]) : map_set(5, m().spawn_mask[1]);
 		}
 		case Op::enemies_visible: return champions(true);
 		case Op::allies_visible: return champions(false);
@@ -1358,16 +1377,18 @@ struct Interp
 			cbs::AltarLockRecord locks[16];
 			std::uint32_t n = 0;
 			api.altar_locks(locks, 16, &n);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (std::uint32_t i = 0; i < n && i < 16; ++i) b.set(locks[i].x, locks[i].y);
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::rich_spawns:
 		{
 			// spawn tiles of every camp whose group rewards at least n gems when captured (static
 			// map fact: the sum of its camps' gem rewards)
 			const double n = eval(a[0]).n;
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (const auto& grp : m().groups)
 			{
 				int g = 0;
@@ -1375,14 +1396,15 @@ struct Interp
 				if (g >= n)
 					for (int c : grp.camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::group_tiles:
 		{
 			// spawn tiles of every camp in a group that has a camp on one of the given tiles (static:
 			// e.g. group_tiles(monolith_tiles()) is everything that wakes a monolith when hit)
 			const Value in = eval(a[0]);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			if (in.set)
 				for (const auto& grp : m().groups)
 				{
@@ -1391,7 +1413,7 @@ struct Interp
 					if (hit)
 						for (int c : grp.camps) b.set(m().camps[c].pos);
 				}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::group_gems:
 		{
@@ -1435,7 +1457,8 @@ struct Interp
 		}
 		case Op::respawning_visible_spawns:
 		{
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (std::size_t g = 0; g < m().groups.size(); ++g)
 			{
 				std::uint32_t gs = 0;
@@ -1443,7 +1466,7 @@ struct Interp
 				if (gs != static_cast<std::uint32_t>(cbs::GroupState::respawning)) continue;
 				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::read_shared:
 		{
@@ -1476,21 +1499,23 @@ struct Interp
 			const Value s = eval(a[0]);
 			const float r = static_cast<float>(std::clamp(evaln(a[1]), 0.0, 10.0));
 			if (api.count_charges) work.bits += s.set->count(m().H);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			s.set->for_each_unordered(m().H, [&](int x, int y) { cbs::draw_chebyshev(b, m().W, m().H, { x, y }, r); });
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::closest: return tile(closest(*evals(a[0])));
 		case Op::filter_tiles:
 		{
 			const Value s = eval(a[0]), p = eval(a[1]);
 			if (api.count_charges) work.bits += s.set->count(m().H);
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			if (has_tile(p.tile))
 				s.set->for_each_unordered(m().H, [&](int x, int y) {
 					if (cbs::chebyshev({ x, y }, p.tile) <= p.n) b.set(x, y);
 				});
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::first_tile:
 		{
@@ -1683,14 +1708,15 @@ struct Interp
 			std::uint8_t mem[kClaimBytes] = {};
 			api.read_shared_memory(0, mem, kClaimBytes);
 			const int mine = my_slot();
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (int i = 0; i < kClaimBytes; ++i)
 			{
 				const int g = static_cast<int>(mem[i]) - 1;
 				if (i == mine || g < 0 || g >= static_cast<int>(m().groups.size())) continue;
 				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::claim_count:
 		{
@@ -1811,7 +1837,8 @@ struct Interp
 		}
 		case Op::capturable_spawns:
 		{
-			Bitboard b;
+			const auto bp = std::make_shared<Bitboard>(); // filled in place: no copy into the Value
+			Bitboard& b = *bp;
 			for (std::size_t g = 0; g < m().groups.size(); ++g)
 			{
 				std::uint32_t gs = 0;
@@ -1819,7 +1846,7 @@ struct Interp
 				if (gs != static_cast<std::uint32_t>(cbs::GroupState::reward)) continue;
 				for (int c : m().groups[g].camps) b.set(m().camps[c].pos);
 			}
-			return set_of(b);
+			return set_ptr(bp);
 		}
 		case Op::turns_idle:
 		{

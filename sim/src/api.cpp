@@ -800,13 +800,14 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	else
 	{
 		// As bot_api.cpp (pricing only; the answer above is the simulator's own): per candidate
-		// set (keyed by its first tile) the last D and what the reachable mask cost. After a
+		// set (keyed by its first tile and size) the last D and what the reachable mask cost. After a
 		// memo miss, when the last mask was dear, one origin-rooted search capped at the last D
 		// + 2 per turn since answers instead; past the cap it falls back to the memo query.
 		// Otherwise: the memo query read at origin, then a reachable mask out to D.
 		struct Hist
 		{
 			Vec2 root0{ -1, -1 };
+			int n = 0; // candidate count
 			int D = 0;
 			std::uint32_t round = 0;
 			long long mask = 0;
@@ -822,13 +823,14 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 		const bool have_me = playing() && champion_visible(champ_) && g_.champs[champ_].pos == origin;
 		Vec2 root0{ -1, -1 };
 		cand.first(H, root0);
+		const int ncand = cand.count(H);
 		Hist* h = nullptr;
 		for (Hist& e : hs.h)
-			if (e.root0 == root0) h = &e;
+			if (e.root0 == root0 && e.n == ncand) h = &e;
 		const int chunks = ((W + 7) / 8) * ((H + 7) / 8);
 		const auto round = static_cast<std::uint32_t>(g_.round);
 		const int cap = h ? h->D + 2 + 2 * static_cast<int>(std::min<std::uint32_t>(round - h->round, 8)) : 0;
-		const bool origin_on_miss = have_me && h && cap <= h->D + 6 && h->mask > static_cast<long long>(cap - h->D) * chunks + 2500;
+		const bool origin_on_miss = have_me && h && h->mask > static_cast<long long>(cap - h->D) * chunks + 2500;
 		Bitboard o;
 		o.set(origin);
 		std::int64_t layers = 0, misses = 0, tiles = 1;
@@ -869,12 +871,19 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 					for (Hist& e : hs.h)
 						if (e.used < h->used) h = &e;
 					h->root0 = root0;
+					h->n = ncand;
 				}
 				h->D = bd;
 				h->round = round;
-				// The bot measures it. Estimate (bot session's measurements): ~190 + 1.7 per tile
-				// reached in compact regions, ~0.9 chunks per layer on long open walks.
-				h->mask = std::max<long long>(190 + reach * 17 / 10, static_cast<long long>(chunks) * bd * 9 / 10);
+				// The bot measures it. Estimate: ReachableMask works layer by layer on the chunks of
+				// the box within k of origin (clipped to the map), so 97 + 1.54 per such chunk summed
+				// over the D layers + 0.29 per tile reached (33k masks on 10 maps, tune-2 vs tune-1:
+				// mae 93 fuel; large masks median 0.995).
+				long long box_chunks = 0;
+				for (int k = 1; k <= bd; ++k)
+					box_chunks += static_cast<long long>(std::min(W - 1, origin.x + k) / 8 - std::max(0, origin.x - k) / 8 + 1) *
+								  (std::min(H - 1, origin.y + k) / 8 - std::max(0, origin.y - k) / 8 + 1);
+				h->mask = 97 + box_chunks * 154 / 100 + reach * 29 / 100;
 				h->used = ++hs.clock;
 			}
 		}
