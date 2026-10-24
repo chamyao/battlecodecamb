@@ -187,6 +187,29 @@ PY
       echo "H9 merge/c6eb17a/tests failed; hyb5 stopped" > "$D/HALT"; log "HALT: H9 upgrade failed"; pushall; return 1
     fi
   fi
+  # H10 (jobs/hybrid, 14:20 UTC): next hyb5 boundary after H9: merge funsearch/runs 4174c28+ (coord/capture-metric:
+  # sim/ + policygen/blocks.py changed, new block unit_tributing: rebuild), pytest, relaunch with H9's command and the
+  # weighted axis menu (conversion:3, disengage:2, the rest 1).
+  H10AXES="--axes conversion:3,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1"
+  [ -f runs/ec2-h10 ] && AXES=$H10AXES
+  if [ -f runs/ec2-h9 ] && [ ! -f runs/ec2-h10 ]; then
+    if [ ! -f runs/ec2-h10-hold ]; then
+      grep -c 'hold file present' runs/hyb5.log > runs/ec2-h10-holdmark; touch runs/hyb5.hold runs/ec2-h10-hold
+      log "H10: hold set for the next hyb5 boundary"
+    fi
+    if [ "$(grep -c 'hold file present' runs/hyb5.log)" -gt "$(cat runs/ec2-h10-holdmark)" ]; then
+      for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H10: SIGTERM hyb5 pid $pid"; done
+      sleep 10
+      if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
+         git merge-base --is-ancestor 4174c28 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+        cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h10-progs
+        rm -f runs/hyb5.hold; touch runs/ec2-h10; AXES=$H10AXES
+        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 4174c28), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu"
+      else
+        echo "H10 merge/4174c28/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H10 upgrade failed"; pushall; return 1
+      fi
+    fi
+  fi
   if ! running "league --name hyb5"; then
     if [ -f runs/hyb5.ec2-launched ] && ls runs/hyb5-g*/STOP > /dev/null 2>&1; then
       log "hyb5 not running and a STOP file is present: leaving it paused"
@@ -285,6 +308,26 @@ PY
 )
       log "H9 rate: $st (round ended: $(echo "$b" | cut -c1-60)); before: g2 58/h, g3 49/h"
     fi
+  fi
+  if [ -f runs/ec2-h10 ] && [ ! -f runs/ec2-h10-checked ]; then
+    st=$(python3 - "$(cat runs/ec2-h10-progs)" <<'PY'
+import json, glob, sys, collections
+n0 = int(sys.argv[1]); rows = []
+for f in sorted(glob.glob("runs/hyb5-g*/programs.jsonl")):
+    for l in open(f):
+        try: rows.append(json.loads(l))
+        except Exception: pass
+new = rows[n0:]
+if len(new) >= 28:
+    c = collections.Counter()
+    for r in new:
+        s = json.dumps(r)
+        for a in ("conversion", "disengage"):
+            if f'"{a}"' in s: c[a] += 1
+    print(f"{len(new)} new programs: conversion {c['conversion']} ({c['conversion']/len(new):.2f}, expect 0.21), disengage {c['disengage']} ({c['disengage']/len(new):.2f}, expect 0.14)")
+PY
+)
+    [ -n "$st" ] && { touch runs/ec2-h10-checked; log "H10 check: $st"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
