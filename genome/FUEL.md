@@ -147,6 +147,19 @@ games against the interpreted v23 (`prof_pair.sh` with OPP_BOT / OPP_SIM), real 
 (00lanes), 5388 / 4971 (01big-world), 6264 / 6132 (00ambush). Priced as the Api's memo price plus
 1206 + 8.5 x chunks.
 
+**Fight primitives** (Oct 24): `attack_damage`, `cast_damage`, `shield`, `hits_to_kill` follow the
+engine's damage code (Game::apply_outgoing, damage_champion's reductions, shields first) on the
+units' host data: each champion's items (emblem passives) and buffs (shields) are read once per pass.
+Exact: `GENOME_CHECK_FIGHT=1` compares every attack / damage cast the loop makes with the target's
+actual health and shield loss: 60,498 checks over B792, v23 and farmer games, 0 mismatches. Prices
+(`examples/calib4.genome`, identical games against the interpreted v23): the items + buffs read 900
+once per champion per pass; attack_damage 140, cast_damage 204, shield 60, hits_to_kill 236 + 26 per
+hit; probes 1.01-1.09. Score variants show a cached call is what a genome mostly pays (attack_damage
+~134, cast_damage ~200) and that `o.unit` costs ~20 (now priced; B318 / seed whole-game ratios
+unchanged at 0.99 / 1.02). A test genome choosing fights by them takes the same actions in the bot
+and the simulator (00lanes: 220 attacks, 117 casts; 00ambush; 01big-world); its whole-game fuel is
+0.89-0.91 of real (the cost of calling its large score gene, not inlined, is not modelled).
+
 ## Guest pathfinding: wfield, path_step, path_len, territory (Oct 24)
 
 Plain C++ in `genome_rt.h`, the same code in the bot (wasm) and the simulator; each call counts its
