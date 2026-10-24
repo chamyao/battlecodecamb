@@ -7,6 +7,23 @@
 G=/root/bc/genome
 MAXJOBS=3; export THREADS=5
 mkdir -p "$G/out" "$G/w"
+# PAUSE (19:27 UTC, coordinator relaying Cham: "Pause all training"; EC2 idle, instance stays up): stop every running
+# genome job (SIGTERM to its process group, by the pid file), start nothing, keep pushing out/ to remote/genome.
+# Paused jobs get a `paused` marker (no rc), so resuming is the genome lead's call: remove this block to go on.
+if true; then
+  for o in "$G"/out/*/; do
+    [ -f "$o/pid" ] && [ ! -f "$o/rc" ] && [ ! -f "$o/paused" ] || continue
+    p=$(cat "$o/pid")
+    if kill -0 "$p" 2>/dev/null; then kill -TERM -- "-$p" 2>/dev/null || kill -TERM "$p"; log "PAUSE: SIGTERM job $(basename "$o") (pgid $p)"; fi
+    date -u +%FT%TZ > "$o/paused"
+  done
+  sleep 10
+  for o in "$G"/out/*/; do [ -f "$o/paused" ] && [ ! -f "$o/rc" ] && kill -0 "$(cat "$o/pid")" 2>/dev/null && { kill -KILL -- "-$(cat "$o/pid")" 2>/dev/null; log "PAUSE: SIGKILL job $(basename "$o") (did not exit on TERM)"; }; done
+  left=$(pgrep -a -x python3 | grep -cF 'genome.search')
+  [ -f "$G/.pause-logged" ] || { log "PAUSE: genome jobs paused; genome.search processes left: $left"; touch "$G/.pause-logged"; }
+  push_state remote/genome . "$G/out" "remote/genome: paused $(date -u +%H:%M) UTC"
+  return 0
+fi
 if [ ! -d "$G/jobs/.git" ]; then
   git clone -q --single-branch --branch jobs/genome "$REPO" "$G/jobs" || { log "clone jobs/genome failed"; return 1; }
 fi
