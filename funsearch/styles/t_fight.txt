@@ -1,4 +1,5 @@
-This run improves the FIGHT CODE of our live bot (tune-v18) and nothing else. The bot's economy (draft, shop, farming
+This run improves the FIGHT CODE of our live bot (tune-v19: v18 + cast-ahead of damage/stun at the nearest enemy within 4)
+and nothing else. The bot's economy (draft, shop, farming
 goals, banking/tribute rules, the map fixes, the safe-recall rule) is tuned and must stay as it is: an edit outside the
 fight code is wasted. On the ladder the top teams beat this bot 50-0 by winning fights at even strength: they kill it
 ~13 times a game and lose ~1.6 champions. The sim matches the real engine turn for turn, so the gap is micro.
@@ -19,3 +20,9 @@ Keep every version compiling and the turn cheap: no extra closest()/distance-fie
 (the fuel cap is 100k per turn; a second closest() costs ~35k). Rule: every dash (dash_to/dash_towards) and every
 host search that can run along a long path (closest, move_towards to a far tile) needs a fuel_remaining() gate
 (e.g. > 60000) unless the turn has nothing else expensive; the real-engine cap was hit by an ungated retreat dash.
+HARD CONSTRAINTS (a version that breaks one is useless, however well it scores):
+- no wards (place_ward): the bush-ward edit of an earlier winner put 118 turns per 16 games over the 100k fuel cap;
+- no per-turn filter() over a big tile set (bushes(), walls(), camp_spawn_tiles(), ...): keep such sets in a `keep` or
+  don't use them;
+- every distance search (closest, nearest over many units, move_towards a far tile) and every dash beyond the ones
+  already in the policy sits behind a fuel_remaining() > 60000 gate.
