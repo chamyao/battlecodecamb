@@ -111,6 +111,14 @@ inline double fmod_pos(double a, double b)
 	return r < 0 ? r + std::fabs(b) : r;
 }
 
+// The genome's optional consider(kind) entry gene, seen from the runtime (GenesBase implements it).
+struct KindFilter
+{
+	virtual ~KindFilter() = default;
+	virtual bool consider_kind(int kind) = 0;
+	virtual bool has_consider() const = 0;
+};
+
 inline std::atomic<std::uint64_t>& pass_counter()
 {
 	static std::atomic<std::uint64_t> c{ 1 };
@@ -570,6 +578,21 @@ public:
 		return o.ui >= 0 && o.ui < static_cast<int>(opt_units_.size()) ? opt_units_[o.ui] : none;
 	}
 	std::vector<Option> opts_buf, failed_buf; // reused by play_turn (no reallocation per pass)
+	KindFilter* filter = nullptr;			   // set by play_turn
+	// consider(kind), once per kind per pass; kinds it rejects are neither listed nor scored
+	bool want(int kind)
+	{
+		if (!filter || !filter->has_consider()) return true;
+		if (want_pass_ != pass_id)
+		{
+			want_pass_ = pass_id;
+			for (auto& w : want_) w = -1;
+		}
+		if (want_[kind] < 0) want_[kind] = filter->consider_kind(kind) ? 1 : 0;
+		return want_[kind];
+	}
+	std::int8_t want_[16];
+	std::uint64_t want_pass_ = 0;
 
 	void options(std::vector<Option>& out)
 	{
@@ -603,13 +626,13 @@ public:
 			return;
 		}
 		if (alive_now && (st & cbs::state_bit::teleporting)) return;
-		if (can_shop())
+		if ((want(BUY) || want(BUY_LOCK)) && can_shop())
 		{
 			const double g = gold();
 			for (int i = 0; i < cbs::kNumItems; ++i)
 			{
 				const auto& d = cbs::item_design(i);
-				if (!d.purchasable || d.cost > g) continue;
+				if (!d.purchasable || d.cost > g || !want(BUY)) continue;
 				// counts in powers of two up to what we can pay: any number in a few passes
 				for (int c = 1; c * d.cost <= g; c *= 2)
 				{
@@ -618,7 +641,7 @@ public:
 					out.push_back(o);
 				}
 			}
-			if (g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
+			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
 			{
 				Option o;
 				o.kind = BUY_LOCK;
@@ -627,7 +650,7 @@ public:
 		}
 		if (!alive_now) return;
 		const Tile p = self_u.pos;
-		if (st & cbs::state_bit::can_move)
+		if ((st & cbs::state_bit::can_move) && want(MOVE))
 		{
 			const Bitboard& occ = occupancy();
 			for (int dy = -1; dy <= 1; ++dy)
@@ -640,14 +663,14 @@ public:
 					out.push_back(o);
 				}
 		}
-		if (st & cbs::state_bit::can_attack)
+		if ((st & cbs::state_bit::can_attack) && want(ATTACK))
 		{
 			for (const Unit& u : enemies())
 				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
 			for (const Unit& u : camps())
 				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
 		}
-		if (st & cbs::state_bit::can_cast)
+		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
 			{
 				if (!slot_ready(s)) continue;
@@ -688,7 +711,7 @@ public:
 		{
 			cbs::WardResources wr{};
 			api.champion_wards(self(), &wr);
-			if (wr.charges > 0)
+			if (wr.charges > 0 && want(WARD))
 			{
 				const int r = static_cast<int>(cbs::settings().ward_placement_radius);
 				for (int dy = -r; dy <= r; ++dy)
@@ -702,7 +725,7 @@ public:
 					}
 			}
 		}
-		if (!(tclass(p.v()) & kMySpawn))
+		if (!(tclass(p.v()) & kMySpawn) && want(RECALL))
 		{
 			Option o;
 			o.kind = RECALL;
@@ -710,7 +733,7 @@ public:
 		}
 		const bool lock = has_lock();
 		const double g = gems();
-		if (g > 0 || lock)
+		if ((g > 0 && want(TRIBUTE)) || (lock && want(LOCK)))
 		{
 			for (Vec2 a : m.altar_list)
 			{
@@ -883,12 +906,14 @@ private:
 };
 
 // Generated genes derive from this.
-struct GenesBase
+struct GenesBase : KindFilter
 {
 	explicit GenesBase(Ctx& x) : X(x) {}
 	virtual ~GenesBase() = default;
 	virtual double score_option(const Option& o) = 0;
 	virtual void run_update() = 0;
+	bool consider_kind(int) override { return true; }
+	bool has_consider() const override { return false; }
 	Ctx& X;
 };
 
@@ -906,6 +931,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 			   a.champ == b.champ && a.count == b.count;
 	};
 	const bool draft = X.api.champ() < 0;
+	X.filter = &g;
 #ifdef GENOME_PROF
 #ifndef GENOME_PROF_EVERY
 #define GENOME_PROF_EVERY 50
