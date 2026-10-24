@@ -15,7 +15,7 @@ case "$1" in
 esac
 if [ "$1" = h ]; then
   members=policies/opp-hunter2b.policy; best_w=0.5; extra="--fight-weight 0.5"
-  FIXED=$BAR,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy
+  FIXED=policies/tune-v18.policy,$BAR,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy
 else
   members=$BAR; best_w=3.0; extra=""
 fi

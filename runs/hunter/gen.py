@@ -1,6 +1,6 @@
 # gen.py out.policy key=val ...   builds the hunter from tune-5's body
 import sys
-P = dict(HUNT_R=6, REACH=1, BAG_SAFE=45, BAG_NEAR=15, RET=0.3, CHASE_DASH=1, LS=0, STUN_FIRST=0, ALLY_MIN=0, PREY_HP=1.01, CHASE=1, SHIELD_HP=1.01, K10=0, TARGET='weakest', ENGAGE_HP=0, ODDS=9, OPENER=0)
+P = dict(HUNT_R=6, REACH=1, BAG_SAFE=45, BAG_NEAR=15, RET=0.3, CHASE_DASH=1, LS=0, STUN_FIRST=0, ALLY_MIN=0, PREY_HP=1.01, CHASE=1, SHIELD_HP=1.01, K10=0, TARGET='weakest', ENGAGE_HP=0, ODDS=9, OPENER=0, GROUP=0, PACK_R=12, STACK=0, JOIN_R=0)
 for kv in sys.argv[2:]:
     k, v = kv.split('='); P[k] = v
 src = open(__import__('pathlib').Path(__file__).resolve().parents[2] / 'policies' / 'tune-5.policy').read()
@@ -90,12 +90,13 @@ if exists(near_e) and not contains( spawn_region(enemy()), unit_position(near_e)
 # ---- hunt: any enemy champion within {P["HUNT_R"]} tiles (not on its own spawn); the team target first ----
 let enemy_spawn = spawn_region(enemy())
 let tt = team_target()
-if exists(tt) and distance( unit_position(tt), position() ) <= {P["HUNT_R"]} + 2 and not contains( enemy_spawn, unit_position(tt) ) and local_strength({P["HUNT_R"]}) > {P["LS"]} and allies_within(4) >= {P["ALLY_MIN"]} and {P["CHASE"]} > 0:
+if exists(tt) and distance( unit_position(tt), position() ) <= max_join and not contains( enemy_spawn, unit_position(tt) ) and local_strength({P["HUNT_R"]}) > {P["LS"]} and allies_within(4) >= {P["ALLY_MIN"]} and {P["CHASE"]} > 0:
     hunt(tt)
 let prey = {P["TARGET"]}( enemies_visible() )
 if exists(prey) and distance( unit_position(prey), position() ) <= {P["HUNT_R"]} and health() > {P["ENGAGE_HP"]} * max_health() and enemies_within(5) <= allies_within(5) + {P["ODDS"]} and not contains( enemy_spawn, unit_position(prey) ) and local_strength({P["HUNT_R"]}) > {P["LS"]} and allies_within(4) >= {P["ALLY_MIN"]} and unit_health_frac(prey) < {P["PREY_HP"]} and {P["CHASE"]} > 0:
     hunt(prey)
 '''
+new = new.replace('max_join', str(int(P['JOIN_R']) if int(P['JOIN_R']) else int(P['HUNT_R']) + 2))
 assert old in body; body = body.replace(old, new)
 o = 'let bag_ready = gems() >= 25 or round_number() > 1500 or health() < 0.3 * max_health()'
 assert o in body
@@ -119,4 +120,28 @@ body = body.replace(o_camp, """if exists(camp):
         cast_self(1)
         attack(camp)
     end_turn()""")
+if int(P['GROUP']):
+    o_goal = "let goal = closest(goals)\n"
+    assert o_goal in body
+    body = body.replace(o_goal, f"""# group: follow the camp group an ally has claimed (move and fight as a pack), else lead and claim
+let pack = closest( claimed_by_allies() )
+if exists(pack) and distance(pack, position()) > 0 and distance(pack, position()) <= {P["PACK_R"]}:
+    if distance(pack, position()) > 2:
+        dash_to(0, pack)
+        dash_to(1, pack)
+    move_towards(pack)
+    end_turn()
+let goal = closest(goals)
+if exists(goal):
+    claim(goal)
+""")
+if int(P['STACK']):
+    i0 = body.index("    let shards_bought = floor( gold() / 30 )")
+    i1 = body.index("    buy( shard(stat_health()), rest_after_jungle - strength_shards )\n") + len("    buy( shard(stat_health()), rest_after_jungle - strength_shards )\n")
+    body = body[:i0] + """    # one stat per carry (TOP_TEAMS_FIGHTS): focus on the spell champions, strength on the rest
+    if i_am(champ_heart_of_ruin()) or i_am(champ_ryth()) or i_am(champ_marcella()):
+        buy( shard(stat_focus()), floor( gold() / 30 ) )
+    else:
+        buy( shard(stat_strength()), floor( gold() / 30 ) )
+""" + body[i1:]
 open(sys.argv[1], 'w').write(head + body)
