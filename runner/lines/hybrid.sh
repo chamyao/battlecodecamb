@@ -187,6 +187,8 @@ PY
       echo "H9 merge/c6eb17a/tests failed; hyb5 stopped" > "$D/HALT"; log "HALT: H9 upgrade failed"; pushall; return 1
     fi
   fi
+  # H11/H12 (jobs/hybrid 36027f7/30b727b, 14:25 UTC) folded into H10: require fe36f47 (gap-sensor batches 1+2, vocab
+  # variant on by default, exec_blocks vs builtin:starter); same command line.
   # H10 (jobs/hybrid, 14:20 UTC): next hyb5 boundary after H9: merge funsearch/runs 4174c28+ (coord/capture-metric:
   # sim/ + policygen/blocks.py changed, new block unit_tributing: rebuild), pytest, relaunch with H9's command and the
   # weighted axis menu (conversion:3, disengage:2, the rest 1).
@@ -204,10 +206,10 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H10: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 4174c28 HEAD && git merge-base --is-ancestor 7a6038d HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+         git merge-base --is-ancestor 7a6038d HEAD && git merge-base --is-ancestor fe36f47 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h10-progs
         rm -f runs/hyb5.hold; touch runs/ec2-h10; AXES=$H10AXES; HELP=$H10HELP
-        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 4174c28, 7a6038d), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
+        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 7a6038d, fe36f47: H10 + H11/H12 gap sensors, vocab variant), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
       else
         echo "H10 merge/4174c28/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H10 upgrade failed"; pushall; return 1
       fi
@@ -324,9 +326,11 @@ new = rows[n0:]
 if len(new) >= 28:
     c = collections.Counter()
     for r in new:
-        ax = ((r.get("metrics") or {}).get("variant") or {}).get("axis")
+        v = ((r.get("metrics") or {}).get("variant") or {})
+        ax = v.get("axis")
         if ax in ("conversion", "disengage"): c[ax] += 1
-    print(f"{len(new)} new programs: conversion {c['conversion']} ({c['conversion']/len(new):.2f}, expect 0.21), disengage {c['disengage']} ({c['disengage']/len(new):.2f}, expect 0.14)")
+        if v.get("vocab"): c["vocab"] += 1
+    print(f"{len(new)} new programs: conversion {c['conversion']} ({c['conversion']/len(new):.2f}, expect 0.21), disengage {c['disengage']} ({c['disengage']/len(new):.2f}, expect 0.14), vocab {c['vocab']} ({c['vocab']/len(new):.2f}, expect ~0.2)")
 PY
 )
     [ -n "$st" ] && { touch runs/ec2-h10-checked; log "H10 check: $st"; }
