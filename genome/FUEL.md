@@ -139,6 +139,14 @@ sim: a far fixed goal 2.0k / 2.2k (00lanes), 3.3k / 3.7k (01big-world), against 
 and 19.2k; nearby goals (camp spawns) 3.4k / 3.2k and 4.9k / 4.6k, dearer than field_avoid (1.7k,
 4.5k), whose search is short then. Priced as the Api's memo price plus 300 + 6.5 x chunks.
 
+**dash_field(goal, walls)** (Oct 24): the interpreter's dash_towards path (root = the goal tile,
+dests = my 5 x 5 box without it); reads only on the box's tiles nearest to the goal (the first layer
+the search reaches), unreachable elsewhere, identically in the bot and the simulator (a walker using
+it takes the same 2720 / 5952 actions on 00lanes / 01big-world as the simulator). Per call, identical
+games against the interpreted v23 (`prof_pair.sh` with OPP_BOT / OPP_SIM), real / sim: 4117 / 4077
+(00lanes), 5388 / 4971 (01big-world), 6264 / 6132 (00ambush). Priced as the Api's memo price plus
+1206 + 8.5 x chunks.
+
 ## Guest pathfinding: wfield, path_step, path_len, territory (Oct 24)
 
 Plain C++ in `genome_rt.h`, the same code in the bot (wasm) and the simulator; each call counts its
