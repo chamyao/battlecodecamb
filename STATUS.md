@@ -1,26 +1,13 @@
 # EC2 runner status
 
-Updated 2026-10-24 17:42 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 9.10 11.44 12.07 on 16 threads.
-Disk: 3.4G used of 38G.
+Updated 2026-10-24 17:47 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 1.69 6.59 9.94 on 16 threads.
+Disk: 3.5G used of 38G.
 
 ## python3 processes
 ```
-92618 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
-143592 python3 -m funsearch.league --name style8-b2 --budget 0.95 --members policies/tune-v21.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v21.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/v7zg-cast
-143612 /usr/bin/python3 -m funsearch.run --run style8-b2-g1 --budget 0.95 --max-programs 150 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.poli
-145998 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 1.04 --max-programs 146 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,poli
-148638 python3 -m funsearch.run --run style8-gsub --budget 0.52 --max-programs 400 --seed-policy policies/tune-v21.policy --island-seeds policies/style-gconv1.policy,policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3,policies/style-gconv1.policy,policies/opp-finishe
 ```
 ## tick.log (last 40 lines)
 ```
-[15:32:21] hybrid: launched hyb5 league
-[15:32:21] hybrid: H10 check: 28 new programs: conversion 13 (0.46, expect 0.31), disengage 1 (0.04, expect 0.12), vocab 5 (0.18, expect ~0.2)
-[15:42:40] hybrid: H17: hold set for the next hyb5 boundary
-[16:03:15] hybrid: H17: SIGTERM hyb5 pid 124830
-[16:03:38] hybrid: H17: funsearch/runs fce1ade (has 27dd4a2, fce1ade: H17-H19), built interp_eval+fuel_turns, 2029 passed in 7.31s; relaunching hyb5 with the #82 fuel island and --yield-weight 0.25
-[16:03:38] hybrid: hyb5 not running: relaunching (resume from runs/)
-[16:03:38] hybrid: launched hyb5 league
-[16:03:38] hybrid: H15 ALERT: 'FLAG yield' in explore.txt:   FLAG yield: #119 gems per capture 13.8 vs v21 8.8 (+5.0) with 52% vs v21 (score 0.545)
 [16:03:41] style: S12: SIGTERM pid 120806
 [16:03:41] style: S12: SIGTERM pid 120843
 [16:03:41] style: S12: SIGTERM pid 131479
@@ -53,4 +40,12 @@ Disk: 3.4G used of 38G.
 [17:42:27] hybrid: FINAL: hyb5 stopped at the boundary, not relaunched; last hyb5.log: [16:35:18]   helpers: 20 helpers kept; top 20: -> hyb5.helpers.json|[17:40:14] hold file present: waiting at the round boundary (remove hyb5.hold to go on)|
 [17:42:29] hybrid: FINAL: state pushed (remote/hybrid fb5107a)
 [17:42:29] pure: pure final stop: STOP requested (gen 5)
+[17:47:37] pure: pure: final state pushed, HALT
+[17:47:38] style: S15: SIGTERM style8-b2 pid 143592
+[17:47:38] style: S15: SIGTERM style8-b2 pid 143612
+remote: 
+remote: Create a pull request for 'style/arena-overlay' on GitHub by visiting:        
+remote:      https://github.com/chamyao/battlecodecamb/pull/new/style/arena-overlay        
+remote: 
+[17:47:41] style: S15: pushed style/arena-overlay 391f2d4:  45 files changed, 2901 insertions(+); style tick stops here
 ```
