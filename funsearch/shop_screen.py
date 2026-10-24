@@ -13,6 +13,29 @@ STR = "    buy( shard(stat_strength()), strength_shards )\n"
 HP = "    buy( shard(stat_health()), rest_after_jungle - strength_shards )\n"
 JUN = "    buy( shard_of(family_jungle(), stat_health()), jungle_n )\n"
 TRE = "    buy( shard_of(family_treasure(), stat_strength()), treasure_n )\n"
+BUYS = TRE + JUN + STR + HP
+
+
+def stack(fam_str, ryth, ren, vv_treasure=False):
+    """One stat per champion from round 1 (docs/TOP_TEAMS_FIGHTS.md: top teams stack one stat each and snowball):
+    strength on VV / Vendetta / Tavi / others, `ryth` and `ren` stats for those two; fam_str is the strength family."""
+    def b(stat, fam="power"):
+        return f"buy( shard(stat_{stat}()), shards_bought )" if fam == "power" else f"buy( shard_of(family_{fam}(), stat_{stat}()), shards_bought )"
+    vv = b("strength", "treasure") if vv_treasure else b("strength", fam_str)
+    return [(BUYS, f"""    # stacking (tune line): one stat per champion
+    if i_am(champ_vesper_vale()):
+        {vv}
+    elif i_am(champ_ryth()):
+        {b(ryth)}
+    elif i_am(champ_ren()):
+        {b(ren)}
+    elif i_am(champ_heart_of_ruin()) or i_am(champ_prism()):
+        {b("focus")}
+    else:
+        {b("strength", fam_str)}
+""")]
+
+
 V = {
     "base": [],
     "focus": [(STR, "    buy( shard(stat_focus()), strength_shards )\n")],
@@ -25,6 +48,11 @@ V = {
     "monster-str": [(STR, "    buy( shard_of(family_monster(), stat_strength()), strength_shards )\n")],
     "dur-both": [(HP, "    buy( shard_of(family_durability(), stat_health()), rest_after_jungle - strength_shards )\n"),
                  (STR, "    buy( shard_of(family_durability(), stat_strength()), strength_shards )\n")],
+    "stack": stack("power", "health", "health"),
+    "stack-ren-focus": stack("power", "health", "focus"),
+    "stack-ryth-str": stack("power", "strength", "health"),
+    "stack-dur": stack("durability", "health", "health"),
+    "stack-vvtreasure": stack("power", "health", "health", vv_treasure=True),
     "dur-hp+focus": [(HP, "    buy( shard_of(family_durability(), stat_health()), rest_after_jungle - strength_shards )\n"),
                      (STR, "    buy( shard(stat_focus()), strength_shards )\n")],
 }
