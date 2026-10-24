@@ -49,8 +49,21 @@ def hunter(t, champ):
                      f"    move_towards( unit_position(prey) )\n" + ENEMY, 1)
 
 
+def hunter2(t, champ):
+    """hunter, fixed: after the attack-in-range block (so a reachable enemy is still hit first), walk at an enemy within
+    7 while healthy, and end the turn (the first version moved without end_turn, before the attack block)."""
+    anchor = "# tribute only with a worthwhile bag"
+    assert t.count(anchor) == 1
+    return t.replace(anchor, f"# hunter role (explore): {champ} engages enemies within 7 while healthy\n"
+                     f"let prey = nearest( enemies_visible() )\n"
+                     f"if i_am(champ_{champ}()) and exists(prey) and health() > 0.8 * max_health() and distance( position(), unit_position(prey) ) <= 7 and not contains( spawn_region(enemy()), unit_position(prey) ):\n"
+                     f"    move_towards( unit_position(prey) )\n    end_turn()\n" + anchor)
+
+
 SW = {"lock": lock, "ward-altar": ward, "hunter-vendetta": lambda t: hunter(t, "vendetta"),
-      "hunter-vv": lambda t: hunter(t, "vesper_vale"), "lock+ward": lambda t: ward(lock(t))}
+      "hunter-vv": lambda t: hunter(t, "vesper_vale"), "lock+ward": lambda t: ward(lock(t)),
+      "hunt2-vendetta": lambda t: hunter2(t, "vendetta"), "hunt2-vv": lambda t: hunter2(t, "vesper_vale"),
+      "hunt2-all": lambda t: hunter2(t, "vendetta").replace("i_am(champ_vendetta()) and ", "")}
 
 
 def run_switch(name):
