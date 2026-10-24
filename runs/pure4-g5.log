@@ -189,3 +189,18 @@ done: 151 programs (18 invalid), spent $3.25; best #81 score 0.616 -> /root/bc/p
 [190] claude-haiku-5-5 island 0: score 0.583 | best 0.617 (#156) $0.65 | 3028s
 [191] claude-haiku-5-5 island 0: score 0.605 | best 0.617 (#156) $0.65 | 3053s
 done: 37 programs (4 invalid), spent $0.65; best #156 score 0.617 -> /root/bc/pure/runs/pure4-g5/best.policy
+[192] claude-haiku-5-5 island 2: score 0.578 | best 0.617 (#156) $0.01 | 252s
+[193] claude-haiku-5-5 island 3: score 0.605 | best 0.617 (#156) $0.01 | 253s
+[194] claude-haiku-5-5 island 1: score 0.610 | best 0.617 (#156) $0.02 | 299s
+[195] claude-haiku-5-5 island 0: error: KeyError: 'VAR:Num:16' | best 0.617 (#156) $0.02 | 319s
+[196] claude-haiku-5-5 island 2: score 0.599 | best 0.617 (#156) $0.02 | 501s
+[197] claude-haiku-5-5 island 2: score 0.615 | best 0.617 (#156) $0.02 | 549s
+[198] claude-haiku-5-5 island 1: score 0.585 | best 0.617 (#156) $0.03 | 573s
+[199] claude-haiku-5-5 island 3: score 0.499 | best 0.617 (#156) $0.03 | 595s
+[200] claude-haiku-5-5 island 1: score 0.611 | best 0.617 (#156) $0.22 | 808s
+[201] claude-opus-5-5 island 2: score 0.601 | best 0.617 (#156) $0.22 | 877s
+[202] claude-haiku-5-5 island 0: error: KeyError: 'VAR:Num:16' | best 0.617 (#156) $0.22 | 893s
+[203] claude-haiku-5-5 island 2: score 0.507 | best 0.617 (#156) $0.23 | 952s
+[204] claude-haiku-5-5 island 0: score 0.582 | best 0.617 (#156) $0.23 | 1106s
+[205] claude-haiku-5-5 island 0: score 0.595 | best 0.617 (#156) $0.23 | 1276s
+[206] claude-haiku-5-5 island 1: score 0.593 | best 0.617 (#156) $0.24 | 1406s
