@@ -1,6 +1,6 @@
 """What champions do after dropping below half HP with an enemy champion within 5 tiles.
 
-Usage: python3 low_hp.py TEAM LABEL=EXDIR,FETCHDIR [...]
+Usage: python3 low_hp.py TEAM LABEL=EXDIR,FETCHDIR [...]   (TEAM "*" = all opponents)
 For each crossing (HP fraction >= 0.5 the round before, < 0.5 now, an enemy within 5), the outcome
 within 15 rounds: died; got home (recall or walked onto spawn) alive; broke contact (no enemy
 within 8 for the last 3 rounds) alive; or still in contact. Reported for TEAM's champions and for
@@ -23,7 +23,7 @@ def main(team_name, *specs):
         ex, fd = s.split('=', 1)[1].split(',')
         for v in json.load(open(os.path.join(fd, 'sides.json'))).values():
             o = v['B'] if v['A'] == 'Master' else v['A']
-            if o != team_name:
+            if team_name != '*' and o != team_name:
                 continue
             d = json.load(open(os.path.join(ex, 'ladder', v['file'])))
             us = 0 if v['A'] == 'Master' else 1
