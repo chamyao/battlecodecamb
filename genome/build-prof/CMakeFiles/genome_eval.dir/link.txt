@@ -1,1 +1,0 @@
-/usr/bin/c++ -DGENOME_PROF -DGENOME_PROF_EVERY=1 -O3 -DNDEBUG -Wl,--export-dynamic -rdynamic -Wl,--whole-archive /home/user/battlecodecamb/genome/build-prof/sim/libcbs.a -Wl,--no-whole-archive CMakeFiles/genome_eval.dir/tools/genome_eval.cpp.o -o genome_eval  interp/libinterp.a -lpthread -ldl sim/libcbs.a 
