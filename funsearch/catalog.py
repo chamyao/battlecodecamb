@@ -115,19 +115,28 @@ Observations from 50 games vs the ladder's top 10 (live bot, v16): 0-50. COMBAT 
 - In the 5 rounds before each of our deaths to a champion the victim attacked an enemy champion only
   59% of the time, cast an ability on one only 16% (casts went to self or dash 32%), had started a
   recall (damage cancels it) 23%, attacked a camp 18%. 52% of our dead carried no gems.
-- They engage any enemy in vision within ~5-6 tiles (killers travel 4-6 tiles in the 10 rounds before
-  a kill), use damage/stun/reset abilities on champions, focus one target, and bank big bags
-  (median 57) only when no enemy is within 8 tiles. Meta draft core: Vesper Vale + Heart of Ruin, then
-  Vendetta / Marcella / Ryth / Prism / Tavi / Willow.
-- Directions: fight back when an enemy champion is close (cast damage/stun at it, attack it, name it
-  with set_team_target so allies converge, keep attacking it rather than a camp); never start a recall
-  while in_danger() (move away first); tribute at once when an enemy is near while carrying.
+- How they fight (1,317 engagements, docs/TOP_TEAMS_RULES.md; medians): ENGAGE EARLY AND HEALTHY at
+  vision range: own HP 0.9-1.0 at the first hit, distance ~7 five rounds before; usually 2v1 (one ally
+  within 5, enemies_within(5) <= allies_within(5) + 1). TARGET THE CLOSEST visible enemy (87-94%; usually
+  also the weakest; carriers are not sought). OPEN WITH THE ABILITY ON THE FIRST-HIT TURN: HoR stunning
+  dash (slot 1) from 3; Vendetta dash (slot 1) from 3 or basic > reset (slot 0) > basic; Marcella damage
+  (slot 1) from 4; Ryth AoE stun (slot 0) from 4, then basic > reset (slot 1); Prism AoE (slot 1) from 5
+  then damage-stun (slot 0); Vesper Vale basic > reset (slot 0) > basic, keeping range 3; Tavi stun
+  (slot 1) from 4; Cassi stun (slot 1) from 5. i_am(champ_x()) tells which champion you are. CHASE ONLY
+  0-2 tiles (3-6 for HoR/Ryth on a low target). DISENGAGE AT ~0.8 HP (walk away, recall once safe), not
+  at 0.3: they die 1.6 times per game. Most fights are in their own half, the first at round ~86.
+  Meta draft core: Vesper Vale + Heart of Ruin, then Vendetta / Marcella / Ryth / Prism / Tavi / Willow.
+- Directions: build that loop (healthy engage at 7-9 tiles with numbers, closest target, ability
+  opener, short chase, early disengage) and name the target with set_team_target so allies converge;
+  never start a recall while in_danger() (move away first); tribute at once when an enemy is near
+  while carrying.
 - MEASURED in the simulator (160 games each): a plain chase rule (go to the weakest enemy within 6 when
   local_strength(6) >= 1) LOST to the live bot (33%) and did not raise kills; a 3-4 tile fight-back
   rule was neutral; the meta draft alone with that rule lost more. So a naive chase is not it: what
   is missing is winning the fight once in it (ability timing, stun then burst, focus, kiting, not
-  splitting attention with camps). Simulator opponents are passive; judge combat changes by kills,
-  deaths and damage, not only by the win rate against the live bot.
+  splitting attention with camps). Simulator opponents are passive and the simulator's combat is
+  still being checked against the real engine; judge combat changes by kills, deaths and damage, not
+  only by the win rate against the live bot, and do not drop a combat idea on one bad score.
 """
 
 GRAMMAR += """\
