@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 17:47 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 1.69 6.59 9.94 on 16 threads.
+Updated 2026-10-24 17:52 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.01 2.43 7.20 on 16 threads.
 Disk: 3.5G used of 38G.
 
 ## python3 processes
@@ -8,8 +8,6 @@ Disk: 3.5G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[16:03:41] style: S12: SIGTERM pid 120806
-[16:03:41] style: S12: SIGTERM pid 120843
 [16:03:41] style: S12: SIGTERM pid 131479
 [16:04:07] style: S12: at 16dfcad (has 983462f), rebuilt, 2024 passed in 6.28s; gconv stopped for good; b restarting; gyield starting
 [16:04:07] style: S12: launched style8-gyield ($1.27)
@@ -48,4 +46,6 @@ remote: Create a pull request for 'style/arena-overlay' on GitHub by visiting:
 remote:      https://github.com/chamyao/battlecodecamb/pull/new/style/arena-overlay        
 remote: 
 [17:47:41] style: S15: pushed style/arena-overlay 391f2d4:  45 files changed, 2901 insertions(+); style tick stops here
+[17:52:45] hybrid: FINAL: ec2-final-check.txt + hyb5.cmdline pushed (remote/hybrid c474b96)
+[17:52:45] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
