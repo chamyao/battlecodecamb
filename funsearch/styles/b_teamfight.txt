@@ -21,9 +21,7 @@ Our main ladder loss is to melee stun/dive teams that kill us 21-34 times a game
 ranged champions trade in place. A group fight answers this: ranged champions kite (if
 i_am_ranged() and a melee enemy is adjacent, move_away_from it toward allies, then attack from
 range) while allies converge on the diver and focus it down.
-Camp choice matters in every style: many of our deaths are to camps we cannot clear. Use
-group_threat(g), group_hp(g) and group_gems(...) to choose camps by value against danger and
-distance: skip a goal g when group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4)))
-> health() (strength() is your damage per hit, items included; scale it by a named, tunable factor
-if useful), i.e. skip when the damage taken while clearing exceeds what you can absorb, and
-otherwise prefer groups with more gems per turn of walking and clearing.
+Camp choice matters in every style, as a direction, not a rule: do NOT add a skip test on
+group_threat/group_hp (measured: it loses 5-25 points). Instead, prefer a rich group (closest of
+the goals intersected with rich_spawns(15), i.e. 15+ gems) over the nearest camp when it is only
+a few tiles farther, and otherwise keep the nearest-camp choice that works.
