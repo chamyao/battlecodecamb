@@ -57,6 +57,27 @@ if [ -f runs/ec2-s3 ] && [ ! -f runs/ec2-s4 ]; then
     echo "S4 merge/build/tests failed; h and b stopped, a/c paused" > "$D/HALT"; log "HALT: S4 merge/build/tests failed"; return 1
   fi
 fi
+# Job S5 (style line, 09:34 UTC): same procedure as S4 on funsearch/style 88e3783 (merges deploy/v0: fuel recalibration,
+# op codes; pair-farming priority in h's directive; fuel-gate rule in b's). h at g3 0 programs, b resumes mid-round.
+if [ -f runs/ec2-s4-checked ] && [ ! -f runs/ec2-s5 ]; then
+  lastleft() { grep -oE '\$[0-9.]+ left' "runs/style8-$1.log" 2>/dev/null | tail -n 1 | tr -dc '0-9.'; }
+  echo "h $(lastleft h) b $(lastleft b)" > runs/ec2-s5-left
+  for x in h b; do
+    for pid in $(pgrep -a -x python3 | grep -E "league --name style8-$x |funsearch.run --run style8-$x-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "S5: SIGTERM style8-$x pid $pid"; done
+  done
+  sleep 15
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor 88e3783 HEAD && build "$D" &&
+     python3 -m pytest -q tests > /root/bc/style-pytest.txt 2>&1; then
+    for x in h b; do wc -l < runs/style8-$x.log > runs/ec2-s5-mark-$x; done
+    touch runs/ec2-s5
+    log "S5: at $(git rev-parse --short HEAD) (has 88e3783: deploy/v0 merge, pair-farming h, fuel-gate b), rebuilt, $(tail -n 1 /root/bc/style-pytest.txt); left before: $(cat runs/ec2-s5-left); relaunching h and b"
+  else
+    echo "S5 merge/build/tests failed; h and b stopped, a/c paused" > "$D/HALT"; log "HALT: S5 merge/build/tests failed"; return 1
+  fi
+fi
 for x in h b a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
   running "league --name style8-$x " && continue
@@ -80,6 +101,14 @@ if [ -f runs/ec2-s4 ] && [ ! -f runs/ec2-s4-checked ]; then
   if [ -n "$fh" ] && [ -n "$fb" ]; then
     touch runs/ec2-s4-checked
     log "S4 check: h: $(echo "$fh" | grep -q 'style8-h-g2: .*best policies/style-h1.policy' && echo 'g2 best style-h1 ok' || echo 'UNEXPECTED') $(echo "$fh" | grep -q tune-v19 && echo 'tune-v19 in league' || echo 'tune-v19 MISSING') $(echo "$fh" | grep -oE '\$[0-9.]+ left'); b: $(echo "$fb" | grep -oE 'style8-b-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$fb" | grep -oE '\$[0-9.]+ left'); before: $(cat runs/ec2-s4-left)"
+  fi
+fi
+if [ -f runs/ec2-s5 ] && [ ! -f runs/ec2-s5-checked ]; then
+  fh=$(tail -n +"$(( $(cat runs/ec2-s5-mark-h) + 1 ))" runs/style8-h.log | grep -m1 'style8-h-g')
+  fb=$(tail -n +"$(( $(cat runs/ec2-s5-mark-b) + 1 ))" runs/style8-b.log | grep -m1 'style8-b-g')
+  if [ -n "$fh" ] && [ -n "$fb" ]; then
+    touch runs/ec2-s5-checked
+    log "S5 check: h: $(echo "$fh" | grep -q 'style8-h-g3: .*best policies/style-h1.policy' && echo 'g3 best style-h1 ok' || echo 'UNEXPECTED') $(echo "$fh" | grep -q tune-v19 && echo 'tune-v19 in league' || echo 'tune-v19 MISSING') $(echo "$fh" | grep -oE '\$[0-9.]+ left'); b: $(echo "$fb" | grep -oE 'style8-b-g[0-9]+: \+[0-9]+ programs[^,]*') $(echo "$fb" | grep -oE '\$[0-9.]+ left'); before: $(cat runs/ec2-s5-left)"
   fi
 fi
 # snapshot: complete JSON lines only (like runs/style_push_state.sh), never scripts or budgets
