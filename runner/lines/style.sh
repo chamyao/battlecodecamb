@@ -17,6 +17,17 @@ if [ ! -f "$D/.setup-$REV" ]; then
   touch "$D/.setup-$REV"
   log "style8 setup ok at $REV: gate 3, $(tail -n 1 /root/bc/style-pytest.txt); budgets: $(tr '\n' ' ' < runs/style_budgets)"
 fi
+# 07:30 UTC (style line): restart ONLY island h on b59e19e (adds policies/tune-v18.policy to h's FIXED; script and
+# policy only, no rebuild). b/a/c keep running on their loaded code. One-shot; the loop below relaunches h.
+if [ ! -f runs/ec2-h-v18 ] && [ -f "$D/.setup-$REV" ]; then
+  git fetch -q origin funsearch/style && git merge-base --is-ancestor HEAD b59e19e && git checkout -q -f b59e19e &&
+    grep -q tune-v18 runs/style_launch.sh || { log "h-v18: checkout b59e19e failed"; return 1; }
+  for pid in $(pgrep -a -x python3 | grep -E "league --name style8-h |funsearch.run --run style8-h-" | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "h-v18: SIGTERM style8-h pid $pid"; done
+  sleep 15
+  wc -l < runs/style8-h.log > runs/ec2-h-v18-mark; touch runs/ec2-h-v18
+  log "h-v18: at b59e19e; style8-h stopped, relaunching below"
+fi
 for x in h b a c; do
   b=$(grep "^$x " runs/style_budgets | cut -d' ' -f2); [ -n "$b" ] || continue
   running "league --name style8-$x " && continue
@@ -30,6 +41,10 @@ for x in h b a c; do
   touch runs/style8-$x.ec2-launched
   log "launched style8-$x (budget \$$b)"
 done
+if [ -f runs/ec2-h-v18 ] && [ ! -f runs/ec2-h-v18-checked ]; then
+  first=$(tail -n +"$(( $(cat runs/ec2-h-v18-mark) + 1 ))" runs/style8-h.log | grep -m1 'style8-h-g')
+  [ -n "$first" ] && { touch runs/ec2-h-v18-checked; log "h-v18 check: $(echo "$first" | grep -q tune-v18 && echo 'tune-v18 in league' || echo 'tune-v18 MISSING'); $(echo "$first" | grep -oE '\$[0-9.]+ left')"; }
+fi
 # snapshot: complete JSON lines only (like runs/style_push_state.sh), never scripts or budgets
 rm -rf /root/bc/style-snap && mkdir -p /root/bc/style-snap/runs
 for d in runs/style8-*-g*/; do
