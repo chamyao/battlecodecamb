@@ -2,6 +2,9 @@
 
 ## Batch 1: 24 Oct 2026, 19:02 UTC, 50 games, 15-35
 
+Correction: the live bot was v22 (tune-v20-L1c), not v23; see GAPS.md. The comparison below against the earlier
+v23 band run is therefore v22 vs v23 on different teams, and v22's 25-gem banking explains the bags of 29.
+
 The first batch for Arena B. Compared with the earlier v23 band run (`docs/GAP_LIST.md` on analysis/sprint1;
 same bot, other band teams):
 - **Same overall.** Record 15-35 (was 14-36); gems lost on death 155 (130); gems per capture 10.2 (10.8);

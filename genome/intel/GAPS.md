@@ -1,9 +1,17 @@
 # GAPS: our live bot's measurable weaknesses in real band games (Arena B evidence)
 
-v1, batch 1 (24 Oct 2026). Data: 50 fresh unranked games of our live submission (the seed v23's draft order;
-same record as v23's earlier band run, 15-35 vs 14-36) against 10 teams rated +55..+145 above us (1596),
+v1, batch 1 (24 Oct 2026). Data: 50 fresh unranked games of our live submission (v22 = tune-v20-L1c, see the correction below;
+record 15-35) against 10 teams rated +55..+145 above us (1596),
 all 40 maps. ± is one bootstrap SE over games. Raw tables: `batches/b1.md`. Sim numbers: seed genome vs the
 compiled original (`python3 -m genome.intel.sim_metrics`, 400 games, all maps, unless noted).
+
+**Correction (20:45 UTC): batch 1's bot was v22 (`policies/candidates/tune-v20-L1c.policy`, ladder v24), not v23.**
+The coordinator reverted v23 at about 16:50 UTC. Both bots draft in the same order, but they bank differently: L1c
+banks at 25+, v23 at 15 (or 10 near an altar or under threat). Of our 926 batch-1 tributes, 86% were 25+, 3% were
+15-24 and 3% were 10-14, which is L1c. The gaps below are v22's gaps in real games. The gene mapping refers to
+the seed genome (v23), which shares v22's rule structure except for banking; that covers r11 bag_ready (25 in
+v22) and the r9/s11 sensors. The stuck-carrier and monolith mechanisms reproduce in the sim with the seed and with
+v23.pol, so they hold for both. A paired batch 2 compares v22 to B318.
 
 Cost scale: in our losses they finish at 993 while we have 425. Adding X gems to every loss flips 1 game at
 +100, 3 at +200, 10 at +300, so single small gains rarely flip a band game. The gaps below that cost 150+ gems
