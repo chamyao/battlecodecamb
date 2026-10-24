@@ -189,6 +189,13 @@ _b("unit_focus", "Unit", "Num")
 _b("enemies_near", "Tile Num", "Num")
 _b("allies_near", "Tile Num", "Num")
 _b("strength_at", "Tile Num", "Num")
+_b("threat_eta", "", "Num")
+_b("altar_eta", "", "Num")
+_b("retreat_eta", "", "Num")
+_b("enemy_between", "Tile", "Bool")
+_b("group_contested", "Tile", "Num")
+_b("team_gems", "", "Num")
+_b("unseen_enemies_near", "Num Num", "Num")
 
 # Effects
 _b("move_towards", "Tile", VOID)
