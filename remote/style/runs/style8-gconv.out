@@ -1,0 +1,68 @@
+gap run style8-gconv (conversion:max:0.05 vs policies/tune-v21.policy): $2.00 left of $2.0
+gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.9034; win floor 0.5 vs it; weight 0.5
+seed tune-v21 score 0.628 (islands [0, 1, 2, 3])
+[4] claude-haiku-5-5 island 3: score -0.327 | best 0.628 (#0) $0.01 | 63s
+[5] claude-haiku-5-5 island 3: score 0.859 | best 0.859 (#5) $0.01 | 193s
+[6] claude-haiku-5-5 island 3: score 0.748 | best 0.859 (#5) $0.02 | 291s
+[7] claude-haiku-5-5 island 2: score 0.617 | best 0.859 (#5) $0.02 | 377s
+gap run style8-gconv (conversion:max:0.05 vs policies/tune-v21.policy): $1.98 left of $2.0
+gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8999; win floor 0.5 vs it; weight 0.5
+[8] claude-haiku-5-5 island 3: score 0.812 | best 0.859 (#5) $0.01 | 221s
+[9] claude-haiku-5-5 island 2: score 0.752 | best 0.859 (#5) $0.01 | 255s
+[10] claude-haiku-5-5 island 1: score 0.699 | best 0.859 (#5) $0.02 | 313s
+[11] claude-haiku-5-5 island 2: score 0.634 | best 0.859 (#5) $0.02 | 317s
+[12] claude-haiku-5-5 island 2: score 0.867 | best 0.867 (#12) $0.03 | 525s
+[13] claude-haiku-5-5 island 2: score 0.859 | best 0.867 (#12) $0.03 | 551s
+[14] claude-haiku-5-5 island 1: score 0.685 | best 0.867 (#12) $0.03 | 657s
+[15] claude-haiku-5-5 island 3: score 0.725 | best 0.867 (#12) $0.04 | 761s
+[16] claude-haiku-5-5 island 2: score 0.861 | best 0.867 (#12) $0.04 | 777s
+[17] claude-opus-5-5 island 1: score -0.448 | best 0.867 (#12) $0.22 | 821s
+gap run style8-gconv (conversion:max:0.05 vs policies/tune-v21.policy): $1.76 left of $2.0
+gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8999; win floor 0.5 vs it; weight 0.5
+[18] claude-haiku-5-5 island 3: score 0.838 | best 0.867 (#12) $0.01 | 228s
+[19] claude-haiku-5-5 island 2: score 0.863 | best 0.867 (#12) $0.01 | 259s
+[20] claude-haiku-5-5 island 1: score -0.269 | best 0.867 (#12) $0.01 | 303s
+[21] claude-haiku-5-5 island 2: score 0.784 | best 0.867 (#12) $0.02 | 460s
+[22] claude-haiku-5-5 island 0: score 0.843 | best 0.867 (#12) $0.02 | 542s
+gap run style8-gconv (conversion:max:0.05 vs policies/tune-v21.policy): $1.75 left of $2.0
+gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8958; win floor 0.5 vs it; weight 0.5
+[23] claude-haiku-5-5 island 3: score -0.368 | best 0.867 (#12) $0.01 | 100s
+[24] claude-haiku-5-5 island 2: score 0.862 | best 0.867 (#12) $0.01 | 217s
+[25] claude-haiku-5-5 island 2: score 0.805 | best 0.867 (#12) $0.02 | 303s
+[26] claude-haiku-5-5 island 1: score 0.794 | best 0.867 (#12) $0.02 | 467s
+[27] claude-haiku-5-5 island 1: score -0.166 | best 0.867 (#12) $0.02 | 509s
+[28] claude-haiku-5-5 island 0: score 0.844 | best 0.867 (#12) $0.03 | 542s
+[29] claude-haiku-5-5 island 2: score 0.594 | best 0.867 (#12) $0.03 | 621s
+[30] claude-haiku-5-5 island 3: score -0.238 | best 0.867 (#12) $0.03 | 628s
+[31] claude-haiku-5-5 island 1: score -0.188 | best 0.867 (#12) $0.21 | 669s
+[32] claude-opus-5-5 island 2: score 0.881 | best 0.881 (#32) $0.22 | 864s
+[33] claude-haiku-5-5 island 0: score 0.825 | best 0.881 (#32) $0.22 | 877s
+[34] claude-haiku-5-5 island 0: score -0.161 | best 0.881 (#32) $0.22 | 958s
+[35] claude-haiku-5-5 island 2: score 0.784 | best 0.881 (#32) $0.23 | 1013s
+[36] claude-haiku-5-5 island 1: score -0.420 | best 0.881 (#32) $0.23 | 1058s
+[37] claude-haiku-5-5 island 0: score 0.839 | best 0.881 (#32) $0.23 | 1170s
+[38] claude-haiku-5-5 island 3: score 0.863 | best 0.881 (#32) $0.24 | 1297s
+[39] claude-haiku-5-5 island 0: score -0.223 | best 0.881 (#32) $0.24 | 1360s
+[40] claude-haiku-5-5 island 3: score 0.815 | best 0.881 (#32) $0.25 | 1431s
+[41] claude-haiku-5-5 island 1: score -0.273 | best 0.881 (#32) $0.43 | 1467s
+[42] claude-opus-5-5 island 2: score 0.859 | best 0.881 (#32) $0.44 | 1665s
+[43] claude-haiku-5-5 island 3: score 0.799 | best 0.881 (#32) $0.44 | 1672s
+[44] claude-haiku-5-5 island 1: score -0.340 | best 0.881 (#32) $0.44 | 1726s
+[45] claude-haiku-5-5 island 2: score 0.715 | best 0.881 (#32) $0.45 | 1768s
+[46] claude-haiku-5-5 island 1: score 0.785 | best 0.881 (#32) $0.45 | 1856s
+[47] claude-haiku-5-5 island 0: score 0.776 | best 0.881 (#32) $0.45 | 1867s
+[48] claude-haiku-5-5 island 3: score 0.698 | best 0.881 (#32) $0.46 | 1923s
+[49] claude-haiku-5-5 island 1: score -0.384 | best 0.881 (#32) $0.46 | 1925s
+[50] claude-haiku-5-5 island 3: score -0.304 | best 0.881 (#32) $0.47 | 2018s
+[51] claude-haiku-5-5 island 2: score 0.757 | best 0.881 (#32) $0.47 | 2027s
+[52] claude-haiku-5-5 island 1: score -0.236 | best 0.881 (#32) $0.65 | 2078s
+[53] claude-opus-5-5 island 3: score -0.350 | best 0.881 (#32) $0.66 | 2154s
+[54] claude-haiku-5-5 island 0: score 0.813 | best 0.881 (#32) $0.66 | 2302s
+[55] claude-haiku-5-5 island 1: score 0.826 | best 0.881 (#32) $0.67 | 2377s
+[56] claude-haiku-5-5 island 0: score 0.707 | best 0.881 (#32) $0.67 | 2395s
+[57] claude-haiku-5-5 island 1: score -0.227 | best 0.881 (#32) $0.67 | 2441s
+[58] claude-haiku-5-5 island 0: score -0.276 | best 0.881 (#32) $0.68 | 2536s
+[59] claude-haiku-5-5 island 0: score 0.839 | best 0.881 (#32) $0.68 | 2600s
+[60] claude-haiku-5-5 island 1: score -0.235 | best 0.881 (#32) $0.68 | 2654s
+[61] claude-opus-5-5 island 0: score -0.175 | best 0.881 (#32) $0.88 | 2724s
+[62] claude-haiku-5-5 island 0: score 0.845 | best 0.881 (#32) $0.88 | 2741s
