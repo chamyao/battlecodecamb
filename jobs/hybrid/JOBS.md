@@ -410,3 +410,11 @@ opponents get 16 distinct maps. Same game count. At startup each island's top 3 
 on the new maps (about 15 programs; their old score is kept in metrics.rescreened_from).
 Check: hyb5.log shows "re-screened #N (island I): old -> new" lines and "re-screen (cover maps): N programs in Ts";
 new children carry metrics.screen_maps = "cover".
+
+## Job H22 (2026-10-24 16:45 UTC, hybrid line session; per the FunSearch lead): SPEND.md lines (no run change)
+At the pending H20/H21 restart (or now; no restart needed), append to runs/SPEND.md and push with the state:
+| 2026-10-24 | hyb4 on the old remote-server ($10 league budget) ran on after the EC2 move until "budget spent ($9.91)" (PR #1, 16:37 UTC); $0.70 of it is already above (hyb4-g1/g2, lost g3) | ? | 9.21 | |
+| 2026-10-24 | hyb4 continued on EC2 (--budget 29.47 -> 28.21 left) | | 1.26 | |
+| 2026-10-24 | hyb5 through 16:40 UTC (25.00 -> 16.30 left) | | 8.70 | |
+| 2026-10-24 | hybrid line total $23.26 (0.18 hyb/hyb2/hyb3 + 9.91 hyb4 remote-server + 1.26 hyb4 EC2 + 3.21 xc/xp + 8.70 hyb5); cap raised $30 -> $40 by the FunSearch lead; hyb5 keeps its remaining 16.30 (23.26 + 16.30 = 39.56) | | | |
+No command-line change: hyb5's --budget stays as is.
