@@ -154,7 +154,8 @@ def main():
             live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"]
                     and m["games"] >= args.min_games]
             for m in sorted(live, key=lambda m: -m["mu"])[:args.top]:
-                key = f"{dirs[0]}:{m['name']}"  # one key per genome across a chain of resumed jobs
+                # one key per genome across a chain of resumed jobs, per reference bot
+                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}"
                 if key in seen:
                     continue
                 seen.add(key)

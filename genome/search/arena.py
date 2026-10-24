@@ -116,9 +116,16 @@ class Arena:
             for m in self.genomes():
                 m["fingerprint"] = self.fingerprint((self.out / m["path"]).read_text())
             self.log(f"re-fingerprinted {len(self.genomes())} genomes on this runtime")
+        for path in filter(None, args.add_anchors.split(",")):  # new fixed anchors joining a resumed arena
+            name = Path(path).stem
+            if name not in self.s["members"]:
+                m = self._add_anchor(name, path)
+                m["calibrating"] = True  # rated like a member until --calibrate-games games, then frozen
+                self.log(f"added anchor {name} (calibrating for {args.calibrate_games} games)")
         if args.fixed_anchors:  # freeze every anchor at its current mu (keeps the scale, fixed from here on)
             for m in self.anchors():
-                m["sigma"] = args.anchor_sigma
+                if not m.get("calibrating"):
+                    m["sigma"] = args.anchor_sigma
             self.log("fixed anchors: " + ", ".join(f"{m['name']} {m['mu']:.2f}" for m in self.anchors()))
         self.rng = random.Random(self.s["births"] * 7919 + self.s["matches"] + 1)
         self.gaps, self.gaps_t = [], 0.0
@@ -170,7 +177,7 @@ class Arena:
              "fingerprint": None, "source": source}
         if rating:
             m["mu"], m["sigma"] = rating
-        if self.a.fixed_anchors:
+        if self.a.fixed_anchors and rating:
             m["sigma"] = self.a.anchor_sigma
         self.s["members"][name] = m
         return m
@@ -285,9 +292,13 @@ class Arena:
                 rate_game(w_, l_)
                 if self.a.fixed_anchors:  # anchors keep fixed ratings: only the genome learns from the game
                     for m, (mu, sg) in zip((w_, l_), keep):
-                        if m["kind"] == "anchor":
+                        if m["kind"] == "anchor" and not m.get("calibrating"):
                             m["mu"], m["sigma"] = mu, sg
             n, w = st["games"], st["a_wins"]
+            for m in (a, b):
+                if m.get("calibrating") and m["games"] + n >= self.a.calibrate_games:
+                    m["calibrating"], m["sigma"] = False, self.a.anchor_sigma
+                    self.log(f"anchor {m['name']} frozen at mu {m['mu']:.2f} after {m['games'] + n} games")
             a["games"] += n
             b["games"] += n
             a["wins"] += w
@@ -648,6 +659,8 @@ def main(argv=None):
     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
     ap.add_argument("--anchor-sigma", type=float, default=1.0)
+    ap.add_argument("--add-anchors", default="", help="anchors to add to a resumed arena (comma list of paths)")
+    ap.add_argument("--calibrate-games", type=int, default=200, help="games a new anchor is rated before it is frozen")
     ap.add_argument("--refingerprint", action="store_true",
                     help="recompute live genomes' twin-check outcomes at start (after a runtime change)")
     ap.add_argument("--mutate-prompt", default="default", choices=["default", "creative"],
