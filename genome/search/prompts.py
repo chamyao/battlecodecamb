@@ -23,8 +23,10 @@ calls score(o) on each, and does the best one while its score is > 0.
 Also: `consider(kind: Num) -> Bool` (optional entry gene) is asked once per option kind each pass;
 kinds it rejects are neither listed nor scored, which saves the fuel of listing and scoring them.
 Expensive sets and distance fields can be computed once per turn into a Tiles/Field keep in update()
-instead of in a zero-argument gene (recomputed every pass of the loop). A mutation may add consider()
-or update() if the genome has none."""
+instead of in a zero-argument gene (recomputed every pass of the loop). A mutation may add consider(),
+update() or after() if the genome has none.
+Team coordination: the 8 shared bytes (read_shared anywhere; write_shared in update() or after()) are the only
+channel between allies; vision is not shared. after() can announce what this champion just did."""
 
 MUTATE_TASK = """# Your task: mutate one link of the genome
 You are shown the genome's genes. Exactly the genes marked EDITABLE (the two ends of one dependency

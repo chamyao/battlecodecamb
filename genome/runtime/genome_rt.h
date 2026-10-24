@@ -17,16 +17,27 @@
 #include "cbs/runner.h"
 
 #ifndef GENOME_OP_FUEL
-#define GENOME_OP_FUEL 4 // fuel per own operation (placeholder until calibrated against cambc)
+#define GENOME_OP_FUEL 1 // fuel per own operation: compiled arithmetic is nearly free in the bot (constants fold away); the cost is in the primitives' extra()
 #endif
+#ifndef GENOME_LOOP_FUEL
+#define GENOME_LOOP_FUEL 8 // fuel per loop iteration beyond its operations (a 100-step range sum: ~9.5 per step in the bot)
+#endif
+// F(n): n own operations; FL(n) / FLU(n): one loop iteration (over a range or tiles / over units) with n
+// operations; FX(n): n fuel of generated code the bot runs beyond its operations (a memo hit's copy)
 #ifdef GENOME_BOT
 #ifdef GENOME_PROF
 #define F(n) (X.ops += (n))
 #else
 #define F(n) ((void)0)
 #endif
+#define FL(n) F(n)
+#define FLU(n) F(n)
+#define FX(n) ((void)0)
 #else
 #define F(n) X.charge_ops(n)
+#define FL(n) X.charge_loop(n)
+#define FLU(n) (X.charge_loop(n), X.extra(11))
+#define FX(n) X.extra(n)
 #endif
 
 namespace genome
@@ -36,18 +47,29 @@ namespace genome
 struct GeneStat
 {
 	const char* name = nullptr;
-	long long calls = 0, fuel = 0;
+	long long calls = 0, fuel = 0, self = 0, kids = 0; // self: excluding the genes it calls (kids: how many calls)
 };
 inline GeneStat gene_stats[256];
 struct GeneScope
 {
 	GeneStat& s;
 	cbs::Api& api;
-	std::int64_t t0;
-	GeneScope(GeneStat& s, cbs::Api& api) : s(s), api(api), t0(api.fuel_remaining()) { ++s.calls; }
-	~GeneScope() { s.fuel += t0 - api.fuel_remaining(); }
+	std::int64_t t0, child = 0;
+	void*& top; // the innermost open scope of this bot instance (simulator bots interleave on one thread)
+	GeneScope* parent;
+	GeneScope(GeneStat& s, cbs::Api& api, void*& top) : s(s), api(api), t0(api.fuel_remaining()), top(top), parent(static_cast<GeneScope*>(top))
+	{
+		++s.calls, top = this;
+	}
+	~GeneScope()
+	{
+		const std::int64_t f = t0 - api.fuel_remaining();
+		s.fuel += f, s.self += f - child;
+		if (parent) parent->child += f, ++parent->s.kids;
+		top = parent;
+	}
 };
-#define GENE_PROF(i, nm) genome::gene_stats[i].name = nm; genome::GeneScope gene_scope_(genome::gene_stats[i], X.api)
+#define GENE_PROF(i, nm) genome::gene_stats[i].name = nm; genome::GeneScope gene_scope_(genome::gene_stats[i], X.api, X.prof_top)
 // The first distance-field searches: expansions and the fuel of the search call alone (printed with @@GENE).
 struct FieldRec
 {
@@ -107,17 +129,41 @@ enum OptionKind
 {
 	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK
 };
-// Small on purpose: copying costs ~1 fuel per byte in the bot. The target unit lives in the pass's
-// unit table (Ctx::unit_of); ukind/uh identify it across passes.
+// Small on purpose: copying costs ~1 fuel per byte in the bot. The target unit is an entry of the
+// pass's cached unit lists (Ctx::unit_of: usrc + ui); ukind/uh identify it across passes.
 struct Option
 {
-	int kind = 0;
-	int slot = -1, item = -1, champ = -1;
-	Tile tile;
-	int ukind = 0;
+	std::int8_t kind = 0;
+	std::int8_t slot = -1, item = -1, champ = -1;
+	std::int8_t ukind = 0;
+	std::int8_t usrc = 0; // unit_of: 0 none, 1 enemies(), 2 camps(), 3 allies(), 4 me()
+	std::int16_t ui = -1;
+	std::int32_t count = 1; // BUY: units bought at once (the SDK's buy_item count)
 	std::uint32_t uh = 0;
-	int ui = -1;
-	int count = 1; // BUY: units bought at once (the SDK's buy_item count)
+	Tile tile;
+};
+// The options of a pass, written in place (no per-option construction or copy).
+struct OptionList
+{
+	static constexpr int kMax = 1024; // more than any turn can list (buys, 8 moves, units, 2 x 81 ground tiles, 25 wards, altars)
+	// uninitialised storage (Option is an implicit-lifetime type; add() writes every field): constructing
+	// 1,024 options up front costs ~35k fuel in the bot
+	Option* v = static_cast<Option*>(std::malloc(sizeof(Option) * kMax));
+	int n = 0;
+	OptionList() = default;
+	OptionList(const OptionList&) = delete;
+	OptionList& operator=(const OptionList&) = delete;
+	~OptionList() { std::free(v); }
+	int size() const { return n; }
+	const Option* begin() const { return v; }
+	const Option* end() const { return v + n; }
+	// a fresh option of `kind` (the other fields at their defaults)
+	Option& add(int kind)
+	{
+		Option& o = v[n < kMax - 1 ? n++ : n];
+		o.kind = static_cast<std::int8_t>(kind), o.slot = -1, o.item = -1, o.champ = -1, o.ukind = 0, o.usrc = 0, o.ui = -1, o.count = 1, o.uh = 0, o.tile = {};
+		return o;
+	}
 };
 
 inline double div(double a, double b) { return b == 0 ? 0.0 : a / b; }
@@ -156,6 +202,7 @@ public:
 	std::uint64_t pass_id = 0;
 
 	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
+	void* prof_top = nullptr; // GENOME_PROF: the innermost open gene scope
 	// Simulator only: the runtime's own work in the bot beyond what the Api already prices (fitted
 	// from genome/examples/calib.genome profiled in cambc; docs in genome/FUEL.md). Compiled away in the bot.
 	void extra(double fuel) const
@@ -170,15 +217,22 @@ public:
 		ops += n;
 		api.compute(n * GENOME_OP_FUEL);
 	}
+	void charge_loop(long n)
+	{
+		ops += n;
+		api.compute(n * GENOME_OP_FUEL + GENOME_LOOP_FUEL);
+	}
 
 	void new_pass()
 	{
 		pass_id = pass_counter()++;
-		have_me_ = have_enemies_ = have_allies_ = have_camps_ = have_gems_ = have_gold_ = have_occ_ = have_items_ = false;
+		have_me_ = have_enemies_ = have_allies_ = have_camps_ = have_gems_ = have_gold_ = have_occ_ = have_items_ = have_cons_ = false;
 	}
 
 	// ---- self
-	const Unit& me()
+	// me() as genes call it: the cached unit costs ~22 in the bot (measured per scored option)
+	const Unit& me() { return extra(18), me_u(); }
+	const Unit& me_u()
 	{
 		if (!have_me_)
 		{
@@ -191,14 +245,14 @@ public:
 		}
 		return me_;
 	}
-	std::uint32_t self() { return me(), self_; }
-	bool alive() { return extra(4), me().state & cbs::state_bit::alive; }
-	bool my_state(std::uint32_t bits) { return extra(11), api.champ() >= 0 && (me().state & bits); }
+	std::uint32_t self() { return me_u(), self_; }
+	bool alive() { return extra(10), me_u().state & cbs::state_bit::alive; }
+	bool my_state(std::uint32_t bits) { return extra(21), api.champ() >= 0 && (me_u().state & bits); }
 	bool channeling() { return my_state(cbs::state_bit::recalling | cbs::state_bit::submitting | cbs::state_bit::teleporting); }
 	// uniform integer in [0, n) from this instance's generator (generic operation, no engine call)
 	double rand(double n)
 	{
-		extra(12);
+		extra(18);
 		rng_ ^= rng_ << 13, rng_ ^= rng_ >> 7, rng_ ^= rng_ << 17;
 		const double k = std::floor(n);
 		return k >= 1 ? static_cast<double>((rng_ >> 11) % static_cast<std::uint64_t>(std::min(k, 1e9))) : 0.0;
@@ -206,7 +260,7 @@ public:
 	void set_priority(double p) { api.set_priority(static_cast<std::int32_t>(std::clamp(p, -1e6, 1e6))); }
 	double gems()
 	{
-		if (!have_gems_) gems_ = unit_gems(me()), have_gems_ = true, extra(27);
+		if (!have_gems_) gems_ = unit_gems(me_u()), have_gems_ = true;
 		return gems_;
 	}
 	double gold()
@@ -224,6 +278,7 @@ public:
 	{
 		std::uint32_t r = 0;
 		api.round_number(&r);
+		extra(6);
 		return r;
 	}
 	double fuel() { return static_cast<double>(api.fuel_remaining()); }
@@ -245,11 +300,13 @@ public:
 	const Units& enemies()
 	{
 		if (!have_enemies_) champs(true, enemies_), have_enemies_ = true;
+		else extra(27); // a cached list still costs ~27 in the bot
 		return enemies_;
 	}
 	const Units& allies()
 	{
 		if (!have_allies_) champs(false, allies_), have_allies_ = true;
+		else extra(27);
 		return allies_;
 	}
 	const Units& camps()
@@ -270,8 +327,9 @@ public:
 				camps_.push_back(u);
 			}
 			have_camps_ = true;
-			extra(600 + 80 * camps_.size());
+			extra(174 + 3.0 * chunks() + 253.0 * camps_.size());
 		}
+		else extra(27);
 		return camps_;
 	}
 	double unit_gems(const Unit& u)
@@ -279,6 +337,7 @@ public:
 		if (u.kind != 1) return 0;
 		std::uint32_t g = 0;
 		api.champion_gems(u.h, &g);
+		extra(40);
 		return g;
 	}
 	bool unit_state(const Unit& u, std::uint32_t bit) { return u.kind == 1 && (u.state & bit); }
@@ -286,19 +345,19 @@ public:
 	{
 		if (u.kind != 2) return false;
 		std::uint32_t life = 0;
-		extra(16);
+		extra(22);
 		return api.camp_state(u.h, &life) == Err::success && life == static_cast<std::uint32_t>(cbs::CampLife::awake);
 	}
 	Tile camp_spawn(const Unit& u) const
 	{
-		extra(17);
+		extra(26);
 		if (u.kind != 2 || u.h >= m.camps.size()) return {};
 		return { m.camps[u.h].pos.x, m.camps[u.h].pos.y };
 	}
 	// static map: the camp spawning on a tile (its type / group), -1 if none
 	int camp_index(Tile t)
 	{
-		extra(55);
+		extra(66);
 		if (!in_bounds(t)) return -1;
 		if (camp_at_.empty())
 		{
@@ -323,7 +382,7 @@ public:
 	{
 		if (!camp_type_ok(k)) return 0;
 		const auto& d = cbs::camp_design(static_cast<cbs::CampType>(static_cast<int>(k)));
-		extra(6);
+		extra(12);
 		return which == 0 ? d.base_health : which == 1 ? d.base_strength : d.base_focus;
 	}
 	double camp_group(const Unit& u) { return u.kind == 2 ? m.camps[u.h].group : -1; }
@@ -335,7 +394,7 @@ public:
 		if (!group_ok(g)) return false;
 		std::uint32_t s = 0;
 		api.camp_group_state(static_cast<std::uint32_t>(g), &s);
-		extra(26);
+		extra(32);
 		return s == static_cast<std::uint32_t>(want);
 	}
 	bool group_respawning(double g) { return group_in_state(g, cbs::GroupState::respawning); }
@@ -361,7 +420,7 @@ public:
 		if (!in_bounds(t)) return false;
 		std::int32_t v = 0;
 		api.is_visible(t.v(), &v);
-		extra(150);
+		extra(100);
 		return v;
 	}
 
@@ -383,7 +442,7 @@ public:
 	// spawn tiles of the camps of one type (static map)
 	Tiles type_spawns(double k)
 	{
-		extra(100);
+		extra(117);
 		if (!camp_type_ok(k)) return { std::make_shared<Bitboard>() };
 		const int i = static_cast<int>(k);
 		return stat(type_sp_[i], [&](Bitboard& b) {
@@ -413,7 +472,8 @@ public:
 
 	// ---- geometry
 	bool in_bounds(Tile t) const { return t.valid() && m.in_bounds(t.v()); }
-	double dist(Tile a, Tile b) const { return a.valid() && b.valid() ? cbs::chebyshev(a.v(), b.v()) : 1e9; }
+	double dist(Tile a, Tile b) const { return extra(30), dist_raw(a, b); } // ~30 in the bot (measured per scored option)
+	double dist_raw(Tile a, Tile b) const { return a.valid() && b.valid() ? cbs::chebyshev(a.v(), b.v()) : 1e9; }
 	Tiles near(Tile t, double r)
 	{
 		auto b = std::make_shared<Bitboard>();
@@ -439,7 +499,7 @@ public:
 		extra(80 + 1.0 * chunks());
 		return s.b ? s.b->count(m.H) : 0;
 	}
-	bool contains(const Tiles& s, Tile t) { return extra(52), s.b && in_bounds(t) && s.b->test(t.v()); }
+	bool contains(const Tiles& s, Tile t) { return extra(60), s.b && in_bounds(t) && s.b->test(t.v()); }
 	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 0); }
 	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 1); }
 	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(225 + 4.0 * chunks()), combine(a, b, 2); }
@@ -534,6 +594,7 @@ public:
 	}
 	double field_at(const Field& f, Tile t) const
 	{
+		extra(70); // the read costs ~70 in the bot (bounds, chunked index; measured per scored option)
 		if (!f.d || !in_bounds(t)) return 1e9;
 #ifdef GENOME_BOT
 		const int i = ((t.y >> 3) * static_cast<int>(cbs::hostbb::md.chunked_width) + (t.x >> 3)) * 64 + (t.y & 7) * 8 + (t.x & 7);
@@ -590,7 +651,7 @@ public:
 	}
 	bool has_lock()
 	{
-		load_items();
+		load_cons();
 		return cons_[cbs::consumable::altar_lock] > 0;
 	}
 
@@ -600,6 +661,7 @@ public:
 		if (i < 0 || i >= cbs::kSharedMemory) return 0;
 		std::uint8_t v = 0;
 		api.read_shared_memory(static_cast<std::int32_t>(i), &v, 1);
+		extra(8);
 		return v;
 	}
 	void write_shared(double i, double v)
@@ -625,13 +687,30 @@ public:
 	}
 
 	// ---- the options of the current pass (legal as far as we know; the engine has the last word)
+	// the target unit of an option of this pass (an entry of the pass's cached unit lists)
 	const Unit& unit_of(const Option& o) const
 	{
 		static const Unit none{};
-		return o.ui >= 0 && o.ui < static_cast<int>(opt_units_.size()) ? opt_units_[o.ui] : none;
+		const Units* us = o.usrc == 1 ? &enemies_ : o.usrc == 2 ? &camps_ : o.usrc == 3 ? &allies_ : nullptr;
+		if (o.usrc == 4) return me_;
+		return us && o.ui >= 0 && o.ui < static_cast<int>(us->size()) ? (*us)[o.ui] : none;
 	}
-	std::vector<Option> opts_buf, failed_buf; // reused by play_turn (no reallocation per pass)
+	std::unique_ptr<OptionList> opts_buf = std::make_unique<OptionList>(); // reused by play_turn (24 KB: off the stack)
+	std::vector<Option> failed_buf; // options the engine refused this turn
 	KindFilter* filter = nullptr;			   // set by play_turn
+	// what the loop did this turn, by option kind (read by after() through acted / acted_tile)
+	bool acted_[16] = {};
+	Tile acted_tile_[16];
+	void reset_acted()
+	{
+		for (int k = 0; k < 16; ++k) acted_[k] = false, acted_tile_[k] = Tile{};
+	}
+	void note_acted(const Option& o)
+	{
+		if (o.kind > 0 && o.kind < 16) acted_[o.kind] = true, acted_tile_[o.kind] = o.tile;
+	}
+	bool acted(double k) const { return k > 0 && k < 16 && acted_[static_cast<int>(k)]; }
+	Tile acted_tile(double k) const { return k > 0 && k < 16 ? acted_tile_[static_cast<int>(k)] : Tile{}; }
 	// consider(kind), once per kind per pass; kinds it rejects are neither listed nor scored
 	bool want(int kind)
 	{
@@ -647,183 +726,182 @@ public:
 	std::int8_t want_[16];
 	std::uint64_t want_pass_ = 0;
 
-	void options(std::vector<Option>& out)
+	void options(OptionList& out)
 	{
-		list_options(out);
-		extra(190.0 * out.size()); // listing work per option in the bot (copies, checks), fitted on farmer/starter games
+		list_options(out); // priced by section inside (the bot's own listing work, fitted on idle / starter / farmer)
 	}
 #ifdef GENOME_PROF
 	// listing fuel by section (bot: real fuel), summed over a turn's passes: start, shop, move, attack, cast, ward, recall, tribute
-	std::int64_t lp_[8] = {}, lp_t_ = 0;
-#define LMARK(i) (lp_[i] += lp_t_ - api.fuel_remaining(), lp_t_ = api.fuel_remaining())
+	// with the options each section added, and the units / tiles it scanned (lp_scan_)
+	std::int64_t lp_[8] = {}, lp_t_ = 0, lp_n_[8] = {}, lp_scan_[8] = {}, lp_act_[8] = {}, lp_scan2_[8] = {}, lp_passes_ = 0;
+	int lp_n0_ = 0;
+#define LMARK(i) (lp_[i] += lp_t_ - api.fuel_remaining(), lp_n_[i] += out.n - lp_n0_, lp_n0_ = out.n, lp_t_ = api.fuel_remaining())
+#define LSCAN(i, k) (lp_scan_[i] += (k))
+#define LACT(i) (++lp_act_[i])
+#define LSCAN2(i, k) (lp_scan2_[i] += (k))
 #else
+#define LSCAN2(i, k) ((void)0)
+#define LACT(i) ((void)0)
 #define LMARK(i) ((void)0)
+#define LSCAN(i, k) ((void)0)
+#define LACT(i) ((void)0)
+#define LSCAN2(i, k) ((void)0)
 #endif
-	void list_options(std::vector<Option>& out)
+	void list_options(OptionList& out)
 	{
+		out.n = 0;
 #ifdef GENOME_PROF
-		lp_t_ = api.fuel_remaining();
+		lp_t_ = api.fuel_remaining(), lp_n0_ = 0, ++lp_passes_;
 #endif
-		out.clear();
-		opt_units_.clear();
 		if (api.champ() < 0)
 		{
 			for (int c = 0; c < cbs::kNumDraftChoices; ++c)
 			{
 				const int t = choice_to_type(c);
 				if (picked(false, t)) continue; // the opponent's picks stay legal (GameRules: Drafting)
-				Option o;
-				o.kind = PICK, o.champ = t;
-				out.push_back(o);
+				out.add(PICK).champ = static_cast<std::int8_t>(t);
 			}
 			return;
 		}
-		const Unit& self_u = me();
+		const Unit& self_u = me_u();
 		const std::uint32_t st = self_u.state;
 		const bool alive_now = st & cbs::state_bit::alive;
 		if (alive_now && (st & (cbs::state_bit::recalling | cbs::state_bit::submitting)))
 		{
-			Option o;
-			o.kind = CANCEL;
-			out.push_back(o);
+			out.add(CANCEL);
 			return;
 		}
 		if (alive_now && (st & cbs::state_bit::teleporting)) return;
 		LMARK(0);
+		extra(10);
 		if ((want(BUY) || want(BUY_LOCK)) && can_shop())
 		{
+			LACT(1);
 			const double g = gold();
-			for (int i = 0; i < cbs::kNumItems; ++i)
-			{
-				const auto& d = cbs::item_design(i);
-				if (!d.purchasable || d.cost > g || !want(BUY)) continue;
-				// counts in powers of two up to what we can pay: any number in a few passes
-				for (int c = 1; c * d.cost <= g; c *= 2)
+			if (want(BUY))
+				for (const ShopItem& it : shop_items())
 				{
-					Option o;
-					o.kind = BUY, o.item = i, o.count = c;
-					out.push_back(o);
+					LSCAN(1, 1);
+					extra(24);
+					if (it.cost > g) continue;
+					// counts in powers of two up to what we can pay: any number in a few passes
+					for (int c = 1; c * it.cost <= g; c *= 2)
+					{
+						Option& o = out.add(BUY);
+						o.item = static_cast<std::int8_t>(it.item), o.count = c;
+						extra(55);
+					}
 				}
-			}
-			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
-			{
-				Option o;
-				o.kind = BUY_LOCK;
-				out.push_back(o);
-			}
+			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock()) out.add(BUY_LOCK);
 		}
 		LMARK(1);
-		if (!alive_now) return;
+		if (!alive_now) return extra(250); // a dead champion's turn costs ~250 more in the bot (starter games)
 		const Tile p = self_u.pos;
+		const std::uint8_t* cls = classes();
+		const int W = m.W, H = m.H;
+		LACT(0);
+		extra(40);
+		const int n_move = out.n;
 		if ((st & cbs::state_bit::can_move) && want(MOVE))
 		{
-			const Bitboard& occ = occupancy();
-			for (int dy = -1; dy <= 1; ++dy)
-				for (int dx = -1; dx <= 1; ++dx)
+			LACT(2);
+			for (int y = std::max(0, p.y - 1); y <= std::min(H - 1, p.y + 1); ++y)
+				for (int x = std::max(0, p.x - 1); x <= std::min(W - 1, p.x + 1); ++x)
 				{
-					const Vec2 q{ p.x + dx, p.y + dy };
-					if ((!dx && !dy) || !m.in_bounds(q) || (tclass(q) & (kWall | kHole | kAltar | kEnemySpawn)) || occ.test(q)) continue;
-					Option o;
-					o.kind = MOVE, o.tile = { q.x, q.y };
-					out.push_back(o);
+					if ((x == p.x && y == p.y) || (cls[y * W + x] & (kWall | kHole | kAltar | kEnemySpawn)) || occupied(x, y)) continue;
+					out.add(MOVE).tile = { x, y };
 				}
+			extra(421 + 1.24 * chunks() + 70.0 * (out.n - n_move));
 		}
 		LMARK(2);
 		if ((st & cbs::state_bit::can_attack) && want(ATTACK))
 		{
-			for (const Unit& u : enemies())
-				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
-			for (const Unit& u : camps())
-				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
+			LACT(3);
+			add_units(out, ATTACK, -1, enemies(), 1, self_u.attack_range, p);
+			add_units(out, ATTACK, -1, camps(), 2, self_u.attack_range, p);
 		}
 		LMARK(3);
 		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
 			{
+				LACT(4);
+				extra(248);
 				if (!slot_ready(s)) continue;
+				LSCAN2(5, 1); // ready slots (counted under ward's second column)
 				const auto& pr = props(s);
 				const double reach = pr.range + 0.5;
-				auto add_units = [&](const Units& us) {
-					for (const Unit& u : us)
-						if (dist(p, u.pos) <= reach)
-						{
-							Option o = target_option(CAST, u);
-							o.slot = s;
-							out.push_back(o);
-						}
-				};
-				if (pr.targets & cbs::target::enemies) add_units(enemies());
-				if (pr.targets & cbs::target::camps) add_units(camps());
-				if (pr.targets & cbs::target::allies) add_units(allies());
+				if (pr.targets & cbs::target::enemies) add_units(out, CAST, s, enemies(), 1, reach, p);
+				if (pr.targets & cbs::target::camps) add_units(out, CAST, s, camps(), 2, reach, p);
+				if (pr.targets & cbs::target::allies) add_units(out, CAST, s, allies(), 3, reach, p);
 				if (pr.targets & cbs::target::self)
 				{
-					Option o = target_option(CAST, self_u);
-					o.slot = s;
-					out.push_back(o);
+					Option& o = unit_option(out, CAST, self_u, 4, 0);
+					o.slot = static_cast<std::int8_t>(s);
 				}
 				if (pr.targets & cbs::target::ground)
 				{
 					const int r = static_cast<int>(std::floor(pr.range));
-					for (int dy = -r; dy <= r; ++dy)
-						for (int dx = -r; dx <= r; ++dx)
-						{
-							const Vec2 q{ p.x + dx, p.y + dy };
-							if ((!dx && !dy) || !m.in_bounds(q) || (tclass(q) & kWall)) continue;
-							Option o;
-							o.kind = CAST, o.slot = s, o.tile = { q.x, q.y };
-							out.push_back(o);
-						}
+					tile_options(out, CAST, s, p, r, true);
 				}
 			}
 		LMARK(4);
 		{
 			cbs::WardResources wr{};
 			api.champion_wards(self(), &wr);
-			if (wr.charges > 0 && want(WARD))
-			{
-				const int r = static_cast<int>(cbs::settings().ward_placement_radius);
-				for (int dy = -r; dy <= r; ++dy)
-					for (int dx = -r; dx <= r; ++dx)
-					{
-						const Vec2 q{ p.x + dx, p.y + dy };
-						if (!m.in_bounds(q) || (tclass(q) & kWall)) continue;
-						Option o;
-						o.kind = WARD, o.tile = { q.x, q.y };
-						out.push_back(o);
-					}
-			}
+			LACT(5);
+			extra(168);
+			if (wr.charges > 0 && want(WARD)) tile_options(out, WARD, -1, p, static_cast<int>(cbs::settings().ward_placement_radius), false);
 		}
 		LMARK(5);
-		if (!(tclass(p.v()) & kMySpawn) && want(RECALL))
-		{
-			Option o;
-			o.kind = RECALL;
-			out.push_back(o);
-		}
+		LACT(6);
+		extra(11);
+		if (!(cls[p.y * W + p.x] & kMySpawn) && want(RECALL)) out.add(RECALL), extra(50);
 		LMARK(6);
-		const bool lock = has_lock();
 		const double g = gems();
-		if ((g > 0 && want(TRIBUTE)) || (lock && want(LOCK)))
+		// (as before: once tributes are listed, LOCK options are too, even if consider() rejects LOCK)
+		const bool tribute = g > 0 && want(TRIBUTE), lock = (tribute || want(LOCK)) && has_lock();
+		LACT(7);
+		if (tribute || lock)
 		{
+			LSCAN(7, m.altar_list.size());
+			extra(59.0 * m.altar_list.size());
 			for (Vec2 a : m.altar_list)
 			{
 				const int d = cbs::chebyshev(a, p.v());
 				// at an enemy-locked altar a tribute is legal too: it hits the lock (5 hits clear it)
-				if (g > 0 && d <= cbs::settings().submit_gems_range)
-				{
-					Option o;
-					o.kind = TRIBUTE, o.tile = { a.x, a.y };
-					out.push_back(o);
-				}
-				if (lock && d <= 2)
-				{
-					Option o;
-					o.kind = LOCK, o.tile = { a.x, a.y };
-					out.push_back(o);
-				}
+				if (g > 0 && d <= cbs::settings().submit_gems_range) out.add(TRIBUTE).tile = { a.x, a.y };
+				if (lock && d <= 2) out.add(LOCK).tile = { a.x, a.y };
 			}
 		}
 		LMARK(7);
+	}
+	// The tiles within Chebyshev r of p that are not walls (row-major; ground casts skip p itself).
+	void tile_options(OptionList& out, int kind, int slot, Tile p, int r, bool skip_self)
+	{
+		const std::uint8_t* cls = classes();
+		const int W = m.W;
+		const int x0 = std::max(0, p.x - r), x1 = std::min(W - 1, p.x + r);
+		const int scanned = (x1 - x0 + 1) * (std::min(m.H - 1, p.y + r) - std::max(0, p.y - r) + 1);
+		LSCAN(kind == WARD ? 5 : 4, scanned);
+		const int n0 = out.n;
+		for (int y = std::max(0, p.y - r), y1 = std::min(m.H - 1, p.y + r); y <= y1; ++y)
+		{
+			const std::uint8_t* row = cls + y * W;
+			for (int x = x0; x <= x1; ++x)
+			{
+				if ((row[x] & kWall) || (skip_self && x == p.x && y == p.y)) continue;
+				Option& o = out.add(kind);
+				o.slot = static_cast<std::int8_t>(slot), o.tile = { x, y };
+			}
+		}
+		extra(kind == WARD ? 17.8 * scanned + 40.0 * (out.n - n0) : 56.0 * scanned);
+	}
+	void add_units(OptionList& out, int kind, int slot, const Units& us, int src, double reach, Tile p)
+	{
+		if (kind == ATTACK) LSCAN(3, us.size());
+		else LSCAN2(4, us.size()), extra(75.0 * us.size());
+		for (int i = 0; i < static_cast<int>(us.size()); ++i)
+			if (dist_raw(p, us[i].pos) <= reach) unit_option(out, kind, us[i], src, i).slot = static_cast<std::int8_t>(slot), extra(kind == ATTACK ? 97 : 0);
 	}
 
 	// Do one option; false if the engine refused it (it is then skipped for the rest of the turn).
@@ -859,11 +937,11 @@ public:
 private:
 	std::uint32_t self_ = 0;
 	Unit me_;
-	Units enemies_, allies_, camps_, opt_units_;
+	Units enemies_, allies_, camps_;
 	double gems_ = 0, gold_ = 0;
 	bool have_me_ = false, have_enemies_ = false, have_allies_ = false, have_camps_ = false, have_gems_ = false, have_gold_ = false,
-		 have_occ_ = false, have_items_ = false;
-	Bitboard occ_;
+		 have_occ_ = false, have_items_ = false, have_cons_ = false;
+	Bitboard occ_[3];
 	std::uint32_t items_[cbs::kNumItems] = {}, cons_[cbs::kNumConsumables] = {};
 	cbs::AbilityProps props_[2] = {};
 	std::uint64_t props_pass_[2] = { 0, 0 };
@@ -904,51 +982,67 @@ private:
 		}
 		extra(enemy ? 250 + 170 * out.size() : 170 * out.size());
 	}
-	Option target_option(int kind, const Unit& u)
+	Option& unit_option(OptionList& out, int kind, const Unit& u, int src, int i)
 	{
-		Option o;
-		o.kind = kind, o.tile = u.pos, o.ukind = u.kind, o.uh = u.h, o.ui = static_cast<int>(opt_units_.size());
-		opt_units_.push_back(u);
+		Option& o = out.add(kind);
+		o.tile = u.pos, o.ukind = static_cast<std::int8_t>(u.kind), o.uh = u.h, o.usrc = static_cast<std::int8_t>(src), o.ui = static_cast<std::int16_t>(i);
 		return o;
 	}
 	// Static terrain class per tile, as plain bytes: one host bitboard test costs ~120 fuel in the bot.
 	enum : std::uint8_t { kWall = 1, kHole = 2, kAltar = 4, kEnemySpawn = 8, kMySpawn = 16 };
-	std::vector<std::uint8_t> cls_;
-	std::uint8_t tclass(Vec2 q)
+	struct ShopItem
 	{
-		if (cls_.empty())
-		{
-			cls_.assign(static_cast<std::size_t>(m.W) * m.H, 0);
-			auto mark = [&](const Bitboard& b, std::uint8_t bit) { b.for_each_unordered(m.H, [&](int x, int y) { cls_[y * m.W + x] |= bit; }); };
-			mark(m.walls, kWall), mark(m.holes, kHole), mark(m.altars, kAltar);
-			mark(m.spawn_mask[1 - api.team()], kEnemySpawn), mark(m.spawn_mask[api.team()], kMySpawn);
-		}
-		return cls_[m.idx(q)];
+		int item, cost;
+	};
+	std::vector<ShopItem> shop_; // the purchasable items, in item order (static)
+	const std::vector<ShopItem>& shop_items()
+	{
+		if (shop_.empty())
+			for (int i = 0; i < cbs::kNumItems; ++i)
+				if (cbs::item_design(i).purchasable) shop_.push_back({ i, static_cast<int>(cbs::item_design(i).cost) });
+		return shop_;
+	}
+	std::vector<std::uint8_t> cls_;
+	const std::uint8_t* classes()
+	{
+		if (cls_.empty()) build_classes();
+		return cls_.data();
+	}
+	void build_classes()
+	{
+		cls_.assign(static_cast<std::size_t>(m.W) * m.H, 0);
+		auto mark = [&](const Bitboard& b, std::uint8_t bit) { b.for_each_unordered(m.H, [&](int x, int y) { cls_[y * m.W + x] |= bit; }); };
+		mark(m.walls, kWall), mark(m.holes, kHole), mark(m.altars, kAltar);
+		mark(m.spawn_mask[1 - api.team()], kEnemySpawn), mark(m.spawn_mask[api.team()], kMySpawn);
 	}
 	std::vector<std::shared_ptr<const Bitboard>> group_tiles_;
-	const Bitboard& occupancy()
+	// a unit stands on (x, y): the three SDK occupancy masks, tested per tile (no board unions)
+	bool occupied(int x, int y)
 	{
 		if (!have_occ_)
 		{
-			Bitboard t;
-			api.ally_occupancy(occ_);
-			api.enemy_occupancy(t);
-			occ_ |= t;
-			api.camp_occupancy(t, 0);
-			occ_ |= t;
+			api.ally_occupancy(occ_[0]);
+			api.enemy_occupancy(occ_[1]);
+			api.camp_occupancy(occ_[2], 0);
 			have_occ_ = true;
 		}
-		return occ_;
+		return occ_[0].test(x, y) || occ_[1].test(x, y) || occ_[2].test(x, y);
 	}
 	void load_items()
 	{
 		if (have_items_) return;
 		std::fill(std::begin(items_), std::end(items_), 0u);
-		std::fill(std::begin(cons_), std::end(cons_), 0u);
 		api.champion_items(self(), items_);
-		api.champion_consumables(self(), cons_);
 		have_items_ = true;
-		extra(260);
+		extra(210);
+	}
+	void load_cons()
+	{
+		if (have_cons_) return;
+		std::fill(std::begin(cons_), std::end(cons_), 0u);
+		api.champion_consumables(self(), cons_);
+		have_cons_ = true;
+		extra(73);
 	}
 	template <class Fill>
 	Tiles stat(std::shared_ptr<const Bitboard>& slot, Fill&& fill)
@@ -983,6 +1077,7 @@ struct GenesBase : KindFilter
 	virtual ~GenesBase() = default;
 	virtual double score_option(const Option& o) = 0;
 	virtual void run_update() = 0;
+	virtual void run_after() {}
 	bool consider_kind(int) override { return true; }
 	bool has_consider() const override { return false; }
 	Ctx& X;
@@ -993,10 +1088,9 @@ using MakeGenes = GenesBase* (*)(Ctx&);
 // One turn of the fixed loop. Returns the number of actions taken.
 inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 {
-	std::vector<Option>& opts = X.opts_buf;
+	OptionList& opts = *X.opts_buf;
 	std::vector<Option>& failed = X.failed_buf;
 	failed.clear();
-	if (opts.capacity() < 256) opts.reserve(256);
 	auto same = [](const Option& a, const Option& b) {
 		return a.kind == b.kind && a.ukind == b.ukind && a.uh == b.uh && a.tile == b.tile && a.slot == b.slot && a.item == b.item &&
 			   a.champ == b.champ && a.count == b.count;
@@ -1027,6 +1121,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #endif
 	static const bool trace = GENOME_TRACE_ON || std::getenv("GENOME_TRACE");
 	X.new_pass();
+	X.reset_acted();
 	if (!draft) g.run_update();
 	int acted = 0;
 	for (int pass = 0; pass < max_passes; ++pass)
@@ -1049,6 +1144,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 			bool skip = false;
 			for (const Option& f : failed) skip |= same(o, f);
 			if (skip) continue;
+			X.extra(30); // the loop's own work per option scored in the bot (call, compare), beyond the gene's operations
 			const double s = g.score_option(o);
 			if (!best || s > bs) best = &o, bs = s;
 		}
@@ -1058,20 +1154,25 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 		const bool ok = X.execute(*best);
 		PROF_MARK(f_exec);
 		if (trace)
-			std::fprintf(GENOME_TRACE_OUT, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %zu camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
-						 static_cast<int>(X.round()), X.api.team(), X.api.champ(), X.me().pos.x, X.me().pos.y, best->kind, bs, best->tile.x,
-						 best->tile.y, best->ukind, best->uh, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me().state, X.me().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist(X.me().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
-		if (ok) ++acted;
+			std::fprintf(GENOME_TRACE_OUT, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %d camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
+						 static_cast<int>(X.round()), X.api.team(), X.api.champ(), X.me_u().pos.x, X.me_u().pos.y, best->kind, bs, best->tile.x,
+						 best->tile.y, best->ukind, best->uh, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me_u().state, X.me_u().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist_raw(X.me_u().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
+		if (ok) ++acted, X.note_acted(*best);
 		else failed.push_back(*best);
 		if (fuel_trace >= 0 && X.api.spent > fuel_trace)
-			std::fprintf(stderr, "@@FP r%d t%d c%d pass %d spent %lld kind %d ok %d options %zu\n", static_cast<int>(X.round()), X.api.team(),
+			std::fprintf(stderr, "@@FP r%d t%d c%d pass %d spent %lld kind %d ok %d options %d\n", static_cast<int>(X.round()), X.api.team(),
 						 X.api.champ(), pass, static_cast<long long>(X.api.spent), best->kind, ok ? 1 : 0, opts.size());
 		if (draft) break;
+	}
+	if (!draft)
+	{
+		X.new_pass(); // after() sees the state after this turn's actions
+		g.run_after();
 	}
 #ifdef GENOME_PROF
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) % 500 == 0)
 		for (const auto& gs : gene_stats)
-			if (gs.name) std::printf("@@GENE r%d %s calls %lld fuel %lld per %.0f\n", static_cast<int>(X.round()), gs.name, gs.calls, gs.fuel, gs.calls ? double(gs.fuel) / gs.calls : 0.0);
+			if (gs.name) std::printf("@@GENE r%d %s calls %lld fuel %lld per %.0f self %lld kids %lld\n", static_cast<int>(X.round()), gs.name, gs.calls, gs.fuel, gs.calls ? double(gs.fuel) / gs.calls : 0.0, gs.self, gs.kids);
 	// the field records, a few per turn from round 600 (a long print can be suspended and lost)
 	static int field_printed = 0;
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) >= 600)
@@ -1084,10 +1185,13 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 					static_cast<long long>(f_exec), static_cast<long long>(X.api.fuel_remaining()), X.ops - ops0,
 					static_cast<long long>(start - X.api.fuel_remaining()));
 	if (!draft && (GENOME_PROF_EVERY <= 1 || static_cast<int>(X.round()) % GENOME_PROF_EVERY == 1))
-		std::printf("@@L t%d r%d c%d start %lld shop %lld move %lld attack %lld cast %lld ward %lld recall %lld tribute %lld\n", X.api.team(),
-					static_cast<int>(X.round()), X.api.champ(), (long long)X.lp_[0], (long long)X.lp_[1], (long long)X.lp_[2], (long long)X.lp_[3],
-					(long long)X.lp_[4], (long long)X.lp_[5], (long long)X.lp_[6], (long long)X.lp_[7]);
-	for (auto& v : X.lp_) v = 0;
+	{
+		std::printf("@@L t%d r%d c%d passes %lld chunks %.0f", X.api.team(), static_cast<int>(X.round()), X.api.champ(), (long long)X.lp_passes_, X.chunks());
+		for (int i = 0; i < 8; ++i) std::printf(" | %lld %lld %lld %lld %lld", (long long)X.lp_[i], (long long)X.lp_n_[i], (long long)X.lp_scan_[i], (long long)X.lp_act_[i], (long long)X.lp_scan2_[i]);
+		std::printf("\n");
+	}
+	for (int i = 0; i < 8; ++i) X.lp_[i] = X.lp_n_[i] = X.lp_scan_[i] = X.lp_act_[i] = X.lp_scan2_[i] = 0;
+	X.lp_passes_ = 0;
 #endif
 	if (fuel_trace >= 0 && X.api.spent > fuel_trace)
 		std::fprintf(stderr, "@@F r%d t%d c%d spent %lld acted %d draft %d\n", static_cast<int>(X.round()), X.api.team(), X.api.champ(),
@@ -1107,6 +1211,16 @@ public:
 		return [make](Api& api) {
 			Ctx X(api);
 			std::unique_ptr<GenesBase> g(make(X));
+			// the bot's one-off start-up on a champion's first turn (map and game built from the engine,
+			// runtime tables): first-turn fuel minus the simulator's, idle genome on 8 maps (err < 4.5k)
+			if (api.champ() >= 0)
+			{
+				const auto& m = api.map();
+				std::int64_t holes = 0;
+				for (int y = 0; y < m.H; ++y)
+					for (int x = 0; x < m.W; ++x) holes += m.holes.test(x, y);
+				X.extra(17444 + 3.13 * m.W * m.H + 35.5 * holes + 376.0 * m.camps.size());
+			}
 			for (;;)
 			{
 				play_turn(X, *g);

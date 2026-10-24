@@ -91,73 +91,31 @@ int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard*
 	using Row = unsigned __int128;
 	auto load = [](const Bitboard& b, int y) { return static_cast<Row>(b.w[y][0]) | static_cast<Row>(b.w[y][1]) << 64; };
 	const Row full = W >= 128 ? ~Row{ 0 } : (Row{ 1 } << W) - 1;
-	Row open[kMaxDim], seen[kMaxDim], front[kMaxDim], next[kMaxDim];
-	visited.clear();
-	for (int i = 0; i < W * H; ++i) dist[i] = kUnreachable;
-	bool reached = false, any = false;
+	Row seen[kMaxDim];
+	std::fill(dist, dist + W * H, kUnreachable);
+	bool reached = false;
 	int left = 0; // all_dests: dests not yet reached
 	if (dests && all_dests)
 		for (int y = 0; y < H; ++y) left += popcount128(load(*dests, y) & full);
-	auto arrive = [&](Row layer, int y) {
-		const Row hit = layer & load(*dests, y);
-		if (!hit) return;
-		if (!all_dests) reached = true;
-		else if ((left -= popcount128(hit)) == 0) reached = true;
-	};
-	int y0 = H, y1 = -1; // rows spanned by the frontier
-	for (int y = 0; y < H; ++y)
-	{
-		open[y] = ~load(walls, y) & full;
-		front[y] = load(roots, y) & open[y];
-		seen[y] = front[y];
-		if (front[y])
-		{
-			any = true;
-			y0 = std::min(y0, y), y1 = y;
-			if (dests) arrive(front[y], y);
-			for (Row b = front[y]; b; b &= b - 1) dist[y * W + ctz128(b)] = 0;
-		}
-	}
-	int count = 0, depth = 0;
-	while (any)
-	{
-		if (dests && reached) break;
-		if (depth >= max_distance) break;
-		any = false;
-		const int lo = std::max(0, y0 - 1), hi = std::min(H - 1, y1 + 1);
-		int n0 = H, n1 = -1;
-		for (int y = lo; y <= hi; ++y)
-		{
-			Row h = 0;
-			for (int yy = std::max(0, y - 1); yy <= std::min(H - 1, y + 1); ++yy)
-				if (yy >= y0 && yy <= y1) h |= front[yy];
-			h |= h << 1 | h >> 1;
-			next[y] = h & open[y] & ~seen[y];
-			if (next[y])
-			{
-				any = true;
-				n0 = std::min(n0, y), n1 = y;
-			}
-		}
-		const std::uint16_t d = static_cast<std::uint16_t>(depth + 1);
-		for (int y = lo; y <= hi; ++y)
-		{
-			front[y] = next[y];
-			if (!next[y]) continue;
-			seen[y] |= next[y];
-			if (dests) arrive(next[y], y);
-			for (Row b = next[y]; b; b &= b - 1) dist[y * W + ctz128(b)] = d;
-		}
-		// Rows of the old frontier outside [lo, hi] cannot exist; clear stale rows outside the new span.
-		y0 = n0, y1 = n1;
-		++depth;
-		++count;
-	}
+	const int count = bfs_layers(
+		walls, roots, W, H, max_distance, seen,
+		[&](Row layer, int y, int d) {
+			if (dests)
+				if (const Row hit = layer & load(*dests, y))
+				{
+					if (!all_dests) reached = true;
+					else if ((left -= popcount128(hit)) == 0) reached = true;
+				}
+			std::uint16_t* row = dist + y * W;
+			for (Row b = layer; b; b &= b - 1) row[ctz128(b)] = static_cast<std::uint16_t>(d);
+		},
+		[&] { return dests && reached; });
 	for (int y = 0; y < H; ++y)
 	{
 		visited.w[y][0] = static_cast<std::uint64_t>(seen[y]);
 		visited.w[y][1] = static_cast<std::uint64_t>(seen[y] >> 64);
 	}
+	for (int y = H; y < kMaxDim; ++y) visited.w[y][0] = visited.w[y][1] = 0;
 	return count;
 }
 

@@ -31,8 +31,11 @@ class Child:
 def pick_edges(genome, rng, two_prob=0.25):
     """One edge, sometimes two (distinct). A genome without edges mutates score alone."""
     edges = genome.edges()
-    if "consider" in genome.genes:  # the loop links consider() and score(): consider gates what score sees
-        edges.append(("score", "consider", "loop"))
+    # the fixed loop links the entry genes: consider() gates what score() sees; update() runs before and
+    # after() after the scoring passes, so they are targetable even when no call or data link reaches them
+    for entry in ("consider", "update", "after"):
+        if entry in genome.genes and not any(entry in (a, b) for a, b, _ in edges):
+            edges.append(("score", entry, "loop"))
     if not edges:
         return [("score", "score", "self")]
     n = 2 if len(edges) > 1 and rng.random() < two_prob else 1

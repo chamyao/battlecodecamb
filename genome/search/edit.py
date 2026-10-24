@@ -10,7 +10,7 @@ import re
 from .. import lang
 
 
-ENTRIES = ("score", "update", "consider")  # genes the fixed loop calls
+ENTRIES = ("score", "update", "consider", "after")  # genes the fixed loop calls
 
 
 class EditError(Exception):
