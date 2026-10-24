@@ -192,6 +192,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   visible and standing in a bush, ward our own tile. Tune line's league 1710 [1698-1725] vs v19 1670 (re-run 1691);
   real cambc 45/80 vs v19, 0 capped turns, peak 93.9k; sim-vs-cambc agreement 60/80 (baseline v19 vs v18: 58/80),
   so the allied-ward move rule the sim doesn't model shows no effect.
+  v20: 0-50 vs the top-team groups (vc?, Mite, willow had updated their bots; prism's 00quadrants win flipped at our
+  first ward); 15-5 in its first 20 ranked. Sim: the ward doesn't cost gems vs hunters/stand-ins.
+  21 = tune-v20-L1c (`deploy/v0` d9d2897, sha256 c8ea639c...; ~12:40 UTC): v20 + one altar lock per team (one buy
+  claimed in shared byte 7 bit 1, placed bit 0, placement gated at fuel > 60000). League 1716 [1703-1731] vs v20
+  1676 (v19-L1c 1690); real cambc 44/80 vs v20, 0 capped turns, peak 93.0k, 1 buy/team/game, placed 79/80.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
