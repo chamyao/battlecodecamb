@@ -72,6 +72,12 @@ AXES = {
              "beacon b (0-63), e.g. which pair is in a fight. Retreating "
              "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
              "tests, so stay close WHILE farming rather than walking across the map to regroup",
+    "conversion": "GEM CONVERSION (the biggest measured gap to the band above us, docs/GAP_LIST.md): we lose 184 "
+                  "gems per game on death, 54% of our deaths happen while carrying gems (a median 7 tiles from an "
+                  "altar), we submit 76% of the gems we capture (they 99%), and we bank 18 times a game (they 26). "
+                  "Work on bank cadence, bag size against the distance to the nearest safe altar (gems(), "
+                  "closest(safe altars), distance), carrying routes that avoid enemies (in_danger(), enemies_within), "
+                  "tributing before a fight, and taking richer camp groups closer to altars",
     "disengage": "DISENGAGE, i.e. not being caught in losing fights at low HP: once one of our champions is "
                  "below 50% HP with an enemy within 5 it dies 88% of the time (the top team 6%, similar teams "
                  "13-20%). MEASURED: walking away mid-fight (HP below 0.4-0.6 with an enemy within 5-6) is strongly "
@@ -117,11 +123,12 @@ FRAMINGS = {
 
 
 def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None):
-    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu
-    (default all of AXES)."""
+    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu, a
+    list of names or {name: weight} (default all of AXES, equal weights)."""
     change = rng.choices(list(CHANGE_TYPES), change_weights)[0]
+    menu = axes if isinstance(axes, dict) else {a: 1.0 for a in (axes or AXES)}
     return {
-        "axis": rng.choice(list(axes or AXES)),
+        "axis": rng.choices(list(menu), list(menu.values()))[0],
         "change": change,
         "framing": rng.choice(list(FRAMINGS)),
         "catalog": rng.choice(["full", "lean"]),

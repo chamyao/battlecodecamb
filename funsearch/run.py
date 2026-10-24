@@ -87,7 +87,8 @@ def main():
     ap.add_argument("--helpers", default="", help="helpers.json from funsearch.helpers: its top self-contained "
                                                  "helpers go into the prompt, and children using one are tagged")
     ap.add_argument("--helpers-budget", type=int, default=2500, help="characters of helper source in the prompt")
-    ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu (default: all axes)")
+    ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu, each optionally "
+                                             "name:weight (default: all axes, equal weights)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
                          "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
@@ -213,7 +214,7 @@ def main():
     if args.explore:
         from .llm import sample_variant
     change_weights = tuple(float(x) for x in args.change_weights.split(","))
-    axes = [a for a in args.axes.split(",") if a]
+    axes = {a.split(":")[0]: float(a.split(":")[1]) if ":" in a else 1.0 for a in args.axes.split(",") if a}
     if args.explore and axes:
         from .llm import AXES
         unknown = [a for a in axes if a not in AXES]
