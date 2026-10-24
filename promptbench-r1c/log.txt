@@ -1,0 +1,93 @@
+runtime pinned to genome/simspeed 4b60b58 (bit-identical to db3f945)
+[r1 bench] default cell 2 (seed, update->walk_field): behavioural twin $0.005
+[r1 bench] default cell 0 (seed, next_shard->shards_done): behavioural twin $0.005
+[r1 bench] default cell 3 (seed, consider->walks): behavioural twin $0.005
+[r1 bench] default cell 4 (seed, update->rule_target): behavioural twin $0.005
+[r1 bench] default cell 1 (seed, r_fight->fight_foe): 0.4875 $0.009
+[r1 bench] default cell 6 (seed, update->shop_pending): behavioural twin $0.009
+[r1 bench] default cell 5 (seed, in_danger->here): behavioural twin $0.009
+[r1 bench] default cell 10 (arenaA-3:A690, walk_field->here): GenomeError: walk_field line 623: unknown function box_field $0.011
+[r1 bench] default cell 7 (seed, cast_value->dash_value): 0.5125 $0.012
+[r1 bench] default cell 9 (arenaA-3:A690, update->mono_groups): behavioural twin $0.012
+[r1 bench] default cell 8 (arenaA-3:A690, enemies_within->here): 0.55 $0.015
+[r1 bench] default cell 13 (arenaA-3:A690, bank_blocked->bank_t1): behavioural twin $0.015
+[r1 bench] default cell 11 (arenaA-3:A690, consider->walks): 0.5125 $0.015
+[r1 bench] default cell 12 (arenaA-3:A690, camp_block->unseen_camps): 0.45 $0.018
+[r1 bench] default cell 14 (arenaA-3:A690, step_gain->here): 0.5375 $0.018
+[r1 bench] default cell 17 (arenaA-3:A703, r_fight->fight_foe): behavioural twin $0.020
+[r1 bench] default cell 15 (arenaA-3:A690, dash_spot->here): 0.5 $0.020
+[r1 bench] default cell 16 (arenaA-3:A703, walk_open->taken): 0.4875 $0.022
+[r1 bench] default cell 18 (arenaA-3:A703, ahead_on->ahead_foe): 0.475 $0.022
+[r1 bench] default cell 19 (arenaA-3:A703, rule->r_run): 0.4375 $0.022
+[r1 bench] default cell 20 (arenaA-3:A703, blocked->here): behavioural twin $0.022
+[r1 bench] default cell 22 (arenaA-3:A703, update->bank_t2): behavioural twin $0.026
+[r1 bench] default cell 21 (arenaA-3:A703, update->shop_pending): 0.5 $0.026
+[r1 bench] default cell 24 (arenaA-3:A701, r_camp->in_reach): behavioural twin $0.028
+[r1 bench] default cell 25 (arenaA-3:A701, cast_value->dash_value): behavioural twin $0.028
+[r1 bench] default cell 26 (arenaA-3:A701, bank_blocked->in_reach): behavioural twin $0.028
+[r1 bench] default cell 23 (arenaA-3:A703, act_value->walks): 0.4875 $0.029
+[r1 bench] default cell 27 (arenaA-3:A701, next_shard->shards_done): behavioural twin $0.029
+[r1 bench] default cell 29 (arenaA-3:A701, rule->threat_near): 0.5 $0.033
+[r1 bench] default cell 28 (arenaA-3:A701, rule_goal->live_camp): 0.5125 $0.033
+[r1 bench] default cell 30 (arenaA-3:A701, camp_goal->respawning): 0.075 $0.033
+[r1 bench] default cell 31 (arenaA-3:A701, move_value->step_gain): 0.5 $0.036
+[r1 bench] default cell 32 (arenaA-3:A689, r_run->hurt_below): 0.5375 $0.036
+[r1 bench] default cell 33 (arenaA-3:A689, foe_in_reach->here): behavioural twin $0.036
+[r1 bench] default cell 34 (arenaA-3:A689, score->act_value): behavioural twin $0.038
+[r1 bench] default cell 36 (arenaA-3:A689, under_fire->enemies_within): behavioural twin $0.040
+[r1 bench] default cell 35 (arenaA-3:A689, threat_eta->here): 0.5 $0.040
+[r1 bench] default cell 37 (arenaA-3:A689, rule->r_recall): 0.5375 $0.041
+[r1 bench] default cell 38 (arenaA-3:A689, update->shard_until): 0.5125 $0.042
+[r1 bench] creative cell 2 (seed, update->walk_field): GenomeError: walk_field line 606: unknown function box_field $0.043
+[r1 bench] default cell 39 (arenaA-3:A689, reach_camp->in_reach): 0.0625 $0.043
+[r1 bench] creative cell 0 (seed, next_shard->shards_done): 0.525 $0.046
+[r1 bench] creative cell 1 (seed, r_fight->fight_foe): 0.5125 $0.046
+[r1 bench] creative cell 5 (seed, in_danger->here): behavioural twin $0.046
+[r1 bench] creative cell 3 (seed, consider->walks): 0.5125 $0.048
+[r1 bench] creative cell 4 (seed, update->rule_target): 0.55 $0.049
+[r1 bench] creative cell 9 (arenaA-3:A690, update->mono_groups): behavioural twin $0.051
+[r1 bench] creative cell 7 (seed, cast_value->dash_value): 0.275 $0.051
+[r1 bench] creative cell 6 (seed, update->shop_pending): 0.5125 $0.051
+[r1 bench] creative cell 8 (arenaA-3:A690, enemies_within->here): 0.5125 $0.052
+[r1 bench] creative cell 13 (arenaA-3:A690, bank_blocked->bank_t1): behavioural twin $0.056
+[r1 bench] creative cell 10 (arenaA-3:A690, walk_field->here): 0.5375 $0.056
+[r1 bench] creative cell 12 (arenaA-3:A690, camp_block->unseen_camps): 0.4625 $0.057
+[r1 bench] creative cell 16 (arenaA-3:A703, walk_open->taken): EditError: no change $0.058
+[r1 bench] creative cell 11 (arenaA-3:A690, consider->walks): 0.0 $0.058
+[r1 bench] creative cell 14 (arenaA-3:A690, step_gain->here): 0.35 $0.059
+[r1 bench] creative cell 15 (arenaA-3:A690, dash_spot->here): 0.5125 $0.062
+[r1 bench] creative cell 18 (arenaA-3:A703, ahead_on->ahead_foe): 0.4375 $0.062
+[r1 bench] creative cell 19 (arenaA-3:A703, rule->r_run): 0.525 $0.064
+[r1 bench] creative cell 17 (arenaA-3:A703, r_fight->fight_foe): 0.5 $0.064
+[r1 bench] creative cell 20 (arenaA-3:A703, blocked->here): 0.3375 $0.064
+[r1 bench] creative cell 25 (arenaA-3:A701, cast_value->dash_value): GenomeError: dash_value line 374: expected Bool, got Num $0.069
+[r1 bench] creative cell 21 (arenaA-3:A703, update->shop_pending): 0.4875 $0.069
+[r1 bench] creative cell 24 (arenaA-3:A701, r_camp->in_reach): 0.525 $0.070
+[r1 bench] creative cell 23 (arenaA-3:A703, act_value->walks): 0.475 $0.071
+[r1 bench] creative cell 22 (arenaA-3:A703, update->bank_t2): 0.5375 $0.071
+[r1 bench] creative cell 29 (arenaA-3:A701, rule->threat_near): GenomeError: threat_near line 269: expected Bool, got Num $0.072
+[r1 bench] creative cell 26 (arenaA-3:A701, bank_blocked->in_reach): 0.0375 $0.073
+[r1 bench] creative cell 27 (arenaA-3:A701, next_shard->shards_done): 0.475 $0.076
+[r1 bench] creative cell 28 (arenaA-3:A701, rule_goal->live_camp): 0.5 $0.077
+[r1 bench] creative cell 31 (arenaA-3:A701, move_value->step_gain): 0.375 $0.077
+[r1 bench] creative cell 30 (arenaA-3:A701, camp_goal->respawning): 0.5125 $0.077
+[r1 bench] creative cell 33 (arenaA-3:A689, foe_in_reach->here): behavioural twin $0.077
+[r1 bench] creative cell 32 (arenaA-3:A689, r_run->hurt_below): 0.4875 $0.077
+[r1 bench] creative cell 36 (arenaA-3:A689, under_fire->enemies_within): EditError: no change $0.081
+[r1 bench] creative cell 34 (arenaA-3:A689, score->act_value): 0.55 $0.083
+[r1 bench] creative cell 37 (arenaA-3:A689, rule->r_recall): 0.4125 $0.083
+[r1 bench] creative cell 35 (arenaA-3:A689, threat_eta->here): 0.4875 $0.083
+[r1 bench] missing cell 2 (seed, update->walk_field): behavioural twin $0.084
+[r1 bench] creative cell 38 (arenaA-3:A689, update->shard_until): 0.525 $0.084
+[r1 bench] creative cell 39 (arenaA-3:A689, reach_camp->in_reach): 0.45 $0.086
+[r1 bench] missing cell 4 (seed, update->rule_target): behavioural twin $0.089
+[r1 bench] missing cell 3 (seed, consider->walks): behavioural twin $0.089
+[r1 bench] missing cell 5 (seed, in_danger->here): behavioural twin $0.089
+[r1 bench] missing cell 1 (seed, r_fight->fight_foe): 0.4875 $0.090
+[r1 bench] missing cell 0 (seed, next_shard->shards_done): 0.5125 $0.090
+[r1 bench] missing cell 8 (arenaA-3:A690, enemies_within->here): behavioural twin $0.094
+[r1 bench] missing cell 6 (seed, update->shop_pending): 0.525 $0.094
+[r1 bench] missing cell 7 (seed, cast_value->dash_value): 0.3 $0.094
+[r1 bench] missing cell 9 (arenaA-3:A690, update->mono_groups): 0.5125 $0.096
+[r1 bench] missing cell 12 (arenaA-3:A690, camp_block->unseen_camps): 0.45 $0.097
+[r1 bench] missing cell 10 (arenaA-3:A690, walk_field->here): 0.5375 $0.097
