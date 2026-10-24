@@ -12,6 +12,19 @@ if [ ! -d "$G/jobs/.git" ]; then
   git clone -q --single-branch --branch jobs/genome "$REPO" "$G/jobs" || { log "clone jobs/genome failed"; return 1; }
 fi
 git -C "$G/jobs" fetch -q origin jobs/genome && git -C "$G/jobs" reset -q --hard origin/jobs/genome
+# Stop: a file `<name>.stop` on jobs/genome stops that running job (SIGTERM to its process group, SIGKILL
+# after 10 s) and writes rc=stopped. Its out/ dir is kept (a new job can resume from it).
+for sf in "$G"/jobs/*.stop; do
+  [ -e "$sf" ] || continue
+  n=$(basename "$sf" .stop); o="$G/out/$n"
+  [ -f "$o/pid" ] && [ ! -f "$o/rc" ] || continue
+  p=$(cat "$o/pid")
+  if kill -0 "$p" 2>/dev/null; then
+    kill -TERM -- "-$p" 2>/dev/null || kill -TERM "$p"; sleep 10
+    kill -0 "$p" 2>/dev/null && kill -KILL -- "-$p" 2>/dev/null
+  fi
+  echo stopped > "$o/rc"; log "stopped job $n (by $n.stop)"
+done
 active=$(ls "$G"/out/*/started 2>/dev/null | wc -l); done_n=$(ls "$G"/out/*/rc 2>/dev/null | wc -l)
 active=$((active - done_n))
 for f in "$G"/jobs/*.sh; do
