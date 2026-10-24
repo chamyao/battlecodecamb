@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 06:44 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 17.67 15.31 9.17 on 16 threads.
+Updated 2026-10-24 06:49 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 20.83 17.98 11.99 on 16 threads.
 Disk: 3.1G used of 38G.
 
 ## python3 processes
@@ -16,10 +16,15 @@ Disk: 3.1G used of 38G.
 5803 /usr/bin/python3 -m funsearch.run --run style7-b-g1 --budget 0.50 --max-programs 150 --seed-policy policies/tune-5.policy --opponents builtin:starter@0.25,policies/tune-5.policy@3.0,policies/tune-1.policy,policies/v7zg-cast.policy,policies/v5d.policy,policies/locker.policy,policies/fs-2.policy 
 5813 /usr/bin/python3 -m funsearch.run --run style7-c-g1 --budget 0.60 --max-programs 150 --seed-policy policies/tune-5.policy --opponents builtin:starter@0.25,policies/tune-5.policy@3.0,policies/tune-1.policy,policies/v7zg-cast.policy,policies/v5d.policy,policies/locker.policy,policies/fs-2.policy 
 6766 python3 funsearch/draft_meta.py r1 9431 policies/tune5-reset.policy
+7792 python3 funsearch/explore.py drafts 9471 400
+7797 python3 funsearch/explore.py switches
+7812 python3 funsearch/explore.py switches
+7814 python3 funsearch/explore.py switches
+7815 python3 funsearch/explore.py switches
+7816 python3 funsearch/explore.py switches
 ```
 ## tick.log (last 40 lines)
 ```
-[06:22:26] tune: cloned tune/runs at d390cb1
 [06:22:34] tune: started job C: python3 funsearch/t5_mapfix.py > runs/tune/t5mapfix.out 2>&1
 [06:22:34] tune: started job D: python3 funsearch/draft_meta.py m1 9411 > runs/tune/draftmeta.out 2>&1
 remote: 
@@ -58,4 +63,6 @@ hint: "git config advice.addIgnoredFile false"
 [06:44:08] tune: stopped job D (superseded by D2)
 [06:44:09] tune: started job D2: python3 funsearch/draft_meta.py r1 9431 policies/tune5-reset.policy > runs/tune/draftmeta-r1.out 2>&1
 [06:44:09] tune: job D exited rc=superseded
+[06:49:18] tune: started job E: python3 funsearch/explore.py drafts 9471 400 > runs/tune/explore-drafts.out 2>&1
+[06:49:18] tune: started job F: python3 funsearch/explore.py switches > runs/tune/explore-switches.out 2>&1
 ```
