@@ -38,6 +38,13 @@ push_state remote/tune remote/tune/runs/tune runs/tune
 # (funsearch/style 3d34e37 + directive funsearch/styles/t_fight.txt + runs/tune_fs_launch.sh). Own clone, own build.
 G=/root/bc/tune-fs
 GREV=6cba5f0  # 08:35 UTC: seed tune-v18g (retreat-dash fuel gate), fuel rule in the directive
+# 09:00 UTC: code-only fix on top (sample_archive key crash with --explore): checked out in place, the league resumes
+GFIX=45acc49
+if [ -f "$G/.setup-$GREV" ] && [ ! -f "$G/.fix-$GFIX" ]; then
+  git -C "$G" fetch -q origin tune/fs && git -C "$G" checkout -q -f "$GFIX" && touch "$G/.fix-$GFIX" &&
+    for pid in $(pgrep -a -x python3 | grep -E "league --name tune-fight |funsearch.run --run tune-fight-" | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "G: restarting tune-fight on $GFIX (pid $pid)"; done
+fi
 if [ ! -f "$G/.setup-$GREV" ]; then
   # a run started on an older rev is stopped and restarted from scratch on the new one
   for pid in $(pgrep -a -x python3 | grep -E "league --name tune-fight |funsearch.run --run tune-fight-" | cut -d' ' -f1); do
