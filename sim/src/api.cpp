@@ -772,6 +772,12 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	return n;
 }
 
+std::int64_t Api::fuel_remaining()
+{
+	charge(Call::fuel_remaining);
+	return unlimited ? (std::int64_t{ 1 } << 40) : budget - spent;
+}
+
 bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions)
 {
 	const int W = g_.map().W, H = g_.map().H;

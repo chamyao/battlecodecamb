@@ -99,7 +99,7 @@ s=s.replace('#include "bot_api.h"','#include "bot_api.h"\n#include "sprof.h"',1)
 lines=s.split('\n'); out=[]; names=[]; i=0
 while i < len(lines):
     l=lines[i]
-    m=re.match(r'^(Err|int|bool|void|std::int32_t) Api::(\w+)\(', l)
+    m=re.match(r'^(Err|int|bool|void|std::int32_t|std::int64_t) Api::(\w+)\(', l)
     if m:
         nm=m.group(2); idx=1000+len(names); names.append(nm)
         # find opening brace of body
