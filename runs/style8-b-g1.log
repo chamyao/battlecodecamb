@@ -67,3 +67,7 @@ seed tune5-campreset score 0.723 (islands [0, 1, 2, 3])
 [69] claude-haiku-5-5 island 1: error: style check: policy never calls team_target | best 0.751 (#60) $0.39 | 4162s
 [70] claude-haiku-5-5 island 2: score 0.717 | best 0.751 (#60) $0.40 | 4558s
 [71] claude-haiku-5-5 island 1: score 0.610 | best 0.751 (#60) $0.40 | 4622s
+[72] claude-haiku-5-5 island 0: score 0.611 | best 0.751 (#60) $0.40 | 4690s
+[73] claude-haiku-5-5 island 3: error: TypeError: no block add(Num, Bool) | best 0.751 (#60) $0.41 | 4716s
+[74] claude-haiku-5-5 island 1: score 0.606 | best 0.751 (#60) $0.41 | 4782s
+[75] claude-haiku-5-5 island 3: score 0.653 | best 0.751 (#60) $0.41 | 4918s
