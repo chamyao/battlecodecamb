@@ -82,7 +82,7 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(group_threat, "group_threat(Tile)") X(group_hp, "group_hp(Tile)")                                 \
 	X(strength, "strength()") X(focus, "focus()")                                                       \
 	X(slot_range, "slot_range(Num)") X(slot_radius, "slot_radius(Num)") X(slot_stun, "slot_stun(Num)")                                                                    \
-	X(unit_is, "unit_is(Unit,Champ)") X(unit_shield, "unit_shield(Unit)")
+	X(unit_is, "unit_is(Unit,Champ)") X(unit_shield, "unit_shield(Unit)") X(unit_tributing, "unit_tributing(Unit)")
 
 enum class Op : std::uint16_t
 {
@@ -1922,6 +1922,14 @@ struct Interp
 			if (u.kind != EntityKind::champion || api.champion(u.h, &ci) != Err::success) return num(0);
 			const int pick = ci.type <= 3 ? ci.type : ci.type - 1; // as in i_am: Issac shares Cassi's pick
 			return num(pick == c);
+		}
+		case Op::unit_tributing:
+		{
+			// channelling a tribute (state bit submitting); a lock placed on that altar now cancels it
+			const Unit u = evalu(a[0]);
+			ChampionInfo ci{};
+			if (u.kind != EntityKind::champion || api.champion(u.h, &ci) != Err::success) return num(0);
+			return num((ci.state & cbs::state_bit::submitting) != 0);
 		}
 		case Op::unit_shield:
 		{

@@ -151,6 +151,7 @@ DOCS = {
     "slot_range": "cast range in tiles of ability slot (0/1); a dash's travel distance", "slot_radius": "area radius of the slot's effect (0 = single target)",
     "slot_stun": "turns the slot stuns on hit, 0 if none: cc abilities and stunning damage/dash (Heart of Ruin's dash, Ryth's AoE). Open fights with it",
     "unit_is": "true if the unit is that champion (e.g. unit_is(enemy, champ_heart_of_ruin()))", "unit_shield": "shield points currently on a visible champion (absorbs damage before health); 0 if none",
+    "unit_tributing": "true if a visible champion is channelling a tribute (gem submission) right now; placing an altar lock on that altar cancels every tribute in progress there, allies' included",
     "dash_towards": "cast the dash in slot (0/1) up to 2 tiles along the walking path to the tile",
     "weakest": "lowest-health member, or none", "richest": "member carrying the most gems, or none",
     "nearest": "closest member by Chebyshev distance, or none",
