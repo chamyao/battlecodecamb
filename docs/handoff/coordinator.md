@@ -8,8 +8,8 @@ Merge the lines' work, keep the simulator and the bot consistent, pick and uploa
 add blocks to the language when a diagnosis needs one, and keep Cham informed (short, times in ET).
 
 ## Live and history
-- Live (Oct 24 ~12:40 UTC): ladder version 21 = tune-v20-L1c (deploy/v0 d9d2897, dist/deploy-tune-v20-L1c.zip,
-  sha256 c8ea639c...; policy on tune/runs). v20 = tune-fight-2s (6d50156), v19 = rall2-ca4-lean-g (7ef15b2). Chain tonight: v17 tune5-campreset (attack -> reset ->
+- Live (Oct 24 ~15:05 UTC): ladder version 22 = v21b (deploy/v0 ee85727, dist/deploy-v21b.zip, sha256 d86fbda6...):
+  v21's policy (tune-v20-L1c) on bot code with the dead-camp group_threat fix. v21 = tune-v20-L1c (d9d2897). v20 = tune-fight-2s (6d50156), v19 = rall2-ca4-lean-g (7ef15b2). Chain tonight: v17 tune5-campreset (attack -> reset ->
   attack), v18 tune-r-all-v2 (+ map fixes, no recall with an enemy within 8), v19 (+ cast-ahead, retreat dash gated
   at fuel_remaining() > 60000). History: STRATEGY.md "Ladder versions".
 - Ranked: tune-5 11-19; v17 7-3; v18 about 11-14. Unranked vs ladder #1-#9 + vc? (same 10 groups each time):
@@ -28,6 +28,9 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   metric) and the lines search against those metrics while holding win rate vs live. Never drive iteration by
   copying or fitting observed opponents (no clones, no new stand-ins as targets); copies are allowed only as extra
   league members for diversity. After each upload, queue unranked groups vs ~10 band teams (re-derive the band).
+- Sensors: analysis gaps become observation blocks (no rules); 15 added Oct 24 (unit_tributing, unit_max_health/
+  strength/focus, enemies_near/allies_near/strength_at, threat_eta, altar_eta, retreat_eta, enemy_between,
+  group_contested, team_gems, unseen_enemies_near, bank_detour), all verified vs cambc and calibrated on deploy/v0.
 - Workspace: cambc is installed and logged in (pip cambc 3.0.5; Cham ran `cambc login`, 7 days from Oct 24 ~04:50 UTC).
   Submit from a `cambc init --yes` workspace: copy the checked ZIP's src/ into bots/<name>/src and `cambc submit <name>`.
 

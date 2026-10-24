@@ -197,6 +197,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   21 = tune-v20-L1c (`deploy/v0` d9d2897, sha256 c8ea639c...; ~12:40 UTC): v20 + one altar lock per team (one buy
   claimed in shared byte 7 bit 1, placed bit 0, placement gated at fuel > 60000). League 1716 [1703-1731] vs v20
   1676 (v19-L1c 1690); real cambc 44/80 vs v20, 0 capped turns, peak 93.0k, 1 buy/team/game, placed 79/80.
+  v21: 1-49 vs the top groups, 15-35 vs the +100 band (GAP_LIST.md), ~30-35 ranked.
+  22 = v21b (`deploy/v0` ee85727, sha256 d86fbda6...; ~15:05 UTC): v21's policy unchanged on bot code with the
+  dead-camp fix (cambc's camp() reports dead camps as not-in-vision, so group_threat/group_hp counted seen-dead
+  camps as alive in the deployed bot; policies were tuned on seen-dead = 0; deploy/v0 59d9e3a). Bug-fix bar (no
+  regression): real cambc 40/80 vs v21, 0 caps; sim vs v7zg-cast gems/capture 11.03 vs 10.93, tributes 27.4 vs 27.1.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
