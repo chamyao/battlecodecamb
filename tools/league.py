@@ -14,7 +14,7 @@ import argparse, hashlib, itertools, json, math, os, random, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EVAL = os.path.join(ROOT, 'build', 'interp_eval')
+EVAL = os.environ.get('INTERP_EVAL') or next((p for p in (os.path.join(ROOT, 'build', 'interp_eval'), os.path.join(ROOT, 'interp', 'build', 'interp_eval')) if os.path.exists(p)), os.path.join(ROOT, 'build', 'interp_eval'))
 
 
 def load(spec, out):
