@@ -157,6 +157,37 @@ opp-metab on hooks (funsearch/metab_hooks.py, 40 games as A vs tune-5 on 01hooks
 5. Re-run the constant grid on tune-5. Try the best near-miss pairs together.
 6. Hand the hybrid league any promotion (it grafts drafts and constants onto its candidates).
 
+
+## Session 2 (2026-10-24, session_01Ja9BznSBEpiUKCjkDru5e5): state at 07:20 UTC
+
+Reporting to the FunSearch lead (session_01YJxccSM2xmnTtoiFjrAzf3); the coordinator is session_01SkG4y5RPLyyXmaTsxytUHH.
+**Upload bar now**: league rating (tools/league.py, copied here with the tune/runs build path) above the live bot's beyond
+the 90% interval, with a pool that includes the live bot, opp-hunter2a/b/c and the ladder stand-ins (opp-icecream,
+opp-odyssey, opp-metab, opp-metadraft); post the pool list with the rating. Head to head is information only. The bot
+session runs the real-cambc safety checks (crashes, 100k-cap turns, first turn < 200k).
+
+- Live: tune5-campreset (v17) = tune5-reset (coordinator's reset fix) + camp reset (ours: attack, cast_self the reset,
+  attack again, on camps; 60% vs tune5-reset).
+- **Candidate: policies/candidates/tune-r-all-v2.policy**, with the lead / bot session. It is tune5-campreset + map fixes
+  (r800 monolith fallback, T240 threat bank, monolith-group goal exclusion `minus(..., mono_groups)`) + safe recall
+  (no recall with an enemy within 8; retreat home first; threshold 0.3). League (19 policies): v2 1725 [1712-1737],
+  campreset 1672 [1659-1683]. tune-r-all (no fuel fixes) failed the bot session's fuel check (100k caps on 01starvation):
+  fixed by `keep mono_groups` and gating the threat branch on fuel_remaining() > 65000 (55k does nothing).
+- Fuel checks: funsearch/fuel_check.py (fuel_turns --enforce --bot-seeds vs tune5-campreset). Without --enforce,
+  fuel_remaining() never drops, so gates look inert.
+- Results (all in commit messages on tune/runs):
+  - tune-5 constant grid flat; opp-metab can't reproduce hooks;
+  - risk bank rules negative; shard stacking strongly negative (23-28%); Focus shards negative; Durability flat;
+  - early disengage (retreat at 0.5-0.8 HP with an enemy near) strongly negative (12-32%);
+  - 00lost-world: monolith-group exclusion fixes it (0% -> 37.5% vs metab, 32.5% -> 100% vs v7zg-cast).
+- fight_metrics.py: TOP_TEAMS metrics from GAME_EVENTS (sim now logs recall / recallcut events, logging only).
+- EC2 (runner/lines/tune.sh on ec2/runner; logs to remote/tune every 5 min):
+  - C t5_mapfix: t5-starv 52.4%, t5-alt1 48.6%, ...
+  - D2 draft_meta on tune5-reset
+  - E random-draft regression over all 12 champions
+  - F switch-ons, all negative: lock 32%, ward 46%, hunter 47.5%
+- Never `pkill -f <pattern>` where the pattern appears in your own command: use pgrep -f "[x]yz" and kill by PID.
+
 ## Things only I know
 
 - `--bot-seeds` with a single map replays the same two games; use per-game seeds for one-map
