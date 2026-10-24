@@ -167,6 +167,24 @@ if [ -f runs/ec2-s8 ] && [ ! -f runs/ec2-s9 ]; then
   fi
 fi
 [ -f runs/ec2-s9 ] && GCONV_HOLD=0
+# S10 (style line, 14:58 UTC): restart gconv only on funsearch/style 34f261c (b48422d: hill-climb evaluations skip the
+# 40 gap games; cheap climb settings in the launcher). Python/script only, no rebuild; b keeps running. One-shot.
+if [ -f runs/ec2-s9-checked ] && [ ! -f runs/ec2-s10 ]; then
+  if git fetch -q origin funsearch/style &&
+     { git merge -q --ff-only origin/funsearch/style 2>/dev/null || git merge -q --no-edit origin/funsearch/style; } &&
+     git merge-base --is-ancestor 34f261c HEAD; then
+    for pid in $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gconv ' | cut -d' ' -f1); do
+      kill -TERM "$pid" && log "S10: SIGTERM style8-gconv pid $pid"; done
+    sleep 10; wc -l < runs/style8-gconv.out > runs/ec2-s10-outmark; touch runs/ec2-s10
+    log "S10: at $(git rev-parse --short HEAD) (has 34f261c), no rebuild; gconv relaunching below"
+  else
+    log "S10: merge to 34f261c failed; gconv left as is"; touch runs/ec2-s10-failed
+  fi
+fi
+if [ -f runs/ec2-s10 ] && [ ! -f runs/ec2-s10-checked ]; then
+  o=$(tail -n +"$(( $(cat runs/ec2-s10-outmark) + 1 ))" runs/style8-gconv.out 2>/dev/null)
+  echo "$o" | grep -q 'left of' && { touch runs/ec2-s10-checked; log "S10 check: gconv relaunched: $(echo "$o" | grep -m1 -oE '\$[0-9.]+ left of \$[0-9.]+')"; }
+fi
 if [ "$GCONV_HOLD" = 1 ]; then
   for pid in $(pgrep -a -x python3 | grep -F 'funsearch.run --run style8-gconv ' | cut -d' ' -f1); do
     kill -TERM "$pid" && log "S8 HOLD: SIGTERM style8-gconv pid $pid"; done
