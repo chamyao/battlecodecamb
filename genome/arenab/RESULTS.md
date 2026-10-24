@@ -54,3 +54,14 @@ anchors v7 +1.3, tune-v20-L1 +2.5, rall2 +3.7, metadraft -1.3. The arena gives 3
 | Oct 24 21:25 | B792 at genome/v0 212a505 | v25 = genome/v0 2013533 genome/candidates/B318.genome | 43 | 11 / 110 | 279 / 692 |
 
 Gatekeeper (arena, 212a505, bot seeds): 47/80 vs B318 built at 212a505; anchors L1c +7, gconv1 -1, v7 +2, L1 +2, rall2 +3, metadraft +3.
+
+## Band batches (intel, b1's plan: 10 teams +55..+145, 50 games)
+
+| batch | live bot | record | note |
+|---|---|---|---|
+| b1 19:02 | v22 (tune-v20-L1c) | 15-35 (30%) | |
+| b2 20:47 | v25 B318 | 18-32 (36%) | paired vs b1: gems +105 ± 49, lost on death -63, stuck spells 61 -> 4 |
+| b3 21:28 | v26 B792 | 17-33 (34%) | paired vs b2: all within noise (deaths +1.5 ± 1.1) |
+
+B792's sim edge over B318 (47/80, bot seeds) did not show in band games. The sim selection signal
+(self-play + own past bots + stress anchors) predicts band results poorly (GENOME.md open point 4).
