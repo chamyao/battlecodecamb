@@ -12,9 +12,9 @@ p = sys.argv[1]
 s = open(p).read()
 s = s.replace('#include "interp/policy.h"', '#include "interp/policy.h"\n#include <cambc.h>\n#include <cstdio>\n#if __has_include("prof2.h")\n#include "prof2.h"\n#endif', 1)
 hook = r'''
-	struct Prof { std::uint64_t n = 0, tot = 0, mx = 0; };
-	Prof prof[2][512];
-	std::int64_t turn_tot[2][512] = {};
+	struct Prof { std::uint64_t n, tot, mx; }; // zeroed as statics
+	static inline Prof prof[2][512]; // static: 32 KB would overflow the stack the interpreter lives on
+	static inline std::int64_t turn_tot[2][512] = {};
 	std::int64_t prof_child = 0;
 	template <class F>
 	auto timed(int kind, Op op, F&& f)
