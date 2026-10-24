@@ -26,7 +26,10 @@ job D "funsearch/draft_meta.py m1" "python3 funsearch/draft_meta.py m1 9411 > ru
 # D2 (06:45 UTC): job D's draft screen rebased on tune5-reset (the likely next live bot); D on tune-5 is superseded
 [ -f runs/tune/D.rc ] || [ -f runs/tune/D.killed ] || { pkill -f "funsearch/draft_meta.py m1 " ; echo superseded > runs/tune/D.rc; touch runs/tune/D.killed; log "stopped job D (superseded by D2)"; }
 job D2 "funsearch/draft_meta.py r1" "python3 funsearch/draft_meta.py r1 9431 policies/tune5-reset.policy > runs/tune/draftmeta-r1.out 2>&1"
-for n in C D D2; do
+# E, F (06:55 UTC): exploration on tune5-campreset (funsearch/explore.py, tune/runs 1e+ with explore.py)
+job E "funsearch/explore.py drafts" "python3 funsearch/explore.py drafts 9471 400 > runs/tune/explore-drafts.out 2>&1"
+job F "funsearch/explore.py switches" "python3 funsearch/explore.py switches > runs/tune/explore-switches.out 2>&1"
+for n in C D D2 E F; do
   [ -f "runs/tune/$n.rc" ] && [ ! -f "runs/tune/$n.reported" ] && { log "job $n exited rc=$(cat runs/tune/$n.rc)"; touch "runs/tune/$n.reported"; }
 done
 push_state remote/tune remote/tune/runs/tune runs/tune
