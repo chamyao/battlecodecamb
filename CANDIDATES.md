@@ -73,3 +73,16 @@ One entry per candidate: policy path, commit, h2h vs live (fresh seeds), --bot-s
   (v18 89.9k; target <= 90k met), 9 turns >80k (v18 9), mean 23.6k, 0 suspended, first turn max 158.5k.
 - League (required pool + variants, 160 games per pair): d65 1682 [1668-1696] vs v18 1636 [1623-1650], beyond the
   90% interval. (d70 loses the gain: 1641.)
+
+## 5. tune-fight-2s (tune line), sent 2026-10-24 11:23 UTC
+
+- Policy: `policies/candidates/tune-fight-2s.policy` on `tune/runs` @ e2cc499. Build from deploy/v0 as for v19.
+- What: v19 + one rule found by the tune line's fight-block FunSearch (G2): with no enemy champion visible and standing
+  in a bush, place the free ward on our own tile (`contains(bushes(), position())`, one bitboard test).
+- League (tools/league.py, 13 policies, 160 games per pair). Pool: v19 (live), v18, tune5-campreset, opp-hunter3,
+  opp-hunter2a/2b/2c, opp-icecream, opp-odyssey, opp-metab, opp-metadraft, + variants.
+  2s 1710 [1698-1725] vs v19 1670 [1657-1685]: beyond the 90% interval.
+- Info: 55.75% vs v19 on 2 x 400 fresh; 43/80 bot-seeded; 0 suspensions.
+- Sim fuel (fuel_turns --enforce --bot-seeds; big-world/ambush/starvation x 2 sides): peak 89.8k (non-first), 0 >= 100k,
+  first turn <= 167.8k. Note: close to the 90k target.
+- Fights vs hunter3 (80 games): wins 70 vs 64%, deaths 4.44 vs 6.30, kills 8.80 vs 7.76, mid-recall deaths 1.02 vs 1.77.
