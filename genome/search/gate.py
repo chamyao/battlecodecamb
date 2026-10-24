@@ -84,7 +84,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--arena", action="append", required=True,
-                    help="arena dir on remote/genome, or a chain of resumed jobs' dirs joined by + "
+                    help="arena dir on remote/genome, a chain of resumed jobs' dirs joined by +, or a job prefix "
+                         "ending in * (arenaA-*: every arenaA-N job on jobs/genome, finished when all have an rc); "
                          "(e.g. arenaB-1/arena+arenaB-2/arena): the latest pushed one is read, and the chain is "
                          "finished when its last job has an rc file")
     ap.add_argument("--ref", default=str(ROOT / REF), help="the live ladder bot")
@@ -104,6 +105,14 @@ def main():
     gates = out / "gates.jsonl"
     if gates.exists():
         seen = {json.loads(l)["key"] for l in open(gates)}
+    # genomes earlier gatekeeper jobs already gated stay gated
+    ls = subprocess.run(["git", "-C", str(ROOT), "ls-tree", "-r", "--name-only", "origin/remote/genome"],
+                        capture_output=True, text=True).stdout.split()
+    for path in ls:
+        if path.startswith("gatekeeper-") and path.endswith("/gates.jsonl"):
+            txt = subprocess.run(["git", "-C", str(ROOT), "show", f"origin/remote/genome:{path}"],
+                                 capture_output=True, text=True).stdout
+            seen |= {json.loads(l)["key"] for l in txt.splitlines() if l.strip()}
 
     def log(msg):
         line = f"[{time.strftime('%H:%M:%S')}] {msg}"
@@ -119,10 +128,21 @@ def main():
         if f.returncode != 0:
             log(f"fetch failed: {f.stderr.strip()[:200]}")
         finished = 0
+        git("fetch", "-q", "origin", "jobs/genome")
         for chain in args.arena:
-            dirs = chain.split("+")
-            if git("cat-file", "-e", f"origin/remote/genome:{dirs[-1].split('/')[0]}/rc").returncode == 0:
-                finished += 1
+            if chain.endswith("*"):  # every job <prefix>N on jobs/genome, in order: a chain of resumes
+                import re
+                names = git("ls-tree", "--name-only", "origin/jobs/genome").stdout.split()
+                jobs = sorted({n[:-3] for n in names if n.startswith(chain[:-1]) and n.endswith(".sh")},
+                              key=lambda j: int(re.sub(r"\D", "", j[len(chain) - 1:]) or 0))
+                dirs = [f"{j}/arena" for j in jobs]
+                done = all(git("cat-file", "-e", f"origin/remote/genome:{j}/rc").returncode == 0 for j in jobs)
+            else:
+                dirs = chain.split("+")
+                done = git("cat-file", "-e", f"origin/remote/genome:{dirs[-1].split('/')[0]}/rc").returncode == 0
+            if not dirs:
+                continue
+            finished += done
             have = [d for d in dirs if git("cat-file", "-e", f"origin/remote/genome:{d}/state.json").returncode == 0]
             arena = have[-1] if have else dirs[0]
             job = arena.split("/")[0]
