@@ -21,6 +21,10 @@ Every block a bot runs costs fuel; each bot gets 100,000 fuel per turn, and a bo
 out is suspended mid-turn (the rest of that turn is lost). Typical policies use ~15k per turn,
 so fuel rarely binds: gains come from better play. Each block's typical price is listed below;
 keep an eye on it only when adding expensive board-scanning blocks (thousands of fuel each).
+fuel_remaining() gates are a real lever now (until recently the live bot could not read its fuel):
+reading it costs almost nothing, so guard optional expensive steps (extra board scans, dashes,
+far camp scoring) with e.g. `if fuel_remaining() > 40000:` to skip them on heavy turns; pick
+thresholds well away from the typical mid-turn reading. This is compute as part of the policy.
 dash_towards is the exception to watch: on 100x100 maps a turn with dashes can approach the
 100,000 limit, so guard repeated dash attempts (check slot_is_dash and ability_ready first).
 """
@@ -94,18 +98,18 @@ Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights 
   (33-38/80); preferring elk/gem clusters, or a bag of 25, were neutral. The gain probably needs
   a value-vs-distance trade-off when choosing camps, team monolith takes, and bigger bags
   without more deaths. Treat these as directions, not rules.
+- KEY TOOL for camp choice (calibrated blocks): group_gems(set) is what a group pays,
+  group_threat(g) and group_hp(g) what it costs. Skip a goal g you cannot clear:
+      group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) > health()
+  (strength() is your damage per hit, items included; scale it by a named, tunable factor if useful)
+  (this is what kills us on starvation-type maps), and prefer goals by gems per turn of travel
+  and fighting, e.g. rich_spawns(n) for groups worth >= n gems, group_tiles(monolith_tiles())
+  for the monolith group. Bind static sets with keep.
 - Constant tuning around the current best finds nothing better (its thresholds are locally
   optimal). The open lever is STRUCTURAL camp choice: today the goal is simply the closest camp
   spawn. Try scoring candidate camps by gems per turn of travel and fighting (group value vs
   distance and danger), splitting the team between rich groups, or committing together to the
   richest one, rather than adjusting the existing numbers.
-- KEY TOOL for camp choice and for camp deaths (champions starving to death on camps they
-  cannot clear): group_threat(g), group_hp(g) and group_gems(...). Clearing goal g takes about
-  group_hp(g) / (my_dps * (1 + allies_within(4))) turns at group_threat(g) damage per turn,
-  so skip g when group_threat(g) * group_hp(g) / (my_dps * (1 + allies_within(4))) > health()
-  and pick the next one; rank the rest by group gems per turn of travel plus clearing.
-  my_dps is a named constant you define (keep my_dps = 60: your damage per turn, tunable);
-  there is no strength() block.
 """
 
 GRAMMAR += """\
@@ -189,8 +193,8 @@ DOCS = {
     "rich_spawns": "spawn tiles of every camp whose group gives at least n gems when captured (static; gold-only groups give 0 gems, elk/gem-cluster groups 15-60+). Bind it with keep",
     "group_tiles": "spawn tiles of every camp in a group that has a camp on one of the given tiles (static; hitting any camp of a group wakes the whole group, e.g. group_tiles(monolith_tiles()) wakes monoliths). Bind it with keep",
     "group_gems": "total gems of the camp groups that have a camp on one of the given tiles (static; e.g. group_gems(monolith_tiles()) is what the monoliths give). Bind it with keep",
-    "group_threat": "summed strength (damage per turn when awake) of the living camps in the group spawning on that tile, 0 off a spawn tile; a camp out of vision counts as alive. Elk 60, wolf 20, golem 120, monolith 200, clusters 0. With a named constant keep my_dps = 60 (your damage per turn; strength() does not exist), skip a goal g when group_threat(g) * group_hp(g) / (my_dps * (1 + allies_within(4))) > health()",
-    "group_hp": "summed health of the same camps as group_threat (unseen counts at full health): clearing takes about group_hp(g) / (my_dps * (1 + allies_within(4))) turns, taking group_threat(g) damage each turn",
+    "group_threat": "summed strength (damage per turn when awake) of the living camps in the group spawning on that tile, 0 off a spawn tile; a camp out of vision counts as alive. Elk 60, wolf 20, golem 120, monolith 200, clusters 0. Skip a goal g when group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) > health()",
+    "group_hp": "summed health of the same camps as group_threat (unseen counts at full health): clearing takes about group_hp(g) / (strength() * (1 + allies_within(4))) turns, taking group_threat(g) damage each turn",
     "turns_idle": "consecutive turns (counted each time you check) your position has not changed",
     "unit_gems": "gems a visible champion carries (0 for camps)", "team_score": "gems a team has tributed",
     "map_width": "", "map_height": "", "camp_count": "camps on the map",
