@@ -65,6 +65,14 @@ class Database:
         self.since_reset = 0
         # quality-diversity archive (exploration): the best program per behaviour cell (cell_of)
         self.archive = {}
+        # executed-block novelty (exploration): n_b = programs that execute block b; a program's novelty
+        # is sum over its executed blocks of log(N / (1 + n_b)). Used only in parent selection
+        # (weight exp(score/T + lambda * novelty)) and in a second archive keyed by the program's
+        # rarest executed block; never in the score, confirmation or promotion.
+        self.novelty_lambda = 0.0
+        self.block_counts = {}
+        self.n_exec = 0
+        self.rare_archive = {}
 
     # ---- persistence ----
     def load(self):
@@ -85,6 +93,15 @@ class Database:
                 q = self.archive.get(c)
                 if q is None or p.score > q.score:
                     self.archive[c] = p
+                blocks = p.metrics.get("exec_blocks")
+                if blocks and p.model != "reset":
+                    rare = min(blocks, key=lambda b: (self.block_counts.get(b, 0), b))
+                    self.n_exec += 1
+                    for b in blocks:
+                        self.block_counts[b] = self.block_counts.get(b, 0) + 1
+                    q = self.rare_archive.get(rare)
+                    if q is None or p.score > q.score:
+                        self.rare_archive[rare] = p
         if log:
             with open(self.path, "a") as f:
                 f.write(json.dumps(asdict(p)) + "\n")
@@ -107,14 +124,28 @@ class Database:
         for i in (range(self.n_islands) if islands is None else islands):
             self.add(Program(0, i, text, score, model="seed", metrics=metrics or {}))
 
+    def novelty(self, p):
+        blocks = p.metrics.get("exec_blocks")
+        if not blocks or not self.n_exec:
+            return 0.0
+        return sum(math.log(self.n_exec / (1 + self.block_counts.get(b, 0))) for b in blocks)
+
     def sample_archive(self, k=2):
-        """Exploration: k elites of distinct, uniformly chosen behaviour cells, worst first (the child goes
-        to the best one's island). None while the archive has fewer than two cells."""
+        """Exploration: k elites of distinct, uniformly chosen archive cells (behaviour cells, plus
+        rarest-block cells when the novelty term is on), worst first; the child goes to the best one's
+        island. None while there are fewer than two cells."""
         with self.lock:
-            if len(self.archive) < 2:
+            cells = {("cell", c): p for c, p in self.archive.items()}
+            if self.novelty_lambda:
+                cells.update({("rare", b): p for b, p in self.rare_archive.items()})
+            # distinct programs only
+            uniq = {}
+            for key, p in sorted(cells.items()):
+                uniq.setdefault(p.id if p.model != "seed" else (p.id, p.island), (key, p))
+            if len(uniq) < 2:
                 return None
-            cells = self.rng.sample(sorted(self.archive), min(k, len(self.archive)))
-            chosen = sorted((self.archive[c] for c in cells), key=lambda p: p.score)
+            picks = self.rng.sample(sorted(uniq), min(k, len(uniq)))
+            chosen = sorted((uniq[x][1] for x in picks), key=lambda p: p.score)
             return chosen[-1].island, chosen
 
     def sample(self, k=2):
@@ -134,7 +165,12 @@ class Database:
                     best[key] = p
             pop = list(best.values())
             top = max(p.score for p in pop)
-            weights = [math.exp((p.score - top) / self.temperature) for p in pop]
+            if self.novelty_lambda:
+                nov = [self.novelty_lambda * self.novelty(p) for p in pop]
+                top_nov = max(nov)
+                weights = [math.exp((p.score - top) / self.temperature + n - top_nov) for p, n in zip(pop, nov)]
+            else:
+                weights = [math.exp((p.score - top) / self.temperature) for p in pop]
             chosen = []
             for _ in range(min(k, len(pop))):
                 i = self.rng.choices(range(len(pop)), weights)[0]

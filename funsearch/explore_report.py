@@ -15,7 +15,7 @@ from collections import defaultdict
 from policygen.blocks import REGISTRY
 
 from .database import cell_of, draft_core
-from .evaluate import ROOT
+from .evaluate import ROOT, executed_blocks
 
 NAMES = {b.name for b in REGISTRY if not b.infix}
 
@@ -24,7 +24,26 @@ def blocks_used(text):
     return {n for n in re.findall(r"\b([a-z_][a-z0-9_]*)\s*\(", text) if n in NAMES}
 
 
-def report(run):
+def exec_blocks_of(run, rows, valid):
+    """Executed blocks per valid program: from metrics when the run logged them, else computed now
+    (vs builtin:idle) and cached in runs/<run>/exec_blocks.json."""
+    cache_path = ROOT / "runs" / run / "exec_blocks.json"
+    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    out = {}
+    for r in valid:
+        if "exec_blocks" in r["metrics"]:
+            out[r["id"]] = set(r["metrics"]["exec_blocks"])
+            continue
+        key = str(r["id"])
+        if key not in cache:
+            b = executed_blocks(r["text"])
+            cache[key] = sorted(b) if b is not None else []
+        out[r["id"]] = set(cache[key])
+    cache_path.write_text(json.dumps(cache))
+    return out
+
+
+def report(run, step=25):
     rows = [json.loads(line) for line in open(ROOT / "runs" / run / "programs.jsonl")]
     by_id = {r["id"]: r for r in rows}
     valid = [r for r in rows if r["error"] is None and r["score"] is not None and r["score"] > float("-inf")]
@@ -54,9 +73,21 @@ def report(run):
             drafts.add(draft)
             used |= blocks
     best = max(valid, key=lambda r: r["score"]) if valid else None
-    print(f"== {run}: {len(rows)} programs, {len(valid)} valid; distinct drafts {len(drafts)}; "
-          f"blocks used {len(used)}/{len(NAMES)}; behaviour cells {len(cells)}; "
-          f"best {best['score']:.3f} (#{best['id']})" if best else f"== {run}: no valid programs")
+    execd = exec_blocks_of(run, rows, valid)
+    executed = set().union(*execd.values()) if execd else set()
+    spend = sum(r["metrics"].get("cost", 0) for r in rows)
+    print(f"== {run}: {len(rows)} programs, {len(valid)} valid, ${spend:.2f}; distinct drafts {len(drafts)}; "
+          f"blocks present {len(used)}/{len(NAMES)}, EXECUTED {len(executed)}/{len(NAMES)}; behaviour cells "
+          f"{len(cells)}; best {best['score']:.3f} (#{best['id']})" if best else f"== {run}: no valid programs")
+    # curves by program index: best score so far and executed-block coverage so far
+    curve, seen, top = [], set(), float("-inf")
+    for r in rows:
+        if r in valid:
+            top = max(top, r["score"])
+            seen |= execd.get(r["id"], set())
+        if r["id"] % step == step - 1 or r is rows[-1]:
+            curve.append(f"{r['id'] + 1}:{top:.3f}/{len(seen)}")
+    print("  curve (programs:best/executed blocks): " + "  ".join(curve))
     for dim in per:
         print(f"  {dim}:")
         for val, s in sorted(per[dim].items(), key=lambda kv: -kv[1]["n"]):
@@ -66,7 +97,8 @@ def report(run):
             print(f"    {val:<14} n {s['n']:>3}  valid {s['ok'] / s['n']:4.0%}  mean {mean}  max {top}  "
                   f"new cell {s['new_cell'] / s['n']:4.0%}  new block {s['new_block'] / s['n']:4.0%}  "
                   f"new draft {s['new_draft'] / s['n']:4.0%}")
-    return dict(drafts=len(drafts), blocks=len(used), cells=len(cells), best=best["score"] if best else None)
+    return dict(drafts=len(drafts), blocks=len(used), executed=len(executed), cells=len(cells),
+                best=best["score"] if best else None)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .database import Database, Program, cell_of
-from .evaluate import ROOT, evaluate
+from .evaluate import ROOT, evaluate, executed_blocks
 from .tune import mutate_constants
 
 
@@ -50,6 +50,9 @@ def main():
                                                                   "500 with --explore)")
     ap.add_argument("--archive-share", type=float, default=0.5,
                     help="with --explore: share of parent draws taken from random behaviour cells")
+    ap.add_argument("--novelty-lambda", type=float, default=0.0,
+                    help="with --explore: weight of the executed-block rarity novelty in parent selection "
+                         "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
     ap.add_argument("--island-seeds", default="", help="comma-separated policies, one per island (cycled), "
                                                       "instead of --seed-policy on every island")
     args = ap.parse_args()
@@ -59,6 +62,7 @@ def main():
     out = ROOT / "runs" / args.run
     out.mkdir(parents=True, exist_ok=True)
     db = Database(out / "programs.jsonl", islands=args.islands, temperature=temperature, reset_every=reset_every)
+    db.novelty_lambda = args.novelty_lambda if args.explore else 0.0
     db.load()
     opponents = tuple(args.opponents.split(","))
 
@@ -116,6 +120,10 @@ def main():
             r = score(seed_text, confirm=True)
             if not r.ok:
                 raise SystemExit(f"seed policy {path} failed: {r.error}")
+            if args.explore:
+                blocks = executed_blocks(seed_text)
+                if blocks is not None:
+                    r.per_opponent["exec_blocks"] = sorted(blocks)
             islands = range(k, args.islands, len(seeds[: args.islands]))
             db.seed(seed_text, r.score, r.per_opponent, islands=islands)
             confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
@@ -192,6 +200,9 @@ def main():
             r.per_opponent["variant"] = variant
             if r.ok:
                 r.per_opponent["cell"] = cell_of(text, r.per_opponent)
+                blocks = executed_blocks(text)
+                if blocks is not None:
+                    r.per_opponent["exec_blocks"] = sorted(blocks)
         p = Program(0, island, text, r.score, [p.id for p in parents], model, r.error, r.per_opponent)
         pid = db.add(p)
         if r.ok and r.per_opponent.get("confirmed") and "same_play_as" not in r.per_opponent:
