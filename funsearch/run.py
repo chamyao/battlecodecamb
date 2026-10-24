@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .database import Database, Program, cell_of
-from .evaluate import ROOT, evaluate, executed_blocks
+from .evaluate import ROOT, EvalResult, evaluate, executed_blocks
 from .tune import mutate_constants
 
 
@@ -91,6 +91,13 @@ def main():
                                              "name:weight (default: all axes, equal weights)")
     ap.add_argument("--protect-islands", default="", help="comma-separated island indices kept out of island resets "
                                                         "(never re-seeded, never donors)")
+    ap.add_argument("--island-axes", default="", help="with --explore: per-island axis menus, ISLAND=name:w,name:w "
+                                                     "separated by ';' (others use --axes)")
+    ap.add_argument("--fuel-islands", default="", help="comma-separated islands whose children get a real-budget fuel "
+                                                      "check (big-world + ambush, both sides, vs the best seed) and a "
+                                                      "fitness penalty for suspensions and turns >= 90k")
+    ap.add_argument("--fuel-penalty", default="0.01,0.001,6", help="per suspension per game, per heavy turn per game "
+                                                                   "above the free allowance, the allowance")
     ap.add_argument("--vocab-share", type=float, default=0.2,
                     help="with --explore: share of calls whose prompt lists the newest blocks (llm.NEW_BLOCKS)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
@@ -107,6 +114,20 @@ def main():
     db = Database(out / "programs.jsonl", islands=args.islands, temperature=temperature, reset_every=reset_every)
     db.novelty_lambda = args.novelty_lambda if args.explore else 0.0
     db.protected = {int(x) for x in args.protect_islands.split(",") if x}
+    fuel_islands = {int(x) for x in args.fuel_islands.split(",") if x}
+    pen_susp, pen_turn, turn_free = (float(x) for x in args.fuel_penalty.split(","))
+    # opponent of fuel checks: the first island seed (the line's best), else the seed policy
+    fuel_ref = [Path(([x for x in args.island_seeds.split(",") if x] or [args.seed_policy])[0]).read_text()
+                if fuel_islands else None]
+
+    def fuel_penalize(text, r):
+        """Fuel islands: subtract the real-budget fuel penalty from r.score (raw score kept in metrics.fuel)."""
+        from .evaluate import fuel_check
+        fc = fuel_check(text, fuel_ref[0])
+        if fc is not None:
+            pen = pen_susp * fc["suspensions"] + pen_turn * max(0.0, fc["heavy_turns"] - turn_free)
+            r.per_opponent["fuel"] = dict(fc, penalty=round(pen, 4), raw_score=r.score)
+            r.score -= pen
     refreshed = None
     if args.explore and (out / "programs.jsonl").exists():
         # novelty counts on one footing: re-measure children logged vs builtin:idle (cached per run)
@@ -179,7 +200,13 @@ def main():
                     r.per_opponent["exec_blocks"] = sorted(blocks)
                     r.per_opponent["exec_opp"] = "starter"
             islands = range(k, args.islands, len(seeds[: args.islands]))
-            db.seed(seed_text, r.score, r.per_opponent, islands=islands)
+            plain = [i for i in islands if i not in fuel_islands]
+            if plain:
+                db.seed(seed_text, r.score, r.per_opponent, islands=plain)
+            for i in (i for i in islands if i in fuel_islands):
+                rf = EvalResult(score=r.score, per_opponent=dict(r.per_opponent))
+                fuel_penalize(seed_text, rf)
+                db.seed(seed_text, rf.score, rf.per_opponent, islands=[i])
             confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
             print(f"seed {Path(path).stem} score {r.score:.3f} (islands {list(islands)})")
     elif args.island_seeds:
@@ -202,6 +229,8 @@ def main():
                     if blocks is not None:
                         r.per_opponent["exec_blocks"] = sorted(blocks)
                     r.per_opponent["exec_opp"] = "starter"
+                if i in fuel_islands:
+                    fuel_penalize(seed_text, r)
                 db.seed(seed_text, r.score, r.per_opponent, islands=[i])
                 print(f"re-seeded island {i} with {Path(path).stem} (score {r.score:.3f})")
     have = {p.text for p in db.all}
@@ -235,6 +264,15 @@ def main():
         unknown = [a for a in axes if a not in AXES]
         if unknown:
             raise SystemExit(f"unknown --axes {unknown}; known: {list(AXES)}")
+    island_axes = {}
+    for part in (x for x in args.island_axes.split(";") if x):
+        i, menu = part.split("=", 1)
+        island_axes[int(i)] = {a.split(":")[0]: float(a.split(":")[1]) if ":" in a else 1.0 for a in menu.split(",")}
+    if island_axes:
+        from .llm import AXES
+        unknown = [a for m in island_axes.values() for a in m if a not in AXES]
+        if unknown:
+            raise SystemExit(f"unknown --island-axes {unknown}; known: {list(AXES)}")
     variant_lock = threading.Lock()
     proposals_lock = threading.Lock()
 
@@ -299,7 +337,8 @@ def main():
             return
         if args.explore:
             with variant_lock:
-                variant = sample_variant(rng, len(parents), change_weights, axes, args.vocab_share)
+                variant = sample_variant(rng, len(parents), change_weights, island_axes.get(island, axes),
+                                         args.vocab_share)
                 vrng = random.Random(rng.random())
             variant["source"] = "archive" if drawn else "island"
         if proposer:
@@ -347,6 +386,8 @@ def main():
                 if blocks is not None:
                     r.per_opponent["exec_blocks"] = sorted(blocks)
                     r.per_opponent["exec_opp"] = "starter"
+        if r.ok and island in fuel_islands:
+            fuel_penalize(text, r)
         p = Program(0, island, text, r.score, [p.id for p in parents], model, r.error, r.per_opponent)
         pid = db.add(p)
         if r.ok and r.per_opponent.get("confirmed") and "same_play_as" not in r.per_opponent:

@@ -2,6 +2,7 @@
 import json
 import os
 import random
+import re
 import subprocess
 import tempfile
 import threading
@@ -94,6 +95,43 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         return EvalResult(error="evaluation timed out")
     finally:
         Path(pol).unlink(missing_ok=True)
+
+
+FUEL_BIN = EVAL_BIN.with_name("fuel_turns")
+FUEL_MAPS = ("01big-world", "00ambush")  # the maps where heavy turns hit the 100k cap first
+
+
+def fuel_check(text, opp_text, maps=FUEL_MAPS, threshold=90_000, timeout=300):
+    """Real-budget fuel check (fuel_turns --enforce --bot-seeds, both sides of each map vs opp_text): returns
+    {suspensions, heavy_turns} per game (heavy = turns at or above `threshold` fuel, first turns included, as for
+    the live bot), or None on error."""
+    try:
+        pols = []
+        for t in (text, opp_text):
+            with tempfile.NamedTemporaryFile("w", suffix=".pol", delete=False) as f:
+                f.write(to_prefix(parse(t)))
+                pols.append(f.name)
+    except Exception:
+        return None
+    susp = heavy = games = 0
+    try:
+        for m in maps:
+            for side in ("a", "b"):
+                out = subprocess.run([str(FUEL_BIN), pols[0], str(ROOT / "maps" / f"{m}.map26a"), "--enforce",
+                                      "--bot-seeds", "--side", side, "--opp", pols[1]],
+                                     capture_output=True, text=True, timeout=timeout)
+                ms = re.search(r"suspensions (\d+)", out.stderr)
+                if not ms:
+                    return None
+                susp += int(ms.group(1))
+                heavy += sum(1 for l in out.stdout.splitlines() if l.split() and int(l.split()[1]) >= threshold)
+                games += 1
+        return dict(suspensions=round(susp / games, 2), heavy_turns=round(heavy / games, 1))
+    except Exception:
+        return None
+    finally:
+        for f in pols:
+            Path(f).unlink(missing_ok=True)
 
 
 EXEC_OPP = "starter"  # opponent of executed_blocks; logged as metrics.exec_opp
