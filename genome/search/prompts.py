@@ -30,6 +30,9 @@ Pathfinding in our own code is expensive, so use it rarely or locally: wfield() 
 / path_len() (A*) cost ~1.4k + 380 per tile expanded: ~10-20k for a local path with budget ~400 near a camp or
 altar, 1-4.5M across the map. territory(mine, theirs, walls) (tiles strictly nearer by walking to `mine` than to
 `theirs`) costs ~300k on 100x100 (~80k on 90x30): cache it in a Tiles keep from update().
+Fight reads (attack_damage, cast_damage, shield, hits_to_kill) are exact and cheap: per visible enemy, damage and
+hits_to_kill both ways cost ~1.3k fuel on the first call in a pass and ~0.4k after, so a fight can be decided by
+who dies first rather than by health ratios.
 Team coordination: the 8 shared bytes (read_shared anywhere; write_shared in update() or after()) are the only
 channel between allies; vision is not shared. after() can announce what this champion just did."""
 
