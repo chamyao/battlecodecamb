@@ -210,3 +210,18 @@ less archive, hunter3 island replaced by v19, draft axis dropped (the pairs axis
    The budget counts the spend already in hyb5-g*/programs.jsonl, so 25.0 stays.
 4. Check runs/hyb5-gN.log: exactly one line `re-seeded island 3 with v19` (islands 0/1/2 keep their v19 / v19 /
    lean-g65 lineages), then children logging axes other than draft.
+
+## Job H5 (2026-10-24 11:40 UTC, hybrid line session; per the FunSearch lead): rebase hyb5 on v20
+
+v20 (tune-fight-2s = v19 + ward our own bush tile when no enemy is visible) is live. At the next hyb5 round boundary
+(after `... (150 so far)` or later), the same way as H4 (hold, SIGTERM by PID at "hold file present"):
+
+1. `git pull origin funsearch/runs` (d0cbd58 or later: policies/pool/v20.policy). No interp change, so no rebuild
+   needed (rebuild anyway if the pull brings interp/ changes); pytest.
+2. `grep -qx policies/pool/v20.policy runs/hyb5.challengers || echo policies/pool/v20.policy >> runs/hyb5.challengers`
+3. Relaunch with the H4 command line changed in two flags only:
+   `--island-seeds policies/pool/v20.policy,policies/pool/v20.policy,policies/pool/lean-g65.policy,policies/pool/v20.policy`
+   `--cambc-ref policies/pool/v20.policy`
+4. Check runs/hyb5-g1.log: exactly three new lines `re-seeded island 0|1|3 with v20`; island 2 (lean-g65) kept.
+   At the next boundary `challengers: [...]` lists policies/pool/v20.policy; if it is promoted, hyb5-g2 starts with
+   best policies/pool/v20.policy and its islands seeded from the same --island-seeds (v20).
