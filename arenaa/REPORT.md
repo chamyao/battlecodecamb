@@ -2,6 +2,19 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-24 23:30 UTC
+
+- arenaA-5 (arenaA-3 + distinct games/bot-seeded anchors), birth 1061, $6.25 of 7.77. Panel (13 opp,
+  1040 games; seed 723; arenaA-3 final top 3: 780/774/772, mean 775): milestone 8 (birth 810) 777/759/756,
+  m9 (906) 786/779/772, m10 (1002) 782/774/770. Flat so far: best single genome A890 786 (+63 vs seed,
+  highest yet) but top-3 means 764/779/775 vs 775.
+- arenaZ-1 (from starter), birth 410, $2.33 of 3. Panel (11 graded opp, 880 games): seed 46; best per
+  milestone 45 (b100), 65 (b208), 93 (b306), 104 (b403). Rising steadily (+6.6 points in 400 births).
+- promptexp-1 partial (A0 56 scored, A1 31 + 42 generation failures). Null on 648bafd is tight: p95 +2,
+  max +5 of 480 (17/40 exactly 0). A0 mean -5.1, max +13; A1 mean -20.5, max +30 (T1). Paired so far:
+  A1-only better 5, A0-only 9, p = 0.91. A1 has wider variance both ways. Children > +5 to be
+  panel-scored (requested).
+
 ## 2026-10-24 22:45 UTC: state when Cham left
 
 Findings
