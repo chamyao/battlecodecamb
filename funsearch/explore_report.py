@@ -23,7 +23,7 @@ WATCH = [b for b in ("unit_max_health", "unit_strength", "unit_focus", "enemies_
                      "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius",
                      "threat_eta", "altar_eta", "retreat_eta", "enemy_between", "group_contested", "team_gems",
                      "unseen_enemies_near", "bank_detour", "group_rate",
-                     "monolith_threat", "in_monolith_zone", "altar_safe_tiles", "camp_threat") if b in NAMES]
+                     "monolith_threat", "in_monolith_zone", "altar_safe_tiles", "camp_threat", "enemy_locks", "lock_hits_left") if b in NAMES]
 
 
 def blocks_used(text):

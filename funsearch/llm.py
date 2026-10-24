@@ -85,9 +85,13 @@ AXES = {
                   "live bot: low capture yield (our gems per capture under 70% of theirs) in 59%, fights in 51%, 250+ "
                   "gems lost on death in 35%, a slow start in 32%, monolith deaths in 19%, no bank in 13%. On "
                   "00lost_world the bot takes the nearest spawn (single gems, gold-only groups) instead of the gemx3 / "
-                  "gemx2 groups: about 350 vs 1000 gems. Levers: when and where gems are banked, bag size, the distance to an altar, routes while "
+                  "gemx2 groups: about 350 vs 1000 gems. Carriers stall in 18% of live games (win rate 22% in those vs 39%): "
+                  "on the_farm a carrier waits in a camp-sealed pocket whose altars are enemy-locked (measured as idle "
+                  "turns x gems carried while the nearest altar is enemy-locked); attack() breaks a lock from attack "
+                  "range. Levers: when and where gems are banked, bag size, the distance to an altar, routes while "
                   "carrying, which camp groups are taken, what happens to the bag when a fight starts, which camps are hit and with how many champions (gems per capture), "
-                  "camp HP vs our HP, group_rate(spawn tile) and group_gems when choosing a camp group",
+                  "camp HP vs our HP, group_rate(spawn tile) and group_gems when choosing a camp group, enemy-locked altars (enemy_locks, "
+                  "lock_hits_left) and what a carrier does when its altar is locked",
     "disengage": "LOW-HP SURVIVAL. Measured: once one of our champions is below 50% HP with an enemy within 5 it "
                  "dies 88% of the time (the top team 6%, similar teams 13-20%), gaining ~1 tile in 5 rounds. "
                  "Measured hand rules: walking away mid-fight at HP below 0.4-0.6 with an enemy within 5-6 scored "
@@ -131,7 +135,8 @@ NEW_BLOCKS = ["unit_max_health", "unit_strength", "unit_focus", "enemies_near", 
               "unit_tributing", "unit_is", "unit_shield", "slot_stun", "slot_range", "slot_radius",
               "threat_eta", "altar_eta", "retreat_eta", "enemy_between", "group_contested", "team_gems",
               "unseen_enemies_near", "bank_detour", "group_rate",
-              "monolith_threat", "in_monolith_zone", "altar_safe_tiles", "camp_threat"]
+              "monolith_threat", "in_monolith_zone", "altar_safe_tiles", "camp_threat",
+              "enemy_locks", "lock_hits_left"]
 RARE_BLOCKS = ["place_ward", "bushes", "cast_at_tile", "teleport_to", "buy_teleport", "write_draft", "walls",
                "holes", "focus", "random_stat", "unit_health", "camp_count", "read_shared", "write_shared",
                "slot_is_reset", "stat_focus", "gold_cluster_tiles", "group_gems", "claim_count", "slot_stun",
