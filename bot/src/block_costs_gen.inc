@@ -10,6 +10,7 @@
 { "ally()", false, { 42720, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=33999 mean=42 mae=0 (profile fuel)
 { "altar_eta()", false, { 813564, 0, 3069, 0, 0, 0, 0, 0, 0, 0 } }, // n=14400 mean=951 mae=288 (profile fuel)
 { "altars()", false, { 111886, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=1638 mean=110 mae=0 (profile fuel)
+{ "altar_safe_tiles()", false, { 688430, 0, 0, 0, 0, 0, 0, 10433, 0, 0 } }, // provisional: as group_hp (camp scan per altar neighbour), coordinator
 { "and(Bool,Bool)", false, { 256749, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=103658 mean=252 mae=73 (profile fuel)
 { "available(ChampList,Champ)", false, { 510007, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=720 mean=501 mae=41 (profile fuel)
 { "bank_detour(Tile)", false, { 1274527, 0, 2274, 0, 0, 0, 0, 0, 0, 0 } }, // n=14400 mean=1365 mae=489 (profile fuel)
@@ -96,6 +97,8 @@
 { "group_contested(Tile)", false, { 1272680, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=14400 mean=1251 mae=155 (profile fuel)
 { "group_gems(TileSet)", false, { 179640, 0, 0, 0, 0, 0, 0, 51024, 76538, 0 } }, // n=14400 mean=5932 mae=17 (profile fuel)
 { "group_hp(Tile)", false, { 688430, 0, 0, 0, 0, 0, 0, 10433, 0, 0 } }, // n=14400 mean=1456 mae=420 (profile fuel)
+{ "in_monolith_zone(Tile)", false, { 688430, 0, 0, 0, 0, 0, 0, 10433, 0, 0 } }, // provisional: as group_hp (camp scan), coordinator
+{ "monolith_threat(Tile)", false, { 688430, 0, 0, 0, 0, 0, 0, 10433, 0, 0 } }, // provisional: as group_hp (camp scan), coordinator
 { "group_rate(Tile)", false, { 542907, 0, 0, 0, 0, 0, 0, 29385, 0, 0 } }, // n=28800 mean=2728 mae=673 (profile fuel)
 { "group_threat(Tile)", false, { 252851, 0, 0, 0, 0, 0, 0, 29700, 0, 0 } }, // n=28800 mean=2466 mae=673 (profile fuel)
 { "group_tiles(TileSet)", false, { 152003, 0, 0, 0, 0, 0, 0, 58652, 28946, 0 } }, // n=14400 mean=5265 mae=164 (profile fuel)

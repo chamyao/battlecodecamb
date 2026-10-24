@@ -93,7 +93,8 @@ static_assert(kNumTypes * kMaxVars <= 256, "variable codes must fit one 256-code
 	X(unit_max_health, "unit_max_health(Unit)") X(unit_strength, "unit_strength(Unit)") X(unit_focus, "unit_focus(Unit)")     \
 	X(enemies_near, "enemies_near(Tile,Num)") X(allies_near, "allies_near(Tile,Num)") X(strength_at, "strength_at(Tile,Num)") \
 	X(threat_eta, "threat_eta()") X(altar_eta, "altar_eta()") X(retreat_eta, "retreat_eta()") X(enemy_between, "enemy_between(Tile)")   \
-	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)") X(bank_detour, "bank_detour(Tile)") X(group_rate, "group_rate(Tile)")
+	X(group_contested, "group_contested(Tile)") X(team_gems, "team_gems()") X(unseen_enemies_near, "unseen_enemies_near(Num,Num)") X(bank_detour, "bank_detour(Tile)") X(group_rate, "group_rate(Tile)")                                \
+	X(monolith_threat, "monolith_threat(Tile)") X(in_monolith_zone, "in_monolith_zone(Tile)") X(altar_safe_tiles, "altar_safe_tiles()")
 
 enum class Op : std::uint16_t
 {
@@ -1067,6 +1068,25 @@ struct Interp
 		return camps_cache;
 	}
 
+	// Monoliths whose attack range covers the tile. awake_only: damage per turn of the awake ones (asleep
+	// monoliths fight only once hit); otherwise 1 if any living one does (unseen counts as alive).
+	double monolith_reach(Vec2 t, bool awake_only)
+	{
+		double dmg = 0;
+		for (std::uint32_t c = 0; c < m().camps.size(); ++c)
+		{
+			if (m().camps[c].type != cbs::CampType::monolith) continue;
+			const auto& d = cbs::camp_design(m().camps[c].type);
+			if (cbs::chebyshev(t, m().camps[c].pos) > d.attack_range) continue;
+			std::uint32_t life = 0;
+			const bool seen = api.camp_state(c, &life) == Err::success;
+			if (seen && life == static_cast<std::uint32_t>(cbs::CampLife::dead)) continue;
+			if (!awake_only) return 1;
+			if (seen && life == static_cast<std::uint32_t>(cbs::CampLife::awake)) dmg += d.base_strength;
+		}
+		return dmg;
+	}
+
 	// Blocked tiles for the champion at `me`; rebuilt only when the occupancy is refreshed or
 	// the champion moved (both bump `epoch` or the turn).
 	std::uint64_t blocked_turn = ~0ull, blocked_epoch = ~0ull;
@@ -1602,6 +1622,25 @@ struct Interp
 			const double turns = eta(cbs::chebyshev({ me_.x, me_.y }, t), me_.move_speed) + hp / std::max(1.0, static_cast<double>(me_.strength)) +
 								 cbs::settings().capture_time;
 			return num(gems / std::max(1.0, turns));
+		}
+		case Op::monolith_threat: { const Vec2 t = evalt(a[0]); return num(has_tile(t) ? monolith_reach(t, true) : 0); }
+		case Op::in_monolith_zone: { const Vec2 t = evalt(a[0]); return num(has_tile(t) && monolith_reach(t, false) > 0); }
+		case Op::altar_safe_tiles:
+		{
+			// tiles next to an altar (where a tribute starts) that no awake monolith can hit; walls, holes and altars excluded
+			const auto bp = std::make_shared<Bitboard>();
+			Bitboard& b = *bp;
+			m().altars.for_each_unordered(m().H, [&](int x, int y) {
+				for (int dx = -1; dx <= 1; ++dx)
+					for (int dy = -1; dy <= 1; ++dy)
+					{
+						const Vec2 p{ x + dx, y + dy };
+						if ((dx || dy) && m().in_bounds(p) && !m().walls.test(p) && !m().holes.test(p) && !m().altars.test(p) &&
+							monolith_reach(p, true) == 0)
+							b.set(p);
+					}
+			});
+			return set_ptr(bp);
 		}
 		case Op::respawning_visible_spawns:
 		{
