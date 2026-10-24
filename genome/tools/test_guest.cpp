@@ -45,6 +45,27 @@ int main(int argc, char** argv)
 					++checks;
 					if (v != r && !(walls->test(x, y))) ++bad;
 				}
+			// territory: goals vs a few other random tiles
+			{
+				auto t2 = std::make_shared<cbs::Bitboard>();
+				for (int i = 0; i < 2; ++i)
+				{
+					const int x = rng() % m.W, y = rng() % m.H;
+					if (!walls->test(x, y)) t2->set(x, y);
+				}
+				const genome::Tiles T = X.territory(G, genome::Tiles{ t2 }, W);
+				cbs::Bitboard b2 = *walls, v2;
+				b2.andnot(*t2);
+				std::vector<std::uint16_t> r2(m.W * m.H, cbs::kUnreachable);
+				if (t2->any(m.H)) cbs::distance_field(b2, *t2, nullptr, m.W, m.H, cbs::kUnreachable, r2.data(), v2);
+				for (int y = 0; y < m.H; ++y)
+					for (int x = 0; x < m.W; ++x)
+					{
+						const bool want = ref[y * m.W + x] < r2[y * m.W + x];
+						++checks;
+						if (T.b->test(x, y) != want) ++bad;
+					}
+			}
 			// path_len / path_step from random tiles to the first goal tile
 			cbs::Vec2 gt{};
 			g->first(m.H, gt);

@@ -1,4 +1,4 @@
-"""Fuel calibration genome 3: guest pathfinding (wfield, path_step, path_len). update() runs one probe
+"""Fuel calibration genome 3: guest pathfinding (wfield, path_step, path_len, territory). update() runs one probe
 per turn in rotation; inputs are computed outside the probes. Needs GENOME_UNCALIBRATED=1 until accepted."""
 
 @gene("c0", "score: wander (keeps the game moving)")
@@ -11,7 +11,7 @@ def score(o: Option) -> Num:
 def update() -> None:
     acc = 0
     k = round()
-    slot = k % 10
+    slot = k % 12
     t = me().pos
     W = walls() | holes()
     AL = altars()
@@ -41,6 +41,10 @@ def update() -> None:
         acc += p_pl_short(k, t, a, W)
     if slot == 9:
         acc += p_pl_far(k, t, tile(width() - 1 - t.x, height() - 1 - t.y), W)
+    if slot == 10:
+        acc += p_terr_spawn(k, my_spawn(), enemy_spawn(), W)
+    if slot == 11:
+        acc += p_terr_me(k, ME, enemy_tiles(), W)
     write_shared(7, acc)
 
 @gene("q0", "probe empty")
@@ -82,3 +86,11 @@ def p_pl_short(k: Num, f: Tile, to: Tile, w: Tiles) -> Num:
 @gene("q9", "path_len to the mirrored tile")
 def p_pl_far(k: Num, f: Tile, to: Tile, w: Tiles) -> Num:
     return path_len(f, to, w, 5000) + k
+
+@gene("q10", "territory: my spawn vs the enemy spawn")
+def p_terr_spawn(k: Num, a: Tiles, b: Tiles, w: Tiles) -> Num:
+    return k if me().pos in territory(a, b, w) else 0
+
+@gene("q11", "territory: my tile vs the visible enemies")
+def p_terr_me(k: Num, a: Tiles, b: Tiles, w: Tiles) -> Num:
+    return k if me().pos in territory(a, b, w) else 0

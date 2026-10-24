@@ -28,7 +28,8 @@ update() or after() if the genome has none.
 Pathfinding in our own code is expensive, so use it rarely or locally: wfield() over a whole 100x100 map costs
 ~4.5M fuel (~45 turns of budget; 90x30 ~1.3M), so cache it in a Field keep from update() every N turns; path_step()
 / path_len() (A*) cost ~1.4k + 380 per tile expanded: ~10-20k for a local path with budget ~400 near a camp or
-altar, 1-4.5M across the map.
+altar, 1-4.5M across the map. territory(mine, theirs, walls) (tiles strictly nearer by walking to `mine` than to
+`theirs`) costs ~300k on 100x100 (~80k on 90x30): cache it in a Tiles keep from update().
 Team coordination: the 8 shared bytes (read_shared anywhere; write_shared in update() or after()) are the only
 channel between allies; vision is not shared. after() can announce what this champion just did."""
 

@@ -765,6 +765,57 @@ public:
 		f.rm = true;
 		return f;
 	}
+	// Tiles strictly nearer (walking, 8 neighbours) to `mine` than to `theirs`, over tiles not in `walls`
+	// (sources allowed): two host distance fields and a compare loop in our code. (A two-colour search in
+	// our code would cost about a full wfield, ~4.5M fuel on 100 x 100.)
+	Tiles territory(const Tiles& mine, const Tiles& theirs, const Tiles& walls)
+	{
+		PRIM_PROF_BEGIN;
+		last_work = {};
+		auto out = std::make_shared<Bitboard>();
+		if (!mine.b || !mine.b->any(m.H)) return { out };
+		Bitboard b1, b2;
+		if (walls.b) b1 = *walls.b, b2 = *walls.b;
+		b1.andnot(*mine.b);
+		const Field f1 = run_field(b1, *mine.b, nullptr);
+		Field f2;
+		const bool rival = theirs.b && theirs.b->any(m.H);
+		if (rival) b2.andnot(*theirs.b), f2 = run_field(b2, *theirs.b, nullptr);
+		const std::uint16_t* d1 = f1.d.get();
+		const std::uint16_t* d2 = rival ? f2.d.get() : nullptr;
+#ifdef GENOME_BOT
+		// the host field and the bitboard share the chunk order inside a chunk (entry (y % 8) * 8 + x % 8 is
+		// bit (y % 8) * 8 + x % 8): chunk (cy, cx) is field block cy * width + cx, bitboard word cy * stride + cx
+		const int cw = static_cast<int>(cbs::hostbb::md.chunked_width), chh = static_cast<int>(cbs::hostbb::md.chunked_height);
+		for (int cy = 0; cy < chh; ++cy)
+			for (int cx = 0; cx < cw; ++cx)
+			{
+				std::uint64_t bits = 0;
+				const std::uint16_t* a = d1 + (cy * cw + cx) * 64;
+				if (d2)
+				{
+					const std::uint16_t* b = d2 + (cy * cw + cx) * 64;
+					for (int i = 0; i < 64; ++i) bits |= static_cast<std::uint64_t>(a[i] < b[i]) << i;
+				}
+				else
+					for (int i = 0; i < 64; ++i) bits |= static_cast<std::uint64_t>(a[i] != cbs::kUnreachable) << i;
+				out->w[cy * cbs::hostbb::stride + cx] = bits;
+			}
+#else
+		for (int y = 0; y < m.H; ++y)
+			for (int x = 0; x < m.W; ++x)
+			{
+				const double a = field_at_raw(f1, { x, y }), b = d2 ? field_at_raw(f2, { x, y }) : 1e9;
+				if (a < b) out->set(x, y);
+			}
+#endif
+		// tiles: field entries compared (chunks x 64), pops: 1 with a rival set (two fields, a compare per entry)
+		last_work.tiles = static_cast<long long>(((m.W + 7) / 8) * ((m.H + 7) / 8)) * 64, last_work.pops = rival ? 1 : 0;
+		extra(rival ? TR_BASE2 + TR_ENTRY2 * last_work.tiles : TR_BASE1 + TR_ENTRY1 * last_work.tiles);
+		PRIM_PROF_END(4);
+		return { out };
+	}
+	static constexpr double TR_BASE1 = 531, TR_ENTRY1 = 17.15, TR_BASE2 = 641, TR_ENTRY2 = 22.31; // fitted on cambc probes (FUEL.md)
 	std::unique_ptr<std::uint8_t[]> wf_cost_;
 	std::unique_ptr<std::int32_t[]> wf_next_, wf_prev_;
 	// fitted on cambc probes (genome/FUEL.md)
@@ -946,6 +997,10 @@ public:
 	double field_at(const Field& f, Tile t) const
 	{
 		extra(70); // the read costs ~70 in the bot (bounds, chunked index; measured per scored option)
+		return field_at_raw(f, t);
+	}
+	double field_at_raw(const Field& f, Tile t) const
+	{
 		if (!f.d || !in_bounds(t)) return 1e9;
 		if (f.rm)
 		{
