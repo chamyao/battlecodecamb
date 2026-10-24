@@ -14,7 +14,9 @@ sys.path.insert(0, '.')
 from funsearch.race import *
 from funsearch.fight_metrics import metrics
 
-BASE = "policies/tune5-campreset.policy"
+import os
+BASE = os.environ.get("EXPLORE_BASE", "policies/tune5-campreset.policy")
+FIGHT_OPP = os.environ.get("EXPLORE_FIGHT_OPP", "policies/v7zg-cast.policy")
 CHAMPS = ["ryth", "vesper_vale", "vendetta", "cassi_issac", "stellar", "prism", "marcella", "willow", "ren", "varg", "tavi", "heart_of_ruin"]
 
 SPAWN = "if at_spawn:\n"
@@ -55,7 +57,9 @@ def run_switch(name):
     base = open(BASE).read()
     pol = compile_text(SW[name](base))
     r = {"vs_base": h2h(pol, compile_text(base), 400, 9461, threads=1)["win_rate"],
-         "fight_v7zg": metrics(pol, compile_file("policies/v7zg-cast.policy"), games=80, seed=9462)}
+         "fight": metrics(pol, compile_file(FIGHT_OPP), games=80, seed=9462)}
+    if name == "lock":
+        r["fight_base"] = metrics(compile_text(base), compile_file(FIGHT_OPP), games=80, seed=9462)
     return name, r
 
 
@@ -94,7 +98,7 @@ if __name__ == "__main__":
         drafts(int(sys.argv[2]), int(sys.argv[3]))
     else:
         names = sys.argv[2:] or list(SW)
-        log = open("runs/tune/explore-switches.log", "a")
+        log = open(os.environ.get("EXPLORE_LOG", "runs/tune/explore-switches.log"), "a")
         with ProcessPoolExecutor(4) as ex:
             for name, r in ex.map(run_switch, names):
                 line = f"{name}: {json.dumps(r)}"
