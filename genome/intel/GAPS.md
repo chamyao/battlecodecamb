@@ -33,7 +33,13 @@ Ranked for B318 (genes are B318's, same IDs as the seed):
    - Genes: `r15` r_mono, `m11` camp_goal / CAMP_BASE (excludes monolith and golem groups).
    - Sim: B318 on 00contest makes 100 to 200.
    - Tried: `rejected/b318-zerogem` (early r_mono) changes nothing on 00contest. In the sim, B318's champions sit near the
-     spawn trading casts with enemies (395 moves in 2,000 rounds), so the cause is a spawn duel, not the monolith gate.
+     spawn trading casts with enemies (395 moves in 2,000 rounds).
+   - Traced (sim, B318 mirror, --bot-seeds; `tools/b318-rule-ping.genome` logs the rule of idle turns): 00contest has
+     **0 captures all game**. From round ~1000 every champion holds a cleared gold-cluster spawn under `r16` r_hold.
+     Both teams hold tiles of the same groups, so captures are contested forever. The edit "hold only when no enemy
+     champion is on the group" (`rejected/b318-hold`) flips 00contest (2/2, tiebreak) but is neutral overall (40/80).
+     The real 00contest idle spells were not on camp tiles, so the real cause may differ. 01elk_arena idles under
+     rule 20 (no live camp goal) and 01shortcut under rule 12 (bank walk to monolith-guarded altars): three causes.
 4. **Monolith deaths**
    - Evidence: 2.6 ± 1.0 per game on monolith maps (great_wall 17, boss_battle 11, contest 5, shortcut 4). A cause in 12% ± 6 of losses; it was 6% with v22.
    - Genes: `s14` / `r14` (B318: never wake a sleeping monolith, but a hit on another camp of its group still wakes it), `r13`, `a0`.

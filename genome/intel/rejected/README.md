@@ -35,3 +35,26 @@ changes (0 to 0). The trace shows why: team A makes only 395 moves in 2,000 roun
 near the spawn trading casts with enemy champions, and the monolith rule never gets to act. That looks like
 docs/ZERO_GEM_MAPS.md's 00reverse-spiral spawn duel more than the monolith gate. Next to check: `r2` r_heal,
 `a3`/`a5` cast-ahead and `r7` near our own spawn on 00contest.
+
+## Deploy-faithful rescoring (--bot-seeds, /80, runtime genome/v0 d0c0704; `tools/gate80.sh`)
+
+| genome | vs B318 | L1c | gconv1 | v7 | tune-v20-L1 | rall2-ca4-lean-g | metadraft | susp |
+|---|---|---|---|---|---|---|---|---|
+| B318 | — | 43 | 52 | 76 | 48 | 52 | 68 | 3.0 |
+| directed/b318-firstbank | 42 | 39 | 48 | 74 | 48 | 54 | 66 | 3.1 |
+| directed/b318-live-firstbank | 43 | 44 | 49 | 75 | 51 | 47 | 69 | 3.4 |
+| b318-hold | 40 | 46 | 49 | 76 | 48 | 53 | 68 | 2.9 |
+| b318-hold-zg | 37 | 44 | 47 | 74 | 47 | 51 | 67 | 2.8 |
+
+The two seeded winners (0.575 / 0.588) are even with B318 under --bot-seeds (42 and 43 of 80).
+
+## b318-hold (GAPS v2 #3: the 00contest standoff)
+
+On 00contest the sim (B318 mirror, --bot-seeds) records **0 captures in the whole game**. From round ~1000 every
+champion sits on a cleared gold-cluster spawn under rule 16, r_hold; `tools/b318-rule-ping.genome` shows
+16,114 rule-16 pings. Both teams hold tiles of the same groups, so the capture is contested, never completes,
+and r_hold never lets go. b318-hold holds only while no visible enemy champion stands on the group's tiles.
+00contest then flips to 2/2 with 136 captures, but still 0 gems (a tiebreak win). It is neutral overall
+(40/80 vs B318) and mixed against the anchors. Adding the early monolith rule (b318-hold-zg) is worse: 37/80.
+01elk-arena and 01shortcut do not change, so their causes differ. On 01elk-arena the idle champions are
+under rule 20 (camp walk) with no live goal; on 01shortcut it is rule 12, the bank walk to monolith-guarded altars.

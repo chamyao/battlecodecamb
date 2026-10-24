@@ -1,6 +1,7 @@
 """Simulator metrics for the gaps in GAPS.md: one genome against one opponent, per-game means for side A.
 
-Usage: python3 -m genome.intel.sim_metrics GENOME OPP [--games N] [--maps GLOB ...] [--fuel-mult X] [--seed S]
+Usage: python3 -m genome.intel.sim_metrics GENOME OPP [--games N] [--maps GLOB ...] [--fuel-mult X] [--seed S] [--bot-seeds]
+--bot-seeds: policies seeded per instance as the deployed bot (deploy-faithful; 2 games per map, both sides; --games ignored).
 GENOME: a .genome file (compiled with genome.build) or genome:path.so; OPP: a .genome, .policy, .pol or builtin:.
 Prints win rate (draws half) and the gap metrics: gems submitted, gems lost to champions, deaths to
 champions / to camps (deaths - enemy kills), gems per capture, captures, tributes, suspensions.
@@ -24,8 +25,10 @@ def side(spec):
     return spec
 
 
-def run(a, b, games, maps, fuel_mult=None, threads=4, seed=None):
-    cmd = [EVAL, '--a', side(a), '--b', side(b), '--games', str(games), '--threads', str(threads), '--details']
+def run(a, b, games, maps, fuel_mult=None, threads=4, seed=None, bot_seeds=False):
+    if bot_seeds:
+        games = 2 * len(maps)
+    cmd = [EVAL, '--a', side(a), '--b', side(b), '--games', str(games), '--threads', str(threads), '--details'] + (['--bot-seeds'] if bot_seeds else [])
     if seed is not None:
         cmd += ['--seed', str(seed)]
     if fuel_mult:
@@ -50,22 +53,23 @@ def metrics(G):
 
 
 def main(argv):
-    args, games, maps, fm, seed = [], 80, [], None, None
+    args, games, maps, fm, seed, bs = [], 80, [], None, None, False
     i = 0
     while i < len(argv):
         if argv[i] == '--games': games = int(argv[i + 1]); i += 2
         elif argv[i] == '--fuel-mult': fm = float(argv[i + 1]); i += 2
         elif argv[i] == '--seed': seed = int(argv[i + 1]); i += 2
+        elif argv[i] == '--bot-seeds': bs = True; i += 1
         elif argv[i] == '--maps':
             i += 1
             while i < len(argv) and not argv[i].startswith('--'):
                 maps += sorted(glob.glob(argv[i])); i += 1
         else: args.append(argv[i]); i += 1
     maps = maps or sorted(glob.glob(os.path.join(ROOT, 'maps', '*.map26a')))
-    G = run(args[0], args[1], games, maps, fm, seed=seed)
+    G = run(args[0], args[1], games, maps, fm, seed=seed, bot_seeds=bs)
     r = metrics(G)
     se = (r['win'] * (1 - r['win']) / r['games']) ** 0.5
-    print(f"win {r['win']:.3f} ± {se:.3f} over {r['games']}; " + ', '.join(f'{k} {v:.1f}' for k, v in r.items() if k not in ('games', 'win')))
+    print(f"win {r['win']:.3f} ± {se:.3f} ({r['win'] * r['games']:.1f}/{r['games']}) over {r['games']}; " + ', '.join(f'{k} {v:.1f}' for k, v in r.items() if k not in ('games', 'win')))
 
 
 if __name__ == '__main__':
