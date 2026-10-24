@@ -13,7 +13,8 @@ Maps where the first turn hits the cap: 00ambush, 00corners, 00expanse, 00lanes,
 first turn is 154-188k on these).
 | Oct 24 20:35 | genome/v0 2356e26 | Arena B B318 (20:00 snapshot) | 49 | 110 | 583 / 0 |
 | Oct 24 20:40 | genome/v0 2356e26 | Arena B B279 (20:00 snapshot) | 50 | 110 | 652 / 0 |
-| Oct 24 20:45 | 2356e26 vs 0d931cf build | B318 vs commit-mono (not v23) | 45 | — | — |
+| Oct 24 20:45 | genome/v0 2356e26 (both builds) | B318 vs commit-mono (not v23) | 45 | — | — |
+| Oct 24 20:50 | genome/v0 2356e26 | commit-mono (rebuilt) | 51 | 110 | 482 / 0 |
 
 ## Sim gate (a), `python3 -m genome.arenab.sim_gate` at genome/v0 2356e26 (seeds 94001-94013)
 
