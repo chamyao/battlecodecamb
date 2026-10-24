@@ -34,11 +34,14 @@ for n in C D D2 E F; do
 done
 push_state remote/tune remote/tune/runs/tune runs/tune
 
-# G (08:30 UTC, FunSearch lead approved $5): fight-block FunSearch seeded from tune-v18, branch tune/fs 9b3ecd5
+# G (08:30 UTC, FunSearch lead approved $5): fight-block FunSearch seeded from tune-v18g, branch tune/fs
 # (funsearch/style 3d34e37 + directive funsearch/styles/t_fight.txt + runs/tune_fs_launch.sh). Own clone, own build.
 G=/root/bc/tune-fs
-GREV=9b3ecd5
+GREV=6cba5f0  # 08:35 UTC: seed tune-v18g (retreat-dash fuel gate), fuel rule in the directive
 if [ ! -f "$G/.setup-$GREV" ]; then
+  # a run started on an older rev is stopped and restarted from scratch on the new one
+  for pid in $(pgrep -a -x python3 | grep -E "league --name tune-fight |funsearch.run --run tune-fight-" | cut -d' ' -f1); do
+    kill -TERM "$pid" && log "G: stopped old tune-fight pid $pid (rev change)"; done
   clone_nopush "$GREV" "$G" || { log "G: clone failed"; return 1; }
   build "$G" || { log "G: build failed: $(tail -n 3 "$G/interp/build/build.log")"; return 1; }
   touch "$G/.setup-$GREV"; log "G: tune/fs set up at $GREV"
