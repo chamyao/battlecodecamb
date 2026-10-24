@@ -46,3 +46,11 @@ fixed seeds, so a deploy-faithful pairing has only 80 distinct games. With `--bo
 (`python3 -m genome.arenab.sim_gate ... --bot-seeds`), B318 vs tune-v20-L1c at 2356e26 is **38/80 (0.475)**:
 anchors v7 +1.3, tune-v20-L1 +2.5, rall2 +3.7, metadraft -1.3. The arena gives 38/80 at db3f945 and 43/80 at
 77da39c. Real cambc vs the v22 ZIP (old build): 46/80.
+
+## B792 (Arena B run 13, gatekeeper pass) vs the live v25 build
+
+| date (UTC) | build | vs | wins /80 | first turns at 200k cap (cand / ref) | normal turns >= 100k (cand / ref) |
+|---|---|---|---|---|---|
+| Oct 24 21:25 | B792 at genome/v0 212a505 | v25 = genome/v0 2013533 genome/candidates/B318.genome | 43 | 11 / 110 | 279 / 692 |
+
+Gatekeeper (arena, 212a505, bot seeds): 47/80 vs B318 built at 212a505; anchors L1c +7, gconv1 -1, v7 +2, L1 +2, rall2 +3, metadraft +3.
