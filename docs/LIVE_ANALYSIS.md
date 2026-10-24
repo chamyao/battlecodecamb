@@ -136,3 +136,12 @@ Captures per game:
 | single wolf (4 gems) | **10.9, 43** | 3.5, 14 |
 
 v24's camp goals exclude golem tiles (`minus(..., golem_tiles())`), and the nearest-spawn rule sends us to single wolves. Their gems per capture there are up to 3x ours (61 vs 21 against qs2^3 at 19:10). Same fix: `group_rate`, with golem groups valued by their gems, not excluded.
+
+### 5c. 01elk_arena: 1-10, zero gems in 7 of 11 games
+
+- **The map.** 54 gold camps, 6 gem camps and 2 elks. The only gem source is one central group (`elkx2+gemx6`, about 38 gems) next to both altars, (22,22) and (27,27).
+- **The opponents** hold the centre and capture that group about 14 times per game (Midnight Altar Keepers, 19:00).
+- **We** hit gold camps (378 basic attacks on gold camps, 34 on elks, 4 on gems in that game), capture 0 gems, and die 13-41 times to the champions holding the centre.
+- **Our only win** was against cory at 20:10 (captured 792).
+
+Same root cause as 5 and 5b: the camp goal is the nearest spawn, and gold-only groups look like goals although they give 0 gems. On this map the bot would need to observe that the only gem value is the contested central group. `group_gems` = 0 for gold groups, plus `group_contested`, is what would steer it.
