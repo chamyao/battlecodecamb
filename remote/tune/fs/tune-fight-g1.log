@@ -33,3 +33,4 @@ Traceback (most recent call last):
     picks = self.rng.sample(sorted(uniq), min(k, len(uniq)))
                             ^^^^^^^^^^^^
 TypeError: '<' not supported between instances of 'tuple' and 'int'
+[10] claude-haiku-5-5 island 3: score 0.499 | best 0.608 (#0) $0.01 | 34s
