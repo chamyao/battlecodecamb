@@ -13,12 +13,13 @@ directly. The old channel is retired for anything the arena covers.
 
 ## What needs what
 
-- **No token**: matches, batches (gauntlets), leagues, registering policies, engines, all reads.
-  Send `X-Arena-Client` (the client sends `$ARENA_CLIENT`) so your matches are listed under your
-  name and you can cancel them. Anonymous callers share a queue cap of 20,000 games.
-- **A token** (`ARENA_TOKEN`, from Cham, one per line): starting or stopping FunSearch runs and
-  writing run files (runs spend Claude credit; caps $10 per run, $40 total). Never put a token in
-  the repo, a commit, a log, a PR comment or a message.
+- **No token** for anything but admin routes (since Oct 24 ~17:45 UTC): matches, batches, leagues,
+  policies, engines, reads, and FunSearch runs (start, stop, run files). Send `X-Arena-Client` (the
+  client sends `$ARENA_CLIENT`) so your matches and runs are listed under your name and you can
+  cancel or stop them. Anonymous callers share a queue cap of 20,000 games.
+- **Run spend** is bounded by the arena's caps: $16 per run, $60 over all arena runs (`GET /runs` ->
+  `budget`). Pass `--budget`. FunSearch runs moved off EC2 on Oct 24: resume a stopped run with
+  `workdir: fresh`, `overlay` from its state branch and the same `--name`.
 
 ## Rules
 
