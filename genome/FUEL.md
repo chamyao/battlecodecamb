@@ -147,7 +147,8 @@ games against the interpreted v23 (`prof_pair.sh` with OPP_BOT / OPP_SIM), real 
 (00lanes), 5388 / 4971 (01big-world), 6264 / 6132 (00ambush). Priced as the Api's memo price plus
 1206 + 8.5 x chunks.
 
-**Fight primitives** (Oct 24): `attack_damage`, `cast_damage`, `shield`, `hits_to_kill` follow the
+**Fight primitives** (Oct 24; `hits_to_kill` was removed later that day, being a model, not a rule):
+`attack_damage`, `cast_damage`, `shield`, `hits_to_kill` follow the
 engine's damage code (Game::apply_outgoing, damage_champion's reductions, shields first) on the
 units' host data: each champion's items (emblem passives) and buffs (shields) are read once per pass.
 Exact: `GENOME_CHECK_FIGHT=1` compares every attack / damage cast the loop makes with the target's
@@ -159,6 +160,38 @@ hit; probes 1.01-1.09. Score variants show a cached call is what a genome mostly
 unchanged at 0.99 / 1.02). A test genome choosing fights by them takes the same actions in the bot
 and the simulator (00lanes: 220 attacks, 117 casts; 00ambush; 01big-world); its whole-game fuel is
 0.89-0.91 of real (the cost of calling its large score gene, not inlined, is not modelled).
+
+## Raw SDK reads (Oct 24, SDK coverage audit)
+
+Added: `cooldown`, `ability_kind/cooldown/range/radius/targets/modifier/duration/moveless`, `item_count`,
+`unit_gold`, `buff_value`, `buff_turns`, `channel_left`, `group_cooldown`, `lock_hits`, `lock_enemy` (LANGUAGE.md).
+These are host reads with no judgement. The bot glue (`genome/bot/bot_api_extra.cpp`) gained `champion_channel_time`, `camp_group_cooldown` and
+`camp_buffs`. Records are cached per unit per pass in Ctx. Champions get a slot per handle and camps share
+8 direct-mapped slots. Both caches live in Ctx, which sits on the bot's small stack. A heap cache was tried and
+dropped: its first use cost ~1-86k fuel in the bot, depending on its size.
+
+Prices beyond the Api's own charge (RW_* in genome_rt.h) were fitted on `examples/calib5.genome`. Each call ran
+in a probe gene, and per-probe steady self fuel minus an empty probe was compared on identical games against the
+interpreted v23 (1e8 fuel; 00ambush, 01big-world, 00lanes, 00packs). Real / sim, in bot fuel:
+- cooldown (champion): 55 / 56. On a camp: fetch 128 / 126, second read 69 / 65.
+- ability_* fetch 125 / 126, hit 46 / 47.
+- item_count fetch 227 / 227, hit 31 / 33.
+- unit_gold 36 / 36; channel_left 40 / 40; group_cooldown 72 / 72.
+- buffs on a champion: fetch 131 / 124, hit 55 / 57. On a camp: fetch 121 / 117.
+- lock_hits fetch 54 / 54, hit 25 / 25.
+All probes fall at 0.95-1.02.
+
+Whole game, the plain probe genome scores 0.90-0.94. The same genome with its probes removed scores the same
+(0.90 / 0.95). The gap is in its score gene, which calls `nearest(camp_spawns(), me().pos)` per move option, and
+not in the reads. starter, seed, v23, B318 and B792 stay identical (results and fuel, 80 games, 1x and 100x).
+
+Batch 2 (`examples/calib6.genome`, same method; 00ambush, 01big-world, 00lanes, 00packs), real / sim:
+- `enemy_wards` fetch 1209 / 1207 (two boards built), second read 239 / 239.
+- `ward_charges` / `ward_cooldown` 79 / 79; `my_ward` 81 / 81.
+- `ward_sight` 883 / 862 and `sight` 924 / 899, size() included. Constant across map sizes.
+- `teleport_left` fetch 56 / 56, hit 24 / 23. Probed only with no teleport in flight.
+- `priority` 42 / 42; `can_sell` 50 / 50.
+All at 0.97-1.00. The SDK glue lives in `genome/bot/bot_api_extra.cpp`, so the policy bot's `bot/src/bot_api.cpp` is untouched.
 
 ## Guest pathfinding: wfield, path_step, path_len, territory (Oct 24)
 

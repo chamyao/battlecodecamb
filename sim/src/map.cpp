@@ -1,4 +1,5 @@
 #include "cbs/map.h"
+#include <thread>
 #include <algorithm>
 #include <fstream>
 #include <iterator>
@@ -174,8 +175,12 @@ void Map::vision(Vec2 from, int radius, Bitboard& out) const
 
 void Map::fill_windows(int i) const
 {
-	std::lock_guard<std::mutex> lk(window_mu_);
-	if (window_ready_[i].load(std::memory_order_relaxed)) return;
+	std::uint8_t st = 0;
+	if (!window_ready_[i].compare_exchange_strong(st, 1, std::memory_order_acquire))
+	{
+		while (window_ready_[i].load(std::memory_order_acquire) != 2) std::this_thread::yield(); // another thread fills it
+		return;
+	}
 	const int x = i % W, y = i / W;
 	Window w{};
 	const Vec2 from{ x, y };
@@ -187,7 +192,7 @@ void Map::fill_windows(int i) const
 	Window w6{};
 	for (int r = 2; r <= 14; ++r) w6.rows[r] = w.rows[r] & 0x7FFCu; // Chebyshev <= 6
 	ward_vision_cache_[i] = w6;
-	window_ready_[i].store(1, std::memory_order_release);
+	window_ready_[i].store(2, std::memory_order_release);
 }
 
 void Map::add_window(const Window& w, Vec2 from, Bitboard& out) const

@@ -1,0 +1,105 @@
+"""Fuel calibration genome 6: raw SDK reads batch 2 (wards, ward/hypothetical sight, teleports, priority,
+can_sell). update() runs one probe per turn in rotation on the nearest
+visible enemy champion (else ally, else me), the nearest camp and my tile. Needs GENOME_UNCALIBRATED=1
+until accepted."""
+
+@gene("c0", "score: walk to the nearest camp spawn, attack camps")
+def score(o: Option) -> Num:
+    if o.kind == ATTACK:
+        return 60
+    if o.kind == MOVE:
+        return 50 - dist(o.tile, nearest(camp_spawns(), me().pos))
+    if o.kind == WARD:
+        return 40 + floor(round() % 7)
+    if o.kind == RECALL:
+        return 30 if round() % 97 == 5 else 0
+    return 0
+
+@gene("c1", "run one probe this turn (round mod #probes)")
+def update() -> None:
+    acc = 0
+    k = round()
+    slot = k % 12
+    m = me()
+    e = best(enemies(), lambda x: 0 - dist(x.pos, m.pos))
+    al = best(allies(), lambda x: 0 - dist(x.pos, m.pos))
+    u = m
+    if exists(al):
+        u = al
+    if exists(e):
+        u = e
+    c = best(camps(), lambda x: 0 - dist(x.pos, m.pos))
+    t = m.pos
+    if slot == 0:
+        acc += p_empty(k)
+    if slot == 1:
+        acc += p_wd(k)
+    if slot == 2:
+        acc += p_wd2(k)
+    if slot == 3:
+        acc += p_wc(k)
+    if slot == 4:
+        acc += p_wcd(k)
+    if slot == 5:
+        acc += p_mw(k)
+    if slot == 6:
+        acc += p_ws(k, t)
+    if slot == 7:
+        acc += p_si(k, t)
+    if slot == 8:
+        acc += p_tl(k, u)
+    if slot == 9:
+        acc += p_tl2(k, u)
+    if slot == 10:
+        acc += p_pr(k, u)
+    if slot == 11:
+        acc += p_sell(k)
+    write_shared(7, acc)
+
+@gene("q0", "probe empty")
+def p_empty(k: Num) -> Num:
+    return k
+
+@gene("q1", "enemy_wards (fetch)")
+def p_wd(k: Num) -> Num:
+    return size(enemy_wards()) + k
+
+@gene("q2", "wards fetch + hit")
+def p_wd2(k: Num) -> Num:
+    return size(enemy_wards()) + size(ally_wards()) + k
+
+@gene("q3", "ward_charges")
+def p_wc(k: Num) -> Num:
+    return ward_charges() + k
+
+@gene("q4", "ward_cooldown")
+def p_wcd(k: Num) -> Num:
+    return ward_cooldown() + k
+
+@gene("q5", "my_ward")
+def p_mw(k: Num) -> Num:
+    return my_ward().x + k
+
+@gene("q6", "ward_sight")
+def p_ws(k: Num, t: Tile) -> Num:
+    return size(ward_sight(t)) + k
+
+@gene("q7", "sight")
+def p_si(k: Num, t: Tile) -> Num:
+    return size(sight(3, t)) + k
+
+@gene("q8", "teleport_left (fetch)")
+def p_tl(k: Num, u: Unit) -> Num:
+    return teleport_left(u) + k
+
+@gene("q9", "teleport fetch + hit")
+def p_tl2(k: Num, u: Unit) -> Num:
+    return teleport_left(u) + teleport_dest(u).x + k
+
+@gene("q10", "priority")
+def p_pr(k: Num, u: Unit) -> Num:
+    return priority(u) + k
+
+@gene("q11", "can_sell")
+def p_sell(k: Num) -> Num:
+    return (1 if can_sell() else 0) + k
