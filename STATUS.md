@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 09:05 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.22 14.06 15.11 on 16 threads.
+Updated 2026-10-24 09:10 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 11.22 12.54 14.17 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -12,10 +12,11 @@ Disk: 3.2G used of 38G.
 34422 /usr/bin/python3 -m funsearch.run --run pure4-g3 --budget 2.85 --max-programs 150 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/tune-3.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy --workers 3
 35865 python3 -m funsearch.league --name tune-fight --budget 5 --members policies/tune-v18g.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v18.policy --fixed policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campreset.policy --regress 1.0 
 35879 /usr/bin/python3 -m funsearch.run --run tune-fight-g1 --budget 4.42 --max-programs 51 --seed-policy policies/tune-v18g.policy --opponents builtin:starter@0.25,policies/tune-v18g.policy@3.0,policies/tune-v18.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/tune5-campres
+37632 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.p
+37639 /usr/bin/python3 -m funsearch.run --run hyb5-g1 --budget 25.00 --max-programs 30 --seed-policy policies/pool/v19.policy --opponents builtin:starter@0.25,policies/pool/v19.policy@3.0,policies/pool/lean-g65.policy,policies/pool/v18.policy,policies/pool/opp-hunter3.policy,policies/pool/opp-hunter
 ```
 ## tick.log (last 40 lines)
 ```
-[07:10:25] style: style8 setup ok at 5c47501: gate 3, 2012 passed in 6.26s; budgets: h 3.95 b 3.5 a 2.25 c 2.25 
 [07:10:25] style: launched style8-h (budget $3.95)
 [07:10:25] style: launched style8-b (budget $3.5)
 [07:10:25] style: launched style8-a (budget $2.25)
@@ -55,4 +56,5 @@ Disk: 3.2G used of 38G.
 [09:00:00] tune: G: launched tune-fight ($5)
 [09:05:05] hybrid: H3: hyb4 stopped. g4 verdict: [08:36:55]   #33: builtin:starter 0.973, hyb-t5m 0.511, tune-4 0.568, tune-1 0.682, v7-zerogem 0.792, locker 0.944, v7zg-cast 0.720, v8 0.724, v7zg-monozone 0.7|[08:44:09]   #29: builtin:starter 0.976, hyb-t5m 0.481, tune-4 0.527, tune-1 0.652, v7-zerogem 0.787, locker 0.946, v7zg-cast 0.713, v8 0.704, v7zg-monozone 0.7|[08:51:28]   #23: builtin:starter 0.976, hyb-t5m 0.486, tune-4 0.532, tune-1 0.649, v7-zerogem 0.787, locker 0.946, v7zg-cast 0.710, v8 0.700, v7zg-monozone 0.7|[08:58:41]   policies/tune5-campreset.policy: builtin:starter 0.974, hyb-t5m 0.710, tune-4 0.734, tune-1 0.774, v7-zerogem 0.869, locker 0.950, v7zg-cast 0.809,|[08:58:47]   PROMOTED challenger policies/tune5-campreset.policy: builtin:starter 97.4%, hyb-t5m 71.0%, tune-4 73.4%, tune-1 77.4%, v7-zerogem 86.9%, locker 95.|
 [09:05:12] hybrid: H3: funsearch/runs 557ce2c (has 557ce2c), rebuilt, 2012 passed in 5.94s; SPEND lines appended; hyb5 launches next tick
+[09:10:20] hybrid: launched hyb5 league
 ```
