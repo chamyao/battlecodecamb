@@ -47,8 +47,20 @@ class Scorer:
         self.lock = threading.Lock()
         self.cache = {}
         self.tmp = Path(tempfile.mkdtemp(prefix="gsearch-"))
-        self.opponents = [self._spec(o) for o in opponents]
-        self.opp_names = [Path(o).stem if not o.startswith("builtin:") else o for o in opponents]
+        self.set_opponents(opponents)
+
+    def set_opponents(self, opponents):
+        """Opponent specs, each optionally weighted as `spec@w` (default 1). The score is the weighted mean."""
+        specs, weights = [], []
+        for o in opponents:
+            spec, _, w = o.rpartition("@") if "@" in o and o.rsplit("@", 1)[1].replace(".", "").isdigit() else (o, "", "1")
+            specs.append(spec)
+            weights.append(float(w))
+        with self.lock:
+            self.opponents = [self._spec(o) for o in specs]
+            self.opp_names = [Path(o).stem if not o.startswith("builtin:") else o for o in specs]
+            self.weights = weights
+            self.pool_key = hashlib.sha256(json.dumps([self.opponents, weights]).encode()).hexdigest()[:12]
 
     # ---- program -> genome_eval side spec
     def _spec(self, text_or_path, kind=None):
@@ -74,7 +86,7 @@ class Scorer:
         return [rng.choice(self.maps) for _ in range(max(1, games // 2))]
 
     def evaluate(self, text, kind, seed, games):
-        key = (hashlib.sha256(text.encode()).hexdigest(), kind, seed, games)
+        key = (hashlib.sha256(text.encode()).hexdigest(), kind, seed, games, self.pool_key, self.fuel_mult)
         with self.lock:
             if key in self.cache:
                 return self.cache[key]
@@ -85,25 +97,28 @@ class Scorer:
         res = Result(score=0.0)
         outcomes = []
         try:
-            for opp, name in zip(self.opponents, self.opp_names):
-                out = subprocess.run([str(EVAL), "--a", a, "--b", opp, "--games", str(games), "--threads",
-                                      str(self.threads), "--seed", str(seed), "--fuel-mult", str(self.fuel_mult),
-                                      *self._games(seed, games)],
-                                     capture_output=True, text=True, timeout=self.timeout)
-                if out.returncode != 0:
-                    return Result(error=f"genome_eval exit {out.returncode}: {out.stderr[-300:]}")
-                stats = json.loads(out.stdout)
+            for opp, name, w in zip(self.opponents, self.opp_names, self.weights):
+                stats = self.play(a, opp, seed, games)
                 if "error" in stats:
                     return Result(error=stats["error"])
                 outcomes.append((stats.pop("results", None), stats["a_gems"], stats["b_gems"]))
                 res.per_opponent[name] = stats
-                res.score += score_of(stats) / len(self.opponents)
+                res.score += w * score_of(stats) / sum(self.weights)
         except subprocess.TimeoutExpired:
             return Result(error="evaluation timed out")
         res.fingerprint = hashlib.sha256(json.dumps(outcomes).encode()).hexdigest()[:16]
         with self.lock:
             self.cache[key] = res
         return res
+
+    def play(self, a, b, seed, games, threads=None):
+        """One genome_eval call between two side specs; returns its JSON stats (or {"error": ...})."""
+        out = subprocess.run([str(EVAL), "--a", a, "--b", b, "--games", str(games), "--threads",
+                              str(threads or self.threads), "--seed", str(seed), "--fuel-mult", str(self.fuel_mult),
+                              *self._games(seed, games)], capture_output=True, text=True, timeout=self.timeout)
+        if out.returncode != 0:
+            return {"error": f"genome_eval exit {out.returncode}: {out.stderr[-300:]}"}
+        return json.loads(out.stdout)
 
     def screen(self, text, kind):
         return self.evaluate(text, kind, self.screen_seed, self.screen_games)
