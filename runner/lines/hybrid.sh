@@ -268,7 +268,8 @@ PY
   # own boundary restart: merge funsearch/runs dccd4b1+ (sim/ changed: rebuild interp_eval + fuel_turns, pytest 2029);
   # style-gconv1 joins --fixed and replaces island 1's v21 seed. Bar and --yield-ref stay v21.
   FIXED=policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy
-  H20SEEDS=policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-82.policy
+  # jobs/hybrid 7e7b551 (16:20): island 3 seed #82 -> #76 (#82 broadly weak), funsearch/runs 166f85c+
+  H20SEEDS=policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-76.policy
   [ -f runs/ec2-h20 ] && { SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy; }
   if [ -f runs/ec2-h17 ] && [ ! -f runs/ec2-h20 ]; then
     if [ ! -f runs/ec2-h20-hold ]; then
@@ -279,15 +280,15 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H20: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor dccd4b1 HEAD && git merge-base --is-ancestor fce1ade HEAD && [ -f policies/pool/style-gconv1.policy ] &&
+         git merge-base --is-ancestor 166f85c HEAD && git merge-base --is-ancestor fce1ade HEAD && [ -f policies/pool/style-gconv1.policy ] && [ -f policies/candidates/hyb5-g3-76.policy ] &&
          rm -f "$D/interp/build/.built-$(git rev-parse HEAD)" && build "$D" fuel_turns &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h20-marks
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h20-progs
         rm -f runs/hyb5.hold; touch runs/ec2-h20; SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy
-        log "H20: funsearch/runs $(git rev-parse --short HEAD) (has dccd4b1: v23 style-gconv1, sim fix), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with style-gconv1 fixed + island-1 seed"
+        log "H20: funsearch/runs $(git rev-parse --short HEAD) (has 166f85c: v23 style-gconv1, sim fix, #76), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with style-gconv1 fixed + island-1 seed, island-3 seed #76"
       else
-        echo "H20 merge/dccd4b1/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H20 upgrade failed"; pushall; return 1
+        echo "H20 merge/166f85c/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H20 upgrade failed"; pushall; return 1
       fi
     fi
   fi
@@ -457,10 +458,10 @@ PY
   if [ -f runs/ec2-h20 ] && [ ! -f runs/ec2-h20-checked ]; then
     r=""; for f in runs/hyb5-g*.log; do
       m=$(awk -v f="$f" '$1==f{print $2}' runs/ec2-h20-marks); m=${m:-0}
-      r="$r$(tail -n +"$((m + 1))" "$f" | grep -E 're-seeded island 1' | cut -c1-120 | tr '\n' ';')"
+      r="$r$(tail -n +"$((m + 1))" "$f" | grep -E 're-seeded island [13]' | cut -c1-120 | tr '\n' ';')"
     done
     ng=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h20-progs) + 1 ))" | grep -c 'style-gconv1')
-    [ -n "$r" ] && [ "$ng" -gt 0 ] && { touch runs/ec2-h20-checked; log "H20 check: $r $ng new children mention style-gconv1 (metrics opponent)"; }
+    echo "$r" | grep -q 'island 1' && echo "$r" | grep -q 'island 3 with hyb5-g3-76' && [ "$ng" -gt 0 ] && { touch runs/ec2-h20-checked; log "H20 check: $r $ng new children mention style-gconv1 (metrics opponent)"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
