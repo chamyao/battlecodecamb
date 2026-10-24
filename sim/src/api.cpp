@@ -20,6 +20,8 @@ void Api::fold_prices()
 		folded_[i] = { prices_->base[i] + prices_->per_row[i] * ctx.map_h + prices_->per_chunk[i] * ch,
 					   prices_->per_n_milli[i] + prices_->per_n_chunk_milli[i] * ch, prices_->per_n2_milli[i],
 					   prices_->per_n3_milli[i] + prices_->per_n3_chunk_milli[i] * ch };
+	const Folded& c = folded_[static_cast<int>(Call::compute)];
+	compute_identity_ = c.fixed == 0 && c.kn == 1000 && c.kn2 == 0 && c.kn3 == 0;
 }
 
 const Bitboard& Api::vis()
@@ -417,10 +419,16 @@ void Api::visible_camps(std::vector<std::uint32_t>& out)
 		charge(Call::visible_camps, 0, occ.count(g_.map().H)); // n2: tiles (calibrated as dbits)
 		count_charges = false;
 	}
-	for (std::uint32_t c = 0; c < g_.map().camps.size(); ++c)
+	// camp(c) succeeding with health > 0, on each camp (vision looked up once)
+	if (playing())
 	{
-		CampRecord cr{};
-		if (camp(c, &cr) == Err::success && cr.health > 0) out.push_back(c);
+		const Bitboard& v = vis();
+		const std::size_t n = std::min(g_.map().camps.size(), g_.camps.size());
+		for (std::uint32_t c = 0; c < n; ++c)
+		{
+			const Camp& k = g_.camps[c];
+			if (g_.map().in_bounds(k.pos) && v.test(k.pos) && k.life != CampLife::dead && k.hp > 0) out.push_back(c);
+		}
 	}
 	if (bot) count_charges = true;
 }
@@ -706,13 +714,26 @@ void Api::reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
 		Row128 seen[kMaxDim];
 		Bitboard roots;
 		roots.set(origin);
-		bfs_layers(walls, roots, g_.map().W, g_.map().H, dist, seen, [&](Row128, int, int d) { layers = d; }, [] { return false; });
+		bfs_layers(walls, roots, g_.map().W, g_.map().H, dist, seen, [&](auto, int, int d) { layers = d; }, [] { return false; });
 	}
 	charge(Call::bitboard_reachable, layers);
 }
 
 namespace
 {
+// A search the simulator has just run for the same request (Api::distance_field): when the memo
+// misses on exactly that search, its field is copied instead of searched again. Set only around
+// one memo query (no charge, so no suspension, can happen in between).
+struct FieldHint
+{
+	const Bitboard *walls, *roots, *dests;
+	int max_distance;
+	const std::uint16_t* dist; // row-major
+	const Bitboard* visited;
+	int count;
+};
+thread_local const FieldHint* field_hint = nullptr;
+
 // field_memo Ops over the simulator's BFS, with the host's ComputeTo semantics (all dests).
 struct SimFieldOps
 {
@@ -734,29 +755,31 @@ struct SimFieldOps
 	std::uint16_t compute(const Board& walls, const Board& roots, const Board* dests, std::uint16_t maxd, std::uint16_t* field,
 						  Board& visited) const
 	{
+		std::fill(field, field + cw * ((H + 7) / 8) * 64, kUnreachable); // the map's chunks (fidx never reads beyond)
+		// The hint's search is this one when walls, roots and the limit are the same and both stop at
+		// the same single tile (first dest reached == all dests reached).
+		if (const FieldHint* h = field_hint; h && &walls == h->walls && &roots == h->roots && h->max_distance == maxd && dests && h->dests &&
+											   dests->count(H) == 1 && *dests == *h->dests)
+		{
+			visited = *h->visited;
+			visited.for_each_unordered(H, [&](int x, int y) { field[fidx(x, y)] = h->dist[y * W + x]; });
+			return static_cast<std::uint16_t>(h->count);
+		}
 		// distance_field(..., all_dests = true), written straight into the chunked layout.
 		Row128 seen[kMaxDim];
-		std::fill(field, field + field_memo::kFieldWords, kUnreachable);
 		const Row128 full = W >= 128 ? ~Row128{ 0 } : (Row128{ 1 } << W) - 1;
-		auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
-		auto pop = [](Row128 v) { return std::popcount(static_cast<std::uint64_t>(v)) + std::popcount(static_cast<std::uint64_t>(v >> 64)); };
 		int left = 0;
 		bool reached = false;
 		if (dests)
-			for (int y = 0; y < H; ++y) left += pop(load(*dests, y) & full);
+			for (int y = 0; y < H; ++y) left += row_pop(row_of<Row128>(*dests, y) & full);
 		const int n = bfs_layers(
 			walls, roots, W, H, maxd, seen,
-			[&](Row128 layer, int y, int d) {
+			[&](auto layer, int y, int d) {
 				if (dests)
-					if (const Row128 hit = layer & load(*dests, y))
-						if ((left -= pop(hit)) == 0) reached = true;
+					if (const auto hit = layer & row_of<decltype(layer)>(*dests, y))
+						if ((left -= row_pop(hit)) == 0) reached = true;
 				std::uint16_t* row = field + ((y >> 3) * cw) * 64 + (y & 7) * 8;
-				for (auto k = 0; k < 2; ++k)
-					for (std::uint64_t b = static_cast<std::uint64_t>(layer >> (64 * k)); b; b &= b - 1)
-					{
-						const int x = 64 * k + std::countr_zero(b);
-						row[(x >> 3) * 64 + (x & 7)] = static_cast<std::uint16_t>(d);
-					}
+				row_bits(layer, [&](int x) { row[(x >> 3) * 64 + (x & 7)] = static_cast<std::uint16_t>(d); });
 			},
 			[&] { return dests && reached; });
 		for (int y = 0; y < kMaxDim; ++y)
@@ -802,7 +825,10 @@ int Api::distance_field(const Bitboard& walls, const Bitboard& roots, const Bitb
 	const Vec2 me = have_me ? g_.champs[champ_].pos : Vec2{};
 	int qr = 1;
 	if (dests && have_me) dests->for_each(H, [&](int x, int y) { qr = std::max(qr, field_memo::cheb(x, y, me)); });
+	const FieldHint hint{ &walls, &roots, dests, max_distance, dist, &visited, n };
+	field_hint = &hint;
 	const MemoCharge mc = memo_query(walls, roots, dests, max_distance, me, have_me, std::min(qr, 3));
+	field_hint = nullptr;
 	last_field = { mc.layers, nd };
 	charge(Call::distance_field, mc.layers, nd, mc.misses);
 	return n;
@@ -826,7 +852,6 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	}
 	// cbs::distance_field from origin to cand without the field: the search stops at the first layer
 	// that reaches cand, so the answer is that layer's first cand tile in row-major order.
-	auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
 	Row128 seen[kMaxDim];
 	Bitboard roots;
 	roots.set(origin);
@@ -834,12 +859,11 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	bool found = false;
 	const int n = bfs_layers(
 		walls, roots, W, H, kUnreachable, seen,
-		[&](Row128 layer, int y, int d) {
+		[&](auto layer, int y, int d) {
 			if (found) return;
-			if (const Row128 hit = layer & load(cand, y))
+			if (const auto hit = layer & row_of<decltype(layer)>(cand, y))
 			{
-				const auto lo = static_cast<std::uint64_t>(hit);
-				out = { lo ? std::countr_zero(lo) : 64 + std::countr_zero(static_cast<std::uint64_t>(hit >> 64)), y };
+				out = { row_first(hit), y };
 				bd = static_cast<std::uint16_t>(d);
 				found = true;
 			}
@@ -900,8 +924,8 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 			int bd = cap + 1;
 			layers += bfs_layers(
 				walls, o, W, H, cap, v,
-				[&](Row128 layer, int y, int d) {
-					if (d < bd && (layer & load(cand, y))) bd = d;
+				[&](auto layer, int y, int d) {
+					if (d < bd && (layer & row_of<decltype(layer)>(cand, y))) bd = d;
 				},
 				[] { return false; });
 			h->used = ++hs.clock;

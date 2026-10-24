@@ -99,15 +99,15 @@ int distance_field(const Bitboard& walls, const Bitboard& roots, const Bitboard*
 		for (int y = 0; y < H; ++y) left += popcount128(load(*dests, y) & full);
 	const int count = bfs_layers(
 		walls, roots, W, H, max_distance, seen,
-		[&](Row layer, int y, int d) {
+		[&](auto layer, int y, int d) {
 			if (dests)
-				if (const Row hit = layer & load(*dests, y))
+				if (const auto hit = layer & row_of<decltype(layer)>(*dests, y))
 				{
 					if (!all_dests) reached = true;
-					else if ((left -= popcount128(hit)) == 0) reached = true;
+					else if ((left -= row_pop(hit)) == 0) reached = true;
 				}
 			std::uint16_t* row = dist + y * W;
-			for (Row b = layer; b; b &= b - 1) row[ctz128(b)] = static_cast<std::uint16_t>(d);
+			row_bits(layer, [&](int x) { row[x] = static_cast<std::uint16_t>(d); });
 		},
 		[&] { return dests && reached; });
 	for (int y = 0; y < H; ++y)

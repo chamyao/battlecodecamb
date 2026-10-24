@@ -1,0 +1,19 @@
+if is_draft():
+    pick(champ_vendetta())
+    end_turn()
+let mono = closest(ring(monolith_tiles(), 1))
+if exists(mono):
+    if monolith_threat(position()) > 0:
+        move_away_from(mono)
+        end_turn()
+    if in_monolith_zone(position()):
+        let c = first(filter(camps_visible(), in_attack_range()))
+        if exists(c):
+            attack(c)
+            end_turn()
+    move_towards(mono)
+    end_turn()
+let safe = closest(altar_safe_tiles())
+if exists(safe):
+    move_towards(safe)
+end_turn()

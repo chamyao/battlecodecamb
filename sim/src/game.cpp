@@ -514,19 +514,35 @@ void Game::on_position_changed(int c)
 void Game::update_group_memory(int c)
 {
 	Champion& ch = champs[c];
-	bool any = false; // a respawning group this champion has not yet seen respawning
-	for (std::size_t g = 0; g < groups.size(); ++g) any |= groups[g].state == GroupState::respawning && !ch.seen_respawning[g];
+	// Groups respawning that this champion has not yet seen respawning (bit g; up to 64 groups).
+	const bool small = groups.size() <= 64;
+	std::uint64_t unseen = 0;
+	bool any = false;
+	for (std::size_t g = 0; g < groups.size(); ++g)
+		if (groups[g].state == GroupState::respawning && !ch.seen_respawning[g])
+		{
+			any = true;
+			if (small) unseen |= std::uint64_t{ 1 } << g;
+		}
 	if (!any) return;
-	Bitboard vis;
-	champion_vision(c, vis);
+	// Same vision as the last call (it depends only on these) and no group to check that it did not
+	// already find out of sight: nothing can be seen now either.
+	const std::uint64_t key = static_cast<std::uint64_t>(round) << 40 | static_cast<std::uint64_t>(ch.revealed_n) << 32 |
+							  static_cast<std::uint64_t>(ch.alive ? 1 + ch.pos.x + 101 * ch.pos.y : 0) << 16 |
+							  static_cast<std::uint64_t>(ch.ward_active ? 1 + ch.ward_pos.x + 101 * ch.ward_pos.y : 0);
+	if (small && key == ch.group_memo_key && (unseen & ~ch.group_memo_unseen) == 0) return;
+	const VisionProbe vis = vision_probe(c);
 	for (std::size_t g = 0; g < groups.size(); ++g)
 		if (groups[g].state == GroupState::respawning && !ch.seen_respawning[g])
 			for (int h : map_->groups[g].camps)
 				if (vis.test(map_->camps[h].pos))
 				{
 					ch.seen_respawning[g] = 1;
+					if (small) unseen &= ~(std::uint64_t{ 1 } << g);
 					break;
 				}
+	ch.group_memo_key = key;
+	ch.group_memo_unseen = unseen;
 }
 
 void Game::process_captures()
@@ -846,8 +862,7 @@ bool Game::landing_ok(const Champion& ch, Vec2 to, bool& hidden_block, bool know
 	if (to == ch.pos) return false;
 	const bool occupied = champion_at(to) >= 0 || camp_at(to) >= 0 || tile_reserved_by_teleport(to);
 	if (!occupied) return true;
-	Bitboard vis;
-	champion_vision(ch.id, vis);
+	const VisionProbe vis = vision_probe(ch.id);
 	if (vis.test(to)) return false;
 	hidden_block = true;
 	return true;
@@ -925,8 +940,7 @@ Err Game::attack(int c, EntityKind kind, int handle)
 	if (incapacitated(c)) return Err::attack_cant_attack;
 	if (Err e = common_action_checks(ch); e != Err::success) return e;
 	const bool ranged = champion_design(ch.type).ranged;
-	Bitboard vis;
-	champion_vision(c, vis);
+	const VisionProbe vis = vision_probe(c);
 	// Order: target validity (42), allowance (41/40), range (43).
 	Vec2 tp;
 	int li = -1;
@@ -982,8 +996,7 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 	// An attack reset needs a spent basic attack to restore; a ranged champion's move spends it.
 	if (a.kind == AbilityKind::attack_reset && !ch.attacked && !(d.ranged && ch.moved)) return Err::cast_cant_cast;
 	if (a.exclusive_with_movement && ch.moved) return Err::cast_already_moved;
-	Bitboard vis;
-	champion_vision(c, vis);
+	const VisionProbe vis = vision_probe(c);
 	// Unit-targeted AoE casts land on the target's tile (a visible living enemy champion or camp,
 	// else 30). A dash ignores the unit target and always uses the given destination.
 	if ((a.kind == AbilityKind::aoe_damage || a.kind == AbilityKind::dash) && kind != EntityKind::none)
@@ -1105,8 +1118,7 @@ Err Game::cast(int c, int slot, EntityKind kind, int handle, Vec2 dest, bool& ok
 		// and holds no camp or enemy champion the caster can see (holes may be crossed, allies
 		// and unseen enemies passed through). RULE? unseen camps; altars are treated as passable
 		bool path = chebyshev(ch.pos, dest) <= 1;
-		Bitboard vis;
-		if (!path) champion_vision(c, vis);
+		const VisionProbe vis = vision_probe(c); // read only while !path
 		for (int dy = -1; dy <= 1 && !path; ++dy)
 			for (int dx = -1; dx <= 1 && !path; ++dx)
 			{
@@ -1340,8 +1352,7 @@ Err Game::place_ward(int c, Vec2 dest, bool& ok)
 		{
 			// An allied ward the champion cannot see behaves like a hidden occupant: success, nothing
 			// placed, the tile is revealed.
-			Bitboard vis;
-			champion_vision(c, vis);
+			const VisionProbe vis = vision_probe(c);
 			if (vis.test(dest)) return Err::ward_ally_ward_present;
 			if (ch.revealed_n < 8) ch.revealed[ch.revealed_n++] = dest;
 			return Err::success;
