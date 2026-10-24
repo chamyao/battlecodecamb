@@ -5,17 +5,15 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 22:35 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.09 1.29 3.15 on 16 threads.
-Disk: 7.3G used of 38G.
+Updated 2026-10-24 22:40 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 0.44 0.52 2.24 on 16 threads.
+Disk: 7.5G used of 38G.
 
 ## python3 processes
 ```
+340214 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-1/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-1/starter.genome --budget 3 --threads 5 --fixed-anchors --gate-every 100000000
 ```
 ## tick.log (last 40 lines)
 ```
-hint: See "git help submodule" for more information.
-[21:28:31] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[21:33:45] genome: started job simspeed-exact-2 at 654ddbc9f69b2f9495e13a4c1b84362c5ef7ec96
 [21:33:45] genome: job promptbench-r1b exited rc=0
 [21:33:45] genome: job promptbench-r1c exited rc=0
 [21:33:45] genome: job simspeed-exact-1 exited rc=0
@@ -53,4 +51,7 @@ fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/b
 fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
 [22:30:24] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:35:31] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[22:40:44] genome: started job arenaZ-1 at 7e40b6f
+[22:40:56] genome: started job panelZ-1 at cff0329519d81573f27fef7cfa35a5962f740ea2
+[22:40:58] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
