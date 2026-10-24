@@ -21,6 +21,10 @@ Every block a bot runs costs fuel; each bot gets 100,000 fuel per turn, and a bo
 out is suspended mid-turn (the rest of that turn is lost). Typical policies use ~15k per turn,
 so fuel rarely binds: gains come from better play. Each block's typical price is listed below;
 keep an eye on it only when adding expensive board-scanning blocks (thousands of fuel each).
+fuel_remaining() gates are a real lever now (until recently the live bot could not read its fuel):
+reading it costs almost nothing, so guard optional expensive steps (extra board scans, dashes,
+far camp scoring) with e.g. `if fuel_remaining() > 40000:` to skip them on heavy turns; pick
+thresholds well away from the typical mid-turn reading. This is compute as part of the policy.
 dash_towards is the exception to watch: on 100x100 maps a turn with dashes can approach the
 100,000 limit, so guard repeated dash attempts (check slot_is_dash and ability_ready first).
 """
