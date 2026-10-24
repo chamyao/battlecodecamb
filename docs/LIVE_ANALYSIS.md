@@ -60,3 +60,26 @@ Maps we always won (2+ games): 00monolith, 00road_of_riches, 00swirl, 01fracture
    - Proposed block: `altar_safe_tiles()` (altar-adjacent tiles that no monolith can hit), replacing the radius-5 exclusion.
 3. **Slow first bank.** We would need to observe **the gems-per-turn value of banking now against farming on**, early in the game. That is `group_rate` / `altar_eta` from `docs/SENSING_BLOCKS.md`. The opponents' first trip at round ~104, against our ~190, is worth about 30-100 gems by round 250-750 in our losses.
 4. **Low yield on open maps (00lost_world, 00expanse).** `group_rate(Tile)`, the gems per turn of a group including travel and kill time (`docs/SENSING_BLOCKS.md` rank 2). There our captures pay half of theirs.
+
+## 4. Why we die to monoliths: our own hits
+
+For each of our monolith deaths (ranked v21-v24), I took the last champion to hit that monolith in the 150 rounds before: a basic attack on it, or a cast within 2 tiles.
+
+| map | monolith deaths | last hit by the victim | by an ally | by an opponent | nobody in 150 rounds |
+|---|---|---|---|---|---|
+| 00great_wall | 81 | 68 | 11 | 1 | 1 |
+| 01shortcut | 29 | 21 | 4 | 1 | 3 |
+| 01boss_battle | 143 | 42 | 29 | 30 | 42 |
+
+On great_wall and shortcut it's self-inflicted. In v21/v24's policy (`tune-v21.policy`), the in-range camp attack `first( filter( camps, in_attack_range() ) )` hits any visible camp, monoliths included.
+- On 00great_wall, all altars are within 3 tiles of a monolith. A ranged champion at the altar ring has the monolith in range and starts hitting it.
+- On 01shortcut, the altar-blocker branch attacks the monolith next to the altar.
+- The new `in_monolith_zone` / `monolith_threat` blocks only help if the in-range camp attack can be told not to pick a monolith it can't finish.
+
+## 5. Why our captures pay less: the groups we choose (00lost_world)
+
+00lost_world, 16 games across ranked and band; we lost almost all of them. Captures per game:
+- **Opponents** repeat the richest groups: `gemx3` (21 gems) 19-33 times and `gemx2` (14 gems) 13-24 times. That is about 800-900 gems.
+- **We** take `gemx3` only 1-6 times (14 once) and `gemx2` 1-8 times. We spend our captures on single gems (7 gems, 7-36 times), `wolfx2` (8 gems) and **pure gold groups worth 0 gems (5-13 times per game)**.
+
+The map is symmetric, so the rich groups are on our side too. Our camp goal is the *nearest* spawn (`goals = closest(camp spawns − ...)`), not the richest per turn. Sensing needed: `group_rate(Tile)` = gems ÷ (travel + kill + capture turns), with gold-only groups at 0.
