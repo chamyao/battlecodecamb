@@ -10,10 +10,10 @@ remote-server when woken (docs/REMOTE_WORKER.md). Clone: `~/bc/style`, branch `f
   comment on PR #3 with that island's validation lines ("h2h", "cambc", "PROMOTED").
 - Do not launch style7 or any new run: the line is out of budget until the lead writes a new job here.
 
-## Job S2 (2026-10-24 ~05:00 UTC): style7 vs tune-5. APPROVED (lead, 04:46 UTC)
+## Job S2 (2026-10-24 ~05:00 UTC): style7 vs tune-5. HELD again (05:12 UTC): do not act until this line reads "APPROVED"
 
-Status: APPROVED by the FunSearch lead. Block check done: every block named in the directives and the
-catalog exists in the merged interp (1b03fa5).
+Status: HELD. The directives are being changed (the camp-skip formula is out). The line will name
+the new commit here and comment on PR #3.
 
 Supersedes S1's "do not start style7" ($2 granted for style7). Start only after
 ALL THREE style6 leagues (style6-a, -b, -c) have exited and their validation lines (h2h, cambc,
