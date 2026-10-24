@@ -714,7 +714,7 @@ void Api::reachable(const Bitboard& walls, Vec2 origin, int dist, Bitboard& out)
 		Row128 seen[kMaxDim];
 		Bitboard roots;
 		roots.set(origin);
-		bfs_layers(walls, roots, g_.map().W, g_.map().H, dist, seen, [&](Row128, int, int d) { layers = d; }, [] { return false; });
+		bfs_layers(walls, roots, g_.map().W, g_.map().H, dist, seen, [&](auto, int, int d) { layers = d; }, [] { return false; });
 	}
 	charge(Call::bitboard_reachable, layers);
 }
@@ -768,25 +768,18 @@ struct SimFieldOps
 		// distance_field(..., all_dests = true), written straight into the chunked layout.
 		Row128 seen[kMaxDim];
 		const Row128 full = W >= 128 ? ~Row128{ 0 } : (Row128{ 1 } << W) - 1;
-		auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
-		auto pop = [](Row128 v) { return std::popcount(static_cast<std::uint64_t>(v)) + std::popcount(static_cast<std::uint64_t>(v >> 64)); };
 		int left = 0;
 		bool reached = false;
 		if (dests)
-			for (int y = 0; y < H; ++y) left += pop(load(*dests, y) & full);
+			for (int y = 0; y < H; ++y) left += row_pop(row_of<Row128>(*dests, y) & full);
 		const int n = bfs_layers(
 			walls, roots, W, H, maxd, seen,
-			[&](Row128 layer, int y, int d) {
+			[&](auto layer, int y, int d) {
 				if (dests)
-					if (const Row128 hit = layer & load(*dests, y))
-						if ((left -= pop(hit)) == 0) reached = true;
+					if (const auto hit = layer & row_of<decltype(layer)>(*dests, y))
+						if ((left -= row_pop(hit)) == 0) reached = true;
 				std::uint16_t* row = field + ((y >> 3) * cw) * 64 + (y & 7) * 8;
-				for (auto k = 0; k < 2; ++k)
-					for (std::uint64_t b = static_cast<std::uint64_t>(layer >> (64 * k)); b; b &= b - 1)
-					{
-						const int x = 64 * k + std::countr_zero(b);
-						row[(x >> 3) * 64 + (x & 7)] = static_cast<std::uint16_t>(d);
-					}
+				row_bits(layer, [&](int x) { row[(x >> 3) * 64 + (x & 7)] = static_cast<std::uint16_t>(d); });
 			},
 			[&] { return dests && reached; });
 		for (int y = 0; y < kMaxDim; ++y)
@@ -859,7 +852,6 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	}
 	// cbs::distance_field from origin to cand without the field: the search stops at the first layer
 	// that reaches cand, so the answer is that layer's first cand tile in row-major order.
-	auto load = [](const Bitboard& b, int y) { return static_cast<Row128>(b.w[y][0]) | static_cast<Row128>(b.w[y][1]) << 64; };
 	Row128 seen[kMaxDim];
 	Bitboard roots;
 	roots.set(origin);
@@ -867,12 +859,11 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 	bool found = false;
 	const int n = bfs_layers(
 		walls, roots, W, H, kUnreachable, seen,
-		[&](Row128 layer, int y, int d) {
+		[&](auto layer, int y, int d) {
 			if (found) return;
-			if (const Row128 hit = layer & load(cand, y))
+			if (const auto hit = layer & row_of<decltype(layer)>(cand, y))
 			{
-				const auto lo = static_cast<std::uint64_t>(hit);
-				out = { lo ? std::countr_zero(lo) : 64 + std::countr_zero(static_cast<std::uint64_t>(hit >> 64)), y };
+				out = { row_first(hit), y };
 				bd = static_cast<std::uint16_t>(d);
 				found = true;
 			}
@@ -933,8 +924,8 @@ bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& ca
 			int bd = cap + 1;
 			layers += bfs_layers(
 				walls, o, W, H, cap, v,
-				[&](Row128 layer, int y, int d) {
-					if (d < bd && (layer & load(cand, y))) bd = d;
+				[&](auto layer, int y, int d) {
+					if (d < bd && (layer & row_of<decltype(layer)>(cand, y))) bd = d;
 				},
 				[] { return false; });
 			h->used = ++hs.clock;
