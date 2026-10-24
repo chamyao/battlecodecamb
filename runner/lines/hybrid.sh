@@ -194,7 +194,7 @@ PY
   # H10 (jobs/hybrid, 14:20 UTC): next hyb5 boundary after H9: merge funsearch/runs 4174c28+ (coord/capture-metric:
   # sim/ + policygen/blocks.py changed, new block unit_tributing: rebuild), pytest, relaunch with H9's command and the
   # weighted axis menu (conversion:3, disengage:2, the rest 1).
-  H10AXES="--axes conversion:3,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1"
+  H10AXES="--axes conversion:5,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1"
   # H10 addendum (14:30 UTC): require 7a6038d (contains 4174c28) and add the shared helper library built from all three
   # FunSearch lines' runs/ on this box; the league rebuilds runs/hyb5.helpers.json + HELPERS.md at every boundary.
   H10HELP="--helpers-runs /root/bc/hybrid/runs,/root/bc/pure/runs,/root/bc/style/runs,/root/bc/tune-fs/runs"; HELP=
@@ -208,10 +208,10 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H10: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 7a6038d HEAD && git merge-base --is-ancestor d915b03 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
+         git merge-base --is-ancestor 7a6038d HEAD && git merge-base --is-ancestor 6646329 HEAD && build "$D" && python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h10-progs
         rm -f runs/hyb5.hold; touch runs/ec2-h10; AXES=$H10AXES; HELP=$H10HELP
-        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 7a6038d, d915b03: H10-H14: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
+        log "H10: funsearch/runs $(git rev-parse --short HEAD) (has 7a6038d, 6646329: H10-H15: gap sensors, vocab variant, exec_blocks refresh, calibrated fuel), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the weighted axis menu and --helpers-runs"
       else
         echo "H10 merge/4174c28/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H10 upgrade failed"; pushall; return 1
       fi
@@ -332,7 +332,7 @@ if len(new) >= 28:
         ax = v.get("axis")
         if ax in ("conversion", "disengage"): c[ax] += 1
         if v.get("vocab"): c["vocab"] += 1
-    print(f"{len(new)} new programs: conversion {c['conversion']} ({c['conversion']/len(new):.2f}, expect 0.21), disengage {c['disengage']} ({c['disengage']/len(new):.2f}, expect 0.14), vocab {c['vocab']} ({c['vocab']/len(new):.2f}, expect ~0.2)")
+    print(f"{len(new)} new programs: conversion {c['conversion']} ({c['conversion']/len(new):.2f}, expect 0.31), disengage {c['disengage']} ({c['disengage']/len(new):.2f}, expect 0.12), vocab {c['vocab']} ({c['vocab']/len(new):.2f}, expect ~0.2)")
 PY
 )
     [ -n "$st" ] && { touch runs/ec2-h10-checked; log "H10 check: $st"; }
@@ -340,6 +340,14 @@ PY
   if [ -f runs/ec2-h10 ] && [ ! -f runs/ec2-h10-exec ]; then
     eb=$(grep -ho 'exec_blocks vs starter for [0-9]* programs[^)]*)' runs/hyb5*.log runs/hyb5.out 2>/dev/null | tail -n 1)
     [ -n "$eb" ] && { touch runs/ec2-h10-exec; log "H10 startup check: '$eb'"; }
+  fi
+  # H15 (jobs/hybrid 8e627ee, lead-approved): conversion weight 5 (folded into H10). Watch explore.txt for "FLAG yield".
+  if [ -f runs/ec2-h10 ]; then
+    fy=$(grep -h 'FLAG yield' runs/hyb5*.explore.txt 2>/dev/null | wc -l)
+    if [ "$fy" -gt "$(cat runs/ec2-flagyield 2>/dev/null || echo 0)" ]; then
+      echo "$fy" > runs/ec2-flagyield
+      log "H15 ALERT: 'FLAG yield' in explore.txt: $(grep -h 'FLAG yield' runs/hyb5*.explore.txt | tail -n 1 | cut -c1-200)"
+    fi
   fi
   if [ -f runs/ec2-h10 ] && [ ! -f runs/ec2-h10-helpers ]; then
     hk=$(tail -n +"$(( $(cat runs/ec2-h10-progs 2>/dev/null || echo 0) * 0 + 1 ))" runs/hyb5.log | grep -o 'helpers: [0-9]* helpers kept' | tail -n 1)
