@@ -7,6 +7,8 @@ if [ ! -d "$D/.git" ]; then
 fi
 build "$D" fuel_turns || { log "build failed: $(tail -n 3 "$D/interp/build/build.log")"; return 1; }
 cd "$D" && mkdir -p runs/tune
+# 06:45 UTC: follow tune/runs (job D2 needs 28b47e7+: draft_meta base argument, policies/tune5-reset.policy)
+git pull -q --ff-only origin tune/runs 2>/dev/null || log "pull failed"
 
 # job <name> <match> <command...>: start once; <name>.rc is written when it exits
 job() {
@@ -21,7 +23,10 @@ job() {
 job C funsearch/t5_mapfix.py "python3 funsearch/t5_mapfix.py > runs/tune/t5mapfix.out 2>&1"
 # D alongside C while the box is otherwise idle (JOBS.md: "after C or alongside it if threads allow")
 job D "funsearch/draft_meta.py m1" "python3 funsearch/draft_meta.py m1 9411 > runs/tune/draftmeta.out 2>&1"
-for n in C D; do
+# D2 (06:45 UTC): job D's draft screen rebased on tune5-reset (the likely next live bot); D on tune-5 is superseded
+[ -f runs/tune/D.rc ] || [ -f runs/tune/D.killed ] || { pkill -f "funsearch/draft_meta.py m1 " ; echo superseded > runs/tune/D.rc; touch runs/tune/D.killed; log "stopped job D (superseded by D2)"; }
+job D2 "funsearch/draft_meta.py r1" "python3 funsearch/draft_meta.py r1 9431 policies/tune5-reset.policy > runs/tune/draftmeta-r1.out 2>&1"
+for n in C D D2; do
   [ -f "runs/tune/$n.rc" ] && [ ! -f "runs/tune/$n.reported" ] && { log "job $n exited rc=$(cat runs/tune/$n.rc)"; touch "runs/tune/$n.reported"; }
 done
 push_state remote/tune remote/tune/runs/tune runs/tune
