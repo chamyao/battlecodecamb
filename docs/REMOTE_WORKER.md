@@ -24,8 +24,10 @@ directly. The old channel is retired for anything the arena covers.
 
 - **Engine**: every policy and match is pinned to an engine (a built repo commit). The default is
   an old funsearch/runs commit without tonight's sensors and bot fixes. For anything compared with
-  the live bot, use a deploy/v0 engine (`POST /engines {"ref": "deploy/v0"}` builds the server's
-  current deploy/v0; pass its sha as `"engine"`).
+  the live bot, use the current deploy/v0 engine: **2e1ff7edfe75d21b3eee24f60144e04bea8f7b8c**
+  (Oct 24 ~17:35 UTC; the sim's fuel recalibrated to within ~0.2k of cambc). Pass it as `"engine"`.
+  Don't compare results across engines: the earlier 545c7b1 under-charges fuel by 1-4k, so gated
+  policies pass their gates more often there than on the ladder.
 - **Names are immutable.** A changed policy gets a new name. Live lineage is registered as
   `v18-tune-r-all-v2`, `v19-rall2-ca4-lean-g`, `v20-tune-fight-2s`, `v22-tune-v20-L1c` (live;
   versions 21, 22 and 24 run this policy) and `v23-style-gconv1`; older pool policies under their
@@ -35,7 +37,7 @@ directly. The old channel is retired for anything the arena covers.
 - **Shared cores** (16 total: 6 match threads, 8 for arena runs, the rest for the line clones'
   own jobs). Don't flood the queue with low-value matches. League matches default to priority -1,
   so ad-hoc checks overtake them.
-- **The `main` league** (coordinator, deploy/v0 engine) holds the live lineage and baselines. A
-  candidate joins with `python3 arena.py league add main <name>`, which plays a gauntlet against
+- **The `main2` league** (coordinator, engine 2e1ff7e; `main` is the older 545c7b1 run) holds the live lineage and baselines. A
+  candidate joins with `python3 arena.py league add main2 <name>`, which plays a gauntlet against
   every member; post the standings with your candidate on PR #5.
 - Budgets and promotion rules are the lines' own (docs/STRATEGY.md and the line handoffs).
