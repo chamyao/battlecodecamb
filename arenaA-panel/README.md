@@ -5,3 +5,6 @@
   and side, so this is the full information for each pair.
 - panel-a458.jsonl: the same pairs, 400 games on seed 31337 without --bot-seeds (policies seeded per game, not as
   deployed); kept for reference.
+- panel5-db3f945.jsonl: seed, A659, A711, A662, A734 (arenaA-3) vs the 13 panel-A3 opponents at genome/v0 db3f945
+  (80 distinct games, bot seeds), from a clean db3f945 build: the control showing genome/simspeed 4b60b58 is not
+  bit-identical to db3f945 for genome-vs-policy games (compare panel-A3/panel.jsonl, 4b60b58).
