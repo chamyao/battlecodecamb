@@ -124,3 +124,15 @@ In v21/v24's policy, a locked altar is attacked only when the carrier is already
 - whether the altar is locked by the enemy, and how many hits it takes to clear (`locked_altars()` exists; a `lock_hits_left(Tile)` would help);
 - the path turns to the nearest *open* altar against the time to break the lock;
 - turns spent idle while carrying (`turns_idle()` exists): a stall is directly observable.
+
+### 5b. The same group-choice gap on 00quadrants (15 games, we won 2)
+
+Captures per game:
+
+| group | us: captures, gems | them: captures, gems |
+|---|---|---|
+| gemx12 + golem (the 120-gem golem group) | 0.9, 104 | **2.5, 296** |
+| gemx3 + wolf (25 gems, quick) | 4.8, 120 | **10.0, 250** |
+| single wolf (4 gems) | **10.9, 43** | 3.5, 14 |
+
+v24's camp goals exclude golem tiles (`minus(..., golem_tiles())`), and the nearest-spawn rule sends us to single wolves. Their gems per capture there are up to 3x ours (61 vs 21 against qs2^3 at 19:10). Same fix: `group_rate`, with golem groups valued by their gems, not excluded.
