@@ -409,25 +409,44 @@ void Api::visible_camps(std::vector<std::uint32_t>& out)
 	// The deploy bot (bot_api.cpp) reads the camp occupancy and queries each occupied tile, so
 	// it is priced on those tiles; otherwise one camp call per camp.
 	const bool bot = prices_->bot_memo && count_charges;
+	const Map& map = g_.map();
 	if (bot)
 	{
-		Bitboard occ;
-		const bool counting = count_charges;
-		count_charges = false;
-		camp_occupancy(occ, 0);
-		count_charges = counting;
-		charge(Call::visible_camps, 0, occ.count(g_.map().H)); // n2: tiles (calibrated as dbits)
+		// camp_occupancy(occ, 0) then occ.count: the distinct tiles of the visible non-dead camps
+		std::int64_t tiles = 0;
+		const Bitboard& v = vis();
+		Vec2 seen[64];
+		bool many = false;
+		for (const Camp& k : g_.camps)
+			if (k.life != CampLife::dead && v.test(k.pos))
+			{
+				bool dup = false;
+				for (int i = 0; i < tiles && i < 64; ++i) dup |= seen[i] == k.pos;
+				if (dup) continue;
+				if (tiles < 64) seen[tiles] = k.pos;
+				else many = true;
+				++tiles;
+			}
+		if (many)
+		{
+			Bitboard occ;
+			for (const Camp& k : g_.camps)
+				if (k.life != CampLife::dead && v.test(k.pos)) occ.set(k.pos);
+			tiles = occ.count(map.H);
+		}
+		charge(Call::visible_camps, 0, tiles); // n2: tiles (calibrated as dbits)
 		count_charges = false;
 	}
-	// camp(c) succeeding with health > 0, on each camp (vision looked up once)
+	// camp(c) succeeding with health > 0, on each camp (vision looked up once; after the charge,
+	// which may have suspended this bot)
 	if (playing())
 	{
 		const Bitboard& v = vis();
-		const std::size_t n = std::min(g_.map().camps.size(), g_.camps.size());
+		const std::size_t n = std::min(map.camps.size(), g_.camps.size());
 		for (std::uint32_t c = 0; c < n; ++c)
 		{
 			const Camp& k = g_.camps[c];
-			if (g_.map().in_bounds(k.pos) && v.test(k.pos) && k.life != CampLife::dead && k.hp > 0) out.push_back(c);
+			if (map.in_bounds(k.pos) && v.test(k.pos) && k.life != CampLife::dead && k.hp > 0) out.push_back(c);
 		}
 	}
 	if (bot) count_charges = true;
