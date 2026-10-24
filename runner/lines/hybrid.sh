@@ -193,7 +193,7 @@ PY
   H10AXES="--axes conversion:3,disengage:2,items:1,vision:1,teleport:1,team:1,roles:1,pairs:1,macro:1,abilities:1,combat:1"
   # H10 addendum (14:30 UTC): require 7a6038d (contains 4174c28) and add the shared helper library built from all three
   # FunSearch lines' runs/ on this box; the league rebuilds runs/hyb5.helpers.json + HELPERS.md at every boundary.
-  H10HELP="--helpers-runs /root/bc/hybrid/runs,/root/bc/pure/runs,/root/bc/style/runs"; HELP=
+  H10HELP="--helpers-runs /root/bc/hybrid/runs,/root/bc/pure/runs,/root/bc/style/runs,/root/bc/tune-fs/runs"; HELP=
   [ -f runs/ec2-h10 ] && { AXES=$H10AXES; HELP=$H10HELP; }
   if [ -f runs/ec2-h9 ] && [ ! -f runs/ec2-h10 ]; then
     if [ ! -f runs/ec2-h10-hold ]; then
@@ -324,9 +324,8 @@ new = rows[n0:]
 if len(new) >= 28:
     c = collections.Counter()
     for r in new:
-        s = json.dumps(r)
-        for a in ("conversion", "disengage"):
-            if f'"{a}"' in s: c[a] += 1
+        ax = ((r.get("metrics") or {}).get("variant") or {}).get("axis")
+        if ax in ("conversion", "disengage"): c[ax] += 1
     print(f"{len(new)} new programs: conversion {c['conversion']} ({c['conversion']/len(new):.2f}, expect 0.21), disengage {c['disengage']} ({c['disengage']/len(new):.2f}, expect 0.14)")
 PY
 )
