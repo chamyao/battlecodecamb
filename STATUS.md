@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 07:05 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 21.92 20.98 18.29 on 16 threads.
+Updated 2026-10-24 07:10 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 23.05 21.85 19.45 on 16 threads.
 Disk: 3.1G used of 38G.
 
 ## python3 processes
@@ -11,14 +11,17 @@ Disk: 3.1G used of 38G.
 5473 /usr/bin/python3 -m funsearch.run --run pure4-g3 --budget 4.57 --max-programs 102 --seed-policy policies/fs-p2.policy --opponents builtin:starter@0.25,policies/fs-p2.policy@3.0,policies/tune-3.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy --workers 3 
 6766 python3 funsearch/draft_meta.py r1 9431 policies/tune5-reset.policy
 7792 python3 funsearch/explore.py drafts 9471 400
+12414 python3 -m funsearch.league --name style8-h --budget 3.95 --members policies/opp-hunter2b.policy --keep 0 --best-weight 0.5 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2a.policy --regr
+12424 python3 -m funsearch.league --name style8-b --budget 3.5 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policie
+12433 /usr/bin/python3 -m funsearch.run --run style8-h-g1 --budget 3.95 --max-programs 150 --seed-policy policies/opp-hunter2b.policy --opponents builtin:starter@0.25,policies/opp-hunter2b.policy@0.5,policies/tune5-campreset.policy,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunt
+12435 python3 -m funsearch.league --name style8-a --budget 2.25 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
+12444 /usr/bin/python3 -m funsearch.run --run style8-b-g1 --budget 3.50 --max-programs 150 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
+12446 python3 -m funsearch.league --name style8-c --budget 2.25 --members policies/tune5-campreset.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune5-campreset.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,polici
+12451 /usr/bin/python3 -m funsearch.run --run style8-a-g1 --budget 2.25 --max-programs 150 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
+12461 /usr/bin/python3 -m funsearch.run --run style8-c-g1 --budget 2.25 --max-programs 150 --seed-policy policies/tune5-campreset.policy --opponents builtin:starter@0.25,policies/tune5-campreset.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-h
 ```
 ## tick.log (last 40 lines)
 ```
-[06:32:54] pure: line script exited 1
-[06:33:01] style: pytest failed: /usr/bin/python3: No module named pytest
-[06:33:01] style: line script exited 1
-[06:38:08] runner: installed pytest + anthropic
-[06:38:22] hybrid: setup ok at 13facf9: 2012 passed in 5.72s; challengers: policies/candidates/hyb-t5m.policy policies/candidates/hyb-t5m-rich15d6f.policy 
 [06:38:22] hybrid: launched hyb4 league
 [06:38:23] hybrid: line script exited 1
 [06:38:41] pure: setup ok at 81ab84b: 2012 passed in 5.60s; cambc 0.3625 ok; g3 programs.jsonl 49 lines; spent $5.14 (left $4.57)
@@ -54,4 +57,9 @@ hint: "git config advice.addIgnoredFile false"
 [06:54:25] style: HOLD: SIGTERM style7-c pid 5813
 [06:54:45] style: HOLD: style7 stopped; spend a/b/c: 0.02 0.017 0.007  a:8lines b:7lines c:5lines
 [06:54:49] tune: job F exited rc=0
+[07:10:25] style: style8 setup ok at 5c47501: gate 3, 2012 passed in 6.26s; budgets: h 3.95 b 3.5 a 2.25 c 2.25 
+[07:10:25] style: launched style8-h (budget $3.95)
+[07:10:25] style: launched style8-b (budget $3.5)
+[07:10:25] style: launched style8-a (budget $2.25)
+[07:10:25] style: launched style8-c (budget $2.25)
 ```
