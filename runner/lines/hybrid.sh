@@ -418,7 +418,7 @@ for f in sorted(glob.glob("runs/hyb5-g*/programs.jsonl")):
     for l in open(f):
         try: rows.append(json.loads(l))
         except Exception: pass
-i3 = [r for r in rows[n0:] if (r.get("metrics") or {}).get("island", r.get("island")) == 3]
+i3 = [r for r in rows[n0:] if r.get("island") == 3]   # top-level "island" field (no metrics.island)
 if len(i3) >= 8:
     fuel = sum(1 for r in i3 if (r.get("metrics") or {}).get("fuel") is not None)
     fax = sum(1 for r in i3 if ((r.get("metrics") or {}).get("variant") or {}).get("axis") == "fuel")
