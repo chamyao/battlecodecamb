@@ -308,6 +308,8 @@ def parse(source):
         raise GenomeError("after must be after() -> None")
     if "update" in genes and (genes["update"].params or genes["update"].ret != "None"):
         raise GenomeError("update must be update() -> None")
+    if "reserve" in genes and (genes["reserve"].params or genes["reserve"].ret != "Num"):
+        raise GenomeError("reserve must be reserve() -> Num")
     g = Genome(genes, keeps, source)
     Checker(g).run()
     return g
@@ -579,7 +581,7 @@ class Checker:
             gene = self.g.genes[n]
             if [t for _, t in gene.params] != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(t for _, t in gene.params)})")
-            if n in ("score", "update", "consider", "after"):
+            if n in ("score", "update", "consider", "after", "reserve"):
                 self.err(e, f"entry gene {n} cannot be called")
             self.cur.calls.add(n)
             return gene.ret, f"{n}(" + ", ".join(c for _, c, _ in args) + ")", ops + 1
@@ -721,6 +723,8 @@ def to_cpp(genome):
     lines += ["\tdouble score_option(const Option& o) override { return score(o); }",
               f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}",
               f"\tvoid run_after() override {{ {'after();' if 'after' in genome.genes else ''} }}"]
+    if "reserve" in genome.genes:
+        lines += ["\tdouble reserve_fuel() override { return reserve(); }"]
     if "consider" in genome.genes:
         p = genome.genes["consider"].params[0][0]
         lines += ["\tbool consider_kind(int k) override { return consider(double(k)); }",
@@ -736,8 +740,8 @@ def to_cpp(genome):
         lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:
             # zero-argument genes are pure within a pass: computed once per pass, cached on this instance
-            # a hit copies the value out (~28 fuel in the bot for a scalar, ~65 for a shared set or field)
-            hit = 65 if g.ret in ("Tiles", "Field", "Units") else 28
+            # a hit costs ~73 fuel in the bot for a scalar, ~78 for a shared set or field (fitted per turn on identical games)
+            hit = 78 if g.ret in ("Tiles", "Field", "Units") else 73
             lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({hit}); return val_{n}; }}",
                       f"\t{CPP[g.ret]} v = [&]() -> {CPP[g.ret]} {{"]
             lines += ["\t" + l for l in body]
