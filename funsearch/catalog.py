@@ -120,7 +120,7 @@ DOCS = {
     "spawn_region": "a team's spawn tiles",
     "enemies_visible": "living enemy champions you can see", "allies_visible": "living allies you can see (not you)",
     "camps_visible": "living camps you can see (costs one query per camp on the map)",
-    "locked_altars": "altar tiles with a visible altar lock",
+    "locked_altars": "altar tiles with a visible enemy altar lock (our own locks never block our tributes)",
     "respawning_visible_spawns": "spawn tiles of visible camp groups that are waiting to respawn",
     "write_shared": "write byte value (0-255) at offset i (use 7; 0-6 are used by claims and team target)",
     "union": "", "minus": "a without b", "contains": "tile in set",
