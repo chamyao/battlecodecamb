@@ -26,7 +26,28 @@ Ranked for B318 (genes are B318's, same IDs as the seed):
    - Deploy-faithful (--bot-seeds): every gem-group variant loses to B318, 33-38/80 (`rejected/README.md`). The sim
      does not reward richer groups. In real games yield barely separates our wins from our losses (11.3 vs 9.4), so
      it may follow from losing contested groups. Next test: real cambc with b318-gg6.
-2. **Fights**
+2. **Fights** (opponent patterns, real vs sim: `opp_patterns.py`; the sim side is B318 in local cambc, 3 games each)
+
+   | our deaths to champions | real b2 losses | real b2 all | B318 vs hunter (sim) | B318 mirror (sim) |
+   |---|---|---|---|---|
+   | victim alone (no ally within 5) | 67% | 66% | 69% | 43% |
+   | enemies within 5 at death (mean) | 2.00 | 2.11 | 2.17 | 1.96 |
+   | pack grew in the last 10 rounds | 70% | 68% | 60% | 48% |
+   | 2+ distinct hitters in the last 3 rounds | 42% | 47% | 63% | 52% |
+   | killer closed 6+ tiles in 10 rounds (chase) | 48% | 45% | 37% | 39% |
+   | killer / victim item points | 53 / 16 | 45 / 17 | 32 / 17 | 26 / 11 |
+   | top killer's share of kills | — | 58% | 53% | 49% |
+   | enemy time within 3 of an altar / within 6 of our spawn | 13% / 4% | 13% / 3% | 10% / 0% | 10% / 1% |
+
+   The band opponents do not deathball (enemy champions average 13.5 tiles apart), camp altars or press our spawn.
+   They converge on an isolated champion of ours and chase it. Hunter already reproduces that geometry. What it
+   lacks is the fed carry: real killers carry 1.4-1.7x the item points of the sim's (53 vs 32 in losses).
+   Stress opponent to build, "hunter-carry": hunter, plus one carry (its Vesper Vale; treasure passive) that takes
+   the kills. Its allies leave low-HP enemies to it when it is within 4, and it buys only strength shards (the
+   others keep the seed's split; making every champion all-strength was much weaker, see v1). Calibrate it until
+   killer/victim item points reach about 50/16 against B318.
+
+   Fights evidence: 
    - Evidence: 9.7 ± 1.3 deaths per game to champions, 11.0 in losses against 7.4 in wins. Fights are a cause in 44% ± 9 of losses.
    - Genes: `r7` / `s13` / `a3` / `a4` (B318 retuned `s13` and `a4`), and `s8` under_fire (B318 uses threat_eta <= 5).
    - Sim: `stress/hunter`; the sim under-counts these deaths, see gap 2 in v1.
