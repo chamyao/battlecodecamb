@@ -58,22 +58,59 @@ def spec_of(path_or_text, kind=None):
     return Scorer([], threads=1)._spec(path_or_text, kind)
 
 
-def gate(text, ref, anchors, threads=5, min_wins=43, regress=0.03, bars=None, log=print):
+class ArenaRater:
+    """Plays a gate's matches on the arena service (POST /matches: 80 games, every map from both sides, bot seeds)
+    instead of locally: no run or EC2 slot needed."""
+
+    def __init__(self, engine):
+        self.engine = engine
+
+    def side(self, text_or_path, kind=None):
+        if kind == "genome":
+            return {"text": text_or_path, "kind": "genome"}
+        p = Path(text_or_path)
+        rel = p.resolve().relative_to(ROOT) if p.is_absolute() or p.resolve().is_relative_to(ROOT) else p
+        return f"repo:{rel.as_posix()}"
+
+    def rate(self, a, b, threads=None, fuel_mult=1.0):
+        body = json.dumps({"a": a, "b": b, "engine": self.engine, "fuel_mult": fuel_mult, "bot_seeds": True}).encode()
+        req = urllib.request.Request(f"{ARENA_URL}/matches?wait=110", data=body, method="POST",
+                                     headers={"X-Arena-Client": "genome-search", "Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=130) as r:
+            m = json.loads(r.read())["match"]
+        while m["status"] not in ("done", "failed", "cancelled"):
+            m = json.loads(_http(f"{ARENA_URL}/matches/{m['id']}?wait=110"))
+            m = m.get("match", m)
+        if m["status"] != "done":
+            raise RuntimeError(f"arena match {m['id']} {m['status']}")
+        return m["result"]["a_wins"], m["result"]["games"]
+
+
+class LocalRater:
+    def side(self, text_or_path, kind=None):
+        return spec_of(text_or_path, kind)
+
+    def rate(self, a, b, threads, fuel_mult=1.0):
+        return rate(a, b, threads, fuel_mult)
+
+
+def gate(text, ref, anchors, threads=5, min_wins=43, regress=0.03, bars=None, log=print, rater=None):
     """Gate one genome (source text). bars: cache {key: (wins, games)} of the reference's own anchor rates."""
-    spec, rspec = spec_of(text, "genome"), spec_of(ref)
-    w, n = rate(spec, rspec, threads)
+    R = rater or LocalRater()
+    spec, rspec = R.side(text, "genome"), R.side(ref)
+    w, n = R.rate(spec, rspec, threads)
     rec = {"h2h_wins": w, "h2h_games": n, "h2h": w / n, "clear": w >= min_wins}
     bars = {} if bars is None else bars
     drops = {}
     for anc in anchors:
         key = f"{Path(ref).name}|{Path(anc).name}|80"
         if key not in bars:
-            bars[key] = rate(rspec, spec_of(anc), threads)
+            bars[key] = R.rate(rspec, R.side(anc), threads)
         bw, bn = bars[key]
-        cw, cn = rate(spec, spec_of(anc), threads)
+        cw, cn = R.rate(spec, R.side(anc), threads)
         drops[Path(anc).stem] = {"wins": cw, "ref_wins": bw, "games": cn, "delta": round((cw - bw) / cn, 3)}
     rec["anchor_deltas"] = drops
-    fw, fn = rate(spec, rspec, threads, fuel_mult=10.0)
+    fw, fn = R.rate(spec, rspec, threads, fuel_mult=10.0)
     rec.update(h2h_fuel10_wins=fw, h2h_fuel10=fw / fn)
     rec["passed"] = rec["clear"] and min((d["delta"] for d in drops.values()), default=0.0) >= -regress
     return rec
@@ -94,6 +131,8 @@ def main():
     ap.add_argument("--every", type=float, default=600)
     ap.add_argument("--threads", type=int, default=5)
     ap.add_argument("--min-wins", type=int, default=43, help="head-to-head wins out of 80 to pass")
+    ap.add_argument("--arena-engine", default="", help="play the gate's matches on the arena service at this engine "
+                                                      "(commit sha or ref) instead of locally")
     ap.add_argument("--max-hours", type=float, default=12)
     args = ap.parse_args()
     out = Path(args.out)
@@ -184,7 +223,8 @@ def main():
                     continue
                 log(f"gate {key} (mu {m['mu']:.2f}, {m['games']} games)")
                 try:
-                    rec = gate(text, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log)
+                    rec = gate(text, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log,
+                               rater=ArenaRater(args.arena_engine) if args.arena_engine else None)
                 except Exception as e:
                     log(f"{key}: {type(e).__name__}: {e}")
                     continue
