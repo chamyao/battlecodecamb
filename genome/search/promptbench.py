@@ -5,11 +5,11 @@
 One round: every prompt variant writes the same (parent, link) children (paired design): the seed plus the
 --parents longest-lived live genomes of an arena state, --links one-edge links each picked once with a fixed seed,
 Haiku only. Invalid children and behavioural twins of their parent are failures. Each valid child plays its parent
---games games on one fixed seed (all maps cycled); children at >= --prodigy-screen also play every fixed anchor
+over the 80 distinct games (every map from both sides; games are fixed by map and side, policies seeded as deployed); children at >= --prodigy-screen also play every fixed anchor
 (--games each; the parent's anchor rates are measured once on the same seed).
 
 Measures per prompt: prodigy rate (one-sided 95% lower bound of the child-vs-parent win rate above 0.5, i.e.
->= 112/200) and the prodigies' gain vs the anchors over their parents; 90th percentile and max child-vs-parent
+>= 48/80) and the prodigies' gain vs the anchors over their parents; 90th percentile and max child-vs-parent
 win rate (failures count as 0.5); twin and invalid rates; lines changed; genes added; $ per child.
 
 Outer loop (--rounds > 1): keep the top --keep prompts; Opus writes --new new variants from the round's table.
@@ -82,7 +82,7 @@ class Bench:
         self.claude = Claude(a.budget, opus_every=0)
         self.claude.spent = sum(r.get("cost", 0.0) for r in self.read("children")) + \
             sum(r.get("cost", 0.0) for r in self.read("prompts"))
-        self.sc = Scorer([], threads=1)
+        self.sc = Scorer([], threads=1, bot_seeds=True)
         self.maps = sorted(MAPS)
         self.cache = {}  # (spec a, spec b, seed, games) -> stats
 
@@ -95,9 +95,12 @@ class Bench:
         return [json.loads(l) for l in open(p)] if p.exists() else []
 
     def play(self, a, b, seed, games):
-        key = (a, b, seed, games)
+        """Games are fixed by map and side, so a pair's distinct games are every map once from each side (80);
+        `games` above that only repeats them and is capped."""
+        n = min(games, 2 * len(self.maps))
+        key = (a, b, n)
         if key not in self.cache:
-            self.cache[key] = self.sc.play(a, b, seed, games, threads=1)
+            self.cache[key] = self.sc.play(a, b, seed, n, threads=1, maps=self.maps[:n // 2])
         return self.cache[key]
 
     def fingerprint(self, spec):
@@ -291,8 +294,9 @@ def main():
     ap.add_argument("--seed", default=str(ROOT / "genome/seeds/v23.genome"))
     ap.add_argument("--parents", type=int, default=4, help="longest-lived live genomes besides the seed")
     ap.add_argument("--links", type=int, default=8)
-    ap.add_argument("--games", type=int, default=200)
-    ap.add_argument("--prodigy-screen", type=float, default=0.58)
+    ap.add_argument("--games", type=int, default=80, help="games per pair (80 = every map from both sides; more "
+                                                         "would only repeat the same games)")
+    ap.add_argument("--prodigy-screen", type=float, default=0.60)
     ap.add_argument("--rounds", type=int, default=1)
     ap.add_argument("--keep", type=int, default=2)
     ap.add_argument("--new", type=int, default=6)

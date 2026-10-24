@@ -3,7 +3,8 @@
     python3 -m genome.search.baseline --out base.jsonl --state arenaA-1/arena --top 3 --seed-genome genome/seeds/v23.genome
 
 Plays the seed genome and the top --top live genomes (by mu, >= --min-games games) of an arena state against
-each fixed anchor, --games games on fixed seeds, and appends one JSON line per (genome, anchor).
+each fixed anchor over the 80 distinct games (every map from both sides; games are fixed by map and side, with
+policies seeded as deployed), and appends one JSON line per (genome, anchor). --games/--seeds are ignored.
 """
 import argparse
 import json
@@ -46,9 +47,9 @@ def main():
     for name, text, mu in who:
         spec = spec_of(text, "genome")
         for anc in (args.anchors.split(",") if args.anchors else (REF,) + ANCHORS):
-            w, n = rate(spec, spec_of(str(ROOT / anc)), seeds, args.games, args.threads)
+            w, n = rate(spec, spec_of(str(ROOT / anc)), args.threads)
             rec = {"tag": args.tag, "genome": name, "mu_old": mu, "anchor": Path(anc).stem, "wins": w, "games": n,
-                   "win_rate": w / n, "seeds": list(seeds), "t": round(time.time())}
+                   "win_rate": w / n, "games_distinct": "80 (40 maps x 2 sides, bot seeds)", "t": round(time.time())}
             with open(args.out, "a") as f:
                 f.write(json.dumps(rec) + "\n")
             print(json.dumps(rec), flush=True)

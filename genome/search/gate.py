@@ -1,11 +1,13 @@
 """Ladder gate for arena genomes, and a gatekeeper that applies it to running arenas from their pushed state.
 
+Every game is fixed by its map and side: genome-vs-genome games do not depend on the seed, and policies are
+seeded as deployed (--bot-seeds). So a pair has exactly 80 distinct games (40 maps x 2 sides), and the gate
+plays each once (SE ~5.6 points at 50%); repeating them adds no evidence. Variety comes from maps and opponents.
+
 Gate (outside selection), for one genome:
-1. screen: --screen-games games vs the live bot (--ref) on a fresh seed; continue only at >= --screen-min;
-2. head to head vs the live bot: 2 x --h2h games on fresh seeds; passes when the win rate's lower bound
-   (--z standard errors) is above 50% (>= 53.5% over 800); a borderline batch gets 800 more;
-3. every fixed anchor: 2 x --anchor-games games; no drop > --regress vs the live bot's own rate there;
-4. fuel x10 re-score of the head to head (behavioural vs fuel-only strength), logged.
+1. head to head vs the live bot (--ref): the 80 games; passes at >= --min-wins (default 43/80 = 53.75%);
+2. every fixed anchor: its 80 games; no drop > --regress vs the live bot's own rate there;
+3. fuel x10 re-play of the head to head (behavioural vs fuel-only strength), logged.
 
 Gatekeeper (works on arenas that are already running, without restarting them):
 
@@ -21,62 +23,48 @@ import subprocess
 import time
 from pathlib import Path
 
-from funsearch.evaluate import ROOT
+from funsearch.evaluate import MAPS, ROOT
 
 from .. import build as gbuild
 from .score import Scorer
 
-SCREEN_SEED = 3_000_017
-FRESH_SEEDS = (5_000_011, 6_000_011)
-MORE_SEEDS = (7_000_011, 8_000_011)
+SEED = 1  # irrelevant to the outcome (games are fixed by map and side); kept for the command line
 ANCHORS = ("policies/v7.policy", "policies/candidates/tune-v20-L1.policy",
            "policies/candidates/rall2-ca4-lean-g.policy", "policies/opp-tune5-metadraft.policy")
 REF = "policies/candidates/style-gconv1.policy"
 
 
-def rate(a, b, seeds, games, threads, fuel_mult=1.0):
-    sc = Scorer([], threads=threads, fuel_mult=fuel_mult)
-    w = n = 0
-    for sd in seeds:
-        st = sc.play(a, b, sd, games)
-        if "error" in st:
-            raise RuntimeError(st["error"])
-        w, n = w + st["a_wins"], n + st["games"]
-    return w, n
+def rate(a, b, threads, fuel_mult=1.0):
+    """(wins, games) of side spec a vs b over the 80 distinct games: every map once from each side."""
+    maps = sorted(MAPS)
+    st = Scorer([], threads=threads, fuel_mult=fuel_mult, bot_seeds=True).play(a, b, SEED, 2 * len(maps), maps=maps)
+    if "error" in st:
+        raise RuntimeError(st["error"])
+    return st["a_wins"], st["games"]
 
 
 def spec_of(path_or_text, kind=None):
     return Scorer([], threads=1)._spec(path_or_text, kind)
 
 
-def gate(text, ref, anchors, threads=5, screen_games=400, screen_min=0.55, h2h=400, anchor_games=200, z=2.0,
-         regress=0.03, bars=None, log=print):
-    """Gate one genome (source text). bars: cache {anchor: (wins, games)} of the reference's own rates."""
+def gate(text, ref, anchors, threads=5, min_wins=43, regress=0.03, bars=None, log=print):
+    """Gate one genome (source text). bars: cache {key: (wins, games)} of the reference's own anchor rates."""
     spec, rspec = spec_of(text, "genome"), spec_of(ref)
-    rec = {}
-    w, n = rate(spec, rspec, (SCREEN_SEED,), screen_games, threads)
-    rec["screen"] = w / n
-    if w / n < screen_min:
-        rec["passed"] = False
-        return rec
-    w, n = rate(spec, rspec, FRESH_SEEDS, h2h, threads)
-    if 0.5 <= w / n < 0.5 + z * 0.5 / n ** 0.5:
-        w2, n2 = rate(spec, rspec, MORE_SEEDS, h2h, threads)
-        w, n = w + w2, n + n2
-    rec.update(h2h=w / n, h2h_games=n, clear=w / n >= 0.5 + z * 0.5 / n ** 0.5)
+    w, n = rate(spec, rspec, threads)
+    rec = {"h2h_wins": w, "h2h_games": n, "h2h": w / n, "clear": w >= min_wins}
     bars = {} if bars is None else bars
     drops = {}
     for anc in anchors:
-        key = f"{Path(ref).name}|{Path(anc).name}"
+        key = f"{Path(ref).name}|{Path(anc).name}|80"
         if key not in bars:
-            bars[key] = rate(rspec, spec_of(anc), FRESH_SEEDS, anchor_games, threads)
+            bars[key] = rate(rspec, spec_of(anc), threads)
         bw, bn = bars[key]
-        cw, cn = rate(spec, spec_of(anc), FRESH_SEEDS, anchor_games, threads)
-        drops[Path(anc).stem] = round(cw / cn - bw / bn, 3)
+        cw, cn = rate(spec, spec_of(anc), threads)
+        drops[Path(anc).stem] = {"wins": cw, "ref_wins": bw, "games": cn, "delta": round((cw - bw) / cn, 3)}
     rec["anchor_deltas"] = drops
-    fw, fn = rate(spec, rspec, FRESH_SEEDS[:1], h2h, threads, fuel_mult=10.0)
-    rec["h2h_fuel10"] = fw / fn
-    rec["passed"] = rec["clear"] and min(drops.values(), default=0.0) >= -regress
+    fw, fn = rate(spec, rspec, threads, fuel_mult=10.0)
+    rec.update(h2h_fuel10_wins=fw, h2h_fuel10=fw / fn)
+    rec["passed"] = rec["clear"] and min((d["delta"] for d in drops.values()), default=0.0) >= -regress
     return rec
 
 
@@ -94,8 +82,7 @@ def main():
     ap.add_argument("--min-games", type=int, default=200)
     ap.add_argument("--every", type=float, default=600)
     ap.add_argument("--threads", type=int, default=5)
-    ap.add_argument("--screen-games", type=int, default=400)
-    ap.add_argument("--screen-min", type=float, default=0.55)
+    ap.add_argument("--min-wins", type=int, default=43, help="head-to-head wins out of 80 to pass")
     ap.add_argument("--max-hours", type=float, default=12)
     args = ap.parse_args()
     out = Path(args.out)
@@ -155,7 +142,7 @@ def main():
                     and m["games"] >= args.min_games]
             for m in sorted(live, key=lambda m: -m["mu"])[:args.top]:
                 # one key per genome across a chain of resumed jobs, per reference bot
-                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}"
+                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/80"
                 if key in seen:
                     continue
                 seen.add(key)
@@ -165,8 +152,7 @@ def main():
                     continue
                 log(f"gate {key} (mu {m['mu']:.2f}, {m['games']} games)")
                 try:
-                    rec = gate(g.stdout, args.ref, anchors, args.threads, args.screen_games, args.screen_min,
-                               bars=bars, log=log)
+                    rec = gate(g.stdout, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log)
                 except Exception as e:
                     log(f"{key}: {type(e).__name__}: {e}")
                     continue

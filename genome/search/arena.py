@@ -92,7 +92,7 @@ class Arena:
         for d in ("genomes", "candidates"):
             (self.out / d).mkdir(parents=True, exist_ok=True)
         self.lock = threading.RLock()
-        self.sc = Scorer([], threads=1)
+        self.sc = Scorer([], threads=1, bot_seeds=args.bot_seeds)
         self.claude = Claude(args.budget, opus_every=args.opus_every)
         self.claude.spent = sum(r.get("cost", 0.0) for r in self._read("children"))
         self.maps = sorted(MAPS)
@@ -239,33 +239,54 @@ class Arena:
         return json.dumps(outs)
 
     # ---- matches
-    def next_maps(self):
+    # Every game is fixed by its map and side (genomes ignore the seed; policies are seeded as deployed with
+    # --bot-seeds), so a pair has 80 distinct games. A match plays maps the pair has not played yet, both sides;
+    # an exhausted pair is not matched again.
+    def pair_key(self, an, bn):
+        return "|".join(sorted((an, bn)))
+
+    def next_maps(self, an, bn):
         k = self.a.match_games // 2
+        played = set(self.s.setdefault("pair_maps", {}).get(self.pair_key(an, bn), []))
         ptr = self.s["map_ptr"]
         self.s["map_ptr"] = (ptr + k) % len(self.maps)
-        return [self.maps[(ptr + i) % len(self.maps)] for i in range(k)]
+        order = [self.maps[(ptr + i) % len(self.maps)] for i in range(len(self.maps))]
+        if not self.a.distinct_games:  # old behaviour: the global map pointer, repeats counted
+            return order[:k]
+        fresh = [m for m in order if Path(m).stem not in played][:k]
+        self.s["pair_maps"].setdefault(self.pair_key(an, bn), []).extend(Path(m).stem for m in fresh)
+        return fresh
+
+    def exhausted(self, an, bn):
+        if not self.a.distinct_games:
+            return False
+        return len(self.s.setdefault("pair_maps", {}).get(self.pair_key(an, bn), [])) >= len(self.maps)
 
     def pick_pair(self):
         """Newborn matches first; else a random pairing weighted toward uncertain genomes."""
         alive = {m["name"] for m in self.players()}
         while self.s["newborn_queue"]:
             a, b = self.s["newborn_queue"].pop(0)
-            if a in alive and b in alive:
+            if a in alive and b in alive and not self.exhausted(a, b):
                 return a, b
         gs = self.genomes()
         if len(gs) < 1:
             return None
-        a = self.rng.choices(gs, [m["sigma"] for m in gs])[0]
-        others = [m for m in self.players() if m["name"] != a["name"]]
-        return a["name"], self.rng.choice(others)["name"]
+        for _ in range(50):
+            a = self.rng.choices(gs, [m["sigma"] for m in gs])[0]
+            others = [m for m in self.players() if m["name"] != a["name"] and not self.exhausted(a["name"], m["name"])]
+            if others:
+                return a["name"], self.rng.choice(others)["name"]
+        return None
 
     def play_match(self, an, bn, seed, maps):
         with self.lock:
             a, b = self.s["members"][an], self.s["members"][bn]
             sa, sb = self.spec(a), self.spec(b)
-        out = subprocess.run([str(self.sc_eval()), "--a", sa, "--b", sb, "--games", str(self.a.match_games),
-                              "--threads", "1", "--seed", str(seed), *maps], capture_output=True, text=True,
-                             timeout=1800)
+        out = subprocess.run([str(self.sc_eval()), "--a", sa, "--b", sb, "--games", str(2 * len(maps)),
+                              "--threads", "1", "--seed", str(seed), *(["--bot-seeds"] if self.a.bot_seeds else []),
+                              *maps], capture_output=True,
+                             text=True, timeout=1800)
         if out.returncode != 0:
             return {"error": f"exit {out.returncode}: {out.stderr[-200:]}"}
         return json.loads(out.stdout)
@@ -468,15 +489,15 @@ class Arena:
                        and Path(m["path"]).resolve() != Path(self.a.gate_ref).resolve()]
         for t in picks:
             text = (self.out / t["path"]).read_text()
-            rec = G.gate(text, self.a.gate_ref, anchors, self.a.gate_threads, self.a.gate_screen_games,
-                         self.a.gate_screen, self.a.gate_h2h, self.a.gate_games, self.a.z, self.a.regress, self.s["bars"])
+            rec = G.gate(text, self.a.gate_ref, anchors, self.a.gate_threads, self.a.gate_min_wins, self.a.regress,
+                         self.s["bars"])
             rec = {"name": t["name"], "mu": t["mu"], "games": t["games"], "births": self.s["births"],
                    "ref": Path(self.a.gate_ref).name, **rec}
             self._write("gates", rec)
-            self.log(f"gate {t['name']} (mu {t['mu']:.1f}, {t['games']} games): screen {rec['screen']:.3f}"
-                     + (f", h2h {rec['h2h']:.3f} over {rec['h2h_games']}, anchor deltas {rec['anchor_deltas']}, "
-                        f"fuel x10 {rec['h2h_fuel10']:.3f}" if "h2h" in rec else "")
-                     + f" -> {'CANDIDATE' if rec['passed'] else 'no'}")
+            deltas = {k: v["delta"] for k, v in rec["anchor_deltas"].items()}
+            self.log(f"gate {t['name']} (mu {t['mu']:.1f}, {t['games']} games): h2h {rec['h2h_wins']}/{rec['h2h_games']}, "
+                     f"anchor deltas {deltas}, fuel x10 {rec['h2h_fuel10_wins']}/{rec['h2h_games']} "
+                     f"-> {'CANDIDATE' if rec['passed'] else 'no'}")
             if rec["passed"]:
                 (self.out / "candidates" / f"{t['name']}.genome").write_text(text)
         self.save()
@@ -581,7 +602,7 @@ class Arena:
                         pair = self.pick_pair()
                         if pair is None:
                             break
-                        mseed, maps = 9_000_000 + self.s["matches"] + len(matches), self.next_maps()
+                        mseed, maps = 9_000_000 + self.s["matches"] + len(matches), self.next_maps(*pair)
                     matches[mpool.submit(self.play_match, *pair, mseed, maps)] = (*pair, mseed, maps)
                 if not matches and not births:
                     break
@@ -644,8 +665,7 @@ def main(argv=None):
     ap.add_argument("--gate-every", type=int, default=60, help="births between gate rounds")
     ap.add_argument("--gate-top", type=int, default=3)
     ap.add_argument("--gate-min-games", type=int, default=200)
-    ap.add_argument("--gate-screen-games", type=int, default=400)
-    ap.add_argument("--gate-screen", type=float, default=0.55, help="screen win rate vs the live bot for the full gate")
+    ap.add_argument("--gate-min-wins", type=int, default=43, help="head-to-head wins of 80 vs the live bot to pass")
     ap.add_argument("--gate-h2h", type=int, default=400)
     ap.add_argument("--gate-games", type=int, default=200)
     ap.add_argument("--gate-threads", type=int, default=5)
@@ -665,6 +685,10 @@ def main(argv=None):
                     help="recompute live genomes' twin-check outcomes at start (after a runtime change)")
     ap.add_argument("--mutate-prompt", default="default", choices=["default", "creative"],
                     help="mutation prompt variant (genome/search/prompts.py MUTATE_TASKS); logged per child")
+    ap.add_argument("--no-distinct-games", dest="distinct_games", action="store_false",
+                    help="old matchmaking: maps from a global pointer, so a pair can replay (and re-count) a game")
+    ap.add_argument("--no-bot-seeds", dest="bot_seeds", action="store_false",
+                    help="policy anchors seeded per game instead of as deployed")
     ap.add_argument("--intel-branch", default="")
     ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
     ap.add_argument("--resume-from", default="", help="an earlier arena output directory (e.g. the last pushed "

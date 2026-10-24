@@ -39,10 +39,11 @@ class Result:
 
 class Scorer:
     def __init__(self, opponents, screen_games=40, confirm_games=120, screen_seed=0, confirm_seed=1,
-                 threads=2, maps=None, timeout=900, fuel_mult=1.0):
+                 threads=2, maps=None, timeout=900, fuel_mult=1.0, bot_seeds=False):
         self.screen_games, self.confirm_games = screen_games, confirm_games
         self.screen_seed, self.confirm_seed = screen_seed, confirm_seed
         self.threads, self.maps, self.timeout = threads, maps or MAPS, timeout
+        self.bot_seeds = bot_seeds  # policies seeded per instance as deployed (then every game is fixed by map and side)
         self.fuel_mult = fuel_mult  # scales every bot's per-turn fuel (both sides); 1.0 = the real game
         self.lock = threading.Lock()
         self.cache = {}
@@ -111,11 +112,14 @@ class Scorer:
             self.cache[key] = res
         return res
 
-    def play(self, a, b, seed, games, threads=None):
-        """One genome_eval call between two side specs; returns its JSON stats (or {"error": ...})."""
+    def play(self, a, b, seed, games, threads=None, maps=None):
+        """One genome_eval call between two side specs; returns its JSON stats (or {"error": ...}).
+        Game g plays map (g / 2) % len(maps), A on side g % 2: with maps given and games = 2 * len(maps),
+        every map once from each side."""
         out = subprocess.run([str(EVAL), "--a", a, "--b", b, "--games", str(games), "--threads",
                               str(threads or self.threads), "--seed", str(seed), "--fuel-mult", str(self.fuel_mult),
-                              *self._games(seed, games)], capture_output=True, text=True, timeout=self.timeout)
+                              *(["--bot-seeds"] if self.bot_seeds else []), *(maps or self._games(seed, games))],
+                             capture_output=True, text=True, timeout=self.timeout)
         if out.returncode != 0:
             return {"error": f"genome_eval exit {out.returncode}: {out.stderr[-300:]}"}
         return json.loads(out.stdout)
