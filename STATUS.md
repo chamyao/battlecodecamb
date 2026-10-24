@@ -1,13 +1,11 @@
 # EC2 runner status
 
-Updated 2026-10-24 17:37 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 12.98 12.97 12.44 on 16 threads.
+Updated 2026-10-24 17:42 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 9.10 11.44 12.07 on 16 threads.
 Disk: 3.4G used of 38G.
 
 ## python3 processes
 ```
 92618 python3 -m funsearch.league --name pure4 --budget 15.15 --members policies/fs-1.policy --keep 0 --fixed @runs/pure_fixed.txt --cambc-also @runs/pure_send.txt --policy-prefix fs-p --line pure --session https://claude.ai/code/session_01Rbeaeb1EjHHutSParz5EPd --workers 3 --eval-threads 2 --thread
-142461 python3 -m funsearch.league --name hyb5 --threads 5 --budget 25.0 --members policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/v18.policy --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.
-142565 /usr/bin/python3 -m funsearch.run --run hyb5-g3 --budget 16.30 --max-programs 29 --seed-policy policies/pool/v21.policy --opponents builtin:starter@0.25,policies/pool/v21.policy@3.0,policies/pool/v20.policy,policies/pool/v19.policy,policies/pool/lean-g65.policy,policies/pool/opp-hunter3.polic
 143592 python3 -m funsearch.league --name style8-b2 --budget 0.95 --members policies/tune-v21.policy --keep 0 --best-weight 3.0 --cambc-ref policies/tune-v21.policy --fixed policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.policy,policies/v7zg-cast
 143612 /usr/bin/python3 -m funsearch.run --run style8-b2-g1 --budget 0.95 --max-programs 150 --seed-policy policies/tune-v21.policy --opponents builtin:starter@0.25,policies/tune-v21.policy@3.0,policies/tune5-reset.policy,policies/tune-5.policy,policies/opp-hunter2b.policy,policies/opp-hunter2a.poli
 145998 /usr/bin/python3 -m funsearch.run --run pure4-g5 --budget 1.04 --max-programs 146 --seed-policy policies/fs-p3.policy --opponents builtin:starter@0.25,policies/fs-p3.policy@3.0,policies/tune-v20-L1c.policy,policies/v5d.policy,policies/v4.policy,policies/locker.policy,policies/fs-2.policy,poli
@@ -15,10 +13,6 @@ Disk: 3.4G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[15:21:43] style: S11 check: gconv $1.75 left of $2.0; b style8-b-g1: +6 programs to the next boundary (144 so far) $0.95 left
-[15:31:58] hybrid: H16: SIGTERM hyb5 pid 114024
-[15:32:21] hybrid: H16: funsearch/runs 44d4dac (has 8b38ce6: dead-camp fix / v22 build), rebuilt, 2029 passed in 7.13s; relaunching hyb5, same flags
-[15:32:21] hybrid: hyb5 not running: relaunching (resume from runs/)
 [15:32:21] hybrid: launched hyb5 league
 [15:32:21] hybrid: H10 check: 28 new programs: conversion 13 (0.46, expect 0.31), disengage 1 (0.04, expect 0.12), vocab 5 (0.18, expect ~0.2)
 [15:42:40] hybrid: H17: hold set for the next hyb5 boundary
@@ -55,4 +49,8 @@ Disk: 3.4G used of 38G.
 [17:06:16] style: S14: launched style8-gsub ($0.52)
 [17:11:24] style: S14 gsub check: gap run style8-gsub (gem_margin:max:50 vs policies/tune-v21.policy): $0.52 left of $0.52|gap metric gem_margin (max, scale 50): reference tune-v21 mirror value 29.8125|gap: 1 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5|
 [17:21:37] hybrid: H21 check: 18 're-screened #' lines, 're-screen (cover maps): 9 programs'; 3 new children with screen_maps=cover
+[17:42:12] hybrid: FINAL: SIGTERM hyb5 pid 142461
+[17:42:27] hybrid: FINAL: hyb5 stopped at the boundary, not relaunched; last hyb5.log: [16:35:18]   helpers: 20 helpers kept; top 20: -> hyb5.helpers.json|[17:40:14] hold file present: waiting at the round boundary (remove hyb5.hold to go on)|
+[17:42:29] hybrid: FINAL: state pushed (remote/hybrid fb5107a)
+[17:42:29] pure: pure final stop: STOP requested (gen 5)
 ```
