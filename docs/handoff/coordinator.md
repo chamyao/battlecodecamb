@@ -17,6 +17,11 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
 - Why we lose to the top: not sim or bot fidelity (both verified exact in fights). They fight in groups: 70-85% of our
   deaths are 2+ of theirs vs 1 at equal items, and then they snowball items (docs/TOP_TEAMS_FIGHTS.md). Lines are on
   group engage/focus, leaving when outnumbered, and the group hunter (style; best so far opp-hunter3).
+- Upload bar (Cham, Oct 24 ~06:30 UTC): league rating above live beyond the 90% interval (the lines' own league runs
+  are accepted, per Cham; the pool must include the live bot, hunters 2a/b/c/3 and the ladder stand-ins), plus the bot
+  session's real-cambc safety checks (no crashes, no 100k-cap turns, first turn < 200k). Head to head is information
+  only. Cham approves uploads (approved all overnight Oct 24). After each upload, queue the same unranked groups vs
+  top teams as the real-world check.
 - Workspace: cambc is installed and logged in (pip cambc 3.0.5; Cham ran `cambc login`, 7 days from Oct 24 ~04:50 UTC).
   Submit from a `cambc init --yes` workspace: copy the checked ZIP's src/ into bots/<name>/src and `cambc submit <name>`.
 
