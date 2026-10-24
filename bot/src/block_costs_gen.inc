@@ -63,6 +63,8 @@
 { "teleport_to(Tile)", true, { 180237, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=4080 mean=187 mae=0 (profile fuel)
 { "tribute(Tile)", true, { 160960, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=132 mean=167 mae=0 (profile fuel)
 { "unclaim()", true, { 164816, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=5140 mean=171 mae=0 (profile fuel)
+{ "unit_is(Unit,Champ)", false, { 451074, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as i_am(Champ) (coordinator), not yet profiled
+{ "unit_shield(Unit)", false, { 451074, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: as i_am(Champ) plus a buff query (coordinator), not yet profiled
 { "write_draft(Bytes)", true, { 275656, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=27 mean=286 mae=0 (profile fuel)
 { "write_shared(Num,Num)", true, { 381536, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=5140 mean=396 mae=0 (profile fuel)
 { "exists(Tile)", false, { 73251, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=11100 mean=76 mae=0 (profile fuel)
