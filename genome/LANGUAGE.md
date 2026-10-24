@@ -8,7 +8,7 @@ Python syntax, restricted to a typed subset. Top level: keep declarations and ge
 
 ```python
 BAG: Num = 20                      # keep: persistent per bot instance; only update() assigns it
-HOME: Tiles = None                 # keeps are Num, Bool, Tile (start invalid) or Tiles (start empty)
+HOME: Tiles = None                 # keeps are Num, Bool, Tile (start invalid), Tiles (start empty) or Field (start unreachable everywhere)
 
 @gene("g7", "danger at a tile", parents=["g2"])
 def danger_at(t: Tile) -> Num:
