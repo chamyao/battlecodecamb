@@ -68,6 +68,15 @@ EOF2
   phase=g4; mark=$(cat runs/ec2-resume-mark)
   log "g3 ended without promotion (best stays fs-p2); moved to funsearch/pure $(git rev-parse --short HEAD) for g4"
 fi
+# One-shot (pure line, 11:40 UTC): live v20 tune-fight-2s for g5. g4's fixed opponents are frozen in pure4.json,
+# so updating pure_fixed.txt now only affects g5; pure_send.txt adds a logged cambc-exact vs v20 at g4's check.
+V20_REV=13f4e52
+if [ "$phase" = g4 ] && [ ! -f runs/ec2-v20 ]; then
+  git fetch -q origin funsearch/pure &&
+    git checkout -q "$V20_REV" -- policies/tune-fight-2s.policy runs/pure_fixed.txt runs/pure_send.txt &&
+    touch runs/ec2-v20 && log "pure: v20 opponent files from $V20_REV (fixed from g5): $(tr '\n' ' ' < runs/pure_fixed.txt)" ||
+    log "pure: v20 opponent file sync failed"
+fi
 if ! running "league --name pure4"; then
   if [ "$phase" = g3 ] && [ -f runs/ec2-launched ] && newlog | grep -q 'PROMOTED fs-p3' &&
      python3 -c "import json,sys; sys.exit(json.load(open('runs/pure4.json'))['gen'] != 4)"; then
