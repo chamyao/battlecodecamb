@@ -29,6 +29,14 @@ MAPPED: Bool = False    # the static sets below are computed (once per game)
 ALTAR_RING: Tiles = None
 SAFE_RING: Tiles = None
 MONO_GROUPS: Tiles = None
+TERRAIN: Tiles = None   # walls, holes, altars, enemy spawn
+CAMP_BASE: Tiles = None # camp spawns outside monolith/golem groups
+BIG_CAMPS: Tiles = None # monolith and golem spawns
+SK0: Num = 0            # ability kind of slot 0
+SK1: Num = 0            # ability kind of slot 1
+BLOCK: Tiles = None     # this turn: tiles I cannot step onto (computed at turn start)
+FIELD: Field = None     # this turn: walking field to GOAL, out to my tile
+OPEN: Bool = False      # this turn: GOAL can be walked to
 
 # ---------------------------------------------------------------- entry genes
 
@@ -46,16 +54,52 @@ def score(o: Option) -> Num:
     return act_value(o)
 
 
+@gene("v3", "option kinds worth listing this pass: only those this turn's rule (or shopping, cast-ahead) can use")
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == CAST:
+        return r == 7 or r == 14 or ((r == 3 or r == 20) and dash_gate() and (SK0 == AB_DASH or SK1 == AB_DASH)) or (r >= 6 and ahead_on())
+    if k == ATTACK:
+        return r == 7 or r == 13 or r == 14 or r == 20
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == WARD:
+        return r == 20 and here() in bushes() and count_units(enemies()) == 0
+    return False
+
+
 @gene("v2", "start of turn: choose the rule, its goal and target; shared-memory and priority writes")
 def update() -> None:
     if not MAPPED:
         ALTAR_RING = altar_ring()
         SAFE_RING = safe_altar_ring()
         MONO_GROUPS = mono_groups()
+        TERRAIN = walls() | holes() | altars() | enemy_spawn()
+        BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
+        SK0 = slot_kind(0)
+        SK1 = slot_kind(1)
         MAPPED = True
     RULE = rule()
     GOAL = rule_goal()
     TGT = rule_target()
+    OPEN = False
+    if walks() and valid(GOAL) and GOAL != here():
+        BLOCK = blocked()
+        OPEN = walk_open()
+        FIELD = walk_field()
     LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
     if LOCK_BUY:
         write_shared(7, read_shared(7) + 2)
@@ -265,7 +309,8 @@ def r_mono() -> Bool:
 
 @gene("r16", "standing on a cleared camp spawn: hold so the capture timer runs")
 def r_hold() -> Bool:
-    return here() in capturable()
+    g = spawn_group(here())
+    return g >= 0 and group_reward(g)
 
 
 @gene("r17", "bank before a dangerous group: 10+ gems and the next group's strength is 240+")
@@ -277,7 +322,7 @@ def r_bankgroup() -> Bool:
 @gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem)")
 def r_live() -> Bool:
     c = live_camp()
-    return dist(camp_goal(), here()) == 0 and exists(c) and not (c.pos in (type_spawns(MONOLITH) | type_spawns(GOLEM)))
+    return dist(camp_goal(), here()) == 0 and exists(c) and not (c.pos in BIG_CAMPS)
 
 # ---------------------------------------------------------------- option values
 
@@ -314,7 +359,7 @@ def walks() -> Bool:
 
 @gene("a2", "value of a cast option: dash on walks, cast-ahead, casts and resets of a fight")
 def cast_value(o: Option) -> Num:
-    k = slot_kind(o.slot)
+    k = SK0 if o.slot == 0 else SK1
     if k == AB_DASH:
         return dash_value(o) if RULE == 3 or RULE == 20 else 0
     if RULE == 7 or RULE == 14:
@@ -581,18 +626,9 @@ def respawning() -> Tiles:
     return acc
 
 
-@gene("m10", "spawn tiles of cleared groups waiting for capture")
-def capturable() -> Tiles:
-    acc = camp_spawns() - camp_spawns()
-    for g in range(num_groups()):
-        if group_reward(g):
-            acc = acc | group_tiles(g)
-    return acc
-
-
 @gene("m11", "the camp walk's goal: nearest spawn of a live group, no monolith or golem groups")
 def camp_goal() -> Tile:
-    return closest(camp_spawns() - respawning() - type_spawns(MONOLITH) - type_spawns(GOLEM) - MONO_GROUPS)
+    return closest(CAMP_BASE - respawning())
 
 
 @gene("m12", "bank walk: an open safe altar, else any safe altar, else any altar")
@@ -632,15 +668,20 @@ def camp_block() -> Tiles:
 
 @gene("w3", "tiles I cannot step onto: terrain, altars, enemy spawn, units, unseen camp spawns")
 def blocked() -> Tiles:
-    return (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | camp_block()) - near(here(), 0)
+    return (TERRAIN | ally_tiles() | enemy_tiles() | camp_block()) - near(here(), 0)
 
 
 @gene("w4", "nearest tile of s by walking (camp tiles allowed as goals); invalid if none")
 def closest(s: Tiles) -> Tile:
     if here() in s:
         return here()
-    cand = s - (blocked() - camp_block())
+    cand = s - taken()
     return walk_nearest(cand, here(), blocked() - cand)
+
+
+@gene("w12", "tiles held by something other than a camp (never a goal)")
+def taken() -> Tiles:
+    return blocked() - camp_block()
 
 
 @gene("w5", "walking field to GOAL, searched out to my own tile")
@@ -649,16 +690,16 @@ def walk_field() -> Field:
     return field_avoid(g, blocked() - g, near(here(), 0))
 
 
-@gene("w6", "how much closer a step onto t brings me to GOAL (0: no walk this turn)")
+@gene("w6", "how much closer a step onto t brings me to GOAL (0: no walk this turn); turn-start field and blocks")
 def step_gain(t: Tile) -> Num:
-    if not walk_open() or t in blocked():
+    if not OPEN or t in BLOCK:
         return 0
-    return at(walk_field(), here()) - at(walk_field(), t)
+    return at(FIELD, here()) - at(FIELD, t)
 
 
 @gene("w10", "GOAL can be walked to: valid, not here, not held by a unit other than a camp")
 def walk_open() -> Bool:
-    return valid(GOAL) and GOAL != here() and not (GOAL in (blocked() - camp_block()))
+    return valid(GOAL) and GOAL != here() and not (GOAL in taken())
 
 
 @gene("w7", "a dash may land on p: a free middle tile next to both ends unless p is adjacent")
@@ -673,14 +714,17 @@ def dash_mids() -> Tiles:
     return near(here(), 1) - walls() - enemy_spawn()
 
 
-@gene("w8", "a landing tile within 2 that is closer to GOAL than I am")
-def dash_land(t: Tile) -> Bool:
-    return t != here() and not (t in blocked()) and at(walk_field(), t) < at(walk_field(), here()) and dash_path_ok(t)
-
-
-@gene("w9", "the dash landing tile closest to GOAL by walking, invalid if none")
+@gene("w9", "the dash landing tile closest to GOAL by walking (first in row-major order on ties), invalid if none")
 def dash_spot() -> Tile:
     if not valid(GOAL) or GOAL == here():
         return tile(-1, -1)
-    s = best(near(here(), 2), lambda t: -at(walk_field(), t) if dash_land(t) else -INF)
-    return s if valid(s) and dash_land(s) else tile(-1, -1)
+    mine = at(FIELD, here())
+    bd = mine
+    s = tile(-1, -1)
+    for t in near(here(), 2):
+        d = at(FIELD, t)
+        if d < bd and t != here() and not (t in BLOCK):
+            if dash_path_ok(t):
+                bd = d
+                s = t
+    return s
