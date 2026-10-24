@@ -343,15 +343,15 @@ open(sys.argv[2], "w").writelines(out)' "$d$f" "/root/bc/style-snap/$d$f"
   done
 done
 cp runs/style8-*.json runs/style8-*.log runs/style8-*.out /root/bc/style-snap/runs/ 2>/dev/null
-if [ -f runs/style8-gconv/programs.jsonl ]; then   # S8 gap run (plain funsearch.run, no league)
-  mkdir -p /root/bc/style-snap/runs/style8-gconv
+for gr in gconv gyield; do [ -f runs/style8-$gr/programs.jsonl ] || continue   # gap runs (plain funsearch.run)
+  mkdir -p /root/bc/style-snap/runs/style8-$gr
   python3 -c '
 import sys, json
 out = []
 for line in open(sys.argv[1]):
     try: json.loads(line); out.append(line)
     except Exception: pass
-open(sys.argv[2], "w").writelines(out)' runs/style8-gconv/programs.jsonl /root/bc/style-snap/runs/style8-gconv/programs.jsonl
-fi
+open(sys.argv[2], "w").writelines(out)' runs/style8-$gr/programs.jsonl /root/bc/style-snap/runs/style8-$gr/programs.jsonl
+done
 push_state funsearch/style-state runs /root/bc/style-snap/runs
 push_state remote/style remote/style/runs /root/bc/style-snap/runs
