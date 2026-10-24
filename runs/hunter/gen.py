@@ -1,6 +1,6 @@
 # gen.py out.policy key=val ...   builds the hunter from tune-5's body
 import sys
-P = dict(HUNT_R=6, REACH=1, BAG_SAFE=45, BAG_NEAR=15, RET=0.3, CHASE_DASH=1, LS=0, STUN_FIRST=0, ALLY_MIN=0, PREY_HP=1.01, CHASE=1, SHIELD_HP=1.01, K10=0, TARGET='weakest', ENGAGE_HP=0, ODDS=9)
+P = dict(HUNT_R=6, REACH=1, BAG_SAFE=45, BAG_NEAR=15, RET=0.3, CHASE_DASH=1, LS=0, STUN_FIRST=0, ALLY_MIN=0, PREY_HP=1.01, CHASE=1, SHIELD_HP=1.01, K10=0, TARGET='weakest', ENGAGE_HP=0, ODDS=9, OPENER=0)
 for kv in sys.argv[2:]:
     k, v = kv.split('='); P[k] = v
 src = open(__import__('pathlib').Path(__file__).resolve().parents[2] / 'policies' / 'tune-5.policy').read()
@@ -13,7 +13,7 @@ def kit(s, ind):
 {i}        if health() < {P["SHIELD_HP"]} * max_health():
 {i}            cast_self({s})
 {i}    elif slot_is_dash({s}):
-{i}        if i_am(champ_heart_of_ruin()):
+{i}        if slot_stun({s}) > 0:
 {i}            dash_towards({s}, unit_position(u))
 {i}    elif slot_is_aoe({s}):
 {i}        cast_at_tile({s}, unit_position(u))
@@ -32,6 +32,17 @@ if int(P['CHASE_DASH']):
         chase += f'''    if distance( unit_position(u), position() ) > {P["REACH"]} + 1 and ability_ready({s}) and slot_is_dash({s}):
         dash_towards({s}, unit_position(u))
 '''
+opener = ''
+if int(P['OPENER']):
+    for s_ in (0, 1):
+        opener += f'''    if ability_ready({s_}) and slot_stun({s_}) > 0 and distance( unit_position(u), position() ) <= slot_range({s_}):
+        if slot_is_dash({s_}):
+            dash_towards({s_}, unit_position(u))
+        elif slot_radius({s_}) > 0:
+            cast_at_tile({s_}, unit_position(u))
+        else:
+            cast_at_unit({s_}, u)
+'''
 head = f'''# opp-hunter (style line): sim stand-in for the ladder's top teams (docs/TOP_TEAMS.md on analysis/sprint1).
 # Meta draft; engages any enemy champion within {P["HUNT_R"]} tiles (focus fire via team_target, short chase);
 # stuns/damage first, then attack + reset + attack; farms and banks like tune-5 otherwise.
@@ -43,7 +54,7 @@ def hunt(u):
     if distance( unit_position(u), position() ) <= {P["REACH"]}:
 {hits(8)}        move_towards( unit_position(u) )
         end_turn()
-{chase}    move_towards( unit_position(u) )
+{opener}{chase}    move_towards( unit_position(u) )
 {hits(4)}    end_turn()
 
 # ---- draft ----
