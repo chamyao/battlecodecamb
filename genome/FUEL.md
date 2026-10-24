@@ -135,7 +135,7 @@ sim: a far fixed goal 2.0k / 2.2k (00lanes), 3.3k / 3.7k (01big-world), against 
 and 19.2k; nearby goals (camp spawns) 3.4k / 3.2k and 4.9k / 4.6k, dearer than field_avoid (1.7k,
 4.5k), whose search is short then. Priced as the Api's memo price plus 300 + 6.5 x chunks.
 
-## Guest pathfinding: wfield, path_step, path_len (Oct 24)
+## Guest pathfinding: wfield, path_step, path_len, territory (Oct 24)
 
 Plain C++ in `genome_rt.h`, the same code in the bot (wasm) and the simulator; each call counts its
 own work and the simulator charges the bot's measured fuel per unit (fitted on `@@PRIM` records:
@@ -151,7 +151,13 @@ field distances: 465k checks, 0 mismatches).
   of h lists; a binary heap cost ~2x): 1427 + 380.9 per tile expanded + 134.1 per neighbour opened or
   improved + 27.3 per empty bucket scanned + 15.2 per step walked back (path_step); once per
   instance 5 per map tile for the scratch arrays. Per call p50 2.5%, p90 6%; per probe 0.93-1.06.
-Acceptance: per probe sim/real 0.93-1.06 (wfield 0.99-1.00); a test genome using both
+- `territory(mine, theirs, walls)`: two host distance fields (priced exactly, as `field`) and a
+  compare in our code over the chunked field entries (chunks x 64): 641 + 22.31 per entry with a
+  rival set, 531 + 17.15 per entry without (reachable from `mine`). ~300k on 100x100, ~80k on 90x30.
+  The alternative, a two-colour search in our code, is a multi-source wfield (~4.5M on 100x100), so
+  the host fields are kept. A first version reading the fields per tile through the generic
+  accessor cost 4x.
+Acceptance: per probe sim/real 0.93-1.06 (wfield 0.99-1.00, territory 0.93-1.00); a test genome using both
 (`/tmp`-style walker: weighted field every 40 turns, A* near camps and to the altar) takes the same
 actions in the bot and the simulator on 00lanes, 01big-world, 00ambush, 00rows (2674 actions on
 00lanes; against the interpreted v23: games against starter-cpp diverge from builtin:starter,
