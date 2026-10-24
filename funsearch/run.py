@@ -20,6 +20,23 @@ from .evaluate import ROOT, EvalResult, evaluate, executed_blocks
 from .tune import mutate_constants
 
 
+def keep_header(parent, child):
+    """Exploration: the parent's leading # comment block is the lineage header; a child that dropped or edited it
+    gets it back, followed by the child's own new header lines."""
+    def head(t):
+        lines = t.split("\n")
+        n = 0
+        while n < len(lines) and lines[n].startswith("#"):
+            n += 1
+        return lines[:n], lines[n:]
+    ph, _ = head(parent)
+    ch, body = head(child)
+    if not ph or ch[: len(ph)] == ph:
+        return child
+    extra = [l for l in ch if l not in ph]
+    return "\n".join(ph + extra + body)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
@@ -73,7 +90,25 @@ def main():
     ap.add_argument("--change-weights", default="0.55,0.3,0.15",
                     help="with --explore: weights of the edit, plan and rewrite change types (rewrites always use "
                          "Opus; in the first test they all scored ~-0.2)")
-    ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu (default: all axes)")
+    # constant hill-climb on a promising child before confirmation (no API cost)
+    # every valid child is hill-climbed on its constants before it is compared (no API cost); its score is the
+    # tuned score. --no-tune-children turns this off.
+    ap.add_argument("--no-tune-children", dest="tune_children", action="store_false")
+    ap.add_argument("--tune-children", dest="tune_children", action="store_true")
+    ap.set_defaults(tune_children=True)
+    ap.add_argument("--tune-steps", type=int, default=4)
+    ap.add_argument("--tune-games", type=int, default=8, help="games per opponent per tuning evaluation")
+    ap.add_argument("--tune-rejects", type=int, default=2, help="stop the climb after this many rejections in a row")
+    ap.add_argument("--tune-opponents", default="",
+                    help="opponents for the climb (default: the run's 4 highest-weighted, starter excluded)")
+    ap.add_argument("--tune-slack", type=float, default=0.15,
+                    help="early stop: no climb for a child that screens below its best parent minus this")
+    ap.add_argument("--tune-margin", type=float, default=0.03, help="a mutant must beat the incumbent by this much")
+    ap.add_argument("--helpers", default="", help="helpers.json from funsearch.helpers: its top self-contained "
+                                                 "helpers go into the prompt, and children using one are tagged")
+    ap.add_argument("--helpers-budget", type=int, default=2500, help="characters of helper source in the prompt")
+    ap.add_argument("--axes", default="", help="with --explore: comma-separated axis menu, each optionally "
+                                             "name:weight (default: all axes, equal weights)")
     ap.add_argument("--novelty-lambda", type=float, default=0.0,
                     help="with --explore: weight of the executed-block rarity novelty in parent selection "
                          "(weight exp(score/T + lambda * novelty)); never used in scores or promotion")
@@ -134,13 +169,13 @@ def main():
     confirmed = {p.metrics["screen_fp"]: p for p in db.all
                  if p.metrics.get("confirmed") and "screen_fp" in p.metrics}
 
-    def score(text, confirm=False):
+    def score(text, confirm=False, screened=None):
         if not confirm:
             missing = [b for b in required if not re.search(rf"\b{b}\s*\(", text)]
             if missing:
                 return EvalResult(error=f"style check: policy never calls {', '.join(missing)}")
         seed = eval_seed()
-        r = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=seed)
+        r = screened or evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=seed)
         if not r.ok:
             return r
         fp = fingerprint(r.per_opponent)
@@ -224,14 +259,20 @@ def main():
             confirmed.setdefault(r.per_opponent["screen_fp"], db.all[-1])
             print(f"injected {path} as #{pid} (island {k % args.islands}): score {r.score:.3f}", flush=True)
 
+    helper_text, helper_keys = "", {}
+    if args.helpers:
+        from . import helpers as _helpers
+        _lib = json.loads(Path(args.helpers).read_text())
+        helper_text = _helpers.prompt_section(_lib, args.helpers_budget)
+        helper_keys = _helpers.lib_keys(_lib)
     proposer = None
     if args.proposer == "claude":
         from .llm import BudgetExceeded, Proposer
-        proposer = Proposer(args.budget, opus_every=args.opus_every, directive=directive)
+        proposer = Proposer(args.budget, opus_every=args.opus_every, directive=directive, helpers=helper_text)
     if args.explore:
         from .llm import sample_variant
     change_weights = tuple(float(x) for x in args.change_weights.split(","))
-    axes = [a for a in args.axes.split(",") if a]
+    axes = {a.split(":")[0]: float(a.split(":")[1]) if ":" in a else 1.0 for a in args.axes.split(",") if a}
     if args.explore and axes:
         from .llm import AXES
         unknown = [a for a in axes if a not in AXES]
@@ -249,6 +290,40 @@ def main():
                 f.write(json.dumps({"program": pid, "score": score, "model": model, "proposal": text}) + "\n")
 
     rng = random.Random(len(db.all))
+    tune_lock = threading.Lock()
+    # climb opponents: explicit, else the run's 4 highest-weighted (starter excluded); a fixed seed per child
+    def _w(o):
+        return float(o.rsplit("@", 1)[1]) if "@" in o else 1.0
+    tune_opps = tuple(x for x in args.tune_opponents.split(",") if x) or tuple(
+        sorted((o for o in opponents if not o.startswith("builtin:starter")), key=lambda o: -_w(o))[:4])
+    tune_games_per_eval = sum(max(2, round(args.tune_games * _w(o) / 2) * 2) for o in tune_opps)
+
+    def tune_child(parent, text):
+        """--tune-children: screen the child; if it is near its best parent and changed constants, hill-climb
+        those constants on fresh seeds. Returns (screen result to reuse or None, text, tuned info or None)."""
+        from .tune import climb_child, climb_targets
+        if not climb_targets(parent.text, text):
+            return None, text, None
+        scr = evaluate(text, opponents=opponents, games=args.games, threads=args.eval_threads, seed=eval_seed())
+        par = parent.metrics.get("screen_score", parent.score)
+        if not scr.ok or scr.score < par - args.tune_slack:
+            return scr, text, None
+        with tune_lock:
+            seed = 100000 + rng.randrange(10 ** 6)
+            crng = random.Random(rng.random())
+
+        def ev(t):
+            r = evaluate(t, opponents=tune_opps, games=args.tune_games, threads=args.eval_threads, seed=seed)
+            return r.score if r.ok else None
+        t0 = time.time()
+        tuned, info = climb_child(parent.text, text, ev, steps=args.tune_steps, rng=crng, margin=args.tune_margin,
+                                  max_rejects=args.tune_rejects)
+        if info is None:
+            return scr, text, None
+        info.update(screen=round(scr.score, 4), parent_screen=round(par, 4), seconds=round(time.time() - t0, 1),
+                    games=info["evals"] * tune_games_per_eval)
+        # an unchanged text keeps its screen; a tuned one is screened again (fingerprint of the tuned text)
+        return (scr if tuned == text else None), tuned, info
     stop = threading.Event()
     started = len(db.all)
     t0 = time.time()
@@ -285,8 +360,28 @@ def main():
                                  {"cost": cost, **({"variant": variant} if variant else {})}))
             log_proposals(pid, None, model, proposals)
             return
-        r = score(text)
+        if args.explore:
+            text = keep_header(parents[-1].text, text)
+        from .tune import code_lines
+        if any(code_lines(text) == code_lines(p.text) for p in parents):
+            # comments or blank lines only: same play as a parent, nothing to evaluate or climb
+            pid = db.add(Program(0, island, text, float("-inf"), [p.id for p in parents], model, "no code change",
+                                 {"cost": cost, **({"variant": variant} if variant else {})}))
+            log_proposals(pid, None, model, proposals)
+            print(f"[{pid}] {model} island {island}: no code change (comments only)", flush=True)
+            return
+        screened, tuned_info = None, None
+        if args.tune_children:
+            screened, text, tuned_info = tune_child(parents[-1], text)
+        r = score(text, screened=screened)
         r.per_opponent["cost"] = cost
+        if tuned_info:
+            r.per_opponent["tuned"] = tuned_info
+        if helper_keys:
+            from .helpers import tag
+            used = tag(text, helper_keys)
+            if used:
+                r.per_opponent["lib_helpers"] = used
         if variant:
             r.per_opponent["variant"] = variant
             if r.ok:

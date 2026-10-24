@@ -72,6 +72,20 @@ AXES = {
              "beacon b (0-63), e.g. which pair is in a fight. Retreating "
              "to an ally instead of spawn doubled deaths and walking to allies when outnumbered cost 10 points in "
              "tests, so stay close WHILE farming rather than walking across the map to regroup",
+    "conversion": "GEM CONVERSION (the biggest measured gap to the band above us, docs/GAP_LIST.md): we lose 184 "
+                  "gems per game on death, 54% of our deaths happen while carrying gems (a median 7 tiles from an "
+                  "altar), we submit 76% of the gems we capture (they 99%), and we bank 18 times a game (they 26). "
+                  "Work on bank cadence, bag size against the distance to the nearest safe altar (gems(), "
+                  "closest(safe altars), distance), carrying routes that avoid enemies (in_danger(), enemies_within), "
+                  "tributing before a fight, and taking richer camp groups closer to altars",
+    "disengage": "DISENGAGE, i.e. not being caught in losing fights at low HP: once one of our champions is "
+                 "below 50% HP with an enemy within 5 it dies 88% of the time (the top team 6%, similar teams "
+                 "13-20%). MEASURED: walking away mid-fight (HP below 0.4-0.6 with an enemy within 5-6) is strongly "
+                 "NEGATIVE (18-34% vs the live bot, more deaths: a fleeing champion takes free hits). So avoid the "
+                 "losing fight instead of fleeing it: engage only with local numbers or strength ahead "
+                 "(enemies_within, allies_within, local_strength), keep range, back off BEFORE the first exchange "
+                 "when outnumbered, never start a recall within reach of an enemy (damage cancels it), and let a "
+                 "healthy ally peel for a hurt one",
     "macro": "MACRO ROUTE AND TIMING: which camps when, monolith takes with claim_count, when to bank, "
              "where to stand between fights, early vs late game plans",
     "abilities": "ABILITIES: AoE at tiles (cast_at_tile), stun before burst, reset after a basic, using "
@@ -109,11 +123,12 @@ FRAMINGS = {
 
 
 def sample_variant(rng, n_parents, change_weights=(0.55, 0.3, 0.15), axes=None):
-    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu
-    (default all of AXES)."""
+    """One prompt variant for an exploration call. change_weights: edit, plan, rewrite; axes: the axis menu, a
+    list of names or {name: weight} (default all of AXES, equal weights)."""
     change = rng.choices(list(CHANGE_TYPES), change_weights)[0]
+    menu = axes if isinstance(axes, dict) else {a: 1.0 for a in (axes or AXES)}
     return {
-        "axis": rng.choice(list(axes or AXES)),
+        "axis": rng.choices(list(menu), list(menu.values()))[0],
         "change": change,
         "framing": rng.choice(list(FRAMINGS)),
         "catalog": rng.choice(["full", "lean"]),
@@ -154,6 +169,13 @@ def explore_user(parents, variant, rng):
         parts.append(f"## Version {i} (score {score:.3f}; {per_line(metrics)}){code}")
     task = [f"Your change must be about {AXES[variant['axis']]}.", CHANGE_TYPES[variant["change"]],
             FRAMINGS[variant["framing"]]]
+    picks = list(dict.fromkeys(re.findall(r"pick\(\s*champ_(\w+)\(\)\s*\)", shown[-1][0])))
+    if picks:
+        task.append("The latest version drafts, in this order when available: " + ", ".join(picks[:5]) +
+                    (" (then: " + ", ".join(picks[5:]) + ")" if picks[5:] else "") +
+                    ". Code for other champions never runs, so don't spend the change on it.")
+    task.append("Keep the existing comments. The # lines at the very top are the lineage header: keep them "
+                "unchanged and add one line at their end describing your change.")
     if variant["parents"] == "crossover":
         task.append("The versions above come from different lines of play: combine their strengths into one policy.")
     ev = _evidence(variant["evidence"], shown[-1][2], rng)
@@ -170,7 +192,7 @@ class BudgetExceeded(Exception):
 
 
 class Proposer:
-    def __init__(self, budget_usd, opus_every=10, max_tokens=16000, directive=""):
+    def __init__(self, budget_usd, opus_every=10, max_tokens=16000, directive="", helpers=""):
         # The cloud environment reserves ANTHROPIC_API_KEY for Claude Code's own login and does not
         # pass it to processes, so the key is stored as FUNSEARCH_ANTHROPIC_KEY (or FUNSEARCH_API_KEY) there. It may also
         # point ANTHROPIC_BASE_URL at Claude Code's endpoint, so the API URL is pinned.
@@ -185,6 +207,8 @@ class Proposer:
         self.max_tokens = max_tokens
         self.directive = directive  # per-run style directive, sent after the versions (system prompt stays cached)
         self.lock = threading.Lock()
+        # shared helper library section (funsearch.helpers.prompt_section), appended to the cached system prompt
+        self.helpers = helpers
 
     def _model(self):
         with self.lock:
@@ -230,6 +254,8 @@ class Proposer:
             import random as _random
             user = explore_user(parents, variant, rng or _random.Random())
             system = EXPLORE_SYSTEM[variant["catalog"]]
+        if self.helpers:
+            system = system + "\n" + self.helpers
         kwargs = dict(
             model=model,
             max_tokens=self.max_tokens,

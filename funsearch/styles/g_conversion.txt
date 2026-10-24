@@ -1,16 +1,9 @@
-This run improves GEM CONVERSION, the measured gap to the teams just above us (docs/GAP_LIST.md): we lose 184
-gems a game on death, 54% of our deaths happen while carrying gems (a median 7 tiles from an altar), we submit only
-76% of the gems we capture (they submit 99%), and we bank 18 times a game against their 26. The score blends the
-usual win score with conversion = gems tributed / gems captured; staying >= 50% vs the live bot is required.
-Develop:
-- banking cadence: bank more often; size the bag to the distance to the nearest safe altar (a small bag is worth a
-  short walk, a big bag justifies a long one; never carry a big bag far from an altar);
-- bank before danger: when an enemy champion is visible or near (enemies_within(r), in_danger()) and you carry
-  gems, go to the altar or recall instead of fighting or farming on;
-- safe routing with gems: prefer altars away from enemies and out of monolith reach; don't path past enemy
-  champions while carrying;
-- richer groups: farm groups worth more gems (rich_spawns(n), group_gems) when they are only a few tiles farther,
-  so each trip home carries more.
-Keep fighting, recall and capture rules that already work. Change behaviour, not just thresholds.
+This run targets one measured gap, GEM CONVERSION (docs/GAP_LIST.md, our ladder games vs the teams ~100 rating above
+us): we lose 184 gems a game on death; 54% of our deaths happen while carrying gems, a median 7 tiles from an altar;
+we submit 76% of the gems we capture (they submit 99%); we bank 18 times a game (they bank 26).
+The score blends the usual win score with conversion = gems tributed / gems captured; staying >= 50% vs the live bot
+is required. The levers are banking cadence, bag size, routing, and group choice; how to use them is for you to find.
+New sensor blocks are available: unit_max_health, unit_strength, unit_focus, enemies_near, allies_near, strength_at,
+unit_tributing (see the block list).
 Fuel rule: every dash or host search along a long path (dash_towards, move_towards to far tiles, closest on big
-sets) sits behind a fuel_remaining() gate (e.g. `if fuel_remaining() > 55000:`), or it can hit the 100k cap.
+sets) sits behind a fuel_remaining() gate, or it can hit the 100k per-turn cap.
