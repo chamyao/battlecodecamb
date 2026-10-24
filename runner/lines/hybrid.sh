@@ -264,6 +264,15 @@ PY
       fi
     fi
   fi
+  # H22 (jobs/hybrid 3855397, 16:45 UTC, lead): SPEND.md lines only (cap $30 -> $40); no run change
+  if [ ! -f runs/ec2-h22 ]; then
+    cat >> runs/SPEND.md <<'X' && touch runs/ec2-h22 && log "H22: SPEND.md lines appended (hybrid total \$23.26, cap \$40)"
+| 2026-10-24 | hyb4 on the old remote-server ($10 league budget) ran on after the EC2 move until "budget spent ($9.91)" (PR #1, 16:37 UTC); $0.70 of it is already above (hyb4-g1/g2, lost g3) | ? | 9.21 | |
+| 2026-10-24 | hyb4 continued on EC2 (--budget 29.47 -> 28.21 left) | | 1.26 | |
+| 2026-10-24 | hyb5 through 16:40 UTC (25.00 -> 16.30 left) | | 8.70 | |
+| 2026-10-24 | hybrid line total $23.26 (0.18 hyb/hyb2/hyb3 + 9.91 hyb4 remote-server + 1.26 hyb4 EC2 + 3.21 xc/xp + 8.70 hyb5); cap raised $30 -> $40 by the FunSearch lead; hyb5 keeps its remaining 16.30 (23.26 + 16.30 = 39.56) | | | |
+X
+  fi
   # H20 (jobs/hybrid 01ed646, 16:20 UTC, lead): ladder v23 = style-gconv1. H17 had already fired (16:03), so this is its
   # own boundary restart: merge funsearch/runs dccd4b1+ (sim/ changed: rebuild interp_eval + fuel_turns, pytest 2029);
   # style-gconv1 joins --fixed and replaces island 1's v21 seed. Bar and --yield-ref stay v21.
