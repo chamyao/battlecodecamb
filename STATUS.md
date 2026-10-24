@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 08:28 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.05 12.82 13.87 on 16 threads.
+Updated 2026-10-24 08:34 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 16.82 15.33 14.64 on 16 threads.
 Disk: 3.2G used of 38G.
 
 ## python3 processes
@@ -17,7 +17,6 @@ Disk: 3.2G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[06:54:25] style: HOLD: SIGTERM style7-a pid 5799
 [06:54:25] style: HOLD: SIGTERM style7-b pid 5790
 [06:54:25] style: HOLD: SIGTERM style7-b pid 5803
 [06:54:25] style: HOLD: SIGTERM style7-c pid 5801
@@ -57,4 +56,5 @@ Disk: 3.2G used of 38G.
 [08:28:45] style: launched style8-b (budget $3.5)
 [08:28:56] tune: G: tune/fs set up at 6cba5f0
 [08:28:56] tune: G: launched tune-fight ($5)
+[08:34:03] style: S4 check: h: g2 best style-h1 ok tune-v19 in league $3.32 left; b: style8-b-g1: +128 programs to the next boundary (22 so far) $3.06 left; before: h 3.34 b 3.50
 ```
