@@ -135,6 +135,9 @@
 { "slot_is_reset(Num)", false, { 290114, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=301 mae=0 (profile fuel)
 { "slot_is_shield(Num)", false, { 290114, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=13029 mean=301 mae=0 (profile fuel)
 { "slot_is_stun(Num)", false, { 290114, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=10800 mean=301 mae=0 (profile fuel)
+{ "slot_radius(Num)", false, { 290114, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: same lookup as slot_is_stun (coordinator), not yet profiled
+{ "slot_range(Num)", false, { 290114, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: same lookup as slot_is_stun (coordinator), not yet profiled
+{ "slot_stun(Num)", false, { 290114, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // provisional: same lookup as slot_is_stun (coordinator), not yet profiled
 { "spawn_region(Team)", false, { 298050, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=15181 mean=309 mae=0 (profile fuel)
 { "stat_focus()", false, { 35662, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=12196 mean=37 mae=0 (profile fuel)
 { "stat_health()", false, { 35662, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, // n=54278 mean=37 mae=0 (profile fuel)
