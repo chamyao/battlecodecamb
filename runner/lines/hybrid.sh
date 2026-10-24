@@ -1,6 +1,9 @@
 # hybrid line: resume hyb4 (jobs/hybrid/JOBS.md "EC2 resume", 28e6aa3). Never a fresh start.
 # State in: remote/hybrid remote/hybrid/runs/ (04:54 UTC snapshot; Cham confirmed no newer state).
 # State out: runs/ -> remote/hybrid remote/hybrid/runs/, promoted policies -> remote/hybrid policies/.
+# 17:56 UTC: hybrid line confirmed its final state (remote/hybrid fb5107a = hybrid/hyb5-state; hyb5 resumes as arena run 10).
+# Nothing more for hybrid on EC2: no relaunch, no holds, no checks.
+return 0
 D=/root/bc/hybrid
 [ -f "$D/HALT" ] && { log "halted: $(cat "$D/HALT")"; return 0; }
 if [ ! -f "$D/.setup-done" ]; then
