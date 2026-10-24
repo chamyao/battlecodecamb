@@ -1,0 +1,114 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HEAL: Bool = False
+
+@gene('Z266a', 'value of doing this option now: pick strong champs (Heart of Ruin first), use abilities, focus weak targets, recall not on spawn, tribute eagerly; move weighted by goal progress', parents=['s1', 'Z241a'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 6
+        if o.champ == HEART_OF_RUIN:
+            return 7
+        if o.champ == MARCELLA:
+            return 4
+        if o.champ == VENDETTA:
+            return 3
+        if o.champ == RYTH:
+            return 2
+        return 1
+    if o.kind == BUY:
+        return 109 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.4:
+            if me().pos in my_spawn():
+                return 0
+            return 90
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 35 + 3 * p if p > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals, or to my spawn while healing')
+def goal_field(heal: Bool) -> Field:
+    if heal:
+        return field(my_spawn())
+    return field(goals())
+
+@gene('Z266b', 'how much closer a step brings me to the goals (cached field); minus 0.5 per enemy champion within 2 of the step when healthy; 0 when unreachable, when hurt (<0.6) and stepping within 3 of an enemy champion, or when below 0.7 health and stepping within 2 of a monster', parents=['s4', 'Z266b'])
+def progress(t: Tile) -> Num:
+    a = at(GF, me().pos)
+    b = at(GF, t)
+    if a > 1000 or b > 1000:
+        return 0
+    hp = me().health_frac
+    if hp < 0.6:
+        if any(dist(u.pos, t) <= 3 for u in enemies() if u.is_champion):
+            return 0
+    if hp < 0.7:
+        if any(dist(u.pos, t) <= 2 for u in enemies() if not u.is_champion):
+            return 0
+    crowd = sum(0.5 for u in enemies() if u.is_champion and dist(u.pos, t) <= 2)
+    return a - b - crowd
+
+@gene('Z26a', 'cache the goal distance field once per turn; retreat home to heal below 40% health, resume above 85% (wider hysteresis)', parents=['s4'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < 0.4:
+        HEAL = True
+    if hf > 0.85:
+        HEAL = False
+    GF = goal_field(HEAL)
+
+@gene('Z26b', 'value of casting an ability: damage/cc on targets, shield/heal when hurt, shield harder when enemies are close, dash toward goals when healthy and not healing', parents=['s1', 'Z241a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + 10 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and gems() == 0:
+                return 65
+        return 0
+    if k == AB_HEAL:
+        if me().health_frac < 0.7:
+            return 75
+        return 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.8:
+            if any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+                return 80
+            return 72
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and me().health_frac > 0.4 and not HEAL:
+            p = progress(o.tile)
+            if p > 0:
+                return 28 + 3 * p
+        return 0
+    return 0
