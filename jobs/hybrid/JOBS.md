@@ -421,3 +421,11 @@ No command-line change: hyb5's --budget stays as is.
 H21 addendum (16:50 UTC, per the FunSearch lead): also add `--no-tune-children` to the relaunch (the per-child climb
 is off: fresh-seed gain +0.001 over 21 accepted climbs, no verdict changed). Python unchanged (already in 694a4a3).
 Check: new children have no metrics.tuned; programs/hour back toward 49-58.
+
+## Job H23 (2026-10-24 17:00 UTC, hybrid line session; per the FunSearch lead): yield term = gems submitted
+Fold into H21b's pending restart (one restart). Require funsearch/runs f0cbbce or later (contains 694a4a3). Python only.
+No new flag needed: --yield-metric now defaults to "submitted" (gems tributed per game, ours - v21's, in the same
+screen games; scale 50 gems/game). Gems per capture stays in metrics.yield.gpc_diff as a report-only number. Keep
+--yield-weight 0.25 and all H17-H21b flags (island 1 gconv1 as diversity, v21 the bar, island 3 #76 with its fuel
+term). Programs scored under the old gems-per-capture term are re-derived at startup.
+Check: "yield term: N logged programs rescaled"; new children's metrics.yield has metric "submitted".
