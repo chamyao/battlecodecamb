@@ -1630,16 +1630,20 @@ struct Interp
 			// tiles next to an altar (where a tribute starts) that no awake monolith can hit; walls, holes and altars excluded
 			const auto bp = std::make_shared<Bitboard>();
 			Bitboard& b = *bp;
+			std::size_t scans = 0; // monolith_reach calls, each a loop over every map camp
 			m().altars.for_each_unordered(m().H, [&](int x, int y) {
 				for (int dx = -1; dx <= 1; ++dx)
 					for (int dy = -1; dy <= 1; ++dy)
 					{
 						const Vec2 p{ x + dx, y + dy };
-						if ((dx || dy) && m().in_bounds(p) && !m().walls.test(p) && !m().holes.test(p) && !m().altars.test(p) &&
-							monolith_reach(p, true) == 0)
-							b.set(p);
+						if ((dx || dy) && m().in_bounds(p) && !m().walls.test(p) && !m().holes.test(p) && !m().altars.test(p))
+						{
+							++scans;
+							if (monolith_reach(p, true) == 0) b.set(p);
+						}
 					}
 			});
+			note_list(scans * m().camps.size());
 			return set_ptr(bp);
 		}
 		case Op::respawning_visible_spawns:

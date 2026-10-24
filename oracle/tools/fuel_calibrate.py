@@ -72,6 +72,8 @@ def allowed(nm):
     if nm=='respawning_visible_spawns()': return ['1','groups']
     if nm in ('wolf_tiles()','elk_tiles()','gem_cluster_tiles()','gold_cluster_tiles()','monolith_tiles()','golem_tiles()'): return ['1','ch','camps']  # loop over every map camp
     if nm=='camp_spawn_tiles()': return ['1','ch','camps']
+    if nm in ('monolith_threat(Tile)','in_monolith_zone(Tile)'): return ['1','camps']  # loop over every map camp (camp_state calls are API scopes)
+    if nm=='altar_safe_tiles()': return ['1','dbits']  # dbits = altar-neighbour scans x map camps (note_list)
     if nm in ('filter(UnitList,UnitPred)','weakest(UnitList)','richest(UnitList)','nearest(UnitList)'): return ['1','dbits']  # dbits = list length (note_list)
     if nm in ('ring(TileSet,Num)','filter(TileSet,TilePred)','first(TileSet)','count(TileSet)'): return ['1','H','altars']
     return ['1','H','ch','occ','occ*H','dbits','exp*ch']
