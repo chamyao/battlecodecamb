@@ -131,7 +131,7 @@ class Bench:
         return cells
 
     # ---- one child
-    def child(self, rnd, pid, task, cell, idx, seed):
+    def child(self, rnd, pid, task, cell, idx, seed, tag="bench"):
         pname, ptext, edge = cell
         rec = {"round": rnd, "prompt": pid, "parent": pname, "link": list(edge), "cell": idx}
         try:
@@ -146,8 +146,10 @@ class Bench:
                    genes_added=len(c.log.get("genes_added", [])), out_tokens=c.log.get("llm", {}).get("out"))
         if c.source is None:
             return rec
-        path = self.out / "genomes" / f"r{rnd}-{pid}-{idx}.genome"
+        # one file per (round, phase, prompt, cell); the parent is in the name and the child record has the file
+        path = self.out / "genomes" / f"r{rnd}-{tag}-{pid}-c{idx}-{pname.replace(':', '_')}.genome"
         path.write_text(c.source)
+        rec["file"] = f"genomes/{path.name}"
         try:
             spec = f"genome:{gbuild.build(c.source)}"
             pspec = f"genome:{gbuild.build(ptext)}"
@@ -197,7 +199,7 @@ class Bench:
 
         def one(j):
             pid, idx, cell = j
-            rec = self.child(rnd, pid, task_text(variants[pid]), cell, idx, seed)
+            rec = self.child(rnd, pid, task_text(variants[pid]), cell, idx, seed, tag)
             rec["tag"] = tag
             self.write("children", rec)
             print(f"[r{rnd} {tag}] {pid} cell {idx} ({cell[0]}, {cell[2][0]}->{cell[2][1]}): "

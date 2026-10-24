@@ -93,6 +93,7 @@ class Scorer:
                 if r.get("event") == "setup":
                     setup = r
         kids = show(f"{bench}/children.jsonl") or ""
+        retested = {json.loads(l)["prompt"] for l in kids.splitlines() if l.strip() and json.loads(l).get("tag") == "retest"}
         tasks = []
         for name in (setup or {}).get("parents", []):
             tasks += self.tasks_for(f"parent:{name}", self.parent_text(name), {"kind": "parent", "parent": name},
@@ -101,7 +102,14 @@ class Scorer:
             r = json.loads(line)
             if r.get("error") or r.get("tag") != "bench":
                 continue
-            path = f"{bench}/genomes/r{r['round']}-{r['prompt']}-{r['cell']}.genome"
+            # new benches name files per phase and record them; old ones used r<round>-<prompt>-<cell>, which a
+            # retest phase overwrote for its prompts (those children are skipped when the bench had a retest)
+            if "file" in r:
+                path = f"{bench}/{r['file']}"
+            elif r["prompt"] in retested:
+                continue
+            else:
+                path = f"{bench}/genomes/r{r['round']}-{r['prompt']}-{r['cell']}.genome"
             text = show(path)
             if text is None:
                 continue
