@@ -1,0 +1,842 @@
+[
+{
+"parent": "seed",
+"a": "r_pass",
+"b": "foe_in_reach",
+"cell": 0,
+"type": "T2"
+},
+{
+"parent": "seed",
+"a": "r_prefight",
+"b": "threat_eta",
+"cell": 1,
+"type": "T2"
+},
+{
+"parent": "seed",
+"a": "r_lock",
+"b": "lock_altar",
+"cell": 2,
+"type": "T3"
+},
+{
+"parent": "seed",
+"a": "rule_goal",
+"b": "respawning",
+"cell": 3,
+"type": "T1"
+},
+{
+"parent": "seed",
+"a": "altar_eta",
+"b": "eta",
+"cell": 4,
+"type": "T3"
+},
+{
+"parent": "seed",
+"a": "rule",
+"b": "bank_on",
+"cell": 5,
+"type": "T2"
+},
+{
+"parent": "seed",
+"a": "cast_value",
+"b": "strike_cast",
+"cell": 6,
+"type": "T4"
+},
+{
+"parent": "seed",
+"a": "r_run",
+"b": "hurt_below",
+"cell": 7,
+"type": "T5"
+},
+{
+"parent": "seed",
+"a": "rule_goal",
+"b": "bank_goal",
+"cell": 8,
+"type": "T4"
+},
+{
+"parent": "seed",
+"a": "rule_target",
+"b": "reach_camp",
+"cell": 9,
+"type": "T2"
+},
+{
+"parent": "seed",
+"a": "rule",
+"b": "r_pass",
+"cell": 10,
+"type": "T5"
+},
+{
+"parent": "seed",
+"a": "update",
+"b": "walk_open",
+"cell": 11,
+"type": "T5"
+},
+{
+"parent": "seed",
+"a": "r_camp",
+"b": "reach_camp",
+"cell": 12,
+"type": "T2"
+},
+{
+"parent": "seed",
+"a": "rule",
+"b": "adj_altar",
+"cell": 13,
+"type": "T1"
+},
+{
+"parent": "seed",
+"a": "act_value",
+"b": "move_value",
+"cell": 14,
+"type": "T4"
+},
+{
+"parent": "seed",
+"a": "update",
+"b": "rule",
+"cell": 15,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "rule",
+"b": "r_bankgroup",
+"cell": 16,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "r_heal",
+"b": "foe_in_reach",
+"cell": 17,
+"type": "T5"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "rule",
+"b": "r_lock",
+"cell": 18,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "foe_in_reach",
+"b": "in_reach",
+"cell": 19,
+"type": "T3"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "consider",
+"b": "ahead_on",
+"cell": 20,
+"type": "T3"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "update",
+"b": "walk_open",
+"cell": 21,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "update",
+"b": "wants_lock",
+"cell": 22,
+"type": "T3"
+},
+{
+"parent": "arenaA-1:A352",
+"a": "cast_value",
+"b": "strike_cast",
+"cell": 23,
+"type": "T4"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "rule",
+"b": "bank_blocked",
+"cell": 24,
+"type": "T3"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "update",
+"b": "rule",
+"cell": 25,
+"type": "T4"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "update",
+"b": "wants_lock",
+"cell": 26,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "ahead_value",
+"b": "ahead_foe",
+"cell": 27,
+"type": "T3"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "rule_goal",
+"b": "bank_goal",
+"cell": 28,
+"type": "T5"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "bank_t1",
+"b": "closest",
+"cell": 29,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "update",
+"b": "rule_goal",
+"cell": 30,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A344",
+"a": "rule",
+"b": "r_idle",
+"cell": 31,
+"type": "T3"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "r_prefight",
+"b": "adj_altar",
+"cell": 32,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "update",
+"b": "walks",
+"cell": 33,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "consider",
+"b": "shop_pending",
+"cell": 34,
+"type": "T5"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "r_live",
+"b": "live_camp",
+"cell": 35,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "bag_ready",
+"b": "threat_near",
+"cell": 36,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "lock_altar",
+"b": "first_tile",
+"cell": 37,
+"type": "T4"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "cast_value",
+"b": "strike_cast",
+"cell": 38,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A368",
+"a": "shop_value",
+"b": "shard_left",
+"cell": 39,
+"type": "T4"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "cast_value",
+"b": "strike_cast",
+"cell": 40,
+"type": "T4"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "rule_target",
+"b": "fight_foe",
+"cell": 41,
+"type": "T5"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "update",
+"b": "walk_open",
+"cell": 42,
+"type": "T2"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "rule",
+"b": "r_live",
+"cell": 43,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "threat_eta",
+"b": "eta",
+"cell": 44,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "r_cashout",
+"b": "altar_eta",
+"cell": 45,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "threat_near",
+"b": "hurt_below",
+"cell": 46,
+"type": "T1"
+},
+{
+"parent": "arenaA-1:A354",
+"a": "update",
+"b": "altar_ring",
+"cell": 47,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "rule",
+"b": "r_hold",
+"cell": 48,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "bank_t2",
+"b": "closest",
+"cell": 49,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "rule",
+"b": "r_heal",
+"cell": 50,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "dash_gate",
+"b": "walks",
+"cell": 51,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "rule_target",
+"b": "reach_camp",
+"cell": 52,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "dash_path_ok",
+"b": "dash_mids",
+"cell": 53,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "r_cashout",
+"b": "hurt_below",
+"cell": 54,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A611",
+"a": "r_lock",
+"b": "lock_altar",
+"cell": 55,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "rule_target",
+"b": "reach_camp",
+"cell": 56,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "dash_value",
+"b": "dash_gate",
+"cell": 57,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "ahead_on",
+"b": "ahead_foe",
+"cell": 58,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "safe_altar_ring",
+"b": "ring",
+"cell": 59,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "update",
+"b": "walk_field",
+"cell": 60,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "dash_path_ok",
+"b": "dash_mids",
+"cell": 61,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "rule_goal",
+"b": "bank_goal",
+"cell": 62,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A659",
+"a": "rule",
+"b": "r_pass",
+"cell": 63,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "r_cashout",
+"b": "hurt_below",
+"cell": 64,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "rule",
+"b": "r_bankgroup",
+"cell": 65,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "cast_value",
+"b": "dash_value",
+"cell": 66,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "rule",
+"b": "r_cashout",
+"cell": 67,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "rule",
+"b": "r_idle",
+"cell": 68,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "consider",
+"b": "walks",
+"cell": 69,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "under_fire",
+"b": "in_danger",
+"cell": 70,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A654",
+"a": "rule",
+"b": "adj_altar",
+"cell": 71,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "consider",
+"b": "walks",
+"cell": 72,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "under_fire",
+"b": "in_danger",
+"cell": 73,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "cast_value",
+"b": "dash_value",
+"cell": 74,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "threat_near",
+"b": "threat_eta",
+"cell": 75,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "cast_value",
+"b": "strike_cast",
+"cell": 76,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "rule_goal",
+"b": "camp_goal",
+"cell": 77,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "rule",
+"b": "r_lock",
+"cell": 78,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A662",
+"a": "altar_ring",
+"b": "ring",
+"cell": 79,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "consider",
+"b": "ahead_on",
+"cell": 80,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "rule",
+"b": "r_cashout",
+"cell": 81,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "act_value",
+"b": "reach_camp",
+"cell": 82,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "dash_value",
+"b": "dash_spot",
+"cell": 83,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "bank_blocked",
+"b": "bank_t1",
+"cell": 84,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "bank_blocked",
+"b": "in_reach",
+"cell": 85,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "r_cashout",
+"b": "hurt_below",
+"cell": 86,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A685",
+"a": "consider",
+"b": "dash_gate",
+"cell": 87,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "r_run",
+"b": "under_fire",
+"cell": 88,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "rule_goal",
+"b": "live_camp",
+"cell": 89,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "update",
+"b": "rule_target",
+"cell": 90,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "next_shard",
+"b": "shard_until",
+"cell": 91,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "bag_ready",
+"b": "hurt_below",
+"cell": 92,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "r_lock",
+"b": "lock_altar",
+"cell": 93,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "score",
+"b": "shop_value",
+"cell": 94,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A690",
+"a": "score",
+"b": "act_value",
+"cell": 95,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "update",
+"b": "walk_field",
+"cell": 96,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "rule_goal",
+"b": "respawning",
+"cell": 97,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "r_pass",
+"b": "adj_altar",
+"cell": 98,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "rule",
+"b": "r_idle",
+"cell": 99,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "consider",
+"b": "walks",
+"cell": 100,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "camp_goal",
+"b": "closest",
+"cell": 101,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "update",
+"b": "rule_target",
+"cell": 102,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A703",
+"a": "r_lock",
+"b": "lock_altar",
+"cell": 103,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "r_cashout",
+"b": "under_fire",
+"cell": 104,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "r_prefight",
+"b": "adj_altar",
+"cell": 105,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "rule",
+"b": "r_mono",
+"cell": 106,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "r_live",
+"b": "camp_goal",
+"cell": 107,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "rule_target",
+"b": "rule",
+"cell": 108,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "r_pass",
+"b": "foe_in_reach",
+"cell": 109,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "fight_foe",
+"b": "in_reach",
+"cell": 110,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A701",
+"a": "rule",
+"b": "r_fight",
+"cell": 111,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "rule",
+"b": "adj_altar",
+"cell": 112,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "consider",
+"b": "walks",
+"cell": 113,
+"type": "T1"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "r_pass",
+"b": "adj_altar",
+"cell": 114,
+"type": "T4"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "ahead_on",
+"b": "ahead_foe",
+"cell": 115,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "r_run",
+"b": "under_fire",
+"cell": 116,
+"type": "T5"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "update",
+"b": "walk_open",
+"cell": 117,
+"type": "T3"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "taken",
+"b": "blocked",
+"cell": 118,
+"type": "T2"
+},
+{
+"parent": "arenaA-3:A689",
+"a": "shard_left",
+"b": "shards_done",
+"cell": 119,
+"type": "T4"
+}
+]
