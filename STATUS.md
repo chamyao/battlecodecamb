@@ -5,26 +5,18 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 20:44 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 18.24 16.80 15.48 on 16 threads.
-Disk: 5.5G used of 38G.
+Updated 2026-10-24 20:50 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 16.21 16.20 15.69 on 16 threads.
+Disk: 5.7G used of 38G.
 
 ## python3 processes
 ```
 235872 python3 -m genome.search.arena --out /root/bc/genome/out/arenaA-3/arena --resume-from /root/bc/genome/out/arenaA-3/../arenaA-1/arena --tag A --seed genome/seeds/v23.genome --budget 8 --threads 5 --fixed-anchors --refingerprint --gate-every 100000000
 251610 python3 -m genome.search.arena --out /root/bc/genome/out/arenaB-5/arena --resume-from /root/bc/genome/out/arenaB-5/../arenaB-4/arena --tag B --seed genome/seeds/v23.genome --budget 8 --threads 5 --fixed-anchors --gate-every 100000000 --intel-branch genome/intel --add-anchors policies/candidat
-251986 python3 -m genome.search.gate --out /root/bc/genome/out/gatekeeper-6 --arena arenaA-* --arena arenaB-* --threads 5 --ref policies/candidates/tune-v20-L1c.policy --anchors policies/candidates/style-gconv1.policy,policies/v7.policy,policies/candidates/tune-v20-L1.policy,policies/candidates/rall
+271542 python3 -m genome.search.gate --out /root/bc/genome/out/gatekeeper-7 --arena arenaA-* --arena arenaB-* --threads 5 --ref /root/bc/genome/out/gatekeeper-7/B318.genome --anchors policies/candidates/tune-v20-L1c.policy,policies/candidates/style-gconv1.policy,policies/v7.policy,policies/candidate
+272107 python3 -m genome.search.baseline --out /root/bc/genome/out/promptbench-1/panel.jsonl --state /root/bc/genome/out/promptbench-1/../arenaA-3/arena --top 3 --games 200 --threads 5 --anchors policies/candidates/tune-v20-L1c.policy --tag panel-L1c@db3f945
 ```
 ## tick.log (last 40 lines)
 ```
-[20:21:10] genome: stopped job arenaB-2 (by arenaB-2.stop)
-Terminated
-[20:21:20] genome: stopped job gatekeeper-2 (by gatekeeper-2.stop)
-[20:21:31] genome: started job arenaA-2 at 681e2e3a90741660b8a8b51e2c0609461f6fddff
-[20:21:42] genome: started job arenaB-3 at 681e2e3a90741660b8a8b51e2c0609461f6fddff
-[20:21:53] genome: started job gatekeeper-3 at 56b76c429afb2813653d39dc499e654918f2db47
-[20:21:53] genome: job arenaA-1 exited rc=stopped
-[20:21:53] genome: job arenaB-2 exited rc=stopped
-[20:21:53] genome: job gatekeeper-2 exited rc=stopped
 [20:21:56] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 Terminated
 [20:27:08] genome: stopped job arenaA-2 (by arenaA-2.stop)
@@ -56,4 +48,13 @@ Terminated
 [20:39:27] genome: job gatekeeper-5 exited rc=stopped
 [20:39:31] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [20:44:37] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+Terminated
+[20:49:50] genome: stopped job arenaA-4 (by arenaA-4.stop)
+Terminated
+[20:50:00] genome: stopped job gatekeeper-6 (by gatekeeper-6.stop)
+[20:50:12] genome: started job gatekeeper-7 at bfbdabdcec7c8500a4d33da1e8e52dc9a67429bd
+[20:50:25] genome: started job promptbench-1 at ed9377cd89141589e4bbccd3fc96e4a8b3756295
+[20:50:25] genome: job arenaA-4 exited rc=stopped
+[20:50:25] genome: job gatekeeper-6 exited rc=stopped
+[20:50:29] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
