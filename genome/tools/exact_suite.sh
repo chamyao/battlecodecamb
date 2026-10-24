@@ -12,9 +12,12 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 base=$1; out=$(realpath -m "${2:-/tmp/exact_suite}"); seeds=${SEEDS:-1 2}; T=${THREADS:-$(nproc)}
 mkdir -p "$out"
-here=$(pwd); wt="$out/base"
+here=$(pwd)
+# the base checkout lives outside OUT (OUT may be pushed somewhere: no nested .git there) and is
+# removed on exit; KEEP=DIR keeps it in DIR for another run
+wt=${KEEP:-$(mktemp -d)/base}
 [ -d "$wt" ] || git worktree add -q --detach "$wt" "$base"
-[ -n "${KEEP:-}" ] || trap 'git worktree remove --force "$wt"' EXIT  # KEEP=1: keep the base build for another run
+[ -n "${KEEP:-}" ] || trap 'git worktree remove --force "$wt"; rm -rf "$(dirname "$wt")"' EXIT
 # a base older than --fuel-hash gets this harness (genome_eval.cpp only drives matches and reports)
 grep -q fuel-hash "$wt/genome/tools/genome_eval.cpp" || cp genome/tools/genome_eval.cpp "$wt/genome/tools/genome_eval.cpp"
 for d in "$here" "$wt"; do
