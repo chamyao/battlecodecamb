@@ -96,11 +96,11 @@ struct Option
 {
 	int kind = 0;
 	int slot = -1, item = -1, champ = -1;
-	int count = 1; // BUY: units bought at once (the SDK's buy_item count)
 	Tile tile;
 	int ukind = 0;
 	std::uint32_t uh = 0;
 	int ui = -1;
+	int count = 1; // BUY: units bought at once (the SDK's buy_item count)
 };
 
 inline double div(double a, double b) { return b == 0 ? 0.0 : a / b; }
@@ -110,6 +110,14 @@ inline double fmod_pos(double a, double b)
 	const double r = std::fmod(a, b);
 	return r < 0 ? r + std::fabs(b) : r;
 }
+
+// The genome's optional consider(kind) entry gene, seen from the runtime (GenesBase implements it).
+struct KindFilter
+{
+	virtual ~KindFilter() = default;
+	virtual bool consider_kind(int kind) = 0;
+	virtual bool has_consider() const = 0;
+};
 
 inline std::atomic<std::uint64_t>& pass_counter()
 {
@@ -260,19 +268,16 @@ public:
 	{
 		if (u.kind != 2) return false;
 		std::uint32_t life = 0;
-		extra(41); // as camp_group_state (estimate, not yet probed)
 		return api.camp_state(u.h, &life) == Err::success && life == static_cast<std::uint32_t>(cbs::CampLife::awake);
 	}
 	Tile camp_spawn(const Unit& u) const
 	{
 		if (u.kind != 2 || u.h >= m.camps.size()) return {};
-		const_cast<Ctx*>(this)->extra(30); // static map read (estimate, as group_tiles)
 		return { m.camps[u.h].pos.x, m.camps[u.h].pos.y };
 	}
 	// static map: the camp spawning on a tile (its type / group), -1 if none
 	int camp_index(Tile t)
 	{
-		extra(30); // static map read (estimate, as group_tiles)
 		if (!in_bounds(t)) return -1;
 		if (camp_at_.empty())
 		{
@@ -374,7 +379,6 @@ public:
 		return { b };
 	}
 	// ---- live occupancy and vision as the SDK reports them (one engine call each)
-	// each copies an engine mask into a fresh set: priced as a set operation (estimate, not yet probed)
 	Tiles vision() { return sdk_mask([&](Bitboard& b) { api.vision(b); }); }
 	Tiles ally_tiles() { return sdk_mask([&](Bitboard& b) { api.ally_occupancy(b); }); }
 	Tiles enemy_tiles() { return sdk_mask([&](Bitboard& b) { api.enemy_occupancy(b); }); }
@@ -467,7 +471,6 @@ public:
 			blocked.andnot(*goals.b);
 			const bool stops = stop.b && stop.b->any(m.H);
 			api.distance_field(blocked, *goals.b, stops ? stop.b.get() : nullptr, cbs::kUnreachable, d->data(), visited);
-			extra(97 * chunks() - 320); // as field() (estimate: the stop set only shortens the search)
 		}
 		return { d };
 	}
@@ -478,7 +481,6 @@ public:
 		Bitboard w;
 		if (walls.b) w = *walls.b;
 		Vec2 out{ -1, -1 };
-		extra(224 + 3.1 * chunks()); // marshalling the sets, as a set operation (estimate, not yet probed; the Api prices the search)
 		if (!api.nearest_by_walk(w, from.v(), *cand.b, out)) return {};
 		return { out.x, out.y };
 	}
@@ -576,6 +578,21 @@ public:
 		return o.ui >= 0 && o.ui < static_cast<int>(opt_units_.size()) ? opt_units_[o.ui] : none;
 	}
 	std::vector<Option> opts_buf, failed_buf; // reused by play_turn (no reallocation per pass)
+	KindFilter* filter = nullptr;			   // set by play_turn
+	// consider(kind), once per kind per pass; kinds it rejects are neither listed nor scored
+	bool want(int kind)
+	{
+		if (!filter || !filter->has_consider()) return true;
+		if (want_pass_ != pass_id)
+		{
+			want_pass_ = pass_id;
+			for (auto& w : want_) w = -1;
+		}
+		if (want_[kind] < 0) want_[kind] = filter->consider_kind(kind) ? 1 : 0;
+		return want_[kind];
+	}
+	std::int8_t want_[16];
+	std::uint64_t want_pass_ = 0;
 
 	void options(std::vector<Option>& out)
 	{
@@ -609,13 +626,13 @@ public:
 			return;
 		}
 		if (alive_now && (st & cbs::state_bit::teleporting)) return;
-		if (can_shop())
+		if ((want(BUY) || want(BUY_LOCK)) && can_shop())
 		{
 			const double g = gold();
 			for (int i = 0; i < cbs::kNumItems; ++i)
 			{
 				const auto& d = cbs::item_design(i);
-				if (!d.purchasable || d.cost > g) continue;
+				if (!d.purchasable || d.cost > g || !want(BUY)) continue;
 				// counts in powers of two up to what we can pay: any number in a few passes
 				for (int c = 1; c * d.cost <= g; c *= 2)
 				{
@@ -624,7 +641,7 @@ public:
 					out.push_back(o);
 				}
 			}
-			if (g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
+			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
 			{
 				Option o;
 				o.kind = BUY_LOCK;
@@ -633,7 +650,7 @@ public:
 		}
 		if (!alive_now) return;
 		const Tile p = self_u.pos;
-		if (st & cbs::state_bit::can_move)
+		if ((st & cbs::state_bit::can_move) && want(MOVE))
 		{
 			const Bitboard& occ = occupancy();
 			for (int dy = -1; dy <= 1; ++dy)
@@ -646,14 +663,14 @@ public:
 					out.push_back(o);
 				}
 		}
-		if (st & cbs::state_bit::can_attack)
+		if ((st & cbs::state_bit::can_attack) && want(ATTACK))
 		{
 			for (const Unit& u : enemies())
 				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
 			for (const Unit& u : camps())
 				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
 		}
-		if (st & cbs::state_bit::can_cast)
+		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
 			{
 				if (!slot_ready(s)) continue;
@@ -694,7 +711,7 @@ public:
 		{
 			cbs::WardResources wr{};
 			api.champion_wards(self(), &wr);
-			if (wr.charges > 0)
+			if (wr.charges > 0 && want(WARD))
 			{
 				const int r = static_cast<int>(cbs::settings().ward_placement_radius);
 				for (int dy = -r; dy <= r; ++dy)
@@ -708,7 +725,7 @@ public:
 					}
 			}
 		}
-		if (!(tclass(p.v()) & kMySpawn))
+		if (!(tclass(p.v()) & kMySpawn) && want(RECALL))
 		{
 			Option o;
 			o.kind = RECALL;
@@ -716,7 +733,7 @@ public:
 		}
 		const bool lock = has_lock();
 		const double g = gems();
-		if (g > 0 || lock)
+		if ((g > 0 && want(TRIBUTE)) || (lock && want(LOCK)))
 		{
 			for (Vec2 a : m.altar_list)
 			{
@@ -788,7 +805,6 @@ private:
 	{
 		auto b = std::make_shared<Bitboard>();
 		fill(*b);
-		extra(224 + 3.1 * chunks());
 		return { b };
 	}
 
@@ -890,12 +906,14 @@ private:
 };
 
 // Generated genes derive from this.
-struct GenesBase
+struct GenesBase : KindFilter
 {
 	explicit GenesBase(Ctx& x) : X(x) {}
 	virtual ~GenesBase() = default;
 	virtual double score_option(const Option& o) = 0;
 	virtual void run_update() = 0;
+	bool consider_kind(int) override { return true; }
+	bool has_consider() const override { return false; }
 	Ctx& X;
 };
 
@@ -909,12 +927,11 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	failed.clear();
 	if (opts.capacity() < 256) opts.reserve(256);
 	auto same = [](const Option& a, const Option& b) {
-		return a.kind == b.kind && a.ukind == b.ukind && a.uh == b.uh && a.tile == b.tile && a.slot == b.slot && a.item == b.item && a.champ == b.champ &&
-			   a.count == b.count;
+		return a.kind == b.kind && a.ukind == b.ukind && a.uh == b.uh && a.tile == b.tile && a.slot == b.slot && a.item == b.item &&
+			   a.champ == b.champ && a.count == b.count;
 	};
 	const bool draft = X.api.champ() < 0;
-	// GENOME_FUEL=N: passes and turns that spent more than N fuel (simulator diagnostics, @@FP / @@F lines on stderr)
-	static const long fuel_trace = std::getenv("GENOME_FUEL") ? std::atol(std::getenv("GENOME_FUEL")) : -1;
+	X.filter = &g;
 #ifdef GENOME_PROF
 #ifndef GENOME_PROF_EVERY
 #define GENOME_PROF_EVERY 50
@@ -927,6 +944,8 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #else
 #define PROF_MARK(acc) ((void)0)
 #endif
+	// GENOME_FUEL=N: passes and turns that spent more than N fuel (simulator diagnostics, @@FP / @@F lines on stderr)
+	static const long fuel_trace = std::getenv("GENOME_FUEL") ? std::atol(std::getenv("GENOME_FUEL")) : -1;
 	X.new_pass();
 	if (!draft) g.run_update();
 	int acted = 0;
@@ -969,9 +988,6 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 						 X.api.champ(), pass, static_cast<long long>(X.api.spent), best->kind, ok ? 1 : 0, opts.size());
 		if (draft) break;
 	}
-	if (fuel_trace >= 0 && X.api.spent > fuel_trace)
-		std::fprintf(stderr, "@@F r%d t%d c%d spent %lld acted %d draft %d\n", static_cast<int>(X.round()), X.api.team(), X.api.champ(),
-					 static_cast<long long>(X.api.spent), acted, draft ? 1 : 0);
 #ifdef GENOME_PROF
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) % 500 == 0)
 		for (const auto& gs : gene_stats)
@@ -982,6 +998,9 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 					static_cast<long long>(f_exec), static_cast<long long>(X.api.fuel_remaining()), X.ops - ops0,
 					static_cast<long long>(start - X.api.fuel_remaining()));
 #endif
+	if (fuel_trace >= 0 && X.api.spent > fuel_trace)
+		std::fprintf(stderr, "@@F r%d t%d c%d spent %lld acted %d draft %d\n", static_cast<int>(X.round()), X.api.team(), X.api.champ(),
+					 static_cast<long long>(X.api.spent), acted, draft ? 1 : 0);
 	return acted;
 }
 

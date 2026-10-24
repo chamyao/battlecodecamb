@@ -8,7 +8,7 @@ Python syntax, restricted to a typed subset. Top level: keep declarations and ge
 
 ```python
 BAG: Num = 20                      # keep: persistent per bot instance; only update() assigns it
-HOME: Tiles = None                 # keeps are Num, Bool, Tile (start invalid), Tiles (start empty) or Field (start unreachable everywhere)
+GOALS: Field = None                # keeps: Num, Bool, Tile (starts invalid), Tiles and Field (start empty)
 
 @gene("g7", "danger at a tile", parents=["g2"])
 def danger_at(t: Tile) -> Num:
@@ -16,6 +16,7 @@ def danger_at(t: Tile) -> Num:
 ```
 
 - Entry genes: `score(o: Option) -> Num` (required): the value of doing option `o` now; the fixed loop does the best option while its score is > 0 (the draft always picks). `update() -> None` (optional): runs at the start of each turn; the only gene that may assign keeps or call `write_shared` / `set_priority`.
+- Keeps: `Num`, `Bool`, `Tile`, `Tiles`, `Field`. Use a Tiles/Field keep set in `update()` to compute an expensive set or distance field once per turn instead of once per pass (zero-argument genes are recomputed every pass of the loop).
 - Every gene has `@gene(id, description, parents=[...])`. IDs survive inheritance; a duplicated gene gets a new ID.
 - Statements: assignment (function-scoped locals, type fixed at first assignment), `+= -= *= /=`, `if/elif/else`, `for x in S` (S: Units, Tiles or `range(n)`), `return`.
 - Expressions: arithmetic on Num (`/` by 0 gives 0), comparisons, `and/or/not`, `a if c else b`, `t in S` (Tile in Tiles), Tiles `| & -`, fields (`u.pos`), calls to genes and primitives.

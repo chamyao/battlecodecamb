@@ -271,6 +271,8 @@ def parse(source):
     s = genes["score"]
     if [t for _, t in s.params] != ["Option"] or s.ret != "Num":
         raise GenomeError("score must be score(o: Option) -> Num")
+    if "consider" in genes and ([t for _, t in genes["consider"].params] != ["Num"] or genes["consider"].ret != "Bool"):
+        raise GenomeError("consider must be consider(kind: Num) -> Bool")
     if "update" in genes and (genes["update"].params or genes["update"].ret != "None"):
         raise GenomeError("update must be update() -> None")
     g = Genome(genes, keeps, source)
@@ -544,7 +546,7 @@ class Checker:
             gene = self.g.genes[n]
             if [t for _, t in gene.params] != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(t for _, t in gene.params)})")
-            if n in ("score", "update"):
+            if n in ("score", "update", "consider"):
                 self.err(e, f"entry gene {n} cannot be called")
             self.cur.calls.add(n)
             return gene.ret, f"{n}(" + ", ".join(c for _, c, _ in args) + ")", ops + 1
@@ -669,7 +671,7 @@ def to_cpp(genome):
             elif t == "Bool" and isinstance(v, ast.Constant):
                 init = "true" if v.value else "false"
             elif t in ("Tile", "Tiles", "Field") and not (isinstance(v, ast.Constant) and v.value is None):
-                raise GenomeError(f"keep {n}: {t} keeps start invalid / empty (= None)")
+                raise GenomeError(f"keep {n}: {t} keeps start empty (= None)")
         lines.append(f"\t{CPP[t]} {n} = {init};")
     lines += ["};", "struct Genes : GenesBase {", "\tKeeps K;", "\tusing GenesBase::GenesBase;"]
     order = list(genome.genes)
@@ -683,7 +685,12 @@ def to_cpp(genome):
         if not g.params and g.ret != "None" and n != "update":
             lines.append(f"\tstd::uint64_t stamp_{n} = ~0ull; {CPP[g.ret]} val_{n}{{}};")
     lines += ["\tdouble score_option(const Option& o) override { return score(o); }",
-              f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}", "};"]
+              f"\tvoid run_update() override {{ {'update();' if 'update' in genome.genes else ''} }}"]
+    if "consider" in genome.genes:
+        p = genome.genes["consider"].params[0][0]
+        lines += ["\tbool consider_kind(int k) override { return consider(double(k)); }",
+                  "\tbool has_consider() const override { return true; }"]
+    lines += ["};"]
     for n in order:
         g = genome.genes[n]
         params = ", ".join(_param(p, t) for p, t in g.params)
