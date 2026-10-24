@@ -128,7 +128,7 @@ Option kinds: PICK (o.champ), MOVE (o.tile), ATTACK (o.unit), CAST (o.slot + o.u
 
 Notes on the newer primitives (SDK reads and generic operations only):
 - `vision()`, `ally_tiles()`, `enemy_tiles()`, `camp_tiles()`: the SDK's vision and occupancy masks (one engine call each). `ally_tiles()` includes me.
-- `field_avoid(goals, walls, stop)`: the engine distance field to `goals` over tiles not in `walls`; the search ends after the first layer that reaches a `stop` tile (empty `stop`: whole map), farther tiles read unreachable (1e9).
+- `field_avoid(goals, walls, stop)`: the engine distance field to `goals` over tiles not in `walls`; the search ends after the layer by which every reachable `stop` tile has been reached (the host's ComputeTo; one stop tile: the first layer that reaches it; empty `stop`: whole map), farther tiles read unreachable (1e9).
 - `walk_nearest(cand, from, walls)`: the engine's nearest-by-walk (ties row-major); invalid if none is reachable.
 - `type_spawns(k)`, `spawn_type(t)`, `spawn_group(t)`, `camp_spawn(u)`, `camp_base_*(k)`: static map and camp design data (-1 off a spawn tile).
 - `is_awake(u)`: camp life state; `group_reward(g)`: the group is cleared and waiting for capture.

@@ -1,0 +1,218 @@
+"""Fuel calibration genome 2 (fields, newer primitives): update() runs one probe per turn, in rotation; probe inputs are computed outside the probe."""
+
+@gene("c0", "score: wander (keeps the game moving)")
+def score(o: Option) -> Num:
+    if o.kind == MOVE:
+        return 1 + floor((o.tile.x * 7 + o.tile.y * 13 + round()) % 10)
+    return 0
+
+@gene("c2", "consider: every kind (prices the entry gene)")
+def consider(kind: Num) -> Bool:
+    return kind != PICK or round() >= 0
+
+@gene("c1", "run one probe this turn (round mod #probes)")
+def update() -> None:
+    acc = 0
+    k = round()
+    slot = k % 31
+    t = me().pos
+    W = walls()
+    AL = altars()
+    CS = camp_spawns()
+    ME = near(t, 0)
+    E = W - W
+    R3 = near(t, 3) - near(t, 2)
+    R8 = near(t, 8) - near(t, 7)
+    R16 = near(t, 16) - near(t, 15)
+    u = best(camps(), lambda x: 0 - dist(x.pos, t))
+    c = nearest(CS, t)
+    g = k % num_groups()
+    if slot == 0:
+        acc += p_empty(k)
+    if slot == 1:
+        acc += p_contains(k, W, t)
+    if slot == 2:
+        acc += p_field_altars(k, AL, t)
+    if slot == 3:
+        acc += p_field_camps(k, CS, t)
+    if slot == 4:
+        acc += p_field_me(k, ME, t)
+    if slot == 5:
+        acc += p_avoid_full(k, AL, W, E, t)
+    if slot == 6:
+        acc += p_avoid_me_full(k, ME, W, E, t)
+    if slot == 7:
+        acc += p_avoid_stop3(k, ME, W, R3, t)
+    if slot == 8:
+        acc += p_avoid_stop8(k, ME, W, R8, t)
+    if slot == 9:
+        acc += p_avoid_stop16(k, ME, W, R16, t)
+    if slot == 10:
+        acc += p_avoid_stop_alt(k, ME, W, AL, t)
+    if slot == 11:
+        acc += p_walk_camps(k, CS, W, t)
+    if slot == 12:
+        acc += p_walk_altars(k, AL, W, t)
+    if slot == 13:
+        acc += p_vision(k, t)
+    if slot == 14:
+        acc += p_ally_tiles(k, t)
+    if slot == 15:
+        acc += p_enemy_tiles(k, t)
+    if slot == 16:
+        acc += p_camp_tiles(k, t)
+    if slot == 17:
+        acc += p_type_spawns(k, t)
+    if slot == 18 and exists(u):
+        acc += p_is_awake(k, u)
+    if slot == 19 and exists(u):
+        acc += p_camp_spawn(k, u)
+    if slot == 20:
+        acc += p_spawn_type(k, c)
+    if slot == 21:
+        acc += p_spawn_group(k, c)
+    if slot == 22:
+        acc += p_camp_base(k)
+    if slot == 23:
+        acc += p_group_reward(k, g)
+    if slot == 24:
+        acc += p_group_resp(k, g)
+    if slot == 25:
+        acc += p_alive4(k)
+    if slot == 26:
+        acc += p_alive(k)
+    if slot == 27:
+        acc += p_rand(k)
+    if slot == 28:
+        acc += p_me(k)
+    if slot == 29:
+        acc += p_enemies(k)
+    if slot == 30:
+        acc += p_camps(k)
+    if slot == 0:
+        set_priority(k % 2)
+    write_shared(7, acc)
+
+@gene("q0", "probe empty")
+def p_empty(k: Num) -> Num:
+    return k
+
+@gene("q1", "probe contains")
+def p_contains(k: Num, s: Tiles, t: Tile) -> Num:
+    return 1 if t in s else k
+
+@gene("q2", "probe field_altars")
+def p_field_altars(k: Num, g: Tiles, t: Tile) -> Num:
+    return at(field(g), t) + k
+
+@gene("q3", "probe field_camps")
+def p_field_camps(k: Num, g: Tiles, t: Tile) -> Num:
+    return at(field(g), t) + k
+
+@gene("q4", "probe field_me")
+def p_field_me(k: Num, g: Tiles, t: Tile) -> Num:
+    return at(field(g), t) + k
+
+@gene("q5", "probe avoid_full")
+def p_avoid_full(k: Num, g: Tiles, w: Tiles, e: Tiles, t: Tile) -> Num:
+    return at(field_avoid(g, w, e), t) + k
+
+@gene("q6", "probe avoid_me_full")
+def p_avoid_me_full(k: Num, g: Tiles, w: Tiles, e: Tiles, t: Tile) -> Num:
+    return at(field_avoid(g, w, e), t) + k
+
+@gene("q7", "probe avoid_stop3")
+def p_avoid_stop3(k: Num, g: Tiles, w: Tiles, e: Tiles, t: Tile) -> Num:
+    return at(field_avoid(g, w, e), t) + k
+
+@gene("q8", "probe avoid_stop8")
+def p_avoid_stop8(k: Num, g: Tiles, w: Tiles, e: Tiles, t: Tile) -> Num:
+    return at(field_avoid(g, w, e), t) + k
+
+@gene("q9", "probe avoid_stop16")
+def p_avoid_stop16(k: Num, g: Tiles, w: Tiles, e: Tiles, t: Tile) -> Num:
+    return at(field_avoid(g, w, e), t) + k
+
+@gene("q10", "probe avoid_stop_alt")
+def p_avoid_stop_alt(k: Num, g: Tiles, w: Tiles, e: Tiles, t: Tile) -> Num:
+    return at(field_avoid(g, w, e), t) + k
+
+@gene("q11", "probe walk_camps")
+def p_walk_camps(k: Num, c: Tiles, w: Tiles, t: Tile) -> Num:
+    return walk_nearest(c, t, w).x + k
+
+@gene("q12", "probe walk_altars")
+def p_walk_altars(k: Num, c: Tiles, w: Tiles, t: Tile) -> Num:
+    return walk_nearest(c, t, w).x + k
+
+@gene("q13", "probe vision")
+def p_vision(k: Num, t: Tile) -> Num:
+    return 1 if t in vision() else k
+
+@gene("q14", "probe ally_tiles")
+def p_ally_tiles(k: Num, t: Tile) -> Num:
+    return 1 if t in ally_tiles() else k
+
+@gene("q15", "probe enemy_tiles")
+def p_enemy_tiles(k: Num, t: Tile) -> Num:
+    return 1 if t in enemy_tiles() else k
+
+@gene("q16", "probe camp_tiles")
+def p_camp_tiles(k: Num, t: Tile) -> Num:
+    return 1 if t in camp_tiles() else k
+
+@gene("q17", "probe type_spawns")
+def p_type_spawns(k: Num, t: Tile) -> Num:
+    return 1 if t in type_spawns(WOLF) else k
+
+@gene("q18", "probe is_awake")
+def p_is_awake(k: Num, u: Unit) -> Num:
+    return 1 if is_awake(u) else k
+
+@gene("q19", "probe camp_spawn")
+def p_camp_spawn(k: Num, u: Unit) -> Num:
+    return camp_spawn(u).x + k
+
+@gene("q20", "probe spawn_type")
+def p_spawn_type(k: Num, t: Tile) -> Num:
+    return spawn_type(t) + k
+
+@gene("q21", "probe spawn_group")
+def p_spawn_group(k: Num, t: Tile) -> Num:
+    return spawn_group(t) + k
+
+@gene("q22", "probe camp_base")
+def p_camp_base(k: Num) -> Num:
+    return camp_base_health(WOLF) + camp_base_strength(ELK) + k
+
+@gene("q23", "probe group_reward")
+def p_group_reward(k: Num, g: Num) -> Num:
+    return 1 if group_reward(g) else k
+
+@gene("q24", "probe group_resp")
+def p_group_resp(k: Num, g: Num) -> Num:
+    return 1 if group_respawning(g) else k
+
+@gene("q25", "probe alive4")
+def p_alive4(k: Num) -> Num:
+    return k + (1 if alive() else 0) + (1 if can_move() else 0) + (1 if can_attack() else 0) + (1 if channeling() else 0)
+
+@gene("q26", "probe alive")
+def p_alive(k: Num) -> Num:
+    return 1 if alive() else k
+
+@gene("q27", "probe rand")
+def p_rand(k: Num) -> Num:
+    return rand(10) + k
+
+@gene("q28", "probe me")
+def p_me(k: Num) -> Num:
+    return me().health + k
+
+@gene("q29", "probe enemies")
+def p_enemies(k: Num) -> Num:
+    return count_units(enemies()) + k
+
+@gene("q30", "probe camps")
+def p_camps(k: Num) -> Num:
+    return count_units(camps()) + k

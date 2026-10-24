@@ -1,6 +1,7 @@
 """Compile a genome to a shared object the simulator loads (genome_eval --a genome:<path.so>).
 
     python3 -m genome.build my.genome            # prints the .so path (cached by source hash)
+    GENOME_DEFS="GENOME_PROF" python3 -m genome.build my.genome   # extra -D flags (a GENOME_PROF genome_eval: build-prof/)
 
 The generated C++ goes through the same compiler for every child, so compile errors mean a bug in
 genome/lang.py, not in the genome: the type checker rejects bad genomes first.
@@ -27,6 +28,7 @@ def build(source, op_fuel=None):
     genome = lang.parse(source)
     cpp = lang.to_cpp(genome)
     extra = [f"-DGENOME_OP_FUEL={op_fuel}"] if op_fuel is not None else []
+    extra += [f"-D{d}" for d in os.environ.get("GENOME_DEFS", "").split()]
     key = hashlib.sha256((cpp + " ".join(FLAGS + extra) + _rt_stamp()).encode()).hexdigest()[:20]
     CACHE.mkdir(parents=True, exist_ok=True)
     out = CACHE / f"{key}.so"

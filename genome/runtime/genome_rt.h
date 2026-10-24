@@ -48,7 +48,20 @@ struct GeneScope
 	~GeneScope() { s.fuel += t0 - api.fuel_remaining(); }
 };
 #define GENE_PROF(i, nm) genome::gene_stats[i].name = nm; genome::GeneScope gene_scope_(genome::gene_stats[i], X.api)
+// The first distance-field searches: expansions and the fuel of the search call alone (printed with @@GENE).
+struct FieldRec
+{
+	int expansions, stopped;
+	long long fuel;
+};
+inline FieldRec field_recs[400];
+inline int n_field_recs = 0;
+#define FIELD_PROF_BEGIN const std::int64_t fp0_ = api.fuel_remaining()
+#define FIELD_PROF_END(n, st) \
+	if (genome::n_field_recs < 400) genome::field_recs[genome::n_field_recs++] = { static_cast<int>(n), (st) ? 1 : 0, fp0_ - api.fuel_remaining() }
 #else
+#define FIELD_PROF_BEGIN ((void)0)
+#define FIELD_PROF_END(n, st) ((void)0)
 #define GENE_PROF(i, nm) ((void)0)
 #endif
 using cbs::Api;
@@ -145,7 +158,7 @@ public:
 	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
 	// Simulator only: the runtime's own work in the bot beyond what the Api already prices (fitted
 	// from genome/examples/calib.genome profiled in cambc; docs in genome/FUEL.md). Compiled away in the bot.
-	void extra(double fuel)
+	void extra(double fuel) const
 	{
 #ifndef GENOME_BOT
 		if (fuel > 0) api.compute(static_cast<std::int64_t>(fuel));
@@ -179,12 +192,13 @@ public:
 		return me_;
 	}
 	std::uint32_t self() { return me(), self_; }
-	bool alive() { return me().state & cbs::state_bit::alive; }
-	bool my_state(std::uint32_t bits) { return api.champ() >= 0 && (me().state & bits); }
+	bool alive() { return extra(4), me().state & cbs::state_bit::alive; }
+	bool my_state(std::uint32_t bits) { return extra(11), api.champ() >= 0 && (me().state & bits); }
 	bool channeling() { return my_state(cbs::state_bit::recalling | cbs::state_bit::submitting | cbs::state_bit::teleporting); }
 	// uniform integer in [0, n) from this instance's generator (generic operation, no engine call)
 	double rand(double n)
 	{
+		extra(12);
 		rng_ ^= rng_ << 13, rng_ ^= rng_ >> 7, rng_ ^= rng_ << 17;
 		const double k = std::floor(n);
 		return k >= 1 ? static_cast<double>((rng_ >> 11) % static_cast<std::uint64_t>(std::min(k, 1e9))) : 0.0;
@@ -272,19 +286,23 @@ public:
 	{
 		if (u.kind != 2) return false;
 		std::uint32_t life = 0;
+		extra(16);
 		return api.camp_state(u.h, &life) == Err::success && life == static_cast<std::uint32_t>(cbs::CampLife::awake);
 	}
 	Tile camp_spawn(const Unit& u) const
 	{
+		extra(17);
 		if (u.kind != 2 || u.h >= m.camps.size()) return {};
 		return { m.camps[u.h].pos.x, m.camps[u.h].pos.y };
 	}
 	// static map: the camp spawning on a tile (its type / group), -1 if none
 	int camp_index(Tile t)
 	{
+		extra(55);
 		if (!in_bounds(t)) return -1;
 		if (camp_at_.empty())
 		{
+			extra(2700 + 3.0 * m.W * m.H); // filling the table (once per instance)
 			camp_at_.assign(static_cast<std::size_t>(m.W) * m.H, -1);
 			for (std::size_t c = 0; c < m.camps.size(); ++c) camp_at_[m.idx(m.camps[c].pos)] = static_cast<int>(c);
 		}
@@ -305,6 +323,7 @@ public:
 	{
 		if (!camp_type_ok(k)) return 0;
 		const auto& d = cbs::camp_design(static_cast<cbs::CampType>(static_cast<int>(k)));
+		extra(6);
 		return which == 0 ? d.base_health : which == 1 ? d.base_strength : d.base_focus;
 	}
 	double camp_group(const Unit& u) { return u.kind == 2 ? m.camps[u.h].group : -1; }
@@ -316,7 +335,7 @@ public:
 		if (!group_ok(g)) return false;
 		std::uint32_t s = 0;
 		api.camp_group_state(static_cast<std::uint32_t>(g), &s);
-		extra(41);
+		extra(26);
 		return s == static_cast<std::uint32_t>(want);
 	}
 	bool group_respawning(double g) { return group_in_state(g, cbs::GroupState::respawning); }
@@ -364,6 +383,7 @@ public:
 	// spawn tiles of the camps of one type (static map)
 	Tiles type_spawns(double k)
 	{
+		extra(100);
 		if (!camp_type_ok(k)) return { std::make_shared<Bitboard>() };
 		const int i = static_cast<int>(k);
 		return stat(type_sp_[i], [&](Bitboard& b) {
@@ -383,10 +403,11 @@ public:
 		return { b };
 	}
 	// ---- live occupancy and vision as the SDK reports them (one engine call each)
-	Tiles vision() { return sdk_mask([&](Bitboard& b) { api.vision(b); }); }
-	Tiles ally_tiles() { return sdk_mask([&](Bitboard& b) { api.ally_occupancy(b); }); }
-	Tiles enemy_tiles() { return sdk_mask([&](Bitboard& b) { api.enemy_occupancy(b); }); }
-	Tiles camp_tiles() { return sdk_mask([&](Bitboard& b) { api.camp_occupancy(b, 0); }); }
+	// (each ~160 + 2.1 x chunks in the bot, beyond the Api's price of the call: 62 vision, 14 + chunks occupancy)
+	Tiles vision() { return extra(100 + 2.1 * chunks()), sdk_mask([&](Bitboard& b) { api.vision(b); }); }
+	Tiles ally_tiles() { return extra(148 + 1.1 * chunks()), sdk_mask([&](Bitboard& b) { api.ally_occupancy(b); }); }
+	Tiles enemy_tiles() { return extra(148 + 1.1 * chunks()), sdk_mask([&](Bitboard& b) { api.enemy_occupancy(b); }); }
+	Tiles camp_tiles() { return extra(148 + 1.1 * chunks()), sdk_mask([&](Bitboard& b) { api.camp_occupancy(b, 0); }); }
 	double width() const { return m.W; }
 	double height() const { return m.H; }
 
@@ -418,7 +439,7 @@ public:
 		extra(80 + 1.0 * chunks());
 		return s.b ? s.b->count(m.H) : 0;
 	}
-	bool contains(const Tiles& s, Tile t) { return extra(120), s.b && in_bounds(t) && s.b->test(t.v()); }
+	bool contains(const Tiles& s, Tile t) { return extra(52), s.b && in_bounds(t) && s.b->test(t.v()); }
 	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 0); }
 	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(224 + 3.1 * chunks()), combine(a, b, 1); }
 	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(225 + 4.0 * chunks()), combine(a, b, 2); }
@@ -441,7 +462,7 @@ public:
 		for (std::uint32_t i = 0; i < n; ++i) out[count[buf[i].y]++] = Tile{ buf[i].x, buf[i].y };
 #else
 		s.b->for_each(m.H, [&](int x, int y) { out.push_back({ x, y }); });
-		const_cast<Ctx*>(this)->extra(970 + 1.0 * chunks() + 81.0 * out.size());
+		extra(970 + 1.0 * chunks() + 81.0 * out.size());
 #endif
 		return out;
 	}
@@ -455,11 +476,12 @@ public:
 		blocked |= m.altars;
 		blocked |= m.spawn_mask[1 - api.team()];
 		blocked.andnot(*goals.b);
+		extra(527 + 8.1 * chunks()); // the wrapper in the bot: blocked set (5 board ops), buffers
 		return run_field(blocked, *goals.b, nullptr);
 	}
 	// Walking distance field to `goals` over every tile not in `walls` (goal tiles always allowed). The
-	// search stops after the first distance layer that reaches a tile of `stop` (empty: the whole map);
-	// tiles beyond it read as unreachable.
+	// search stops after the distance layer by which every reachable tile of `stop` has been reached
+	// (the host's ComputeTo; empty `stop`: the whole map); tiles beyond it read as unreachable.
 	Field field_avoid(const Tiles& goals, const Tiles& walls, const Tiles& stop)
 	{
 		if (!goals.b || !goals.b->any(m.H)) return empty_field();
@@ -467,6 +489,7 @@ public:
 		if (walls.b) blocked = *walls.b;
 		blocked.andnot(*goals.b);
 		const bool stops = stop.b && stop.b->any(m.H);
+		extra(528 + 7.1 * chunks()); // the wrapper in the bot
 		return run_field(blocked, *goals.b, stops ? stop.b.get() : nullptr);
 	}
 	// A full-map field the genome can read anywhere. Simulator: the Api's search, row-major. Bot: the
@@ -479,20 +502,26 @@ public:
 		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[kBotFieldWords]); // uninitialised: the host writes all of it
 		Bitboard visited;
 		std::uint16_t c = 0;
+		FIELD_PROF_BEGIN;
 		if (dests) cambc::detail::sdk_DistanceField_ComputeToWithExpansionCount(blocked.w, roots.w, dests->w, visited.w, d.get(), cbs::kUnreachable, &c);
 		else cambc::detail::sdk_DistanceField_ComputeWithExpansionCount(blocked.w, roots.w, visited.w, d.get(), cbs::kUnreachable, &c);
+		FIELD_PROF_END(c, dests != nullptr);
 		return { d };
 #else
 		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
 		std::fill(d.get(), d.get() + static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
 		Bitboard visited;
-		api.distance_field(blocked, roots, dests, cbs::kUnreachable, d.get(), visited);
-		extra(field_price(dests != nullptr));
+		FIELD_PROF_BEGIN;
+		// the bot runs the host search directly (no memo), so it is priced here on its own expansions
+		const int n = cbs::distance_field(blocked, roots, dests, m.W, m.H, cbs::kUnreachable, d.get(), visited, true);
+		extra(field_price(n, dests != nullptr));
+		FIELD_PROF_END(n, dests != nullptr);
 		return { d };
 #endif
 	}
 	Field empty_field() { return {}; }
-	double field_price(bool stopped) const { return stopped ? 97 * chunks() - 320 : 97 * chunks() - 320; } // re-fit (see FUEL.md)
+	// the host search, exact (9 + 16 x chunks + expansions x chunks; + 2 with a stop set), plus the wrapper's own work
+	double field_price(int expansions, bool stopped) const { return 9 + (stopped ? 2 : 0) + (16.0 + expansions) * chunks(); }
 	// Nearest tile of `cand` from `from` by walking over tiles not in `walls` (ties: row-major); invalid if none.
 	Tile walk_nearest(const Tiles& cand, Tile from, const Tiles& walls)
 	{
@@ -623,8 +652,18 @@ public:
 		list_options(out);
 		extra(190.0 * out.size()); // listing work per option in the bot (copies, checks), fitted on farmer/starter games
 	}
+#ifdef GENOME_PROF
+	// listing fuel by section (bot: real fuel), summed over a turn's passes: start, shop, move, attack, cast, ward, recall, tribute
+	std::int64_t lp_[8] = {}, lp_t_ = 0;
+#define LMARK(i) (lp_[i] += lp_t_ - api.fuel_remaining(), lp_t_ = api.fuel_remaining())
+#else
+#define LMARK(i) ((void)0)
+#endif
 	void list_options(std::vector<Option>& out)
 	{
+#ifdef GENOME_PROF
+		lp_t_ = api.fuel_remaining();
+#endif
 		out.clear();
 		opt_units_.clear();
 		if (api.champ() < 0)
@@ -650,6 +689,7 @@ public:
 			return;
 		}
 		if (alive_now && (st & cbs::state_bit::teleporting)) return;
+		LMARK(0);
 		if ((want(BUY) || want(BUY_LOCK)) && can_shop())
 		{
 			const double g = gold();
@@ -672,6 +712,7 @@ public:
 				out.push_back(o);
 			}
 		}
+		LMARK(1);
 		if (!alive_now) return;
 		const Tile p = self_u.pos;
 		if ((st & cbs::state_bit::can_move) && want(MOVE))
@@ -687,6 +728,7 @@ public:
 					out.push_back(o);
 				}
 		}
+		LMARK(2);
 		if ((st & cbs::state_bit::can_attack) && want(ATTACK))
 		{
 			for (const Unit& u : enemies())
@@ -694,6 +736,7 @@ public:
 			for (const Unit& u : camps())
 				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
 		}
+		LMARK(3);
 		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
 			{
@@ -732,6 +775,7 @@ public:
 						}
 				}
 			}
+		LMARK(4);
 		{
 			cbs::WardResources wr{};
 			api.champion_wards(self(), &wr);
@@ -749,12 +793,14 @@ public:
 					}
 			}
 		}
+		LMARK(5);
 		if (!(tclass(p.v()) & kMySpawn) && want(RECALL))
 		{
 			Option o;
 			o.kind = RECALL;
 			out.push_back(o);
 		}
+		LMARK(6);
 		const bool lock = has_lock();
 		const double g = gems();
 		if ((g > 0 && want(TRIBUTE)) || (lock && want(LOCK)))
@@ -777,6 +823,7 @@ public:
 				}
 			}
 		}
+		LMARK(7);
 	}
 
 	// Do one option; false if the engine refused it (it is then skipped for the rest of the turn).
@@ -970,6 +1017,15 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #endif
 	// GENOME_FUEL=N: passes and turns that spent more than N fuel (simulator diagnostics, @@FP / @@F lines on stderr)
 	static const long fuel_trace = std::getenv("GENOME_FUEL") ? std::atol(std::getenv("GENOME_FUEL")) : -1;
+#ifndef GENOME_TRACE_ON
+#define GENOME_TRACE_ON 0 // 1: trace in the bot too (no environment there)
+#endif
+#ifdef GENOME_BOT
+#define GENOME_TRACE_OUT stdout // the replay keeps the bot's stdout
+#else
+#define GENOME_TRACE_OUT stderr
+#endif
+	static const bool trace = GENOME_TRACE_ON || std::getenv("GENOME_TRACE");
 	X.new_pass();
 	if (!draft) g.run_update();
 	int acted = 0;
@@ -1001,8 +1057,8 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 		if (!best || (!draft && bs <= 0)) break;
 		const bool ok = X.execute(*best);
 		PROF_MARK(f_exec);
-		if (std::getenv("GENOME_TRACE"))
-			std::fprintf(stderr, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %zu camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
+		if (trace)
+			std::fprintf(GENOME_TRACE_OUT, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %zu camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
 						 static_cast<int>(X.round()), X.api.team(), X.api.champ(), X.me().pos.x, X.me().pos.y, best->kind, bs, best->tile.x,
 						 best->tile.y, best->ukind, best->uh, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me().state, X.me().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist(X.me().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
 		if (ok) ++acted;
@@ -1016,11 +1072,22 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) % 500 == 0)
 		for (const auto& gs : gene_stats)
 			if (gs.name) std::printf("@@GENE r%d %s calls %lld fuel %lld per %.0f\n", static_cast<int>(X.round()), gs.name, gs.calls, gs.fuel, gs.calls ? double(gs.fuel) / gs.calls : 0.0);
+	// the field records, a few per turn from round 600 (a long print can be suspended and lost)
+	static int field_printed = 0;
+	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) >= 600)
+		for (int i = 0; i < 4 && field_printed < n_field_recs; ++i, ++field_printed)
+			std::printf("@@FIELD %d stop %d fuel %lld chunks %.0f\n", field_recs[field_printed].expansions, field_recs[field_printed].stopped,
+						field_recs[field_printed].fuel, X.chunks());
 	if (!draft && (GENOME_PROF_EVERY <= 1 || static_cast<int>(X.round()) % GENOME_PROF_EVERY == 1))
 		std::printf("@@P t%d r%d c%d passes %d opts %d options %lld score %lld exec %lld left %lld ops %lld turn %lld\n", X.api.team(), static_cast<int>(X.round()),
 					X.api.champ(), npass, nopts, static_cast<long long>(f_opt), static_cast<long long>(f_score),
 					static_cast<long long>(f_exec), static_cast<long long>(X.api.fuel_remaining()), X.ops - ops0,
 					static_cast<long long>(start - X.api.fuel_remaining()));
+	if (!draft && (GENOME_PROF_EVERY <= 1 || static_cast<int>(X.round()) % GENOME_PROF_EVERY == 1))
+		std::printf("@@L t%d r%d c%d start %lld shop %lld move %lld attack %lld cast %lld ward %lld recall %lld tribute %lld\n", X.api.team(),
+					static_cast<int>(X.round()), X.api.champ(), (long long)X.lp_[0], (long long)X.lp_[1], (long long)X.lp_[2], (long long)X.lp_[3],
+					(long long)X.lp_[4], (long long)X.lp_[5], (long long)X.lp_[6], (long long)X.lp_[7]);
+	for (auto& v : X.lp_) v = 0;
 #endif
 	if (fuel_trace >= 0 && X.api.spent > fuel_trace)
 		std::fprintf(stderr, "@@F r%d t%d c%d spent %lld acted %d draft %d\n", static_cast<int>(X.round()), X.api.team(), X.api.champ(),
