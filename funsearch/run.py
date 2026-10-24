@@ -104,7 +104,15 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     db = Database(out / "programs.jsonl", islands=args.islands, temperature=temperature, reset_every=reset_every)
     db.novelty_lambda = args.novelty_lambda if args.explore else 0.0
-    db.load()
+    refreshed = None
+    if args.explore and (out / "programs.jsonl").exists():
+        # novelty counts on one footing: re-measure children logged vs builtin:idle (cached per run)
+        from .evaluate import refresh_exec_blocks
+        rows = [json.loads(l) for l in open(out / "programs.jsonl") if l.strip()]
+        t = time.time()
+        refreshed = refresh_exec_blocks(rows, out / "exec_blocks_v2.json")
+        print(f"exec_blocks vs starter for {len(refreshed)} programs ({time.time() - t:.0f}s)", flush=True)
+    db.load(refreshed)
     opponents = tuple(args.opponents.split(","))
 
     def fingerprint(per_opponent):
@@ -166,6 +174,7 @@ def main():
                 blocks = executed_blocks(seed_text)
                 if blocks is not None:
                     r.per_opponent["exec_blocks"] = sorted(blocks)
+                    r.per_opponent["exec_opp"] = "starter"
             islands = range(k, args.islands, len(seeds[: args.islands]))
             db.seed(seed_text, r.score, r.per_opponent, islands=islands)
             confirmed[r.per_opponent["screen_fp"]] = db.all[-1]
@@ -189,6 +198,7 @@ def main():
                     blocks = executed_blocks(seed_text)
                     if blocks is not None:
                         r.per_opponent["exec_blocks"] = sorted(blocks)
+                    r.per_opponent["exec_opp"] = "starter"
                 db.seed(seed_text, r.score, r.per_opponent, islands=[i])
                 print(f"re-seeded island {i} with {Path(path).stem} (score {r.score:.3f})")
     have = {p.text for p in db.all}
@@ -333,6 +343,7 @@ def main():
                 blocks = executed_blocks(text)
                 if blocks is not None:
                     r.per_opponent["exec_blocks"] = sorted(blocks)
+                    r.per_opponent["exec_opp"] = "starter"
         p = Program(0, island, text, r.score, [p.id for p in parents], model, r.error, r.per_opponent)
         pid = db.add(p)
         if r.ok and r.per_opponent.get("confirmed") and "same_play_as" not in r.per_opponent:

@@ -15,7 +15,7 @@ from collections import defaultdict
 from policygen.blocks import REGISTRY
 
 from .database import cell_of, draft_core
-from .evaluate import ROOT, executed_blocks
+from .evaluate import ROOT, refresh_exec_blocks
 
 NAMES = {b.name for b in REGISTRY if not b.infix}
 # recently added blocks whose uptake we track (gap sensors, capture metric, ability/unit info)
@@ -30,22 +30,10 @@ def blocks_used(text):
 
 
 def exec_blocks_of(run, rows, valid):
-    """Executed blocks per valid program: from metrics when the run logged them, else computed now
-    (vs builtin:starter) and cached in runs/<run>/exec_blocks_v2.json."""
-    cache_path = ROOT / "runs" / run / "exec_blocks_v2.json"  # v2: vs starter, not idle
-    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
-    out = {}
-    for r in valid:
-        if "exec_blocks" in r["metrics"]:
-            out[r["id"]] = set(r["metrics"]["exec_blocks"])
-            continue
-        key = str(r["id"])
-        if key not in cache:
-            b = executed_blocks(r["text"])
-            cache[key] = sorted(b) if b is not None else []
-        out[r["id"]] = set(cache[key])
-    cache_path.write_text(json.dumps(cache))
-    return out
+    """Executed blocks (vs builtin:starter) per valid program: from metrics when measured vs starter, else
+    from (or computed into) runs/<run>/exec_blocks_v2.json, the cache funsearch.run also uses."""
+    got = refresh_exec_blocks(valid, ROOT / "runs" / run / "exec_blocks_v2.json")
+    return {k: set(v) for k, v in got.items()}
 
 
 def report(run, step=25):

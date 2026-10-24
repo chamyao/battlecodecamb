@@ -75,11 +75,14 @@ class Database:
         self.rare_archive = {}
 
     # ---- persistence ----
-    def load(self):
+    def load(self, exec_blocks=None):
+        """exec_blocks: optional {id: executed blocks} replacing the logged metrics.exec_blocks (in memory)."""
         try:
             with open(self.path) as f:
                 for line in f:
                     p = Program(**json.loads(line))
+                    if exec_blocks and p.id in exec_blocks:
+                        p.metrics = dict(p.metrics, exec_blocks=exec_blocks[p.id], exec_opp="starter")
                     self._insert(p, log=False)
         except FileNotFoundError:
             pass

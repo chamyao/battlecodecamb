@@ -96,6 +96,35 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         Path(pol).unlink(missing_ok=True)
 
 
+EXEC_OPP = "starter"  # opponent of executed_blocks; logged as metrics.exec_opp
+
+
+def refresh_exec_blocks(rows, cache_path, threads=8):
+    """Executed blocks vs builtin:starter for every valid row, {id: sorted names}: from metrics when measured
+    vs starter (metrics.exec_opp), else from the cache file, else computed now (in parallel) and cached. Rows
+    are programs.jsonl dicts. Rows measured vs builtin:idle (before exec_opp) are recomputed."""
+    from concurrent.futures import ThreadPoolExecutor
+    cache_path = Path(cache_path)
+    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    out, todo = {}, []
+    for r in rows:
+        if r.get("error") is not None or r.get("score") is None or r["score"] == float("-inf"):
+            continue
+        m = r.get("metrics") or {}
+        if m.get("exec_opp") == EXEC_OPP and "exec_blocks" in m:
+            out[r["id"]] = m["exec_blocks"]
+        elif str(r["id"]) in cache:
+            out[r["id"]] = cache[str(r["id"])]
+        else:
+            todo.append(r)
+    if todo:
+        with ThreadPoolExecutor(threads) as ex:
+            for r, b in zip(todo, ex.map(lambda r: executed_blocks(r["text"]), todo)):
+                cache[str(r["id"])] = out[r["id"]] = sorted(b) if b is not None else []
+        cache_path.write_text(json.dumps(cache))
+    return out
+
+
 def executed_blocks(text, games=4, seed=0, timeout=120):
     """Blocks a policy actually executes (interp_eval --block-hits) in a few games against builtin:starter,
     which runs no blocks, so every hit is the policy's (builtin:idle never comes into view, so blocks that need a
