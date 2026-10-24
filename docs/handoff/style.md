@@ -27,8 +27,12 @@ principle: compute is part of the action space; fuel is a rule, not a constraint
   token needed): run 5 style8-gsub2 ($1.00, --strict-floor, ref 1784c8d = engine 2e1ff7e) and run 6
   style8-b2 (league resumed from the overlay, $0.95 total). Logs/files: GET /runs/<id>/log,
   /runs/<id>/files/runs/... Style cap $13.85 (final; runs/SPEND.md).
-- Candidate: policies/candidates/style-gsub2-11k.policy (v21 + fuel-gated rich-group camp choice;
-  52.7% vs live over 1600 random games on ca8f85b, +36 submitted/game); in main3r.
+- **Candidate 7 (cleared the upload bar, 19:06 UTC): policies/candidates/style-gsub2-11k33.policy** = v21 +
+  fuel-gated rich-group camp choice (gsub2 #11, hand fuel fix -> 11k) + any bag tributes at an adjacent altar
+  (gsub2 #33). main3r 1707.9 vs live 1677.1 (+31, 90% +10..+49 by my bootstrap; lead +15..+51); cambc
+  safety passed (bot session); upload awaits Cham. Backup style-gsub2-11k27 (+27, 90% +8..+45; no cambc yet).
+  11k alone +12.6 (-5.8..+32): not clear. Fuel lesson: a second closest() (~28k) needs > 72000 left; 60000
+  caps, 80000+ never fires; a Chebyshev pick without the walking search walks into unreachable camps.
 
 ## Goal
 
