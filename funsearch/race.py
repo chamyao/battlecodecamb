@@ -17,7 +17,7 @@ from policygen.text import parse
 ROOT = Path(__file__).resolve().parent.parent
 EVAL_BIN = ROOT / "interp" / "build" / "interp_eval"
 MAPS = sorted(str(p) for p in (ROOT / "maps").glob("*.map26a"))
-GAUNTLET = ("v4", "locker", "fs-2", "starter", "v5d-fs2", "v7", "v7-zerogem", "v7zg-cast", "opp-icecream", "opp-odyssey")
+GAUNTLET = ("v4", "locker", "fs-2", "starter", "v5d-fs2", "v7", "v7-zerogem", "v7zg-cast", "opp-icecream", "opp-odyssey", "opp-metab")
 
 
 def compile_text(text):
