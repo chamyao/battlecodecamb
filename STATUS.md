@@ -5,18 +5,15 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-24 21:59 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 4.90 4.29 4.73 on 16 threads.
+Updated 2026-10-24 22:05 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 7.58 6.89 5.77 on 16 threads.
 Disk: 7.3G used of 38G.
 
 ## python3 processes
 ```
-322754 python3 -m genome.search.baseline --out /root/bc/genome/out/panel-A3-db2/panel.jsonl --state /root/bc/genome/out/panel-A3-db2/../arenaA-3/arena --all --threads 5 --tag panel-A3-db@648bafd --anchors policies/candidates/style-gconv1.policy,policies/candidates/tune-v20-L1.policy,policies/candida
+325213 python3 -m genome.search.lineage --out /root/bc/genome/out/lineage-A/lineage.jsonl --state /root/bc/genome/out/lineage-A/../arenaA-3/arena --threads 5 --ancestors A1,A3,A7,A8,A20,A67,A107,A129,A137,A141,A161,A177,A196,A259,A263,A314,A324,A335,A341,A352,A494,A509,A514,A543,A548,A615,A622,A637,
 ```
 ## tick.log (last 40 lines)
 ```
-[21:28:28] genome: job panel-A3 exited rc=0
-[21:28:28] genome: job promptbench-2 exited rc=0
-warning: adding embedded git repository: simspeed-exact-1/suite/base
 hint: You've added another git repository inside your current repository.
 hint: Clones of the outer repository will not contain the contents of
 hint: the embedded repository and will not know how to obtain it.
@@ -54,4 +51,7 @@ fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/b
 [21:59:53] genome: started job lineage-A at f0e6ce0c575a2d10147ba7bef48334a98c78bd53
 fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
 [21:59:55] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[22:04:57] genome: job panel-A3-db2 exited rc=0
+fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
+[22:04:59] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
