@@ -32,6 +32,8 @@ Ranked for B318 (genes are B318's, same IDs as the seed):
    - On 00contest the only gems are in two monoliths (`docs/ZERO_GEM_MAPS.md`). B318's `r15` r_mono waits for round 1000, 3+ allies alive and team gems under 100.
    - Genes: `r15` r_mono, `m11` camp_goal / CAMP_BASE (excludes monolith and golem groups).
    - Sim: B318 on 00contest makes 100 to 200.
+   - Tried: `rejected/b318-zerogem` (early r_mono) changes nothing on 00contest. In the sim, B318's champions sit near the
+     spawn trading casts with enemies (395 moves in 2,000 rounds), so the cause is a spawn duel, not the monolith gate.
 4. **Monolith deaths**
    - Evidence: 2.6 ± 1.0 per game on monolith maps (great_wall 17, boss_battle 11, contest 5, shortcut 4). A cause in 12% ± 6 of losses; it was 6% with v22.
    - Genes: `s14` / `r14` (B318: never wake a sleeping monolith, but a hit on another camp of its group still wakes it), `r13`, `a0`.

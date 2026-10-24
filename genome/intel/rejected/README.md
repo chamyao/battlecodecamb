@@ -26,3 +26,12 @@ Gems per capture rise to 21.4, but captures fall from 83 to 32 and camp deaths r
 variants (2x and 4x distance weight plus static camp strength) score 0.325 and 0.350 vs commit-mono. A sticky
 nearest-gem rate scores 0.400, so the stickiness itself hurts. The stateless nearest-gem-group rule
 (directed/gem-groups-cm) wins instead: 0.600.
+
+## b318-zerogem (GAPS v2 #3, on B318; seeds 96002 head to head, 97001 vs L1c, 97002 vs gconv1)
+
+r15 r_mono also fires after round 150 when no gem-paying group exists outside monolith/golem groups.
+Result: 0.487 vs B318; vs L1c 0.595 (B318 0.608); vs gconv1 0.657 (B318 0.672). On 00contest nothing
+changes (0 to 0). The trace shows why: team A makes only 395 moves in 2,000 rounds. Its champions stay
+near the spawn trading casts with enemy champions, and the monolith rule never gets to act. That looks like
+docs/ZERO_GEM_MAPS.md's 00reverse-spiral spawn duel more than the monolith gate. Next to check: `r2` r_heal,
+`a3`/`a5` cast-ahead and `r7` near our own spawn on 00contest.
