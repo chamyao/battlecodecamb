@@ -55,16 +55,38 @@ follows the host's ComputeTo: the search runs until *every* reachable stop tile 
 to stop at the first one in the simulator, so a genome with a stop set of several tiles played
 differently in the bot; one stop tile, as v23 uses, is unaffected).
 
-Whole games, genome vs starter (`tools/real_fuel.sh` for cambc), mean fuel per turn real/sim:
+Whole games, genome as team A vs starter (`tools/game_fuel.sh GENOME MAP`: cambc with the plain bot
+and the simulator, same map), mean fuel per champion turn real / sim, and turns at the 100k cap
+real / sim (the 4-6 first turns over 100k, on their 200k budget, count too). Oct 24, after the
+listing rewrite and the re-fit:
 
 | genome | 00ambush | 01big-world | 00lanes | 00rows |
 | --- | --- | --- | --- | --- |
-| starter | 34.3k / 38.2k | 36.5k / 40.9k | 36.0k / 36.4k | 27.0k / 24.6k |
-| farmer | 41.9k / 43.6k | 42.7k / 39.6k | 30.0k / 29.6k | 29.3k / 27.4k |
+| starter | 28.8k / 25.5k (0.89); cap 6 / 10 | 23.4k / 24.1k (1.03); 16 / 23 | 28.9k / 28.7k (0.99); 21 / 30 | 16.8k / 15.9k (0.95); 13 / 11 |
+| farmer | 25.7k / 26.8k (1.04); 7 / 7 | 23.8k / 24.6k (1.04); 7 / 7 | 20.1k / 20.8k (1.03); 2 / 2 | 15.9k / 16.3k (1.03); 0 / 0 |
+| fartest | 58.8k / 57.2k (0.97); 6 / 6 | 89.8k / 87.8k (0.98); 6 / 6 | 30.8k / 29.3k (0.95); 0 / 0 | 29.3k / 27.7k (0.95); 0 / 0 |
+| seeds/v23 | 59.8k / 60.9k (1.02); 1425 / 1228 | 61.2k / 59.5k (0.97); 1252 / 843 | 51.7k / 51.3k (0.99); 382 / 279 | 54.6k / 52.9k (0.97); 216 / 188 |
 
-Ratios 0.89-1.10; turns at the 100k cap are of the same order (the sim slightly more). Re-run the
-calibration whenever `runtime/genome_rt.h` or `bot/bot_api.cpp` changes, and check new primitives
-with a probe before relying on them.
+(Before: real starter 34-36k per turn, the sim 0.78-1.21x; the listing rewrite cut real starter
+fuel by ~20-35%.) v23 runs near the budget, so its capped turns are sensitive: the sim's quartiles
+are within ~4% of real, but it still caps 70-90% as often as the bot (its heavy genes over tile
+sets, e.g. `group_threat`, `dash_path_ok`, `first_tile`, `altar_eta`, profile 0.66-0.74x real;
+`closest`, the memoised nearest-by-walk, 0.88x).
+
+**Exactness** (v23 genome as team A vs the interpreted v23, `policies/candidates/style-gconv1.policy`
+through `bot/sync.sh`, against `genome_eval --bot-seeds`): with 1e8 fuel per turn (cambc
+`--fuel 100000000`, `--fuel-mult 1000`; no suspensions) the four games match exactly (winner,
+gems, end round, kills, deaths: 00ambush 857-1020 r1445, 01big-world 878-1020 r1443, 00lanes
+1007-914 r989, 00rows 1024-939 r1741). At the normal budget the winner matches on all four; the
+games drift with the genome's suspensions (it caps 200-1000 turns, the interpreted bot 3-5):
+gems real / sim 577-1009 / 722-1011, 872-1001 / 757-1040, 920-1016 / 928-1003, 1017-939 / 1012-939.
+
+Re-run the calibration whenever `runtime/genome_rt.h`, `lang.py`'s codegen or `bot/bot_api.cpp`
+changes, and check new primitives with a probe before relying on them. Tools: `tools/prof_pair.sh`
+(a GENOME_PROF build in cambc and the simulator; `BIG_FUEL=1` for clean profiles without
+suspensions), `tools/calib_compare.py`, `tools/game_fuel.sh`. In a profiled bot each gene call
+costs ~80 fuel of profiler overhead in its caller (~18 in the simulator): compare self fuel after
+subtracting it, and only for genes that are not cheap.
 
 ## Listing the options (task 3, Oct 24)
 
