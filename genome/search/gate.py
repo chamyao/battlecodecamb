@@ -167,6 +167,8 @@ def main():
         finished = 0
         git("fetch", "-q", "origin", "jobs/genome")
         for chain in args.arena:
+            if chain.startswith("jobs:"):  # same as <prefix>* (for callers that refuse '*' in arguments)
+                chain = chain[5:] + "*"
             if chain.startswith("api:"):  # an arena-service run: api:<run id>:<dir under the worktree>[=<key name>]
                 spec, _, keyname = chain[4:].partition("=")
                 run_id, _, rdir = spec.partition(":")
