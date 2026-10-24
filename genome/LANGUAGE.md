@@ -15,10 +15,12 @@ def danger_at(t: Tile) -> Num:
     return sum(u.strength * u.health_frac for u in enemies() if dist(u.pos, t) <= 5)
 ```
 
-- Entry genes: `score(o: Option) -> Num` (required): the value of doing option `o` now; the fixed loop does the best option while its score is > 0 (the draft always picks). `update() -> None` (optional): runs at the start of each turn; the only gene that may assign keeps or call `write_shared` / `set_priority`.
+- Entry genes: `score(o: Option) -> Num` (required): the value of doing option `o` now; the fixed loop does the best option while its score is > 0 (the draft always picks). `update() -> None` (optional): runs at the start of each turn; the only gene that may assign keeps or call `write_shared` / `set_priority`. `consider(kind: Num) -> Bool` (optional): option kinds it rejects are neither listed nor scored this pass. `reserve() -> Num` (optional, default 15000): read once per turn after `update()`; the loop starts no pass after the first with less fuel left than this (a turn that runs out of fuel is suspended and the next turn is lost).
 - `after() -> None` (optional entry gene): runs at the end of each turn, after the loop's actions, with fresh observations. Like `update()`, it may assign keeps and call `write_shared` / `set_priority`. `acted(kind)` and `acted_tile(kind)` tell it what the loop did this turn (e.g. announce the camp it attacked, so allies acting later in the round see it). Shared bytes written in one gene and read in another are dependency edges, as calls are.
 - Keeps: `Num`, `Bool`, `Tile`, `Tiles`, `Field`. Use a Tiles/Field keep set in `update()` to compute an expensive set or distance field once per turn instead of once per pass (zero-argument genes are recomputed every pass of the loop).
 - Every gene has `@gene(id, description, parents=[...])`. IDs survive inheritance; a duplicated gene gets a new ID.
+  IDs and parent IDs are 1-64 of `A-Z a-z 0-9 _ . -`; a description is one plain line (no control, format or
+  line-separator characters, no backslash), since both are emitted into C++ `//` comments.
 - Statements: assignment (function-scoped locals, type fixed at first assignment), `+= -= *= /=`, `if/elif/else`, `for x in S` (S: Units, Tiles or `range(n)`), `return`.
 - Expressions: arithmetic on Num (`/` by 0 gives 0), comparisons, `and/or/not`, `a if c else b`, `t in S` (Tile in Tiles), Tiles `| & -`, fields (`u.pos`), calls to genes and primitives.
 - Reductions: `sum(e for x in S if c)`, `count(c for x in S)`, `any(...)`, `all(...)`, `max((e for x in S), default=d)` (Python needs the generator in parentheses next to `default=`), `min(...)`, `max(a, b)`, `min(a, b)`; `best(S, lambda x: score)` returns the element with the highest score (an invalid Unit/Tile if S is empty: test with `exists(u)` / `valid(t)`).
@@ -96,6 +98,7 @@ def danger_at(t: Tile) -> Num:
 | `exists(Unit)` | Bool |
 | `field(Tiles)` | Field |
 | `field_avoid(Tiles, Tiles, Tiles)` | Field |
+| `box_field(Tiles, Tiles)` | Field |
 | `at(Field, Tile)` | Num |
 | `walk_nearest(Tiles, Tile, Tiles)` | Tile |
 | `slot_kind(Num)` | Num |
@@ -132,6 +135,7 @@ Option kinds: PICK (o.champ), MOVE (o.tile), ATTACK (o.unit), CAST (o.slot + o.u
 Notes on the newer primitives (SDK reads and generic operations only):
 - `vision()`, `ally_tiles()`, `enemy_tiles()`, `camp_tiles()`: the SDK's vision and occupancy masks (one engine call each). `ally_tiles()` includes me.
 - `field_avoid(goals, walls, stop)`: the engine distance field to `goals` over tiles not in `walls`; the search ends after the layer by which every reachable `stop` tile has been reached (the host's ComputeTo; one stop tile: the first layer that reaches it; empty `stop`: whole map), farther tiles read unreachable (1e9).
+- `box_field(goals, walls)`: the walking field to `goals` over tiles not in `walls`, through the engine field memo the policy bot's walking uses (cheap on later turns while the goals stay the same); readable only on my 3 x 3 box and up to my own distance (enough to choose a step), unreachable (1e9) everywhere else.
 - `walk_nearest(cand, from, walls)`: the engine's nearest-by-walk (ties row-major); invalid if none is reachable.
 - `type_spawns(k)`, `spawn_type(t)`, `spawn_group(t)`, `camp_spawn(u)`, `camp_base_*(k)`: static map and camp design data (-1 off a spawn tile).
 - `is_awake(u)`: camp life state; `group_reward(g)`: the group is cleared and waiting for capture.

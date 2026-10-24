@@ -88,6 +88,53 @@ suspensions), `tools/calib_compare.py`, `tools/game_fuel.sh`. In a profiled bot 
 costs ~80 fuel of profiler overhead in its caller (~18 in the simulator): compare self fuel after
 subtracting it, and only for genes that are not cheap.
 
+## First turn, the pass guard, cap-tail check (Oct 24, evening)
+
+**First turn.** Profiled with `@@T1` checkpoints (main start, map built, Api ready, genes made, then
+per phase of the first play_turn, printed on turn 2 with per-gene turn-1 totals) at 1e8 fuel. On
+01big-world the frozen seed (genome/seed f739709) spent 367k on its first turn: ~51k of bot
+start-up (11k before main, 32k map, 5k game and Api), ~200k in update() (its turn-1 caches) and
+~115k in its passes. Runtime cuts:
+- the terrain class table is built per map row on first use from the chunk words (a 256-entry
+  spread table: ~1.6k per 100-tile row) instead of all W x H tiles at once (51k);
+- spawn_type / spawn_group: a small open-addressing table keyed by tile index (~8.5k to build, ~115
+  per lookup) instead of a W x H int table (~30k to fill);
+- iterating a tile set of up to 32 tiles: an insertion sort instead of the counting sort's pass over
+  every row (~2.5k -> ~0.8k for a camp group).
+The seed's first turn on 01big-world: 367k -> 255k at 1e8 fuel. In real games against the
+interpreted v23, its first-turn maximum on the 11 maps that capped at 200k on all five champions is
+now 156k-198.6k on 9 of them. 01islands and 01yellow-brick-road still reach 200k: most of what is
+left is the seed's own update() (mono_groups ~54k, ring ~20k, closest ~23k on 01big-world).
+
+**Pass guard.** Optional entry gene `reserve() -> Num` (default 15000), read once per turn after
+update(): no pass after the first starts with less fuel left than that. The simulator applies it on
+its own meter. Seed, real games vs the interpreted v23, turns >= 100k: 01yellow-brick-road 25 -> 4,
+01starvation 13 -> 6.
+
+**Re-fit on identical games.** With 1e8 fuel per turn on both sides (cambc `--fuel 100000000`,
+`genome_eval --fuel-mult 1000 --bot-seeds`, the genome against the interpreted v23), the bot and the
+simulator play the same game (per-turn correlation 0.99-1.00), so real and sim fuel compare turn by
+turn. `GENOME_TURN_CALLS=1` in a GENOME_PROF simulator prints each turn's gene calls (`@@TC`) for a
+regression of the per-turn gap on them. Changes: static set reads 74, group_tiles 104 (the costs
+taken back out of size / set algebra / nearest / iteration, which had absorbed them), memo hits 73
+(scalar) / 78 (Tiles, Field), 575 + 1074 per later pass, consider() calls, cached me() 8. Mean fuel
+per turn sim / real on identical games: seed 1.02 (01elk-arena) and 0.99 (01starvation), v23 1.12
+/ 1.07, starter 0.94 / 0.98, farmer 1.08 / 1.09, fartest 1.12 / 1.06. No single per-construct
+model fits all five within 5%: their errors are specific to the genome.
+
+**Capped turns, seed vs the interpreted v23, normal budget** (real / sim per game, both sides):
+00swirl 7 / 13, 01yellow-brick-road 4 / 1 and 8 / 4, 01elk-arena 11 / 9 and 6 / 11, 01starvation
+6 / 8, 01islands 1 / 0, 01big-world 0 / 2. In total 43 real vs 48 sim.
+
+**box_field(goals, walls)** (Oct 24): the walking field through the bot's distance-field memo (the
+interpreter's move_towards path, dests = my tile). The bot fills only my 3 x 3 box, so reads are
+valid there and up to my own distance (values above it, or outside the box, read unreachable in both
+bot and simulator, which keeps them exact). A walker using it plays the same games as one using
+field_avoid stopped at my tile (00lanes, 01big-world, bot and simulator identical). Per call, real /
+sim: a far fixed goal 2.0k / 2.2k (00lanes), 3.3k / 3.7k (01big-world), against field_avoid's 3.5k
+and 19.2k; nearby goals (camp spawns) 3.4k / 3.2k and 4.9k / 4.6k, dearer than field_avoid (1.7k,
+4.5k), whose search is short then. Priced as the Api's memo price plus 300 + 6.5 x chunks.
+
 ## Listing the options (task 3, Oct 24)
 
 The bot used to pay ~160-170 fuel per listed option (default-constructing an Option, copying it into

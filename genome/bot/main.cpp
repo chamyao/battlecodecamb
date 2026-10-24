@@ -13,15 +13,24 @@ extern "C" genome::GenesBase* genome_make(genome::Ctx& X);
 int main()
 {
 	using namespace cambc::detail;
+#ifdef GENOME_PROF
+	genome::t1_mark(sdk_fuel_remaining()); // main start
+#endif
 	const int team = sdk_my_team();
 	const int champ = cambc::is_draft() ? -1 : sdk_my_champion();
 	auto mp = cbs::build_map_from_engine();
+#ifdef GENOME_PROF
+	if (champ >= 0) genome::t1_mark(sdk_fuel_remaining()); // map built
+#endif
 	static cbs::Game game(mp);
 	cbs::board_rows = mp->H;
 	static cbs::Api api(game, team, champ);
 	api.count_charges = false;
 	static cbs::Coroutine yielder;
 	api.attach(&yielder);
+#ifdef GENOME_PROF
+	if (champ >= 0) genome::t1_mark(sdk_fuel_remaining()); // game and Api ready
+#endif
 	genome::GenomePlayer player(&genome_make);
 	cbs::BotBody body = player.make_bot(team, champ);
 	for (;;)
