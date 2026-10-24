@@ -155,6 +155,13 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   line's draft vendetta, vesper_vale, tavi, ryth, ren (frontliner first; 233
   orders screened, top 8 confirmed on fresh seeds). Real cambc 49/80 vs v10;
   sim 58.9% on 800 fresh games. Peak fuel ~96k on 01big-world.
+  12 = tune-1 v2 (`deploy/v0` 3c05bbf): + dash never crosses the enemy spawn
+  (cambc rejects it); 42/80 vs tune-1, a correctness fix. 13 = tune-2
+  (`deploy/v0` fd02a8f, sha256 8aece2da...): bag >= 25 and tribute-when-hurt at
+  0.3 (each alone was noise; together +11). Real cambc 45/80 vs tune-1 v2.
+  Hits the 100k cap on 4 of 240 test turns (01big-world as A, long tribute
+  trips); the fix goes in the policy (a fuel_remaining() guard on optional
+  searches, tuned by the tune line), not in the bot.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
