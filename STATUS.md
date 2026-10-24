@@ -1,6 +1,6 @@
 # EC2 runner status
 
-Updated 2026-10-24 12:49 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 13.42 12.77 12.36 on 16 threads.
+Updated 2026-10-24 12:54 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.27 13.52 12.79 on 16 threads.
 Disk: 3.3G used of 38G.
 
 ## python3 processes
@@ -15,7 +15,6 @@ Disk: 3.3G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[09:36:42] style: S5 check: h: UNEXPECTED tune-v19 in league $2.62 left; b: style8-b-g1: +106 programs to the next boundary (44 so far) $2.60 left; before: h 2.65 b 3.06
 [10:23:16] tune: G2: stopped tune-fight pid 35865
 [10:23:16] tune: G2: stopped tune-fight pid 46966
 [10:23:16] tune: G2: tune/fs at de5dc62
@@ -55,4 +54,5 @@ Disk: 3.3G used of 38G.
 [12:48:58] hybrid: H7b: funsearch/runs c4341a3 (has c4341a3: lockfix + fuel recalibration), rebuilt, 2012 passed in 5.87s; relaunching hyb5 (same v21 flags)
 [12:48:58] hybrid: hyb5 not running: relaunching (resume from runs/)
 [12:48:58] hybrid: launched hyb5 league
+[12:54:08] hybrid: H7b check: hyb5-g2: +0 programs to the next boundary (30 so far) best policies/pool/v20.policy $20.13 left
 ```
