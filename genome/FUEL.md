@@ -248,6 +248,47 @@ act, so the game state is the same in the bot and the simulator) differ from the
 the score body; the per-option difference against the idle genome (6 champions per map) isolates one
 construct at a time (`me()`, `dist`, `at`, memo hits, loops over units, 18 compares, arithmetic).
 
+## Shadow-stack frames and `nearest` (Oct 24, late)
+
+A score gene using `nearest(camp_spawns(), me().pos)` only on MOVE options was priced at 0.90-0.94 of
+real. I split it with score variants (they never act; identical games against the interpreted v23 on
+00ambush, 00lanes, 00packs, 01big-world and 00rows) and found two causes.
+
+- **Frames.** A gene whose bot code inlines a primitive with an address-taken local (an out-parameter
+  of an engine call, a Bitboard) gets a wasm shadow-stack frame. Its prologue and epilogue run on
+  every call, ~12 fuel, whether or not the branch with the primitive runs. With `me()` only in a
+  branch that never runs, the bot pays ~1k per turn more than idle, and the sim used to charge 0.2k.
+  The primitives that need a frame were found by compiling each one alone (noinline, the bot's wasi-sdk
+  -O3 flags) and checking for the stack-pointer write: `lang.FRAMED_PRIMS`. In the seed genome every
+  gene predicted framed is framed in its wasm; 18 more are framed through inlined callees and keep
+  their old pricing. Those primitives' prices were fitted in framed genes, so they already include one
+  frame each. The sim now charges the frame (12) only for a framed gene call that ran none of them
+  (`FRAME_GUARD` / `FU_`, simulator only).
+- **`nearest`.** The bot walks every chunk of the set, unordered: +2 per map chunk and +20 base on top of
+  46 + 52 per tile (gap 48 on 16 chunks, 356-363 on 169).
+
+After the fix, real / sim extra over idle:
+- `nearest(camp_spawns(), me().pos)` per MOVE option: 0.99-1.00 on all five maps.
+- `me()` in a branch that never runs: 1.00.
+- `me().pos.x` per MOVE option: 0.86-0.89. The ~130 per turn left over is `me()` itself.
+
+Open: the idle genome against the interpreted v23 is 0.93-0.95 of real (it matches against starter).
+Split per champion (the sim's turn order is the engine's), the gap grows with options listed,
+~13 per option (champions with 30 / 53 / 93 / 110 options: 0.98 / 0.93 / 0.91 / 0.91). The
+per-option price (30) was fitted on seed and v23, so it is not refitted here. To split a real game by champion,
+build the bot with `GENOME_DEFS=GENOME_TURN_ORDER`; the sim's `GENOME_TURN_CALLS=1` lines (`@@TC r c`) give
+the turn order, which is the engine's.
+
+Whole game, the same games against the interpreted v23 (sim old -> new pricing, real/sim):
+- starter: 0.965 -> 0.993, 0.907 -> 0.934, 0.956 -> 0.982 (00ambush, 00lanes, 01big-world).
+- seed: 1.006 -> 1.014, 1.007 -> 1.017, 0.993 -> 1.000.
+- B318: 1.000 -> 1.008, 0.985 -> 0.995, 0.986 -> 0.994.
+- B792: 0.981 -> 0.988, 0.964 -> 0.973, 0.968 -> 0.974.
+- v23: 1.087 -> 1.095, 1.105 -> 1.119, 1.085 -> 1.095.
+Against builtin:starter, 80 games: identical at 100x for all five genomes. At 1x, seed, B318 and B792 are
+identical; starter wins 40 -> 41, v23 79 -> 78, as their suspensions rise with the higher price.
+B792 vs B318 at 1x: 44 -> 44 wins, a few games different.
+
 ## Bot-side costs worth knowing (what the search pays for)
 
 - A single host bitboard bit test or set costs ~120-170 fuel in the bot. The runtime keeps static
