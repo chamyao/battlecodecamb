@@ -116,3 +116,14 @@ Reference: the seed itself scores 0.507 against the original.
 | tune-v20-L1 | 0.588 | 0.537 | +5.1 |
 | rall2-ca4-lean-g | 0.588 | 0.517 | +7.1 |
 | opp-tune5-metadraft | 0.877 | 0.873 | +0.4 |
+
+## Children on commit-mono (the upload candidate; runtime genome/v0 822dbbe; seeds 95001 vs the original, 95002 head to head)
+
+commit-mono itself scores 0.610 vs the original on these games (susp 2.7).
+
+| child | gap | edits on commit-mono | vs original | vs commit-mono | gap metric |
+|---|---|---|---|---|---|
+| `gem-groups-cm` | 3 yield | v2, m11 (i5; gem set at round 3) | 0.610 (susp 2.2) | **0.600** | per capture 10.6 → 14.2, captures 83 → 62 |
+| `firstbank-cm` | 4 first bank | r11 | 0.610 (susp 2.9) | **0.637** | tributes 42.1 → 43.0 |
+| `yield-rr` (rejected) | 3 yield | v2, m11 (i8) | 0.375 | 0.312 | per capture 21.4, captures 32 |
+
