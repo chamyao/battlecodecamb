@@ -91,3 +91,37 @@ v18 (tune-r-all-v2) was submitted at ~07:27 UTC, so only the ranked groups creat
 - The 07:40 group onward is v18: JBG fam 2-3.
 
 The top-team groups above all finished by 07:20:40, so they are all v17.
+
+## v18 (tune-r-all-v2) ranked, first 20 games (groups 07:40-08:10) vs v17 ranked (07:10, 07:20)
+
+The opponents are different and the samples small (v17 10 games, v18 20), so treat the deltas as weak. Tool: `analysis/top_compare.py`.
+
+| per game | v17 | v18 |
+|---|---|---|
+| games, W-L | 10, 7-3 | 20, 10-10 |
+| gems submitted us / them | 831 / 685 | 726 / 773 |
+| deaths us / them | 10.5 / 12.7 | 9.2 / 16.8 |
+| kills us / them | 9.4 / 8.7 | 10.2 / 6.0 |
+| champion damage us / them | 31.1k / 28.6k | 24.8k / 24.5k |
+| gems per capture us / them | 12.1 / 11.7 | 13.9 / 17.3 |
+| captures us / them | 94.2 / 59.8 | 83.2 / 57.5 |
+| tributes us / them | 26.6 / 34.9 | 21.2 / 36.9 |
+| median bag us / them | 30 / 15 | 30 / 15 |
+| gems lost dying us / them | 123 / 41 | 79 / 145 |
+| gold earned us / them | 9.6k / 5.3k | 9.0k / 6.8k |
+| our deaths with 2+ of theirs within 5 | 63% of 87 | 50% of 119 |
+
+| opponent | v17 W-L (gems us-them) | v18 W-L (gems us-them) |
+|---|---|---|
+| JBG fam | 0-0 (0-0) | 2-3 (767-718) |
+| LigaSiur | 0-0 (0-0) | 2-3 (631-819) |
+| Rataturing | 4-1 (861-663) | 0-0 (0-0) |
+| Silent Pathfinders | 0-0 (0-0) | 5-0 (1017-566) |
+| newtern | 0-0 (0-0) | 1-4 (490-989) |
+| octo's odyssey | 3-2 (801-706) | 0-0 (0-0) |
+
+What we can read from it:
+- v18 dies less (9.2 vs 10.5) and is outnumbered in fewer deaths (50% vs 63%). It kills about as often (10.2 vs 9.4).
+- It submits fewer gems (726 vs 831) and tributes less (21 vs 27).
+- The 10-10 record is mostly opponent mix: 5-0 vs Silent Pathfinders, 1-4 vs newtern (490-989).
+- Not every death is to a champion: the "deaths" row includes camp deaths, so it exceeds the opponent's kills.
