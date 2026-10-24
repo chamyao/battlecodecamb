@@ -141,9 +141,16 @@ def main():
             log(f"budget spent (${spent(args.name):.2f})", logfile)
             break
         opponents = [f"builtin:starter@{args.starter_weight}", f"{best}@{args.best_weight}", *older]
-        log(f"{run}: +{args.round} programs, best {best}, league {older}, ${left:.2f} left", logfile)
+        # validate when the generation's database reaches its target size (seed + rounds), so a
+        # resume after a restart doesn't start the round count again
+        if "target" not in state:
+            state["target"] = 1 + args.round
+            state_path.write_text(json.dumps(state))
+        db_file = ROOT / "runs" / run / "programs.jsonl"
+        todo = max(0, state["target"] - (sum(1 for _ in open(db_file)) if db_file.exists() else 0))
+        log(f"{run}: +{todo} programs (to {state['target']}), best {best}, league {older}, ${left:.2f} left", logfile)
         subprocess.run([sys.executable, "-m", "funsearch.run", "--run", run, "--budget", f"{left:.2f}",
-                        "--max-programs", str(args.round), "--seed-policy", best,
+                        "--max-programs", str(todo), "--seed-policy", best,
                         "--opponents", ",".join(opponents), *run_args],
                        cwd=ROOT, stdout=open(ROOT / "runs" / f"{run}.log", "a"), stderr=subprocess.STDOUT)
         if (ROOT / "runs" / run / "STOP").exists():
@@ -173,6 +180,8 @@ def main():
                     promoted = (p, h2h, rates)
         if promoted is None:
             log(f"  no promotion; {run} continues", logfile)
+            state["target"] += args.round
+            state_path.write_text(json.dumps(state))
             continue
 
         p, h2h, rates = promoted
