@@ -360,7 +360,7 @@ class Checker:
             self.locals[var] = et
             body = self.block(st.body, ind + 1)
             del self.locals[var]  # the loop variable does not outlive the loop
-            return [f"{p}{hdr} {{", f"{p}\tF(1);"] + body + [f"{p}}}"]
+            return [f"{p}{hdr} {{", f"{p}\t{_fl(et)}(1);"] + body + [f"{p}}}"]
         if isinstance(st, ast.Expr) and isinstance(st.value, ast.Call):
             t, c, ops = self.expr(st.value, effect_ok=True)
             return [f"{p}F({ops});", f"{p}{c};"]
@@ -587,23 +587,24 @@ class Checker:
     def reduce(self, n, e):
         gen = e.args[0]
         var, hdr, conds, cops = self.comp(gen)
+        et = self.locals[var]
         t, c, o = self.expr(gen.elt)
         del self.locals[var]
         guard = f"if (!({' && '.join(conds)})) continue; " if conds else ""
         per = 1 + cops + o
         if n == "sum":
             self.need(gen.elt, t, "Num")
-            body = f"double acc = 0; {hdr} {{ F({per}); {guard}acc += {c}; }} return acc;"
+            body = f"double acc = 0; {hdr} {{ {_fl(et)}({per}); {guard}acc += {c}; }} return acc;"
             rt = "Num"
         elif n == "count":
             self.need(gen.elt, t, "Bool")
-            body = f"double acc = 0; {hdr} {{ F({per}); {guard}if ({c}) acc += 1; }} return acc;"
+            body = f"double acc = 0; {hdr} {{ {_fl(et)}({per}); {guard}if ({c}) acc += 1; }} return acc;"
             rt = "Num"
         elif n in ("any", "all"):
             self.need(gen.elt, t, "Bool")
             hit = "true" if n == "any" else "false"
             test = c if n == "any" else f"!({c})"
-            body = f"{hdr} {{ F({per}); {guard}if ({test}) return {hit}; }} return {'false' if n == 'any' else 'true'};"
+            body = f"{hdr} {{ {_fl(et)}({per}); {guard}if ({test}) return {hit}; }} return {'false' if n == 'any' else 'true'};"
             rt = "Bool"
         else:
             self.need(gen.elt, t, "Num")
@@ -615,7 +616,7 @@ class Checker:
                 self.need(kw.value, dt, "Num")
                 default = dc
             cmp = ">" if n == "max" else "<"
-            body = (f"bool seen = false; double acc = {default}; {hdr} {{ F({per}); {guard}double v = {c}; "
+            body = (f"bool seen = false; double acc = {default}; {hdr} {{ {_fl(et)}({per}); {guard}double v = {c}; "
                     f"if (!seen || v {cmp} acc) {{ acc = v; seen = true; }} }} return acc;")
             rt = "Num"
         return rt, f"[&]() {{ {body} }}()", 1
@@ -636,7 +637,7 @@ class Checker:
         del self.locals[var]
         self.need(lam.body, t, "Num")
         it = f"const Unit& {var} : {sc}" if et == "Unit" else f"const Tile& {var} : X.tiles_of({sc})"
-        body = (f"{CPP[et]} arg{{}}; bool seen = false; double acc = 0; for ({it}) {{ F({1 + o}); double v = {c}; "
+        body = (f"{CPP[et]} arg{{}}; bool seen = false; double acc = 0; for ({it}) {{ {_fl(et)}({1 + o}); double v = {c}; "
                 f"if (!seen || v > acc) {{ acc = v; arg = {var}; seen = true; }} }} return arg;")
         return et, f"[&]() {{ {body} }}()", so + 1
 
@@ -701,7 +702,9 @@ def to_cpp(genome):
         lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:
             # zero-argument genes are pure within a pass: computed once per pass, cached on this instance
-            lines += [f"\tif (stamp_{n} == X.pass_id) return val_{n};",
+            # a hit copies the value out (~28 fuel in the bot for a scalar, ~65 for a shared set or field)
+            hit = 65 if g.ret in ("Tiles", "Field", "Units") else 28
+            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({hit}); return val_{n}; }}",
                       f"\t{CPP[g.ret]} v = [&]() -> {CPP[g.ret]} {{"]
             lines += ["\t" + l for l in body]
             lines += ["\t}();", f"\tstamp_{n} = X.pass_id; val_{n} = v;", "\treturn v;"]
@@ -711,6 +714,11 @@ def to_cpp(genome):
     lines += ["} // namespace genome_gen", "", "extern \"C\" genome::GenesBase* genome_make(genome::Ctx& X) "
               "{ return new genome_gen::Genes(X); }", ""]
     return "\n".join(lines)
+
+
+def _fl(et):
+    """Loop-iteration charge macro: iterating units costs ~11 more per step in the bot than a range or tiles."""
+    return "FLU" if et == "Unit" else "FL"
 
 
 def _param(name, t):
