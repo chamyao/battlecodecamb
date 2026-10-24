@@ -1,0 +1,735 @@
+// Genome runtime (docs/GENOME.md): the primitives genes call, the legal options of a turn and the fixed
+// loop (list legal options, score each, do the best if its score > 0, look again).
+//
+// Written against cbs::Api, so the same code runs in the simulator (every engine call priced by the
+// Api; genes' own operations charged through F(n)) and, later, in the bot over the real imports.
+// Generated genes (genome/lang.py) include this header and derive from GenesBase.
+#pragma once
+#include <algorithm>
+#include <atomic>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <cstdint>
+#include <memory>
+#include <vector>
+#include "cbs/api.h"
+#include "cbs/runner.h"
+
+#ifndef GENOME_OP_FUEL
+#define GENOME_OP_FUEL 4 // fuel per own operation (placeholder until calibrated against cambc)
+#endif
+#ifdef GENOME_BOT
+#define F(n) ((void)0)
+#else
+#define F(n) X.charge_ops(n)
+#endif
+
+namespace genome
+{
+using cbs::Api;
+using cbs::Bitboard;
+using cbs::Err;
+using cbs::Vec2;
+
+struct Tile
+{
+	int x = -1, y = -1;
+	bool valid() const { return x >= 0; }
+	bool operator==(const Tile&) const = default;
+	Vec2 v() const { return { x, y }; }
+};
+struct Unit
+{
+	int kind = 0; // 0 none, 1 champion, 2 camp
+	std::uint32_t h = 0;
+	bool enemy = false;
+	int type = -1; // ChampionType or CampType
+	Tile pos;
+	float health = 0, max_health = 0, strength = 0, focus = 0;
+	int attack_range = 0;
+	std::uint32_t state = 0;
+	bool valid() const { return kind != 0; }
+	bool operator==(const Unit& o) const { return kind == o.kind && h == o.h; }
+};
+using Units = std::vector<Unit>;
+// Tile sets share an immutable board (1.6 KB) instead of copying it.
+struct Tiles
+{
+	std::shared_ptr<const Bitboard> b;
+};
+struct Field
+{
+	std::shared_ptr<const std::vector<std::uint16_t>> d;
+};
+enum OptionKind
+{
+	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK
+};
+struct Option
+{
+	int kind = 0;
+	Unit unit;
+	Tile tile;
+	int slot = -1, item = -1, champ = -1;
+};
+
+inline double div(double a, double b) { return b == 0 ? 0.0 : a / b; }
+inline double fmod_pos(double a, double b)
+{
+	if (b == 0) return 0.0;
+	const double r = std::fmod(a, b);
+	return r < 0 ? r + std::fabs(b) : r;
+}
+
+inline std::atomic<std::uint64_t>& pass_counter()
+{
+	static std::atomic<std::uint64_t> c{ 1 };
+	return c;
+}
+
+// Per bot instance: the Api, plus observations cached within one pass of the loop.
+class Ctx
+{
+public:
+	explicit Ctx(Api& api) : api(api), m(api.map()) {}
+	Api& api;
+	const cbs::Map& m;
+	std::uint64_t pass_id = 0;
+
+	void charge_ops(long n) { api.compute(n * GENOME_OP_FUEL); }
+
+	void new_pass()
+	{
+		pass_id = pass_counter()++;
+		have_me_ = have_enemies_ = have_allies_ = have_camps_ = have_gems_ = have_gold_ = have_occ_ = have_items_ = false;
+	}
+
+	// ---- self
+	const Unit& me()
+	{
+		if (!have_me_)
+		{
+			self_ = static_cast<std::uint32_t>(api.my_champion());
+			cbs::ChampionInfo ci{};
+			api.champion(self_, &ci);
+			me_ = from_champ(self_, ci);
+			have_me_ = true;
+		}
+		return me_;
+	}
+	std::uint32_t self() { return me(), self_; }
+	bool alive() { return me().state & cbs::state_bit::alive; }
+	double gems()
+	{
+		if (!have_gems_) gems_ = unit_gems(me()), have_gems_ = true;
+		return gems_;
+	}
+	double gold()
+	{
+		if (!have_gold_)
+		{
+			std::uint32_t g = 0;
+			api.champion_gold(self(), &g);
+			gold_ = g, have_gold_ = true;
+		}
+		return gold_;
+	}
+	double round()
+	{
+		std::uint32_t r = 0;
+		api.round_number(&r);
+		return r;
+	}
+	double fuel() { return static_cast<double>(api.fuel_remaining()); }
+	bool can_shop()
+	{
+		std::int32_t v = 0;
+		api.champion_can_shop(self(), false, &v);
+		return v;
+	}
+	double submitted(bool enemy)
+	{
+		std::uint32_t g = 0;
+		api.submitted_gems(static_cast<std::uint32_t>(enemy ? 1 - api.team() : api.team()), &g);
+		return g;
+	}
+
+	// ---- units
+	const Units& enemies()
+	{
+		if (!have_enemies_) champs(true, enemies_), have_enemies_ = true;
+		return enemies_;
+	}
+	const Units& allies()
+	{
+		if (!have_allies_) champs(false, allies_), have_allies_ = true;
+		return allies_;
+	}
+	const Units& camps()
+	{
+		if (!have_camps_)
+		{
+			camps_.clear();
+			std::vector<std::uint32_t> hs;
+			api.visible_camps(hs);
+			for (std::uint32_t h : hs)
+			{
+				cbs::CampRecord cr{};
+				if (api.camp(h, &cr) != Err::success || cr.health <= 0) continue;
+				Unit u;
+				u.kind = 2, u.h = h, u.enemy = true, u.type = static_cast<int>(m.camps[h].type), u.pos = { cr.x, cr.y };
+				u.health = cr.health, u.max_health = cr.max_health, u.strength = cr.strength, u.focus = cr.focus;
+				u.attack_range = cbs::camp_design(m.camps[h].type).attack_range;
+				camps_.push_back(u);
+			}
+			have_camps_ = true;
+		}
+		return camps_;
+	}
+	double unit_gems(const Unit& u)
+	{
+		if (u.kind != 1) return 0;
+		std::uint32_t g = 0;
+		api.champion_gems(u.h, &g);
+		return g;
+	}
+	bool unit_state(const Unit& u, std::uint32_t bit) { return u.kind == 1 && (u.state & bit); }
+	double camp_group(const Unit& u) { return u.kind == 2 ? m.camps[u.h].group : -1; }
+	bool group_ok(double g) const { return g >= 0 && g < static_cast<double>(m.groups.size()); }
+	double group_gems(double g) { return group_ok(g) ? m.groups[static_cast<int>(g)].gems : 0; }
+	double group_gold(double g) { return group_ok(g) ? m.groups[static_cast<int>(g)].gold : 0; }
+	bool group_respawning(double g)
+	{
+		if (!group_ok(g)) return false;
+		std::uint32_t s = 0;
+		api.camp_group_state(static_cast<std::uint32_t>(g), &s);
+		return s == static_cast<std::uint32_t>(cbs::GroupState::respawning);
+	}
+	Tiles group_tiles(double g)
+	{
+		auto b = std::make_shared<Bitboard>();
+		if (group_ok(g))
+			for (int c : m.groups[static_cast<int>(g)].camps) b->set(m.camps[c].pos);
+		return { b };
+	}
+	double num_groups() const { return static_cast<double>(m.groups.size()); }
+	bool visible(Tile t)
+	{
+		if (!in_bounds(t)) return false;
+		std::int32_t v = 0;
+		api.is_visible(t.v(), &v);
+		return v;
+	}
+
+	// ---- static map (built once per instance)
+	Tiles altars() { return stat(altars_, [&](Bitboard& b) { b = m.altars; }); }
+	Tiles walls() { return stat(walls_, [&](Bitboard& b) { b = m.walls; }); }
+	Tiles bushes() { return stat(bushes_, [&](Bitboard& b) { b = m.bushes; }); }
+	Tiles holes() { return stat(holes_, [&](Bitboard& b) { b = m.holes; }); }
+	Tiles spawn(bool enemy)
+	{
+		return stat(enemy ? espawn_ : myspawn_, [&](Bitboard& b) { b = m.spawn_mask[enemy ? 1 - api.team() : api.team()]; });
+	}
+	Tiles camp_spawns()
+	{
+		return stat(campsp_, [&](Bitboard& b) {
+			for (const auto& c : m.camps) b.set(c.pos);
+		});
+	}
+	Tiles locked_altars()
+	{
+		auto b = std::make_shared<Bitboard>();
+		cbs::AltarLockRecord rec[16];
+		std::uint32_t n = 0;
+		api.altar_locks(rec, 16, &n);
+		for (std::uint32_t i = 0; i < n && i < 16; ++i)
+			if (static_cast<int>(rec[i].team) != api.team()) b->set(rec[i].x, rec[i].y);
+		return { b };
+	}
+	double width() const { return m.W; }
+	double height() const { return m.H; }
+
+	// ---- geometry
+	bool in_bounds(Tile t) const { return t.valid() && m.in_bounds(t.v()); }
+	double dist(Tile a, Tile b) const { return a.valid() && b.valid() ? cbs::chebyshev(a.v(), b.v()) : 1e9; }
+	Tiles near(Tile t, double r)
+	{
+		auto b = std::make_shared<Bitboard>();
+		if (in_bounds(t)) cbs::draw_chebyshev(*b, m.W, m.H, t.v(), static_cast<float>(std::max(0.0, r)));
+		return { b };
+	}
+	Tile nearest(const Tiles& s, Tile t)
+	{
+		Tile best;
+		int bd = 1 << 30;
+		if (!s.b || !t.valid()) return best;
+		s.b->for_each(m.H, [&](int x, int y) {
+			const int d = cbs::chebyshev({ x, y }, t.v());
+			if (d < bd) bd = d, best = { x, y };
+		});
+		return best;
+	}
+	double size(const Tiles& s) const { return s.b ? s.b->count(m.H) : 0; }
+	bool contains(const Tiles& s, Tile t) const { return s.b && in_bounds(t) && s.b->test(t.v()); }
+	Tiles tiles_or(const Tiles& a, const Tiles& b) { return combine(a, b, 0); }
+	Tiles tiles_and(const Tiles& a, const Tiles& b) { return combine(a, b, 1); }
+	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return combine(a, b, 2); }
+	std::vector<Tile> tiles_of(const Tiles& s) const
+	{
+		std::vector<Tile> out;
+		if (s.b) s.b->for_each(m.H, [&](int x, int y) { out.push_back({ x, y }); });
+		return out;
+	}
+	// Walking distance field to `goals` (walls, holes, altars and the enemy spawn block; goal tiles
+	// themselves are allowed). One engine distance-field call, priced by the Api.
+	Field field(const Tiles& goals)
+	{
+		auto d = std::make_shared<std::vector<std::uint16_t>>(static_cast<std::size_t>(m.W) * m.H, cbs::kUnreachable);
+		if (goals.b && goals.b->any(m.H))
+		{
+			Bitboard blocked = m.walls, visited;
+			blocked |= m.holes;
+			blocked |= m.altars;
+			blocked |= m.spawn_mask[1 - api.team()];
+			blocked.andnot(*goals.b);
+			api.distance_field(blocked, *goals.b, nullptr, cbs::kUnreachable, d->data(), visited);
+		}
+		return { d };
+	}
+	double field_at(const Field& f, Tile t) const
+	{
+		if (!f.d || !in_bounds(t)) return 1e9;
+		const std::uint16_t v = (*f.d)[m.idx(t.v())];
+		return v == cbs::kUnreachable ? 1e9 : v;
+	}
+
+	// ---- abilities
+	const cbs::AbilityProps& props(int s)
+	{
+		static thread_local cbs::AbilityProps none{};
+		if (s < 0 || s > 1) return none;
+		if (props_pass_[s] != pass_id)
+		{
+			props_[s] = {};
+			api.champion_ability_props(self(), static_cast<std::uint32_t>(s), &props_[s]);
+			props_pass_[s] = pass_id;
+		}
+		return props_[s];
+	}
+	double slot_kind(double s) { return props(static_cast<int>(s)).kind; }
+	bool slot_ready(double s)
+	{
+		const int i = static_cast<int>(s);
+		if (i < 0 || i > 1 || props(i).kind == 0) return false;
+		std::int32_t cd = 1;
+		api.champion_cooldown(self(), static_cast<std::uint32_t>(i), &cd);
+		return cd <= 0;
+	}
+	double slot_range(double s) { return props(static_cast<int>(s)).range; }
+	double slot_radius(double s) { return props(static_cast<int>(s)).radius; }
+	double slot_targets(double s) { return props(static_cast<int>(s)).targets; }
+	bool slot_moveless(double s) { return props(static_cast<int>(s)).attributes & 1u; }
+
+	// ---- items
+	static bool item_ok(double i) { return i >= 0 && i < cbs::kNumItems; }
+	double item_cost(double i) { return item_ok(i) ? cbs::item_design(static_cast<int>(i)).cost : 0; }
+	double item_stat(double i, int which)
+	{
+		if (!item_ok(i)) return 0;
+		const auto& d = cbs::item_design(static_cast<int>(i));
+		return which == 0 ? d.health_points : which == 1 ? d.strength_points : d.focus_points;
+	}
+	double item_passive(double i) { return item_ok(i) ? static_cast<int>(cbs::item_design(static_cast<int>(i)).passive) : 0; }
+	double items_owned(double i)
+	{
+		if (!item_ok(i)) return 0;
+		load_items();
+		return items_[static_cast<int>(i)];
+	}
+	bool has_lock()
+	{
+		load_items();
+		return cons_[cbs::consumable::altar_lock] > 0;
+	}
+
+	// ---- memory
+	double read_shared(double i)
+	{
+		if (i < 0 || i >= cbs::kSharedMemory) return 0;
+		std::uint8_t v = 0;
+		api.read_shared_memory(static_cast<std::int32_t>(i), &v, 1);
+		return v;
+	}
+	void write_shared(double i, double v)
+	{
+		if (i < 0 || i >= cbs::kSharedMemory) return;
+		const std::uint8_t b = static_cast<std::uint8_t>(std::clamp(std::floor(v), 0.0, 255.0));
+		api.write_shared_memory(static_cast<std::int32_t>(i), &b, 1);
+	}
+
+	// ---- draft (champion types; Cassi & Issac are one pick, reported as CASSI)
+	static int choice_to_type(int c) { return c <= 3 ? c : c + 1; }
+	static int type_to_choice(int t) { return t <= 3 ? t : t == 4 ? 3 : t - 1; }
+	bool picked(bool enemy, double t)
+	{
+		const int want = type_to_choice(static_cast<int>(t));
+		for (std::uint32_t r = 0; r < 6; ++r)
+		{
+			std::int32_t p = -1;
+			if (api.draft_get(enemy ? 1 - api.team() : api.team(), r, &p) == Err::success && p == want) return true;
+		}
+		return false;
+	}
+
+	// ---- the options of the current pass (legal as far as we know; the engine has the last word)
+	void options(std::vector<Option>& out)
+	{
+		out.clear();
+		if (api.champ() < 0)
+		{
+			for (int c = 0; c < cbs::kNumDraftChoices; ++c)
+			{
+				const int t = choice_to_type(c);
+				if (picked(false, t) || picked(true, t)) continue;
+				Option o;
+				o.kind = PICK, o.champ = t;
+				out.push_back(o);
+			}
+			return;
+		}
+		const Unit& self_u = me();
+		const std::uint32_t st = self_u.state;
+		const bool alive_now = st & cbs::state_bit::alive;
+		if (alive_now && (st & (cbs::state_bit::recalling | cbs::state_bit::submitting)))
+		{
+			Option o;
+			o.kind = CANCEL;
+			out.push_back(o);
+			return;
+		}
+		if (alive_now && (st & cbs::state_bit::teleporting)) return;
+		if (can_shop())
+		{
+			const double g = gold();
+			for (int i = 0; i < cbs::kNumItems; ++i)
+			{
+				const auto& d = cbs::item_design(i);
+				if (!d.purchasable || d.cost > g) continue;
+				Option o;
+				o.kind = BUY, o.item = i;
+				out.push_back(o);
+			}
+			if (g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock())
+			{
+				Option o;
+				o.kind = BUY_LOCK;
+				out.push_back(o);
+			}
+		}
+		if (!alive_now) return;
+		const Tile p = self_u.pos;
+		if (st & cbs::state_bit::can_move)
+		{
+			const Bitboard& occ = occupancy();
+			for (int dy = -1; dy <= 1; ++dy)
+				for (int dx = -1; dx <= 1; ++dx)
+				{
+					const Vec2 q{ p.x + dx, p.y + dy };
+					if ((!dx && !dy) || !m.in_bounds(q) || m.walls.test(q) || m.holes.test(q) || m.altars.test(q) ||
+						m.spawn_mask[1 - api.team()].test(q) || occ.test(q))
+						continue;
+					Option o;
+					o.kind = MOVE, o.tile = { q.x, q.y };
+					out.push_back(o);
+				}
+		}
+		if (st & cbs::state_bit::can_attack)
+		{
+			for (const Unit& u : enemies())
+				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
+			for (const Unit& u : camps())
+				if (dist(p, u.pos) <= self_u.attack_range) out.push_back(target_option(ATTACK, u));
+		}
+		if (st & cbs::state_bit::can_cast)
+			for (int s = 0; s < 2; ++s)
+			{
+				if (!slot_ready(s)) continue;
+				const auto& pr = props(s);
+				const double reach = pr.range + 0.5;
+				auto add_units = [&](const Units& us) {
+					for (const Unit& u : us)
+						if (dist(p, u.pos) <= reach)
+						{
+							Option o = target_option(CAST, u);
+							o.slot = s;
+							out.push_back(o);
+						}
+				};
+				if (pr.targets & cbs::target::enemies) add_units(enemies());
+				if (pr.targets & cbs::target::camps) add_units(camps());
+				if (pr.targets & cbs::target::allies) add_units(allies());
+				if (pr.targets & cbs::target::self)
+				{
+					Option o = target_option(CAST, self_u);
+					o.slot = s;
+					out.push_back(o);
+				}
+				if (pr.targets & cbs::target::ground)
+				{
+					const int r = static_cast<int>(std::floor(pr.range));
+					for (int dy = -r; dy <= r; ++dy)
+						for (int dx = -r; dx <= r; ++dx)
+						{
+							const Vec2 q{ p.x + dx, p.y + dy };
+							if ((!dx && !dy) || !m.in_bounds(q) || m.walls.test(q)) continue;
+							Option o;
+							o.kind = CAST, o.slot = s, o.tile = { q.x, q.y };
+							out.push_back(o);
+						}
+				}
+			}
+		{
+			cbs::WardResources wr{};
+			api.champion_wards(self(), &wr);
+			if (wr.charges > 0)
+			{
+				const int r = static_cast<int>(cbs::settings().ward_placement_radius);
+				for (int dy = -r; dy <= r; ++dy)
+					for (int dx = -r; dx <= r; ++dx)
+					{
+						const Vec2 q{ p.x + dx, p.y + dy };
+						if (!m.in_bounds(q) || m.walls.test(q)) continue;
+						Option o;
+						o.kind = WARD, o.tile = { q.x, q.y };
+						out.push_back(o);
+					}
+			}
+		}
+		if (!m.spawn_mask[api.team()].test(p.v()))
+		{
+			Option o;
+			o.kind = RECALL;
+			out.push_back(o);
+		}
+		const bool lock = has_lock();
+		const double g = gems();
+		if (g > 0 || lock)
+		{
+			const Tiles locked = g > 0 ? locked_altars() : Tiles{};
+			for (Vec2 a : m.altar_list)
+			{
+				const int d = cbs::chebyshev(a, p.v());
+				if (g > 0 && d <= cbs::settings().submit_gems_range && !contains(locked, { a.x, a.y }))
+				{
+					Option o;
+					o.kind = TRIBUTE, o.tile = { a.x, a.y };
+					out.push_back(o);
+				}
+				if (lock && d <= 2)
+				{
+					Option o;
+					o.kind = LOCK, o.tile = { a.x, a.y };
+					out.push_back(o);
+				}
+			}
+		}
+	}
+
+	// Do one option; false if the engine refused it (it is then skipped for the rest of the turn).
+	bool execute(const Option& o)
+	{
+		std::int32_t ok = 0;
+		Err e = Err::invalid_action;
+		switch (o.kind)
+		{
+		case PICK: e = api.draft_champion(type_to_choice(o.champ)); ok = 1; break;
+		case MOVE: e = api.move_to(o.tile.v(), &ok); break;
+		case ATTACK: e = api.attack(static_cast<std::uint32_t>(o.unit.kind == 1 ? cbs::EntityKind::champion : cbs::EntityKind::camp), o.unit.h), ok = 1; break;
+		case CAST:
+		{
+			const std::uint32_t kind = static_cast<std::uint32_t>(
+				!o.unit.valid() ? cbs::EntityKind::none : o.unit.kind == 1 ? cbs::EntityKind::champion : cbs::EntityKind::camp);
+			const Vec2 at = o.unit.valid() ? o.unit.pos.v() : o.tile.v();
+			e = api.cast(static_cast<std::uint32_t>(o.slot), kind, o.unit.valid() ? o.unit.h : 0, at, &ok);
+			break;
+		}
+		case WARD: e = api.place_ward(o.tile.v(), &ok); break;
+		case BUY: e = api.buy_item(static_cast<std::uint32_t>(o.item), 1), ok = 1; break;
+		case BUY_LOCK: e = api.buy_consumable(cbs::consumable::altar_lock), ok = 1; break;
+		case RECALL: e = api.recall(), ok = 1; break;
+		case TRIBUTE: e = api.submit_gems(o.tile.v()), ok = 1; break;
+		case CANCEL: e = api.cancel_channel(), ok = 1; break;
+		case LOCK: e = api.use_consumable(cbs::consumable::altar_lock, o.tile.v(), &ok); break;
+		default: break;
+		}
+		return e == Err::success && ok;
+	}
+
+private:
+	std::uint32_t self_ = 0;
+	Unit me_;
+	Units enemies_, allies_, camps_;
+	double gems_ = 0, gold_ = 0;
+	bool have_me_ = false, have_enemies_ = false, have_allies_ = false, have_camps_ = false, have_gems_ = false, have_gold_ = false,
+		 have_occ_ = false, have_items_ = false;
+	Bitboard occ_;
+	std::uint32_t items_[cbs::kNumItems] = {}, cons_[cbs::kNumConsumables] = {};
+	cbs::AbilityProps props_[2] = {};
+	std::uint64_t props_pass_[2] = { 0, 0 };
+	std::shared_ptr<const Bitboard> altars_, walls_, bushes_, holes_, myspawn_, espawn_, campsp_;
+
+	static Unit from_champ(std::uint32_t h, const cbs::ChampionInfo& ci)
+	{
+		Unit u;
+		u.kind = 1, u.h = h, u.type = ci.type, u.pos = { ci.x, ci.y };
+		u.health = ci.health, u.max_health = ci.max_health, u.strength = ci.strength, u.focus = ci.focus;
+		u.attack_range = ci.attack_range, u.state = ci.state;
+		return u;
+	}
+	void champs(bool enemy, Units& out)
+	{
+		out.clear();
+		std::uint32_t ids[16], n = 0;
+		if (enemy) api.enemies(ids, 16, &n);
+		else api.allies(ids, 16, &n);
+		for (std::uint32_t i = 0; i < n && i < 16; ++i)
+		{
+			if (!enemy && ids[i] == self()) continue;
+			cbs::ChampionInfo ci{};
+			if (api.champion(ids[i], &ci) != Err::success || !(ci.state & cbs::state_bit::alive)) continue;
+			Unit u = from_champ(ids[i], ci);
+			u.enemy = enemy;
+			out.push_back(u);
+		}
+	}
+	Option target_option(int kind, const Unit& u)
+	{
+		Option o;
+		o.kind = kind, o.unit = u, o.tile = u.pos;
+		return o;
+	}
+	const Bitboard& occupancy()
+	{
+		if (!have_occ_)
+		{
+			Bitboard t;
+			api.ally_occupancy(occ_);
+			api.enemy_occupancy(t);
+			occ_ |= t;
+			api.camp_occupancy(t, 0);
+			occ_ |= t;
+			have_occ_ = true;
+		}
+		return occ_;
+	}
+	void load_items()
+	{
+		if (have_items_) return;
+		std::fill(std::begin(items_), std::end(items_), 0u);
+		std::fill(std::begin(cons_), std::end(cons_), 0u);
+		api.champion_items(self(), items_);
+		api.champion_consumables(self(), cons_);
+		have_items_ = true;
+	}
+	template <class Fill>
+	Tiles stat(std::shared_ptr<const Bitboard>& slot, Fill&& fill)
+	{
+		if (!slot)
+		{
+			auto b = std::make_shared<Bitboard>();
+			fill(*b);
+			slot = b;
+		}
+		return { slot };
+	}
+	Tiles combine(const Tiles& a, const Tiles& b, int op)
+	{
+		auto r = std::make_shared<Bitboard>();
+		if (a.b) *r = *a.b;
+		if (op == 0 && b.b) *r |= *b.b;
+		if (op == 1)
+		{
+			if (b.b) *r &= *b.b;
+			else r->clear();
+		}
+		if (op == 2 && b.b) r->andnot(*b.b);
+		return { r };
+	}
+};
+
+// Generated genes derive from this.
+struct GenesBase
+{
+	explicit GenesBase(Ctx& x) : X(x) {}
+	virtual ~GenesBase() = default;
+	virtual double score_option(const Option& o) = 0;
+	virtual void run_update() = 0;
+	Ctx& X;
+};
+
+using MakeGenes = GenesBase* (*)(Ctx&);
+
+// One turn of the fixed loop. Returns the number of actions taken.
+inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
+{
+	std::vector<Option> opts, failed;
+	auto same = [](const Option& a, const Option& b) {
+		return a.kind == b.kind && a.unit == b.unit && a.tile == b.tile && a.slot == b.slot && a.item == b.item && a.champ == b.champ;
+	};
+	const bool draft = X.api.champ() < 0;
+	X.new_pass();
+	if (!draft) g.run_update();
+	int acted = 0;
+	for (int pass = 0; pass < max_passes; ++pass)
+	{
+		X.new_pass();
+		X.options(opts);
+		const Option* best = nullptr;
+		double bs = 0;
+		for (const Option& o : opts)
+		{
+			bool skip = false;
+			for (const Option& f : failed) skip |= same(o, f);
+			if (skip) continue;
+			const double s = g.score_option(o);
+			if (!best || s > bs) best = &o, bs = s;
+		}
+		// the draft must pick; everything else needs a positive score
+		if (!best || (!draft && bs <= 0)) break;
+		const bool ok = X.execute(*best);
+		if (std::getenv("GENOME_TRACE"))
+			std::fprintf(stderr, "@@G r%d t%d c%d pos %d,%d kind %d score %.2f tile %d,%d unit %d:%u slot %d item %d champ %d ok %d of %zu camps %zu st %u ar %d mind %.0f gold %.0f shop %d\n",
+						 static_cast<int>(X.round()), X.api.team(), X.api.champ(), X.me().pos.x, X.me().pos.y, best->kind, bs, best->tile.x,
+						 best->tile.y, best->unit.kind, best->unit.h, best->slot, best->item, best->champ, ok, opts.size(), X.camps().size(), X.me().state, X.me().attack_range, [&] { double d = 1e9; for (const Unit& u : X.camps()) d = std::min(d, X.dist(X.me().pos, u.pos)); return d; }(), X.gold(), (int)X.can_shop());
+		if (ok) ++acted;
+		else failed.push_back(*best);
+		if (draft) break;
+	}
+	return acted;
+}
+
+// A simulator Player running one genome (one GenesBase per bot instance).
+class GenomePlayer : public cbs::Player
+{
+public:
+	explicit GenomePlayer(MakeGenes make) : make_(make) {}
+	const cbs::PriceTable* prices() const override { return &cbs::PriceTable::bot_wrapper(); }
+	cbs::BotBody make_bot(int, int) override
+	{
+		MakeGenes make = make_;
+		return [make](Api& api) {
+			Ctx X(api);
+			std::unique_ptr<GenesBase> g(make(X));
+			for (;;)
+			{
+				play_turn(X, *g);
+				api.end_turn();
+			}
+		};
+	}
+
+private:
+	MakeGenes make_;
+};
+} // namespace genome
