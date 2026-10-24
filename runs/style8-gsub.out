@@ -1,1 +1,4 @@
 gap run style8-gsub (gem_margin:max:50 vs policies/tune-v21.policy): $0.52 left of $0.52
+gap metric gem_margin (max, scale 50): reference tune-v21 mirror value 29.8125
+gap: 1 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5
+seed style-gconv1 score 0.534 (islands [0, 2])
