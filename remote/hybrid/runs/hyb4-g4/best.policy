@@ -1,0 +1,185 @@
+# v3: parent = version 2 (team-target focus fire). One change: a melee dash opener.
+# Top teams open with the dash on the first-hit turn (HoR stunning dash, Vendetta dash, both from
+# range 3). Until now our dashes were kept for travel and escape and never used to engage.
+# A healthy melee champion now dashes onto the closest enemy within 3 tiles, but only when not
+# outnumbered and the enemy is not on its own spawn. It then casts and attacks if it landed in
+# range. The thresholds are named constants below. Everything else is unchanged.
+
+# zg14: ability-type-aware casting from hybrid #14 (Opus): shield/heal on self, dash kept for escape/travel
+def cast_on(slot, u):
+    if ability_ready(slot):
+        if slot_is_shield(slot) or slot_is_heal(slot):
+            cast_self(slot)
+        elif not slot_is_dash(slot):
+            cast_at_unit(slot, u)
+
+def dash_to(slot, t):
+    if ability_ready(slot):
+        if slot_is_dash(slot):
+            dash_towards(slot, t)
+
+# ---- draft ----
+if is_draft():
+    let pool = unpicked_champions()
+    if available(pool, champ_vendetta()):
+        pick(champ_vendetta())
+    elif available(pool, champ_vesper_vale()):
+        pick(champ_vesper_vale())
+    elif available(pool, champ_tavi()):
+        pick(champ_tavi())
+    elif available(pool, champ_ryth()):
+        pick(champ_ryth())
+    elif available(pool, champ_ren()):
+        pick(champ_ren())
+    else:
+        pick( random_champion(pool) )
+    end_turn()
+
+# ---- every turn ----
+keep camp_spawns = camp_spawn_tiles()
+keep altar_ring = ring( altars(), 1 )
+keep safe_altar_ring = ring( minus( altars(), ring(monolith_tiles(), 5) ), 1 )
+# gems outside monolith groups (0 on 00contest-like maps, where monoliths are the only gems)
+keep non_mono_gem_spawns = count( minus( rich_spawns(1), group_tiles( monolith_tiles() ) ) )
+# tunable: dash-opener thresholds
+keep OPENER_HP = 0.6
+keep OPENER_RANGE = 3
+
+if not alive() or channeling() or (not can_move() and not can_attack()):
+    end_turn()
+
+let at_spawn = contains( spawn_region(ally()), position() )
+if at_spawn:
+    let shards_bought = floor( gold() / 30 )
+    let treasure_n = floor( shards_bought / 2 )
+    let rest_after_treasure = shards_bought - treasure_n
+    let jungle_n = floor( rest_after_treasure / 2 )
+    let rest_after_jungle = rest_after_treasure - jungle_n
+    let strength_shards = floor( rest_after_jungle / 2 )
+    buy( shard_of(family_treasure(), stat_strength()), treasure_n )
+    buy( shard_of(family_jungle(), stat_health()), jungle_n )
+    buy( shard(stat_strength()), strength_shards )
+    buy( shard(stat_health()), rest_after_jungle - strength_shards )
+    # heal on spawn before heading back out, unless an enemy is already in reach
+    if health() < max_health() and not exists(first(filter(enemies_visible(), in_attack_range()))):
+        end_turn()
+
+# retreat at 20% health normally, but at 50% when carrying gems
+if not at_spawn and health() < 0.3 * max_health():
+    if in_danger():
+        let home = closest( spawn_region(ally()) )
+        dash_to(0, home)
+        dash_to(1, home)
+        move_towards(home)
+        end_turn()
+    recall()
+    end_turn()
+if not at_spawn and gems() > 0 and health() < 0.5 * max_health() and not in_danger():
+    recall()
+    end_turn()
+
+let enemy = weakest( filter( enemies_visible(), in_attack_range() ) )
+let tt = team_target()
+# focus fire: the team's named target, if it is already inside our attack reach
+if exists(tt):
+    let tt_dist = distance( unit_position(tt), position() )
+    if tt_dist <= 3 and (i_am_ranged() or tt_dist <= 1):
+        if not contains( spawn_region(enemy()), unit_position(tt) ):
+            cast_on(0, tt)
+            cast_on(1, tt)
+            attack(tt)
+            end_turn()
+# an enemy on its own spawn is healed every turn: fighting it there never ends (00reverse-spiral)
+if exists(enemy) and not contains( spawn_region(enemy()), unit_position(enemy) ):
+    set_team_target(enemy)
+    cast_on(0, enemy)
+    cast_on(1, enemy)
+    attack(enemy)
+    end_turn()
+
+# melee dash opener: healthy, not outnumbered, closest enemy within OPENER_RANGE
+if not i_am_ranged() and health() > OPENER_HP * max_health():
+    let near_e = nearest( enemies_visible() )
+    if exists(near_e):
+        let near_d = distance( unit_position(near_e), position() )
+        if near_d <= OPENER_RANGE and near_d > 1 and not contains( spawn_region(enemy()), unit_position(near_e) ):
+            let dash_ok = (ability_ready(0) and slot_is_dash(0)) or (ability_ready(1) and slot_is_dash(1))
+            if dash_ok and enemies_within(5) <= allies_within(5) + 1:
+                set_team_target(near_e)
+                if ability_ready(0) and slot_is_dash(0):
+                    dash_towards(0, unit_position(near_e))
+                else:
+                    dash_towards(1, unit_position(near_e))
+                let hit = nearest( filter( enemies_visible(), in_attack_range() ) )
+                if exists(hit):
+                    cast_on(0, hit)
+                    cast_on(1, hit)
+                    attack(hit)
+                end_turn()
+
+# tribute only with a worthwhile bag (or when hurt / late game)
+let bag_ready = gems() >= 25 or round_number() > 1500 or health() < 0.3 * max_health()
+if gems() > 0 and bag_ready:
+    # an altar next to us works even when locked: tributing there attacks the lock (5 hits clear it)
+    let altar = first( filter( altars(), within(1, position()) ) )
+    if exists(altar):
+        tribute(altar)
+        end_turn()
+    # walk to an open altar out of monolith reach (5); else any altar out of reach; else any altar
+    let target = closest( minus( safe_altar_ring, ring(locked_altars(), 1) ) )
+    if exists(target):
+        move_towards(target)
+        end_turn()
+    let target2 = closest(safe_altar_ring)
+    if exists(target2):
+        move_towards(target2)
+        end_turn()
+    let altar_goal = closest(altar_ring)
+    # every altar-adjacent tile is taken by a camp (01boss-battle: holes and a monolith): fight it
+    if contains(camp_spawns, altar_goal):
+        let blocker = first( filter( camps_visible(), in_attack_range() ) )
+        if exists(blocker):
+            attack(blocker)
+            end_turn()
+    move_towards( altar_goal )
+    end_turn()
+
+# one camps_visible() query per turn, reused for both attack checks
+let camps = camps_visible()
+
+let camp = first( filter( camps, in_attack_range() ) )
+if exists(camp):
+    cast_on(0, camp)
+    cast_on(1, camp)
+    attack(camp)
+    end_turn()
+
+# nothing tributed by round 300 (00contest: only monoliths carry gems): go for monoliths too
+if team_score(ally()) == 0 and round_number() > 300 and non_mono_gem_spawns == 0:
+    move_towards( closest( minus( minus( camp_spawns, respawning_visible_spawns() ), golem_tiles() ) ) )
+    end_turn()
+let goals = minus( minus( minus( camp_spawns, respawning_visible_spawns() ), monolith_tiles() ), golem_tiles() )
+
+# already standing on a cleared camp spawn: hold here so the capture timer keeps running
+if contains(capturable_spawns(), position()):
+    end_turn()
+
+let goal = closest(goals)
+# on a dead camp of a group that is not cleared yet, the closest goal is our own tile: walk to the
+# nearest living camp instead (not a monolith or golem), so the group can be finished
+if distance(goal, position()) == 0:
+    let live = nearest(camps)
+    if exists(live) and not contains( union( monolith_tiles(), golem_tiles() ), unit_position(live) ):
+        move_towards( unit_position(live) )
+        end_turn()
+# tunable: dash toward a camp goal only when it is farther than this
+# fuel guard (tune line): skip the optional dash on a near-cap turn
+if exists(goal) and distance(position(), goal) > 2 and fuel_remaining() > 55000:
+    dash_to(0, goal)
+    dash_to(1, goal)
+move_towards( goal )
+let camp2 = first( filter( camps, in_attack_range() ) )
+if exists(camp2):
+    attack(camp2)
+set_priority( 1 + random_int(100) )
+end_turn()
