@@ -15,5 +15,11 @@ engine turn for turn, so the gap is micro our policies lack. Develop that micro:
 - short chase (0-3 tiles, up to 6 for Heart of Ruin/Ryth on a kill), disengage while still healthy
   (~0.75 HP) and recall only when no enemy is near (damage cancels recall);
 - fight early: the top teams' first fight is around round 86-175, mostly in their own half.
+Group recipe (docs/TOP_TEAMS_FIGHTS.md: 89% of early deaths are 2+ of theirs vs 1; they arrive
+together): move as a group of 2-3 (claim(tile)/claim_count, allies_within(r)), Heart of Ruin in
+front as shield-bait, open with the reach stun or dash, fire both resets in the same round, and
+pre-empt camp attacks when an enemy is within 8. Stat stacking is an axis to try, not a rule: one
+stat per carry from round 1 (strength on Vesper Vale, focus on Heart of Ruin/Prism/Ryth) fed the
+top teams' snowball, but stacking alone cut our farming bot to 23-28%, so pair it with group play.
 Keep farming and banking working (the score still counts wins). Every version must keep
 set_team_target; a version that drops focus fire is rejected.

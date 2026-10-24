@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.." || exit 1
 W=$(mktemp -d)
 git fetch -q origin funsearch/style-state 2>/dev/null
 git worktree add -q --detach "$W" origin/funsearch/style-state 2>/dev/null || git worktree add -q --detach "$W" HEAD
-for d in runs/style7-*-g*/; do
+for d in runs/style8-*-g*/; do
   mkdir -p "$W/$d"
   for f in programs.jsonl proposals.jsonl; do
     [ -f "$d$f" ] && python3 -c '
@@ -19,7 +19,7 @@ for line in open(sys.argv[1]):
 open(sys.argv[2], "w").writelines(out)' "$d$f" "$W/$d$f"
   done
 done
-cp runs/style7-*.json runs/style7-?.log runs/style7-*-g*.log "$W/runs/" 2>/dev/null
+cp runs/style8-*.json runs/style8-?.log runs/style8-*-g*.log "$W/runs/" 2>/dev/null
 # state only: never carry scripts or budgets, so overlaying runs/ from this branch cannot clobber code
 cd "$W" && git rm -rq --cached --ignore-unmatch runs/style_launch.sh runs/style_checkin.sh runs/style_push_state.sh runs/style_budgets runs/style_next_boundary.md runs/SPEND.md runs/pure_launch.sh runs/pure_checkin.sh >/dev/null && rm -f runs/style_*.sh runs/style_budgets runs/style_next_boundary.md runs/SPEND.md runs/pure_*.sh && git add -f runs && git commit -qm "STYLE island state snapshot
 
