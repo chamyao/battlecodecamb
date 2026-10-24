@@ -7,7 +7,7 @@ Rendered for parent = seed (v23), link r_run -> under_fire.
 ```
 You edit one link of a program written in a small typed language (reference below). A link is a
 caller gene and a gene it calls. You will be given the two genes' code and the signatures of the
-genes around them. You change how the caller uses the callee. You do not see or change anything else.
+genes around them. You rewrite those two genes. You do not see or change anything else.
 
 # Language
 [genome/LANGUAGE.md sections "A genome file", "Types", "Fields", "Primitives", "Constants",
@@ -40,14 +40,10 @@ enemies_within(r: Num) -> Num      [s6]  visible enemy champions within r tiles
 r_cashout() -> Bool   [r5]  recall with gems when below half health and nothing near
 
 # Task
-Change the interaction between r_run and under_fire. Do one of:
-  (a) change both genes, so that what under_fire computes and how r_run uses it change together
-      (for example: under_fire takes a parameter that r_run sets, or returns a Num that r_run
-      compares, instead of a Bool);
-  (b) insert a new gene between them: r_run calls the new gene, which may call under_fire.
-A reply that changes only one of the two genes is rejected.
-If you change under_fire's signature, its other callers keep working only if you keep a gene with
-the old signature (you may duplicate under_fire as a new gene for r_run instead).
+Rewrite r_run and under_fire. You may change anything in their bodies, parameters and return
+types, and you may add new genes that they call. Your reply must either change both genes, or add at
+least one new gene. A reply that changes only one of the two genes and adds no new gene is rejected.
+If you change under_fire's signature, its other callers (listed above) must still type-check.
 
 # Reply
 One ```python block with: each changed editable gene (keep its @gene id; update its description to
