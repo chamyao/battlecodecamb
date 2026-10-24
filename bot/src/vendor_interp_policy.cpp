@@ -1069,24 +1069,45 @@ struct Interp
 		return camps_cache;
 	}
 
+	// The map's monoliths with their state, read once per turn (camp_state is a host call): dead ones dropped,
+	// unseen ones kept as alive and asleep.
+	struct Mono { Vec2 pos; int range; double strength; bool awake; };
+	std::vector<Mono> monos;
+	std::uint64_t monos_turn = ~0ull, monos_epoch = ~0ull;
+	const std::vector<Mono>& monoliths()
+	{
+		if (monos_turn == turn_no && monos_epoch == epoch) return monos;
+		monos_turn = turn_no, monos_epoch = epoch;
+		monos.clear();
+		for (std::uint32_t c = 0; c < m().camps.size(); ++c)
+		{
+			if (m().camps[c].type != cbs::CampType::monolith) continue;
+			const auto& d = cbs::camp_design(m().camps[c].type);
+			std::uint32_t life = 0;
+			const bool seen = api.camp_state(c, &life) == Err::success;
+			if (seen && life == static_cast<std::uint32_t>(cbs::CampLife::dead)) continue;
+			monos.push_back({ m().camps[c].pos, d.attack_range, d.base_strength, seen && life == static_cast<std::uint32_t>(cbs::CampLife::awake) });
+		}
+		return monos;
+	}
+
 	// Monoliths whose attack range covers the tile. awake_only: damage per turn of the awake ones (asleep
 	// monoliths fight only once hit); otherwise 1 if any living one does (unseen counts as alive).
 	double monolith_reach(Vec2 t, bool awake_only)
 	{
 		double dmg = 0;
-		for (std::uint32_t c = 0; c < m().camps.size(); ++c)
+		for (const Mono& mo : monoliths())
 		{
-			if (m().camps[c].type != cbs::CampType::monolith) continue;
-			const auto& d = cbs::camp_design(m().camps[c].type);
-			if (cbs::chebyshev(t, m().camps[c].pos) > d.attack_range) continue;
-			std::uint32_t life = 0;
-			const bool seen = api.camp_state(c, &life) == Err::success;
-			if (seen && life == static_cast<std::uint32_t>(cbs::CampLife::dead)) continue;
+			if (cbs::chebyshev(t, mo.pos) > mo.range) continue;
 			if (!awake_only) return 1;
-			if (seen && life == static_cast<std::uint32_t>(cbs::CampLife::awake)) dmg += d.base_strength;
+			if (mo.awake) dmg += mo.strength;
 		}
 		return dmg;
 	}
+
+	// altar_safe_tiles(), rebuilt once per turn
+	std::shared_ptr<Bitboard> safe_cache;
+	std::uint64_t safe_turn = ~0ull, safe_epoch = ~0ull;
 
 	// Blocked tiles for the champion at `me`; rebuilt only when the occupancy is refreshed or
 	// the champion moved (both bump `epoch` or the turn).
@@ -1644,23 +1665,30 @@ struct Interp
 		case Op::altar_safe_tiles:
 		{
 			// tiles next to an altar (where a tribute starts) that no awake monolith can hit; walls, holes and altars excluded
-			const auto bp = std::make_shared<Bitboard>();
-			Bitboard& b = *bp;
-			std::size_t scans = 0; // monolith_reach calls, each a loop over every map camp
-			m().altars.for_each_unordered(m().H, [&](int x, int y) {
-				for (int dx = -1; dx <= 1; ++dx)
-					for (int dy = -1; dy <= 1; ++dy)
-					{
-						const Vec2 p{ x + dx, y + dy };
-						if ((dx || dy) && m().in_bounds(p) && !m().walls.test(p) && !m().holes.test(p) && !m().altars.test(p))
+			const auto& mo = monoliths();
+			if (!(safe_cache && safe_turn == turn_no && safe_epoch == epoch))
+			{
+				safe_turn = turn_no, safe_epoch = epoch;
+				safe_cache = std::make_shared<Bitboard>();
+				Bitboard& b = *safe_cache;
+				std::size_t awake = 0;
+				for (const Mono& o : mo) awake += o.awake;
+				m().altars.for_each_unordered(m().H, [&](int x, int y) {
+					for (int dx = -1; dx <= 1; ++dx)
+						for (int dy = -1; dy <= 1; ++dy)
 						{
-							++scans;
-							if (monolith_reach(p, true) == 0) b.set(p);
+							const Vec2 p{ x + dx, y + dy };
+							if (!(dx || dy) || !m().in_bounds(p) || m().walls.test(p) || m().holes.test(p) || m().altars.test(p)) continue;
+							bool hit = false;
+							if (awake)
+								for (const Mono& o : mo)
+									if (o.awake && cbs::chebyshev(p, o.pos) <= o.range) { hit = true; break; }
+							if (!hit) b.set(p);
 						}
-					}
-			});
-			note_list(scans * m().camps.size());
-			return set_ptr(bp);
+				});
+				note_list(awake);
+			}
+			return set_ptr(safe_cache);
 		}
 		case Op::respawning_visible_spawns:
 		{
