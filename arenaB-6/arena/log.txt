@@ -1335,3 +1335,45 @@
 [21:00:57] [B] birth B773 (mutate claude-opus-5-5) of ['B738'] species S1; 24 genomes $4.84
 [21:01:08] [B] rejected tune : behavioural twin
 [21:01:32] [B] resumed: 24 genomes, 773 births, 19035 matches, spent $4.84
+[21:03:51] [B] re-fingerprinted 24 genomes on this runtime
+[21:03:51] [B] fixed anchors: style-gconv1 40.62, v7 30.35, tune-v20-L1 39.50, rall2-ca4-lean-g 40.05, opp-tune5-metadraft 35.00, champ1-B29 39.44, champ2-B95 40.15, champ3-B144 40.35, champ4-B189 40.13, champ5-B221 41.14, champ6-B279 41.52, champ7-B316 41.85, champ8-B387 42.62, champ9-B445 40.51, champ10-B495 41.40, champ11-B542 43.57, champ12-B581 44.24, tune-v20-L1c 41.88, champ14-B695 44.44, champ15-B705 44.01
+[21:04:17] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:04:17] [B] birth B774 (mutate claude-haiku-5-5) of ['B750'] species S1; 24 genomes $4.85
+[21:04:18] [B] birth B775 (mutate claude-haiku-5-5) of ['B674'] species S1; 24 genomes $4.85
+[21:04:29] [B] birth B776 (cross ) of ['B761', 'B753'] species S1; 24 genomes $4.85
+[21:04:31] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:04:32] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:04:41] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:04:42] [B] birth B777 (mutate claude-haiku-5-5) of ['B760'] species S1; 24 genomes $4.85
+[21:04:44] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:04:48] [B] birth B778 (cross ) of ['B750', 'B674'] species S1; 24 genomes $4.85
+[21:04:54] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:04:57] [B] birth B779 (cross ) of ['B778', 'B760'] species S1; 24 genomes $4.85
+[21:05:05] [B] summary: births 780 deaths 757 games 153872 $4.95; top [('B730', 44.09, 0.79, 464, 'S1'), ('B723', 44.08, 0.79, 672, 'S1'), ('B760', 43.95, 0.8, 240, 'S1')]; top vs anchors {'B730': 0.55, 'B723': 0.643, 'B760': 0.625}
+[21:05:05] [B] birth B780 (mutate claude-haiku-5-5) of ['B753'] species S1; 24 genomes $4.95
+[21:05:09] [B] rejected mutate claude-opus-5-5: behavioural twin
+[21:05:13] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:05:15] [B] birth B781 (cross ) of ['B730', 'B716'] species S1; 24 genomes $4.95
+[21:05:18] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:05:22] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:05:27] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:05:32] [B] birth B782 (mutate claude-haiku-5-5) of ['B774'] species S1; 24 genomes $4.95
+[21:05:33] [B] birth B783 (tune ) of ['B772'] species S1; 24 genomes $4.95
+[21:05:34] [B] birth B784 (mutate claude-haiku-5-5) of ['B674'] species S1; 24 genomes $4.95
+[21:05:45] [B] birth B785 (cross ) of ['B774', 'B781'] species S1; 24 genomes $4.95
+[21:05:49] [B] birth B786 (mutate claude-haiku-5-5) of ['B760'] species S1; 24 genomes $4.95
+[21:05:53] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:05:56] [B] rejected mutate claude-opus-5-5: EditError: no change
+[21:05:57] [B] rejected tune : behavioural twin
+[21:06:01] [B] rejected tune : behavioural twin
+[21:06:04] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:06:10] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:06:15] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[21:06:23] [B] birth B787 (mutate claude-haiku-5-5) of ['B683'] species S0; 24 genomes $5.00
+[21:06:26] [B] birth B788 (mutate claude-haiku-5-5) of ['B778'] species S1; 24 genomes $5.00
+[21:06:31] [B] birth B789 (tune ) of ['B686'] species S0; 24 genomes $5.00
+[21:06:40] [B] summary: births 790 deaths 767 games 157024 $5.01; top [('B778', 43.85, 0.8, 344, 'S1'), ('B785', 43.84, 0.8, 192, 'S1'), ('B790', 43.84, 6.0, 0, 'S1')]; top vs anchors {'B778': 0.75, 'B785': 0.667, 'B772': 0.821}
+[21:06:40] [B] birth B790 (mutate claude-haiku-5-5) of ['B785'] species S1; 24 genomes $5.01
+[21:06:40] [B] birth B791 (llm_cross claude-haiku-5-5) of ['B753', 'B686'] species S1; 24 genomes $5.01
+[21:06:42] [B] birth B792 (mutate claude-haiku-5-5) of ['B739'] species S1; 24 genomes $5.01
+[21:06:51] [B] birth B793 (tune ) of ['B788'] species S1; 24 genomes $5.01

@@ -1,0 +1,90 @@
+{"tag": "panel-L1c@db3f945", "genome": "seed", "mu_old": null, "anchor": "tune-v20-L1c", "wins": 40, "games": 80, "win_rate": 0.5, "games_distinct": "80 (40 maps x 2 sides, bot seeds)", "t": 1792875718}
+{"tag": "panel-L1c@db3f945", "genome": "A662", "mu_old": 41.30786698153152, "anchor": "tune-v20-L1c", "wins": 36, "games": 80, "win_rate": 0.45, "games_distinct": "80 (40 maps x 2 sides, bot seeds)", "t": 1792875722}
+{"tag": "panel-L1c@db3f945", "genome": "A734", "mu_old": 41.27434021734075, "anchor": "tune-v20-L1c", "wins": 45, "games": 80, "win_rate": 0.5625, "games_distinct": "80 (40 maps x 2 sides, bot seeds)", "t": 1792875726}
+{"tag": "panel-L1c@db3f945", "genome": "A724", "mu_old": 41.14638790960635, "anchor": "tune-v20-L1c", "wins": 43, "games": 80, "win_rate": 0.5375, "games_distinct": "80 (40 maps x 2 sides, bot seeds)", "t": 1792875731}
+[r1 bench] default cell 1 (seed, cast_value->strike_cast): 0.4 $0.005
+[r1 bench] default cell 2 (seed, rule->r_hold): 0.5125 $0.005
+[r1 bench] default cell 0 (seed, r_lock->lock_altar): 0.5125 $0.005
+[r1 bench] default cell 3 (seed, update->rule_target): 0.5 $0.005
+[r1 bench] default cell 4 (seed, altar_eta->here): 0.4625 $0.005
+[r1 bench] default cell 7 (seed, bank_goal->bank_t2): behavioural twin $0.009
+[r1 bench] default cell 5 (seed, bank_blocked->bank_t1): behavioural twin $0.009
+[r1 bench] default cell 6 (seed, taken->camp_block): 0.4875 $0.011
+[r1 bench] default cell 11 (arenaA-1:A352, score->shop_pending): behavioural twin $0.011
+[r1 bench] default cell 8 (arenaA-1:A352, r_run->hurt_below): 0.5125 $0.011
+[r1 bench] default cell 9 (arenaA-1:A352, under_fire->in_danger): 0.4125 $0.013
+[r1 bench] default cell 10 (arenaA-1:A352, at_spawn->here): 0.5 $0.015
+[r1 bench] default cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.5 $0.016
+[r1 bench] default cell 13 (arenaA-1:A352, ahead_value->ahead_foe): 0.4625 $0.016
+[r1 bench] default cell 14 (arenaA-1:A352, bank_blocked->reach_camp): 0.425 $0.017
+[r1 bench] default cell 15 (arenaA-1:A352, rule->r_recall): 0.45 $0.017
+[r1 bench] default cell 18 (arenaA-1:A344, live_camp->here): behavioural twin $0.019
+[r1 bench] default cell 19 (arenaA-1:A344, bank_goal->bank_t1): behavioural twin $0.020
+[r1 bench] default cell 16 (arenaA-1:A344, rule->r_prefight): 0.5 $0.020
+[r1 bench] default cell 17 (arenaA-1:A344, bag_ready->threat_near): 0.4375 $0.021
+[r1 bench] default cell 20 (arenaA-1:A344, threat_near->hurt_below): 0.475 $0.023
+[r1 bench] default cell 21 (arenaA-1:A344, rule->r_recall): 0.425 $0.023
+[r1 bench] default cell 24 (arenaA-1:A368, bank_t3->closest): behavioural twin $0.024
+[r1 bench] default cell 23 (arenaA-1:A344, under_fire->in_danger): 0.4875 $0.025
+[r1 bench] default cell 22 (arenaA-1:A344, bag_ready->altar_eta): 0.4875 $0.025
+[r1 bench] default cell 26 (arenaA-1:A368, update->consider): behavioural twin $0.026
+[r1 bench] default cell 25 (arenaA-1:A368, enemies_within->here): 0.5 $0.029
+[r1 bench] default cell 31 (arenaA-1:A368, rule->r_cashout): GenomeError: r_cashout line 245: cannot assign to eta $0.030
+[r1 bench] default cell 30 (arenaA-1:A368, under_fire->enemies_within): behavioural twin $0.030
+[r1 bench] default cell 27 (arenaA-1:A368, update->cast_value): 0.575 $0.032
+[r1 bench] default cell 29 (arenaA-1:A368, bag_ready->altar_eta): 0.475 $0.032
+[r1 bench] default cell 28 (arenaA-1:A368, unseen_camps->here): 0.475 $0.032
+[r1 bench] default cell 32 (arenaA-1:A354, altar_eta->here): 0.5 $0.035
+[r1 bench] default cell 33 (arenaA-1:A354, dash_value->dash_gate): 0.5125 $0.035
+[r1 bench] default cell 35 (arenaA-1:A354, threat_eta->eta): 0.5125 $0.035
+[r1 bench] default cell 34 (arenaA-1:A354, altar_eta->eta): 0.5 $0.035
+[r1 bench] default cell 36 (arenaA-1:A354, camp_goal->closest): 0.4875 $0.036
+[r1 bench] creative cell 0 (seed, r_lock->lock_altar): behavioural twin $0.040
+[r1 bench] default cell 38 (arenaA-1:A354, rule->r_live): 0.3 $0.041
+[r1 bench] default cell 37 (arenaA-1:A354, r_cashout->at_spawn): 0.4875 $0.041
+[r1 bench] default cell 39 (arenaA-1:A354, cast_value->ahead_value): 0.4375 $0.041
+[r1 bench] creative cell 1 (seed, cast_value->strike_cast): 0.4 $0.042
+[r1 bench] creative cell 5 (seed, bank_blocked->bank_t1): behavioural twin $0.045
+[r1 bench] creative cell 2 (seed, rule->r_hold): 0.4875 $0.045
+[r1 bench] creative cell 8 (arenaA-1:A352, r_run->hurt_below): GenomeError: hurt_below line 464: cannot assign to near $0.046
+[r1 bench] creative cell 4 (seed, altar_eta->here): 0.5 $0.048
+[r1 bench] creative cell 3 (seed, update->rule_target): 0.5 $0.048
+[r1 bench] creative cell 6 (seed, taken->camp_block): 0.4875 $0.048
+[r1 bench] creative cell 7 (seed, bank_goal->bank_t2): 0.525 $0.051
+[r1 bench] creative cell 9 (arenaA-1:A352, under_fire->in_danger): 0.3875 $0.051
+[r1 bench] creative cell 10 (arenaA-1:A352, at_spawn->here): 0.5 $0.053
+[r1 bench] creative cell 11 (arenaA-1:A352, score->shop_pending): 0.4875 $0.053
+[r1 bench] creative cell 12 (arenaA-1:A352, dash_spot->dash_path_ok): 0.475 $0.054
+[r1 bench] creative cell 16 (arenaA-1:A344, rule->r_prefight): behavioural twin $0.056
+[r1 bench] creative cell 13 (arenaA-1:A352, ahead_value->ahead_foe): 0.5 $0.056
+[r1 bench] creative cell 14 (arenaA-1:A352, bank_blocked->reach_camp): 0.475 $0.057
+[r1 bench] creative cell 15 (arenaA-1:A352, rule->r_recall): 0.4875 $0.058
+[r1 bench] creative cell 17 (arenaA-1:A344, bag_ready->threat_near): 0.3875 $0.060
+[r1 bench] creative cell 22 (arenaA-1:A344, bag_ready->altar_eta): GenomeError: altar_eta line 495: cannot assign to ring $0.061
+[r1 bench] creative cell 18 (arenaA-1:A344, live_camp->here): 0.4875 $0.061
+[r1 bench] creative cell 19 (arenaA-1:A344, bank_goal->bank_t1): 0.4875 $0.061
+[r1 bench] creative cell 20 (arenaA-1:A344, threat_near->hurt_below): 0.4875 $0.063
+[r1 bench] creative cell 21 (arenaA-1:A344, rule->r_recall): 0.3875 $0.063
+[r1 bench] creative cell 24 (arenaA-1:A368, bank_t3->closest): behavioural twin $0.064
+[r1 bench] creative cell 26 (arenaA-1:A368, update->consider): behavioural twin $0.068
+[r1 bench] creative cell 23 (arenaA-1:A344, under_fire->in_danger): 0.5625 $0.068
+[r1 bench] creative cell 25 (arenaA-1:A368, enemies_within->here): 0.5 $0.068
+[r1 bench] creative cell 28 (arenaA-1:A368, unseen_camps->here): 0.5125 $0.071
+[r1 bench] creative cell 27 (arenaA-1:A368, update->cast_value): 0.5125 $0.071
+[r1 bench] creative cell 30 (arenaA-1:A368, under_fire->enemies_within): 0.475 $0.074
+[r1 bench] creative cell 31 (arenaA-1:A368, rule->r_cashout): 0.2375 $0.074
+[r1 bench] creative cell 29 (arenaA-1:A368, bag_ready->altar_eta): 0.5 $0.074
+[r1 bench] creative cell 32 (arenaA-1:A354, altar_eta->here): 0.4375 $0.077
+[r1 bench] creative cell 33 (arenaA-1:A354, dash_value->dash_gate): 0.275 $0.077
+[r1 bench] creative cell 34 (arenaA-1:A354, altar_eta->eta): 0.5 $0.079
+[r1 bench] creative cell 35 (arenaA-1:A354, threat_eta->eta): 0.4875 $0.079
+[r1 bench] creative cell 36 (arenaA-1:A354, camp_goal->closest): 0.225 $0.079
+[r1 bench] creative cell 39 (arenaA-1:A354, cast_value->ahead_value): behavioural twin $0.081
+[r1 bench] creative cell 37 (arenaA-1:A354, r_cashout->at_spawn): 0.2 $0.081
+[r1 bench] missing cell 1 (seed, cast_value->strike_cast): behavioural twin $0.081
+[r1 bench] creative cell 38 (arenaA-1:A354, rule->r_live): 0.2625 $0.081
+[r1 bench] missing cell 0 (seed, r_lock->lock_altar): behavioural twin $0.087
+[r1 bench] missing cell 5 (seed, bank_blocked->bank_t1): behavioural twin $0.087
+[r1 bench] missing cell 2 (seed, rule->r_hold): 0.4875 $0.089
+[r1 bench] missing cell 3 (seed, update->rule_target): 0.5 $0.089
+[r1 bench] missing cell 7 (seed, bank_goal->bank_t2): behavioural twin $0.089
