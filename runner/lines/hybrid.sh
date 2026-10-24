@@ -270,7 +270,9 @@ PY
   FIXED=policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy
   # jobs/hybrid 7e7b551 (16:20): island 3 seed #82 -> #76 (#82 broadly weak), funsearch/runs 166f85c+
   H20SEEDS=policies/pool/v21.policy,policies/pool/style-gconv1.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-76.policy
-  [ -f runs/ec2-h20 ] && { SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy; }
+  # H21 (jobs/hybrid 9718bf2, lead) folded into H20: cover-maps screens + startup re-screen of the tops; funsearch/runs 694a4a3+
+  H21EXTRA="--screen-maps cover --rescreen-top 3"
+  [ -f runs/ec2-h20 ] && { SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy; EXTRA="$EXTRA $H21EXTRA"; }
   if [ -f runs/ec2-h17 ] && [ ! -f runs/ec2-h20 ]; then
     if [ ! -f runs/ec2-h20-hold ]; then
       grep -c 'hold file present' runs/hyb5.log > runs/ec2-h20-holdmark; touch runs/hyb5.hold runs/ec2-h20-hold
@@ -280,15 +282,15 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H20: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 166f85c HEAD && git merge-base --is-ancestor fce1ade HEAD && [ -f policies/pool/style-gconv1.policy ] && [ -f policies/candidates/hyb5-g3-76.policy ] &&
+         git merge-base --is-ancestor 694a4a3 HEAD && git merge-base --is-ancestor 166f85c HEAD && git merge-base --is-ancestor fce1ade HEAD && [ -f policies/pool/style-gconv1.policy ] && [ -f policies/candidates/hyb5-g3-76.policy ] &&
          rm -f "$D/interp/build/.built-$(git rev-parse HEAD)" && build "$D" fuel_turns &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h20-marks
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h20-progs
-        rm -f runs/hyb5.hold; touch runs/ec2-h20; SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy
-        log "H20: funsearch/runs $(git rev-parse --short HEAD) (has 166f85c: v23 style-gconv1, sim fix, #76), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with style-gconv1 fixed + island-1 seed, island-3 seed #76"
+        rm -f runs/hyb5.hold; touch runs/ec2-h20; SEEDS=$H20SEEDS; FIXED=$FIXED,policies/pool/style-gconv1.policy; EXTRA="$EXTRA $H21EXTRA"
+        log "H20: funsearch/runs $(git rev-parse --short HEAD) (has 694a4a3/166f85c: v23 style-gconv1, sim fix, #76, H21 cover screens), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with style-gconv1 fixed + island-1 seed, island-3 seed #76, --screen-maps cover --rescreen-top 3"
       else
-        echo "H20 merge/166f85c/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H20 upgrade failed"; pushall; return 1
+        echo "H20 merge/694a4a3/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H20 upgrade failed"; pushall; return 1
       fi
     fi
   fi
@@ -462,6 +464,12 @@ PY
     done
     ng=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h20-progs) + 1 ))" | grep -c 'style-gconv1')
     echo "$r" | grep -q 'island 1' && echo "$r" | grep -q 'island 3 with hyb5-g3-76' && [ "$ng" -gt 0 ] && { touch runs/ec2-h20-checked; log "H20 check: $r $ng new children mention style-gconv1 (metrics opponent)"; }
+  fi
+  if [ -f runs/ec2-h20 ] && [ ! -f runs/ec2-h21-checked ]; then
+    rs=$(cat runs/hyb5*.log runs/hyb5.out runs/hyb5-g*.log 2>/dev/null | grep -c 're-screened #')
+    rt=$(grep -ho 're-screen (cover maps): [0-9]* programs' runs/hyb5*.log runs/hyb5.out runs/hyb5-g*.log 2>/dev/null | tail -n 1)
+    nc=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h20-progs) + 1 ))" | grep -cE "screen_maps.{1,4}cover")
+    [ -n "$rt" ] && [ "$nc" -gt 0 ] && { touch runs/ec2-h21-checked; log "H21 check: $rs 're-screened #' lines, '$rt'; $nc new children with screen_maps=cover"; }
   fi
   if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
     t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
