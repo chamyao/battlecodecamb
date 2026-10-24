@@ -4,6 +4,9 @@ Updated 2026-10-24 ~17:40 UTC by session_01Rbeaeb1EjHHutSParz5EPd (reports to th
 session_01YJxccSM2xmnTtoiFjrAzf3). Branch: `funsearch/pure`. Read `CLAUDE.md`, `docs/STRATEGY.md`,
 `docs/FUNSEARCH.md` and `docs/REMOTE_WORKER.md` (on main: the arena) first.
 
+## STATUS 19:30 UTC: ALL TRAINING PAUSED by Cham. Start no FunSearch runs (incl. the A/B arms) until he resumes.
+Latest pure4 state: branch pure/arena-state da35ac4 (g5 at 207 programs, target 301, $0.16 left under --budget 15.15).
+
 ## Purpose (Cham, 24 Oct): improve the training loop, not produce a winning bot
 
 Pure is the loop testbed and control:
