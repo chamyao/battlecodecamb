@@ -1,1 +1,5 @@
 gap run style8-gyield (conversion:max:0.05,gems_per_capture:max:3 vs policies/tune-v21.policy): $1.27 left of $1.27
+gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8974
+gap metric gems_per_capture (max, scale 3): reference tune-v21 mirror value 10.6992
+gap: 2 term(s), equal weight; win floor 0.5 vs the reference; weight 0.5
+seed style-gconv1 score 0.731 (islands [0, 1, 2, 3])
