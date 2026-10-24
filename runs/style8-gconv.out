@@ -25,3 +25,6 @@ gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8999;
 [21] claude-haiku-5-5 island 2: score 0.784 | best 0.867 (#12) $0.02 | 460s
 [22] claude-haiku-5-5 island 0: score 0.843 | best 0.867 (#12) $0.02 | 542s
 gap run style8-gconv (conversion:max:0.05 vs policies/tune-v21.policy): $1.75 left of $2.0
+gap metric conversion (max, scale 0.05): reference tune-v21 mirror value 0.8958; win floor 0.5 vs it; weight 0.5
+[23] claude-haiku-5-5 island 3: score -0.368 | best 0.867 (#12) $0.01 | 100s
+[24] claude-haiku-5-5 island 2: score 0.862 | best 0.867 (#12) $0.01 | 217s
