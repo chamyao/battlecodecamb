@@ -138,4 +138,15 @@ With the starter policy most time is the policy's own distance fields; the
 engine itself (vision, rules, Api) is a few percent. `run_matches`/`bench
 --threads T` scale across cores (one match per thread, no shared mutable
 state). The hot loop does not allocate: vision comes from per-tile windows
-precomputed at map load, cached per Api by (round, position, ward, reveals).
+(computed on a tile's first use and shared by every match on the map), cached per
+Api by (round, position, ward, reveals).
+
+Speed work (genome/simspeed, Oct 24) made genome_eval 2.2-2.4x faster with
+bit-identical results. With the bot memo in play (genome and .pol sides), most of
+the remaining time is breadth-first search: the memo's pricing searches, the
+simulator's own answers and the genome's fields, about 25% (40% on 100x100 maps),
+all in `bfs_layers` (bitboard.h). Any change that could alter a result must pass
+`genome/tools/exact_suite.sh BASE_REV`. It plays the same 880-game suite with both
+binaries (genome, .pol and starter sides, both teams, all maps, --bot-seeds) and
+compares every game, including a hash of each team's per-turn fuel
+(`genome_eval --details --fuel-hash`; `GENOME_TURN_FUEL_ALL=DIR` dumps it all).

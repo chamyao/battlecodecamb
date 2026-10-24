@@ -1702,8 +1702,7 @@ private:
 	}
 	Tiles combine(const Tiles& a, const Tiles& b, int op)
 	{
-		auto r = std::make_shared<Bitboard>();
-		if (a.b) *r = *a.b;
+		auto r = a.b ? std::make_shared<Bitboard>(*a.b) : std::make_shared<Bitboard>();
 		if (op == 0 && b.b) *r |= *b.b;
 		if (op == 1)
 		{

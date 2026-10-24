@@ -654,9 +654,9 @@ struct Interp
 		Op op;
 		bool exec;
 		bool skip = false;
-		// Only the simulator charges (the real bot's engine meters fuel itself, and the
-		// uncaught_exceptions() calls cost fuel there on every block).
-		int unwinding = in.api.count_charges ? std::uncaught_exceptions() : 0;
+		// Exceptions in flight when the block started: always none, since no Charge is built while
+		// unwinding (this file has no try/catch, and no destructor evaluates blocks).
+		static constexpr int unwinding = 0;
 		// May throw: a charge can suspend the bot, and cancelling a suspended bot resumes it with
 		// an exception. Never charges while already unwinding.
 		~Charge() noexcept(false)
@@ -718,6 +718,12 @@ struct Interp
 		charge_block_cost(op, exec);
 		charge_turn_cost(false);
 	}
+	static constexpr std::int64_t kUnsetMilli = INT64_MIN;
+	std::array<std::array<std::int64_t, kNumBlocks>, 2> fixed_milli = [] {
+		std::array<std::array<std::int64_t, kNumBlocks>, 2> t;
+		for (auto& r : t) r.fill(kUnsetMilli);
+		return t;
+	}();
 	void charge_block_cost(Op op, bool exec)
 	{
 		const std::int64_t* c = block_costs().row[exec ? 1 : 0][static_cast<int>(op)];
@@ -728,11 +734,16 @@ struct Interp
 			api.compute(kUncalibratedBlockMilli / 1000);
 			return;
 		}
-		const std::int64_t H = m().H, ch = static_cast<std::int64_t>((m().W + 7) / 8) * ((m().H + 7) / 8);
-		const std::int64_t f[10] = { 1, H, ch, w.occ, w.occ * H, w.dests, w.exp * ch, static_cast<std::int64_t>(m().camps.size()),
-									 static_cast<std::int64_t>(m().groups.size()), w.bits };
-		std::int64_t milli = 0;
-		for (int i = 0; i < 10; ++i) milli += c[i] * f[i];
+		// sum of c[i] * f[i], f = { 1, H, ch, occ, occ * H, dests, exp * ch, camps, groups, bits }; the
+		// terms fixed by the map are summed once per block kind
+		std::int64_t& fixed = fixed_milli[exec ? 1 : 0][static_cast<int>(op)];
+		const std::int64_t H = m().H;
+		auto chunks = [&] { return static_cast<std::int64_t>((m().W + 7) / 8) * ((m().H + 7) / 8); };
+		if (fixed == kUnsetMilli)
+			fixed = c[0] + c[1] * H + c[2] * chunks() + c[7] * static_cast<std::int64_t>(m().camps.size()) +
+					c[8] * static_cast<std::int64_t>(m().groups.size());
+		std::int64_t milli = fixed;
+		if (w.occ | w.dests | w.exp | w.bits) milli += c[3] * w.occ + c[4] * (w.occ * H) + c[5] * w.dests + c[6] * (w.exp * chunks()) + c[9] * w.bits;
 		if (cbs::memo_stats().enabled)
 		{
 			auto& st = charge_stats_table()[exec ? 1 : 0][static_cast<int>(op)];
