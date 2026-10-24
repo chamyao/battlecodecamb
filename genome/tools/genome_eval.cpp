@@ -64,6 +64,7 @@ int main(int argc, char** argv)
 	int games = 10, threads = 1, max_rounds = 0;
 	double fuel_mult = 1.0; // exploration: scale every bot's per-turn fuel budget
 	bool bot_seeds = false, details = false;
+	const char* turn_fuel_out = std::getenv("GENOME_TURN_FUEL"); // game 0: per-turn fuel of both teams, one line each
 	std::uint64_t seed = 1;
 	for (int i = 1; i < argc; ++i)
 	{
@@ -120,6 +121,7 @@ int main(int argc, char** argv)
 				MatchOptions opt;
 				opt.seed = gs;
 				opt.max_rounds = max_rounds;
+				opt.record_turn_fuel = turn_fuel_out && g == 0;
 				opt.fuel.per_turn = static_cast<std::int64_t>(static_cast<double>(opt.fuel.per_turn) * fuel_mult);
 				Match match(loaded[(g / 2) % loaded.size()], swap ? *pb : *pa, swap ? *pa : *pb, opt);
 				const GameResult r = match.run();
@@ -145,6 +147,16 @@ int main(int argc, char** argv)
 				}
 				std::lock_guard<std::mutex> lk(mu);
 				per_game[g] = won;
+				if (opt.record_turn_fuel)
+					if (FILE* f = std::fopen(turn_fuel_out, "w"))
+					{
+						for (int t = 0; t < 2; ++t)
+						{
+							for (auto v : match.stats.turn_fuel[t]) std::fprintf(f, "%lld ", static_cast<long long>(v));
+							std::fprintf(f, "\n");
+						}
+						std::fclose(f);
+					}
 				if (details)
 				{
 					std::string draft;
