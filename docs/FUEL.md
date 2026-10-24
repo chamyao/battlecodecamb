@@ -266,6 +266,45 @@ tune-1 profiles: three turns cambc measured at ~95.7k came out at ~103.5k becaus
 samples in the pool). On the same refit, v7zg-cast vs fs-1 (12 maps, all still identical):
 total 1.028 (was 1.044), per-turn median +1.6%, 10-90% [−7.8%, +12.7%].
 
+On the ba25401 bot (refit 65ca6e5, then the mask estimate below), tune-2 vs tune-1, 80
+`--bot-seeds` games against cambc: **80/80 identical**, including the one game where cambc
+itself suspends a turn (01big-world, tune-2 as A, round 1392). 525,805 turns: total 1.011,
+per-turn median −0.0%, 10-90% [−11.2%, +12.8%], 1-99% [−23.0%, +24.1%]; turns over 80k:
+median 0.997.
+
+`nearest_by_walk`'s choice of the capped origin search depends on what the last reachable
+mask cost the bot (it measures it). The simulator estimated it as max(190 + 1.7·tiles,
+0.9·chunks·D), which is 3-4x the real cost almost everywhere (median masks are 100-350
+fuel), so the simulator took the capped search where the bot did not (an extra ~60 layers on
+01big-world). Measured on 33k masks (tune-2 vs tune-1, 10 maps), ReachableMask works layer
+by layer on the chunks of the box within k of origin: mask ≈ 97 + 1.54·Σ_{k≤D} chunks(box
+of radius k, clipped) + 0.29·tiles (mae 93 fuel; masks over 2k: median 0.995).
+
+**`fuel_remaining()` gates.** Until 756d052 the deploy bot's `fuel_remaining()` returned 2^40
+(the simulator's unmetered value; the bot never meters), so any gate on it always passed in
+cambc. Now it asks the engine. Policies that gate on it are exact only when the threshold is
+far from the values the gate actually sees. tune-3 (`fuel_remaining() > 55000`) vs tune-2:
+76/80 identical. Measured on 00ambush (1164 checks, tune-3 as A), the simulator reads the gate
+a median 2.75k lower than cambc (p10 −0.1k, p90 +4.2k fuel spent before the check, sim minus
+real), while turn totals agree within ~1%: the fit constrains turn totals, not when within
+the turn the fuel goes. 117 of the 1164 real reads were within 50-60k. (A probe `printf` in the
+bot costs ~3.0k fuel; subtract it when measuring this way.)
+
+**Within-turn timing (gates).** Reads of `fuel_remaining()` were compared directly: tune-3
+with its gate set to always pass (same reads, identical games) vs tune-2 on 00ambush,
+01big-world, 01starvation and 00collision, both sides; a probe bot prints each turn's first
+read (21.5k reads). The simulator read the gate a median 1.8k low (fuel spent before the
+check, sim minus real: p10 −2.1k, p90 +3.6k; 3-9% by map), growing with the blocks run so far
+(~24 per block) while turn totals agreed: part of what the fit charges per block is paid by
+the real bot after the policy runs. `Interp::charge_turn_cost` now holds back 24 per block
+run so far and charges it at the end of the turn (totals unchanged). At the gate: median
++0.0k, p10 −3.8k, p90 +1.8k; per map −0.8k to +1.0k (00ambush +1.0k). tune-3 vs tune-2 against
+cambc: 76/80 identical (75 before); tune-2 vs tune-1 still 80/80. The rest is per-turn spread
+(p10/p90 ±2-4k), which per-block scales do not explain; a gate threshold within a few k of the
+values it sees will still flip some decisions.
+`FUEL_GATE_DETAIL=1` (fuel_turns, `--enforce`) prints each turn's first `fuel_remaining()` read
+(`@@GD`) with the charges so far by block (`@@GDB`) and API call (`@@GDC`).
+
 Diagnostics for this kind of check:
 - `STATE_TRACE=1` (interp_eval; the bot's main.cpp can set `interp::state_trace` for a cambc
   trace build): per champion turn, `@@ST` (state seen at turn start), `@@SE` (the `end_turn()`
