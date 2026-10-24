@@ -35,6 +35,12 @@ Each item is written so a mutation prompt can quote it: `gap | evidence | genes 
    - Genes: `r11` bag_ready, `r9` r_prefight, `r3`/`r4`/`r5` run, recall and cash out, `s10` threat_eta,
      `s11` altar_eta.
    - Sim metric: `lost_to_champs`; the seed scores 55, about 3x below real (sim opponents kill less).
+   - Stress opponent: `stress/hunter.genome` (commit, plus it chases visible carriers within 20 and fights carriers
+     first). Commit loses 96.5 gems per game to it (48 against the original; real band 155), but champion deaths
+     stay at 7.0 (real 10.2). No hunter knob moved deaths past about 7.4: pack-only chasing, altar ambush and
+     strength stacking were all tried. The sim's fight model itself looks short of real kills, so the
+     lever is likely in the simulator, not the opponent. Retreat/recall children all fail against hunter too
+     (`rejected/README.md`).
 
 3. **Capture yield: gold-only and poor groups.**
    - Evidence: our captures pay 10.2 ± 1.1 gems, theirs 15.3 ± 1.2. We make more captures (75 against 55),

@@ -46,9 +46,13 @@ SK1: Num = 0            # ability kind of slot 1
 BLOCK: Tiles = None     # this turn: tiles I cannot step onto (computed at turn start)
 FIELD: Field = None     # this turn: walking field to GOAL, out to my tile
 OPEN: Bool = False      # this turn: GOAL can be walked to
-HUNT_BAG: Num = 10      # hunter: chase carriers with this many gems
-HUNT_R: Num = 10        # hunter: up to this far
-HUNT_HP: Num = 0.5      # hunter: while above this health fraction
+HUNT_BAG: Num = 1       # hunter: chase carriers with this many gems
+HUNT_R: Num = 20        # hunter: up to this far
+HUNT_HP: Num = 0.2      # hunter: while above this health fraction
+STACK: Bool = False     # hunter: every shard is the strongest strength shard
+PACK: Bool = False      # hunter: chase only with an ally within 4
+AMBUSH: Bool = False    # hunter: idle with an empty bag after round 150, wait at the altar nearest the enemy spawn
+STR_ITEM: Num = -1      # hunter: that shard
 LAST_RULE: Num = 0      # last turn's rule (intel: hysteresis)
 LAST_GOAL: Tile = None  # last turn's walk goal
 BANKING: Bool = False   # last turn walked to an altar to bank
@@ -106,6 +110,7 @@ def update() -> None:
         CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
         SK0 = slot_kind(0)
         SK1 = slot_kind(1)
+        STR_ITEM = strongest_item()
         MAPPED = True
     RULE = rule()
     GOAL = rule_goal()
@@ -215,6 +220,9 @@ def rule() -> Num:
     if 60 > top and r_live():
         top = 60
         pick = 19
+    if 20 > top and AMBUSH and gems() == 0 and round() > 150 and valid(ambush_goal()):
+        top = 20
+        pick = 23
     if 10 > top:
         top = 10
         pick = 20
@@ -240,6 +248,8 @@ def rule_goal() -> Tile:
         return camp_goal()
     if r == 22:
         return hunt_goal()
+    if r == 23:
+        return ambush_goal()
     return tile(-1, -1)
 
 
@@ -383,7 +393,7 @@ def act_value(o: Option) -> Num:
 @gene("a1", "this turn's rule walks to GOAL (retreat, bank walks, monolith walk, live camp, camp walk)")
 def walks() -> Bool:
     r = RULE
-    return r == 3 or r == 11 or r == 12 or r == 15 or r == 18 or r == 19 or r == 20 or r == 22
+    return r == 3 or r == 11 or r == 12 or r == 15 or r == 18 or r == 19 or r == 20 or r == 22 or r == 23
 
 
 @gene("a2", "value of a cast option: dash on walks, cast-ahead, casts and resets of a fight")
@@ -469,6 +479,8 @@ def wants_lock() -> Bool:
 @gene("a11", "next shard to buy: half treasure strength, half the rest jungle health, then power strength/health")
 def next_shard() -> Num:
     d = shards_done()
+    if STACK and STR_ITEM >= 0:
+        return STR_ITEM if d < shard_until(4) else -1
     if d < shard_until(1):
         return 18
     if d < shard_until(2):
@@ -593,6 +605,25 @@ def fight_foe() -> Unit:
     return best(enemies(), lambda u: 10000 * unit_gems(u) - u.health if in_reach(u) else -INF)
 
 
+@gene("x4", "hunter: the item id with the most strength per purchase (-1 if none)")
+def strongest_item() -> Num:
+    bk = -1
+    bs = 0
+    for k in range(64):
+        if item_strength(k) > bs and item_cost(k) <= 30:
+            bs = item_strength(k)
+            bk = k
+    return bk
+
+
+@gene("x5", "hunter: a tile within 2 of the altar nearest the enemy spawn (here if already there)")
+def ambush_goal() -> Tile:
+    a = nearest(altars(), first_tile(enemy_spawn()))
+    if dist(here(), a) <= 2:
+        return tile(-1, -1)
+    return closest(ring(near(a, 0), 2) - altars())
+
+
 @gene("x2", "hunter: the visible enemy carrier worth chasing (most gems, nearer first)")
 def hunt_target() -> Unit:
     return best(enemies(), lambda u: unit_gems(u) - dist(here(), u.pos) if unit_gems(u) >= HUNT_BAG and dist(here(), u.pos) <= HUNT_R and not (u.pos in enemy_spawn()) else -INF)
@@ -602,6 +633,8 @@ def hunt_target() -> Unit:
 def hunt_goal() -> Tile:
     u = hunt_target()
     if not exists(u) or unit_gems(u) < HUNT_BAG or dist(here(), u.pos) > HUNT_R or in_reach(u) or me().health_frac < HUNT_HP or at_spawn():
+        return tile(-1, -1)
+    if PACK and count(dist(here(), a.pos) <= 4 for a in allies()) == 0:
         return tile(-1, -1)
     return closest(near(u.pos, 1) - near(u.pos, 0))
 

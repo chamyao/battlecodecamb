@@ -4,7 +4,7 @@ Evidence from our live bot's real band games (rated +50..+150 above us), turned 
 
 - `GAPS.md`: ranked gaps (evidence, seed genes, sim metric); refreshed per batch. `NOTES.md`: what changed per batch.
 - `directed/*.genome`: directed children of the seed (`genome/seeds/v23.genome`), one gap each.
-- `stress/lockall.genome`: a test opponent (locks every altar); not an arena genome.
+- `stress/lockall.genome`, `stress/hunter.genome`: test opponents (locks every altar; chases carriers); not arena genomes.
 - `batches/bN.md`: each batch's raw tables, opponents and match-group IDs.
 
 Tools:
