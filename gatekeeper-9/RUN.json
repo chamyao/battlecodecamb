@@ -1,0 +1,42 @@
+{
+ "id": 15,
+ "label": "gatekeeper-9",
+ "module": "genome.search.gate",
+ "args": [
+  "--out",
+  "runs/gatekeeper",
+  "--arena",
+  "jobs:arenaA-",
+  "--arena",
+  "api:14:runs/arenaB=arenaB-1/arena",
+  "--top",
+  "5",
+  "--threads",
+  "1",
+  "--ref",
+  "genome/candidates/B318.genome",
+  "--arena-engine",
+  "212a505fd6246d7f47977abccf2d358c1ee7a0d8",
+  "--max-hours",
+  "24",
+  "--anchors",
+  "policies/candidates/tune-v20-L1c.policy,policies/candidates/style-gconv1.policy,policies/v7.policy,policies/candidates/tune-v20-L1.policy,policies/candidates/rall2-ca4-lean-g.policy,policies/opp-tune5-metadraft.policy"
+ ],
+ "workdir": "fresh",
+ "fresh": 1,
+ "ref": "6fba6cc8823d83da4898459d760d492d6b3d900f (6fba6cc8823d)",
+ "threads": 1,
+ "budget": 0.0,
+ "pid": 140972,
+ "status": "stopped",
+ "exit_code": null,
+ "error": null,
+ "created_by": "anon:genome-search",
+ "created_at": 1792876706.1592643,
+ "started_at": 1792876706.1694534,
+ "finished_at": 1792877158.2211854,
+ "extra": {
+  "policies": {},
+  "overlay": null
+ }
+}
