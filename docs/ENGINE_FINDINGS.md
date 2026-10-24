@@ -317,6 +317,12 @@ the altar was the only path).
   mid-round. Policy RNG was the only source of divergence. The engine's own randomness
   (`match.seed`) did not show up in these games: the draft random fill is never reached when
   every bot picks.
+- A policy whose draft can fail to pick (e.g. `policies/tests/group-rate-probe.policy`, which
+  only ever picks Vendetta) reaches the engine's random fill, so its sim games are not
+  cambc's: 27/80 differed vs v7zg-cast (deploy/v0 82bb6b7). Replaying those cambc games'
+  actions through the sim (oracle/replays) showed 0 state divergences; with an explicit
+  fallback draft (`group-rate-probe-draft.policy`) the same matchup is 80/80 identical.
+  Differential probes must draft every pick.
 - Consequence: with the bot's fixed seeds, `random_champion` makes the same choices in every
   game, so a near-mirror always drafts the same two compositions (v4/v5: A Vesper Vale, Tavi,
   Marcella, Stellar, Ren; B Vesper Vale, Willow, Ryth, Stellar, Heart of Ruin, truncated on

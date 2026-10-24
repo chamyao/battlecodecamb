@@ -781,6 +781,13 @@ std::int64_t Api::fuel_remaining()
 bool Api::nearest_by_walk(const Bitboard& walls, Vec2 origin, const Bitboard& cand, Vec2& out, int* expansions)
 {
 	const int W = g_.map().W, H = g_.map().H;
+	// A dead champion reads (-1,-1): nothing is reachable from off the map. As bot_api.cpp, which
+	// returns before any host call, so nothing is charged.
+	if (origin.x < 0 || origin.y < 0 || origin.x >= W || origin.y >= H)
+	{
+		if (expansions) *expansions = 0;
+		return false;
+	}
 	// Per call, not static: a charge can suspend this bot while others run on the same thread.
 	std::vector<std::uint16_t> field(static_cast<std::size_t>(W) * H);
 	std::uint16_t* d = field.data();
