@@ -366,3 +366,13 @@ Relaunch with the current command line plus these changes (run args, passed thro
 4. `--island-axes "3=fuel:5,conversion:2,pairs:1,disengage:1"` (island 3's axis menu; other islands keep --axes)
 Check: hyb5.log shows "re-seeded island 3 with hyb5-g3-82 (score ~0.50)" (penalised; raw ~0.70 is in metrics.fuel);
 island-3 children carry metrics.fuel; about half of island-3 children log axis "fuel".
+
+## Job H18 (2026-10-24 16:00 UTC, hybrid line session; per the FunSearch lead): capture-yield fitness, all islands
+Fold into the H16/H17 pull if it has not happened (one pull), else the next boundary. Require funsearch/runs fc797d0
+or later (contains 27dd4a2). Python only beyond H16/H17. Add to the relaunch (run args):
+`--yield-weight 0.25` (defaults: --yield-ref v21 --yield-scale 3 --yield-floor 0.34)
+score = 0.75 x usual + 0.25 x (0.5 + 0.5 x clip((our gems/capture - v21's, in the screen games vs v21) / 3, -1, 1)),
+minus 1 when the screen win rate vs v21 is below 0.34 - 2 standard errors. Island 3 keeps its fuel penalty on top.
+v21 must stay a screen opponent (it is: the league's members include it). Programs already in runs/hyb5-g3 are
+rescaled in memory at startup. Check: hyb5.log prints "yield term: N logged programs rescaled"; new children carry
+metrics.yield {gpc_diff, term, raw_score, ref_win, below_floor}. Promotion is unchanged (h2h vs the best).
