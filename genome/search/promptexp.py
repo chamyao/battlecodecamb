@@ -255,6 +255,8 @@ def type_check(t, parent_src, child_src, a_id, b_id):
         return None
     if not new:
         return "a new gene N must be created and called"
+    if t in ("T2", "T4", "T5") and b_changed:
+        return f"{b0} must stay exactly as it is"
     if t == "T2":
         if calls_ab:
             return f"{a0} must call the new gene N instead of calling {b0} directly"
