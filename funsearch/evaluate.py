@@ -67,11 +67,12 @@ def _compiled_opponent(spec):
 
 
 def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, maps=None, timeout=600,
-             fuel_mult=1.0):
+             fuel_mult=1.0, gap=True):
     """Parse, compile and play `text`; games alternate sides, maps sampled by seed.
 
     fuel_mult scales every bot's per-turn fuel budget (exploration only: anything
-    named best or submitted must be scored at 1.0, the real game)."""
+    named best or submitted must be scored at 1.0, the real game). gap=False skips the --gap-metric games
+    (per-child hill-climbs compare constants on the usual score only)."""
     try:
         steps = parse(text)
         prefix = to_prefix(steps)
@@ -116,7 +117,7 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
             stats.pop("results", None)
             result.per_opponent[name] = stats
             result.score += score_of(stats) * w / sum(weights)
-        if GAP is not None:  # search against one gap metric of our bot, with a win-rate floor vs the reference
+        if GAP is not None and gap:  # gap metric of our bot with a win-rate floor (off inside hill-climbs)
             from . import fights
             g = fights.play(pol, GAP["ref"], GAP["games"], seed)["summary"]
             value = g[GAP["metric"]]

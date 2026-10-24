@@ -20,4 +20,6 @@ PYTHONUNBUFFERED=1 exec python3 -m funsearch.run --run "$run" --budget "$left" -
   --opponents "${GAP_OPPONENTS:-builtin:starter@0.25,$ref@3,policies/tune-v20.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy}" \
   --gap-metric "$metric" --gap-ref "$ref" --gap-weight "${GAP_WEIGHT:-0.5}" --gap-games "${GAP_GAMES:-40}" \
   --win-floor "${WIN_FLOOR:-0.5}" --fresh-seeds --workers "${WORKERS:-2}" --eval-threads "${EVAL_THREADS:-2}" \
-  --directive "@$directive" --helpers "${HELPERS:-funsearch/helpers.json}"
+  --directive "@$directive" --helpers "${HELPERS:-funsearch/helpers.json}" \
+  --tune-steps 4 --tune-games 8 --tune-rejects 2 \
+  --tune-opponents "${TUNE_OPPONENTS:-$(echo "${GAP_OPPONENTS:-$ref,policies/tune-v20.policy,policies/opp-hunter3.policy,policies/opp-hunter2b.policy,policies/tune5-campreset.policy}" | tr ',' '\n' | grep -v '^builtin:' | sed 's/@[0-9.]*$//' | head -5 | paste -sd,)}"

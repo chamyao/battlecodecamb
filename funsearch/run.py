@@ -313,7 +313,7 @@ def main():
             crng = random.Random(rng.random())
 
         def ev(t):
-            r = evaluate(t, opponents=tune_opps, games=args.tune_games, threads=args.eval_threads, seed=seed)
+            r = evaluate(t, opponents=tune_opps, games=args.tune_games, threads=args.eval_threads, seed=seed, gap=False)
             return r.score if r.ok else None
         t0 = time.time()
         tuned, info = climb_child(parent.text, text, ev, steps=args.tune_steps, rng=crng, margin=args.tune_margin,
