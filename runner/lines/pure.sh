@@ -41,6 +41,33 @@ cd "$D" || return 1
 phase=$(cat runs/ec2-phase)
 mark=$(cat runs/ec2-resume-mark)
 newlog() { tail -n +"$((mark + 1))" runs/pure4.log; }
+# One-shot g3 -> g4 WITHOUT a promotion (pure line, 2026-10-24): g3's 151-program round did not promote (best h2h
+# 0.529 < 0.55) and the league extended g3 on the old prompt and opponents. Stop it, move the state to gen 4 with
+# fs-p2 still the best, and run g4 from G4_REV. Runs once (runs/ec2-advanced).
+ADVANCE_G3=1
+if [ "$ADVANCE_G3" = 1 ] && [ "$phase" = g3 ] && [ ! -f runs/ec2-advanced ]; then
+  if running "league --name pure4"; then
+    [ -f runs/pure4-g3/STOP ] || { touch runs/pure4-g3/STOP; log "g3 advance: STOP requested, waiting for the league to exit"; }
+    push_state remote/pure remote/pure/runs runs; return 0
+  fi
+  python3 - <<'EOF2' || { halt "g3 advance: runs/pure4.json is not at gen 3: $(cat runs/pure4.json)"; return 1; }
+import json
+s = json.load(open("runs/pure4.json"))
+assert s["gen"] == 3, s
+json.dump({"gen": 4, "members": s["members"]}, open("runs/pure4.json", "w"))
+EOF2
+  rm -f runs/pure4-g3/STOP
+  rm -rf /root/bc/pure-runs-save && cp -a runs /root/bc/pure-runs-save &&
+    git fetch -q origin funsearch/pure && git checkout -q -f "$G4_REV" &&
+    rm -rf runs && cp -a /root/bc/pure-runs-save runs &&
+    git checkout -q "$G4_REV" -- runs/pure_launch.sh runs/pure_fixed.txt runs/pure_send.txt ||
+    { halt "g3 advance: g4 checkout failed"; return 1; }
+  build "$D" || { log "g4 build failed"; return 1; }
+  echo g4 > runs/ec2-phase; wc -l < runs/pure4.log > runs/ec2-resume-mark; rm -f runs/ec2-resume-checked
+  touch runs/ec2-advanced
+  phase=g4; mark=$(cat runs/ec2-resume-mark)
+  log "g3 ended without promotion (best stays fs-p2); moved to funsearch/pure $(git rev-parse --short HEAD) for g4"
+fi
 if ! running "league --name pure4"; then
   if [ "$phase" = g3 ] && [ -f runs/ec2-launched ] && newlog | grep -q 'PROMOTED fs-p3' &&
      python3 -c "import json,sys; sys.exit(json.load(open('runs/pure4.json'))['gen'] != 4)"; then
