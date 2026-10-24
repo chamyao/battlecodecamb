@@ -137,7 +137,9 @@ PY
   # rebuild), pytest, relaunch with H7's command plus the disengage axis and seeds v21,v21,v20,v19-L1c.
   H8SEEDS=policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/pool/v19-L1c.policy
   H8AXES="--axes items,vision,teleport,team,roles,pairs,macro,abilities,combat,disengage"
-  [ -f runs/ec2-h8 ] && { SEEDS=$H8SEEDS; AXES=$H8AXES; }
+  # H8 addendum (jobs/hybrid 27f7c9b): also require 896fb6b (python only) and add child constant tuning
+  H8TUNE="--tune-children --tune-steps 6 --tune-games 12"; TUNE=
+  [ -f runs/ec2-h8 ] && { SEEDS=$H8SEEDS; AXES=$H8AXES; TUNE=$H8TUNE; }
   if [ -f runs/ec2-h7c ] && [ ! -f runs/ec2-h8 ]; then
     if [ ! -f runs/ec2-h8-hold ]; then
       grep -c 'hold file present' runs/hyb5.log > runs/ec2-h8-holdmark; touch runs/hyb5.hold runs/ec2-h8-hold
@@ -147,11 +149,12 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H8: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor f31c3a4 HEAD && [ -f policies/pool/v19-L1c.policy ] && build "$D" &&
+         git merge-base --is-ancestor f31c3a4 HEAD && git merge-base --is-ancestor 896fb6b HEAD &&
+         [ -f policies/pool/v19-L1c.policy ] && build "$D" &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h8-marks
-        rm -f runs/hyb5.hold; touch runs/ec2-h8; SEEDS=$H8SEEDS; AXES=$H8AXES
-        log "H8: funsearch/runs $(git rev-parse --short HEAD) (has f31c3a4), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 (disengage axis; seeds v21,v21,v20,v19-L1c)"
+        rm -f runs/hyb5.hold; touch runs/ec2-h8; SEEDS=$H8SEEDS; AXES=$H8AXES; TUNE=$H8TUNE
+        log "H8: funsearch/runs $(git rev-parse --short HEAD) (has f31c3a4, 896fb6b), rebuilt, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 (disengage axis; seeds v21,v21,v20,v19-L1c; --tune-children)"
       else
         echo "H8 merge/f31c3a4/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H8 upgrade failed"; pushall; return 1
       fi
@@ -169,7 +172,7 @@ PY
         --fixed policies/pool/opp-hunter3.policy,policies/pool/opp-hunter2b.policy,policies/pool/opp-hunter2a.policy,policies/pool/opp-metadraft.policy,policies/pool/opp-icecream.policy \
         --prefix fs-h --line hybrid --round 30 --cambc-ref "$CREF" --workers 3 --eval-threads 2 \
         --explore --change-weights 0.6,0.4,0 --novelty-lambda 0.3 --archive-share "$ARCH" \
-        --island-seeds "$SEEDS" $AXES \
+        --island-seeds "$SEEDS" $AXES $TUNE \
         >> runs/hyb5.out 2>&1 < /dev/null &
       touch runs/hyb5.ec2-launched; log "launched hyb5 league"
     fi
@@ -232,6 +235,10 @@ PY
       touch runs/ec2-h8-checked; log "H8 check: no re-seed lines 30 min after relaunch; last: $(grep 'hyb5-g[0-9]*: ' runs/hyb5.log | tail -n 1 | cut -c1-120)"
     fi
     [ -f runs/ec2-h8-wait ] || date +%s > runs/ec2-h8-wait
+  fi
+  if [ -f runs/ec2-h8 ] && [ ! -f runs/ec2-h8-tuned ]; then
+    t=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | grep -c '"tuned"')
+    [ "$t" -gt 0 ] && { touch runs/ec2-h8-tuned; log "H8 tune check: $t programs carry metrics.tuned"; }
   fi
   pushall; return 0
 fi
