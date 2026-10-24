@@ -1,0 +1,650 @@
+"""Survival arena: a population of genomes evolving against itself, plus fixed anchors.
+
+    python3 -m genome.search.arena --out runs/arenaA --tag A --seed genome/seeds/v23.genome --budget 8
+    python3 -m genome.search.arena --out runs/arenaB --tag B --seed ... --budget 3 --intel-branch genome/intel
+
+- Population: up to --capacity genomes, starting from the seed; first-generation mutants fill it.
+- Matches: continuous and sampled. A match is --match-games games (--match-games/2 maps from a cycled
+  map list, both sides of each map, same seed for both sides). Each newborn plays --newborn-matches
+  matches against random members; between births, random pairings (members with uncertain ratings
+  are picked more often). Ratings: TrueSkill (1v1, per game), with uncertainty; every match is logged.
+- Death: over capacity, the lowest-rated genome dies. Only genomes with >= --min-games games, outside
+  a protected species (younger than --protect-games games) and not taking a species below --min-species
+  members are eligible; if nobody is, the smallest-species rule is relaxed before going over capacity.
+- Birth: parent by tournament (--tournament) on rating; fixed operator mix: edge mutation 70% (two
+  edges 25% of those), crossover 15%, constant tuning 15%; Opus every 10th LLM call. Crossover partner:
+  same species with probability 0.8 (crossover by gene ID), else another species (crossover by meaning).
+  Invalid children and behavioural twins (identical per-game outcomes to a member on the twin-check
+  games) do not enter.
+- Species: NEAT-style distance to each species representative: (gene IDs in only one genome
+  + 0.5 x shared IDs whose bodies differ) / genome size; below --species-delta joins that species.
+- Anchors: fixed opponents (--anchors) that are rated but never die and are never parents; every
+  --champion-every births the current top genome is frozen as a champion anchor.
+- Ladder gate (outside selection): a genome that stays top for --gate-births births is played
+  --gate-h2h games per seed (two fresh seeds) head to head vs --gate-ref (>= 53.5% over 800 games: the
+  lower bound at --z standard errors above 50%) and --gate-games per seed vs every fixed anchor (no drop
+  > --regress vs the reference's own rate). Passing genomes go to <out>/candidates/. Each gated genome is
+  also played vs the reference with fuel x10 (behavioural vs fuel-only strength).
+- Intel (--intel-branch, arena B): genome/intel/GAPS.md lines relevant to the mutated edge go into the
+  mutation prompt; genome/intel/directed/*.genome are ingested once each as newborns.
+- Logs (append-only JSONL, every record tagged with the arena): children, births, deaths, species,
+  matches, gates, summaries; <out>/summary.md every --summary-every births. <out>/state.json is the
+  checkpoint: a restart resumes.
+"""
+import argparse
+import json
+import math
+import random
+import re
+import subprocess
+import threading
+import time
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from pathlib import Path
+
+from funsearch.evaluate import MAPS, ROOT
+
+from .. import build as gbuild
+from .. import lang
+from . import edit, operators
+from .claude import BudgetExceeded, Claude
+from .score import Scorer
+
+FRESH_SEEDS = (5_000_011, 6_000_011)
+MORE_SEEDS = (7_000_011, 8_000_011)
+TWIN_SEED = 4_000_037
+
+# ---------------------------------------------------------------- TrueSkill, 1v1 without draws
+MU0, SIGMA0 = 25.0, 25.0 / 3
+BETA, TAU = 25.0 / 6, 25.0 / 300
+
+
+def _pdf(x):
+    return math.exp(-x * x / 2) / math.sqrt(2 * math.pi)
+
+
+def _cdf(x):
+    return 0.5 * (1 + math.erf(x / math.sqrt(2)))
+
+
+def rate_game(w, l):
+    """Update two rating dicts {mu, sigma} in place for one game won by w."""
+    for r in (w, l):
+        r["sigma"] = math.sqrt(r["sigma"] ** 2 + TAU ** 2)
+    c = math.sqrt(2 * BETA ** 2 + w["sigma"] ** 2 + l["sigma"] ** 2)
+    t = (w["mu"] - l["mu"]) / c
+    v = _pdf(t) / max(_cdf(t), 1e-12)
+    ww = v * (v + t)
+    w["mu"] += w["sigma"] ** 2 / c * v
+    l["mu"] -= l["sigma"] ** 2 / c * v
+    w["sigma"] *= math.sqrt(max(1e-6, 1 - w["sigma"] ** 2 / c ** 2 * ww))
+    l["sigma"] *= math.sqrt(max(1e-6, 1 - l["sigma"] ** 2 / c ** 2 * ww))
+
+
+# ---------------------------------------------------------------- the arena
+
+class Arena:
+    def __init__(self, args):
+        self.a = args
+        self.out = Path(args.out)
+        for d in ("genomes", "candidates"):
+            (self.out / d).mkdir(parents=True, exist_ok=True)
+        self.lock = threading.RLock()
+        self.sc = Scorer([], threads=1)
+        self.claude = Claude(args.budget, opus_every=args.opus_every)
+        self.claude.spent = sum(r.get("cost", 0.0) for r in self._read("children"))
+        self.maps = sorted(MAPS)
+        self.specs = {}
+        state = self.out / "state.json"
+        if state.exists():
+            self.s = json.loads(state.read_text())
+            self.log(f"resumed: {len(self.genomes())} genomes, {self.s['births']} births, "
+                     f"{self.s['matches']} matches, spent ${self.claude.spent:.2f}")
+        else:
+            self.s = {"members": {}, "species": {}, "births": 0, "deaths": 0, "matches": 0, "games": 0,
+                      "map_ptr": 0, "newborn_queue": [], "top": None, "top_streak": 0, "gated": [],
+                      "intel_seen": [], "bars": {}, "next_species": 0, "since_birth": 0}
+            for path in args.anchors.split(","):
+                self._add_anchor(Path(path).stem, path)
+            text = Path(args.seed).read_text()
+            m = self._add_genome(text, "seed", [], {"op": "seed"})
+            self.log(f"new arena {args.tag}: seed {m['name']} in species {m['species']}, "
+                     f"{len(self.anchors())} anchors")
+        self.rng = random.Random(self.s["births"] * 7919 + self.s["matches"] + 1)
+        self.gaps, self.gaps_t = [], 0.0
+
+    # ---- logging
+    def _write(self, kind, rec):
+        rec = {"arena": self.a.tag, "t": round(time.time(), 1), **rec}
+        with open(self.out / f"{kind}.jsonl", "a") as f:
+            f.write(json.dumps(rec) + "\n")
+
+    def _read(self, kind):
+        p = self.out / f"{kind}.jsonl"
+        return [json.loads(l) for l in open(p)] if p.exists() else []
+
+    def log(self, msg):
+        line = f"[{time.strftime('%H:%M:%S')}] [{self.a.tag}] {msg}"
+        print(line, flush=True)
+        with open(self.out / "log.txt", "a") as f:
+            f.write(line + "\n")
+
+    def save(self):
+        tmp = self.out / "state.json.tmp"
+        tmp.write_text(json.dumps(self.s))
+        tmp.replace(self.out / "state.json")
+
+    # ---- members
+    def genomes(self):
+        return [m for m in self.s["members"].values() if m["kind"] == "genome" and m["alive"]]
+
+    def anchors(self):
+        return [m for m in self.s["members"].values() if m["kind"] == "anchor"]
+
+    def players(self):
+        return self.genomes() + self.anchors()
+
+    def spec(self, m):
+        if m["name"] not in self.specs:
+            path = self.out / m["path"] if not Path(m["path"]).is_absolute() else Path(m["path"])
+            if m["path"].endswith(".genome"):
+                self.specs[m["name"]] = f"genome:{gbuild.build(path.read_text())}"
+            else:
+                self.specs[m["name"]] = self.sc._spec(str(path))
+        return self.specs[m["name"]]
+
+    def _add_anchor(self, name, path, rating=None, source=None):
+        m = {"name": name, "kind": "anchor", "path": str(Path(path).resolve()), "mu": MU0, "sigma": SIGMA0,
+             "games": 0, "wins": 0, "alive": True, "born": self.s["births"], "species": None, "parents": [],
+             "fingerprint": None, "source": source}
+        if rating:
+            m["mu"], m["sigma"] = rating
+        self.s["members"][name] = m
+        return m
+
+    def _add_genome(self, text, name, parents, info, fingerprint=None):
+        path = f"genomes/{name}.genome"
+        (self.out / path).write_text(text)
+        ps = [self.s["members"][p] for p in parents]
+        mu = sum(p["mu"] for p in ps) / len(ps) if ps else MU0
+        m = {"name": name, "kind": "genome", "path": path, "mu": mu, "sigma": self.a.newborn_sigma if ps else SIGMA0,
+             "games": 0, "wins": 0, "alive": True, "born": self.s["births"], "parents": parents,
+             "fingerprint": fingerprint, "anchor_games": {}}
+        m["species"] = self._species_of(text, name)
+        self.s["members"][name] = m
+        if m["fingerprint"] is None:
+            m["fingerprint"] = self.fingerprint(text)
+        self._write("births", {"name": name, "birth": self.s["births"], "parents": parents, "species": m["species"],
+                               "mu": mu, **info})
+        return m
+
+    # ---- species
+    def _canon(self, text):
+        return {i: edit.body_canon(t) for i, t in edit.segments(text)[2].items()}
+
+    def distance(self, ta, tb):
+        a, b = self._canon(ta), self._canon(tb)
+        disjoint = len(set(a) ^ set(b))
+        changed = sum(1 for i in set(a) & set(b) if a[i] != b[i])
+        return (disjoint + 0.5 * changed) / max(len(a), len(b), 1)
+
+    def _species_of(self, text, name):
+        for sid, sp in self.s["species"].items():
+            rep = self.out / sp["rep_path"]
+            if self.distance(text, rep.read_text()) < self.a.species_delta:
+                return sid
+        sid = f"S{self.s['next_species']}"
+        self.s["next_species"] += 1
+        self.s["species"][sid] = {"rep": name, "rep_path": f"genomes/{name}.genome", "born": self.s["births"],
+                                  "games_at_birth": self.s["games"], "games": 0}
+        self._write("species", {"species": sid, "founder": name, "birth": self.s["births"]})
+        self.log(f"new species {sid} founded by {name}")
+        return sid
+
+    def species_members(self, sid):
+        return [m for m in self.genomes() if m["species"] == sid]
+
+    def protected(self, sid):
+        return self.s["species"][sid]["games"] < self.a.protect_games
+
+    # ---- twin check: per-game outcomes on fixed games vs two anchors
+    def fingerprint(self, text):
+        spec = f"genome:{gbuild.build(text)}"
+        outs = []
+        for anc in self.anchors()[:2]:
+            st = self.sc.play(spec, self.spec(anc), TWIN_SEED, self.a.match_games, threads=1)
+            if "error" in st:
+                raise RuntimeError(st["error"])
+            outs.append((st.get("results"), st["a_gems"], st["b_gems"]))
+        return json.dumps(outs)
+
+    # ---- matches
+    def next_maps(self):
+        k = self.a.match_games // 2
+        ptr = self.s["map_ptr"]
+        self.s["map_ptr"] = (ptr + k) % len(self.maps)
+        return [self.maps[(ptr + i) % len(self.maps)] for i in range(k)]
+
+    def pick_pair(self):
+        """Newborn matches first; else a random pairing weighted toward uncertain genomes."""
+        alive = {m["name"] for m in self.players()}
+        while self.s["newborn_queue"]:
+            a, b = self.s["newborn_queue"].pop(0)
+            if a in alive and b in alive:
+                return a, b
+        gs = self.genomes()
+        if len(gs) < 1:
+            return None
+        a = self.rng.choices(gs, [m["sigma"] for m in gs])[0]
+        others = [m for m in self.players() if m["name"] != a["name"]]
+        return a["name"], self.rng.choice(others)["name"]
+
+    def play_match(self, an, bn, seed, maps):
+        with self.lock:
+            a, b = self.s["members"][an], self.s["members"][bn]
+            sa, sb = self.spec(a), self.spec(b)
+        out = subprocess.run([str(self.sc_eval()), "--a", sa, "--b", sb, "--games", str(self.a.match_games),
+                              "--threads", "1", "--seed", str(seed), *maps], capture_output=True, text=True,
+                             timeout=1800)
+        if out.returncode != 0:
+            return {"error": f"exit {out.returncode}: {out.stderr[-200:]}"}
+        return json.loads(out.stdout)
+
+    @staticmethod
+    def sc_eval():
+        from .score import EVAL
+        return EVAL
+
+    def record_match(self, an, bn, seed, maps, st):
+        with self.lock:
+            if "error" in st:
+                self.log(f"match {an} vs {bn} failed: {st['error']}")
+                return
+            a, b = self.s["members"].get(an), self.s["members"].get(bn)
+            if a is None or b is None:
+                return
+            before = (a["mu"], b["mu"])
+            for r in st.get("results", []):
+                if r > 0.5:
+                    rate_game(a, b)
+                elif r < 0.5:
+                    rate_game(b, a)
+            n, w = st["games"], st["a_wins"]
+            a["games"] += n
+            b["games"] += n
+            a["wins"] += w
+            b["wins"] += n - w
+            for x, y, wins in ((a, b, w), (b, a, n - w)):
+                if x["kind"] == "genome" and y["kind"] == "anchor" and y.get("source") is None:
+                    ag = x["anchor_games"].setdefault(y["name"], [0, 0])
+                    ag[0] += wins
+                    ag[1] += n
+                if x["kind"] == "genome":
+                    self.s["species"][x["species"]]["games"] += n
+            self.s["matches"] += 1
+            self.s["games"] += n
+            self.s["since_birth"] += 1
+            self._write("matches", {"a": an, "b": bn, "seed": seed, "maps": [Path(m).stem for m in maps],
+                                    "games": n, "a_wins": w, "results": st.get("results"),
+                                    "a_gems": st["a_gems"], "b_gems": st["b_gems"],
+                                    "a_fuel": st.get("a_fuel_per_game"), "a_susp": st.get("a_suspensions"),
+                                    "mu_before": before, "mu": [a["mu"], b["mu"]], "sigma": [a["sigma"], b["sigma"]]})
+            self.cull()
+
+    # ---- death
+    def cull(self):
+        while len(self.genomes()) > self.a.capacity:
+            gs = self.genomes()
+            ok = [m for m in gs if m["games"] >= self.a.min_games and not self.protected(m["species"])]
+            strict = [m for m in ok if len(self.species_members(m["species"])) > self.a.min_species]
+            pool = strict or [m for m in ok if len(self.species_members(m["species"])) > 1] or ok
+            if not pool:
+                return  # everyone is new or protected: stay over capacity for now
+            v = min(pool, key=lambda m: m["mu"])
+            v["alive"] = False
+            self.s["deaths"] += 1
+            self._write("deaths", {"name": v["name"], "mu": v["mu"], "sigma": v["sigma"], "games": v["games"],
+                                   "species": v["species"], "rule": "strict" if strict else "relaxed",
+                                   "population": len(gs) - 1})
+
+    # ---- birth
+    def tournament(self, pool):
+        k = min(self.a.tournament, len(pool))
+        return max(self.rng.sample(pool, k), key=lambda m: m["mu"])
+
+    def intel_notes(self, names):
+        if not self.a.intel_branch:
+            return ""
+        lines = self.gaps
+        hit = [l for l in lines if any(re.search(rf"\b{re.escape(n)}\b", l) for n in names)]
+        chosen = (hit or lines[:5])[:8]
+        return ("\nLadder evidence about our bot's real losses (from genome/intel/GAPS.md):\n" +
+                "\n".join(chosen)) if chosen else ""
+
+    def propose(self, seq):
+        """Runs in a worker thread: pick parents and an operator, make and check a child."""
+        with self.lock:
+            r = random.Random(self.rng.random())
+            gs = self.genomes()
+            parent = self.tournament(gs)
+            u = r.random()
+            op = "mutate" if u < 0.70 else "cross" if u < 0.85 else "tune"
+            partner = None
+            if op == "cross":
+                same = [m for m in gs if m["species"] == parent["species"] and m["name"] != parent["name"]]
+                other = [m for m in gs if m["species"] != parent["species"]]
+                pool = same if (same and (r.random() < 0.8 or not other)) else other
+                partner = self.tournament(pool) if pool else None
+                if partner is None:
+                    op = "mutate"
+            ptext = (self.out / parent["path"]).read_text()
+            prefix = f"{self.a.tag}{seq}"
+        parents = [parent["name"]]
+        if op == "tune":
+            child = operators.tune(ptext, r)
+        elif op == "cross":
+            btext = (self.out / partner["path"]).read_text()
+            parents.append(partner["name"])
+            if partner["species"] == parent["species"]:
+                child = operators.crossover(ptext, btext, r)
+                if child.error in ("child equals a parent", "parents identical where they share genes"):
+                    child, parents = None, [parent["name"]]  # no new combination: mutate instead
+            else:
+                child = operators.llm_cross(ptext, parent["mu"], btext, partner["mu"], self.claude, prefix)
+            if child is None:
+                op = "mutate"
+        if op == "mutate":
+            two = 1.0 if r.random() < 0.25 else 0.0
+            child = operators.mutate(ptext, self.claude, r, prefix, self._stats_line(parent), two,
+                                     notes_fn=self.intel_notes)
+        return self.check(child, parents, seq)
+
+    def _stats_line(self, m):
+        return f"rating {m['mu']:.1f} ± {m['sigma']:.1f} over {m['games']} games in the arena"
+
+    def check(self, child, parents, seq, op=None):
+        rec = {"seq": seq, "op": op or child.op, "model": child.model, "cost": child.cost, "parents": parents,
+               "log": child.log, "error": child.error}
+        if child.source is None:
+            return rec, None
+        try:
+            fp = self.fingerprint(child.source)
+        except Exception as e:
+            rec["error"] = f"{type(e).__name__}: {str(e)[:300]}"
+            return rec, None
+        rec["fingerprint"] = fp
+        return rec, child.source
+
+    def accept(self, rec, source):
+        with self.lock:
+            twin = next((m["name"] for m in self.genomes() if m["fingerprint"] == rec.get("fingerprint")), None)
+            if source is not None and twin:
+                rec["error"], rec["twin_of"] = "behavioural twin", twin
+            self.s["births"] += source is not None and not rec["error"]
+            rec["birth"] = self.s["births"]
+            if source is None or rec["error"]:
+                self._write("children", {**rec, "accepted": False, "fingerprint": None})
+                return None
+            name = f"{self.a.tag}{self.s['births']}"
+            m = self._add_genome(source, name, rec["parents"], {"op": rec["op"], "model": rec["model"]},
+                                 fingerprint=rec["fingerprint"])
+            self._write("children", {**rec, "accepted": True, "name": name, "species": m["species"],
+                                     "fingerprint": None})
+            others = [x["name"] for x in self.players() if x["name"] != name]
+            for opp in self.rng.sample(others, min(self.a.newborn_matches, len(others))):
+                self.s["newborn_queue"].append((name, opp))
+            self.s["since_birth"] = 0
+            self.cull()
+            self.after_birth()
+            return m
+
+    def after_birth(self):
+        b = self.s["births"]
+        top = self.top()
+        if top:
+            if top["name"] == self.s["top"]:
+                self.s["top_streak"] += 1
+            else:
+                self.s["top"], self.s["top_streak"] = top["name"], 1
+        if b % self.a.champion_every == 0 and top:
+            name = f"champ{b // self.a.champion_every}-{top['name']}"
+            if not any(m.get("source") == top["name"] for m in self.anchors()):
+                path = self.out / "genomes" / f"{name}.genome"
+                path.write_text((self.out / top["path"]).read_text())
+                self._add_anchor(name, str(path), (top["mu"], top["sigma"]), source=top["name"])
+                self.log(f"champion anchor {name} (mu {top['mu']:.1f})")
+        if b % self.a.summary_every == 0:
+            self.summary()
+        self.save()
+
+    def top(self):
+        gs = [m for m in self.genomes() if m["games"] >= self.a.min_games]
+        return max(gs, key=lambda m: m["mu"]) if gs else None
+
+    # ---- ladder gate
+    def gate_due(self):
+        t = self.top()
+        return (t is not None and self.s["top_streak"] >= self.a.gate_births and t["name"] not in self.s["gated"])
+
+    def rate(self, sa, sb, seeds, games, fuel_mult=1.0):
+        w = n = 0
+        for sd in seeds:
+            st = self.sc.play(sa, sb, sd, games, threads=self.a.gate_threads) if fuel_mult == 1.0 else \
+                Scorer([], threads=self.a.gate_threads, fuel_mult=fuel_mult).play(sa, sb, sd, games)
+            w, n = w + st["a_wins"], n + st["games"]
+        return w, n
+
+    def gate(self):
+        with self.lock:
+            t = self.top()
+            self.s["gated"].append(t["name"])
+            spec = self.spec(t)
+            ref = self.sc._spec(self.a.gate_ref)
+            fixed = [m for m in self.anchors() if m.get("source") is None
+                     and Path(m["path"]).resolve() != Path(self.a.gate_ref).resolve()]
+        self.log(f"ladder gate for {t['name']} (mu {t['mu']:.1f}, top for {self.s['top_streak']} births)")
+        w, n = self.rate(spec, ref, FRESH_SEEDS, self.a.gate_h2h)
+        z = self.a.z
+        if 0.5 <= w / n < 0.5 + z * 0.5 / n ** 0.5:
+            w2, n2 = self.rate(spec, ref, MORE_SEEDS, self.a.gate_h2h)
+            w, n = w + w2, n + n2
+        h2h = w / n
+        clear = h2h >= 0.5 + z * 0.5 / n ** 0.5
+        drops = {}
+        for m in fixed:
+            key = f"{self.a.gate_ref}|{m['name']}"
+            if key not in self.s["bars"]:
+                self.s["bars"][key] = self.rate(ref, self.spec(m), FRESH_SEEDS, self.a.gate_games)
+            bw, bn = self.s["bars"][key]
+            cw, cn = self.rate(spec, self.spec(m), FRESH_SEEDS, self.a.gate_games)
+            drops[m["name"]] = round(cw / cn - bw / bn, 3)
+        f10w, f10n = self.rate(spec, ref, FRESH_SEEDS[:1], self.a.gate_h2h, fuel_mult=10.0)
+        passed = clear and min(drops.values(), default=0) >= -self.a.regress
+        rec = {"name": t["name"], "mu": t["mu"], "h2h": h2h, "h2h_games": n, "clear": clear, "anchor_deltas": drops,
+               "h2h_fuel10": f10w / f10n, "passed": passed, "births": self.s["births"]}
+        self._write("gates", rec)
+        self.log(f"gate {t['name']}: h2h {h2h:.3f} over {n} ({'clear' if clear else 'not clear'}), anchor deltas "
+                 f"{drops}, h2h at fuel x10 {f10w / f10n:.3f} -> {'CANDIDATE' if passed else 'no'}")
+        if passed:
+            (self.out / "candidates" / f"{t['name']}.genome").write_text((self.out / t["path"]).read_text())
+        self.save()
+
+    # ---- intel (arena B)
+    def refresh_intel(self):
+        if not self.a.intel_branch or time.time() - self.gaps_t < self.a.intel_every:
+            return []
+        self.gaps_t = time.time()
+        br = self.a.intel_branch
+        subprocess.run(["git", "-C", str(ROOT), "fetch", "-q", "origin", br], capture_output=True, timeout=120)
+        g = subprocess.run(["git", "-C", str(ROOT), "show", f"origin/{br}:genome/intel/GAPS.md"],
+                           capture_output=True, text=True)
+        if g.returncode == 0:
+            self.gaps = [l.strip() for l in g.stdout.splitlines() if l.strip() and not l.startswith("#")]
+        ls = subprocess.run(["git", "-C", str(ROOT), "ls-tree", "--name-only", f"origin/{br}", "genome/intel/directed/"],
+                            capture_output=True, text=True)
+        new = []
+        for path in ls.stdout.split():
+            if path.endswith(".genome") and path not in self.s["intel_seen"]:
+                self.s["intel_seen"].append(path)
+                t = subprocess.run(["git", "-C", str(ROOT), "show", f"origin/{br}:{path}"], capture_output=True, text=True)
+                new.append((path, t.stdout))
+        return new
+
+    def ingest(self, path, text, seq):
+        try:
+            lang.parse(text)
+            child = operators.Child(text, "directed", None, {"file": path})
+        except lang.GenomeError as e:
+            child = operators.Child(None, "directed", f"GenomeError: {e}", {"file": path})
+        known = set()
+        for m in self.genomes():
+            known |= set(edit.segments((self.out / m["path"]).read_text())[2])
+        ids = set(edit.segments(text)[2]) if child.source else set()
+        best = max(self.genomes(), key=lambda m: len(ids & set(edit.segments((self.out / m["path"]).read_text())[2])))
+        return self.check(child, [best["name"]] if ids & known else [], seq, op="directed")
+
+    # ---- summary
+    def summary(self):
+        gs = sorted(self.genomes(), key=lambda m: -m["mu"])
+        anchors = sorted(self.anchors(), key=lambda m: -m["mu"])
+        sp = {}
+        for m in gs:
+            sp[m["species"]] = sp.get(m["species"], 0) + 1
+        top = [m for m in gs if m["games"] >= self.a.min_games][:3]
+        cyc = {}
+        for m in top:
+            w = sum(v[0] for v in m["anchor_games"].values())
+            n = sum(v[1] for v in m["anchor_games"].values())
+            cyc[m["name"]] = round(w / n, 3) if n else None
+        rec = {"births": self.s["births"], "deaths": self.s["deaths"], "matches": self.s["matches"],
+               "games": self.s["games"], "spent": round(self.claude.spent, 3), "population": len(gs),
+               "species": sp, "top": [(m["name"], round(m["mu"], 2), round(m["sigma"], 2), m["games"], m["species"])
+                                      for m in gs[:5]],
+               "anchors": [(m["name"], round(m["mu"], 2), m["games"]) for m in anchors],
+               "top_vs_anchors": cyc}
+        self._write("summaries", rec)
+        lines = [f"# Arena {self.a.tag}: {time.strftime('%Y-%m-%d %H:%M')}", "",
+                 f"births {rec['births']}, deaths {rec['deaths']}, matches {rec['matches']} ({rec['games']} games), "
+                 f"spent ${rec['spent']:.2f}, population {len(gs)}, species {sp}", "",
+                 "| genome | mu | sigma | games | species | win vs fixed anchors |", "| --- | --- | --- | --- | --- | --- |"]
+        for m in gs[:10]:
+            w = sum(v[0] for v in m["anchor_games"].values())
+            n = sum(v[1] for v in m["anchor_games"].values())
+            lines.append(f"| {m['name']} | {m['mu']:.2f} | {m['sigma']:.2f} | {m['games']} | {m['species']} | "
+                         f"{w / n:.3f} ({n}) |" if n else f"| {m['name']} | {m['mu']:.2f} | {m['sigma']:.2f} | "
+                         f"{m['games']} | {m['species']} | - |")
+        lines += ["", "| anchor | mu | games |", "| --- | --- | --- |"]
+        lines += [f"| {m['name']} | {m['mu']:.2f} | {m['games']} |" for m in anchors]
+        gates = self._read("gates")
+        if gates:
+            lines += ["", "Gates: " + "; ".join(f"{g['name']} h2h {g['h2h']:.3f} {'PASS' if g['passed'] else 'fail'}"
+                                                for g in gates[-5:])]
+        (self.out / "summary.md").write_text("\n".join(lines) + "\n")
+        self.log(f"summary: births {rec['births']} deaths {rec['deaths']} games {rec['games']} ${rec['spent']:.2f}; "
+                 f"top {rec['top'][:3]}; top vs anchors {cyc}")
+
+    # ---- main loop
+    def run(self):
+        a = self.a
+        t_end = time.time() + a.max_hours * 3600
+        births_open = True
+        seq = len(self._read("children"))
+        with ThreadPoolExecutor(a.threads) as mpool, ThreadPoolExecutor(a.births_in_flight) as bpool:
+            matches, births = {}, {}
+            while time.time() < t_end:
+                # births: keep up to --births-in-flight proposals going once the newborn queue is drained
+                with self.lock:
+                    want_birth = (births_open and len(births) < a.births_in_flight
+                                  and len(self.s["newborn_queue"]) <= a.threads
+                                  and (len(self.genomes()) < a.capacity or self.s["since_birth"] >= a.random_matches))
+                if want_birth:
+                    seq += 1
+                    births[bpool.submit(self.propose, seq)] = seq
+                for path, text in self.refresh_intel():
+                    seq += 1
+                    births[bpool.submit(self.ingest, path, text, seq)] = seq
+                # matches: keep every thread busy
+                while len(matches) < a.threads:
+                    with self.lock:
+                        pair = self.pick_pair()
+                        if pair is None:
+                            break
+                        mseed, maps = 9_000_000 + self.s["matches"] + len(matches), self.next_maps()
+                    matches[mpool.submit(self.play_match, *pair, mseed, maps)] = (*pair, mseed, maps)
+                if not matches and not births:
+                    break
+                done, _ = wait(list(matches) + list(births), timeout=30, return_when=FIRST_COMPLETED)
+                for f in done:
+                    if f in matches:
+                        an, bn, mseed, maps = matches.pop(f)
+                        try:
+                            self.record_match(an, bn, mseed, maps, f.result())
+                        except Exception as e:
+                            self.log(f"match error: {type(e).__name__}: {e}")
+                    else:
+                        births.pop(f)
+                        try:
+                            rec, source = f.result()
+                        except BudgetExceeded as e:
+                            self.log(f"{e}: no more births")
+                            births_open = False
+                            continue
+                        except Exception as e:
+                            self.log(f"birth error: {type(e).__name__}: {e}")
+                            continue
+                        m = self.accept(rec, source)
+                        if m:
+                            self.log(f"birth {m['name']} ({rec['op']} {rec['model'] or ''}) of {rec['parents']} "
+                                     f"species {m['species']}; {len(self.genomes())} genomes ${self.claude.spent:.2f}")
+                        else:
+                            self.log(f"rejected {rec['op']} {rec['model'] or ''}: {(rec['error'] or '')[:100]}")
+                if self.gate_due():
+                    self.gate()
+                if not births_open and not births and self.s["since_birth"] >= a.tail_matches:
+                    break
+            self.summary()
+            self.save()
+        self.log(f"done: spent ${self.claude.spent:.2f}")
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--tag", required=True, help="arena name, written into every log record")
+    ap.add_argument("--seed", required=True)
+    ap.add_argument("--anchors", default=",".join(str(ROOT / p) for p in (
+        "policies/candidates/style-gconv1.policy", "policies/v7.policy", "policies/candidates/tune-v20-L1.policy",
+        "policies/candidates/rall2-ca4-lean-g.policy", "policies/opp-tune5-metadraft.policy")))
+    ap.add_argument("--gate-ref", default=str(ROOT / "policies/candidates/style-gconv1.policy"))
+    ap.add_argument("--budget", type=float, default=8.0)
+    ap.add_argument("--opus-every", type=int, default=10)
+    ap.add_argument("--capacity", type=int, default=24)
+    ap.add_argument("--match-games", type=int, default=8)
+    ap.add_argument("--newborn-matches", type=int, default=10)
+    ap.add_argument("--random-matches", type=int, default=10, help="random matches between births (full arena)")
+    ap.add_argument("--newborn-sigma", type=float, default=6.0)
+    ap.add_argument("--min-games", type=int, default=40)
+    ap.add_argument("--min-species", type=int, default=2)
+    ap.add_argument("--protect-games", type=int, default=60)
+    ap.add_argument("--species-delta", type=float, default=0.15)
+    ap.add_argument("--tournament", type=int, default=3)
+    ap.add_argument("--champion-every", type=int, default=50)
+    ap.add_argument("--gate-births", type=int, default=20, help="births a genome must stay top before its gate")
+    ap.add_argument("--gate-h2h", type=int, default=400)
+    ap.add_argument("--gate-games", type=int, default=200)
+    ap.add_argument("--gate-threads", type=int, default=5)
+    ap.add_argument("--z", type=float, default=2.0)
+    ap.add_argument("--regress", type=float, default=0.03)
+    ap.add_argument("--threads", type=int, default=5)
+    ap.add_argument("--births-in-flight", type=int, default=3)
+    ap.add_argument("--summary-every", type=int, default=10)
+    ap.add_argument("--max-hours", type=float, default=48)
+    ap.add_argument("--tail-matches", type=int, default=200, help="matches played after the budget runs out")
+    ap.add_argument("--intel-branch", default="")
+    ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
+    args = ap.parse_args(argv)
+    Arena(args).run()
+
+
+if __name__ == "__main__":
+    main()

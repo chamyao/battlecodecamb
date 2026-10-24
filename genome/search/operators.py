@@ -96,7 +96,8 @@ def apply_mutation(parent_src, reply, editable_ids, prefix):
     return child, stats
 
 
-def mutate(parent_src, claude, rng, prefix, stats_line=None, two_prob=0.25):
+def mutate(parent_src, claude, rng, prefix, stats_line=None, two_prob=0.25, notes_fn=None):
+    """notes_fn(names of the editable genes) -> extra text for the prompt (e.g. ladder evidence)."""
     genome = lang.parse(parent_src)
     edges = pick_edges(genome, rng, two_prob)
     names = []
@@ -106,6 +107,8 @@ def mutate(parent_src, claude, rng, prefix, stats_line=None, two_prob=0.25):
                 names.append(n)
     editable_ids = {genome.genes[n].id for n in names}
     _, _, src_genes = edit.segments(parent_src)
+    if notes_fn:
+        stats_line = (stats_line or "") + notes_fn(names)
     user = prompts.mutate_user(genome, src_genes, names, edges, stats_line)
     text, model, cost, info = claude.ask([prompts.SYSTEM_BASE, prompts.MUTATE_TASK], user)
     log = {"edges": [list(e) for e in edges], "n_edges": len(edges), "editable": sorted(editable_ids), "llm": info}
