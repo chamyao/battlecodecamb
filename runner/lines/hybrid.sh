@@ -240,7 +240,8 @@ PY
   # funsearch/runs 27dd4a2+, build interp_eval + fuel_turns, pytest; island 3 seeded with #82, protected, fuel-scored,
   # with its own axis menu (the league passes these run args through).
   H17SEEDS=policies/pool/v21.policy,policies/pool/v21.policy,policies/pool/v20.policy,policies/candidates/hyb5-g3-82.policy
-  H17EXTRA="--protect-islands 3 --fuel-islands 3 --island-axes 3=fuel:5,conversion:2,pairs:1,disengage:1"; EXTRA=
+  # H18 (jobs/hybrid 8af15ba, lead-approved) folded in: capture-yield fitness on all islands, --yield-weight 0.25, fc797d0+
+  H17EXTRA="--protect-islands 3 --fuel-islands 3 --island-axes 3=fuel:5,conversion:2,pairs:1,disengage:1 --yield-weight 0.25"; EXTRA=
   [ -f runs/ec2-h17 ] && { SEEDS=$H17SEEDS; EXTRA=$H17EXTRA; }
   if [ -f runs/ec2-h16 ] && [ ! -f runs/ec2-h17 ]; then
     if [ ! -f runs/ec2-h17-hold ]; then
@@ -251,13 +252,13 @@ PY
       for pid in $(pgrep -a -x python3 | grep -F 'league --name hyb5' | cut -d' ' -f1); do kill -TERM "$pid" && log "H17: SIGTERM hyb5 pid $pid"; done
       sleep 10
       if git fetch -q origin funsearch/runs && git merge -q --no-edit origin/funsearch/runs &&
-         git merge-base --is-ancestor 27dd4a2 HEAD && [ -f policies/candidates/hyb5-g3-82.policy ] &&
+         git merge-base --is-ancestor 27dd4a2 HEAD && git merge-base --is-ancestor fc797d0 HEAD && [ -f policies/candidates/hyb5-g3-82.policy ] &&
          rm -f "$D/interp/build/.built-$(git rev-parse HEAD)" && build "$D" fuel_turns &&
          python3 -m pytest -q tests > runs/ec2-pytest.txt 2>&1; then
         for f in runs/hyb5-g*.log; do echo "$f $(wc -l < "$f")"; done > runs/ec2-h17-marks
         cat runs/hyb5-g*/programs.jsonl 2>/dev/null | wc -l > runs/ec2-h17-progs
         rm -f runs/hyb5.hold; touch runs/ec2-h17; SEEDS=$H17SEEDS; EXTRA=$H17EXTRA
-        log "H17: funsearch/runs $(git rev-parse --short HEAD) (has 27dd4a2), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the #82 fuel island"
+        log "H17: funsearch/runs $(git rev-parse --short HEAD) (has 27dd4a2, fc797d0), built interp_eval+fuel_turns, $(tail -n 1 runs/ec2-pytest.txt); relaunching hyb5 with the #82 fuel island and --yield-weight 0.25"
       else
         echo "H17 merge/27dd4a2/build/tests failed; hyb5 stopped on hold" > "$D/HALT"; log "HALT: H17 upgrade failed"; pushall; return 1
       fi
@@ -399,6 +400,11 @@ PY
     hk=$(tail -n +"$(( $(cat runs/ec2-h10-progs 2>/dev/null || echo 0) * 0 + 1 ))" runs/hyb5.log | grep -o 'helpers: [0-9]* helpers kept' | tail -n 1)
     lh=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h10-progs) + 1 ))" | grep -c 'lib_helpers')
     [ -n "$hk" ] && [ "$lh" -gt 0 ] && { touch runs/ec2-h10-helpers; log "H10 helpers check: '$hk'; $lh new children carry metrics.lib_helpers; HELPERS.md $( [ -f runs/hyb5.HELPERS.md ] && echo present || echo MISSING)"; }
+  fi
+  if [ -f runs/ec2-h17 ] && [ ! -f runs/ec2-h18-checked ]; then
+    yt=$(grep -ho 'yield term: [0-9]* logged programs rescaled' runs/hyb5*.log runs/hyb5.out 2>/dev/null | tail -n 1)
+    ny=$(cat runs/hyb5-g*/programs.jsonl 2>/dev/null | tail -n +"$(( $(cat runs/ec2-h17-progs) + 1 ))" | grep -c '"yield"')
+    [ -n "$yt" ] && [ "$ny" -gt 0 ] && { touch runs/ec2-h18-checked; log "H18 check: '$yt'; $ny new children carry metrics.yield"; }
   fi
   if [ -f runs/ec2-h17 ] && [ ! -f runs/ec2-h17-checked ]; then
     r=""; for f in runs/hyb5-g*.log; do
