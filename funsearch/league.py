@@ -83,6 +83,7 @@ def _cached_eval(text, opp, games, threads, seed):
                 return row["wins"], row["games"]
     r = evaluate(text, opponents=(opp,), games=games, threads=threads, seed=seed)
     if not r.ok:
+        print(f"validation error vs {opp} (seed {seed}): {r.error}", flush=True)
         return None
     m = next(iter(r.per_opponent.values()))
     with open(CACHE, "a") as f:
@@ -239,6 +240,7 @@ def main():
         for label, text, p in candidates:
             counts = win_rates(text, ["builtin:starter", *league], args.val_games, args.threads, counts=True)
             if counts is None:
+                log(f"  {label}: skipped, evaluation failed (see {args.name}.out)", logfile)
                 continue
             rates = {k: w / n for k, (w, n) in counts.items()}
             worst = min((rates[Path(o).stem] - bar[Path(o).stem] for o in older if Path(o).stem in rates),
