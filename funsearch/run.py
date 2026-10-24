@@ -130,17 +130,21 @@ def main():
         from . import evaluate as ev
         from . import fights
         from .evaluate import _compiled_opponent
-        name, direction, scale = args.gap_metric.split(":")
         ref = _compiled_opponent(args.gap_ref)
-        base = fights.play(ref, ref, 200, 7)["summary"]  # the reference's own value, once (mirror, 200 games)
-        if name not in base:
-            raise SystemExit(f"--gap-metric: unknown stat {name}; choose from {sorted(base)}")
-        ev.GAP = {"metric": name, "sign": 1.0 if direction == "min" else -1.0, "scale": float(scale),
-                  "weight": args.gap_weight, "floor": args.win_floor, "floor_tol": args.win_floor_tol, "ref": ref,
-                  "baseline": base[name],
-                  "games": args.gap_games}
-        print(f"gap metric {name} ({direction}, scale {scale}): reference {Path(args.gap_ref).stem} mirror value "
-              f"{base[name]:.4f}; win floor {args.win_floor} vs it; weight {args.gap_weight}", flush=True)
+        base = fights.play(ref, ref, 200, 7)["summary"]  # the reference's own values, once (mirror, 200 games)
+        terms = []
+        for spec in args.gap_metric.split(","):  # several terms are averaged with equal weight
+            name, direction, scale = spec.split(":")
+            if name not in base:
+                raise SystemExit(f"--gap-metric: unknown stat {name}; choose from {sorted(base)}")
+            terms.append({"metric": name, "sign": 1.0 if direction == "min" else -1.0, "scale": float(scale),
+                          "baseline": base[name]})
+            print(f"gap metric {name} ({direction}, scale {scale}): reference {Path(args.gap_ref).stem} mirror value "
+                  f"{base[name]:.4f}", flush=True)
+        ev.GAP = {"terms": terms, "weight": args.gap_weight, "floor": args.win_floor, "floor_tol": args.win_floor_tol,
+                  "ref": ref, "games": args.gap_games}
+        print(f"gap: {len(terms)} term(s), equal weight; win floor {args.win_floor} vs the reference; "
+              f"weight {args.gap_weight}", flush=True)
     if args.fit_target:
         from . import evaluate as ev
         from .fit import load_target

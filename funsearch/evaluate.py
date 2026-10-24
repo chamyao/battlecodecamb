@@ -31,8 +31,8 @@ class EvalResult:
 FIGHT_WEIGHT = 0.0
 # fitting mode (funsearch.run --fit-target): a loaded funsearch/fit.py target; scores become fit fitness
 FIT_TARGET = None
-# gap mode (funsearch.run --gap-metric): {"metric", "sign" (+1 = lower is better), "scale", "weight", "floor",
-# "ref" (compiled reference policy), "baseline" (the reference's own value in a mirror), "games"}
+# gap mode (funsearch.run --gap-metric): {"terms": [{"metric", "sign" (+1 = lower is better), "scale", "baseline"
+# (the reference's own value in a mirror)}], "weight", "floor", "floor_tol", "ref" (compiled reference), "games"}
 GAP = None
 FIGHT_MARGIN = 12.0  # champion-kill margin per game that scores full marks (TOP_TEAMS: ~12.9 vs ~0.3)
 
@@ -120,13 +120,16 @@ def evaluate(text, opponents=("builtin:starter",), games=32, threads=4, seed=0, 
         if GAP is not None and gap:  # gap metric of our bot with a win-rate floor (off inside hill-climbs)
             from . import fights
             g = fights.play(pol, GAP["ref"], GAP["games"], seed)["summary"]
-            value = g[GAP["metric"]]
-            term = 0.5 + 0.5 * max(-1.0, min(1.0, GAP["sign"] * (GAP["baseline"] - value) / GAP["scale"]))
+            vals, terms = {}, []
+            for t in GAP["terms"]:
+                vals[t["metric"]] = round(g[t["metric"]], 4)
+                terms.append(0.5 + 0.5 * max(-1.0, min(1.0, t["sign"] * (t["baseline"] - g[t["metric"]]) / t["scale"])))
+            term = sum(terms) / len(terms)
             # screening noise: only clearly-below-floor children are penalised (floor minus tol standard errors);
             # the exact floor is enforced on the final large validation
             tol = GAP.get("floor_tol", 2.0) * (0.25 / max(1, g["games"])) ** 0.5
             below = g["win"] < GAP["floor"] - tol
-            result.per_opponent["gap"] = {"metric": GAP["metric"], "value": round(value, 4), "term": round(term, 4),
+            result.per_opponent["gap"] = {"values": vals, "term": round(term, 4),
                                           "ref_win": round(g["win"], 4), "below_floor": below,
                                           "floor_used": round(GAP["floor"] - tol, 4)}
             result.score = (1 - GAP["weight"]) * result.score + GAP["weight"] * term - (1.0 if below else 0.0)

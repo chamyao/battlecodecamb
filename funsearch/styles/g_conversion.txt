@@ -1,7 +1,8 @@
 This run targets one measured gap, GEM CONVERSION (docs/GAP_LIST.md, our ladder games vs the teams ~100 rating above
 us): we lose 184 gems a game on death; 54% of our deaths happen while carrying gems, a median 7 tiles from an altar;
 we submit 76% of the gems we capture (they submit 99%); we bank 18 times a game (they bank 26).
-The score blends the usual win score with conversion = gems tributed / gems captured; staying >= 50% vs the live bot
+Capture yield is the larger part (the coordinator's band check): 11.1 gems per capture for us vs 14.9 for the band.
+The score blends the usual win score with conversion (gems tributed / gems captured) and gems per capture; staying >= 50% vs the live bot
 is required. The levers are banking cadence, bag size, routing, and group choice; how to use them is for you to find.
 Sensor blocks available (see the block list): unit_max_health, unit_strength, unit_focus, enemies_near, allies_near,
 strength_at, unit_tributing, threat_eta, altar_eta, retreat_eta, enemy_between, group_contested, team_gems,
