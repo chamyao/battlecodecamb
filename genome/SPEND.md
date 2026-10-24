@@ -16,6 +16,8 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-24 | genome/search arena-g (gate round test, starter.genome) | 20 | 0.01 | 2.04 |
 | 2026-10-24 | Arena B top-up (Cham): +$5, Arena B total $8 (arenaB-2 resumes arenaB-1) | — | — | committed ~$18 of $90 API |
 | 2026-10-24 | genome/search pb-test (prompt bench test, starter.genome, 2 rounds) | 72 | 0.11 | 2.15 |
+| 2026-10-24 | Arena B final: arena run 19 (arena-arenaB-11) stopped at the cap, $8.02 of Arena B's $8 in total (1157 births) | 1157 | (Arena B budget) | — |
+| 2026-10-24 | genome/search promptexp-1 (Arena A prompt experiment 1, Haiku, A0 vs A1, 120 cells; Arena A budget, cap $0.40) | 240 | 0.26 | 2.41 |
 
 ## Ladder uploads (Cham, Oct 24)
 
