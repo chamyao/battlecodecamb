@@ -1,0 +1,62 @@
+# Live analysis of our ranked games (v21, v22/v24; 12:40-17:40 UTC, 24 Oct)
+
+## Data
+
+- **Source:** the live stream (`analysis/live.py`), which pulls every finished game as it lands and tags our version from the deploy times.
+- **Games:** 135 ranked games of v21, v22 and v24, against opponents near our rating (1550-1650). Our record is 68-67.
+- **Tools:** `analysis/gaps.py`, `analysis/race_analysis.py`, `analysis/live_report.py`.
+- **Uncertainty:** ± is one bootstrap SE over games.
+
+## 1. Against peers, we lose on economy, not fights
+
+v22 and v24 ranked (60 games, 33-27):
+
+| per game | our wins | our losses |
+|---|---|---|
+| gems captured, us / them | 1169 / 624 | **751 / 1029** |
+| gems per capture, us / them | 14.8 / 14.6 | **11.5 / 17.1** |
+| tributes, us / them | 28.6 / 16.1 | **17.7 / 34.6** |
+| our deaths to champions | 7.5 | 8.1 |
+| low-HP crossings that end in death | 32% | 44% |
+
+Deaths to champions are almost the same in wins and losses. What decides the games is how much we capture, and how fast the opponent banks.
+
+## 2. Slow start
+
+Gems tributed by a given round, all 135 ranked games:
+
+| | by r250 | by r500 | by r750 | first tribute (median round) |
+|---|---|---|---|---|
+| us in our wins | 58 | 184 | 351 | 187 |
+| us in our losses | 50 | 147 | 226 | 190 |
+| them in our wins | 49 | 136 | 236 | 130 |
+| them in our losses | **81** | **241** | **422** | **104** |
+
+- Our first bank comes at round ~190 whatever the result.
+- Opponents who beat us bank at round ~104 and are 30-100 gems ahead from round 250 on.
+- On the maps we lose most, their first tribute comes at round 40-70 (00lost_world, 00expanse, 00quadrants).
+
+## 3. Maps we lose, and why
+
+| map | W-L | what happens |
+|---|---|---|
+| **00great_wall** | 1-4 | **The monoliths kill us.** Our deaths are 18-26 per game, and **13-20 of them are to a monolith** (camp type 4). The opponents die 0-8 times in total. All 4 altars are within 3 tiles of a monolith. |
+| **01shortcut** | 0-3 | **We can't bank.** Both altars are next to a monolith (distance 1). Our altar choice excludes altars within 5 of a monolith, so our carriers walk around with 30-137 gems for hundreds of rounds. Our first tribute comes at round 1265-1523 (theirs 141-247). We lose 430-670 gems on death per game, and 1-9 of our deaths per game are to the monolith. |
+| **01boss_battle** | 5-4 | One altar, next to a monolith. Both sides bank late (around round 1000). We die 16-30 times per game, **7-19 of them to the monolith**. We win when we take the monolith's 400-1200 gems and lose when we don't. |
+| **00lost_world** | 0-4 | **Low yield, slow banking.** Our captures pay 5-8 gems, theirs 13-18. We capture ~350, they capture ~1000. They make 53-59 tributes, the first at round 40-64. |
+| **00expanse** | 0-4 | Low yield (6-7 against 9-13 gems per capture). Their first tribute comes at round ~50, ours at round 176-288. |
+| 00quadrants | 2-4 | Their first tribute comes at round 33-80, ours at ~127. The golem group (240 gems) decides the race. |
+
+Maps we always won (2+ games): 00monolith, 00road_of_riches, 00swirl, 01fracture, 01hooks.
+
+## What it means for the bot (sensing blocks, in the coordinator's format)
+
+1. **Monolith deaths: the largest, a bug-level gap.** We die to a monolith up to 20 times per game on monolith maps.
+   - The bot would need to observe **a monolith's threat zone and state**: whether it is awake or aggroed, its attack range, and turns until it can hit me.
+   - It would also need **whether my path or my target tile is inside that zone**.
+   - Proposed blocks: `monolith_threat(Tile)` (the monolith damage per turn a champion standing on the tile would take) and `in_monolith_zone()`.
+2. **Banking at monolith-guarded altars (01shortcut).** We would need to observe **whether an altar-adjacent tile is outside the monolith's attack zone and free**. Opponents bank there 10-25 times per game, so it can be done.
+   - Today's static rule (exclude altars within 5 of a monolith) leaves no altar at all on that map.
+   - Proposed block: `altar_safe_tiles()` (altar-adjacent tiles that no monolith can hit), replacing the radius-5 exclusion.
+3. **Slow first bank.** We would need to observe **the gems-per-turn value of banking now against farming on**, early in the game. That is `group_rate` / `altar_eta` from `docs/SENSING_BLOCKS.md`. The opponents' first trip at round ~104, against our ~190, is worth about 30-100 gems by round 250-750 in our losses.
+4. **Low yield on open maps (00lost_world, 00expanse).** `group_rate(Tile)`, the gems per turn of a group including travel and kill time (`docs/SENSING_BLOCKS.md` rank 2). There our captures pay half of theirs.
