@@ -81,6 +81,10 @@ gems, end round, kills, deaths: 00ambush 857-1020 r1445, 01big-world 878-1020 r1
 games drift with the genome's suspensions (it caps 200-1000 turns, the interpreted bot 3-5):
 gems real / sim 577-1009 / 722-1011, 872-1001 / 757-1040, 920-1016 / 928-1003, 1017-939 / 1012-939.
 
+Exactness checks (bot vs simulator on the same game) need an opponent the simulator plays exactly:
+the interpreted v23 (`bot/sync.sh` + `--bot-seeds`) or a genome. Against starter-cpp the games diverge
+by ~round 140, because builtin:starter differs from starter-cpp.
+
 Re-run the calibration whenever `runtime/genome_rt.h`, `lang.py`'s codegen or `bot/bot_api.cpp`
 changes, and check new primitives with a probe before relying on them. Tools: `tools/prof_pair.sh`
 (a GENOME_PROF build in cambc and the simulator; `BIG_FUEL=1` for clean profiles without
