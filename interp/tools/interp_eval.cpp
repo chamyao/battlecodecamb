@@ -1,8 +1,10 @@
 // Plays a policy against an opponent and prints one JSON summary line.
 // Usage: interp_eval --a A --b B [--games N] [--threads T] [--seed S] [--max-rounds R] [--fuel-mult X]
-//                    [--bot-seeds] [--details] MAP...
+//                    [--bot-seeds] [--details] [--block-hits] MAP...
 // --bot-seeds: policies seeded per instance as the deploy bot is (reproduces cambc games);
 // --details: one JSON line per game (map, side of A, winner, gems, end round) before the summary.
+// --block-hits: add "block_hits": {block: executions} summed over both sides and all games (counters are
+//               shared across threads without locking, so counts are approximate with --threads > 1).
 //        interp_eval --list-blocks
 // A and B are a compiled policy file (.pol) or builtin:starter / builtin:idle.
 // Game g uses map g % #maps; A plays team A on even games and team B on odd games.
@@ -11,6 +13,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
+#include <utility>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -65,6 +69,7 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--fuel-mult")) fuel_mult = std::atof(argv[++i]);
 		else if (!std::strcmp(argv[i], "--bot-seeds")) bot_seeds = true;
 		else if (!std::strcmp(argv[i], "--details")) details = true;
+		else if (!std::strcmp(argv[i], "--block-hits")) cbs::memo_stats().enabled = true;
 		else maps.push_back(argv[i]);
 	}
 	if (maps.empty())
@@ -151,5 +156,15 @@ int main(int argc, char** argv)
 				double(deaths[0]) / games, double(deaths[1]) / games, double(dmg[0]) / games, double(dmg[1]) / games, double(lost[0]) / games,
 				double(lost[1]) / games, s);
 	for (int g = 0; g < games; ++g) std::printf("%s%d", g ? ", " : "", per_game[g]);
-	std::printf("]}\n");
+	std::printf("]");
+	if (cbs::memo_stats().enabled)
+	{
+		std::map<std::string, long long> hits; // evaluated and executed uses merged
+		for (const auto& c : interp::charge_stats()) hits[c.key.rfind("exec:", 0) == 0 ? c.key.substr(5) : c.key] += c.count;
+		std::printf(", \"block_hits\": {");
+		bool first = true;
+		for (const auto& [k, n] : hits) std::printf("%s\"%s\": %lld", std::exchange(first, false) ? "" : ", ", k.c_str(), n);
+		std::printf("}");
+	}
+	std::printf("}\n");
 }
