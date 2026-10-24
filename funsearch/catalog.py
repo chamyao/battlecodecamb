@@ -98,13 +98,14 @@ Observations from our v7 ladder losses: we now lose on SCORING RATE, not fights 
   (33-38/80); preferring elk/gem clusters, or a bag of 25, were neutral. The gain probably needs
   a value-vs-distance trade-off when choosing camps, team monolith takes, and bigger bags
   without more deaths. Treat these as directions, not rules.
-- KEY TOOL for camp choice (calibrated blocks): group_gems(set) is what a group pays,
-  group_threat(g) and group_hp(g) what it costs. Skip a goal g you cannot clear:
-      group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) > health()
-  (strength() is your damage per hit, items included; scale it by a named, tunable factor if useful)
-  (this is what kills us on starvation-type maps), and prefer goals by gems per turn of travel
-  and fighting, e.g. rich_spawns(n) for groups worth >= n gems, group_tiles(monolith_tiles())
-  for the monolith group. Bind static sets with keep.
+- Camp-choice blocks: group_gems(set) is what a group pays, group_threat(g) and group_hp(g) what
+  it costs, rich_spawns(n) the spawns of groups worth >= n gems, group_tiles(monolith_tiles()) the
+  monolith group. Bind static sets with keep. MEASURED (2000 games vs the live bot): skipping the
+  nearest group when group_threat(g) * group_hp(g) / (strength() * (1 + allies_within(4))) exceeds
+  health() LOSES 25 points (52% -> 28%); x3 health still loses 11, x6 loses 5, x12 is neutral.
+  That ratio is far larger than health on almost every group, so do not use it as a skip test.
+  A direction worth trying instead (early screen +4, unconfirmed): choose a rich group (closest of
+  goals intersected with rich_spawns(15)) over the nearest camp when it is only a few tiles farther.
 - Constant tuning around the current best finds nothing better (its thresholds are locally
   optimal). The open lever is STRUCTURAL camp choice: today the goal is simply the closest camp
   spawn. Try scoring candidate camps by gems per turn of travel and fighting (group value vs
