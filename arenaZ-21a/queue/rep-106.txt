@@ -1,0 +1,14 @@
+```python
+@gene('Z18a', 'once per turn: the distance field to the goals, or home when hurt or rich with spawn close, empty-handed and not in a fight', parents=['s3'])
+def update() -> None:
+    home = False
+    if gems() == 0 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        if me().health_frac < 0.5:
+            home = True
+        elif gold() >= 150 and dist(nearest(my_spawn(), me().pos), me().pos) <= 12:
+            home = True
+    if home:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+```

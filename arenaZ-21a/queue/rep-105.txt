@@ -1,0 +1,24 @@
+```python
+@gene('Z18a', 'once per turn: the distance field to the goals, or home to heal when hurt, empty-handed and not in a fight', parents=['s3'])
+def update() -> None:
+    if gems() == 0 and me().health_frac < 0.5 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+
+@gene('s3', 'distance field to the goals, or home to heal, computed once per turn in update')
+def goal_field() -> Field:
+    return GF
+
+@gene("new", "skip option kinds that cannot score: wards, locks, cancels always; casts unless a target is within 6 or a dash is ready", parents=["Z18a"])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    if kind == CAST:
+        if (slot_kind(0) == AB_DASH and slot_ready(0)) or (slot_kind(1) == AB_DASH and slot_ready(1)):
+            return True
+        if any(dist(u.pos, me().pos) <= 6 for u in enemies()):
+            return True
+        return any(dist(c.pos, me().pos) <= 6 and (is_awake(c) or gems() == 0) for c in camps())
+    return True
+```

@@ -1,0 +1,8 @@
+```python
+@gene('Z47a', 'once per turn: the distance field to the goals, or home to heal below 60 percent health when empty-handed and not in a fight', parents=['s3'])
+def update() -> None:
+    if gems() == 0 and me().health_frac < 0.6 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+```

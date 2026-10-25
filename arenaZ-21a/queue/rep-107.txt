@@ -1,0 +1,27 @@
+```python
+@gene("new", "tiles holding enemy champions or camps we fight (awake, or any when carrying nothing), built once per pass", parents=["Z4b"])
+def hot_tiles() -> Tiles:
+    if gems() == 0:
+        return enemy_tiles() | camp_tiles()
+    acc = enemy_tiles()
+    for c in camps():
+        if is_awake(c):
+            acc = acc | near(c.pos, 0)
+    return acc
+
+@gene('Z4b', 'number of enemy champions and camps we fight within radius one of a tile, from the per-pass hot tile set (cheap per option)', parents=['s1'])
+def hits_at(t: Tile) -> Num:
+    return size(near(t, 1) & hot_tiles())
+
+@gene("new", "skip option kinds that cannot score: wards, locks, cancels always; casts unless a target is within 6 or a dash is ready", parents=["Z4b"])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    if kind == CAST:
+        if (slot_kind(0) == AB_DASH and slot_ready(0)) or (slot_kind(1) == AB_DASH and slot_ready(1)):
+            return True
+        if any(dist(u.pos, me().pos) <= 6 for u in enemies()):
+            return True
+        return any(dist(c.pos, me().pos) <= 6 and (is_awake(c) or gems() == 0) for c in camps())
+    return True
+```

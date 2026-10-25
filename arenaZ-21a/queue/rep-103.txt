@@ -1,0 +1,5 @@
+```python
+@gene("new", "skip option kinds the policy never scores above zero (wards, altar locks, cancels): saves the fuel of listing and scoring them", parents=["Z18a"])
+def consider(kind: Num) -> Bool:
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
+```
