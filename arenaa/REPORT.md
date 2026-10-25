@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 00:55 UTC
+
+- promptexp-1 corrected (T4/T5 prune bug fixed, 14 cells re-generated): A1 valid 78 -> 89, but 7 of the 11
+  recovered children are behavioural twins. A1 better 22/120 vs A0 39/120; paired p = 0.998. Verdict unchanged.
+- arenaA-5 final: +574 births, +$3.53; panel top 795-802 from birth ~1,100 (arenaA-3 best 780). Control
+  arenaA-6 still running.
+- Runs: EC2 arenaA-6, Z-2, Z-3, Z-4 (Z-6 queued); arena service Z-7 (service run 23, pinned commit 1ea78e2b,
+  3 threads; box has 4 cores); cloud session Z-5 (M2 mutator, session_01LXULJygQbjZz8b3EXxV3nT).
+- Runtime: genome/v0 8296d5d is the new calibrated runtime; this series stays on 648bafd; the next
+  series starts on 8296d5d with its own baseline + replicate.
+
 ## 2026-10-25 00:15 UTC
 
 - arenaA-5 final population (24 genomes, 13-opponent panel, played by 2 cloud worker sessions): mean 793
