@@ -10,6 +10,56 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
+## State of calibration (Oct 25, genome/fuel 3e4b4591)
+
+Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against the interpreted v23
+(`~/ws/bots/v23interp`), sim at 1000x against `gconv1.pol` with `--bot-seeds`.
+
+| genome | 00ambush | 00lanes | 01big-world |
+|---|---|---|---|
+| seed | 1.019 | 1.022 | 1.005 |
+| B318 | 1.017 | 1.014 | 1.004 |
+| B792 | 1.005 | 1.009 | 0.995 |
+| A458 (arena A) | 1.024 | 1.026 | 1.010 |
+| B1145 (arena B #1) | 1.004 | 1.008 | 0.993 |
+| B1092 (arena B, other species) | 1.004 | 0.979 | 0.988 |
+| starter | 1.013 | 1.023 | 1.015 |
+| idle (no consider()) | 0.998 | 0.982 | 0.995 |
+| calib5 (probe genome) | 0.976 | 0.975 | |
+| v23 | 1.102 | 1.123 | 1.099 |
+
+Open gaps:
+- v23 is over by 9-12%. Its per-option score path calls memoised genes (`here`, `walks`,
+  `shop_pending`) that the compiler inlines. Such a hit costs ~30 in the bot against 73 charged, while
+  the seed family's memo hits, called from large genes, are slightly under. A fix needs memo-hit cost
+  per call site (inlined or not) from each genome's wasm; parked by the genome lead.
+- A gene framed only through inlined callees keeps its old pricing (18 such genes in seed).
+- `walk_nearest` prices follow the policy bot's history-dependent search mirror; probes in isolation
+  read 1.1-1.5x, in genomes it is in line.
+- Later passes are priced 0: a free fit wants them negative, so complex genomes' second passes are
+  priced high somewhere else (memo misses, most likely).
+
+Protocol for a new primitive (each step is in a section below):
+1. Add it to `lang.PRIMS` and the runtime, and put it in `lang.UNCALIBRATED`; the search cannot use
+   it until it is priced.
+2. Write a probe genome (`examples/calib5..8.genome` pattern: `update()` runs one probe per turn in
+   rotation, plus an empty probe). Run `tools/prof_pair.sh` with `BIG_FUEL=1 OPP_BOT=v23interp
+   OPP_SIM=/tmp/.../gconv1.pol` on 00ambush, 01big-world, 00lanes, 00packs, and compare steady
+   per-call self fuel net of the empty probe, real against sim. For a cached record, probe a fetch
+   and a fetch + hit.
+3. Set the `extra()` prices until every probe is within ~0.95-1.05. Check whether its inlined bot code
+   needs a frame (compile it alone with the bot's flags and look for the stack-pointer write); if so,
+   add it to `lang.FRAMED_PRIMS`.
+4. Remove it from `UNCALIBRATED`. Check that starter, seed, v23, B318 and B792 are identical
+   (results and fuel, 80 games against builtin:starter, 1x and 100x) against the previous head.
+5. For a pricing change (not a new primitive): report whole-game ratios before and after for the
+   genomes above, plus 1x result changes and B792 vs B318 at 1x.
+Tools: `tools/prof_pair.sh`, score variants (genomes that never act), `consider()` variants,
+`GENOME_TURN_CALLS=1` per-turn lines (`@@TC r c passes opts ops extra spent`, then per-gene calls
+for champion 0), and `GENOME_DEFS=GENOME_TURN_ORDER` in the bot. A cambc run needs its own bot folder
+per concurrent run. Rebuild `genome/build` and `genome/build-prof` after every runtime change:
+`genome_eval` refuses a genome compiled against another Ctx layout.
+
 ## Calibration (Oct 24, cambc 3.0.5)
 
 `examples/calib.genome` runs one probe gene per primitive per turn (in rotation). Built with
@@ -323,6 +373,47 @@ consider(), and the per-option gap above is still open.
 Against builtin:starter, 80 games, 100x: identical for all five reference genomes. At 1x the results move
 with the prices: seed identical; B318 and B792 79 -> 78; starter 40 -> 38; v23 79 -> 78. B792 vs B318 at
 1x: 44 -> 48 of 80.
+
+## Joint per-option refit (Oct 25): what it found
+
+Per-turn records (`GENOME_TURN_CALLS=1` in the profiling sim): `@@TC r c passes opts ops extra spent`, then
+calls per gene for team 0's champion 0. Fitting each genome's per-turn gap (real - sim) on these, over
+11 genomes x 3 maps:
+- Counted operations (F) are 2-6% of sim fuel; primitive extras are 70-90%.
+- The gap per option scored follows the score's shape, not a shared constant. Simple scores (idle,
+  calib5, starter) are under by 2-17 per option. The seed family is over by 30-40, A458 by ~60, v23 by ~78.
+- Score variants show why. A memoised gene's hit costs ~30 in the bot when its caller inlines it,
+  against 73 charged, while the seed family, whose callers are large genes, is slightly under on memo
+  hits. The real price depends on the compiler's inlining, which no per-construct price captures.
+- `slot_kind` / `slot_range` were charged 90, but the bot reads them from a per-pass cache: ~44
+  (score variant, slot_kind per CAST option: 2.05 -> 1.10 of real). That moves v23 from
+  1.135 / 1.111 / 1.109 to 1.109 / 1.091 / 1.088 (00lanes, 00ambush, 01big-world). The others barely
+  call it and are unchanged. Against builtin:starter at 1x, v23 is now identical (79 wins).
+- A bounded joint fit (pass, option and memo-hit prices) would bring v23 to ~1.03-1.04 and idle to
+  ~1.02, but widens starter (to -4%) and B1092 (to +4%), and needs the first pass at ~1960. It is not
+  applied; see the message log for the decision.
+
+## The fixed turn and per-option prices, from consider() variants (Oct 25)
+
+Idle variants whose `consider()` drops kinds from the listing (never act; identical games against v23):
+- An empty turn (only PICK listed) costs ~1130 in the bot. The sim charged ~525, because the 7b2ff02f
+  pass refit had moved fixed cost into the complex genomes' later passes.
+- Dropping CAST saves 4.3k real against 4.1k in the sim; dropping WARD 2.54k against 2.28k; dropping
+  MOVE 1.0-1.5k against 1.1-1.7k. All listing together was under by ~500-650 per turn, ~7.5 per option
+  for idle's ~66 options.
+Refit, bounded at zero:
+- first pass 93 -> 700 (the measured empty turn);
+- per option scored 30 -> 37;
+- later passes 474 -> 0 (a free fit wants them below zero: complex genomes' second passes are priced
+  high elsewhere).
+Whole game (real/sim; ambush / lanes / big-world):
+- empty turn: 1.003 / 0.995; idle: 0.998 / 0.982 / 0.995 (was 0.46 and 0.88-0.95)
+- calib5: 0.976 / 0.975; starter: 1.013 / 1.023 / 1.015
+- seed: 1.019 / 1.022 / 1.005; B318: 1.017 / 1.014 / 1.004; B792: 1.005 / 1.009 / 0.995
+- A458: 1.024 / 1.026 / 1.010; B1145: 1.004 / 1.008 / 0.993; B1092: 1.004 / 0.979 / 0.988
+- v23: 1.102 / 1.123 / 1.099 (its per-option memo hits, above).
+80 games against builtin:starter: identical at 100x; at 1x seed, v23 and B792 are identical to 8a94ac7,
+B318 79 -> 78, starter 40 -> 38. B792 vs B318 at 1x: 49 (afc31666) -> 45.
 
 ## Bot-side costs worth knowing (what the search pays for)
 
