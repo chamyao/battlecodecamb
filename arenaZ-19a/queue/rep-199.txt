@@ -1,0 +1,6 @@
+```python
+@gene("Z210g", "an ally called this tile (or next to it) as the focus target in the last three rounds")
+def focus_called(t: Tile) -> Bool:
+    age = (round() - read_shared(2)) % 200
+    return age <= 3 and dist(t, tile(read_shared(0), read_shared(1))) <= 1
+```

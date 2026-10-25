@@ -1,0 +1,17 @@
+```python
+@gene("Z210f", "end of turn: announce the enemy champion I just hit or cast on so allies focus it (shared bytes 0-2: x, y, round)")
+def after() -> None:
+    t = acted_tile(ATTACK)
+    if acted(CAST) and not acted(ATTACK):
+        t = acted_tile(CAST)
+    if acted(ATTACK) or acted(CAST):
+        if any(dist(u.pos, t) == 0 for u in enemies()):
+            write_shared(0, t.x)
+            write_shared(1, t.y)
+            write_shared(2, round() % 200)
+
+@gene("Z210g", "an ally called this tile (or next to it) as the focus target in the last two rounds")
+def focus_called(t: Tile) -> Bool:
+    age = (round() - read_shared(2)) % 200
+    return age <= 2 and dist(t, tile(read_shared(0), read_shared(1))) <= 1
+```
