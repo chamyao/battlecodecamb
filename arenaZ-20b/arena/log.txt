@@ -607,3 +607,22 @@
 [13:56:26] [Z] champion anchor champ7-Z346 (mu 44.6)
 [13:56:26] [Z] summary: births 350 deaths 327 games 156688 $0.00; top [('Z346', 44.6, 0.81, 176, 'S96'), ('Z341', 44.02, 0.8, 288, 'S108'), ('Z335', 43.32, 0.79, 480, 'S85')]; top vs anchors {'Z346': None, 'Z341': 1.0, 'Z335': 1.0}
 [13:56:26] [Z] birth Z350 (mutate session) of ['Z342'] species S94; 24 genomes $0.00
+[13:56:48] [Z] birth Z351 (tune ) of ['Z345'] species S109; 24 genomes $0.00
+[13:57:14] [Z] birth Z352 (llm_cross session) of ['Z342', 'Z330'] species S94; 24 genomes $0.00
+[13:57:43] [Z] birth Z353 (mutate session) of ['Z318'] species S79; 24 genomes $0.00
+[13:58:14] [Z] rejected mutate session: behavioural twin
+[13:58:41] [Z] new species S110 founded by Z354
+[13:58:41] [Z] birth Z354 (mutate session) of ['Z282'] species S110; 24 genomes $0.00
+[13:59:15] [Z] new species S111 founded by Z355
+[13:59:15] [Z] birth Z355 (mutate session) of ['Z348'] species S111; 24 genomes $0.00
+[13:59:54] [Z] birth Z356 (mutate session) of ['Z347'] species S104; 24 genomes $0.00
+[14:01:07] [Z] birth Z357 (llm_cross session) of ['Z349', 'Z347'] species S105; 24 genomes $0.00
+[14:01:45] [Z] birth Z358 (mutate session) of ['Z349'] species S105; 24 genomes $0.00
+[14:02:45] [Z] birth Z359 (llm_cross session) of ['Z335', 'Z339'] species S85; 24 genomes $0.00
+[14:03:17] [Z] summary: births 360 deaths 337 games 160368 $0.00; top [('Z352', 44.94, 0.81, 256, 'S94'), ('Z341', 43.47, 0.8, 576, 'S108'), ('Z359', 43.31, 0.92, 88, 'S85')]; top vs anchors {'Z352': 1.0, 'Z341': 1.0, 'Z359': None}
+[14:03:17] [Z] birth Z360 (mutate session) of ['Z346'] species S104; 24 genomes $0.00
+[14:04:04] [Z] rejected mutate session: behavioural twin
+[14:04:40] [Z] birth Z361 (mutate session) of ['Z320'] species S90; 24 genomes $0.00
+[14:05:13] [Z] birth Z362 (mutate session) of ['Z349'] species S105; 24 genomes $0.00
+[14:05:42] [Z] rejected mutate session: behavioural twin
+[14:06:23] [Z] birth Z363 (mutate session) of ['Z341'] species S108; 24 genomes $0.00
