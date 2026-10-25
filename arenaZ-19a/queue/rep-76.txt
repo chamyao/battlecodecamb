@@ -1,0 +1,39 @@
+```python
+GOLEMS: Tiles = None
+
+@gene('Z66a', 'once per turn: cache the distance field to the goals (no golems before round 500) and nearby threat counts', parents=['s3'])
+def update() -> None:
+    if not MONO_DONE:
+        mono = type_spawns(MONOLITH)
+        gol = type_spawns(GOLEM)
+        acc = near(tile(-5, -5), 0)
+        acc2 = near(tile(-5, -5), 0)
+        for g in range(num_groups()):
+            gt = group_tiles(g)
+            if size(gt & mono) > 0:
+                acc = acc | gt
+            if size(gt & gol) > 0:
+                acc2 = acc2 | gt
+        MONO = acc
+        GOLEMS = acc2
+        MONO_DONE = True
+    if round() < 500 and gems() == 0:
+        GF = field(goals() - GOLEMS)
+    else:
+        GF = field(goals())
+    hot = near(tile(-5, -5), 0)
+    reach = 0
+    threats = 0
+    for u in enemies():
+        hot = hot | near(u.pos, 1)
+        threats += 1 if dist(u.pos, me().pos) <= 4 else 0
+        reach += 1 if dist(u.pos, me().pos) <= me().attack_range else 0
+    for u in camps():
+        if is_awake(u):
+            hot = hot | near(u.pos, 1)
+            threats += 1
+            reach += 1 if dist(u.pos, me().pos) <= me().attack_range else 0
+    HOT = hot
+    THREATS = threats
+    FOES_IN_REACH = reach
+```

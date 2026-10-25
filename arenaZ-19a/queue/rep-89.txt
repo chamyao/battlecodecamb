@@ -1,0 +1,9 @@
+```python
+@gene("Z94c", "hurt and threatened: walk out of reach before recalling (damage cancels a recall)")
+def retreating() -> Bool:
+    return me().health_frac < 0.3 and danger_at(me().pos) > 0
+
+@gene("Z94d", "how many awake camps (one tile of margin) and enemy champions can hit this tile")
+def danger_at(t: Tile) -> Num:
+    return count(is_awake(u) and dist(u.pos, t) <= u.attack_range + 1 for u in camps()) + count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+```

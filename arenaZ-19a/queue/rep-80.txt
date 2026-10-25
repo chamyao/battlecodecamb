@@ -1,0 +1,45 @@
+```python
+@gene("new", "tiles next to an enemy champion or an awake camp (once per pass)", parents=["Z7a"])
+def hot_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        acc = acc | near(u.pos, 1)
+    for u in camps():
+        if is_awake(u):
+            acc = acc | near(u.pos, 1)
+    return acc
+
+@gene("new", "enemy champions and awake camps within my basic attack range (once per pass)", parents=["Z7a"])
+def foes_in_reach() -> Num:
+    return count(dist(u.pos, me().pos) <= me().attack_range for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= me().attack_range for u in camps())
+
+@gene("new", "enemy champions within 4 plus awake camps (once per pass)", parents=["Z7a"])
+def threat_count() -> Num:
+    return count(dist(u.pos, me().pos) <= 4 for u in enemies()) + count(is_awake(u) for u in camps())
+
+@gene("Z7a", "value of casting an ability option: damage and stuns on champions or camps, resets after an attack, shields and heals when hurt, dashes toward the goal (counts once per pass)", parents=["s1"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+            return 85 + (1 - o.unit.health_frac) * 9 + min(unit_gems(o.unit), 30) / 3
+        if exists(o.unit) and o.unit.is_camp and gems() == 0 and o.unit.type != MONOLITH:
+            return 65
+        return 0
+    if k == AB_AOE:
+        if not (o.tile in hot_tiles()):
+            return 0
+        n = count(dist(u.pos, o.tile) <= 1 for u in enemies()) * 2 + count(dist(u.pos, o.tile) <= 1 and is_awake(u) for u in camps())
+        return 60 + 5 * n if n > 0 else 0
+    if k == AB_RESET:
+        return 62 if not can_attack() and foes_in_reach() > 0 else 0
+    if k == AB_SHIELD:
+        return 88 if me().health_frac < 0.8 and threat_count() > 0 else 0
+    if k == AB_HEAL:
+        return 87 if exists(o.unit) and o.unit.health_frac < 0.6 else 0
+    if k == AB_DASH:
+        if slot_radius(o.slot) > 0 and o.tile in hot_tiles():
+            return 70
+        return 55 if progress(o.tile) >= 2 else 0
+    return 0
+```
