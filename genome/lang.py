@@ -33,7 +33,7 @@ DEFAULT = {"Num": "0.0", "Bool": "false", "Tile": "Tile{}", "Unit": "Unit{}", "U
 CONSTANTS = {
     # option kinds
     "PICK": 1, "MOVE": 2, "ATTACK": 3, "CAST": 4, "WARD": 5, "BUY": 6, "RECALL": 7, "TRIBUTE": 8, "CANCEL": 9,
-    "LOCK": 10, "BUY_LOCK": 11,
+    "LOCK": 10, "BUY_LOCK": 11, "BREAK": 12,
     # champion types (cbs::ChampionType); draft picks use the same numbers (Cassi & Issac = CASSI)
     "RYTH": 0, "VESPER_VALE": 1, "VENDETTA": 2, "CASSI": 3, "ISSAC": 4, "STELLAR": 5, "PRISM": 6, "MARCELLA": 7,
     "WILLOW": 8, "REN": 9, "VARG": 10, "TAVI": 11, "HEART_OF_RUIN": 12,

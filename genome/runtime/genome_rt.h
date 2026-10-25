@@ -168,7 +168,7 @@ constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map
 #endif
 enum OptionKind
 {
-	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK
+	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK, BREAK // BREAK: a basic attack on an enemy altar lock
 };
 // Small on purpose: copying costs ~1 fuel per byte in the bot. The target unit is an entry of the
 // pass's cached unit lists (Ctx::unit_of: usrc + ui); ukind/uh identify it across passes.
@@ -1692,6 +1692,7 @@ public:
 			add_units(out, ATTACK, -1, enemies(), 1, self_u.attack_range, p);
 			add_units(out, ATTACK, -1, camps(), 2, self_u.attack_range, p);
 		}
+		if ((st & cbs::state_bit::can_attack) && want(BREAK)) break_options(out, self_u.attack_range, p);
 		LMARK(3);
 		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
@@ -1746,6 +1747,27 @@ public:
 		}
 		LMARK(7);
 	}
+	// A basic attack on each visible enemy altar lock within attack range (5 clear it; a tribute there hits it
+	// too). The engine's lock list is read only when an altar is in range (locks sit on altars).
+	void break_options(OptionList& out, int range, Tile p)
+	{
+		extra(BR_BASE + BR_ALTAR * m.altar_list.size());
+		bool near = false;
+		for (Vec2 a : m.altar_list) near |= cbs::chebyshev(a, p.v()) <= range;
+		if (!near) return;
+		lock_at(Tile{}); // fetch this pass's lock list (priced there)
+		for (std::uint32_t i = 0; i < nlocks_; ++i)
+		{
+			const cbs::AltarLockRecord& l = locks_[i];
+			if (static_cast<int>(l.team) == api.team() || cbs::chebyshev({ l.x, l.y }, p.v()) > range) continue;
+			Option& o = out.add(BREAK);
+			o.tile = { l.x, l.y }, o.uh = l.handle;
+			extra(BR_OPTION);
+		}
+	}
+	// the altar scan and per altar (consider() variants listing only BREAK, 01broken-curve and 00lanes; FUEL.md),
+	// per option listed (as an ATTACK option); the lock list's fetch is lock_at's
+	static constexpr double BR_BASE = 83, BR_ALTAR = 16, BR_OPTION = 97;
 	// The tiles within Chebyshev r of p that are not walls (row-major; ground casts skip p itself).
 	void tile_options(OptionList& out, int kind, int slot, Tile p, int r, bool skip_self)
 	{
@@ -1834,6 +1856,7 @@ public:
 		case TRIBUTE: e = api.submit_gems(o.tile.v()), ok = 1; break;
 		case CANCEL: e = api.cancel_channel(), ok = 1; break;
 		case LOCK: e = api.use_consumable(cbs::consumable::altar_lock, o.tile.v(), &ok); break;
+		case BREAK: e = api.attack(static_cast<std::uint32_t>(cbs::EntityKind::altar_lock), o.uh), ok = 1; break;
 		default: break;
 		}
 		return e == Err::success && ok;
