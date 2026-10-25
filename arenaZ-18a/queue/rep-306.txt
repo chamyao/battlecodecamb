@@ -1,0 +1,38 @@
+```python
+@gene('s1', 'value of doing this option now: draft, casts, focus the weakest foe, fight back against awake camps, heal on spawn, cash out a big bag; shop durability and jungle emblems; recall only out of danger; recall below half health when safe; heal to full on spawn; recall below half health when safe')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        if HIT or under_threat():
+            return 0
+        if me().health_frac < 0.5:
+            return 76
+        if gems() >= 10 and me().health_frac < 0.5 and count_units(enemies()) == 0:
+            return 76
+        return 45 if gems() == 0 and gold() >= 210 else 0
+    if RETREAT and (o.kind == MOVE or o.kind == CAST or o.kind == ATTACK):
+        return retreat_value(o)
+    if o.kind == CAST:
+        return cast_v2(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (0.6312 - o.unit.health_frac)
+        if gems() == 0:
+            if big_camp(o.unit) and not is_awake(o.unit):
+                return 0
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 55
+        return 54 if path_blocked() else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health < me().max_health and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+```
