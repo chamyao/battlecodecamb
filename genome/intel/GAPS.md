@@ -1,5 +1,32 @@
 # GAPS: our live bot's measurable weaknesses in real band games (Arena B evidence)
 
+## v3: batch 4, v27 = A61188 live (25 Oct, ~01:58 UTC; b1's exact plan, paired)
+
+| batch (bot) | record | win rate | submitted by r500, us / them |
+|---|---|---|---|
+| b1 (v22) | 15-35 | 30% ± 6 | 153 / 245 |
+| b2 (v25 B318) | 18-32 | 36% ± 7 | 179 / 227 |
+| b3 (v26 B792) | 17-33 | 34% ± 7 | 180 / 235 |
+| **b4 (v27 A61188)** | **13-37** | **26% ± 6** | 187 / 226 |
+
+**v26 → v27, paired:**
+- 4 flips to a win and 8 to a loss: not significant alone (sign test p ≈ 0.4), but the worst of the four batches.
+- Gems submitted −13 ± 46; gems lost on death +15 ± 12; deaths to champions −0.2 ± 1.0; stuck rounds −58 ± 66.
+- Economy in losses: they earn 8,768 to our 5,820. Their kill bounties are 1,506 (b2: 1,358) and they lead by 1,017 gold at r500.
+
+**v27 vs the stress styles** (sim, --bot-seeds /80, runtime genome/v0 0372259; B792 in brackets):
+- farmer 50 (44), deathball 55 (54), **rushbank 50 (59)**, hunter 57 (56), hunter-carry 64 (57); vs B792 itself 49.
+- v27 is weaker than B792 only against the rush banker. In real games it lost the most against early bankers:
+  GLM5.3 (first tribute about r93) went 3-2 → 0-5, and noobers (the rush banker, first tribute r37) stayed 0-5.
+  Anime girls went 3-2 → 1-4.
+
+**v27's 5 worst real matchups** (b4, with b3 in brackets):
+- GLM5.3 0-5 (3-2)
+- noobers 0-5 (0-5)
+- NotSoLonely 1-4 (0-5)
+- CompetitiveBasmaga 1-4 (2-3)
+- lETHal 1-4 (1-4)
+
 ## v2: batch 2, B318 live (ladder v25), 24 Oct 2026, 20:47 UTC
 
 Data: 50 unranked games of B318 on batch 1's exact plan (same 10 teams rated +55..+145, maps and sides), so every game pairs with a batch-1

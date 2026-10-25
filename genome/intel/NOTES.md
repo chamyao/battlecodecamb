@@ -38,3 +38,9 @@ This is a paired comparison with b2 (v25, B318) on the same 50 matchups. Record 
 8 to a loss). Gems submitted 684 → 646 (−38 ± 39), deaths to champions 9.7 → 11.3 (+1.5 ± 1.1), gems captured
 −59 ± 36. All within noise: v26 is no better than v25 against the band (sim: 47/80 vs B318; real cambc 43/80 vs
 the v25 build). Against v22 (b1) both are ahead: 15-35 → 17-33, gems +68 ± 52.
+
+## Batch 4: 25 Oct 2026, ~01:58 UTC, 50 games, 13-37 (v27 = A61188, Arena A; b1's exact plan)
+
+Paired with b3 (v26): 4 flips to a win, 8 to a loss. Gems −13 ± 46, gems lost on death +15 ± 12. This is the
+lowest record of the four batches, though not significant alone. The losses concentrate on early bankers (GLM5.3
+3-2 → 0-5), which matches the sim: v27 is weaker than B792 against stress/rushbank (50 vs 59 of 80).
