@@ -720,6 +720,9 @@ def main(argv=None):
         for m in st["members"].values():
             if m["kind"] == "anchor" and m.get("source") is None:
                 m["path"] = _rebase(m["path"])
+                alt = ROOT / "arena_policies" / Path(m["path"]).name
+                if not Path(m["path"]).exists() and alt.exists():  # an anchor given inline again (service policies)
+                    m["path"] = str(alt)
             elif m["kind"] == "anchor":
                 m["path"] = f"genomes/{Path(m['path']).name}"
         (out / "state.json").write_text(json.dumps(st))
@@ -729,7 +732,10 @@ def main(argv=None):
 def _rebase(path):
     """An absolute path from another checkout -> the same repository-relative path in this one."""
     parts = Path(path).parts
-    i = parts.index("policies") if "policies" in parts else len(parts) - 1
+    # the repository-relative part starts at the first known top directory (arena_policies/ holds anchors a run was
+    # given inline); a bare file name only if none is found
+    tops = ("arena_policies", "policies", "genome")
+    i = next((k for k, x in enumerate(parts) if x in tops), len(parts) - 1)
     return str(ROOT.joinpath(*parts[i:]))
 
 
