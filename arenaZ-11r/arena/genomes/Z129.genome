@@ -1,0 +1,167 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_FIELD: Field = None
+
+@gene('s1', 'value of doing this option now: draft, buy, recall, attack, cast, tribute, move', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    hf = me().health_frac
+    if o.kind == RECALL:
+        return recall_value(hf)
+    if o.kind == ATTACK:
+        return attack_value(o, hf)
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return move_value(o, hf)
+    return 0
+
+@gene('X40a', 'draft priority of a champion pick', parents=['s1'])
+def draft_value(o: Option) -> Num:
+    if o.champ == VESPER_VALE:
+        return 10
+    if o.champ == HEART_OF_RUIN:
+        return 9
+    if o.champ == MARCELLA:
+        return 8
+    if o.champ == VENDETTA:
+        return 7
+    if o.champ == RYTH:
+        return 6
+    return 1
+
+@gene('X40b', 'value of recalling home: low health, or carrying 10+ gems at moderate health (protect the gems), not when already at spawn', parents=['s1'])
+def recall_value(hf: Num) -> Num:
+    if me().pos in my_spawn():
+        return 0
+    if hf < 0.38:
+        return 90
+    if gems() >= 10 and hf < 0.55:
+        return 85
+    return 0
+
+@gene('X40c', 'value of a basic attack: focus wounded champions (weakest first, unless nearly dead); camps when carrying no gems, finish weakened camps, awake camps that hunt us when healthy; skip camps when low', parents=['s1'])
+def attack_value(o: Option, hf: Num) -> Num:
+    u = o.unit
+    if u.is_champion:
+        if hf < 0.3 and u.health_frac > 0.5:
+            return 0
+        return 80 + 15 * (1 - u.health_frac) + min(unit_gems(u), 50) / 10
+    if gems() == 0:
+        if hf < 0.25 and u.health_frac > 0.5:
+            return 0
+        return 60 + 8 * (1 - u.health_frac)
+    if is_awake(u) and hf > 0.35:
+        return 50
+    return 0
+
+@gene('X40d', 'value of a move: hold at spawn until healed; when weak, avoid stepping near enemy champions; else progress toward the goal field', parents=['s1'])
+def move_value(o: Option, hf: Num) -> Num:
+    if hf < 0.9 and me().pos in my_spawn():
+        return 0
+    p = progress(o.tile)
+    if p <= 0:
+        return 0
+    if hf < 0.5 and any(u.is_champion and dist(u.pos, o.tile) <= 3 for u in enemies()):
+        return 0
+    return 50 + p
+
+@gene('s2', 'where to walk: an altar when carrying gems (near 1); else a cleared group awaiting capture; else a living camp group with loot; else any living camp group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    rew = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    loot = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) + group_gold(g) > 0:
+            loot = loot | group_tiles(g)
+    if size(loot) > 0:
+        return loot
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals (cached per turn)', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_FIELD
+
+@gene('s4', 'progress toward goals; doubled when carrying gems; camp tiles give no progress; minus a penalty per enemy within 2 tiles of the step and extra for enemy champions adjacent; 0 if unreachable', parents=['s4'])
+def progress(t: Tile) -> Num:
+    if t in camp_tiles():
+        return 0
+    f = goal_field()
+    a = at(f, me().pos)
+    b = at(f, t)
+    if b >= 1000000:
+        return 0
+    threat = count(dist(u.pos, t) <= 2 for u in enemies())
+    threat += 2 * count(dist(u.pos, t) <= 1 and u.is_champion for u in enemies())
+    p = a - b - threat
+    if gems() > 0:
+        return p * 2
+    return p
+
+@gene('Z76a', 'value of casting: crowd control and damage on wounded champions, camp damage when no gems or awake camps, heal scaled by missing health (starts below 70%), shield when hurt or in a close fight, dash toward goals (more when carrying gems)', parents=['s1', 'Z64a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy and o.unit.is_champion:
+            return 66 + 34 * (1 - o.unit.health_frac)
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_enemy and o.unit.is_champion:
+                v = 60 + 40 * (1 - o.unit.health_frac)
+                if o.unit.health_frac < 0.35:
+                    v += 30
+                return v
+            if o.unit.is_camp:
+                if gems() == 0:
+                    return 65 + 10 * (1 - o.unit.health_frac)
+                if is_awake(o.unit) and hf > 0.35:
+                    return 52
+        return 0
+    if k == AB_HEAL:
+        if hf < 0.7:
+            return 120 + 90 * (1 - hf)
+        return 0
+    if k == AB_SHIELD:
+        if hf < 0.6:
+            return 155
+        if hf < 0.8:
+            mp = me().pos
+            if any(dist(u.pos, mp) <= 4 for u in enemies()):
+                return 120
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and hf > 0.4:
+            p = progress(o.tile)
+            if p >= 2:
+                base = 30 + 10 * min(p, 4)
+                if gems() > 0:
+                    return base + 25
+                return base
+        return 0
+    return 0
+
+@gene('Z5a', 'per-turn cache of the distance field to the goals', parents=['s3'])
+def update() -> None:
+    GOAL_FIELD = field(goals())
