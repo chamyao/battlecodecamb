@@ -1,0 +1,27 @@
+```python
+@gene('s2', 'where to walk: an altar with gems, else a living camp group not next to the enemy spawn (unless nothing else is left); a cleared group waiting for capture only if I am the closest visible ally')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    risky = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if group_reward(g):
+                d = dist(nearest(ts, me().pos), me().pos)
+                if not any(dist(nearest(ts, a.pos), a.pos) < d for a in allies()):
+                    acc = acc | ts
+            else:
+                t0 = nearest(ts, me().pos)
+                if dist(t0, nearest(enemy_spawn(), t0)) <= 7:
+                    risky = risky | ts
+                else:
+                    acc = acc | ts
+    if size(acc) == 0:
+        return risky
+    return acc
+```

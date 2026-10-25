@@ -1,0 +1,21 @@
+```python
+@gene("new", "visible enemy champions worth hunting: when I am healthy and my visible allies (me included) outnumber the enemies within 8", parents=["s2"])
+def hunt_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if me().health_frac < 0.6:
+        return acc
+    foes = count(dist(u.pos, me().pos) <= 8 for u in enemies())
+    if foes == 0:
+        return acc
+    friends = 1 + count(dist(a.pos, me().pos) <= 8 for a in allies())
+    if friends <= foes:
+        return acc
+    for u in enemies():
+        if dist(u.pos, me().pos) <= 8:
+            acc = acc | near(u.pos, 1)
+    return acc
+
+@gene('Z18a', 'once per turn: the distance field to the goals plus enemy champions worth hunting', parents=['s3'])
+def update() -> None:
+    GF = field(goals() | hunt_tiles())
+```

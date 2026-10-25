@@ -1,0 +1,33 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else a living camp group; a cleared group waiting for capture only if I am the closest visible ally, so the others move on and the reward is not split")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if group_reward(g):
+                d = dist(nearest(ts, me().pos), me().pos)
+                if not any(dist(nearest(ts, a.pos), a.pos) < d for a in allies()):
+                    acc = acc | ts
+            else:
+                acc = acc | ts
+    return acc
+
+@gene('Z18a', 'once per turn: the distance field to the goals, or home when hurt or rich with spawn close, empty-handed and not in a fight', parents=['s3'])
+def update() -> None:
+    home = False
+    if gems() == 0 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        if me().health_frac < 0.5:
+            home = True
+        elif gold() >= 150 and dist(nearest(my_spawn(), me().pos), me().pos) <= 12:
+            home = True
+    if home:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+```

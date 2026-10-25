@@ -1,0 +1,9 @@
+```python
+@gene('Z48a', 'worth recalling to spend gold: at least 90 gold (three shards), carrying nothing, nobody near', parents=['s1'])
+def shop_trip() -> Bool:
+    if gold() < 90 or gems() > 0:
+        return False
+    if any(dist(u.pos, me().pos) <= 8 for u in enemies()):
+        return False
+    return not any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())
+```
