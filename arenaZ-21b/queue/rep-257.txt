@@ -1,0 +1,9 @@
+```python
+@gene('Z17b', 'skip listing option kinds this policy never takes, and shopping away from spawn', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == BUY:
+        return can_shop()
+    if kind == CAST:
+        return slot_ready(0) or slot_ready(1)
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
+```
