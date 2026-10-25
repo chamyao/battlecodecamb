@@ -1,0 +1,68 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('Z137a', 'value of doing this option now, moves discounted by slack step threat plus distance-decayed threat at the destination', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 80 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.1962 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 56 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p <= 0:
+            return 0
+        penalty = 20 * threat_move(o.tile) + 10 * threat_decay(o.tile)
+        return max(1, 77 - penalty / max(0.9715, me().strength * me().health_frac))
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('Z137b', 'how much closer a step brings me to the goals, gains doubled, plus bush cover bonus, minus 2 per enemy threatening the step', parents=['s4'])
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    g = d * 2 if d > 0 else d
+    if g > 0:
+        return g + cover_bonus(t) - 2 * threat(t)
+    return g
+
+@gene('Z125a', 'small bonus for stepping into a bush when enemy champions are within 6 tiles of it', parents=['s4'])
+def cover_bonus(t: Tile) -> Num:
+    if not (t in bushes()):
+        return 0
+    n = count(u.is_champion and dist(u.pos, t) <= 12 for u in enemies())
+    return 0.5 if n > 0 else 0
+
+@gene('Z16a', 'health-weighted strength of enemy champions that can reach a tile next turn, with one extra step of slack', parents=['Z9a'])
+def threat_move(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac for u in enemies() if u.is_champion and dist(u.pos, t) <= u.attack_range + u.move_speed + 1)
+
+@gene("Z4a", "number of enemy units whose attack reach covers a tile", parents=["s4"])
+def threat(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+@gene('Z104a', 'distance-decayed strength of enemy champions within 10 tiles of a tile, weighted by their health', parents=['Z16a'])
+def threat_decay(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac / (1 + dist(u.pos, t)) for u in enemies() if u.is_champion and dist(u.pos, t) <= 10)

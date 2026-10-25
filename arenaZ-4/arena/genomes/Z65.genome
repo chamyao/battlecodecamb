@@ -1,0 +1,66 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now, with moves discounted by enemy threat at the destination', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.3 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 95
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p <= 0:
+            return 0
+        return max(1, 50 - 10 * threat_at(o.tile) / max(1, me().strength * me().health_frac))
+    return 0
+
+@gene('s2', 'near unlocked altars when carrying gems, else living camp groups that hold gems or wait for capture', parents=['s2'])
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            if group_gems(g) > 0 or group_reward(g):
+                acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals, via the fallback goals gene', parents=['s3'])
+def goal_field() -> Field:
+    return field(fallback_goals())
+
+@gene('Z60a', 'goals if any, else tiles of living camp groups, else all camp spawn tiles', parents=['s2'])
+def fallback_goals() -> Tiles:
+    base = goals()
+    if size(base) > 0:
+        return base
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    return camp_spawns()
+
+@gene("s4", "how much closer a step brings me to the goals, minus 2 per enemy threatening the step", parents=['s4'])
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t) - 2 * threat(t)
+
+@gene('Z4a', 'number of enemy units whose attack reach covers a tile', parents=['s4'])
+def threat(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+@gene('Z9a', 'health-weighted strength of enemy champions that can reach a tile next turn', parents=['s1'])
+def threat_at(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac for u in enemies() if u.is_champion and dist(u.pos, t) <= u.attack_range + u.move_speed)
