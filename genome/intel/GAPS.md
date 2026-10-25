@@ -535,3 +535,11 @@ Target (Arena B lead): maps where v29 doesn't reach 1000 gems vs builtin:idle. T
 **Bot bug (fixed in bb4c439):**
 - bot/src/bot_api.cpp dropped the per-group gold, gems and respawn words of sdk_map_camp_layout, so group_gems / group_gold read 0 in cambc.
 - v29 doesn't use them; gem-groups genes do.
+
+## Contest rule on A81582-ringheal (2026-10-25)
+
+**directed/A81582-rhm.genome**: A81582-ringheal + r15. On maps where every gem-paying camp spawn (wolf, elk, gem cluster, golem) is in a monolith group, keep going for monoliths after the first tribute. MONO_ONLY is computed from camp types, so it doesn't depend on group_gems.
+- vs idle: only contest changes (200 → 800 gems, r1944).
+- 39/80 vs A81582-ringheal; only contest's two games differ, the other 78 are near mirrors.
+- Paired anchors: B318 63 (65; 0 up / 2 down), L1c 67 (65), gconv1 66 (65), the rest unchanged.
+- Real cambc vs the A81582-ringheal build: 2-0, 0 crashes. 1000-200, then 600-600 won on the gold tiebreak (17,645 vs 15,431).
