@@ -1,0 +1,22 @@
+```python
+@gene('Z17a', 'once per turn: note the tiles next to area-spell targets; recompute the walk field only when the walk goals change; skip while channeling or dead', parents=['s4'])
+def update() -> None:
+    if channeling() or not alive():
+        return
+    hot = near(tile(-5, -5), 0)
+    if slot_ready(0) or slot_ready(1):
+        for u in enemies():
+            hot = hot | near(u.pos, 1)
+        for u in camps():
+            if gems() == 0 or is_awake(u):
+                hot = hot | near(u.pos, 1)
+    HOT = hot
+    gs = walk_goals()
+    rest = gs - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    if size(rest) > 0:
+        gs = rest
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+```

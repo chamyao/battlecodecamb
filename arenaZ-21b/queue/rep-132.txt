@@ -1,0 +1,14 @@
+```python
+@gene("Z17a", "recompute the walk field only when the walk goals change, leaving monolith and golem spawns out unless nothing else is left; skip while channeling or dead")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = walk_goals()
+    rest = gs - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    if size(rest) > 0:
+        gs = rest
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+```

@@ -1,0 +1,50 @@
+```python
+@gene('s1', 'value of doing this option now; fight awake camps while carrying; when hurt, leave reach before recalling; recall to shop with a full purse when safe and idle; chase weak enemy champions')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 3 if o.champ == MARCELLA else 1
+    if o.kind == BUY:
+        return jungle_shop(o.item)
+    if o.kind == RECALL:
+        if in_fight():
+            return 0
+        if me().health_frac < 0.35:
+            return 90
+        if gems() == 0 and gold() >= 150 and not can_shop() and at(goal_field(), me().pos) >= 3:
+            return 52 if me().health_frac < 0.85 or gold() >= 300 else 0
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if gems() == 0:
+            return 60
+        return 88 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35 and in_fight():
+            g = threat_dist(o.tile) - threat_dist(me().pos)
+            return 57 + g if g > 0 else 0
+        if me().health_frac > 0.6:
+            w = best(enemies(), lambda u: 0 - u.health_frac)
+            if exists(w) and w.health_frac < 0.4 and dist(w.pos, me().pos) <= 5:
+                return 70 if dist(o.tile, w.pos) < dist(me().pos, w.pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "worth of a purchase: the starter item first; then strength shards, Jungle family (less camp damage) first, finishing an emblem already started", parents=["s1"])
+def jungle_shop(i: Num) -> Num:
+    if i == 6:
+        return 100
+    if item_strength(i) <= 0 or item_cost(i) > 30:
+        return 0
+    v = 90 + item_strength(i) * 0.1
+    if item_passive(i) == P_JUNGLE:
+        v += 4
+    n = items_owned(i)
+    if n > 0 and n < 5:
+        v += 2
+    return v
+```

@@ -1,0 +1,18 @@
+```python
+@gene("Z80b", "where to walk: free altars while carrying gems, plus living camp groups (monolith and golem spawns only as a last resort) unless banking")
+def walk_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if banking():
+            return acc
+    camps_t = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            camps_t = camps_t | group_tiles(g)
+    rest = camps_t - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    if size(rest) > 0:
+        return acc | rest
+    return acc | camps_t
+```
