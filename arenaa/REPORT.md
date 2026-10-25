@@ -2,6 +2,16 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 06:45 UTC
+
+- A-8 final: 1006/1200 (m16, A81604), top-3 999.7. A-8c final 946 (peak 966). Session writer +40-60.
+- A-9 leg 1 is at ~1777 births about 40 min after start (A-8 did 401 in 2h03); --births-in-flight 8 roughly
+  doubles session throughput. m17 is being scored.
+- Z-17 m1 (partial): 17a legacy 106 (b127), 17b min-mu 112 (b109), 17c min-mu 85 (b112); Z-15 had 83 at
+  b118. Too early.
+- v30 (A81582-ringheal) is live on the ladder. A81615 and A91640 passed vs v29 (50/80) but trail ringheal
+  in the sim; they are being re-gated vs v30.
+
 ## 2026-10-25 06:20 UTC: relay final; Z-17 queued
 
 - Z-10 relay final (476 births): panel best 85 / 96 / 107 / 145 (Z400, b405). Z-5 (same writer and feedback, one
