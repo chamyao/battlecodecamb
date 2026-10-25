@@ -78,3 +78,14 @@ Needs the group gold/gems bot fix (genome/v0 fd778fc or later).
   Solo vs a do-nothing bot, rounds to 1000 over 10 maps: 16,393 (A81582) -> 14,725.
 - Sim: 45/80 vs v29, 39/80 vs A81582; solo total vs idle 100,601 -> 96,568.
 - Smoke, real vs v29: 01elk-arena W 1014-84, 01broken-curve L 730-1001, 00great-wall W 1016-641; 0 crashes.
+- WITHDRAWN (Arena B lead, 06:14 UTC): in real cambc it loses 01pilgrimage, 01gold-rush and 01broken-curve 0-2 each vs v29;
+  gem-first starves gold against a real opponent.
+
+## A81582-ringheal (A81582 + two solo-farming bug fixes, no gem-groups)
+
+genome/candidates/A81582-ringheal.genome, sha256 9620bbfbce8afff4... (genome/arenab 7ac4808c cand/A81582-ringheal.genome).
+(1) Altar rings exclude small-camp spawn tiles, so bank walks never target a tile a living camp blocks; (2) r2 ignores
+enemies on their own spawn, so hurt carriers next to an enemy spawn can heal. Reads neither group_gems nor group_gold.
+- Arena B lead, real cambc at fd778fc: 55/80 vs v29, 0 crashes (plain A81582: 50/80 on the same builds); capped turns 450 vs 301.
+- Sim: 46/80 vs v29, 40/80 vs A81582; solo vs idle: games short of 1000 halved (10 -> 5).
+- My smoke, real vs v29 (side A only, hard maps): 01gold-rush L, 01broken-curve L, 00great-wall L (same game as A81582's). Full real 80 running.
