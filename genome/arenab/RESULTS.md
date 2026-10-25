@@ -207,3 +207,9 @@ exploit-3 stopped at $9.15 when API credits ran out (06:50Z).
 
 ## Oct 25 07:16: v31 = A81582-rh-mono-all live (bundle e4932580)
 Gem gate after 3 buys instead of 6, on v31: sim 39/80, real 39/80 vs v31 (0 crashes). Not better; keep 6 unless b8 shows side-A elk_arena losses.
+
+## Oct 25 ~07:50: Arena B leg 6 done (1881 births, solo filter on); B1873 beats v31
+Top 3 relay genomes (all with the monolith fix) vs v31 = rh-mono-all, sim / real /80:
+B1881 39 / 39, B1873 37 / 47, B1872 43 / 40. All 0 crashes.
+B1873 (B1850 + kill-shot fight outranks the pass-through bank: rule 165 + r_killshot): real 49/80 vs v30, 56/80 vs v29;
+solo vs idle 95,846 rounds / 362 deaths (v31 97,417 / 379). Sim undershoots it by 10/80. Sent as the v32 candidate.
