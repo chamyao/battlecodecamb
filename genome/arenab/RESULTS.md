@@ -79,3 +79,13 @@ B792's sim edge over B318 (47/80, bot seeds) did not show in band games. The sim
 Sim (intel, bot seeds): 41/80 vs A61188; non-champion deaths great-wall 25 -> 15, shortcut 17.5 -> 9.5; 15 anchors all +0..+4.
 
 Uploaded as **v28** at 03:43:47Z Oct 25 (bundle 8a921761..., genome/v0 568cbf5 genome/candidates/a61188-mono.genome). Validation: intel batch 5.
+
+## arenaB-14 session-mutator relay: tops vs v28 (bot seeds /80, sim at genome/v0 ca5180b)
+
+| genome | leg | vs v28 | anchor check (cand / v28) |
+|---|---|---|---|
+| B1460 | 1 | 40 | — |
+| B1480 | 1 | 39 | — |
+| B1543 | 2 | 42 | — |
+| B1526 | 2 | 41 | — |
+| B1573 | 2 | **44** | FAIL: B318 43/53, hunter 56/65; others level or up (A61188 44/41, exploit-353 54/50) |
