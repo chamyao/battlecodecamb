@@ -1,0 +1,13 @@
+```python
+@gene("Z97a", "draft order: Marcella, then Cassi and Issac (two bodies for one pick), Ryth, Vesper Vale, then the default order")
+def pick_order(c: Num) -> Num:
+    if c == MARCELLA:
+        return 5
+    if c == CASSI or c == ISSAC:
+        return 4
+    if c == RYTH:
+        return 3
+    if c == VESPER_VALE:
+        return 2
+    return 1
+```
