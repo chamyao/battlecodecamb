@@ -1,0 +1,17 @@
+```python
+@gene('r5', 'recall with 5+ gems when hurt (threshold rises with carried gems) and nothing near, unless an altar is close enough to bank first; never while an enemy champion within 3 is nearly dead (finish the kill first)')
+def r_cashout() -> Bool:
+    if at_spawn():
+        return False
+    g = gems()
+    if g < 5:
+        return False
+    f = min(0.8, 0.55 + g / 100)
+    if not hurt_below(f):
+        return False
+    if under_fire():
+        return False
+    if count(dist(e.pos, here()) <= 3 and e.health_frac < 0.3 for e in enemies()) > 0:
+        return False
+    return altar_eta() > 6
+```

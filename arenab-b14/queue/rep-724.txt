@@ -1,0 +1,9 @@
+```python
+@gene("a16", "units of the next shard still to buy; the last kind of the split takes whatever the turn's gold still pays for")
+def shard_left() -> Num:
+    d = shards_done()
+    for k in range(3):
+        if d < shard_until(k + 1):
+            return shard_until(k + 1) - d
+    return max(0, floor(gold() / 30))
+```
