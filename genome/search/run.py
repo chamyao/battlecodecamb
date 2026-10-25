@@ -68,8 +68,8 @@ def main(argv=None):
     ap.add_argument("--bot-seeds", action="store_true",
                     help="policies seeded as deployed: every game is fixed by map and side, so screen and confirm "
                          "both play the 2 x maps distinct games (set --screen-games/--confirm-games to 80)")
-    ap.add_argument("--fitness", choices=["score", "wins"], default="score",
-                    help="score: win rate + gem-margin bonus; wins: win rate only")
+    ap.add_argument("--fitness", choices=["score", "wins", "fight"], default="score",
+                    help="score: win rate + gem-margin bonus; wins: win rate only; fight: win rate + 0.1 x our kills per game")
     args = ap.parse_args(argv)
 
     out = Path(args.out) if args.out else ROOT / "runs" / args.run
