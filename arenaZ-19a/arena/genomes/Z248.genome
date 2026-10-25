@@ -1,0 +1,164 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+MONO: Tiles = None
+MONO_DONE: Bool = False
+GOLEMS: Tiles = None
+
+@gene('s1', 'value of doing this option now; focus the weakest enemy champion, never poke a monolith')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o.champ)
+    if o.kind == BUY:
+        return buy_jungle(o.item, o.count)
+    if retreating():
+        if o.kind == MOVE:
+            dn = danger_at(o.tile)
+            return 95 - dn if dn < danger_at(me().pos) else 0
+        if o.kind == RECALL:
+            return 0
+        if o.kind == ATTACK:
+            return 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.25:
+            return 90
+        return 88 if gold() >= 90 and gems() == 0 and me().health_frac < 0.7 and danger_at(me().pos) == 0 and not (me().pos in my_spawn()) else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 9 + (6 if focus_called(o.unit.pos) else 0) + min(unit_gems(o.unit), 30) / 5 + (5 if is_tributing(o.unit) else 0)
+        if o.unit.type == MONOLITH:
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 92 if gems() >= 10 else 70
+    if o.kind == MOVE:
+        if exists(prey()) and hunt_ok(prey()) and dist(o.tile, prey().pos) < dist(me().pos, prey().pos):
+            return 57
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc - walls() - holes() - altars()
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals without monolith groups (cached once per turn in update)')
+def goal_field() -> Field:
+    return GF
+
+@gene('s4', 'how much closer a step brings me to the goals; prefer bushes; with a big bag keep two tiles away from enemy champions')
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() >= 20 and any(dist(u.pos, t) <= 2 for u in enemies()):
+        return d - 1.5
+    if d > 0 and t in bushes():
+        return d + 0.5
+    return d
+
+@gene('Z241a', 'draft order: a ranged stunner, a healer, a ranged gold earner, an area stunner, a splash melee', parents=['s1'])
+def draft_value(c: Num) -> Num:
+    if c == TAVI:
+        return 10
+    if c == WILLOW:
+        return 9
+    if c == VESPER_VALE:
+        return 8
+    if c == RYTH:
+        return 7
+    if c == VARG:
+        return 6
+    return 1
+
+@gene('Z241b', 'once per turn: remember every tile of monolith groups and of golem groups (first turn), cache the distance field to the goals minus groups too strong for now', parents=['s3'])
+def update() -> None:
+    if not MONO_DONE:
+        mono = type_spawns(MONOLITH)
+        gol = type_spawns(GOLEM)
+        acc = near(tile(-5, -5), 0)
+        acc2 = near(tile(-5, -5), 0)
+        for g in range(num_groups()):
+            gt = group_tiles(g)
+            if size(gt & mono) > 0:
+                acc = acc | gt
+            if size(gt & gol) > 0:
+                acc2 = acc2 | gt
+        MONO = acc
+        GOLEMS = acc2
+        MONO_DONE = True
+    if round() < 500:
+        GF = field(goals() - MONO - GOLEMS)
+    else:
+        GF = field(goals() - MONO)
+
+@gene('Z7a', 'value of casting an ability option: damage and stuns on champions or camps, resets after an attack, shields and heals when hurt, dashes toward the goal', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if exists(o.unit) and o.unit.is_camp and gems() == 0 and o.unit.type != MONOLITH:
+            return 65
+        return 0
+    if k == AB_AOE:
+        n = count(dist(u.pos, o.tile) <= 1 for u in enemies()) * 2 + count(dist(u.pos, o.tile) <= 1 and is_awake(u) for u in camps())
+        return 60 + 5 * n if n > 0 else 0
+    if k == AB_RESET:
+        return 62 if not can_attack() and (count(dist(u.pos, me().pos) <= me().attack_range for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= me().attack_range for u in camps())) > 0 else 0
+    if k == AB_SHIELD:
+        return 88 if me().health_frac < 0.8 and (count(dist(u.pos, me().pos) <= 4 for u in enemies()) + count(is_awake(u) for u in camps())) > 0 else 0
+    if k == AB_HEAL:
+        return 87 if exists(o.unit) and o.unit.health_frac < 0.6 else 0
+    if k == AB_DASH:
+        return 55 if progress(o.tile) >= 2 else 0
+    return 0
+
+@gene('Z241c', 'hurt and threatened: walk out of reach before recalling (damage cancels a recall)', parents=['s1'])
+def retreating() -> Bool:
+    return me().health_frac < 0.25 and danger_at(me().pos) > 0
+
+@gene('Z241d', 'how many awake camps and enemy champions can hit this tile', parents=['s1'])
+def danger_at(t: Tile) -> Num:
+    return count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps()) + count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+@gene('Z241e', 'shop value: a Jungle health emblem first (30 percent less damage from camps), then Power strength', parents=['s1'])
+def buy_jungle(item: Num, n: Num) -> Num:
+    if item == 28 and items_owned(29) == 0:
+        return 100 + n
+    if item == 16 and items_owned(17) == 0:
+        return 98 + n
+    if item == 6:
+        return 95 + n
+    return 0
+
+@gene('Z241f', 'end of turn: announce the enemy champion I just hit so allies focus it (shared bytes 0-2: x, y, round)', parents=['s1'])
+def after() -> None:
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        if any(dist(u.pos, t) == 0 for u in enemies()):
+            write_shared(0, t.x)
+            write_shared(1, t.y)
+            write_shared(2, round() % 200)
+
+@gene('Z241g', 'an ally called this tile as the focus target this round or last', parents=['s1'])
+def focus_called(t: Tile) -> Bool:
+    age = (round() - read_shared(2)) % 200
+    return age <= 1 and t.x == read_shared(0) and t.y == read_shared(1)
+
+@gene('Z241j', 'an enemy champion worth hunting: carries 12+ gems, weaker than me, within 7 tiles but out of reach', parents=['s1'])
+def hunt_ok(u: Unit) -> Bool:
+    return unit_gems(u) >= 12 and u.health_frac < me().health_frac and me().health_frac > 0.5 and dist(u.pos, me().pos) <= 7 and dist(u.pos, me().pos) > me().attack_range
+
+@gene('Z241k', 'the visible enemy champion carrying the most gems', parents=['s1'])
+def prey() -> Unit:
+    return best(enemies(), lambda u: unit_gems(u) - u.health_frac * 10)

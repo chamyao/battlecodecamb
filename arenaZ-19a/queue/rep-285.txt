@@ -1,0 +1,17 @@
+```python
+@gene("Z169f", "end of turn: announce the enemy champion I just hit or cast on, or an enemy within 6 carrying 12+ gems (shared bytes 0-2: x, y, round)")
+def after() -> None:
+    t = acted_tile(ATTACK)
+    if acted(CAST) and not acted(ATTACK):
+        t = acted_tile(CAST)
+    if acted(ATTACK) or acted(CAST):
+        if any(dist(u.pos, t) == 0 for u in enemies()):
+            write_shared(0, t.x)
+            write_shared(1, t.y)
+            write_shared(2, round() % 200)
+    elif any(unit_gems(u) >= 12 and dist(u.pos, me().pos) <= 6 for u in enemies()):
+        p = best(enemies(), lambda u: unit_gems(u))
+        write_shared(0, p.pos.x)
+        write_shared(1, p.pos.y)
+        write_shared(2, round() % 200)
+```
