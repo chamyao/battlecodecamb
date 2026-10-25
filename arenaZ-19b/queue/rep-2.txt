@@ -1,0 +1,52 @@
+```python
+@gene("s1", "value of doing this option now; also casts damage, stun, aoe, shield, heal and reset abilities")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "value of casting an ability option: hit champions and camps we fight, shield or heal when hurt", parents=["s1"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and gems() == 0:
+            return 65
+        return 0
+    if k == AB_AOE:
+        n = count(dist(u.pos, o.tile) <= 1 for u in enemies())
+        c = count(dist(u.pos, o.tile) <= 1 for u in camps())
+        if n > 0:
+            return 84
+        if c > 0 and gems() == 0:
+            return 64
+        return 0
+    if k == AB_SHIELD:
+        near_enemy = count(dist(u.pos, me().pos) <= 3 for u in enemies())
+        near_camp = count(is_awake(u) and dist(u.pos, me().pos) <= 4 for u in camps())
+        return 75 if near_enemy + near_camp > 0 and me().health_frac < 0.9 else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and o.unit.health_frac < 0.6:
+            return 86
+        return 0
+    if k == AB_RESET:
+        return 55 if not can_attack() else 0
+    return 0
+```

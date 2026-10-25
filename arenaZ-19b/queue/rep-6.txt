@@ -1,0 +1,9 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, minus a penalty for stepping into reach of awake camps when hurt")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.5:
+        if any(is_awake(u) and dist(u.pos, t) <= 4 for u in camps()):
+            return d - 1
+    return d
+```

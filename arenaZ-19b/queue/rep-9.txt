@@ -1,0 +1,22 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else nearby easy camps (clusters, wolves) first, never golems or monoliths")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    big = type_spawns(GOLEM) | type_spawns(MONOLITH)
+    easy = type_spawns(GEM_CLUSTER) | type_spawns(GOLD_CLUSTER) | type_spawns(WOLF)
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    soft = acc & easy
+    if size(soft) > 0 and dist(nearest(soft, me().pos), me().pos) <= 12:
+        return soft
+    safe = acc - big
+    if size(safe) > 0:
+        return safe
+    return acc
+```
