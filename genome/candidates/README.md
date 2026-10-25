@@ -127,3 +127,11 @@ bonus is skipped when some altar-ring tile is a monolith-group spawn (ALTAR_MONO
 - Arena B lead, real cambc vs v32: 40/80 = 01boss-battle 2-0 + 1-1 on each other map (identical play), 0 crashes.
 - My check, real vs v32: 01boss-battle 2-0; 00lanes and 01big-world mirror v32 exactly (same rounds, side wins).
 - Live as ladder version 33 (2026-10-25T08:36:16Z, bundle sha256 37e7be1a...). Validation: intel batch 10, paired vs b9.
+
+## v33-cash3-ahead4 (tune-B on v33; v34 candidate)
+
+genome/candidates/v33-cash3-ahead4.genome, sha256 6ca9e9e63bced4a1... (genome/arenab d0351648; genome/tuneb 579c317).
+Two constants: a5 ahead_on d <= 5 -> 4; r5 cash-out g < 5 -> 3.
+- tune-B and Arena B lead, real cambc: 44 vs v33, 44 vs v32, 46 vs v31, 59 vs farmer, 65 vs rushbank (v33's row: 40/40/44/50/66).
+  Capped turns 364-381 (v33 411-450). Solo vs idle 95,088 rounds, 352 deaths.
+- My real 80 vs v33: running.
