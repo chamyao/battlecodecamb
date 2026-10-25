@@ -1,0 +1,5 @@
+```python
+@gene("a13", "a purchase is still due this turn (other options wait, unscored), unless an enemy champion can hit us (act first, shop after)")
+def shop_pending() -> Bool:
+    return RULE >= 2 and at_spawn() and can_shop() and ((LOCK_BUY and not has_lock() and gold() >= 10) or (next_shard() >= 0 and gold() >= 30)) and not foe_in_reach()
+```

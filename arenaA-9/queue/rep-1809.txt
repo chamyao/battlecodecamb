@@ -1,0 +1,24 @@
+```python
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer; else any safe altar, else any altar; below half health simply the nearest of these (speed over safety)', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if hurt_below(0.5):
+        c = bank_t3()
+        h = here()
+        best_t = c
+        if valid(b) and (not valid(best_t) or dist(h, b) < dist(h, best_t)):
+            best_t = b
+        if valid(a) and (not valid(best_t) or dist(h, a) <= dist(h, best_t)):
+            best_t = a
+        return best_t
+    if valid(a) and valid(b):
+        if dist(here(), b) + 4 < dist(here(), a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```

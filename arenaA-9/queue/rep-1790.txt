@@ -1,0 +1,8 @@
+```python
+@gene('r14', 'fight the first camp in reach, but do not wake a sleeping camp while below 35% health')
+def r_camp() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not in_reach(c):
+        return False
+    return is_awake(c) or not hurt_below(0.35)
+```

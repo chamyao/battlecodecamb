@@ -1,0 +1,11 @@
+```python
+@gene("r18", "walk to the nearest living camp (not monolith or golem): when on a dead camp of an uncleared group, or standing in a group whose visible living camp is out of reach (finish the group)")
+def r_live() -> Bool:
+    c = live_camp()
+    if not exists(c) or c.pos in BIG_CAMPS:
+        return False
+    g = spawn_group(here())
+    if g >= 0 and camp_group(c) == g and not in_reach(c):
+        return True
+    return dist(camp_goal(), here()) == 0
+```
