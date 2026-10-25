@@ -60,3 +60,7 @@ Paired with b4 (v27) on the same 50 matchups:
 This is the first directed child validated on the real band.
 
 Records on this plan: v22 15-35, v25 18-32, v26 17-33, v27 13-37, **v28 18-32**.
+
+## Batch 6 (2026-10-25, live v29)
+
+Paired with b5 on b1 plan: 18-32 -> 20-30, gems +42 +- 38 (not significant). Treasure emblems by r250 0.28 -> 1.34 (fingerprint and goal met). No-bank losses on elk_arena and shortcut match the ring bug fixed in the ringheal children. See batches/b6.md.
