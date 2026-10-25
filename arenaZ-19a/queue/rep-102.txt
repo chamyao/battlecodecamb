@@ -1,0 +1,15 @@
+```python
+@gene("Z94a", "draft order: a ranged gold earner, a ranged stunner, a healer, an area stunner, a splash melee")
+def draft_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 10
+    if c == TAVI:
+        return 9
+    if c == WILLOW:
+        return 8
+    if c == RYTH:
+        return 7
+    if c == VARG:
+        return 6
+    return 1
+```
