@@ -1,0 +1,9 @@
+```python
+@gene('m1', 'first tile of a set, preferring altars not enemy-locked, then the one farthest from the nearest visible enemy champion (row-major on ties), invalid if empty', parents=['m1'])
+def first_tile(s: Tiles) -> Tile:
+    open_s = s - locked_altars()
+    c = open_s if size(open_s) > 0 else s
+    if count_units(enemies()) == 0:
+        return best(c, lambda t: 0)
+    return best(c, lambda t: min((dist(t, u.pos) for u in enemies()), default=0))
+```

@@ -1,0 +1,5 @@
+```python
+@gene("s14", "the visible camp in reach to hit: awake ones first, then the lowest health; sleeping monoliths last", parents=["s14"])
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: -1000 if not in_reach(c) else (100 if is_awake(c) else 0) - 50 * c.health_frac - (300 if not is_awake(c) and camp_spawn(c) in MONO_GROUPS else 0))
+```

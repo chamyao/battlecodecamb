@@ -1,0 +1,14 @@
+```python
+@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp within 14 tiles whose group is not a monolith or golem group (by its spawn, not where it stands); cheap checks first", parents=["r18"])
+def r_live() -> Bool:
+    c = live_camp()
+    if not exists(c):
+        return False
+    h = here()
+    if dist(c.pos, h) > 14:
+        return False
+    s = camp_spawn(c)
+    if s in BIG_CAMPS or s in MONO_GROUPS:
+        return False
+    return dist(camp_goal(), h) == 0
+```

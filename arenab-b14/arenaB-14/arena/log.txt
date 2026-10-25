@@ -3013,3 +3013,27 @@
 [04:21:24] [B] champion anchor champ30-B1460 (mu 46.5)
 [04:21:24] [B] summary: births 1500 deaths 1477 games 340440 $11.08; top [('B1460', 46.48, 0.81, 792, 'S6'), ('B1487', 46.27, 0.82, 224, 'S6'), ('B1496', 46.2, 0.91, 112, 'S6')]; top vs anchors {'B1460': 0.688, 'B1487': 0.625, 'B1496': 1.0}
 [04:21:24] [B] birth B1500 (tune ) of ['B1458'] species S6; 24 genomes $11.08
+[04:21:42] [B] birth B1501 (tune ) of ['B1487'] species S6; 24 genomes $11.08
+[04:21:53] [B] rejected mutate session: behavioural twin
+[04:22:03] [B] birth B1502 (cross ) of ['B1460', 'B1487'] species S6; 24 genomes $11.08
+[04:22:09] [B] birth B1503 (mutate session) of ['B1478'] species S6; 24 genomes $11.08
+[04:22:09] [B] birth B1504 (cross ) of ['B1496', 'B1460'] species S6; 24 genomes $11.08
+[04:22:31] [B] birth B1505 (cross ) of ['B1489', 'B1496'] species S6; 24 genomes $11.08
+[04:22:42] [B] birth B1506 (mutate session) of ['B1487'] species S6; 24 genomes $11.08
+[04:22:52] [B] birth B1507 (cross ) of ['B1503', 'B1460'] species S6; 24 genomes $11.08
+[04:22:53] [B] birth B1508 (mutate session) of ['B1460'] species S6; 24 genomes $11.08
+[04:23:02] [B] birth B1509 (tune ) of ['B1492'] species S3; 24 genomes $11.08
+[04:23:07] [B] summary: births 1510 deaths 1487 games 341768 $11.08; top [('B1460', 46.58, 0.81, 808, 'S6'), ('B1458', 46.54, 0.8, 904, 'S6'), ('B1488', 46.37, 0.82, 192, 'S6')]; top vs anchors {'B1460': 0.688, 'B1458': 0.612, 'B1488': 0.775}
+[04:23:07] [B] birth B1510 (cross ) of ['B1492', 'B1374'] species S3; 24 genomes $11.08
+[04:23:29] [B] rejected mutate session: behavioural twin
+[04:23:38] [B] rejected mutate session: behavioural twin
+[04:23:39] [B] birth B1511 (mutate session) of ['B1458'] species S6; 24 genomes $11.08
+[04:23:45] [B] birth B1512 (cross ) of ['B1458', 'B1495'] species S6; 24 genomes $11.08
+[04:23:52] [B] birth B1513 (cross ) of ['B1480', 'B1458'] species S6; 24 genomes $11.08
+[04:24:05] [B] rejected tune : behavioural twin
+[04:24:07] [B] 1514 births (--max-births 1514): no more births
+[04:24:07] [B] birth B1514 (mutate session) of ['B1496'] species S6; 24 genomes $11.08
+[04:24:22] [B] rejected mutate session: behavioural twin
+[04:24:30] [B] birth B1515 (mutate session) of ['B1496'] species S6; 24 genomes $11.08
+[04:26:20] [B] summary: births 1515 deaths 1492 games 344384 $11.08; top [('B1460', 47.14, 0.81, 896, 'S6'), ('B1480', 46.03, 0.8, 336, 'S6'), ('B1495', 45.93, 0.81, 208, 'S6')]; top vs anchors {'B1460': 0.685, 'B1480': 0.613, 'B1495': 0.833}
+[04:26:22] [B] done: spent $11.08
