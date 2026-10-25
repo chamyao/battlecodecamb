@@ -1,0 +1,6 @@
+```python
+@gene('s13', 'in-reach enemy champion: carried gems first, then fewest of my hits to kill (health and shield over my damage to it)')
+def fight_foe() -> Unit:
+    m = me()
+    return best(enemies(), lambda u: unit_gems(u) * 10 - 30 * (u.health + shield(u)) / max(1, attack_damage(m, u)) if in_reach(u) else -INF)
+```

@@ -1,0 +1,34 @@
+```python
+@gene('c1', "where this turn's rule walks; banking under threat or before a dangerous group also prefers the safe, unlocked altar")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11 or r == 12 or r == 18:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer; a far safe altar (25+) gives way to any open altar 10+ nearer; else any safe altar, else any altar', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if valid(a) and valid(b):
+        if dist(here(), b) + 4 < dist(here(), a):
+            return b
+        if dist(here(), a) > 25:
+            c = bank_t3()
+            if valid(c) and dist(here(), c) + 10 < dist(here(), a):
+                return c
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```

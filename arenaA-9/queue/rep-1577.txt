@@ -1,0 +1,10 @@
+```python
+@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem, unless that big camp is already awake and below half health: finish it)")
+def r_live() -> Bool:
+    c = live_camp()
+    if not exists(c):
+        return False
+    if c.pos in BIG_CAMPS and not (is_awake(c) and c.health_frac < 0.5):
+        return False
+    return dist(camp_goal(), here()) == 0
+```

@@ -4559,3 +4559,103 @@
 [09:19:30] [A9] birth A92616 (mutate session) of ['A92528'] species S2; 24 genomes $7.80
 [09:19:34] [A9] birth A92617 (mutate session) of ['A92562'] species S2; 24 genomes $7.80
 [09:19:38] [A9] birth A92618 (mutate session) of ['A92567'] species S2; 24 genomes $7.80
+[09:19:58] [A9] rejected mutate session: behavioural twin
+[09:20:06] [A9] birth A92619 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:20:11] [A9] summary: births 2620 deaths 2597 games 584000 $7.80; top [('A92617', 48.64, 0.94, 96, 'S2'), ('A92587', 48.62, 0.81, 208, 'S2'), ('A92595', 48.46, 0.84, 152, 'S2')]; top vs anchors {'A92617': None, 'A92587': 1.0, 'A92595': 0.875}
+[09:20:11] [A9] birth A92620 (mutate session) of ['A92597'] species S2; 24 genomes $7.80
+[09:20:13] [A9] birth A92621 (tune ) of ['A92567'] species S2; 24 genomes $7.80
+[09:20:16] [A9] birth A92622 (mutate session) of ['A92528'] species S2; 24 genomes $7.80
+[09:20:39] [A9] birth A92623 (cross ) of ['A92587', 'A92595'] species S2; 24 genomes $7.80
+[09:20:42] [A9] birth A92624 (mutate session) of ['A92595'] species S2; 24 genomes $7.80
+[09:20:43] [A9] birth A92625 (cross ) of ['A92575', 'A92560'] species S3; 24 genomes $7.80
+[09:20:47] [A9] birth A92626 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:20:52] [A9] birth A92627 (mutate session) of ['A92614'] species S2; 24 genomes $7.80
+[09:20:57] [A9] birth A92628 (mutate session) of ['A92613'] species S2; 24 genomes $7.80
+[09:21:14] [A9] birth A92629 (mutate session) of ['A92617'] species S2; 24 genomes $7.80
+[09:21:19] [A9] summary: births 2630 deaths 2607 games 584992 $7.80; top [('A92587', 48.67, 0.81, 216, 'S2'), ('A92567', 48.42, 0.81, 280, 'S2'), ('A92605', 48.35, 0.89, 128, 'S2')]; top vs anchors {'A92587': 1.0, 'A92567': None, 'A92605': 0.917}
+[09:21:19] [A9] birth A92630 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:21:24] [A9] birth A92631 (tune ) of ['A92590'] species S2; 24 genomes $7.80
+[09:21:25] [A9] birth A92632 (tune ) of ['A92597'] species S2; 24 genomes $7.80
+[09:21:37] [A9] rejected mutate session: behavioural twin
+[09:21:39] [A9] rejected cross : behavioural twin
+[09:21:46] [A9] birth A92633 (mutate session) of ['A92614'] species S2; 24 genomes $7.80
+[09:21:50] [A9] rejected mutate session: behavioural twin
+[09:21:54] [A9] birth A92634 (tune ) of ['A92585'] species S2; 24 genomes $7.80
+[09:21:57] [A9] birth A92635 (mutate session) of ['A92599'] species S4; 24 genomes $7.80
+[09:22:07] [A9] birth A92636 (tune ) of ['A92633'] species S2; 24 genomes $7.80
+[09:22:11] [A9] birth A92637 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:22:16] [A9] birth A92638 (mutate session) of ['A92597'] species S2; 24 genomes $7.80
+[09:22:29] [A9] rejected mutate session: behavioural twin
+[09:22:30] [A9] birth A92639 (mutate session) of ['A92567'] species S2; 24 genomes $7.80
+[09:22:33] [A9] summary: births 2640 deaths 2617 games 585976 $7.80; top [('A92633', 49.04, 1.0, 80, 'S2'), ('A92587', 48.29, 0.81, 232, 'S2'), ('A92567', 48.18, 0.8, 296, 'S2')]; top vs anchors {'A92633': None, 'A92587': 1.0, 'A92567': None}
+[09:22:33] [A9] birth A92640 (cross ) of ['A92582', 'A92587'] species S2; 24 genomes $7.80
+[09:22:47] [A9] rejected mutate session: behavioural twin
+[09:22:55] [A9] rejected mutate session: behavioural twin
+[09:23:01] [A9] birth A92641 (mutate session) of ['A92595'] species S2; 24 genomes $7.80
+[09:23:07] [A9] rejected mutate session: behavioural twin
+[09:23:14] [A9] birth A92642 (mutate session) of ['A92629'] species S2; 24 genomes $7.80
+[09:23:18] [A9] birth A92643 (mutate session) of ['A92587'] species S2; 24 genomes $7.80
+[09:23:28] [A9] rejected tune : behavioural twin
+[09:23:47] [A9] rejected mutate session: behavioural twin
+[09:23:53] [A9] birth A92644 (mutate session) of ['A92634'] species S2; 24 genomes $7.80
+[09:23:59] [A9] birth A92645 (llm_cross session) of ['A92587', 'A92599'] species S2; 24 genomes $7.80
+[09:24:06] [A9] birth A92646 (mutate session) of ['A92582'] species S2; 24 genomes $7.80
+[09:24:11] [A9] birth A92647 (mutate session) of ['A92597'] species S2; 24 genomes $7.80
+[09:24:17] [A9] birth A92648 (mutate session) of ['A92590'] species S4; 24 genomes $7.80
+[09:24:27] [A9] rejected tune : behavioural twin
+[09:24:41] [A9] birth A92649 (cross ) of ['A92635', 'A92599'] species S4; 24 genomes $7.80
+[09:24:44] [A9] champion anchor champ53-A92629 (mu 48.4)
+[09:24:44] [A9] summary: births 2650 deaths 2627 games 587976 $7.80; top [('A92629', 48.4, 0.83, 176, 'S2'), ('A92605', 48.34, 0.81, 224, 'S2'), ('A92590', 48.3, 0.8, 304, 'S2')]; top vs anchors {'A92629': 0.875, 'A92605': 0.917, 'A92590': None}
+[09:24:44] [A9] birth A92650 (mutate session) of ['A92597'] species S2; 24 genomes $7.80
+[09:24:50] [A9] birth A92651 (mutate session) of ['A92629'] species S3; 24 genomes $7.80
+[09:24:57] [A9] birth A92652 (mutate session) of ['A92585'] species S2; 24 genomes $7.80
+[09:25:05] [A9] birth A92653 (mutate session) of ['A92613'] species S2; 24 genomes $7.80
+[09:25:07] [A9] rejected mutate session: behavioural twin
+[09:25:10] [A9] birth A92654 (tune ) of ['A92650'] species S2; 24 genomes $7.80
+[09:25:31] [A9] rejected mutate session: behavioural twin
+[09:25:44] [A9] birth A92655 (mutate session) of ['A92633'] species S2; 24 genomes $7.80
+[09:25:46] [A9] birth A92656 (mutate session) of ['A92645'] species S2; 24 genomes $7.80
+[09:26:01] [A9] birth A92657 (mutate session) of ['A92590'] species S2; 24 genomes $7.80
+[09:26:08] [A9] rejected mutate session: behavioural twin
+[09:26:15] [A9] birth A92658 (mutate session) of ['A92599'] species S4; 24 genomes $7.80
+[09:26:22] [A9] rejected mutate session: behavioural twin
+[09:26:29] [A9] birth A92659 (mutate session) of ['A92582'] species S2; 24 genomes $7.80
+[09:26:34] [A9] summary: births 2660 deaths 2637 games 589512 $7.80; top [('A92656', 49.07, 0.91, 112, 'S2'), ('A92659', 48.93, 1.38, 48, 'S2'), ('A92605', 48.52, 0.81, 264, 'S2')]; top vs anchors {'A92656': None, 'A92659': 0.938, 'A92605': 0.917}
+[09:26:34] [A9] birth A92660 (mutate session) of ['A92650'] species S2; 24 genomes $7.80
+[09:26:34] [A9] rejected tune : behavioural twin
+[09:26:51] [A9] birth A92661 (mutate session) of ['A92567'] species S2; 24 genomes $7.80
+[09:26:57] [A9] birth A92662 (tune ) of ['A92656'] species S2; 24 genomes $7.80
+[09:26:59] [A9] birth A92663 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:27:03] [A9] birth A92664 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:27:09] [A9] rejected mutate session: behavioural twin
+[09:27:16] [A9] birth A92665 (mutate session) of ['A92633'] species S4; 24 genomes $7.80
+[09:27:29] [A9] birth A92666 (cross ) of ['A92605', 'A92656'] species S2; 24 genomes $7.80
+[09:27:31] [A9] rejected tune : behavioural twin
+[09:27:31] [A9] rejected mutate session: behavioural twin
+[09:27:35] [A9] birth A92667 (mutate session) of ['A92585'] species S2; 24 genomes $7.80
+[09:27:38] [A9] birth A92668 (cross ) of ['A92650', 'A92662'] species S2; 24 genomes $7.80
+[09:27:55] [A9] birth A92669 (mutate session) of ['A92448'] species S2; 24 genomes $7.80
+[09:28:00] [A9] summary: births 2670 deaths 2647 games 590560 $7.80; top [('A92662', 49.7, 1.02, 80, 'S2'), ('A92665', 48.88, 0.95, 88, 'S4'), ('A92656', 48.38, 0.82, 168, 'S2')]; top vs anchors {'A92662': 1.0, 'A92665': None, 'A92656': None}
+[09:28:00] [A9] birth A92670 (cross ) of ['A92662', 'A92667'] species S2; 24 genomes $7.80
+[09:28:01] [A9] birth A92671 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:28:05] [A9] birth A92672 (mutate session) of ['A92625'] species S3; 24 genomes $7.80
+[09:28:23] [A9] rejected mutate session: behavioural twin
+[09:28:30] [A9] rejected tune : behavioural twin
+[09:28:31] [A9] birth A92673 (mutate session) of ['A92625'] species S3; 24 genomes $7.80
+[09:28:37] [A9] birth A92674 (mutate session) of ['A92662'] species S4; 24 genomes $7.80
+[09:28:44] [A9] birth A92675 (mutate session) of ['A92662'] species S4; 24 genomes $7.80
+[09:28:50] [A9] birth A92676 (tune ) of ['A92629'] species S2; 24 genomes $7.80
+[09:29:03] [A9] birth A92677 (mutate session) of ['A92671'] species S2; 24 genomes $7.80
+[09:29:04] [A9] birth A92678 (mutate session) of ['A92640'] species S2; 24 genomes $7.80
+[09:29:08] [A9] rejected tune : behavioural twin
+[09:29:10] [A9] birth A92679 (mutate session) of ['A92629'] species S4; 24 genomes $7.80
+[09:29:14] [A9] summary: births 2680 deaths 2657 games 591448 $7.80; top [('A92677', 49.98, 1.18, 80, 'S2'), ('A92662', 49.29, 0.88, 144, 'S2'), ('A92671', 48.49, 0.94, 96, 'S2')]; top vs anchors {'A92677': 1.0, 'A92662': 1.0, 'A92671': None}
+[09:29:14] [A9] birth A92680 (mutate session) of ['A92582'] species S2; 24 genomes $7.80
+[09:29:17] [A9] birth A92681 (tune ) of ['A92656'] species S2; 24 genomes $7.80
+[09:29:17] [A9] birth A92682 (mutate session) of ['A92590'] species S2; 24 genomes $7.80
+[09:29:47] [A9] birth A92683 (llm_cross session) of ['A92672', 'A92671'] species S3; 24 genomes $7.80
+[09:29:59] [A9] birth A92684 (cross ) of ['A92668', 'A92677'] species S2; 24 genomes $7.80
+[09:30:00] [A9] birth A92685 (mutate session) of ['A92605'] species S2; 24 genomes $7.80
+[09:30:04] [A9] rejected tune : behavioural twin
+[09:30:05] [A9] birth A92686 (tune ) of ['A92656'] species S2; 24 genomes $7.80
+[09:30:07] [A9] birth A92687 (mutate session) of ['A92629'] species S4; 24 genomes $7.80

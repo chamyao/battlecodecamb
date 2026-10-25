@@ -1,0 +1,18 @@
+```python
+@gene('a2', 'value of a cast option: dash on walks and cash-out retreats, cast-ahead, casts and resets of a fight; a self-heal whenever below 60% health, an ally heal below 50%; a self-shield whenever an enemy champion can hit us next turn', parents=['a2'])
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        return dash_value(o) if (RULE == 3 or RULE == 20 or RULE == 5 or walks()) else 0
+    if k == AB_HEAL:
+        if o.unit == me():
+            if me().health_frac < 0.6:
+                return 172 - o.slot
+        elif exists(o.unit) and o.unit.is_champion and not o.unit.is_enemy and o.unit.health_frac < 0.5:
+            return 165 - o.slot
+    if k == AB_SHIELD and o.unit == me() and threat_eta() <= 1:
+        return 168 - o.slot
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+```
