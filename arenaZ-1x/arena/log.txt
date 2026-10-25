@@ -1884,3 +1884,56 @@
 [02:57:23] [Z] new species S437 founded by Z776
 [02:57:23] [Z] birth Z776 (mutate claude-haiku-5-5) of ['Z766'] species S437; 24 genomes $6.37
 [02:57:27] [Z] birth Z777 (mutate claude-haiku-5-5) of ['Z754'] species S425; 24 genomes $6.37
+[02:57:41] [Z] rejected tune : behavioural twin
+[02:57:49] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 123: unknown name GA
+[02:57:55] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:57:59] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[02:58:14] [Z] birth Z778 (mutate claude-haiku-5-5) of ['Z683'] species S435; 24 genomes $6.43
+[02:58:18] [Z] new species S438 founded by Z779
+[02:58:18] [Z] birth Z779 (llm_cross claude-haiku-5-5) of ['Z735', 'Z694'] species S438; 24 genomes $6.43
+[02:58:18] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:58:42] [Z] summary: births 780 deaths 757 games 189912 $6.44; top [('Z736', 42.12, 0.84, 616, 'S415'), ('Z683', 41.51, 0.8, 1352, 'S372'), ('Z779', 41.4, 0.86, 112, 'S438')]; top vs anchors {'Z736': 1.0, 'Z683': 0.875, 'Z779': None}
+[02:58:42] [Z] birth Z780 (mutate claude-haiku-5-5) of ['Z766'] species S432; 24 genomes $6.44
+[02:58:46] [Z] new species S439 founded by Z781
+[02:58:46] [Z] birth Z781 (mutate claude-haiku-5-5) of ['Z755'] species S439; 24 genomes $6.44
+[02:58:50] [Z] new species S440 founded by Z782
+[02:58:50] [Z] birth Z782 (llm_cross claude-haiku-5-5) of ['Z771', 'Z778'] species S440; 24 genomes $6.44
+[02:59:14] [Z] birth Z783 (mutate claude-haiku-5-5) of ['Z736'] species S415; 24 genomes $6.49
+[02:59:25] [Z] new species S441 founded by Z784
+[02:59:25] [Z] birth Z784 (mutate claude-opus-5-5) of ['Z683'] species S441; 24 genomes $6.49
+[02:59:25] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[02:59:33] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:42] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:47] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:51] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[03:00:02] [Z] birth Z785 (mutate claude-haiku-5-5) of ['Z753'] species S431; 24 genomes $6.49
+[03:00:02] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:00:02] [Z] rejected tune : behavioural twin
+[03:00:18] [Z] new species S442 founded by Z786
+[03:00:18] [Z] birth Z786 (mutate claude-haiku-5-5) of ['Z700'] species S442; 24 genomes $6.50
+[03:00:22] [Z] birth Z787 (mutate claude-haiku-5-5) of ['Z776'] species S437; 24 genomes $6.50
+[03:00:22] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:00:35] [Z] rejected tune : behavioural twin
+[03:00:40] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:00:55] [Z] birth Z788 (mutate claude-haiku-5-5) of ['Z761'] species S429; 24 genomes $6.56
+[03:00:58] [Z] new species S443 founded by Z789
+[03:00:58] [Z] birth Z789 (mutate claude-opus-5-5) of ['Z784'] species S443; 24 genomes $6.56
+[03:00:58] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:01:15] [Z] new species S444 founded by Z790
+[03:01:15] [Z] summary: births 790 deaths 767 games 192696 $6.56; top [('Z767', 41.64, 0.81, 400, 'S433'), ('Z759', 41.21, 0.8, 536, 'S427'), ('Z789', 41.19, 0.94, 80, 'S443')]; top vs anchors {'Z767': 0.938, 'Z759': None, 'Z789': None}
+[03:01:15] [Z] birth Z790 (tune ) of ['Z778'] species S444; 24 genomes $6.56
+[03:01:17] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:01:27] [Z] rejected tune : behavioural twin
+[03:01:34] [Z] new species S445 founded by Z791
+[03:01:34] [Z] birth Z791 (llm_cross claude-haiku-5-5) of ['Z727', 'Z773'] species S445; 24 genomes $6.57
+[03:01:46] [Z] new species S446 founded by Z792
+[03:01:46] [Z] birth Z792 (llm_cross claude-haiku-5-5) of ['Z790', 'Z747'] species S446; 24 genomes $6.57
+[03:01:50] [Z] new species S447 founded by Z793
+[03:01:50] [Z] birth Z793 (mutate claude-haiku-5-5) of ['Z727'] species S447; 24 genomes $6.57
+[03:01:50] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:02:09] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:02:14] [Z] birth Z794 (mutate claude-haiku-5-5) of ['Z759'] species S427; 24 genomes $6.61
+[03:02:14] [Z] rejected mutate claude-opus-5-5: GenomeError: update line 192: goal_field takes (Bool, Field, Field)
+[03:02:29] [Z] birth Z795 (mutate claude-haiku-5-5) of ['Z793'] species S447; 24 genomes $6.62
+[03:02:33] [Z] birth Z796 (tune ) of ['Z793'] species S447; 24 genomes $6.62
+[03:02:37] [Z] birth Z797 (mutate claude-haiku-5-5) of ['Z793'] species S447; 24 genomes $6.62
