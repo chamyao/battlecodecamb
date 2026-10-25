@@ -1,0 +1,7 @@
+```python
+@gene('m1', 'nearest tile of a set to me, preferring altars not enemy-locked, invalid if empty')
+def first_tile(s: Tiles) -> Tile:
+    open_s = s - locked_altars()
+    h = here()
+    return best(open_s, lambda t: -dist(h, t)) if size(open_s) > 0 else best(s, lambda t: -dist(h, t))
+```
