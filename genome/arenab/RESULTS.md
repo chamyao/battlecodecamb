@@ -337,3 +337,10 @@ Intel (3 ranked starvation losses, 1-5 since v31): 36-52 deaths/game, mostly to 
 88-gem 4-elk group (35-41, 2-13) in waves (r95-116, r246-258, r480-650); we arrive 1-2 at a time, they hold it with 3-4.
 v33-numbers (i1 farmable: no hit on a 240+ group while visible enemies within 8 outnumber allies within 6): real 39/80 vs v33,
 38/80 vs v31, starvation 1-1 by side, capped turns 577 (group_threat scans). Rejected.
+
+## Oct 25 ~14:00: Arena B relay done (leg 10, 2451 births, RELAY_DONE; spend $11.08 total)
+The v33 anchor ends at mu 49.39, above every arena genome (best 48.26). Real /80 vs v33, 0 crashes:
+- B2413 (champ49; B2379 + gem-contest walk skipped below 40% health): 43 vs v33, 44 vs v32, 40 vs v31; solo 98,376 rounds /
+  470 deaths (v33 95,846 / 362); capped turns 636 (v33 ~430). A marginal pass, non-transitive vs v31, slower solo, +50% compute.
+- B2443: 34.
+The suspension gate was never applied (my message arrived after the leg started); sim a_susp of the tops rose 7.6 -> 11.4.
