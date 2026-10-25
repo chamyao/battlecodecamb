@@ -3,3 +3,28 @@
 [07:09:35] [Z] fixed anchors: starter-anchor 25.00
 [07:09:40] [Z] rejected tune : behavioural twin
 [07:09:41] [Z] rejected tune : behavioural twin
+[07:11:33] [Z] birth Z1 (mutate session) of ['seed'] species S0; 2 genomes $0.00
+[07:11:38] [Z] new species S1 founded by Z2
+[07:11:38] [Z] birth Z2 (mutate session) of ['seed'] species S1; 3 genomes $0.00
+[07:11:40] [Z] birth Z3 (mutate session) of ['seed'] species S0; 4 genomes $0.00
+[07:11:41] [Z] birth Z4 (mutate session) of ['seed'] species S0; 5 genomes $0.00
+[07:11:42] [Z] new species S2 founded by Z5
+[07:11:42] [Z] birth Z5 (tune ) of ['seed'] species S2; 6 genomes $0.00
+[07:11:42] [Z] birth Z6 (mutate session) of ['seed'] species S0; 7 genomes $0.00
+[07:11:45] [Z] birth Z7 (mutate session) of ['seed'] species S0; 8 genomes $0.00
+[07:11:45] [Z] new species S3 founded by Z8
+[07:11:45] [Z] birth Z8 (mutate session) of ['seed'] species S3; 9 genomes $0.00
+[07:11:46] [Z] new species S4 founded by Z9
+[07:11:46] [Z] birth Z9 (mutate session) of ['seed'] species S4; 10 genomes $0.00
+[07:12:12] [Z] new species S5 founded by Z10
+[07:12:12] [Z] summary: births 10 deaths 0 games 2600 $0.00; top [('Z2', 29.28, 0.96, 88, 'S1'), ('Z3', 28.3, 0.93, 96, 'S0'), ('Z10', 27.35, 6.0, 0, 'S5')]; top vs anchors {'Z2': 0.625, 'Z3': 0.562, 'Z5': 0.75}
+[07:12:12] [Z] birth Z10 (llm_cross session) of ['seed', 'Z2'] species S5; 11 genomes $0.00
+[07:19:28] [Z] new species S6 founded by Z11
+[07:19:28] [Z] birth Z11 (mutate session) of ['Z2'] species S6; 12 genomes $0.00
+[07:19:29] [Z] new species S7 founded by Z12
+[07:19:29] [Z] birth Z12 (mutate session) of ['Z2'] species S7; 13 genomes $0.00
+[07:19:29] [Z] birth Z13 (mutate session) of ['Z2'] species S7; 14 genomes $0.00
+[07:19:29] [Z] birth Z14 (mutate session) of ['Z3'] species S0; 15 genomes $0.00
+[07:19:30] [Z] new species S8 founded by Z15
+[07:19:30] [Z] birth Z15 (mutate session) of ['Z4'] species S8; 16 genomes $0.00
+[07:19:32] [Z] rejected llm_cross session: behavioural twin

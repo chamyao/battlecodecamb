@@ -1,0 +1,25 @@
+```python
+@gene("s1", "value of doing this option now; Treasure emblem first, then Bruiser strength shards")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o.item, o.count)
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "shop plan: treasure strength shards until the emblem, then bruiser strength", parents=["s1"])
+def buy_value(item: Num, n: Num) -> Num:
+    if items_owned(19) == 0:
+        return 100 + n if item == 18 else 0
+    return 100 + n if item == 36 else 0
+```

@@ -1,0 +1,16 @@
+```python
+@gene("s2", "where to walk: an altar once I carry enough gems or late, else a living camp group")
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    camps_up = 0
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+            camps_up += 1
+    if gems() >= 12 or (gems() > 0 and (camps_up == 0 or round() > 1850 or me().health_frac < 0.5)):
+        alt = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            alt = alt | near(a, 1)
+        return alt
+    return acc
+```
