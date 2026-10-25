@@ -165,3 +165,35 @@ inside a monolith group, and c2 points rule 13 at it (new gene i12 blocker).
 - Real cambc smoke on 01shortcut vs the v28 build: **lost both** (292-695 as A, 516-872 as B).
 
 The sim's shortcut gain does not hold in the real engine.
+
+## v28 directed-fix queue (genome lead's live analysis), runtime genome/v0 ca5180b, --bot-seeds
+
+**(0) Fuel is not costing yield.** v28 at 1x vs 10x fuel, both sides:
+
+| opponent | 1x fuel | 10x fuel |
+|---|---|---|
+| B792 | 52/80, 10.8 gems/capture, 82 captures, 6.0 susp | 46/80, 10.6, 83, 0 susp |
+| A61188 | 41/80, 10.3, 86 | 43/80, 10.3, 84 |
+| farmer | 50/80, 10.1, 83 | 48/80, 10.2, 80 |
+
+**(1) Yield: not a timing problem** (`yield_contest.py`; rich group = 14+ gems per capture; real b5, b4 the same):
+
+| b5 | rich captures us / them | our share of rich gems | first rich capture us / them | our deaths near a rich group per game |
+|---|---|---|---|---|
+| wins (18) | 24.2 / 17.3 | 59% | r79 / r74 | 5.7 (to champions 47%) |
+| losses (32) | 19.6 / 28.6 | 34% | r66 / r63 | 9.2 (to champions 72%; 63% after r500) |
+
+We reach the rich groups as early as they do, then lose them in mid-game fights. A camp-choice change
+cannot fix this; it is gap 2 (fights) again.
+
+**(2) 01boss_battle.**
+- Narrowing r15 (monolith push only with 2+ or 3+ healthy allies within 5) does not reduce deaths: non-champion
+  deaths vs B792 22 → 24.5 / 23; vs farmer 10.5 → 11.5 / 10; gems mixed. Files: v28-mono2, v28-mono3.
+- Trace (v28 vs B792): the opponent wakes the monolith (591 hits against v28's 75). In the 30 rounds before 12 of our
+  13 monolith deaths the hits were mostly or entirely theirs, and the awake monolith hits the nearest champion, often
+  us at the single altar beside it.
+- v28-awake (a bank walk into an awake monolith's range waits): lost all six games (0/2 against each of three
+  opponents). Deaths fell against B792 (22 → 17), but it gives up the map's only bank.
+- So boss_battle's monolith deaths are opponent-caused, and there is no cheap fix.
+
+**(3) 01shortcut**: see v28-shortcut above (lost 0-2 in the real smoke).
