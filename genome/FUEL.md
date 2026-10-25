@@ -22,6 +22,8 @@ Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against t
 | B792 | 0.972 | 0.962 | 0.960 |
 | A458 (arena A) | 0.988 | 0.974 | 0.971 |
 | A61188 (live as v27) | 0.989 | 0.974 | 0.972 |
+| a61188-mono (v28) | 0.989 | 0.971 | 0.972 |
+| v28-emblem (v29) | 0.991 | 0.968 | 0.973 |
 | B1145 (arena B #1) | 0.971 | 0.961 | 0.959 |
 | B1092 (arena B, other species) | 0.973 | 0.938 | 0.957 |
 | starter | 1.026 | 1.032 | 1.025 |
@@ -72,6 +74,26 @@ Tools: `tools/prof_pair.sh`, score variants (genomes that never act), `consider(
 for champion 0), and `GENOME_DEFS=GENOME_TURN_ORDER` in the bot. A cambc run needs its own bot folder
 per concurrent run. Rebuild `genome/build` and `genome/build-prof` after every runtime change:
 `genome_eval` refuses a genome compiled against another Ctx layout.
+
+## Bot fix: camp groups' gold and gems were 0 in the real bot (Oct 25)
+
+The bot's map build (the policy bot's `bot/src/bot_api.cpp`, vendored by `sync.sh`) fills each camp group's
+camps but not its gold, gems or respawn. So `group_gold` / `group_gems` read 0 in cambc and the design
+totals in the sim. `genome/bot/main.cpp` now fills them after the map build, from the camp designs, as
+`sim/src/map.cpp` does. Checked against the engine's own per-group numbers (the camp layout's header,
+`GENOME_DEFS=GENOME_VERIFY_GROUPS`): 0 mismatches over 29 / 15 / 12 groups on 01elk-arena / 01gold-rush /
+00ambush.
+
+v29-gg (`genome/arenab/cand/v29-gg.genome`, reads group_gems) against the interpreted v23 at 1e8. The bot
+and the sim now take identical actions: 6505 play actions on 01elk-arena, 4221 on 01gold-rush. The
+unfixed bot leaves the sim's game at action 16.
+
+Every other Map field the runtime reads is filled by the bot: walls, bushes, holes, altars, altar_list,
+spawn_mask, and camps (type, position, group). `camp_at` is left empty, but the runtime keeps its own
+index. `group_reward` / `group_respawning` read the engine (camp_group_state), so they were right
+already. Of the genomes here, only v29-gg reads group_gems / group_gold. A61188, v28, v29, B792 and seed
+do not, so their real play was unaffected. The sim is unchanged; the policy bot computes group gems from
+the designs itself.
 
 ## Memo hits by return type, and per-call-site inlining (Oct 25)
 
