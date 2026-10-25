@@ -5,7 +5,7 @@ import json, sys
 sys.path.insert(0, '.')
 from genome.tuneb import tb
 out, seed = sys.argv[1], int(sys.argv[2])
-items = [a.split('=', 1) for a in sys.argv[3:]]
+items = [a.rsplit('=', 1) for a in sys.argv[3:]]
 tb.precompile([p for _, p in items] + [v for v in tb.ANCHORS.values() if v.endswith('.genome')])
 with open(out, 'a') as f:
     for tag, p in items:
