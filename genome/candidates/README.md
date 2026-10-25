@@ -89,6 +89,7 @@ enemies on their own spawn, so hurt carriers next to an enemy spawn can heal. Re
 - Arena B lead, real cambc at fd778fc: 55/80 vs v29, 0 crashes (plain A81582: 50/80 on the same builds); capped turns 450 vs 301.
 - Sim: 46/80 vs v29, 40/80 vs A81582; solo vs idle: games short of 1000 halved (10 -> 5).
 - My smoke, real vs v29 (side A, hard maps): 3 losses. My full real cambc vs v29, 40 maps x 2 sides: 57/80, 0 crashes. Next upload.
+- Live as ladder version 30 (2026-10-25T06:39:47Z, bundle sha256 90450da2...). Validation: intel batch 7, paired vs b6.
 
 ## A81582-ringheal-mono (v30 + v28's monolith fix via graft.py mono; candidate for after v30)
 
