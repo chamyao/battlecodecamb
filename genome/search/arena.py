@@ -10,7 +10,8 @@
   are picked more often). Ratings: TrueSkill (1v1, per game), with uncertainty; every match is logged.
 - Death: over capacity, the lowest-rated genome dies. Only genomes with >= --min-games games, outside
   a protected species (younger than --protect-games games) and not taking a species below --min-species
-  members are eligible; if nobody is, the smallest-species rule is relaxed before going over capacity.
+  members are eligible; if nobody is, the smallest-species rule is relaxed before going over capacity
+  (--cull legacy: to species with more than one member; --cull min-mu: to every eligible genome).
 - Birth: parent by tournament (--tournament) on rating; fixed operator mix: edge mutation 70% (two
   edges 25% of those), crossover 15%, constant tuning 15%; Opus every 10th LLM call. Crossover partner:
   same species with probability 0.8 (crossover by gene ID), else another species (crossover by meaning).
@@ -390,7 +391,10 @@ class Arena:
             gs = self.genomes()
             ok = [m for m in gs if m["games"] >= self.a.min_games and not self.protected(m["species"])]
             strict = [m for m in ok if len(self.species_members(m["species"])) > self.a.min_species]
-            pool = strict or [m for m in ok if len(self.species_members(m["species"])) > 1] or ok
+            if self.a.cull == "legacy":
+                pool = strict or [m for m in ok if len(self.species_members(m["species"])) > 1] or ok
+            else:  # min-mu: if no species is above --min-species, the lowest-rated eligible genome dies
+                pool = strict or ok
             if not pool:
                 return  # everyone is new or protected: stay over capacity for now
             v = min(pool, key=lambda m: m["mu"])
@@ -764,6 +768,10 @@ def main(argv=None):
     ap.add_argument("--min-games", type=int, default=40)
     ap.add_argument("--min-species", type=int, default=2)
     ap.add_argument("--protect-games", type=int, default=60)
+    ap.add_argument("--cull", choices=["legacy", "min-mu"], default="legacy",
+                    help="legacy: if no species is above --min-species, the lowest-rated genome of a species with "
+                         "more than one member dies (in practice the parent of a newborn of its own species); "
+                         "min-mu: the lowest-rated eligible genome dies")
     ap.add_argument("--species-delta", type=float, default=0.15)
     ap.add_argument("--tournament", type=int, default=3)
     ap.add_argument("--champion-every", type=int, default=50)

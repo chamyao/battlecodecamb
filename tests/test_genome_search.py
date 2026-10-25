@@ -54,3 +54,24 @@ def test_crossover_and_tune():
     assert c.error is None and lang.parse(c.source)
     t = operators.tune(FARMER, rng)
     assert t.error is None and t.log["changes"] and lang.parse(t.source)
+
+
+def _cull_arena(rule):
+    from types import SimpleNamespace
+    from genome.search.arena import Arena
+    a = Arena.__new__(Arena)
+    a.a = SimpleNamespace(capacity=3, min_games=40, min_species=2, protect_games=60, cull=rule)
+    m = lambda n, mu, sp, games=100: {"name": n, "mu": mu, "sigma": 1, "games": games, "species": sp,
+                                      "kind": "genome", "alive": True}
+    # every species has one member except S1, where a newborn (too few games) joined its strong parent
+    members = [m("weak", 20, "S0"), m("parent", 37, "S1"), m("newborn", 25, "S1", games=5), m("mid", 30, "S2")]
+    a.s = {"members": {x["name"]: x for x in members}, "species": {s: {"games": 999} for s in ("S0", "S1", "S2")},
+           "deaths": 0}
+    a._write = lambda kind, rec: None
+    a.cull()
+    return sorted(n for n, x in a.s["members"].items() if not x["alive"])
+
+
+def test_cull_rules():
+    assert _cull_arena("legacy") == ["parent"]  # the old relaxed rule kills the strong parent
+    assert _cull_arena("min-mu") == ["weak"]
