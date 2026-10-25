@@ -378,3 +378,6 @@ Note: cash_min looked good in every real local h2h (v29, v31, v33 bases) but loc
 ## Oct 25 ~17:00: v34 reverted to v33 (genome lead)
 Lesson: a +4/80 local real edge (vs our own lineage) did not transfer to the band. Cash-out knobs frozen for tune-B; ahead4
 alone remains an untested band candidate.
+
+## Oct 25 ~17:05: v35 = v33 re-upload; v36 = v33-ahead4 going up (genome lead real 44/80 vs v33)
+b12 paired with b10 (v33) and b11 (v34) separates cash3 from ahead4.
