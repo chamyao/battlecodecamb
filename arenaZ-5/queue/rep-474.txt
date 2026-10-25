@@ -1,0 +1,9 @@
+```python
+@gene('Z74a', 'tiles within reach (attack range + 1) of a visible enemy champion, except around me', parents=['s3'])
+def enemy_zone() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        if u.is_champion:
+            acc = acc | near(u.pos, u.attack_range + 1)
+    return acc - near(me().pos, 1)
+```

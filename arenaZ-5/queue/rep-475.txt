@@ -1,0 +1,15 @@
+```python
+@gene('Z113b', 'tile of a fresh ally fight beacon (5 rounds) within 24 tiles (invalid if none)', parents=['Z86a'])
+def rally_tile() -> Tile:
+    stamp = read_shared(2)
+    if stamp == 0:
+        return tile(-5, -5)
+    age = (round() % 250 + 1 - stamp + 250) % 250
+    if age > 5:
+        return tile(-5, -5)
+    t = tile(read_shared(0) - 1, read_shared(1) - 1)
+    d = dist(t, me().pos)
+    if d <= 1 or d > 24:
+        return tile(-5, -5)
+    return t
+```

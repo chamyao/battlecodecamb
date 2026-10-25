@@ -1,0 +1,33 @@
+```python
+@gene('Z256a', 'value of doing this option now: casts, eager fight-back on awake camps, focus the weakest (or gem-richest) champion, durability-then-treasure-then-health-durability-then-monster-then-power build, recall at 5% or to shop from 120 gold', parents=['Z174a', 'Z202a'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 18 and items_owned(19) == 0:
+            return 100
+        if o.item == 12 and items_owned(13) == 0:
+            return 101
+        if o.item == 16 and items_owned(17) == 0:
+            return 98
+        if o.item == 4 and items_owned(5) == 0:
+            return 96
+        return 95 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.05:
+            return 90
+        if gems() == 0 and gold() >= 120 and count_units(enemies()) == 0:
+            return 75
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 8 * (1 - o.unit.health_frac) + min(unit_gems(o.unit), 4)
+        return 79 if gems() == 0 or is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```
