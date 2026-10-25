@@ -1,0 +1,6 @@
+```python
+@gene("s10", "fewest turns until a visible enemy champion could hit us (1000 if none); recalling ones are leaving and do not count")
+def threat_eta() -> Num:
+    h = here()
+    return min((eta(dist(h, u.pos) - u.attack_range, u.move_speed) for u in enemies() if not is_recalling(u)), default=1000)
+```

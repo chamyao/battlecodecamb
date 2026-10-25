@@ -1,0 +1,10 @@
+```python
+@gene("r4", "recall: below 30% health and nothing near; not while holding a cleared camp spawn out of danger (the capture finishes first: its camps are dead)")
+def r_recall() -> Bool:
+    if at_spawn() or not hurt_below(0.3):
+        return False
+    g = spawn_group(here())
+    if g >= 0 and group_reward(g) and not under_fire():
+        return False
+    return True
+```

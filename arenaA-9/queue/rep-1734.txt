@@ -1,0 +1,5 @@
+```python
+@gene('w1', 'camp spawn tiles out of vision within 16 of me and not respawning: assumed occupied (farther ones are re-read when they come into view)')
+def unseen_camps() -> Tiles:
+    return (camp_spawns() & near(here(), 16)) - vision() - near(here(), 0) - respawning()
+```

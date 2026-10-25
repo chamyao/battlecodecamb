@@ -1,0 +1,11 @@
+```python
+@gene("m13", "nearest tile next to a safe altar that no enemy lock blocks, preferring altars more than 6 from the enemy spawn")
+def bank_t1() -> Tile:
+    cand = SAFE_RING - ring(locked_altars(), 1)
+    far = cand - ring(enemy_spawn(), 6)
+    if size(far) > 0 and size(far) < size(cand):
+        t = closest(far)
+        if valid(t):
+            return t
+    return closest(cand)
+```

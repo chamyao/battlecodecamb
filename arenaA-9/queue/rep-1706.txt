@@ -1,0 +1,13 @@
+```python
+@gene("w3", "tiles I cannot step onto: terrain, altars, enemy spawn, units, unseen camp spawns (not those of groups cleared and waiting for capture: their camps are dead)")
+def blocked() -> Tiles:
+    return (TERRAIN | ally_tiles() | enemy_tiles() | (camp_block() - cleared_groups())) - near(here(), 0)
+
+@gene("new", "spawn tiles of groups cleared and waiting for capture (their camps are dead, so the tiles are walkable)", parents=["w3"])
+def cleared_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    return acc
+```
