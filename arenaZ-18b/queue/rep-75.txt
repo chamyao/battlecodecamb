@@ -1,0 +1,36 @@
+```python
+@gene("s1", "value of doing this option now: draft Vesper Vale, power strength shards, focus fire camps, cast spells, ground aoe where it hits several targets, dash toward the goal, recall only when nothing is in reach, walk home when badly hurt with enemies near")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 5 if o.champ == VESPER_VALE else 1
+    if o.kind == BUY:
+        return 100 if o.item == 10 else 0
+    if o.kind == RECALL:
+        return 54 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DASH:
+            return 55 if valid(o.tile) and progress(o.tile) >= 2 else 0
+        if not exists(o.unit) and valid(o.tile) and (k == AB_AOE or k == AB_DAMAGE or k == AB_CC):
+            return aoe_value(o)
+        return spell_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.3 and count_units(enemies()) > 0:
+            return 95 if progress(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "value of a ground-targeted damage spell: how many enemy champions and camps it would hit", parents=["s1"])
+def aoe_value(o: Option) -> Num:
+    r = slot_radius(o.slot)
+    hits = count(dist(u.pos, o.tile) <= r for u in enemies() if u.is_champion) * 3 + count(dist(c.pos, o.tile) <= r for c in camps())
+    if hits == 0:
+        return 0
+    return 60 + 5 * hits if gems() == 0 or hits >= 3 else 0
+```

@@ -1,0 +1,28 @@
+```python
+@gene("s2", "where to walk: home when hurt, an altar with gems, a nearby enemy champion carrying many gems when healthy, else a living camp group worth at least 10 gems (any group if none) that is not a monolith or golem")
+def goals() -> Tiles:
+    if me().health_frac < 0.35:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    if me().health_frac > 0.6:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 15 and dist(prey.pos, me().pos) <= 7:
+            return near(prey.pos, 1)
+    acc = near(tile(-5, -5), 0)
+    spare = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            k = spawn_type(nearest(ts, me().pos))
+            if k != MONOLITH and k != GOLEM:
+                spare = spare | ts
+                if group_gems(g) >= 10:
+                    acc = acc | ts
+    if size(acc) == 0:
+        return spare
+    return acc
+```

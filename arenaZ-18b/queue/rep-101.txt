@@ -1,0 +1,34 @@
+```python
+@gene('s1', 'value of doing this option now: draft Vesper Vale first, cast spells and dash toward the goal, recall only when nothing is in reach, walk home when badly hurt with enemies near')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 5 if o.champ == VESPER_VALE else 1
+    if o.kind == BUY:
+        return 100 + o.count if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 54 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return 55 if valid(o.tile) and progress(o.tile) >= 2 else 0
+        return spell_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + min(unit_gems(o.unit), 50) / 5
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.2324 and count_units(enemies()) > 0:
+            return 95 if progress(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals, or to a nearby enemy champion carrying many gems when I am healthy")
+def progress(t: Tile) -> Num:
+    if me().health_frac > 0.6:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 10 and dist(prey.pos, me().pos) <= 6:
+            return dist(prey.pos, me().pos) - dist(prey.pos, t)
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```

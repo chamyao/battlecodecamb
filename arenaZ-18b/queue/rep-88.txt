@@ -1,0 +1,49 @@
+```python
+@gene("s2", "where to walk: home when hurt, an altar with gems, else a living camp group worth at least 10 gems (any group if none) that is not a monolith or golem")
+def goals() -> Tiles:
+    if me().health_frac < 0.35:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.8368)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    spare = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            k = spawn_type(nearest(ts, me().pos))
+            if k != MONOLITH and k != GOLEM:
+                spare = spare | ts
+                if group_gems(g) >= 10:
+                    acc = acc | ts
+    if size(acc) == 0:
+        return spare
+    return acc
+
+@gene("Z85b", "set the goal field from cached fields: the static home field built once, the altar and camp fields every 8 rounds")
+def update() -> None:
+    if not INIT:
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35:
+        GF = HF
+    elif gems() > 0:
+        if round() - AT >= 8:
+            AF = field(goals())
+            AT = round()
+        GF = AF
+    else:
+        if round() - CT >= 8:
+            CF = field(goals())
+            CT = round()
+        GF = CF
+
+AF: Field = None
+HF: Field = None
+CF: Field = None
+INIT: Bool = False
+CT: Num = -99
+AT: Num = -99
+```
