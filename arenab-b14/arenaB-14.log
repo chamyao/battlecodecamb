@@ -905,3 +905,32 @@
 [08:11:03] [B] birth B1987 (mutate session) of ['B1973'] species S10; 24 genomes $11.08
 [08:11:17] [B] birth B1988 (mutate session) of ['B1947'] species S4; 24 genomes $11.08
 [08:11:20] [B] rejected mutate session: behavioural twin
+[08:11:36] [B] birth B1989 (mutate session) of ['B1979'] species S9; 24 genomes $11.08
+[08:11:57] [B] rejected mutate session: behavioural twin
+[08:12:08] [B] summary: births 1990 deaths 1967 games 477648 $11.08; top [('B1973', 49.57, 0.82, 336, 'S10'), ('B1987', 49.42, 0.92, 128, 'S10'), ('B1986', 49.42, 0.86, 160, 'S6')]; top vs anchors {'B1973': 0.767, 'B1987': 0.854, 'B1986': 0.75}
+[08:12:09] [B] birth B1990 (mutate session) of ['B1981'] species S11; 24 genomes $11.08
+[08:12:15] [B] rejected mutate session: behavioural twin
+[08:12:21] [B] birth B1991 (tune ) of ['B1973'] species S10; 24 genomes $11.08
+[08:12:34] [B] rejected tune : behavioural twin
+[08:12:36] [B] rejected tune : behavioural twin
+[08:12:58] [B] birth B1992 (mutate session) of ['B1989'] species S9; 24 genomes $11.08
+[08:13:09] [B] rejected mutate session: behavioural twin
+[08:13:19] [B] birth B1993 (mutate session) of ['B1947'] species S4; 24 genomes $11.08
+[08:13:34] [B] rejected mutate session: behavioural twin
+[08:13:50] [B] birth B1994 (mutate session) of ['B1974'] species S3; 24 genomes $11.08
+[08:13:59] [B] birth B1995 (mutate session) of ['B1947'] species S4; 24 genomes $11.08
+[08:14:07] [B] birth B1996 (mutate session) of ['B1987'] species S10; 24 genomes $11.08
+[08:14:36] [B] birth B1997 (mutate session) of ['B1037'] species S0; 24 genomes $11.08
+[08:14:40] [B] rejected mutate session: behavioural twin
+[08:14:45] [B] rejected mutate session: behavioural twin
+[08:16:11] [B] birth B1998 (mutate session) of ['B1957'] species S8; 24 genomes $11.08
+[08:16:24] [B] rejected mutate session: behavioural twin
+[08:16:39] [B] rejected mutate session: behavioural twin
+[08:17:03] [B] birth B1999 (mutate session) of ['B1987'] species S10; 24 genomes $11.08
+[08:17:04] [B] champion anchor champ40-B1996 (mu 49.9)
+[08:17:04] [B] summary: births 2000 deaths 1977 games 481984 $11.08; top [('B1996', 49.86, 0.85, 280, 'S10'), ('B1999', 48.53, 6.0, 0, 'S10'), ('B1986', 47.33, 0.81, 392, 'S6')]; top vs anchors {'B1996': 0.864, 'B1986': 0.74, 'B1957': 0.641}
+[08:17:04] [B] 2000 births (--max-births 2000): no more births
+[08:17:04] [B] birth B2000 (mutate session) of ['B1950'] species S9; 24 genomes $11.08
+[08:17:05] [B] rejected tune : behavioural twin
+[08:18:32] [B] summary: births 2000 deaths 1977 games 483584 $11.08; top [('B1999', 49.14, 0.85, 168, 'S10'), ('B1996', 48.33, 0.83, 368, 'S10'), ('B1986', 47.95, 0.81, 448, 'S6')]; top vs anchors {'B1999': 0.625, 'B1996': 0.865, 'B1986': 0.723}
+[08:18:34] [B] done: spent $11.08

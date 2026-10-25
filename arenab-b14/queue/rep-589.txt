@@ -1,0 +1,10 @@
+```python
+@gene('w5', 'walking field to GOAL; my own tile is never a wall, searched out to my tile; a carrier with 10+ gems also routes around tiles next to enemy champions')
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    me_t = near(here(), 0)
+    w = blocked() - g - me_t
+    if gems() >= 10 and count_units(enemies()) > 0:
+        w = w | (ring(enemy_tiles(), 1) - g - me_t)
+    return field_avoid(g, w, me_t)
+```

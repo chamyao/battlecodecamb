@@ -1,0 +1,10 @@
+```python
+@gene('r12', 'threat near: an enemy within 5, hurt with an enemy within 7, or able to hit us within 3 turns; enemies recalling or standing on their own spawn do not count (they cannot chase us now)')
+def threat_near() -> Bool:
+    p = here()
+    es = enemy_spawn()
+    r = 7 if hurt_below(0.5) else 5
+    if any(dist(p, u.pos) <= r and not is_recalling(u) and not (u.pos in es) for u in enemies()):
+        return True
+    return threat_eta() <= 3
+```
