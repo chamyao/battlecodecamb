@@ -2,6 +2,11 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 12:19 UTC
+
+- Births: Z-20a 173, 20b 209 (screened); Z-21a 291, 21b 283 (no-games controls, started 1h later but faster per
+  birth); Z-19d 263; A-9 leg 5 at 3274.
+
 ## 2026-10-25 12:02 UTC
 
 - A-9 m32 **1068/1200** (A93208, b3211): new high, from leg 4 (before screening started at b3240).
