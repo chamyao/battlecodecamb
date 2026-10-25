@@ -49,3 +49,6 @@ opponents (2.2-2.5x Z-5). The ranking holds across all three measures. n = 1 run
 Extra data point: Z-18c (min-mu) was stopped at 331 births. Its writer copied no evolved genomes and screened with its
 own genome_eval games (vs the starter and its own members). Its final population is being scored, for comparison
 with Z-18d (min-mu, unscreened, 301 at 477).
+Z-18c result: best 384 (Z320), top-3 mean 367, all clean. At matched cull (min-mu), screened 18c (331 births) beats
+unscreened 18d (477 births, 301) by +83 with 146 fewer births. That is the same direction as 18b (610). Uncontrolled
+(births, cull and screening vary together); Z-20 vs Z-19 decides.
