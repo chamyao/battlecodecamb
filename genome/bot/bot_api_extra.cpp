@@ -22,6 +22,7 @@ Err Api::is_visible(Vec2 p, std::int32_t* out) { return E2(sdk_is_visible(p.x, p
 // raw SDK reads (genome SDK coverage)
 Err Api::champion_channel_time(std::uint32_t h, std::int32_t* out) { return E2(sdk_champion_channel_time(h, out)); }
 Err Api::champion_can_sell(std::uint32_t h, std::int32_t* out) { return E2(sdk_champion_can_sell(h, out)); }
+Err Api::sell(std::uint32_t item) { return E2(sdk_sell(item)); }
 Err Api::champion_ward_positions(std::uint32_t h, Vec2* out, std::uint32_t cap, std::uint32_t* count)
 {
 	static_assert(sizeof(Vec2) == sizeof(cambc::detail::position));

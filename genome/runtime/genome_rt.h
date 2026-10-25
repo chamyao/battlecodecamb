@@ -168,7 +168,11 @@ constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map
 #endif
 enum OptionKind
 {
-	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK, BREAK // BREAK: a basic attack on an enemy altar lock
+	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK,
+	BREAK, // a basic attack on an enemy altar lock
+	TELEPORT, // start a teleport crystal's channel to a tile within 3
+	BUY_TP, // buy a teleport crystal
+	SELL // sell an item (Tavi, on spawn)
 };
 // Small on purpose: copying costs ~1 fuel per byte in the bot. The target unit is an entry of the
 // pass's cached unit lists (Ctx::unit_of: usrc + ui); ukind/uh identify it across passes.
@@ -591,9 +595,9 @@ public:
 		return s.b ? s.b->count(m.H) : 0;
 	}
 	bool contains(const Tiles& s, Tile t) { return extra(66), s.b && in_bounds(t) && s.b->test(t.v()); }
-	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(188 + 2.88 * chunks()), combine(a, b, 0); } // calib8
-	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(188 + 2.88 * chunks()), combine(a, b, 1); }
-	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(176 + 3.9 * chunks()), combine(a, b, 2); }
+	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(178 + 1.88 * chunks()), combine(a, b, 0); } // calib8, after combine() copy-constructs (no zeroing)
+	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(178 + 1.88 * chunks()), combine(a, b, 1); }
+	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(166 + 2.9 * chunks()), combine(a, b, 2); }
 	// Row-major, as the simulator iterates. In the bot the host lists tiles chunk row by chunk row
 	// ((chunk row, chunk col, y, x)); a stable counting sort on y alone restores row-major order in
 	// linear time (the host bitboard's own for_each uses an insertion sort, quadratic per chunk row).
@@ -1663,6 +1667,26 @@ public:
 					}
 				}
 			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock()) out.add(BUY_LOCK);
+			// consumables only on spawn or while dead (items may be bought elsewhere by Tavi)
+			if (want(BUY_TP) && (!(st & cbs::state_bit::alive) || (row_classes(self_u.pos.y)[self_u.pos.x] & kMySpawn)))
+			{
+				load_cons();
+				extra(TP_BUY_CHECK);
+				const auto& d = cbs::consumable_design(cbs::consumable::tp_crystal);
+				if (g >= d.cost && cons_[cbs::consumable::tp_crystal] < static_cast<std::uint32_t>(d.carry_limit)) out.add(BUY_TP);
+			}
+		}
+		if (want(SELL) && self_u.type == static_cast<int>(cbs::ChampionType::tavi) && (st & cbs::state_bit::alive) && !acted_[SELL]) // one sale per turn
+		{
+			std::int32_t ok = 0;
+			api.champion_can_sell(self(), &ok);
+			extra(SELL_CHECK);
+			if (ok)
+			{
+				load_items();
+				for (int i = 0; i < cbs::kNumItems; ++i)
+					if (items_[i] > 0) out.add(SELL).item = static_cast<std::int8_t>(i), extra(SELL_OPTION);
+			}
 		}
 		LMARK(1);
 		if (!alive_now) return extra(250); // a dead champion's turn costs ~250 more in the bot (starter games)
@@ -1693,6 +1717,7 @@ public:
 			add_units(out, ATTACK, -1, camps(), 2, self_u.attack_range, p);
 		}
 		if ((st & cbs::state_bit::can_attack) && want(BREAK)) break_options(out, self_u.attack_range, p);
+		if (want(TELEPORT) && (st & (cbs::state_bit::can_move | cbs::state_bit::can_attack | cbs::state_bit::can_cast))) teleport_options(out, p);
 		LMARK(3);
 		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
@@ -1747,6 +1772,27 @@ public:
 		}
 		LMARK(7);
 	}
+	// A teleport crystal's landing tiles: within Chebyshev 3, not p, landable as a move (no wall, hole, altar,
+	// enemy spawn or known occupant; an unseen occupant makes the engine return false, as for moves).
+	void teleport_options(OptionList& out, Tile p)
+	{
+		load_cons();
+		extra(TP_CHECK);
+		if (cons_[cbs::consumable::tp_crystal] == 0) return;
+		const int r = 3, n0 = out.n;
+		for (int y = std::max(0, p.y - r), y1 = std::min(m.H - 1, p.y + r); y <= y1; ++y)
+		{
+			const std::uint8_t* row = row_classes(y);
+			for (int x = std::max(0, p.x - r), x1 = std::min(m.W - 1, p.x + r); x <= x1; ++x)
+			{
+				if ((x == p.x && y == p.y) || (row[x] & (kWall | kHole | kAltar | kEnemySpawn)) || occupied(x, y)) continue;
+				out.add(TELEPORT).tile = { x, y };
+			}
+		}
+		extra(TP_SCAN + TP_OPTION * (out.n - n0));
+	}
+	// consumables check, the 7 x 7 scan, per option (genome pairs that differ only in consider(TELEPORT), FUEL.md); buy check; sell check, per option
+	static constexpr double TP_CHECK = 20, TP_SCAN = 600, TP_OPTION = 60, TP_BUY_CHECK = 20, SELL_CHECK = 40, SELL_OPTION = 40;
 	// A basic attack on each visible enemy altar lock within attack range (5 clear it; a tribute there hits it
 	// too). The engine's lock list is read only when an altar is in range (locks sit on altars).
 	void break_options(OptionList& out, int range, Tile p)
@@ -1857,6 +1903,9 @@ public:
 		case CANCEL: e = api.cancel_channel(), ok = 1; break;
 		case LOCK: e = api.use_consumable(cbs::consumable::altar_lock, o.tile.v(), &ok); break;
 		case BREAK: e = api.attack(static_cast<std::uint32_t>(cbs::EntityKind::altar_lock), o.uh), ok = 1; break;
+		case TELEPORT: e = api.use_consumable(cbs::consumable::tp_crystal, o.tile.v(), &ok); break;
+		case BUY_TP: e = api.buy_consumable(cbs::consumable::tp_crystal), ok = 1; break;
+		case SELL: e = api.sell(static_cast<std::uint32_t>(o.item)), ok = 1; break;
 		default: break;
 		}
 		return e == Err::success && ok;
