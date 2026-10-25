@@ -294,3 +294,8 @@ vs other opponents on shortcut, starvation, eight, big-world as well as boss-bat
 because that was the one map where the bush tie-break mattered against that opponent. b10: 32-18 vs b9 31-19 (48/50 games
 identical; boss_battle vs JBD unchanged 363-1352), so no harm. The precise boss-battle condition would be "no ALTAR_RING tile
 outside MONO_GROUPS".
+
+## Oct 25 ~11:10: Arena B leg 8 done (2151 births; v29-ringgg anchor); none beats v33 in real
+Real /80 vs v33, 0 crashes: B2137 40, B2130 (champ43) 39, B2143 39, B2049 (champ41) 35, B2088 (champ42) 31 (capped 519).
+The population now plays v29-ringgg to ~even in the sim (445/904). Two legs without a real pass: the arena ranks by
+sim games, and on this lineage the sim and real disagree (B1873 37 sim / 47 real; now the reverse for its descendants).
