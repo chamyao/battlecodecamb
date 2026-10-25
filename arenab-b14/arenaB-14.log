@@ -1364,3 +1364,15 @@
 [09:57:57] [B] birth B2245 (mutate session) of ['B2240'] species S9; 24 genomes $11.08
 [09:58:02] [B] birth B2246 (mutate session) of ['B2231'] species S10; 24 genomes $11.08
 [09:58:03] [B] birth B2247 (tune ) of ['B2242'] species S10; 24 genomes $11.08
+[09:58:38] [B] birth B2248 (mutate session) of ['B2195'] species S11; 24 genomes $11.08
+[09:58:40] [B] birth B2249 (tune ) of ['B2246'] species S10; 24 genomes $11.08
+[09:58:49] [B] rejected mutate session: behavioural twin
+[09:59:20] [B] champion anchor champ45-B2249 (mu 49.0)
+[09:59:20] [B] summary: births 2250 deaths 2227 games 555368 $11.08; top [('B2249', 48.97, 1.01, 80, 'S10'), ('B2247', 48.78, 0.97, 112, 'S10'), ('B2180', 48.04, 0.81, 816, 'S6')]; top vs anchors {'B2249': 0.75, 'B2247': 0.875, 'B2180': 0.713}
+[09:59:20] [B] birth B2250 (mutate session) of ['B2243'] species S4; 24 genomes $11.08
+[09:59:34] [B] rejected mutate session: behavioural twin
+[09:59:34] [B] rejected mutate session: behavioural twin
+[10:00:02] [B] birth B2251 (tune ) of ['B2248'] species S11; 24 genomes $11.08
+[10:00:02] [B] rejected mutate session: behavioural twin
+[10:00:07] [B] rejected mutate session: behavioural twin
+[10:00:25] [B] birth B2252 (cross ) of ['B2239', 'B2251'] species S11; 24 genomes $11.08
