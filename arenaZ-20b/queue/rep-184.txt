@@ -1,0 +1,22 @@
+```python
+@gene("Z20a", 'value of casting an ability: damage on fights, heal and shield when hurt, dash toward goals')
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 68
+            if o.unit.is_camp and gems() == 0 and not ((o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit)):
+                return 65
+        return 0
+    if k == AB_HEAL:
+        return 75 if me().health_frac < 0.7 else 0
+    if k == AB_SHIELD:
+        return 75 if me().health_frac < 0.8 and FIGHT else 0
+    if k == AB_RESET:
+        return 62 if not can_attack() else 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            return 69 if progress(o.tile) > 0 else 0
+    return 0
+```

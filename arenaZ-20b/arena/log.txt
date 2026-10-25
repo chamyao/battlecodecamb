@@ -318,3 +318,24 @@
 [11:44:50] [Z] new species S77 founded by Z166
 [11:44:50] [Z] birth Z166 (mutate session) of ['Z133'] species S77; 24 genomes $0.00
 [11:45:22] [Z] birth Z167 (mutate session) of ['Z154'] species S74; 24 genomes $0.00
+[11:45:51] [Z] birth Z168 (llm_cross session) of ['Z118', 'Z145'] species S71; 24 genomes $0.00
+[11:46:35] [Z] birth Z169 (mutate session) of ['Z136'] species S59; 24 genomes $0.00
+[11:47:21] [Z] rejected llm_cross session: behavioural twin
+[11:47:34] [Z] summary: births 170 deaths 147 games 87256 $0.00; top [('Z165', 43.46, 0.81, 192, 'S76'), ('Z158', 42.28, 0.8, 432, 'S56'), ('Z170', 42.05, 6.0, 0, 'S70')]; top vs anchors {'Z165': None, 'Z158': None, 'Z162': None}
+[11:47:34] [Z] birth Z170 (tune ) of ['Z141'] species S70; 24 genomes $0.00
+[11:48:03] [Z] birth Z171 (mutate session) of ['Z158'] species S56; 24 genomes $0.00
+[11:48:44] [Z] birth Z172 (mutate session) of ['Z161'] species S62; 24 genomes $0.00
+[11:49:16] [Z] rejected mutate session: behavioural twin
+[11:50:07] [Z] birth Z173 (llm_cross session) of ['Z162', 'Z118'] species S66; 24 genomes $0.00
+[11:50:29] [Z] birth Z174 (mutate session) of ['Z141'] species S70; 24 genomes $0.00
+[11:51:06] [Z] birth Z175 (mutate session) of ['Z141'] species S70; 24 genomes $0.00
+[11:51:47] [Z] rejected mutate session: behavioural twin
+[11:52:21] [Z] birth Z176 (mutate session) of ['Z167'] species S74; 24 genomes $0.00
+[11:52:45] [Z] new species S78 founded by Z177
+[11:52:45] [Z] birth Z177 (mutate session) of ['Z143'] species S78; 24 genomes $0.00
+[11:53:17] [Z] birth Z178 (mutate session) of ['Z170'] species S70; 24 genomes $0.00
+[11:53:50] [Z] birth Z179 (mutate session) of ['Z166'] species S77; 24 genomes $0.00
+[11:54:31] [Z] new species S79 founded by Z180
+[11:54:31] [Z] summary: births 180 deaths 157 games 91072 $0.00; top [('Z165', 42.83, 0.81, 416, 'S76'), ('Z177', 41.53, 0.89, 120, 'S78'), ('Z171', 41.28, 0.81, 296, 'S56')]; top vs anchors {'Z165': None, 'Z177': 1.0, 'Z171': 1.0}
+[11:54:31] [Z] birth Z180 (mutate session) of ['Z173'] species S79; 24 genomes $0.00
+[11:55:11] [Z] birth Z181 (mutate session) of ['Z133'] species S77; 24 genomes $0.00
