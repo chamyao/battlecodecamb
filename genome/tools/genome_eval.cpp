@@ -8,7 +8,8 @@
 //              fuel, in play order), "turns" and "fuel" (total per team) to each game line (exactness checks).
 //              GENOME_TURN_FUEL_ALL=DIR also writes DIR/<game>.txt (both teams' per-turn fuel, one line each).
 // --checkpoints N: every N rounds print {"game", "cp": [[round, tributed A, tributed B, carried A, carried B,
-//                  gold earned A, gold earned B, kills A, kills B], ...]} for each game (teams A/B, not sides).
+//                  gold earned A, gold earned B, kills A, kills B, gold spent A, gold spent B, gold held A, gold held B],
+//                  ...]} for each game (teams A/B, not sides; earned in hundredths, spent and held in whole gold).
 // --block-hits: add "block_hits": {block: executions} summed over both sides and all games (counters are
 //               shared across threads without locking, so counts are approximate with --threads > 1).
 //        genome_eval --list-blocks
@@ -174,13 +175,14 @@ int main(int argc, char** argv)
 				if (checkpoints > 0)
 					opt.on_round = [&](const Game& gm) {
 						if (gm.round % checkpoints != 0 && !gm.over) return;
-						long long carried[2] = {};
-						for (const auto& c : gm.champs) carried[c.team] += c.gems;
-						char buf[256];
-						std::snprintf(buf, sizeof buf, "%s[%d, %u, %u, %lld, %lld, %lld, %lld, %d, %d]", cp.empty() ? "" : ", ", gm.round,
+						long long carried[2] = {}, spent[2] = {}, held[2] = {};
+						for (const auto& c : gm.champs)
+							carried[c.team] += c.gems, spent[c.team] += static_cast<long long>(c.spent_gold), held[c.team] += c.gold_int();
+						char buf[320];
+						std::snprintf(buf, sizeof buf, "%s[%d, %u, %u, %lld, %lld, %lld, %lld, %d, %d, %lld, %lld, %lld, %lld]", cp.empty() ? "" : ", ", gm.round,
 									  gm.teams[0].submitted, gm.teams[1].submitted, carried[0], carried[1],
 									  static_cast<long long>(gm.teams[0].earned_gold_cents), static_cast<long long>(gm.teams[1].earned_gold_cents),
-									  gm.teams[0].kills, gm.teams[1].kills);
+									  gm.teams[0].kills, gm.teams[1].kills, spent[0], spent[1], held[0], held[1]);
 						cp += buf;
 					};
 				Match match(loaded[(g / 2) % loaded.size()], swap ? *pb : *pa, swap ? *pa : *pb, opt);
