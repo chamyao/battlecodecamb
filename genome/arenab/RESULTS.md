@@ -252,3 +252,16 @@ and to v30, and wins it against the others. bush0 overall is 39/80 vs v32, so th
 B1873-bossbush (cand/): drop the bush bonus only when ALTAR_RING & MONO_GROUPS is non-empty (computed once in v2):
 - real /80 vs v32: 40 = boss_battle 2-0 plus exactly 1-1 on each of the other 38 maps (a pure one-map change), 0 crashes,
   capped turns 431; solo identical to B1873 (95,846).
+
+## Oct 25 ~09:40: shop order on v32 (intel b9 cause 3: we never buy Power/Durability)
+Item ids (enum order): family base Monster 0, Power 6, Durability 12, Treasure 18, Jungle 24, Home 30, Bruiser 36;
++0 STR shard, +1 STR emblem, +2/+3 FOC, +4/+5 HEALTH. B1873 a11: Treasure-STR (18/19) -> Jungle-HP (28/29) -> Bruiser-STR (36).
+Real /80 vs v32, 0 crashes:
+| a11 order | vs v32 | vs v31 |
+|---|---|---|
+| Treasure -> Durability-HP -> Bruiser (shopdur) | 43 | - |
+| Treasure -> Jungle -> Durability-HP -> Bruiser (shopdur2) | 42 | - |
+| Durability-HP -> Treasure -> Jungle -> Bruiser (shopdurfirst) | 45 | 38 (B1873 itself: 47) |
+| Treasure -> Power-STR -> Bruiser (shoppow) | 27 | - |
+| shopdurfirst + bossbush | 42 (boss_battle 1-1) | 36 |
+Durability-first is non-transitive (-9 vs v31); rejected. Power is clearly worse. Shop order is not a cheap win; leave a11.
