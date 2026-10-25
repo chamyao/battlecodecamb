@@ -1,0 +1,9 @@
+```python
+@gene('a5', 'cast-ahead applies: the chosen enemy is off its spawn and within 5, or within 7 when it carries 10+ gems (worth the reach)')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    if not exists(f) or f.pos in enemy_spawn():
+        return False
+    d = dist(here(), f.pos)
+    return d <= 5 or (d <= 7 and unit_gems(f) >= 10)
+```
