@@ -98,3 +98,11 @@ The A-8/A-9 lineage never got intel's farmable-camps fix; solo on great-wall v30
 - Arena B lead, real cambc: 45/80 vs v30 (ringheal), 57/80 vs v29, 0 crashes. Solo vs idle, all 80 games: deaths 356 (v30 522),
   rounds 98,956 (v30 99,212). Sim: 40/80 vs v30, 50/80 vs v29.
 - My real cambc vs v30 (ringheal), 40 maps x 2 sides: 45/80, 0 crashes; wins both sides on 00great-wall and 01shortcut. v31 candidate.
+
+## A81582-rh-mono-all (v30 + mono + intel's rhm contest rule + gg6 gem-first after 6 buys; supersedes rh-mono for v31)
+
+genome/candidates/A81582-rh-mono-all.genome, sha256 f54246b181c6caa1... (genome/arenab 843629e0). Reads group_gems:
+needs a build at or after genome/v0 fd778fc.
+- Arena B lead, real cambc: 51/80 vs v30, 49/80 vs rh-mono, 62/80 vs v29, 0 crashes. Solo vs idle 97,417 rounds, 379 deaths
+  (v30 99,212 / 522). Sim 42/80 vs v30.
+- My real 80 vs v30: running.
