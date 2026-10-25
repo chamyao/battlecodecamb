@@ -1,0 +1,40 @@
+```python
+@gene('Z4a', 'value of casting: dash out of reach when badly hurt, hit champions and camps we fight, shield when hurt, heal any ally below 85 percent, reset only with a target in reach', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85 + (1 - o.unit.health_frac) * 5
+        if o.unit.is_camp and not banking():
+            return 65 + (1 - o.unit.health_frac) * 5
+        return 0
+    if k == AB_AOE:
+        n = count(dist(u.pos, o.tile) <= 1 for u in enemies())
+        c = count(dist(u.pos, o.tile) <= 1 for u in camps())
+        if n > 0:
+            return 84 + n
+        if c > 0 and not banking():
+            return 64 + c
+        return 0
+    if k == AB_SHIELD:
+        near_enemy = count(dist(u.pos, me().pos) <= 3 for u in enemies())
+        near_camp = count(is_awake(u) and dist(u.pos, me().pos) <= 4 for u in camps())
+        return 75 if near_enemy + near_camp > 0 and me().health_frac < 0.9 else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and o.unit.health_frac < 0.85:
+            return 86 + (1 - o.unit.health_frac) * 5
+        return 0
+    if k == AB_DASH:
+        if me().health_frac < 0.35:
+            now = threat_at(me().pos)
+            if now > 0 and threat_at(o.tile) < now:
+                return 97
+        return 0
+    if k == AB_RESET:
+        r = me().attack_range
+        foes = count(dist(u.pos, me().pos) <= r for u in enemies()) + count(dist(u.pos, me().pos) <= r for u in camps())
+        return 55 if not can_attack() and foes > 0 else 0
+    return 0
+```

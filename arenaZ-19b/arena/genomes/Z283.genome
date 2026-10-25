@@ -1,0 +1,117 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; drafts Willow, Marcella, Vesper Vale, Tavi then Prism, buys focus bruiser shards for Marcella and Tavi and strength then health bruiser shards for the rest, casts, focus fires weak and recalling targets, farms until banking, recalls below 45 percent when safe, flees when badly hurt', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 11 if o.champ == WILLOW else (9 if o.champ == MARCELLA else (9 if o.champ == VESPER_VALE else (7 if o.champ == TAVI else (6 if o.champ == PRISM else 1))))
+    if o.kind == BUY:
+        return 100 if o.item == (38 if me().type == MARCELLA or me().type == TAVI else (40 if items_owned(37) > 0 else 36)) else 0
+    hurt = me().health_frac < 0.33 or (gems() >= 20 and me().health_frac < 0.6 and count(dist(u.pos, me().pos) <= 4 for u in enemies()) > 0)
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.45 and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 5 + (8 if is_recalling(o.unit) else 0)
+        return 60 + (1 - o.unit.health_frac) * 5 if not banking() else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if hurt:
+            now = threat_at(me().pos)
+            if now > 0:
+                nxt = threat_at(o.tile)
+                if nxt < now:
+                    return 96 - nxt
+                return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z21a', 'how many awake camps and enemy champions can hit a tile (enemy reach includes their step and spell range)', parents=['s1'])
+def threat_at(t: Tile) -> Num:
+    c = count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps())
+    e = count(dist(u.pos, t) <= max(u.attack_range + 1, 4) for u in enemies())
+    return c + e
+
+@gene('Z6a', 'true when the bag should be taken to an altar: 18 gems, low health or the end of the game')
+def banking() -> Bool:
+    g = gems()
+    if g >= 18:
+        return True
+    if g > 0 and (me().health_frac < 0.5 or round() > 1850):
+        return True
+    return False
+
+@gene('Z4a', 'value of casting: hit champions and camps we fight, shield when hurt, heal any ally below 85 percent, reset only with a target in reach', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85 + (1.3913 - o.unit.health_frac) * 5
+        if o.unit.is_camp and not banking():
+            return 65 + (1 - o.unit.health_frac) * 5
+        return 0
+    if k == AB_AOE:
+        n = count(dist(u.pos, o.tile) <= 1 for u in enemies())
+        c = count(dist(u.pos, o.tile) <= 1 for u in camps())
+        if n > 0:
+            return 84 + n
+        if c > 0 and not banking():
+            return 64 + c
+        return 0
+    if k == AB_SHIELD:
+        near_enemy = count(dist(u.pos, me().pos) <= 3 for u in enemies())
+        near_camp = count(is_awake(u) and dist(u.pos, me().pos) <= 4 for u in camps())
+        return 75 if near_enemy + near_camp > 0 and me().health_frac < 0.9 else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and o.unit.health_frac < 0.85:
+            return 86 + (1 - o.unit.health_frac) * 5
+        return 0
+    if k == AB_RESET:
+        r = me().attack_range
+        foes = count(dist(u.pos, me().pos) <= r for u in enemies()) + count(dist(u.pos, me().pos) <= r for u in camps())
+        return 55 if not can_attack() and foes > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: home when badly hurt, an altar when banking, else a living camp group (an altar if none)")
+def goals() -> Tiles:
+    if me().health_frac < 0.45 and not channeling():
+        return my_spawn()
+    alt = near(tile(-5, -5), 0)
+    for a in altars() - locked_altars():
+        alt = alt | near(a, 1)
+    if banking():
+        return alt
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(acc) == 0 and gems() > 0:
+        return alt
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z176a', 'which option kinds to list: never wards; casts only with a slot ready and a foe or camp close', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD:
+        return False
+    if kind == CAST:
+        if not (slot_ready(0) or slot_ready(1)):
+            return False
+        return any(dist(u.pos, me().pos) <= 5 for u in enemies()) or any(dist(u.pos, me().pos) <= 5 for u in camps())
+    return True
+
+@gene('Z225a', 'start of turn: the healer acts last and Tavi just before it, so damage and stuns land before heals', parents=['s1'])
+def update() -> None:
+    set_priority(1 if slot_kind(0) == AB_HEAL else (2 if me().type == TAVI else 5))
