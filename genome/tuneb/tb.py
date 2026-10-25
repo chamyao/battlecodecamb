@@ -7,6 +7,7 @@ import glob, hashlib, json, os, re, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 EVAL = os.path.join(ROOT, 'genome', 'build', 'genome_eval')
+EVAL_ECON = os.path.join(ROOT, 'genome', 'build_econ', 'genome_eval')  # with the spent / held checkpoint fields
 VAR = os.path.join(ROOT, 'genome', 'build', 'tuneb', 'var')
 POL = os.path.join(ROOT, 'genome', 'build', 'tuneb')
 MAPS = sorted(glob.glob(os.path.join(ROOT, 'maps', '*.map26a')))
@@ -106,7 +107,7 @@ def econ(a, b, games=80, seed=1, bot_seeds=True, threads=4, maps=None):
     """Economy checkpoints from side a's view: earned gold at r250 / r500 and gold spent (item points) at r500,
     ours minus theirs, means over games; plus the win rate."""
     maps = maps or MAPS
-    cmd = [EVAL, '--a', side(a), '--b', side(b), '--threads', str(threads), '--checkpoints', '250']
+    cmd = [EVAL_ECON, '--a', side(a), '--b', side(b), '--threads', str(threads), '--checkpoints', '250']
     cmd += ['--bot-seeds', '--games', str(2 * len(maps))] if bot_seeds else ['--games', str(games), '--seed', str(seed)]
     out = subprocess.run(cmd + maps, capture_output=True, text=True, check=True).stdout
     G = [json.loads(l) for l in out.splitlines() if l.startswith('{"game"')]
