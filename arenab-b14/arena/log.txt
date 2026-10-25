@@ -3595,3 +3595,53 @@
 [07:14:57] [B] birth B1851 (mutate session) of ['B1844'] species S10; 24 genomes $11.08
 [07:14:58] [B] birth B1852 (mutate session) of ['B1849'] species S10; 24 genomes $11.08
 [07:15:06] [B] birth B1853 (cross ) of ['B1841', 'B1816'] species S6; 24 genomes $11.08
+[07:15:37] [B] birth B1854 (mutate session) of ['B1833'] species S8; 24 genomes $11.08
+[07:15:38] [B] birth B1855 (mutate session) of ['B1835'] species S4; 24 genomes $11.08
+[07:16:05] [B] birth B1856 (mutate session) of ['B1756'] species S4; 24 genomes $11.08
+[07:16:07] [B] birth B1857 (tune ) of ['B1816'] species S6; 24 genomes $11.08
+[07:16:12] [B] birth B1858 (mutate session) of ['B1841'] species S6; 24 genomes $11.08
+[07:16:43] [B] rejected mutate session: behavioural twin
+[07:16:55] [B] rejected mutate session: behavioural twin
+[07:17:06] [B] birth B1859 (mutate session) of ['B1760'] species S1; 24 genomes $11.08
+[07:17:08] [B] rejected cross : behavioural twin
+[07:17:26] [B] summary: births 1860 deaths 1837 games 439656 $11.08; top [('B1816', 49.4, 0.83, 640, 'S6'), ('B1850', 49.3, 0.87, 176, 'S10'), ('B1845', 49.15, 0.85, 224, 'S10')]; top vs anchors {'B1816': 0.755, 'B1850': 0.875, 'B1845': 0.857}
+[07:17:27] [B] birth B1860 (mutate session) of ['B1858'] species S6; 24 genomes $11.08
+[07:17:34] [B] rejected tune : behavioural twin
+[07:17:42] [B] birth B1861 (mutate session) of ['B1858'] species S6; 24 genomes $11.08
+[07:18:03] [B] birth B1862 (mutate session) of ['B1816'] species S6; 24 genomes $11.08
+[07:18:10] [B] birth B1863 (cross ) of ['B1850', 'B1845'] species S10; 24 genomes $11.08
+[07:18:13] [B] rejected mutate session: behavioural twin
+[07:18:47] [B] birth B1864 (mutate session) of ['B1816'] species S6; 24 genomes $11.08
+[07:18:54] [B] birth B1865 (mutate session) of ['B1843'] species S9; 24 genomes $11.08
+[07:18:55] [B] birth B1866 (mutate session) of ['B1854'] species S8; 24 genomes $11.08
+[07:19:22] [B] birth B1867 (mutate session) of ['B1756'] species S4; 24 genomes $11.08
+[07:19:39] [B] rejected mutate session: behavioural twin
+[07:19:39] [B] rejected mutate session: behavioural twin
+[07:19:56] [B] birth B1868 (cross ) of ['B1862', 'B1861'] species S6; 24 genomes $11.08
+[07:20:05] [B] rejected tune : behavioural twin
+[07:20:11] [B] birth B1869 (mutate session) of ['B1850'] species S10; 24 genomes $11.08
+[07:20:32] [B] summary: births 1870 deaths 1847 games 442008 $11.08; top [('B1861', 50.11, 0.91, 128, 'S6'), ('B1869', 49.59, 1.05, 88, 'S10'), ('B1850', 49.3, 0.83, 232, 'S10')]; top vs anchors {'B1861': 0.917, 'B1869': 0.844, 'B1850': 0.812}
+[07:20:33] [B] birth B1870 (mutate session) of ['B1866'] species S8; 24 genomes $11.08
+[07:20:37] [B] birth B1871 (mutate session) of ['B1862'] species S6; 24 genomes $11.08
+[07:20:47] [B] rejected mutate session: behavioural twin
+[07:21:04] [B] birth B1872 (tune ) of ['B1869'] species S10; 24 genomes $11.08
+[07:21:12] [B] birth B1873 (mutate session) of ['B1850'] species S10; 24 genomes $11.08
+[07:21:19] [B] birth B1874 (mutate session) of ['B1848'] species S9; 24 genomes $11.08
+[07:21:37] [B] rejected mutate session: behavioural twin
+[07:21:52] [B] birth B1875 (mutate session) of ['B1756'] species S4; 24 genomes $11.08
+[07:22:03] [B] birth B1876 (mutate session) of ['B1820'] species S3; 24 genomes $11.08
+[07:22:11] [B] birth B1877 (mutate session) of ['B1866'] species S8; 24 genomes $11.08
+[07:22:29] [B] rejected mutate session: behavioural twin
+[07:22:40] [B] rejected mutate session: behavioural twin
+[07:22:45] [B] birth B1878 (cross ) of ['B1877', 'B1870'] species S8; 24 genomes $11.08
+[07:22:46] [B] birth B1879 (mutate session) of ['B1817'] species S9; 24 genomes $11.08
+[07:23:07] [B] rejected cross : behavioural twin
+[07:23:10] [B] rejected mutate session: behavioural twin
+[07:23:22] [B] rejected mutate session: behavioural twin
+[07:23:44] [B] summary: births 1880 deaths 1857 games 444664 $11.08; top [('B1872', 50.12, 0.9, 160, 'S10'), ('B1869', 49.86, 0.88, 224, 'S10'), ('B1873', 49.27, 0.87, 152, 'S10')]; top vs anchors {'B1872': 0.833, 'B1869': 0.75, 'B1873': 0.719}
+[07:23:45] [B] 1880 births (--max-births 1880): no more births
+[07:23:45] [B] birth B1880 (mutate session) of ['B1873'] species S10; 24 genomes $11.08
+[07:23:48] [B] rejected tune : solo-farm: 160000 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 51
+[07:23:50] [B] birth B1881 (mutate session) of ['B1872'] species S10; 24 genomes $11.08
+[07:25:17] [B] summary: births 1881 deaths 1858 games 446352 $11.08; top [('B1881', 50.0, 0.91, 192, 'S10'), ('B1873', 49.12, 0.83, 272, 'S10'), ('B1872', 48.94, 0.87, 256, 'S10')]; top vs anchors {'B1881': 0.854, 'B1873': 0.725, 'B1872': 0.812}
+[07:25:18] [B] done: spent $11.08

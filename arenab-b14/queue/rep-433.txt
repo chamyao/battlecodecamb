@@ -1,0 +1,7 @@
+```python
+@gene('a4', 'cast-ahead target: enemies off their spawn, carrying the most gems, then nearest, with a strong pull toward wounded ones (finishable); an enemy channelling a tribute or recall comes first (damage or a stun cancels the channel)')
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    h = here()
+    return best(enemies(), lambda u: -INF if u.pos in es else unit_gems(u) * 10 - dist(h, u.pos) - 15 * u.health_frac + (60 if is_tributing(u) or is_recalling(u) else 0))
+```
