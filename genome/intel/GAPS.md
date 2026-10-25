@@ -557,3 +557,11 @@ Target (Arena B lead): maps where v29 doesn't reach 1000 gems vs builtin:idle. T
   - gold-rush 1-1
   - elk-arena 1-1 (1008-36, 708-804)
 - A81582-gg3 (after 3 buys): 47,756 rounds vs idle, but starfish +158; 42/80 vs ringheal. No real smoke.
+
+## Combined: A81582-gg6m = A81582-ringheal + gg6 + rhm (2026-10-25)
+
+- vs idle: total rounds 49,606 → 48,594, worst map starvation +122, monster deaths 6.53 → 6.15. Contest 200 → 800; elk-arena 864 → 1008.
+- 43/80 vs A81582-ringheal.
+- Paired anchors vs its rows: B318 62 (65; 4 up / 7 down, p 0.55), L1c 63 (65), gconv1 68 (65), v7 78 (76), L1 64 (62), rall2 67 (64), metadraft 79 (79). Net +4, no significant drop.
+- Real cambc vs the A81582-ringheal build: 5-1, 0 crashes. Contest 2-0 (1000-200; 600-600 won on gold), pilgrimage 2-0, gold-rush 1-1.
+- Needs a genome/v0 build at or after fd778fc (gg6 reads group_gems).
