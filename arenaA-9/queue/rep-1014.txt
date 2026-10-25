@@ -1,0 +1,10 @@
+```python
+@gene("w6", "how much closer a step onto t brings me to GOAL (0: no walk this turn); turn-start field and blocks; a step into a sleeping camp's reach on a non-camp walk counts a little less")
+def step_gain(t: Tile) -> Num:
+    if not OPEN or t in BLOCK:
+        return 0
+    g = at(FIELD, here()) - at(FIELD, t)
+    if g > 0 and RULE != 20 and RULE != 19 and any(dist(c.pos, t) <= max(1, c.attack_range) for c in camps()):
+        return g - 0.5
+    return g
+```
