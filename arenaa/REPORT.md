@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 11:36 UTC: A-9 leg 4 done; leg 5 switches on writer screening
+
+- Leg 4: births 2836 -> 3240; in-arena top about 49.5 (A93205, champ59-A92939). Panel m28 1060, m30 1047: roughly flat.
+- Leg 5 (3240 -> 3640) allows writer-side screening with genome_eval (--threads 1, logged to screens.jsonl). This is a
+  deliberate protocol change from b3240, on the strongest population we have. A-9 is a strength line, not a controlled
+  arm. Readout: the panel slope after b3240 vs before.
+
 ## 2026-10-25 11:30 UTC: panel milestones
 
 | run | treatment | m1 | m2 | m3 | m4 |
