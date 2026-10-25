@@ -3766,3 +3766,22 @@
 [07:56:19] [B] birth B1940 (mutate session) of ['B1937'] species S9; 24 genomes $11.08
 [07:56:43] [B] birth B1941 (mutate session) of ['B1932'] species S10; 24 genomes $11.08
 [07:56:55] [B] birth B1942 (mutate session) of ['B1886'] species S9; 24 genomes $11.08
+[07:57:06] [B] birth B1943 (mutate session) of ['B1935'] species S10; 24 genomes $11.08
+[07:57:22] [B] birth B1944 (mutate session) of ['B1842'] species S5; 24 genomes $11.08
+[07:57:24] [B] birth B1945 (cross ) of ['B1917', 'B1922'] species S3; 24 genomes $11.08
+[07:57:41] [B] rejected mutate session: behavioural twin
+[07:58:01] [B] birth B1946 (mutate session) of ['B1938'] species S4; 24 genomes $11.08
+[07:58:05] [B] rejected llm_cross session: behavioural twin
+[07:58:23] [B] birth B1947 (mutate session) of ['B1934'] species S4; 24 genomes $11.08
+[07:58:30] [B] rejected cross : behavioural twin
+[07:58:31] [B] birth B1948 (cross ) of ['B1942', 'B1940'] species S9; 24 genomes $11.08
+[07:58:54] [B] birth B1949 (tune ) of ['B1886'] species S9; 24 genomes $11.08
+[07:58:59] [B] rejected mutate session: behavioural twin
+[07:59:15] [B] champion anchor champ39-B1943 (mu 49.7)
+[07:59:15] [B] summary: births 1950 deaths 1927 games 466608 $11.08; top [('B1943', 49.66, 0.91, 160, 'S10'), ('B1935', 49.64, 0.84, 240, 'S10'), ('B1904', 48.75, 0.83, 648, 'S6')]; top vs anchors {'B1943': 0.812, 'B1935': 0.925, 'B1904': 0.743}
+[07:59:15] [B] birth B1950 (mutate session) of ['B1886'] species S7; 24 genomes $11.08
+[07:59:22] [B] rejected tune : solo-farm: 64297 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 608
+[07:59:33] [B] birth B1951 (mutate session) of ['B1935'] species S10; 24 genomes $11.08
+[07:59:51] [B] rejected mutate session: behavioural twin
+[08:00:00] [B] birth B1952 (tune ) of ['B1904'] species S10; 24 genomes $11.08
+[08:00:03] [B] rejected mutate session: behavioural twin
