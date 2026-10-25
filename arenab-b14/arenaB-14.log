@@ -558,3 +558,38 @@
 [06:46:28] [B] rejected mutate session: behavioural twin
 [06:46:38] [B] birth B1803 (mutate session) of ['B1799'] species S6; 24 genomes $11.08
 [06:46:41] [B] anchor A81582-ringheal frozen at mu 47.43 after 200 games
+[06:46:51] [B] birth B1804 (tune ) of ['B1802'] species S6; 24 genomes $11.08
+[06:47:01] [B] birth B1805 (mutate session) of ['B1801'] species S8; 24 genomes $11.08
+[06:47:04] [B] rejected tune : solo-farm: 53100 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 513
+[06:47:30] [B] rejected mutate session: behavioural twin
+[06:47:38] [B] birth B1806 (mutate session) of ['B1805'] species S8; 24 genomes $11.08
+[06:47:43] [B] birth B1807 (llm_cross session) of ['B1733', 'B1796'] species S6; 24 genomes $11.08
+[06:48:01] [B] rejected mutate session: solo-farm: 54217 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 524
+[06:48:05] [B] anchor A81582-ringheal-mono frozen at mu 48.20 after 200 games
+[06:48:19] [B] birth B1808 (mutate session) of ['B1786'] species S7; 24 genomes $11.08
+[06:48:24] [B] birth B1809 (mutate session) of ['B1803'] species S6; 24 genomes $11.08
+[06:48:34] [B] rejected mutate session: behavioural twin
+[06:49:05] [B] summary: births 1810 deaths 1787 games 412784 $11.08; top [('B1809', 49.19, 0.94, 96, 'S6'), ('B1796', 48.75, 0.82, 240, 'S6'), ('B1804', 48.57, 0.88, 144, 'S6')]; top vs anchors {'B1809': 0.812, 'B1796': 0.736, 'B1804': 0.8}
+[06:49:05] [B] birth B1810 (mutate session) of ['B1807'] species S6; 24 genomes $11.08
+[06:49:07] [B] birth B1811 (mutate session) of ['B1804'] species S6; 24 genomes $11.08
+[06:49:12] [B] rejected mutate session: behavioural twin
+[06:49:45] [B] birth B1812 (mutate session) of ['B1804'] species S6; 24 genomes $11.08
+[06:49:46] [B] rejected mutate session: behavioural twin
+[06:50:08] [B] rejected llm_cross session: behavioural twin
+[06:50:28] [B] birth B1813 (mutate session) of ['B1786'] species S7; 24 genomes $11.08
+[06:50:30] [B] rejected llm_cross session: solo-farm: 65460 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 632
+[06:50:39] [B] rejected mutate session: solo-farm: 54104 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 524
+[06:51:07] [B] birth B1814 (mutate session) of ['B1806'] species S8; 24 genomes $11.08
+[06:51:09] [B] birth B1815 (mutate session) of ['B1813'] species S7; 24 genomes $11.08
+[06:51:24] [B] rejected cross : behavioural twin
+[07:01:46] [B] birth B1816 (mutate session) of ['B1803'] species S6; 24 genomes $11.08
+[07:01:48] [B] birth B1817 (mutate session) of ['B1815'] species S7; 24 genomes $11.08
+[07:02:09] [B] rejected mutate session: solo-farm: 58994 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 564
+[07:02:11] [B] new species S10 founded by B1818
+[07:02:11] [B] birth B1818 (directed ) of ['B1796'] species S10; 24 genomes $11.08
+[07:02:12] [B] rejected directed : behavioural twin
+[07:02:34] [B] rejected tune : behavioural twin
+[07:02:50] [B] birth B1819 (mutate session) of ['B1733'] species S9; 24 genomes $11.08
+[07:02:54] [B] rejected tune : behavioural twin
+[07:03:00] [B] summary: births 1820 deaths 1797 games 427160 $11.08; top [('B1818', 48.62, 0.93, 120, 'S10'), ('B1816', 48.55, 0.86, 144, 'S6'), ('B1803', 48.11, 0.81, 880, 'S6')]; top vs anchors {'B1818': 0.844, 'B1816': 0.675, 'B1803': 0.74}
+[07:03:00] [B] birth B1820 (mutate session) of ['B1767'] species S3; 24 genomes $11.08

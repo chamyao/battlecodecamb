@@ -1,0 +1,5 @@
+```python
+@gene("r4", "recall: below 30% health (below 40% while carrying 10+ gems: the bag is not risked) and nothing near")
+def r_recall() -> Bool:
+    return not at_spawn() and (hurt_below(0.3) or (gems() >= 10 and hurt_below(0.4)))
+```

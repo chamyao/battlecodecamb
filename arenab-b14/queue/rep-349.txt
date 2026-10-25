@@ -1,0 +1,8 @@
+```python
+@gene("i22", "a visible enemy champion off its own spawn and not recalling can hit me now or after one step (intel: a hurt champion next to an enemy spawn otherwise never heals)", parents=["s5"])
+def foe_in_reach_off_spawn() -> Bool:
+    h = here()
+    r = me().attack_range
+    es = enemy_spawn()
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if u.health_frac > 0.2 and not (u.pos in es) and not is_recalling(u))
+```

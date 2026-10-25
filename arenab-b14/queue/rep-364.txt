@@ -1,0 +1,11 @@
+```python
+@gene("r6", "pass-through bank: gems, an altar next to us and nothing able to hit us; a bag under 5 is not tributed mid camp fight (an awake camp in reach: finish it first)")
+def r_pass() -> Bool:
+    if gems() <= 0 or not valid(adj_altar()) or foe_in_reach():
+        return False
+    if gems() < 5:
+        c = reach_camp()
+        if exists(c) and is_awake(c):
+            return False
+    return True
+```

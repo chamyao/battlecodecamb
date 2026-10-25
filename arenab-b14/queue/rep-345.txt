@@ -1,0 +1,5 @@
+```python
+@gene("r2", "heal on spawn: below 90% health and nothing can be hit from here (the last 10% is not worth the farming time; intel: enemies on their own spawn do not count)", parents=["r2"])
+def r_heal() -> Bool:
+    return at_spawn() and me().health < 0.9 * me().max_health and not foe_in_reach_off_spawn()
+```
