@@ -1,0 +1,7 @@
+```python
+@gene("w6", "how much closer a step onto t brings me to GOAL (0: no walk this turn); turn-start field and blocks")
+def step_gain(t: Tile) -> Num:
+    if not OPEN or t in BLOCK:
+        return 0
+    return at(FIELD, me().pos) - at(FIELD, t)
+```
