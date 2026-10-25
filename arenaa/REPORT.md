@@ -2,6 +2,10 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 11:17 UTC
+
+- Births: Z-19a 332, 19c 405, 19d 199; Z-20a 127, 20b 128; Z-21a 31, 21b 24; A-9 leg 4 at 3150.
+
 ## 2026-10-25 11:05 UTC
 
 - Z-19c also screened throughout (200+ evals, then scripted replies), so Z-19 is all screened runs (still a valid cull
