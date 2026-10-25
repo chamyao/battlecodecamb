@@ -96,3 +96,16 @@ Real cambc --release vs the v28 build (both at genome/v0 ca5180b): **45/80**, 0 
 Sim bot seeds (intel): 52/80 vs v28; anchors -4 metadraft/farmer/lockall, +16 A61188, +7 rushbank/hunter-carry, others within ±3.
 
 Uploaded as **v29** at 05:11:34Z Oct 25 (bundle 61743fda..., genome/v0 97194bf genome/candidates/v28-emblem.genome). Validation: intel batch 6.
+
+## Solo farming vs builtin:idle (no opponent), bot seeds 80 games, sim at genome/v0 ca5180b
+
+v29 can't reach 1000 gems in 2000 rounds alone on 8 maps (rushbait-v2 9, reverse-spiral 78, contest 200,
+broken-curve 309, shortcut 586, boss-battle 787, elk-arena 792, gold-rush 880). Cause: m11 camp_goal is the
+nearest small camp, with no weighing of gems vs gold, and monolith/golem groups are excluded.
+
+v29-gg (genome/arenab/cand/v29-gg.genome) = v29 + gem-groups-cm's edit (nearest gem-paying group first):
+- vs idle: elk-arena 792 -> 1008 gems (1887 -> 1314 rounds), gold-rush 880 -> 1001 (2000 -> 1428), broken-curve
+  309 -> 502 (one of two games now finishes), yellow-brick-road 1086 -> 810 rounds; stampede worse
+  (980 -> 800 gems, deaths 6 -> 21.5); rushbait/reverse-spiral/contest/boss-battle unchanged (their gems
+  are in monolith/golem groups). Sum of rounds over 80 games: 53,218 -> 50,771.
+- head to head vs v29: 39/80 (even), which is why h2h-only gates kept dropping it.
