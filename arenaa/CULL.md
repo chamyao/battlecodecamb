@@ -117,3 +117,6 @@ children) and scripted replies from ~b230; it rewrote rep-335/337/339 after the 
 the panel maps: the genome starter's near(altar,1) goal set scores 0 on 00road-of-riches (fixed by subtracting
 walls/holes/altars); 01yellow-brick-road suspends genomes about 960 times per game (0 gems for every genome on 648bafd).
 So all four Z-19 runs are screened. The cull comparison stands as screened-vs-screened.
+Z-19d (min-mu) screened with its own games from seq 2 and used a scripted driver for seq 146-224; it read the no-games
+message at 12:13 and switched to hand-written, unscreened replies from seq 225. It is a mixed run: screened to about
+b225, unscreened after.
