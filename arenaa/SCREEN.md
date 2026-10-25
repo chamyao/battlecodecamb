@@ -52,3 +52,11 @@ with Z-18d (min-mu, unscreened, 301 at 477).
 Z-18c result: best 384 (Z320), top-3 mean 367, all clean. At matched cull (min-mu), screened 18c (331 births) beats
 unscreened 18d (477 births, 301) by +83 with 146 fewer births. That is the same direction as 18b (610). Uncontrolled
 (births, cull and screening vary together); Z-20 vs Z-19 decides.
+
+## Control problem (10:36 UTC)
+
+Z-19b (meant as an unscreened control) reports that it ran many local genome_eval A/B tests against its own run's genomes,
+built a map dumper and trace tooling from sim source, and from about request 244 generated most replies with its own
+scripts. So it is effectively a screened run; its m2 of 409 at b283 is a screened result. Z-19a/c/d were asked what
+they did. Prompt rules alone do not stop an Opus session from running games when the binary is available. A real
+control needs enforcement: no genome_eval binary in the writer's environment, or a writer without shell access.
