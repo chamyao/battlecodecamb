@@ -1,0 +1,27 @@
+```python
+@gene('Z168d', 'value of casting an ability now', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hurt = me().health_frac < 0.34
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 82
+            return 65 if gems() < 8 and not hurt else 0
+        return 0
+    if k == AB_AOE:
+        if o.tile in FOEHIT:
+            return 81
+        return 64 if o.tile in CAMPHIT and gems() < 8 and not hurt else 0
+    if k == AB_RESET:
+        return 75 if not can_attack() and (threatened() or count_units(enemies()) > 0) else 0
+    if k == AB_SHIELD:
+        return 75 if threatened() or count_units(enemies()) > 0 else 0
+    if k == AB_DASH:
+        if me().health_frac < 0.34:
+            return 86 if home_step(o.tile) >= 2 else 0
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_HEAL:
+        return 75 if exists(o.unit) and o.unit.health_frac < 0.7 else 0
+    return 0
+```

@@ -1,0 +1,11 @@
+```python
+@gene('s3', 'distance field to the goals')
+def goal_field() -> Field:
+    if round() > 1000 and me().health_frac > 0.7 and count(dist(a.pos, me().pos) <= 5 for a in allies()) >= 3:
+        return field(goals())
+    return field(goals() - type_spawns(MONOLITH))
+
+@gene('Z9a', 'an awake camp could hit me here', parents=['s1'])
+def threatened() -> Bool:
+    return any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()) or any(dist(u.pos, me().pos) <= 5 for u in enemies())
+```
