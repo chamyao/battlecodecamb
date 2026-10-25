@@ -1,0 +1,240 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+BIGS: Tiles = None    # monolith and golem spawns
+MAPPED: Bool = False  # BIGS computed
+HIT: Bool = False     # this turn: I lost health since last turn
+LASTHP: Num = 0       # my health at the start of last turn
+BAGR: Bool = False    # this turn: the bag is ready to bank
+WGOAL: Tile = None    # goal the walking field was computed for
+WFT: Num = 0          # round to recompute the walking field
+DEAD: Tiles = None    # camp spawns seen empty (their camp is dead) in groups not yet cleared
+ALT: Tiles = None     # tiles next to altars we can tribute at (cached)
+LIVEG: Tiles = None   # spawn tiles of live groups not yet cleared (cached)
+REWG: Tiles = None    # spawn tiles of cleared groups waiting for capture (cached)
+GTURN: Num = 0        # round to re-pick the walking goal
+WF: Field = None      # this turn's walking field
+GKEY: Num = -1000     # goal set the cached field was computed for
+GOAL: Tile = None     # this turn's walking goal
+RETREAT: Bool = False # this turn: badly hurt under threat, walk home
+
+@gene('s1', 'value of doing this option now: draft, casts, focus the weakest foe, fight back against awake camps, heal on spawn, cash out a big bag; shop durability and jungle emblems; recall only out of danger')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        if HIT or under_threat():
+            return 0
+        if me().health_frac < 0.45:
+            return 76
+        if gems() >= 10 and me().health_frac < 0.5 and count_units(enemies()) == 0:
+            return 76
+        return 45 if gems() == 0 and gold() >= 210 else 0
+    if RETREAT and (o.kind == MOVE or o.kind == CAST or o.kind == ATTACK):
+        return retreat_value(o)
+    if o.kind == CAST:
+        return cast_v2(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (0.6312 - o.unit.health_frac)
+        if not BAGR:
+            if big_camp(o.unit) and not is_awake(o.unit):
+                return 0
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 55
+        return 54 if path_blocked() else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health < me().max_health and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems; else cleared groups to capture and live groups minus spawns seen empty")
+def goals() -> Tiles:
+    if BAGR:
+        return ALT
+    return REWG | (LIVEG - DEAD)
+
+@gene('s3', 'walking field this turn (set in update)')
+def goal_field() -> Field:
+    return WF
+
+@gene('Z490a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag')
+def update() -> None:
+    if not MAPPED:
+        BIGS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        MAPPED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    BAGR = bag_ready()
+    k = goal_key()
+    force = k != GKEY
+    if force:
+        GKEY = k
+        if BAGR:
+            ALT = near(tile(-5, -5), 0)
+            for a in altars() - locked_altars():
+                ALT = ALT | near(a, 1)
+        else:
+            LIVEG = near(tile(-5, -5), 0)
+            REWG = LIVEG
+            for gi in range(num_groups()):
+                if not group_respawning(gi):
+                    gt = group_tiles(gi)
+                    if group_reward(gi):
+                        REWG = REWG | gt
+                    elif size(gt & BIGS) == 0:
+                        LIVEG = LIVEG | gt
+    HIT = me().health < LASTHP - 0.5
+    LASTHP = me().health
+    RETREAT = me().health_frac < 0.32 and (HIT or under_threat())
+    here = me().pos
+    unseen = camp_spawns() - vision() - DEAD
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | unseen) - near(here, 0)
+    tgt = my_spawn() if RETREAT else goals()
+    if here in tgt:
+        GOAL = here
+    elif force or not valid(GOAL) or not (GOAL in tgt) or GOAL == here or round() >= GTURN:
+        cand = tgt - (blk - live - unseen)
+        GOAL = walk_nearest(cand, here, blk - cand)
+        GTURN = round() + 8
+    if GOAL != WGOAL or round() >= WFT or dist(here, GOAL) <= 8 or RETREAT:
+        g = near(GOAL, 0)
+        WF = field_avoid(g, blk - g, near(here, 0))
+        WGOAL = GOAL
+        WFT = round() + 3
+
+@gene('Z490b', 'a number that changes whenever the goal set changes: bag state, locked altars, living groups', parents=['s2'])
+def goal_key() -> Num:
+    if BAGR:
+        return -1 - size(locked_altars())
+    acc = 0
+    p = 1
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc += p * (2 if group_reward(g) else 1)
+        p *= 3
+    return acc
+
+@gene('s4', 'how much closer a step brings me to the goals, minus a penalty for stepping next to enemy champions when hurt')
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.7 and any(dist(u.pos, t) <= u.attack_range + 1 for u in enemies()) and not any(dist(a.pos, t) <= 1 and a != me() for a in allies()):
+        return gain - 3
+    return gain
+
+@gene('Z490c', 'shop: a durability health emblem, then a jungle health emblem, then power strength; bigger buys first', parents=['s1'])
+def shop_value(o: Option) -> Num:
+    if items_owned(17) == 0:
+        return 100 + o.count / 100 if o.item == 16 and o.count <= 5 - items_owned(16) else 0
+    if items_owned(29) == 0:
+        return 100 + o.count / 100 if o.item == 28 and o.count <= 5 - items_owned(28) else 0
+    return 100 + o.count / 100 if o.item == 36 else 0
+
+@gene('Z490d', 'value of a cast: damage or stun on foes and camps, shield or heal when hurt, attack resets once the attack is spent, dash two steps toward the goal')
+def cast_v2(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 85 if o.unit == me() and me().health_frac < 0.7 else 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        r = me().attack_range
+        if any(dist(u.pos, me().pos) <= r for u in enemies()):
+            return 88
+        return 66 if not BAGR and any(dist(c.pos, me().pos) <= r for c in camps()) else 0
+    if k == AB_DASH:
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy and o.unit.is_champion:
+            return 86
+        if exists(o.unit) and o.unit.is_camp and not BAGR:
+            return 65
+        if any(u.pos == o.tile for u in enemies()):
+            return 84
+    return 0
+
+@gene('Z61a', 'an enemy champion within 5 or an awake camp within its range + 1', parents=['s3'])
+def under_threat() -> Bool:
+    p = me().pos
+    return any(dist(p, u.pos) <= 6 for u in enemies()) or any(is_awake(c) and dist(p, c.pos) <= c.attack_range + 0.7924 for c in camps())
+
+@gene('Z15a', 'draft preference: Vendetta, Vesper Vale, Tavi, Ryth, Ren, then anything', parents=['s1'])
+def pick_value(c: Num) -> Num:
+    if c == VENDETTA:
+        return 6
+    if c == VESPER_VALE:
+        return 5
+    if c == TAVI:
+        return 4
+    if c == RYTH:
+        return 3
+    if c == REN:
+        return 2
+    return 1
+
+@gene('Z490e', 'no free step brings me closer to the goals (a camp or unit is in the way)')
+def path_blocked() -> Bool:
+    return not any(progress(t) > 0 for t in near(me().pos, 1) - camp_tiles() - ally_tiles() - enemy_tiles())
+
+@gene('Z490f', 'while retreating: step or dash home first, shield or heal, otherwise hit only what is in reach')
+def retreat_value(o: Option) -> Num:
+    if o.kind == MOVE:
+        return 95 if raw_gain(o.tile) > 0 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DASH:
+            return 96 if raw_gain(o.tile) >= 2 else 0
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 97 if o.unit == me() else 0
+        return cast_v2(o) / 2
+    return 36
+
+@gene('Z490g', "how much closer a step onto t brings me on this turn's walking field (no danger penalty)")
+def raw_gain(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if any(dist(u.pos, t) <= 1 and u.health > me().health for u in enemies()):
+        return gain - 1
+    return gain
+
+@gene('Z490h', 'option kinds worth listing this pass: skip kinds never used, casts with no slot ready, shopping off spawn, tributes without gems')
+def consider(k: Num) -> Bool:
+    if k == PICK or k == MOVE or k == ATTACK:
+        return True
+    if k == CAST:
+        r0 = slot_ready(0)
+        r1 = slot_ready(1)
+        if not r0 and not r1:
+            return False
+        if count_units(enemies()) > 0 or any(dist(c.pos, me().pos) <= 5 for c in camps()):
+            return True
+        return (r0 and slot_kind(0) == AB_DASH) or (r1 and slot_kind(1) == AB_DASH)
+    if k == BUY:
+        return can_shop()
+    if k == TRIBUTE:
+        return gems() > 0
+    if k == RECALL:
+        return not (me().pos in my_spawn())
+    return False
+
+@gene('Z490i', 'a monolith or golem camp')
+def big_camp(u: Unit) -> Bool:
+    return camp_spawn(u) in BIGS
+
+@gene('Z490j', 'bag ready to bank: 8+ gems, or any gems late, hurt, with an enemy champion in sight or an altar within 4')
+def bag_ready() -> Bool:
+    g = gems()
+    if g >= 8:
+        return True
+    if g == 0:
+        return False
+    return round() > 1700 or me().health_frac < 0.5 or count_units(enemies()) > 0 or any(dist(a, me().pos) <= 4 for a in altars())
