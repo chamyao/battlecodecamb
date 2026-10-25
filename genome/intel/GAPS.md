@@ -595,3 +595,18 @@ All figures are before r250 and per game, us / them, over the 19 losses unless n
    - No sign of contesting: they make 2.2 captures per game in our half.
 3. **Shop conversion.** By r500 they spend 2,878 vs our 1,595, on Power and Durability shards (we buy neither).
 4. **Single maps:** starvation, boss_battle, contest, shortcut.
+
+## Ranked contest and starvation losses, v31-v33 (2026-10-25, for the Arena B lead's stress bots)
+
+**contest** (4 losses: DiscordMess, Nine Lives, tst, ExCode):
+- Our deaths: 18-49 per game. 40-50% are within 6 of a monolith; about half are outnumbered.
+- Both teams start killing monoliths around r870-1010, and captures alternate.
+- Our monolith carriers die 1-3 times per game, 200 gems each. That decides the game (vs DiscordMess: 2 captures, 2 carriers lost, 0 tributes).
+- The opponent's carriers survive. They tribute 4-5 times; we tribute 0-3.
+
+**starvation** (we are 1-5 ranked since v31; 3 losses extracted):
+- Our deaths: 36-52 per game, 26-41 of them to champions, about half outnumbered.
+- Almost all at the 4-elk 88-gem group around (35-41, 2-13), in waves as it comes up (about r95-116, r246-258, r480-650).
+- The opponent holds it with 3-4 champions, and we arrive 1-2 at a time.
+
+**Common pattern:** one rich objective. The opponent holds it in numbers; we trickle in.
