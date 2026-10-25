@@ -1,0 +1,24 @@
+```python
+@gene("c1", "where this turn's rule walks; the monolith walk after round 1000 heads for live monolith groups first")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        if round() > 1000:
+            m = MONO_GROUPS - respawning()
+            if size(m) > 0:
+                return closest(m)
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+```

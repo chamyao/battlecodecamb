@@ -1,0 +1,7 @@
+```python
+@gene('w10', 'GOAL can be walked to: not terrain and not held by an enemy champion (allies move, so an ally on GOAL does not block the walk); enemy tiles read once per pass', parents=['w10'])
+def walk_open() -> Bool:
+    if not valid(GOAL) or GOAL == here() or GOAL in TERRAIN:
+        return False
+    return not (GOAL in foe_tiles())
+```
