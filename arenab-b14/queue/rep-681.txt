@@ -1,0 +1,25 @@
+```python
+@gene("c2", "the altar or unit tile this turn's rule acts on (reads the rule update() just chose instead of re-running rule())")
+def rule_target() -> Tile:
+    r = RULE
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+```
+
+```python
+@gene("m3", "an altar within lock reach (2) that our team has not already locked (re-locking our own altar wastes the turn)")
+def lock_altar() -> Tile:
+    s = altars() & near(here(), 2)
+    own = s - s
+    for t in s & locked_altars():
+        if not lock_enemy(t):
+            own = own | near(t, 0)
+    return first_tile(s - own)
+```

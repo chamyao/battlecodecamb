@@ -3984,3 +3984,20 @@
 [08:48:27] [B] birth B2063 (mutate session) of ['B2053'] species S9; 24 genomes $11.08
 [08:48:35] [B] birth B2064 (tune ) of ['B2059'] species S10; 24 genomes $11.08
 [08:48:49] [B] birth B2065 (mutate session) of ['B2051'] species S11; 24 genomes $11.08
+[08:49:01] [B] rejected mutate session: behavioural twin
+[08:49:09] [B] birth B2066 (mutate session) of ['B2021'] species S4; 24 genomes $11.08
+[08:49:37] [B] birth B2067 (mutate session) of ['B2059'] species S6; 24 genomes $11.08
+[08:49:38] [B] birth B2068 (mutate session) of ['B2047'] species S11; 24 genomes $11.08
+[08:49:52] [B] rejected mutate session: behavioural twin
+[08:50:09] [B] birth B2069 (cross ) of ['B2000', 'B2063'] species S9; 24 genomes $11.08
+[08:50:18] [B] summary: births 2070 deaths 2047 games 502760 $11.08; top [('B2064', 49.78, 0.88, 128, 'S10'), ('B2067', 48.7, 0.95, 96, 'S6'), ('B2059', 48.59, 0.84, 200, 'S6')]; top vs anchors {'B2064': 1.0, 'B2067': 0.75, 'B2059': 0.6}
+[08:50:18] [B] birth B2070 (mutate session) of ['B2062'] species S10; 24 genomes $11.08
+[08:50:18] [B] rejected tune : behavioural twin
+[08:50:50] [B] birth B2071 (mutate session) of ['B2050'] species S9; 24 genomes $11.08
+[08:50:57] [B] birth B2072 (mutate session) of ['B2069'] species S9; 24 genomes $11.08
+[08:50:57] [B] rejected mutate session: behavioural twin
+[08:51:12] [B] rejected tune : behavioural twin
+[08:51:39] [B] birth B2073 (cross ) of ['B2064', 'B2070'] species S6; 24 genomes $11.08
+[08:51:40] [B] rejected mutate session: behavioural twin
+[08:51:43] [B] rejected mutate session: behavioural twin
+[08:52:02] [B] rejected tune : behavioural twin
