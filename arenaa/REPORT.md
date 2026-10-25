@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 07:25 UTC: A-9 leg 1 done
+
+- Leg 1: births 1626 -> 2026 in 82 min (A-8: 401 in 2h03), restarted at 1652 with --births-in-flight 8. 263 accepted,
+  203 twins (44%), 0 invalid. In-arena top A91942 47.9 (A-8 top was 47.0). Panel m17 1023 (b1777), m18 1019.
+  Fix needed: state.json anchor paths point at /root/a8w; leg 1 symlinked it (in the leg template now).
+- Leg 2 (2026 -> 2425): session_01TLRWfAgjA9xmPaaofZLJgT.
+
 ## 2026-10-25 07:25 UTC: Z-17 result (cull fix)
 
 - Final panel at the stop: legacy 200 (17a), 207 (Z-15); min-mu 190 (17b), 194 (17c). The decision rule is not
