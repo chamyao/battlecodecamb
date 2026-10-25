@@ -76,3 +76,5 @@ B792's sim edge over B318 (47/80, bot seeds) did not show in band games. The sim
 | B318 (v25 build, 2013533) | 49 | |
 
 Sim (intel, bot seeds): 41/80 vs A61188; non-champion deaths great-wall 25 -> 15, shortcut 17.5 -> 9.5; 15 anchors all +0..+4.
+
+Uploaded as **v28** at 03:43:47Z Oct 25 (bundle 8a921761..., genome/v0 568cbf5 genome/candidates/a61188-mono.genome). Validation: intel batch 5.
