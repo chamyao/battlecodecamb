@@ -1,0 +1,341 @@
+cell 10 A1 T5: ok $0.248
+cell 14 A1 T4: ok $0.249
+cell 23 A1 T4: ok $0.250
+cell 8 A1 T4: ok $0.250
+cell 11 A1 T5: EditError: modified fixed gene w11 (walk_open_near) $0.251
+cell 28 A1 T5: ok $0.252
+cell 39 A1 T4: ok $0.255
+cell 81 A1 T4: ok $0.256
+cell 83 A1 T4: ok $0.259
+cell 40 A1 T4: ok $0.259
+cell 90 A1 T5: ok $0.260
+cell 61 A1 T4: EditError: no change $0.261
+cell 94 A1 T4: ok $0.262
+cell 95 A1 T5: EditError: modified fixed gene a15 (act_value_s) $0.263
+77 matches to play
+c10:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+c10:A1 vs tune-v20-L1c: HTTPError: HTTP Error 422: Unprocessable Entity
+c10:A1 vs v7: HTTPError: HTTP Error 422: Unprocessable Entity
+c10:A1 vs opp-tune5-metadraft: HTTPError: HTTP Error 422: Unprocessable Entity
+c10:A1 vs rall2-ca4-lean-g: HTTPError: HTTP Error 422: Unprocessable Entity
+c23:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+c23:A1 vs rall2-ca4-lean-g: HTTPError: HTTP Error 422: Unprocessable Entity
+c8:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+c28:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+c39:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+c81:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+c83:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+c83:A1 vs rall2-ca4-lean-g: HTTPError: HTTP Error 422: Unprocessable Entity
+c90:A1 vs tune-v20-L1: HTTPError: HTTP Error 422: Unprocessable Entity
+{
+ "null_n": 40,
+ "null_p95": 0,
+ "parents_anchor_wins": {
+  "seed": 320,
+  "arenaA-1:A352": 319,
+  "arenaA-1:A344": 323,
+  "arenaA-1:A368": 322,
+  "arenaA-1:A354": 322,
+  "arenaA-3:A611": 340,
+  "arenaA-3:A659": 344,
+  "arenaA-3:A654": 333,
+  "arenaA-3:A662": 316,
+  "arenaA-3:A685": 317,
+  "arenaA-3:A690": 325,
+  "arenaA-3:A703": 327,
+  "arenaA-3:A701": 325,
+  "arenaA-3:A689": 340
+ },
+ "arms": {
+  "A0": {
+   "cells": 120,
+   "better": 39,
+   "better_share": 0.325,
+   "valid": 119,
+   "invalid": 1,
+   "rejected": 0,
+   "retried": 0,
+   "twins": 20,
+   "both_changed": 3,
+   "added_gene": 0,
+   "lines_mean": 3.4,
+   "diff_mean": -16.4,
+   "diff_p90": 5,
+   "vs_parent_rate": 0.465,
+   "cost": 0.1198,
+   "cost_per_child": 0.001
+  },
+  "A1": {
+   "cells": 120,
+   "better": 22,
+   "better_share": 0.183,
+   "valid": 89,
+   "invalid": 15,
+   "rejected": 16,
+   "retried": 80,
+   "twins": 21,
+   "both_changed": 20,
+   "added_gene": 69,
+   "lines_mean": 6.5,
+   "diff_mean": -24.21,
+   "diff_p90": 3,
+   "vs_parent_rate": 0.454,
+   "cost": 0.1427,
+   "cost_per_child": 0.00119
+  }
+ },
+ "by_type_A1": {
+  "T1": {
+   "cells": 24,
+   "better": 6,
+   "better_share": 0.25,
+   "valid": 20,
+   "invalid": 0,
+   "rejected": 4,
+   "retried": 4,
+   "twins": 0,
+   "both_changed": 20,
+   "added_gene": 0,
+   "lines_mean": 4.6,
+   "diff_mean": -39.3,
+   "diff_p90": 3,
+   "vs_parent_rate": 0.411,
+   "cost": 0.0223,
+   "cost_per_child": 0.00093
+  },
+  "T2": {
+   "cells": 24,
+   "better": 6,
+   "better_share": 0.25,
+   "valid": 18,
+   "invalid": 5,
+   "rejected": 1,
+   "retried": 24,
+   "twins": 3,
+   "both_changed": 0,
+   "added_gene": 18,
+   "lines_mean": 6.8,
+   "diff_mean": -14.17,
+   "diff_p90": 6,
+   "vs_parent_rate": 0.473,
+   "cost": 0.0352,
+   "cost_per_child": 0.00147
+  },
+  "T3": {
+   "cells": 24,
+   "better": 3,
+   "better_share": 0.125,
+   "valid": 15,
+   "invalid": 3,
+   "rejected": 6,
+   "retried": 22,
+   "twins": 6,
+   "both_changed": 0,
+   "added_gene": 15,
+   "lines_mean": 5.8,
+   "diff_mean": -4.4,
+   "diff_p90": 2,
+   "vs_parent_rate": 0.502,
+   "cost": 0.0281,
+   "cost_per_child": 0.00117
+  },
+  "T4": {
+   "cells": 24,
+   "better": 3,
+   "better_share": 0.125,
+   "valid": 19,
+   "invalid": 3,
+   "rejected": 2,
+   "retried": 16,
+   "twins": 7,
+   "both_changed": 0,
+   "added_gene": 19,
+   "lines_mean": 8.3,
+   "diff_mean": -41.74,
+   "diff_p90": 2,
+   "vs_parent_rate": 0.43,
+   "cost": 0.0292,
+   "cost_per_child": 0.00121
+  },
+  "T5": {
+   "cells": 24,
+   "better": 4,
+   "better_share": 0.167,
+   "valid": 17,
+   "invalid": 4,
+   "rejected": 3,
+   "retried": 14,
+   "twins": 5,
+   "both_changed": 0,
+   "added_gene": 17,
+   "lines_mean": 7.0,
+   "diff_mean": -15.0,
+   "diff_p90": 5,
+   "vs_parent_rate": 0.468,
+   "cost": 0.0281,
+   "cost_per_child": 0.00117
+  }
+ },
+ "mcnemar": {
+  "A1_only": 11,
+  "A0_only": 28,
+  "p_one_sided": 0.9983
+ }
+}
+panel: 14 children, 13 matches
+{
+ "null_n": 40,
+ "null_p95": 0,
+ "parents_anchor_wins": {
+  "seed": 320,
+  "arenaA-1:A352": 319,
+  "arenaA-1:A344": 323,
+  "arenaA-1:A368": 322,
+  "arenaA-1:A354": 322,
+  "arenaA-3:A611": 340,
+  "arenaA-3:A659": 344,
+  "arenaA-3:A654": 333,
+  "arenaA-3:A662": 316,
+  "arenaA-3:A685": 317,
+  "arenaA-3:A690": 325,
+  "arenaA-3:A703": 327,
+  "arenaA-3:A701": 325,
+  "arenaA-3:A689": 340
+ },
+ "arms": {
+  "A0": {
+   "cells": 120,
+   "better": 39,
+   "better_share": 0.325,
+   "valid": 119,
+   "invalid": 1,
+   "rejected": 0,
+   "retried": 0,
+   "twins": 20,
+   "both_changed": 3,
+   "added_gene": 0,
+   "lines_mean": 3.4,
+   "diff_mean": -16.4,
+   "diff_p90": 5,
+   "vs_parent_rate": 0.465,
+   "cost": 0.1198,
+   "cost_per_child": 0.001
+  },
+  "A1": {
+   "cells": 120,
+   "better": 22,
+   "better_share": 0.183,
+   "valid": 89,
+   "invalid": 15,
+   "rejected": 16,
+   "retried": 80,
+   "twins": 21,
+   "both_changed": 20,
+   "added_gene": 69,
+   "lines_mean": 6.5,
+   "diff_mean": -24.21,
+   "diff_p90": 3,
+   "vs_parent_rate": 0.454,
+   "cost": 0.1427,
+   "cost_per_child": 0.00119
+  }
+ },
+ "by_type_A1": {
+  "T1": {
+   "cells": 24,
+   "better": 6,
+   "better_share": 0.25,
+   "valid": 20,
+   "invalid": 0,
+   "rejected": 4,
+   "retried": 4,
+   "twins": 0,
+   "both_changed": 20,
+   "added_gene": 0,
+   "lines_mean": 4.6,
+   "diff_mean": -39.3,
+   "diff_p90": 3,
+   "vs_parent_rate": 0.411,
+   "cost": 0.0223,
+   "cost_per_child": 0.00093
+  },
+  "T2": {
+   "cells": 24,
+   "better": 6,
+   "better_share": 0.25,
+   "valid": 18,
+   "invalid": 5,
+   "rejected": 1,
+   "retried": 24,
+   "twins": 3,
+   "both_changed": 0,
+   "added_gene": 18,
+   "lines_mean": 6.8,
+   "diff_mean": -14.17,
+   "diff_p90": 6,
+   "vs_parent_rate": 0.473,
+   "cost": 0.0352,
+   "cost_per_child": 0.00147
+  },
+  "T3": {
+   "cells": 24,
+   "better": 3,
+   "better_share": 0.125,
+   "valid": 15,
+   "invalid": 3,
+   "rejected": 6,
+   "retried": 22,
+   "twins": 6,
+   "both_changed": 0,
+   "added_gene": 15,
+   "lines_mean": 5.8,
+   "diff_mean": -4.4,
+   "diff_p90": 2,
+   "vs_parent_rate": 0.502,
+   "cost": 0.0281,
+   "cost_per_child": 0.00117
+  },
+  "T4": {
+   "cells": 24,
+   "better": 3,
+   "better_share": 0.125,
+   "valid": 19,
+   "invalid": 3,
+   "rejected": 2,
+   "retried": 16,
+   "twins": 7,
+   "both_changed": 0,
+   "added_gene": 19,
+   "lines_mean": 8.3,
+   "diff_mean": -41.74,
+   "diff_p90": 2,
+   "vs_parent_rate": 0.43,
+   "cost": 0.0292,
+   "cost_per_child": 0.00121
+  },
+  "T5": {
+   "cells": 24,
+   "better": 4,
+   "better_share": 0.167,
+   "valid": 17,
+   "invalid": 4,
+   "rejected": 3,
+   "retried": 14,
+   "twins": 5,
+   "both_changed": 0,
+   "added_gene": 17,
+   "lines_mean": 7.0,
+   "diff_mean": -15.0,
+   "diff_p90": 5,
+   "vs_parent_rate": 0.468,
+   "cost": 0.0281,
+   "cost_per_child": 0.00117
+  }
+ },
+ "mcnemar": {
+  "A1_only": 11,
+  "A0_only": 28,
+  "p_one_sided": 0.9983
+ }
+}
+panel: 14 children, 0 matches
