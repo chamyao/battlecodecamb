@@ -245,3 +245,10 @@ v31 and v32c anchors held at 48.3 / 48.0. Arena tops cluster near v32; leg 8 goe
 31-19 (b8 27-23). Gems +87 +- 39, captured +73 +- 34, stuck champion-rounds 31.5 -> 4.0. gold_rush 1-0, contest 1-1,
 boss_battle 0-1 (unfrozen, 14 monolith deaths), elk_arena vs NotSoLonely won 936-720. Losses: gold by r250 776 vs 1373.
 Record progression on the b1 plan: v22 15-35, v28 18-32, v29 20-30, v30 21-29, v31 27-23, v32 31-19.
+
+## Oct 25 ~09:10: boss_battle on v32: the bush move bonus
+In every local real run B1873 loses 01boss-battle 0-2 to the no-bush-bonus variants (bush0, bush0+gg4, bush0+dash35k)
+and to v30, and wins it against the others. bush0 overall is 39/80 vs v32, so the bonus helps elsewhere.
+B1873-bossbush (cand/): drop the bush bonus only when ALTAR_RING & MONO_GROUPS is non-empty (computed once in v2):
+- real /80 vs v32: 40 = boss_battle 2-0 plus exactly 1-1 on each of the other 38 maps (a pure one-map change), 0 crashes,
+  capped turns 431; solo identical to B1873 (95,846).
