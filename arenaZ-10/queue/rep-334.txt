@@ -1,0 +1,28 @@
+```python
+@gene('Z138a', 'once per turn: cache the distance field to the goals not occupied by or next to another ally (spread allies over camps; altars only exclude occupied tiles); carrying 10+ gems, route around the reach (+1) of visible enemy champions when a detour exists', parents=['s3'])
+def update() -> None:
+    g = goals()
+    p = me().pos
+    others = ally_tiles() - near(p, 0)
+    taken = others
+    if gems() == 0:
+        for a in others:
+            taken = taken | near(a, 1)
+    free = g - taken
+    if size(free) == 0:
+        free = g - others
+    if size(free) == 0:
+        free = g
+    if gems() >= 10:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, max(u.attack_range, 1) + 1)
+        danger = danger - near(p, 0)
+        if size(danger) > 0:
+            safe = field_avoid(free - danger, danger, near(p, 0))
+            if at(safe, p) < 100000:
+                GF = safe
+                return
+    GF = field(free)
+```

@@ -1,0 +1,40 @@
+```python
+@gene('Z180b', 'once per turn: cache the distance field to the goals not occupied by or next to another ally (spread allies over camps; altars only exclude occupied tiles)', parents=['s4'])
+def update() -> None:
+    g = goals()
+    others = ally_tiles() - near(me().pos, 0)
+    taken = others
+    if gems() == 0:
+        for a in others:
+            taken = taken | near(a, 1)
+    free = g - taken
+    if size(free) == 0:
+        free = g - others
+    if size(free) == 0:
+        free = g
+    GF = field(free)
+
+@gene('s4', 'how much closer a step brings me to the goals (field cached once per turn); hurt and carrying gems, a step into the attack reach of an enemy champion counts as no progress')
+def progress(t: Tile) -> Num:
+    d = at(GF, me().pos) - at(GF, t)
+    if d > 0 and gems() > 0 and me().health_frac < 0.5:
+        if any(u.is_champion and dist(u.pos, t) <= max(u.attack_range, 1) for u in enemies()):
+            return 0
+    return d
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group (monoliths only when nothing else is left)")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    easy = acc - type_spawns(MONOLITH)
+    if size(easy) > 0:
+        return easy
+    return acc
+```
