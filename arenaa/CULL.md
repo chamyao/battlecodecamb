@@ -108,3 +108,5 @@ this was sent to the search session to check against the real engine.
 Z-18d (min-mu) also ran to 477 births. Its writer read no evolved genomes and ran no games of its own (feedback,
 state.json and matches.jsonl only), so it matches the Z-19 protocol. Its final panel is an extra min-mu data
 point (labelled; it is not one of the four Z-19 arms).
+Z-18a also ran to 477 births despite the stop (afb50dd). It stays void: it copied the A-line table, screened with its
+own games including against seeds/v23 (an evolved policy), and auto-answered with a script from about request 245.
