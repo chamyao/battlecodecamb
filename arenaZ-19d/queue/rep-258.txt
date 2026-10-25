@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; when hurt under fire, how much safer it is")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+        return threat_at(me().pos) - threat_at(t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+```

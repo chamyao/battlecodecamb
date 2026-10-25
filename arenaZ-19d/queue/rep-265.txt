@@ -1,0 +1,12 @@
+```python
+@gene('s4', 'how much closer a step brings me to the goals; when hurt under fire, how much safer it is, own distance read once per pass')
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+        return threat_at(me().pos) - threat_at(t)
+    return here_dist() - at(goal_field(), t)
+
+@gene("new", "my own distance to the goals, once per pass", parents=["s4"])
+def here_dist() -> Num:
+    return at(goal_field(), me().pos)
+
+```
