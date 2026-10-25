@@ -103,3 +103,83 @@
 [03:55:11] [A8C] birth A8C1282 (tune ) of ['A8C1239'] species S2; 24 genomes $8.52
 [03:55:11] [A8C] birth A8C1283 (mutate claude-haiku-5-5) of ['A61224'] species S1; 24 genomes $8.52
 [03:55:14] [A8C] rejected tune : behavioural twin
+[03:55:21] [A8C] birth A8C1284 (tune ) of ['A8C1233'] species S1; 24 genomes $8.53
+[03:55:27] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:55:27] [A8C] birth A8C1285 (mutate claude-haiku-5-5) of ['A8C1274'] species S3; 24 genomes $8.53
+[03:55:36] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:55:41] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:55:43] [A8C] birth A8C1286 (tune ) of ['A8C1239'] species S2; 24 genomes $8.53
+[03:55:48] [A8C] rejected tune : behavioural twin
+[03:55:54] [A8C] birth A8C1287 (mutate claude-haiku-5-5) of ['A8C1266'] species S1; 24 genomes $8.53
+[03:56:09] [A8C] rejected mutate claude-opus-5-5: behavioural twin
+[03:56:10] [A8C] birth A8C1288 (llm_cross claude-haiku-5-5) of ['A8C1274', 'A8C1254'] species S3; 24 genomes $8.59
+[03:56:16] [A8C] rejected tune : behavioural twin
+[03:56:23] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:56:26] [A8C] birth A8C1289 (mutate claude-haiku-5-5) of ['A8C1266'] species S1; 24 genomes $8.59
+[03:56:31] [A8C] rejected cross : behavioural twin
+[03:56:34] [A8C] summary: births 1290 deaths 1267 games 319184 $8.60; top [('A8C1239', 44.23, 0.79, 856, 'S2'), ('A8C1288', 43.93, 0.89, 136, 'S3'), ('A61167', 43.88, 0.79, 2072, 'S1')]; top vs anchors {'A8C1239': 0.821, 'A8C1288': 0.812, 'A61167': 0.775}
+[03:56:34] [A8C] birth A8C1290 (mutate claude-haiku-5-5) of ['A8C1264'] species S1; 24 genomes $8.60
+[03:56:38] [A8C] birth A8C1291 (llm_cross claude-haiku-5-5) of ['A8C1254', 'A8C1239'] species S2; 24 genomes $8.60
+[03:56:41] [A8C] birth A8C1292 (mutate claude-haiku-5-5) of ['A8C1254'] species S1; 24 genomes $8.60
+[03:56:43] [A8C] birth A8C1293 (tune ) of ['A8C1276'] species S1; 24 genomes $8.60
+[03:56:50] [A8C] birth A8C1294 (mutate claude-haiku-5-5) of ['A8C1278'] species S1; 24 genomes $8.61
+[03:56:52] [A8C] rejected cross : behavioural twin
+[03:56:56] [A8C] birth A8C1295 (mutate claude-haiku-5-5) of ['A8C1276'] species S1; 24 genomes $8.61
+[03:57:02] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:57:10] [A8C] birth A8C1296 (cross ) of ['A8C1288', 'A8C1285'] species S3; 24 genomes $8.61
+[03:57:14] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:57:21] [A8C] birth A8C1297 (mutate claude-opus-5-5) of ['A8C1250'] species S1; 24 genomes $8.67
+[03:57:21] [A8C] birth A8C1298 (tune ) of ['A8C1266'] species S1; 24 genomes $8.67
+[03:57:22] [A8C] birth A8C1299 (mutate claude-haiku-5-5) of ['A8C1254'] species S1; 24 genomes $8.67
+[03:57:33] [A8C] champion anchor champ26-A8C1294 (mu 45.0)
+[03:57:33] [A8C] summary: births 1300 deaths 1277 games 321792 $8.67; top [('A8C1294', 45.02, 0.87, 136, 'S1'), ('A8C1299', 44.42, 0.96, 88, 'S1'), ('A8C1254', 44.1, 0.8, 864, 'S1')]; top vs anchors {'A8C1294': 0.875, 'A8C1299': 0.875, 'A8C1254': 0.839}
+[03:57:33] [A8C] birth A8C1300 (cross ) of ['A8C1233', 'A8C1254'] species S1; 24 genomes $8.67
+[03:57:35] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:57:36] [A8C] birth A8C1301 (mutate claude-haiku-5-5) of ['A8C1250'] species S1; 24 genomes $8.67
+[03:57:44] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:57:45] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:57:50] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:57:57] [A8C] birth A8C1302 (mutate claude-haiku-5-5) of ['A8C1299'] species S1; 24 genomes $8.68
+[03:58:00] [A8C] birth A8C1303 (mutate claude-haiku-5-5) of ['A8C1278'] species S1; 24 genomes $8.68
+[03:58:02] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:58:12] [A8C] birth A8C1304 (mutate claude-haiku-5-5) of ['A8C1303'] species S1; 24 genomes $8.72
+[03:58:13] [A8C] birth A8C1305 (mutate claude-opus-5-5) of ['A8C1300'] species S1; 24 genomes $8.72
+[03:58:13] [A8C] birth A8C1306 (mutate claude-haiku-5-5) of ['A8C1254'] species S1; 24 genomes $8.72
+[03:58:24] [A8C] rejected tune : behavioural twin
+[03:58:24] [A8C] birth A8C1307 (cross ) of ['A8C1299', 'A8C1304'] species S1; 24 genomes $8.72
+[03:58:32] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:58:33] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:58:36] [A8C] birth A8C1308 (mutate claude-haiku-5-5) of ['A61213'] species S1; 24 genomes $8.72
+[03:58:43] [A8C] birth A8C1309 (mutate claude-haiku-5-5) of ['A8C1300'] species S1; 24 genomes $8.72
+[03:58:46] [A8C] summary: births 1310 deaths 1287 games 325040 $8.72; top [('A8C1303', 44.27, 0.81, 184, 'S1'), ('A61167', 43.85, 0.79, 2256, 'S1'), ('A8C1300', 43.83, 0.79, 272, 'S1')]; top vs anchors {'A8C1303': 1.0, 'A61167': 0.775, 'A8C1300': 0.875}
+[03:58:46] [A8C] birth A8C1310 (mutate claude-haiku-5-5) of ['A8C1299'] species S1; 24 genomes $8.72
+[03:58:48] [A8C] birth A8C1311 (mutate claude-haiku-5-5) of ['A8C1254'] species S1; 24 genomes $8.72
+[03:58:51] [A8C] birth A8C1312 (tune ) of ['A8C1299'] species S1; 24 genomes $8.72
+[03:58:56] [A8C] birth A8C1313 (cross ) of ['A8C1237', 'A8C1254'] species S1; 24 genomes $8.72
+[03:59:00] [A8C] rejected tune : behavioural twin
+[03:59:02] [A8C] birth A8C1314 (mutate claude-haiku-5-5) of ['A8C1303'] species S1; 24 genomes $8.72
+[03:59:10] [A8C] birth A8C1315 (tune ) of ['A8C1298'] species S1; 24 genomes $8.72
+[03:59:12] [A8C] birth A8C1316 (mutate claude-haiku-5-5) of ['A8C1310'] species S1; 24 genomes $8.72
+[03:59:20] [A8C] birth A8C1317 (tune ) of ['A8C1299'] species S1; 24 genomes $8.73
+[03:59:26] [A8C] birth A8C1318 (mutate claude-haiku-5-5) of ['A8C1233'] species S1; 24 genomes $8.73
+[03:59:33] [A8C] birth A8C1319 (mutate claude-haiku-5-5) of ['A8C1309'] species S1; 24 genomes $8.73
+[03:59:35] [A8C] rejected tune : behavioural twin
+[03:59:42] [A8C] summary: births 1320 deaths 1297 games 327520 $8.73; top [('A8C1300', 44.39, 0.8, 440, 'S1'), ('A8C1254', 44.02, 0.8, 1072, 'S1'), ('A8C1239', 43.79, 0.79, 1120, 'S2')]; top vs anchors {'A8C1300': 0.875, 'A8C1254': 0.844, 'A8C1239': 0.821}
+[03:59:42] [A8C] birth A8C1320 (cross ) of ['A8C1310', 'A8C1237'] species S1; 24 genomes $8.73
+[03:59:45] [A8C] birth A8C1321 (mutate claude-haiku-5-5) of ['A8C1319'] species S1; 24 genomes $8.73
+[03:59:53] [A8C] birth A8C1322 (tune ) of ['A8C1300'] species S1; 24 genomes $8.73
+[03:59:54] [A8C] birth A8C1323 (mutate claude-haiku-5-5) of ['A8C1317'] species S1; 24 genomes $8.73
+[04:00:06] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[04:00:07] [A8C] birth A8C1324 (mutate claude-haiku-5-5) of ['A8C1300'] species S1; 24 genomes $8.73
+[04:00:16] [A8C] birth A8C1325 (mutate claude-haiku-5-5) of ['A8C1313'] species S1; 24 genomes $8.73
+[04:00:20] [A8C] birth A8C1326 (mutate claude-haiku-5-5) of ['A8C1237'] species S1; 24 genomes $9.12
+[04:00:24] [A8C] birth A8C1327 (tune ) of ['A8C1317'] species S1; 24 genomes $9.12
+[04:00:26] [A8C] rejected llm_cross claude-opus-5-5: behavioural twin
+[04:00:35] [A8C] birth A8C1328 (mutate claude-haiku-5-5) of ['A8C1254'] species S1; 24 genomes $9.17
+[04:00:40] [A8C] birth A8C1329 (mutate claude-haiku-5-5) of ['A8C1309'] species S1; 24 genomes $9.17
+[04:00:40] [A8C] summary: births 1330 deaths 1307 games 330112 $9.18; top [('A8C1296', 44.17, 0.8, 480, 'S3'), ('A8C1288', 44.03, 0.8, 664, 'S3'), ('A8C1237', 43.76, 0.82, 1432, 'S1')]; top vs anchors {'A8C1296': 0.775, 'A8C1288': 0.812, 'A8C1237': 0.798}
+[04:00:40] [A8C] birth A8C1330 (mutate claude-opus-5-5) of ['A8C1313'] species S1; 24 genomes $9.17
+[04:00:47] [A8C] birth A8C1331 (mutate claude-haiku-5-5) of ['A8C1320'] species S1; 24 genomes $9.18
+[04:00:54] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[04:01:00] [A8C] birth A8C1332 (mutate claude-haiku-5-5) of ['A8C1237'] species S1; 24 genomes $9.18
+[04:01:03] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
