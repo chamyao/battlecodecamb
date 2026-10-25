@@ -122,3 +122,8 @@ also took 3h35 vs about 80 min unscreened.
 Read: screening pays when effects are large (early, weak populations: the Z runs from the starter) and not when they
 are small (late, strong populations), unless the screen is much bigger (300+ games over many opponents). The panel
 slope after b3240 will confirm or refute this.
+
+Z-20b finished: 481 births in 6h34 (vs 1.7 h for the controls), mirror a788a06. In-arena top Z460 43.8. 540 screens
+(50.7k games, 15.7k CPU-s) plus 34 exploration experiments. From about b140 a loop script wrote the replies: tweaks
+from its hand-written library plus random constant changes, screened, best non-twin sent. Isolation held (no other
+genomes; read genome/search code and the runtime trace hooks). Final panel pending.
