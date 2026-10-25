@@ -1,0 +1,15 @@
+```python
+@gene("a15", "shards of the first k kinds in the turn's split (of the shards SHOP_GOLD pays for); odd shards round toward the earlier kinds, so a short visit (1-3 shards) buys Treasure first instead of the last kind")
+def shard_until(k: Num) -> Num:
+    n = floor(SHOP_GOLD / 30)
+    t = -floor(-n / 2)
+    j = -floor(-(n - t) / 2)
+    s = -floor(-(n - t - j) / 2)
+    if k == 1:
+        return t
+    if k == 2:
+        return t + j
+    if k == 3:
+        return t + j + s
+    return n
+```

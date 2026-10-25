@@ -1,0 +1,21 @@
+```python
+@gene("r13", "every altar-adjacent tile is held and the camp in reach stands on the bank tile (not a monolith-group camp): fight the blocker now instead of waiting for it to weaken")
+def bank_blocked() -> Bool:
+    if valid(bank_t1()) or valid(bank_t2()):
+        return False
+    t = bank_t3()
+    if not (t in camp_spawns()):
+        return False
+    c = reach_camp()
+    return exists(c) and in_reach(c) and not (camp_spawn(c) in MONO_GROUPS) and dist(c.pos, t) <= 1
+
+@gene("m15", "nearest open tile next to an altar that is not enemy-locked (not held by a unit), else any open altar tile, else nearest tile next to any altar")
+def bank_t3() -> Tile:
+    free = ALTAR_RING - taken()
+    good = free - ring(locked_altars(), 1)
+    if size(good) > 0:
+        return closest(good)
+    if size(free) > 0:
+        return closest(free)
+    return closest(ALTAR_RING)
+```

@@ -1,0 +1,7 @@
+```python
+@gene("s15", "the living camp to walk to: camps of the group I stand on first (finish it to capture), never a monolith or golem when another camp is visible, then nearest, then most wounded")
+def live_camp() -> Unit:
+    h = here()
+    g = spawn_group(h)
+    return best(camps(), lambda c: (-1000 if (camp_spawn(c) in BIG_CAMPS or camp_spawn(c) in MONO_GROUPS) else 0) + (30 if g >= 0 and camp_group(c) == g else 0) - dist(h, c.pos) - 2 * c.health_frac)
+```

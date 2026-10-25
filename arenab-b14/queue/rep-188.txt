@@ -1,0 +1,12 @@
+```python
+@gene('r10', 'bank now: carrying gems and the bag is ready, or next to an altar with 3+ gems, or one step from an open altar with 6+ gems (a cheap detour that banks before a fight can take them)', parents=['r10'])
+def bank_on() -> Bool:
+    g = gems()
+    if g <= 0:
+        return False
+    if bag_ready():
+        return True
+    if g >= 3 and valid(adj_altar()):
+        return True
+    return g >= 6 and size((altars() - locked_altars()) & near(here(), 2)) > 0
+```

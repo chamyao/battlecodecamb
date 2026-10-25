@@ -1,0 +1,42 @@
+```python
+@gene("a9", "shopping on spawn: the team's altar lock, then shards: the Treasure carrier puts every shard into Treasure until its emblem (+20% gold) exists, others swap their Treasure share for jungle health; otherwise the policy's split")
+def shop_value(o: Option) -> Num:
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and RULE >= 2 and at_spawn() else 0
+    if RULE < 2 or not at_spawn():
+        return 0
+    if o.item != shop_item():
+        return 0
+    if o.count > shard_left():
+        return 0
+    return 190 + o.count / 100
+
+@gene("new", "the shard this turn's purchase buys: Treasure for the carrier until its emblem, jungle health instead of Treasure for the others, else the split's next shard", parents=["a9"])
+def shop_item() -> Num:
+    k = next_shard()
+    if k < 0:
+        return k
+    if carrier() and items_owned(19) == 0:
+        return 18
+    if k == 18 and not carrier():
+        return 28
+    return k
+
+@gene("new", "this champion carries the team's Treasure: our Vesper Vale, or without one the champion with the lowest type id", parents=["a9"])
+def carrier() -> Bool:
+    if me().type == VESPER_VALE:
+        return True
+    if any(a.type == VESPER_VALE for a in allies()):
+        return False
+    return not any(a.type < me().type for a in allies())
+
+@gene("a16", "units of the next shard still to buy (the Treasure carrier before its emblem: every shard the turn's gold still pays for)")
+def shard_left() -> Num:
+    d = shards_done()
+    if carrier() and items_owned(19) == 0:
+        return max(0, shard_until(4) - d)
+    for k in range(4):
+        if d < shard_until(k + 1):
+            return shard_until(k + 1) - d
+    return 0
+```
