@@ -1,0 +1,9 @@
+```python
+@gene("m8", "spawn tiles of every group with a monolith or a golem (the camp walk leaves these groups alone)")
+def mono_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if any(spawn_type(t) == MONOLITH or spawn_type(t) == GOLEM for t in group_tiles(g)):
+            acc = acc | group_tiles(g)
+    return acc
+```
