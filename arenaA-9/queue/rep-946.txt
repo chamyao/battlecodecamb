@@ -1,0 +1,35 @@
+```python
+@gene('a2', 'value of a cast option: dash on walks and cash-out retreats, cast-ahead, casts and resets of a fight; a self-heal whenever below 60% health; a self-shield below 50% with an enemy champion within 4 (my unit read once)', parents=['a2'])
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        return dash_value(o) if (RULE == 5 or walks()) else 0
+    if k == AB_HEAL or k == AB_SHIELD:
+        m = me()
+        if o.unit == m:
+            if k == AB_HEAL and m.health_frac < 0.6:
+                return 172 - o.slot
+            if k == AB_SHIELD and m.health_frac < 0.5 and enemies_within(4) > 0:
+                return 171 - o.slot
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+@gene('w9', 'the dash landing tile closest to GOAL by walking, ties broken by fewest enemy champions within 3 of it (weighted 15 each), invalid if none; enemy tiles read once', parents=['w9'])
+def dash_spot() -> Tile:
+    h = here()
+    if not valid(GOAL) or GOAL == h:
+        return tile(-1, -1)
+    mine = at(FIELD, h)
+    bk = INF
+    s = tile(-1, -1)
+    ft = foe_tiles()
+    for t in near(h, 2):
+        d = at(FIELD, t)
+        if d < mine and t != h and not (t in BLOCK):
+            if dash_path_ok(t):
+                k = d * 10 + 15 * count(dist(e, t) <= 3 for e in ft)
+                if k < bk:
+                    bk = k
+                    s = t
+    return s
+```

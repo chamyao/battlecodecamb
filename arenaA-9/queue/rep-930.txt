@@ -1,0 +1,14 @@
+```python
+@gene('w7', 'a dash may land on p: a free middle tile next to both ends that no visible enemy champion is adjacent to, unless p is adjacent to me (enemy tiles read once)', parents=['w7'])
+def dash_path_ok(p: Tile) -> Bool:
+    if dist(here(), p) <= 1:
+        return True
+    ft = foe_tiles()
+    return any(dist(q, p) <= 1 and not (q in BLOCK) and not any(dist(e, q) <= 1 for e in ft) for q in dash_mids())
+@gene("s14", "the first visible camp in reach (my tile and range read once)")
+def reach_camp() -> Unit:
+    m = me()
+    h = m.pos
+    r = m.attack_range
+    return best(camps(), lambda c: 1 if dist(h, c.pos) <= r else 0)
+```

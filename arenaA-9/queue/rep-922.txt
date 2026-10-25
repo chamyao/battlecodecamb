@@ -1,0 +1,5 @@
+```python
+@gene('s2', 'standing on our spawn region (my tile tested directly)')
+def at_spawn() -> Bool:
+    return me().pos in my_spawn()
+```
