@@ -1,0 +1,5 @@
+```python
+@gene("w12", "tiles held by something other than a camp (never a goal); allies over 3 away do not hold a goal (they will have moved)")
+def taken() -> Tiles:
+    return blocked() - camp_block() - (ally_tiles() - near(here(), 3))
+```
