@@ -158,3 +158,16 @@
 [09:40:46] [Z] summary: births 90 deaths 67 games 52120 $0.00; top [('Z47', 36.33, 0.8, 1952, 'S30'), ('Z90', 36.33, 6.0, 0, 'S30'), ('Z68', 35.89, 0.79, 992, 'S42')]; top vs anchors {'Z47': 0.875, 'Z68': 1.0, 'Z88': 1.0}
 [09:40:46] [Z] birth Z90 (mutate session) of ['Z47'] species S30; 24 genomes $0.00
 [09:40:47] [Z] birth Z91 (mutate session) of ['Z74'] species S46; 24 genomes $0.00
+[09:47:19] [Z] birth Z92 (mutate session) of ['Z68'] species S42; 24 genomes $0.00
+[09:47:19] [Z] birth Z93 (mutate session) of ['Z85'] species S40; 24 genomes $0.00
+[09:47:20] [Z] birth Z94 (mutate session) of ['Z68'] species S42; 24 genomes $0.00
+[09:47:20] [Z] birth Z95 (mutate session) of ['Z88'] species S32; 24 genomes $0.00
+[09:47:21] [Z] new species S47 founded by Z96
+[09:47:21] [Z] birth Z96 (mutate session) of ['Z89'] species S47; 24 genomes $0.00
+[09:47:23] [Z] new species S48 founded by Z97
+[09:47:23] [Z] birth Z97 (llm_cross session) of ['Z75', 'Z73'] species S48; 24 genomes $0.00
+[09:50:33] [Z] birth Z98 (mutate session) of ['Z61'] species S37; 24 genomes $0.00
+[09:50:34] [Z] birth Z99 (llm_cross session) of ['Z85', 'Z88'] species S40; 24 genomes $0.00
+[09:51:00] [Z] champion anchor champ2-Z92 (mu 35.8)
+[09:51:00] [Z] summary: births 100 deaths 77 games 59176 $0.00; top [('Z92', 35.82, 0.8, 232, 'S42'), ('Z95', 35.75, 0.8, 232, 'S32'), ('Z97', 35.71, 0.79, 288, 'S48')]; top vs anchors {'Z92': 0.5, 'Z95': 0.625, 'Z97': 1.0}
+[09:51:00] [Z] birth Z100 (tune ) of ['Z94'] species S42; 24 genomes $0.00
