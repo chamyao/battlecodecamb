@@ -1,0 +1,11 @@
+--- a/genome/search/arena.py
++++ b/genome/search/arena.py
+@@ -346,7 +346,7 @@
+             gs = self.genomes()
+             parent = self.tournament(gs)
+             u = r.random()
+-            op = "mutate" if u < 0.70 else "cross" if u < 0.85 else "tune"
++            op = "mutate" if u < 0.55 else "cross" if u < 0.85 else "tune"  # arenaZ-9: 55/30/15 (was 70/15/15)
+             partner = None
+             if op == "cross":
+                 same = [m for m in gs if m["species"] == parent["species"] and m["name"] != parent["name"]]

@@ -5,5 +5,6 @@
 - a1-mutate.patch: --a1-mutate, every mutation through a1op.py (arenaZ-4; needs a1op.py and promptexp.py copied in).
 - no-ladder-obs.patch: drops funsearch.catalog's "Observations from today's top-12 ladder games" block from the operator
   system prompt (arenaZ-6).
+- mix-55-30-15.patch: operator mix 55/30/15 (arenaZ-9).
 - arenaZ5-queue.patch: --llm-queue DIR / --queue-timeout / --max-births, every Claude call through queuellm.py (arenaZ-5,
   M2 session mutator; needs queuellm.py and queuewait.py copied in). setup_z5.sh builds such a checkout at runtime 648bafd.
