@@ -1,0 +1,39 @@
+```python
+@gene('Z144d', 'value of casting an ability: damage and stuns focus the weakest fight target, area casts value every target hit, resets after an attack, shields when hurt, heals hurt allies, dashes toward goals or away from danger when low', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + 5 * (1 - o.unit.health_frac)
+            if o.unit.is_camp:
+                if is_awake(o.unit) or (not banking() and me().health_frac > 0.4):
+                    return 75 + 5 * (1 - o.unit.health_frac)
+                return 0
+            return 0
+        if valid(o.tile):
+            if o.tile in fight_tiles():
+                return 76 + size(near(o.tile, slot_radius(o.slot)) & fight_tiles())
+            return 0
+        return 0
+    if k == AB_RESET:
+        return 55 if not can_attack() and target_in_reach() else 0
+    if k == AB_SHIELD:
+        return 70 if me().health_frac < 0.85 and target_in_reach() else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy:
+            return 72 if o.unit.health_frac < 0.6 else 0
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            if me().health_frac < 0.35:
+                return 88 if threat_at(o.tile) < threat_at(me().pos) else 0
+            return 45 if progress(o.tile) >= 1 and threat_at(me().pos) == 0 else 0
+        return 0
+    return 0
+
+@gene('Z144c', 'bank time: carry gems to an altar once the bag holds 16, or any gems near the end', parents=['s2'])
+def banking() -> Bool:
+    g = gems()
+    return g >= 16 or (g >= 8 and me().health_frac < 0.5) or (g > 0 and round() > 1850)
+```

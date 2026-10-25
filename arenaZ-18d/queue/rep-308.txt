@@ -1,0 +1,34 @@
+```python
+@gene('Z9a', 'value of casting an ability: damage and stuns on fight targets, resets after an attack, shields when hurt, heals on hurt allies, dashes toward goals', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + 5 * (1 - o.unit.health_frac)
+            if o.unit.is_camp:
+                return 75 if is_awake(o.unit) or (not banking() and me().health_frac > 0.45) else 0
+            return 0
+        if valid(o.tile):
+            return 78 if o.tile in fight_tiles() else 0
+        return 0
+    if k == AB_RESET:
+        return 55 if not can_attack() and target_in_reach() else 0
+    if k == AB_SHIELD:
+        return 70 if me().health_frac < 0.85 and target_in_reach() else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy:
+            return 72 if o.unit.health_frac < 0.6 else 0
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            if me().health_frac < 0.45:
+                return 88 if threat_at(o.tile) < threat_at(me().pos) else 0
+            return 45 if progress(o.tile) >= 1 and threat_at(me().pos) == 0 else 0
+        return 0
+    return 0
+
+@gene('Z206a', 'how many enemy champions within 3 tiles and awake camps within 4 tiles (their attack reach) of a tile', parents=['Z9a'])
+def threat_at(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= 3 for u in enemies()) + count(dist(u.pos, t) <= 4 and is_awake(u) for u in camps())
+```

@@ -1,0 +1,18 @@
+```python
+@gene('Z41a', 'once per turn: cache the distance field to the goals; walk home when hurt and idle with almost no gems; when healthy, chase a nearby enemy champion that is tributing', parents=['s3'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < 0.5 and gems() < 5 and not target_in_reach():
+        GF = field(my_spawn())
+    else:
+        prey = near(tile(-5, -5), 0)
+        if hf > 0.6:
+            p = me().pos
+            for u in enemies():
+                if dist(u.pos, p) <= 10 and is_tributing(u):
+                    prey = prey | near(u.pos, 1)
+        if size(prey) > 0:
+            GF = field(prey)
+        else:
+            GF = field(goals())
+```
