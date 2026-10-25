@@ -766,3 +766,78 @@ a1op ok
 [01:01:23] [Z] rejected mutate claude-haiku-5-5: type check: the new gene N must compute something safe_progress and threat_decay do not compute now:
 [01:01:27] [Z] new species S195 founded by Z257
 [01:01:27] [Z] birth Z257 (mutate claude-haiku-5-5) of ['Z203'] species S195; 24 genomes $1.97
+[01:01:44] [Z] birth Z258 (tune ) of ['Z252'] species S192; 24 genomes $1.99
+[01:01:44] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:01:44] [Z] new species S196 founded by Z259
+[01:01:44] [Z] birth Z259 (mutate claude-opus-5-5) of ['Z231'] species S196; 24 genomes $1.99
+[01:01:57] [Z] rejected tune : behavioural twin
+[01:02:06] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:02:07] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:02:15] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:02:22] [Z] summary: births 260 deaths 237 games 56440 $1.99; top [('Z258', 31.37, 0.89, 96, 'S192'), ('Z165', 31.19, 0.79, 1344, 'S131'), ('Z216', 30.87, 0.8, 632, 'S170')]; top vs anchors {'Z258': None, 'Z165': 0.688, 'Z216': 0.75}
+[01:02:22] [Z] birth Z260 (mutate claude-haiku-5-5) of ['Z248'] species S177; 24 genomes $1.99
+[01:02:26] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:02:31] [Z] new species S197 founded by Z261
+[01:02:31] [Z] birth Z261 (mutate claude-haiku-5-5) of ['Z216'] species S197; 24 genomes $1.99
+[01:02:34] [Z] rejected tune : behavioural twin
+[01:02:44] [Z] new species S198 founded by Z262
+[01:02:44] [Z] birth Z262 (mutate claude-opus-5-5) of ['Z245'] species S198; 24 genomes $2.02
+[01:02:49] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:02:57] [Z] birth Z263 (llm_cross claude-haiku-5-5) of ['Z229', 'Z258'] species S192; 24 genomes $2.02
+[01:03:04] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:03:09] [Z] new species S199 founded by Z264
+[01:03:09] [Z] birth Z264 (mutate claude-haiku-5-5) of ['Z225'] species S199; 24 genomes $2.02
+[01:03:15] [Z] birth Z265 (tune ) of ['Z245'] species S188; 24 genomes $2.02
+[01:03:19] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:03:33] [Z] birth Z266 (llm_cross claude-haiku-5-5) of ['Z205', 'Z262'] species S198; 24 genomes $2.04
+[01:03:34] [Z] new species S200 founded by Z267
+[01:03:34] [Z] birth Z267 (mutate claude-opus-5-5) of ['Z205'] species S200; 24 genomes $2.04
+[01:03:38] [Z] new species S201 founded by Z268
+[01:03:38] [Z] birth Z268 (mutate claude-haiku-5-5) of ['Z260'] species S201; 24 genomes $2.04
+[01:03:52] [Z] rejected tune : behavioural twin
+[01:03:53] [Z] rejected tune : behavioural twin
+[01:03:56] [Z] new species S202 founded by Z269
+[01:03:56] [Z] birth Z269 (mutate claude-haiku-5-5) of ['Z205'] species S202; 24 genomes $2.04
+[01:04:10] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:04:14] [Z] new species S203 founded by Z270
+[01:04:14] [Z] summary: births 270 deaths 247 games 58376 $2.04; top [('Z231', 31.14, 0.8, 584, 'S180'), ('Z244', 31.04, 0.8, 384, 'S147'), ('Z165', 31.02, 0.79, 1464, 'S131')]; top vs anchors {'Z231': 0.625, 'Z244': 0.5, 'Z165': 0.688}
+[01:04:14] [Z] birth Z270 (mutate claude-haiku-5-5) of ['Z251'] species S203; 24 genomes $2.04
+[01:04:16] [Z] new species S204 founded by Z271
+[01:04:16] [Z] birth Z271 (mutate claude-haiku-5-5) of ['Z203'] species S204; 24 genomes $2.04
+[01:04:23] [Z] new species S205 founded by Z272
+[01:04:23] [Z] birth Z272 (mutate claude-haiku-5-5) of ['Z197'] species S205; 24 genomes $2.04
+[01:04:36] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[01:04:41] [Z] new species S206 founded by Z273
+[01:04:41] [Z] birth Z273 (mutate claude-haiku-5-5) of ['Z244'] species S206; 24 genomes $2.07
+[01:04:43] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:04:52] [Z] new species S207 founded by Z274
+[01:04:52] [Z] birth Z274 (llm_cross claude-haiku-5-5) of ['Z259', 'Z197'] species S207; 24 genomes $2.07
+[01:04:56] [Z] rejected mutate claude-haiku-5-5: type check: both fallback_goals and walk_goals must compute something different from now; only walk_
+[01:05:00] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:05:07] [Z] birth Z275 (tune ) of ['Z231'] species S180; 24 genomes $2.09
+[01:05:10] [Z] birth Z276 (mutate claude-opus-5-5) of ['Z251'] species S183; 24 genomes $2.09
+[01:05:12] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:05:29] [Z] new species S208 founded by Z277
+[01:05:29] [Z] birth Z277 (mutate claude-haiku-5-5) of ['Z265'] species S208; 24 genomes $2.09
+[01:05:31] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:05:33] [Z] new species S209 founded by Z278
+[01:05:33] [Z] birth Z278 (mutate claude-haiku-5-5) of ['Z269'] species S209; 24 genomes $2.09
+[01:05:45] [Z] rejected mutate claude-haiku-5-5: type check: both safe_progress and threat_decay must compute something different from now; only thre
+[01:05:53] [Z] new species S210 founded by Z279
+[01:05:53] [Z] birth Z279 (mutate claude-haiku-5-5) of ['Z269'] species S210; 24 genomes $2.11
+[01:05:53] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[01:06:02] [Z] rejected mutate claude-haiku-5-5: EditError: modified fixed gene s4 (widened_goals)
+[01:06:05] [Z] new species S211 founded by Z280
+[01:06:05] [Z] summary: births 280 deaths 257 games 60424 $2.12; top [('Z244', 31.67, 0.79, 528, 'S147'), ('Z265', 31.5, 0.81, 248, 'S188'), ('Z216', 31.27, 0.79, 896, 'S170')]; top vs anchors {'Z244': 0.5, 'Z265': None, 'Z216': 0.708}
+[01:06:05] [Z] birth Z280 (tune ) of ['Z229'] species S211; 24 genomes $2.12
+[01:06:08] [Z] new species S212 founded by Z281
+[01:06:08] [Z] birth Z281 (llm_cross claude-haiku-5-5) of ['Z246', 'Z244'] species S212; 24 genomes $2.12
+[01:06:16] [Z] new species S213 founded by Z282
+[01:06:16] [Z] birth Z282 (mutate claude-haiku-5-5) of ['Z244'] species S213; 24 genomes $2.12
+[01:06:18] [Z] rejected mutate claude-haiku-5-5: type check: the new gene N must compute something goals_plus and fallback_goals do not compute now: 
+[01:06:23] [Z] rejected mutate claude-haiku-5-5: type check: the new gene N must compute something safe_progress and goal_bonus_progress do not compu
+[01:06:27] [Z] rejected tune : behavioural twin
+[01:06:34] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[01:06:40] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:06:43] [Z] new species S214 founded by Z283
+[01:06:43] [Z] birth Z283 (mutate claude-haiku-5-5) of ['Z244'] species S214; 24 genomes $2.14
