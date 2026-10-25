@@ -1,0 +1,9 @@
+```python
+@gene('a12', 'dash this turn: retreat with fuel > 30k; bank walks with GOAL over 1 away, other walking rules over 2 away, fuel > 35k')
+def dash_gate() -> Bool:
+    if RULE == 3:
+        return fuel() > 30000
+    if not walks() or not valid(GOAL) or fuel() <= 35000:
+        return False
+    return dist(here(), GOAL) > (1 if (RULE == 11 or RULE == 12) else 2)
+```
