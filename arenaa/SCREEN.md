@@ -95,3 +95,19 @@ reply by hand. A clean control. Its final population is to be scored once. For c
 3h09-4h19 for the same births.
 Z-21b (control) finished: 480 births in ~1h46m, mirror 5ae78119; in-arena top Z445 38.1. Its writer attests to no games
 and no other genomes. Both controls are clean. Final-population panels requested for all Z-18/19/20/21 runs.
+
+## Interim finals (13:06 UTC, /880, final populations, all clean)
+
+| run | screening | cull | births | wall | best | top-3 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Z-21a | none (control) | legacy | 478 | 1.7 h | 371 | 354 |
+| Z-21b | none (control) | legacy | 480 | 1.7 h | 335 | 316 |
+| Z-18b | self-screened | legacy | 477 | ~1.7 h | 610 | 607 |
+| Z-19a | self-screened | legacy | 478 | 3.2 h | 346 | 322 |
+| Z-19b | self-screened | legacy | 476 | 2.1 h | 513 | 508 |
+| Z-19c | self-screened | min-mu | 475 | 2.9 h | 479 | 463 |
+| Z-20b | screening allowed | legacy | 226 (running) | | 478 at m2 | |
+
+Screening is not uniformly better: Z-19a (screened, 346) is below control Z-21a (371). The screened runs spread
+widely (346-610), while the controls are tight (335-371). The mean is higher with screening (legacy screened 18b/19a/19b
+mean 490 vs controls 353), but n is small and the screening varied. Z-20a/b (screening from the start, explicit) decide.
