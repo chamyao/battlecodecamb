@@ -1,0 +1,34 @@
+```python
+@gene('a3', 'cast-ahead: damage, area or stun (slot kind k) on a close enemy champion before it reaches us; big bonus when the cast kills', parents=['a3'])
+def ahead_value(o: Option, k: Num) -> Num:
+    f = ahead_foe()
+    if not exists(f) or RULE < 6 or k == AB_SHIELD or k == AB_HEAL or k == AB_RESET or not ahead_on():
+        return 0
+    near_foe = dist(o.tile, f.pos) <= 1
+    if k == AB_AOE:
+        if not near_foe:
+            return 0
+    elif o.tile != f.pos:
+        return 0
+    base = 180 - o.slot
+    if k == AB_CC and threat_eta() <= 2:
+        base += 20
+    if k == AB_DAMAGE and f.health_frac < 0.3:
+        base += 30
+    if (k == AB_DAMAGE or k == AB_AOE) and cast_damage(me(), o.slot, f) >= f.health + shield(f):
+        base += 40
+    return base
+
+@gene('a2', 'value of a cast option: dash on walks and cash-out retreats, cast-ahead, casts and resets of a fight; a self-heal whenever below 60% health; a self-shield whenever an enemy champion can hit us next turn', parents=['a2'])
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        return dash_value(o) if (RULE == 3 or RULE == 20 or RULE == 5 or walks()) else 0
+    if k == AB_HEAL and o.unit == me() and me().health_frac < 0.6:
+        return 172 - o.slot
+    if k == AB_SHIELD and o.unit == me() and threat_eta() <= 1:
+        return 168 - o.slot
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+```

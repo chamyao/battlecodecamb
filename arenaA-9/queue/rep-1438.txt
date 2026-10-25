@@ -1,0 +1,14 @@
+```python
+@gene("w5", "walking field to GOAL, searched out to my own tile; carrying 5+ gems, it routes around tiles next to visible enemy champions when such a path exists")
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    h = near(here(), 0)
+    b = BLOCK - g
+    if gems() >= 5:
+        et = enemy_tiles()
+        if size(et) > 0:
+            f = field_avoid(g, (b | ring(et, 1)) - g - h, h)
+            if at(f, here()) < 1000000:
+                return f
+    return field_avoid(g, b, h)
+```
