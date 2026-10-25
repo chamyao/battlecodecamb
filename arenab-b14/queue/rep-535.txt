@@ -1,0 +1,6 @@
+```python
+@gene('B2249d', 'the nearest visible enemy champion, preferring the weaker one at similar range, a gem carrier, and above all one channelling a tribute or recall (a cast cancels it); champions on their own spawn are skipped', parents=['a4'])
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    return best(enemies(), lambda u: -1000 if u.pos in es else -dist(here(), u.pos) - 2 * u.health_frac + unit_gems(u) / 5 + (60 if is_tributing(u) or is_recalling(u) else 0))
+```

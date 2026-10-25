@@ -1,0 +1,15 @@
+```python
+@gene("s12", "summed strength of the living camps in the group spawning on t, each seen camp weighted by its health fraction (a half-dead group is half the danger; unseen camps at design strength)")
+def group_threat(t: Tile) -> Num:
+    g = spawn_group(t)
+    if g < 0:
+        return 0
+    acc = 0
+    for s in group_tiles(g):
+        seen = count(camp_spawn(c) == s for c in camps())
+        if seen > 0:
+            acc += sum(c.strength * c.health_frac for c in camps() if camp_spawn(c) == s)
+        elif not visible(s):
+            acc += camp_base_strength(spawn_type(s))
+    return acc
+```

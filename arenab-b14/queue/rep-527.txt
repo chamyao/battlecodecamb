@@ -1,0 +1,21 @@
+```python
+@gene('m11', "the camp walk's goal: nearest non-big spawn of a live group, falling back to any non-big camp spawn, then any camp spawn; after round 250 the nearest live gem-paying group under 300 design strength comes first unless it is over 15 tiles farther (gold-only groups add no score)")
+def camp_goal() -> Tile:
+    live = CAMP_BASE - respawning() - BIG_CAMPS
+    t = closest(live)
+    if round() > 250:
+        gem = live - live
+        for g in range(num_groups()):
+            if group_gems(g) > 0 and sum(camp_base_strength(spawn_type(s)) for s in group_tiles(g)) < 300:
+                gem = gem | (group_tiles(g) & live)
+        if size(gem) > 0:
+            tg = closest(gem)
+            if valid(tg) and (not valid(t) or dist(here(), tg) <= dist(here(), t) + 15):
+                return tg
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```
