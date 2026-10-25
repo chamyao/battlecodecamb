@@ -294,3 +294,7 @@ Target from the Arena B lead: v29 vs builtin:idle (80 games, bot seeds) wins 80/
 | v29-runlanch | lanchE + v29-run | 2.6 | — | 44/80 vs v29, but paired: B318 -6 (5 up / 11 down), L1 -6 (4 / 10) |
 
 Not a pass. The gate removes most monster deaths on starvation and starfish (33 → 0, 15.5 → 0.5). But no version keeps v29's gems on maps where a strong group is the main gem source (stampede, pilgrimage, elk-arena). v29-run (directed/) is the narrow alternative that passes.
+
+## Superseded (2026-10-25)
+
+A81582-ringgg (Arena B lead: real 0-2 on pilgrimage, gold-rush and broken-curve, so withdrawn) and A81582-rgheal (heal fix on it: vs idle reverse-spiral 115 -> 1007, rushbait 16 -> 1006; 42/80 vs A81582-ringgg; anchors unchanged). Superseded by genome/arenab/cand/A81582-ringheal.genome (real 55/80 vs v29).
