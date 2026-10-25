@@ -112,3 +112,8 @@ Z-18a also ran to 477 births despite the stop (afb50dd). It stays void: it copie
 own games including against seeds/v23 (an evolved policy), and auto-answered with a script from about request 245.
 Z-19c (min-mu, screened from seq 9 to ~355, scripted from ~seq 199) finished at 475 births (0697f7f); in-arena top
 Z417 43.1. Panel final pending.
+Z-19a (legacy) finished at 478 births (33a7b387); in-arena top Z469 40.1. It also screened (genome_eval on its own
+children) and scripted replies from ~b230; it rewrote rep-335/337/339 after the arena had consumed them. Its findings on
+the panel maps: the genome starter's near(altar,1) goal set scores 0 on 00road-of-riches (fixed by subtracting
+walls/holes/altars); 01yellow-brick-road suspends genomes about 960 times per game (0 gems for every genome on 648bafd).
+So all four Z-19 runs are screened. The cull comparison stands as screened-vs-screened.
