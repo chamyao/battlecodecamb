@@ -1,0 +1,125 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+LOW: Bool = False
+HF: Field = None
+HSET: Bool = False
+ET: Tiles = None
+HEALING: Bool = False
+RECALLING: Bool = False
+
+@gene('Z72a', 'value of doing this option now; do not break recalls, heal up on spawn before leaving, retreat with hysteresis; focus low enemies, finish awake camps even with gems', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if RECALLING or HEALING:
+            return 0
+        return 90 if LOW or me().health_frac < 0.4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if me().health_frac < 0.25 and o.unit.health_frac > 0.3:
+                return 0
+            return 80 + 8 * (1 - o.unit.health_frac) + unit_gems(o.unit) / 10
+        if RECALLING or LOW:
+            return 0
+        if gems() == 0:
+            return 60 + 4 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 55 + 4 * (1 - o.unit.health_frac)
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if RECALLING or HEALING:
+            return 0
+        p = progress(o.tile)
+        return 49 + p if p > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'how much closer a step brings me to the goals, or home when retreating (cached fields), avoiding tiles near visible enemies while retreating')
+def progress(t: Tile) -> Num:
+    if LOW:
+        here = me().pos
+        base = at(HF, here) - at(HF, t)
+        dnow = sum(1 for e in ET if dist(e, here) <= 2)
+        dthere = sum(1 for e in ET if dist(e, t) <= 2)
+        return base + 0.6 * (dnow - dthere)
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z72b', 'per turn: retreat hysteresis (40%/50% with gems, until 90%), cached home field, enemy tiles when retreating, goal field otherwise; note recall/healing state', parents=['Z4a'])
+def update() -> None:
+    hf = me().health_frac
+    RECALLING = is_recalling(me())
+    HEALING = hf < 0.9 and (me().pos in my_spawn())
+    if LOW:
+        if hf > 0.9:
+            LOW = False
+    else:
+        lim = 0.4
+        if gems() >= 40:
+            lim = 0.5
+        if hf < lim and not channeling():
+            LOW = True
+    if LOW:
+        if not HSET:
+            HF = field(my_spawn())
+            HSET = True
+        if not RECALLING and not HEALING:
+            ET = enemy_tiles()
+    else:
+        GF = goal_field()
+
+@gene('Z72c', 'value of casting: focus low enemies, keep fighting awake camps, shield in fights near enemies or awake camps, dash toward goals or home when retreating', parents=['Z4b'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 75 + 20 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and not RECALLING:
+                if gems() == 0 and not LOW:
+                    return 55 + 10 * (1 - o.unit.health_frac)
+                if is_awake(o.unit) and hf > 0.35:
+                    return 50
+        return 0
+    if k == AB_SHIELD:
+        if hf < 0.95:
+            if count(dist(u.pos, me().pos) <= 4 for u in enemies()) > 0:
+                return 72
+            if hf < 0.7 and any(is_awake(c) and dist(c.pos, me().pos) <= 2 for c in camps()):
+                return 70
+        return 0
+    if k == AB_HEAL:
+        return 72 if hf < 0.6 else 0
+    if k == AB_DASH:
+        if RECALLING or HEALING:
+            return 0
+        if valid(o.tile) and (LOW or hf > 0.5):
+            p = progress(o.tile)
+            return 45 + p if p >= 2 else 0
+        return 0
+    return 0
