@@ -53,10 +53,16 @@ def fmt(v):
     return repr(v) if isinstance(v, float) else str(v)
 
 
+# economy first (Arena B lead, Oct 25: the band gap is gold / item points)
+ECON = ['treas', 'jung', 'str', 'cash_min', 'cash_f0', 'cash_fmax', 'cash_eta', 'recall_hp', 'run_hp', 'bag', 'bag10',
+        'bag_eta', 'bag_thr', 'bag_round', 'bag_hp', 'adj_bank', 'pref_gems', 'pref_eta', 'bg_gems', 'bg_thr', 'bg_fuel',
+        'mono_round']
+
+
 def variants():
     base = tb.base_text()
     out = []
-    for name, tpl, cur, vals in KNOBS:
+    for name, tpl, cur, vals in sorted(KNOBS, key=lambda k: (k[0] not in ECON, ECON.index(k[0]) if k[0] in ECON else 0)):
         old = tpl.format(fmt(cur))
         assert base.count(old) == 1, (name, old, base.count(old))
         for v in vals:
