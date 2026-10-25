@@ -99,3 +99,81 @@
 [02:10:34] [Z] birth Z35 (mutate claude-haiku-5-5) of ['Z10'] species S4; 24 genomes $0.21
 [02:10:34] [Z] new species S16 founded by Z36
 [02:10:34] [Z] birth Z36 (mutate claude-opus-5-5) of ['Z11'] species S16; 24 genomes $0.21
+[02:10:42] [Z] new species S17 founded by Z37
+[02:10:42] [Z] birth Z37 (mutate claude-haiku-5-5) of ['Z18'] species S17; 24 genomes $0.21
+[02:10:45] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 44: expected Bool, got Num
+[02:10:47] [Z] birth Z38 (mutate claude-haiku-5-5) of ['Z27'] species S10; 24 genomes $0.21
+[02:10:57] [Z] birth Z39 (mutate claude-haiku-5-5) of ['Z17'] species S8; 24 genomes $0.21
+[02:10:57] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:11:01] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:11:05] [Z] summary: births 40 deaths 17 games 6720 $0.21; top [('Z27', 31.92, 0.88, 176, 'S10'), ('Z38', 30.89, 1.02, 104, 'S10'), ('Z36', 28.94, 0.94, 88, 'S16')]; top vs anchors {'Z27': None, 'Z38': None, 'Z36': 0.75}
+[02:11:05] [Z] birth Z40 (tune ) of ['seed'] species S0; 24 genomes $0.21
+[02:11:10] [Z] birth Z41 (mutate claude-haiku-5-5) of ['Z27'] species S10; 24 genomes $0.21
+[02:11:18] [Z] birth Z42 (tune ) of ['Z31'] species S14; 24 genomes $0.24
+[02:11:19] [Z] new species S18 founded by Z43
+[02:11:19] [Z] birth Z43 (mutate claude-opus-5-5) of ['Z36'] species S18; 24 genomes $0.24
+[02:11:21] [Z] rejected tune : behavioural twin
+[02:11:29] [Z] split Z36.score: applied (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", 'ok']) $0.0025
+[02:11:33] [Z] birth Z44 (mutate claude-haiku-5-5) of ['Z31'] species S14; 24 genomes $0.25
+[02:11:34] [Z] new species S19 founded by Z45
+[02:11:34] [Z] birth Z45 (mutate claude-haiku-5-5) of ['Z36'] species S19; 24 genomes $0.25
+[02:11:42] [Z] new species S20 founded by Z46
+[02:11:42] [Z] birth Z46 (mutate claude-haiku-5-5) of ['Z41'] species S20; 24 genomes $0.25
+[02:11:45] [Z] new species S21 founded by Z47
+[02:11:45] [Z] birth Z47 (tune ) of ['Z36'] species S21; 24 genomes $0.25
+[02:11:50] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:11:55] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 63: gene goal_field redefined or shadows a builtin
+[02:12:00] [Z] birth Z48 (tune ) of ['Z36'] species S16; 24 genomes $0.25
+[02:12:00] [Z] birth Z49 (mutate claude-haiku-5-5) of ['Z27'] species S10; 24 genomes $0.25
+[02:12:01] [Z] new species S22 founded by Z50
+[02:12:01] [Z] champion anchor champ1-Z41 (mu 31.5)
+[02:12:01] [Z] summary: births 50 deaths 27 games 7800 $0.25; top [('Z41', 31.46, 0.95, 128, 'S10'), ('Z49', 31.34, 6.0, 0, 'S10'), ('Z50', 29.78, 6.0, 0, 'S22')]; top vs anchors {'Z41': 0.875, 'Z45': None, 'Z46': None}
+[02:12:01] [Z] birth Z50 (llm_cross claude-haiku-5-5) of ['Z46', 'Z41'] species S22; 24 genomes $0.25
+[02:12:21] [Z] new species S23 founded by Z51
+[02:12:21] [Z] birth Z51 (mutate claude-haiku-5-5) of ['Z21'] species S23; 24 genomes $0.28
+[02:12:29] [Z] new species S24 founded by Z52
+[02:12:29] [Z] birth Z52 (mutate claude-opus-5-5) of ['Z49'] species S24; 24 genomes $0.28
+[02:12:33] [Z] split Z43.score: discarded (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", "not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's"]) $0.0021
+[02:12:38] [Z] birth Z53 (mutate claude-haiku-5-5) of ['Z48'] species S16; 24 genomes $0.28
+[02:12:39] [Z] birth Z54 (tune ) of ['Z50'] species S22; 24 genomes $0.28
+[02:12:47] [Z] birth Z55 (mutate claude-haiku-5-5) of ['Z29'] species S12; 24 genomes $0.28
+[02:12:54] [Z] birth Z56 (tune ) of ['Z22'] species S11; 24 genomes $0.28
+[02:12:57] [Z] birth Z57 (mutate claude-haiku-5-5) of ['Z29'] species S12; 24 genomes $0.28
+[02:13:05] [Z] birth Z58 (mutate claude-haiku-5-5) of ['Z41'] species S20; 24 genomes $0.28
+[02:13:14] [Z] birth Z59 (mutate claude-haiku-5-5) of ['Z54'] species S22; 24 genomes $0.28
+[02:13:17] [Z] summary: births 60 deaths 37 games 9224 $0.28; top [('Z41', 31.25, 0.88, 168, 'S10'), ('Z60', 30.97, 6.0, 0, 'S19'), ('Z52', 30.56, 0.89, 128, 'S24')]; top vs anchors {'Z41': 0.875, 'Z52': 0.875, 'Z53': 0.75}
+[02:13:17] [Z] birth Z60 (mutate claude-haiku-5-5) of ['Z45'] species S19; 24 genomes $0.28
+[02:13:23] [Z] new species S25 founded by Z61
+[02:13:23] [Z] birth Z61 (mutate claude-haiku-5-5) of ['Z13'] species S25; 24 genomes $0.28
+[02:13:35] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:13:40] [Z] new species S26 founded by Z62
+[02:13:40] [Z] birth Z62 (llm_cross claude-haiku-5-5) of ['Z44', 'Z58'] species S26; 24 genomes $0.29
+[02:13:55] [Z] split Z57.cast_value: discarded (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", "not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's"]) $0.0034
+[02:13:58] [Z] new species S27 founded by Z63
+[02:13:58] [Z] birth Z63 (mutate claude-haiku-5-5) of ['Z56'] species S27; 24 genomes $0.32
+[02:14:00] [Z] birth Z64 (mutate claude-opus-5-5) of ['Z52'] species S24; 24 genomes $0.32
+[02:14:09] [Z] birth Z65 (mutate claude-haiku-5-5) of ['Z41'] species S10; 24 genomes $0.32
+[02:14:16] [Z] rejected mutate claude-haiku-5-5: GenomeError: move_value line 60: expected Bool, got Num
+[02:14:18] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[02:14:19] [Z] new species S28 founded by Z66
+[02:14:19] [Z] birth Z66 (mutate claude-haiku-5-5) of ['Z60'] species S28; 24 genomes $0.32
+[02:14:31] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:14:36] [Z] birth Z67 (mutate claude-haiku-5-5) of ['Z64'] species S24; 24 genomes $0.33
+[02:14:37] [Z] birth Z68 (mutate claude-haiku-5-5) of ['Z22'] species S11; 24 genomes $0.33
+[02:14:39] [Z] new species S29 founded by Z69
+[02:14:39] [Z] birth Z69 (tune ) of ['Z64'] species S29; 24 genomes $0.33
+[02:14:48] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 34: gene consider redefined or shadows a builtin
+[02:14:53] [Z] new species S30 founded by Z70
+[02:14:53] [Z] summary: births 70 deaths 47 games 11040 $0.33; top [('Z65', 31.74, 0.86, 152, 'S10'), ('Z69', 31.44, 1.0, 80, 'S29'), ('Z67', 30.39, 1.01, 72, 'S24')]; top vs anchors {'Z65': 0.875, 'Z69': 0.875, 'Z67': None}
+[02:14:53] [Z] birth Z70 (tune ) of ['Z67'] species S30; 24 genomes $0.33
+[02:15:04] [Z] new species S31 founded by Z71
+[02:15:04] [Z] birth Z71 (mutate claude-opus-5-5) of ['Z53'] species S31; 24 genomes $0.35
+[02:15:05] [Z] new species S32 founded by Z72
+[02:15:05] [Z] birth Z72 (mutate claude-haiku-5-5) of ['Z65'] species S32; 24 genomes $0.35
+[02:15:18] [Z] birth Z73 (mutate claude-haiku-5-5) of ['Z44'] species S14; 24 genomes $0.35
+[02:15:24] [Z] birth Z74 (mutate claude-haiku-5-5) of ['Z72'] species S32; 24 genomes $0.35
+[02:15:30] [Z] rejected mutate claude-haiku-5-5: EditError: no change
+[02:15:32] [Z] split Z57.cast_value: discarded (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", "not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's"]) $0.0031
+[02:15:33] [Z] birth Z75 (mutate claude-haiku-5-5) of ['Z62'] species S26; 24 genomes $0.36
+[02:15:34] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 82: gene update redefined or shadows a builtin
+[02:15:41] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 86: cannot assign to near
