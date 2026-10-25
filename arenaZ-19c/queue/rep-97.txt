@@ -1,0 +1,15 @@
+```python
+@gene('Z103a', 'the shard to buy next: Treasure, then Jungle, then Bruiser, in focus for Marcella and Heart of Ruin, health for Ryth, else strength', parents=['s1'])
+def next_shard() -> Num:
+    t = me().type
+    s = 0
+    if t == MARCELLA or t == HEART_OF_RUIN:
+        s = 2
+    if t == RYTH:
+        s = 4
+    if items_owned(19 + s) == 0:
+        return 18 + s
+    if items_owned(25 + s) == 0 and me().attack_range <= 1:
+        return 24 + s
+    return 36 + s
+```

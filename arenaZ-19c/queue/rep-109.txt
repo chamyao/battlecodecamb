@@ -1,0 +1,27 @@
+```python
+@gene('Z51a', 'distance from tile t to the nearest enemy champion or awake camp (99 if none seen)', parents=['s1'])
+def threat_gap(t: Tile) -> Num:
+    d = 99
+    if size(TH) > 0:
+        d = dist(t, nearest(TH, t))
+    e = enemy_tiles()
+    if size(e) > 0:
+        d = min(d, dist(t, nearest(e, t)) - 1)
+    return d
+
+@gene('Z51b', 'once per turn: cache the goal field and the tiles of enemy champions and awake camps', parents=['s3'])
+def update() -> None:
+    g = goals()
+    sig = size(g) + 10000 * size(g & near(me().pos, 0))
+    if sig != GSIG or round() % 25 == 0:
+        GF = field(g)
+        GSIG = sig
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        acc = acc | near(u.pos, 0)
+    for c in camps():
+        if is_awake(c):
+            acc = acc | near(c.pos, 0)
+    TH = acc
+    set_priority(1 if gems() >= 8 else 0)
+```

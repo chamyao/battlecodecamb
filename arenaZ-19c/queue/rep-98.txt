@@ -1,0 +1,10 @@
+```python
+@gene('Z94b', 'which stat line this champion shops: 0 strength, 2 focus, 4 health', parents=['s1'])
+def shop_stat() -> Num:
+    t = me().type
+    if t == MARCELLA or t == HEART_OF_RUIN:
+        return 2
+    if t == RYTH:
+        return 4
+    return 0
+```
