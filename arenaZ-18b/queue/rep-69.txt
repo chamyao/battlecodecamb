@@ -1,0 +1,8 @@
+```python
+
+@gene("new", "which option kinds to list each pass: skip wards, locks and cancels that are never taken, saving their listing fuel", parents=["s1"])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    return True
+```

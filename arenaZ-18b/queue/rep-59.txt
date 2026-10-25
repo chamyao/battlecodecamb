@@ -1,0 +1,11 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; when outnumbered by enemy champions nearby, how much closer to my spawn")
+def progress(t: Tile) -> Num:
+    foes = count(u.is_champion and dist(u.pos, me().pos) <= 5 for u in enemies())
+    if foes >= 2:
+        friends = count(dist(a.pos, me().pos) <= 5 for a in allies())
+        if foes > friends:
+            h = field(my_spawn())
+            return at(h, me().pos) - at(h, t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

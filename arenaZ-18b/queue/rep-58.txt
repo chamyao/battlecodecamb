@@ -1,0 +1,25 @@
+```python
+
+@gene("s2", "where to walk: home when hurt, an altar with gems, else the camp group (not monolith or golem) with the best loot for its distance")
+def goals() -> Tiles:
+    if me().health_frac < 0.35:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    bestv = -1
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            n = nearest(ts, me().pos)
+            k = spawn_type(n)
+            if k != MONOLITH and k != GOLEM:
+                v = (group_gems(g) + group_gold(g) / 20 + 2) / (dist(n, me().pos) + 6)
+                if v > bestv:
+                    bestv = v
+                    acc = ts
+    return acc
+```
