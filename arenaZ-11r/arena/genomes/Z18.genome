@@ -1,0 +1,49 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_FIELD: Field = None
+
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 0.975
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 35 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.7786)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals (cached per turn)')
+def goal_field() -> Field:
+    return GOAL_FIELD
+
+@gene('s4', 'goal progress; steps onto occupied allied tiles are heavily penalized')
+def progress(t: Tile) -> Num:
+    if t in ally_tiles():
+        return -67
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z5a', 'per-turn cache of the distance field to the goals', parents=['s3'])
+def update() -> None:
+    GOAL_FIELD = field(goals())
