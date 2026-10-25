@@ -4398,3 +4398,24 @@
 [10:18:33] [B] birth B2293 (mutate session) of ['B2274'] species S4; 24 genomes $11.08
 [10:19:02] [B] rejected tune : behavioural twin
 [10:19:14] [B] rejected mutate session: behavioural twin
+[10:19:28] [B] birth B2294 (llm_cross session) of ['B2176', 'B2293'] species S4; 24 genomes $11.08
+[10:19:50] [B] birth B2295 (tune ) of ['B2271'] species S10; 24 genomes $11.08
+[10:20:21] [B] rejected mutate session: behavioural twin
+[10:20:28] [B] birth B2296 (mutate session) of ['B2284'] species S9; 24 genomes $11.08
+[10:20:33] [B] rejected mutate session: behavioural twin
+[10:20:49] [B] birth B2297 (mutate session) of ['B2197'] species S11; 24 genomes $11.08
+[10:21:10] [B] birth B2298 (mutate session) of ['B2292'] species S11; 24 genomes $11.08
+[10:21:17] [B] rejected mutate session: behavioural twin
+[10:21:21] [B] rejected tune : solo-farm: 74036 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 596
+[10:21:42] [B] rejected cross : solo-farm: 60609 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 583
+[10:21:44] [B] rejected tune : behavioural twin
+[10:21:55] [B] birth B2299 (mutate session) of ['B2271'] species S10; 24 genomes $11.08
+[10:22:10] [B] rejected mutate session: behavioural twin
+[10:22:24] [B] champion anchor champ46-B2295 (mu 48.9)
+[10:22:24] [B] summary: births 2300 deaths 2277 games 573688 $11.08; top [('B2295', 48.95, 0.83, 240, 'S10'), ('B2300', 47.83, 6.0, 0, 'S10'), ('B2180', 47.51, 0.8, 1560, 'S6')]; top vs anchors {'B2295': 0.609, 'B2180': 0.673, 'B2195': 0.649}
+[10:22:24] [B] 2300 births (--max-births 2300): no more births
+[10:22:24] [B] birth B2300 (cross ) of ['B2295', 'B2299'] species S10; 24 genomes $11.08
+[10:22:36] [B] birth B2301 (mutate session) of ['B2195'] species S11; 24 genomes $11.08
+[10:22:41] [B] birth B2302 (mutate session) of ['B2284'] species S9; 24 genomes $11.08
+[10:24:14] [B] summary: births 2302 deaths 2279 games 575536 $11.08; top [('B2295', 49.12, 0.84, 328, 'S10'), ('B2210', 47.73, 0.8, 1352, 'S6'), ('B2293', 47.57, 0.83, 344, 'S4')]; top vs anchors {'B2295': 0.682, 'B2210': 0.638, 'B2293': 0.736}
+[10:24:16] [B] done: spent $11.08

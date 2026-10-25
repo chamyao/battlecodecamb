@@ -1,0 +1,15 @@
+```python
+@gene('a11', 'next shard to buy: half treasure strength, half the rest jungle health, then power strength for the rest (strength wins fights and kill shots); Treasure shards go to one carrier until its emblem (5 matching shards, +20% gold) is complete, the others buy jungle health in that share')
+def next_shard() -> Num:
+    d = shards_done()
+    c = treas_carrier()
+    if c and items_owned(19) == 0:
+        return 18
+    if d < shard_until(1):
+        return 18 if c else 28
+    if d < shard_until(2):
+        return 28
+    if d < shard_until(4):
+        return 6
+    return -1
+```
