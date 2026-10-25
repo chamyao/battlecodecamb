@@ -53,16 +53,48 @@ def fmt(v):
     return repr(v) if isinstance(v, float) else str(v)
 
 
+# rh-mono-all (A8 lineage, v31 candidate): knobs whose snippet changed, and its own constants
+RH = [
+    ('cash_f0', 'f = min(0.85, {} + g / 60)', 0.5, [0.4, 0.45, 0.55, 0.6]),
+    ('cash_fmax', 'f = min({}, 0.5 + g', 0.85, [0.75, 0.8, 0.9, 0.95]),
+    ('cash_slope', 'f = min(0.85, 0.5 + g / {})', 60, [40, 50, 80, 100]),
+    ('bag10', 'or (g >= {} and altar_eta() <= 3) or (g >= 13 and threat', 10, [5, 6, 7, 8, 12]),
+    ('bag_eta', 'altar_eta() <= {}) or (g >= 13 and threat', 3, [2, 4, 5]),
+    ('bag_thr', 'or (g >= {} and threat_near()) or round()', 13, [10, 11, 15, 17]),
+    ('thr_r', 'return enemies_within({}) > 0 or enemies_within(9)', 5, [3, 4, 6, 7]),
+    ('thr2_r', 'or enemies_within({}) >= 2 or (hurt', 9, [7, 8, 10, 12]),
+    ('mono_round', 'MONO_ONLY) and round() > {}:', 800, [500, 650, 1000, 1200]),
+    ('mono2_round', 'return round() > {} and team_gems() < enemy_gems()', 1000, [700, 850, 1200, 1400]),
+    ('mono2_allies', 'size(ally_tiles() & near(here(), 6)) >= {}', 4, [3, 5]),
+    ('fir_hp', 'for u in enemies() if u.health_frac > {} or unit_gems(u) > 0)', 0.2, [0, 0.1, 0.3, 0.4]),
+    ('ahead_r', 'return d <= {} or (d <= 7 and f.health_frac < 0.3)', 5, [3, 4, 6, 7]),
+    ('ahead_fin_r', 'or (d <= {} and f.health_frac < 0.3)', 7, [6, 8, 9]),
+    ('ahead_hpw', '- 15 * u.health_frac)', 15, [5, 10, 25, 40]),
+    ('gg_buys', 'if BUYS >= {} and size(GEM_BASE) > 0:', 6, [3, 4, 8, 10, 99]),
+    ('gg_str', 'for t in group_tiles(g)) < {}:', 300, [200, 250, 400, 500]),
+    ('heal_hp', 'me().health_frac < {}:\n        return 172', 0.6, [0.4, 0.5, 0.7, 0.8]),
+]
+
+
+def knobs(text):
+    """KNOBS with the RH overrides, keeping only knobs whose snippet occurs exactly once in text."""
+    by = {k[0]: k for k in KNOBS}
+    for k in RH:
+        if text.count(k[1].format(fmt(k[2]))) == 1:
+            by[k[0]] = k
+    return [k for k in by.values() if text.count(k[1].format(fmt(k[2]))) == 1]
+
+
 # economy first (Arena B lead, Oct 25: the band gap is gold / item points)
-ECON = ['treas', 'jung', 'str', 'cash_min', 'cash_f0', 'cash_fmax', 'cash_eta', 'recall_hp', 'run_hp', 'bag', 'bag10',
+ECON = ['treas', 'jung', 'str', 'gg_buys', 'gg_str', 'cash_min', 'cash_f0', 'cash_fmax', 'cash_slope', 'cash_eta', 'recall_hp', 'run_hp', 'bag', 'bag10',
         'bag_eta', 'bag_thr', 'bag_round', 'bag_hp', 'adj_bank', 'pref_gems', 'pref_eta', 'bg_gems', 'bg_thr', 'bg_fuel',
         'mono_round']
 
 
-def variants():
-    base = tb.base_text()
+def variants(base=None):
+    base = base or tb.base_text()
     out = []
-    for name, tpl, cur, vals in sorted(KNOBS, key=lambda k: (k[0] not in ECON, ECON.index(k[0]) if k[0] in ECON else 0)):
+    for name, tpl, cur, vals in sorted(knobs(base), key=lambda k: (k[0] not in ECON, ECON.index(k[0]) if k[0] in ECON else 0)):
         old = tpl.format(fmt(cur))
         assert base.count(old) == 1, (name, old, base.count(old))
         for v in vals:
@@ -71,6 +103,6 @@ def variants():
 
 
 if __name__ == '__main__':
-    v = variants()
+    v = variants(open(sys.argv[2]).read() if len(sys.argv) > 2 else None)
     json.dump(v, open(sys.argv[1], 'w'), indent=0)
     print(len(v))

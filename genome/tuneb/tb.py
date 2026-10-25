@@ -11,7 +11,9 @@ EVAL_ECON = os.path.join(ROOT, 'genome', 'build_econ', 'genome_eval')  # with th
 VAR = os.path.join(ROOT, 'genome', 'build', 'tuneb', 'var')
 POL = os.path.join(ROOT, 'genome', 'build', 'tuneb')
 MAPS = sorted(glob.glob(os.path.join(ROOT, 'maps', '*.map26a')))
-BASE = os.path.join(ROOT, 'genome', 'candidates', 'v28-emblem.genome')  # v29 live (Oct 25 05:11Z); v28 = a61188-mono
+# the reference (live / next-upload) genome; TB_BASE overrides. History: v28 a61188-mono, v29 v28-emblem,
+# v30 A81582-ringheal, next A81582-rh-mono-all (Oct 25 06:45Z).
+BASE = os.environ.get('TB_BASE') or os.path.join(ROOT, 'genome', 'candidates', 'A81582-rh-mono-all.genome')
 
 CHAMPS = ['RYTH', 'VESPER_VALE', 'VENDETTA', 'CASSI', 'STELLAR', 'PRISM', 'MARCELLA', 'WILLOW', 'REN', 'VARG',
           'TAVI', 'HEART_OF_RUIN']
@@ -23,7 +25,8 @@ ANCHORS = {
     'L1c': 'tune-v20-L1c.pol', 'gconv1': 'style-gconv1.pol', 'v7': 'v7.pol', 'L1': 'tune-v20-L1.pol',
     'rall2': 'rall2-ca4-lean-g.pol', 'metadraft': 'opp-tune5-metadraft.pol',
     'B792': 'genome/candidates/B792.genome', 'A61188': 'genome/candidates/A61188.genome',
-    'v28': 'genome/candidates/a61188-mono.genome',
+    'v28': 'genome/candidates/a61188-mono.genome', 'v29': 'genome/candidates/v28-emblem.genome',
+    'v30': 'genome/candidates/A81582-ringheal.genome',
 }
 
 _so = {}
