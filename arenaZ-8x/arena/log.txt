@@ -660,3 +660,44 @@
 [03:12:54] [Z] birth Z340 (llm_cross claude-opus-5-5) of ['Z225', 'Z274'] species S169; 24 genomes $16.93
 [03:12:56] [Z] birth Z341 (mutate claude-opus-5-5) of ['Z321'] species S161; 24 genomes $16.93
 [03:13:11] [Z] rejected tune : behavioural twin
+[03:13:30] [Z] birth Z342 (mutate claude-opus-5-5) of ['Z338'] species S167; 24 genomes $17.02
+[03:13:42] [Z] birth Z343 (mutate claude-opus-5-5) of ['Z332'] species S164; 24 genomes $17.15
+[03:13:45] [Z] birth Z344 (tune ) of ['Z339'] species S168; 24 genomes $17.15
+[03:13:47] [Z] new species S170 founded by Z345
+[03:13:47] [Z] birth Z345 (llm_cross claude-opus-5-5) of ['Z257', 'Z339'] species S170; 24 genomes $17.15
+[03:14:03] [Z] birth Z346 (tune ) of ['Z344'] species S168; 24 genomes $17.15
+[03:14:17] [Z] birth Z347 (mutate claude-opus-5-5) of ['Z340'] species S169; 24 genomes $17.23
+[03:14:21] [Z] birth Z348 (mutate claude-opus-5-5) of ['Z305'] species S156; 24 genomes $17.26
+[03:14:25] [Z] birth Z349 (mutate claude-opus-5-5) of ['Z225'] species S119; 24 genomes $17.26
+[03:14:50] [Z] champion anchor champ7-Z257 (mu 36.8)
+[03:14:50] [Z] summary: births 350 deaths 327 games 85592 $17.37; top [('Z257', 36.78, 0.79, 1368, 'S132'), ('Z350', 36.43, 6.0, 0, 'S125'), ('Z346', 36.31, 0.84, 136, 'S168')]; top vs anchors {'Z257': 0.938, 'Z346': 0.875, 'Z285': 0.969}
+[03:14:50] [Z] birth Z350 (mutate claude-opus-5-5) of ['Z225'] species S125; 24 genomes $17.37
+[03:14:52] [Z] birth Z351 (mutate claude-opus-5-5) of ['Z225'] species S125; 24 genomes $17.37
+[03:14:53] [Z] birth Z352 (mutate claude-opus-5-5) of ['Z346'] species S168; 24 genomes $17.37
+[03:15:26] [Z] new species S171 founded by Z353
+[03:15:26] [Z] birth Z353 (mutate claude-opus-5-5) of ['Z257'] species S171; 24 genomes $17.51
+[03:15:27] [Z] new species S172 founded by Z354
+[03:15:27] [Z] birth Z354 (mutate claude-opus-5-5) of ['Z352'] species S172; 24 genomes $17.51
+[03:15:31] [Z] birth Z355 (mutate claude-opus-5-5) of ['Z352'] species S168; 24 genomes $17.51
+[03:15:55] [Z] birth Z356 (mutate claude-opus-5-5) of ['Z350'] species S125; 24 genomes $17.56
+[03:15:57] [Z] birth Z357 (mutate claude-opus-5-5) of ['Z334'] species S159; 24 genomes $17.56
+[03:16:11] [Z] birth Z358 (tune ) of ['Z353'] species S171; 24 genomes $17.70
+[03:16:21] [Z] new species S173 founded by Z359
+[03:16:21] [Z] birth Z359 (llm_cross claude-opus-5-5) of ['Z257', 'Z354'] species S173; 24 genomes $17.70
+[03:16:37] [Z] new species S174 founded by Z360
+[03:16:37] [Z] summary: births 360 deaths 337 games 87728 $17.74; top [('Z355', 37.5, 0.83, 152, 'S168'), ('Z285', 36.67, 0.8, 1088, 'S134'), ('Z257', 36.44, 0.79, 1520, 'S132')]; top vs anchors {'Z355': None, 'Z285': 0.969, 'Z257': 0.938}
+[03:16:37] [Z] birth Z360 (mutate claude-opus-5-5) of ['Z356'] species S174; 24 genomes $17.74
+[03:16:56] [Z] new species S175 founded by Z361
+[03:16:56] [Z] birth Z361 (llm_cross claude-opus-5-5) of ['Z341', 'Z329'] species S175; 24 genomes $17.93
+[03:17:00] [Z] birth Z362 (mutate claude-opus-5-5) of ['Z356'] species S174; 24 genomes $17.93
+[03:17:09] [Z] birth Z363 (tune ) of ['Z209'] species S115; 24 genomes $18.09
+[03:17:17] [Z] birth Z364 (tune ) of ['Z309'] species S133; 24 genomes $18.09
+[03:17:18] [Z] new species S176 founded by Z365
+[03:17:18] [Z] birth Z365 (llm_cross claude-opus-5-5) of ['Z355', 'Z329'] species S176; 24 genomes $18.09
+[03:17:32] [Z] rejected tune : behavioural twin
+[03:17:35] [Z] birth Z366 (tune ) of ['Z337'] species S166; 24 genomes $18.13
+[03:17:38] [Z] birth Z367 (mutate claude-opus-5-5) of ['Z337'] species S166; 24 genomes $18.13
+[03:17:52] [Z] birth Z368 (tune ) of ['Z367'] species S166; 24 genomes $18.17
+[03:17:55] [Z] birth Z369 (mutate claude-opus-5-5) of ['Z356'] species S174; 24 genomes $18.17
+[03:18:08] [Z] summary: births 370 deaths 347 games 89400 $18.17; top [('Z364', 37.49, 0.88, 104, 'S133'), ('Z329', 37.09, 0.8, 680, 'S154'), ('Z355', 36.68, 0.8, 232, 'S168')]; top vs anchors {'Z364': None, 'Z329': 0.938, 'Z355': None}
+[03:18:08] [Z] birth Z370 (tune ) of ['Z356'] species S174; 24 genomes $18.17
