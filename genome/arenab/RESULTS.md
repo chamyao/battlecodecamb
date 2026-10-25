@@ -318,3 +318,8 @@ Tops now run ~9.3-10 suspensions/match in the sim vs ~7.6 for the leg-7 tops; le
 v33-contest (cand/): on MONO_ONLY maps after r800, r15 only fires when visible enemies within 8 <= allies within 6.
 Solo: contest A 1911 -> 1866, rest identical. Real vs v33: 39/80, contest 1-1 (unchanged; v33 mirrors fight the
 same way), 0 crashes. Not testable locally without an opponent that contests the monoliths; not recommended for upload.
+
+## Oct 25 ~12:50: contest stress bot, first try
+stress-contest-r150 (cand/): v33 but on MONO_ONLY maps the team goes for the monoliths from r150 at priority 120. vs v33 real:
+contest 0-2 (it loses), 39/80 overall. An early monolith rush does not reproduce the ladder losses; waiting for intel's
+replay description of the contest-winning opponents before the next try.
