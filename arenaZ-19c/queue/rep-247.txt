@@ -1,0 +1,31 @@
+```python
+@gene('Z6b', 'value of casting an ability: damage and stuns on fights, area hits on clusters, resets only with a target in reach, shields and heals when hurt', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        return 55 if not can_attack() and fighting(me().attack_range) else 0
+    if k == AB_SHIELD:
+        return 75 if fighting(4) else 0
+    if k == AB_HEAL:
+        if exists(o.unit):
+            return 85 if o.unit.health_frac < 0.75 else 0
+        return 0
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 82
+            if o.unit.is_camp and gems() < 8:
+                return 65
+        return 0
+    if k == AB_AOE:
+        if not (o.tile in TH):
+            return 0
+        r = max(1, slot_radius(o.slot))
+        n = count(dist(x, o.tile) <= r for x in TH)
+        return 60 + 5 * n if n > 0 else 0
+    if k == AB_DASH:
+        if gems() < 8 and me().health_frac >= 0.35 and any(dist(x, o.tile) <= 1 for x in TH):
+            return 58
+        return 52 if progress(o.tile) >= 2 else 0
+    return 0
+```

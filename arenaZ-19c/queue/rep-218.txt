@@ -1,0 +1,26 @@
+```python
+@gene('s1', 'value of doing this option now; drafts strong champions, uses abilities, backs off from threats before recalling when low')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == next_shard() else 0
+    low = me().health_frac < 0.3
+    if o.kind == RECALL:
+        if low and threat_gap(me().pos) > 4:
+            return 90
+        return 45 if gold() >= 450 and threat_gap(me().pos) > 4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() < 8 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 88
+    if o.kind == MOVE:
+        if low and threat_gap(me().pos) <= 4:
+            return 86 if threat_gap(o.tile) > threat_gap(me().pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

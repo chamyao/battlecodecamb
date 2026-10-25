@@ -1,0 +1,21 @@
+```python
+@gene('Z6a', 'draft preference for each champion', parents=['s1'])
+def draft_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 10
+    if c == VENDETTA:
+        return 9
+    if c == RYTH:
+        return 8
+    if c == MARCELLA:
+        return 4.5
+    if c == WILLOW:
+        return 6
+    if c == TAVI:
+        return 5
+    if c == HEART_OF_RUIN:
+        return 4
+    if c == VARG:
+        return 3
+    return 1
+```
