@@ -1,0 +1,12 @@
+```python
+@gene("a16", "units of the next shard still to buy; treasure shards are capped at what the emblem still needs (5 matching shards), the rest of the gold goes to the next kind")
+def shard_left() -> Num:
+    d = shards_done()
+    for k in range(4):
+        if d < shard_until(k + 1):
+            n = shard_until(k + 1) - d
+            if k == 0 and items_owned(19) == 0:
+                n = max(1, min(n, 5 - items_owned(18)))
+            return n
+    return 0
+```

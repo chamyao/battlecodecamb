@@ -759,3 +759,23 @@
 [07:43:29] [B] birth B1903 (mutate session) of ['B1900'] species S6; 24 genomes $11.08
 [07:43:50] [B] birth B1904 (mutate session) of ['B1900'] species S6; 24 genomes $11.08
 [07:43:51] [B] birth B1905 (mutate session) of ['B1896'] species S6; 24 genomes $11.08
+[07:44:03] [B] rejected mutate session: behavioural twin
+[07:44:29] [B] birth B1906 (mutate session) of ['B1820'] species S3; 24 genomes $11.08
+[07:44:34] [B] birth B1907 (mutate session) of ['B1905'] species S6; 24 genomes $11.08
+[07:44:41] [B] birth B1908 (mutate session) of ['B1893'] species S9; 24 genomes $11.08
+[07:45:01] [B] rejected cross : behavioural twin
+[07:45:07] [B] rejected mutate session: behavioural twin
+[07:45:24] [B] rejected tune : behavioural twin
+[07:45:25] [B] birth B1909 (mutate session) of ['B1906'] species S3; 24 genomes $11.08
+[07:45:35] [B] summary: births 1910 deaths 1887 games 455216 $11.08; top [('B1899', 50.77, 0.88, 256, 'S10'), ('B1881', 50.19, 0.84, 496, 'S10'), ('B1889', 49.71, 0.82, 352, 'S10')]; top vs anchors {'B1899': 0.812, 'B1881': 0.783, 'B1889': 0.738}
+[07:45:35] [B] birth B1910 (mutate session) of ['B1907'] species S6; 24 genomes $11.08
+[07:45:58] [B] birth B1911 (mutate session) of ['B1881'] species S10; 24 genomes $11.08
+[07:46:05] [B] birth B1912 (mutate session) of ['B1903'] species S10; 24 genomes $11.08
+[07:46:10] [B] rejected mutate session: behavioural twin
+[07:46:38] [B] anchor v32c-B1873 frozen at mu 48.00 after 200 games
+[07:46:40] [B] rejected mutate session: behavioural twin
+[07:46:51] [B] birth B1913 (mutate session) of ['B1912'] species S10; 24 genomes $11.08
+[07:46:51] [B] rejected mutate session: behavioural twin
+[07:47:12] [B] birth B1914 (mutate session) of ['B1899'] species S10; 24 genomes $11.08
+[07:47:19] [B] rejected tune : behavioural twin
+[07:47:28] [B] birth B1915 (mutate session) of ['B1912'] species S10; 24 genomes $11.08
