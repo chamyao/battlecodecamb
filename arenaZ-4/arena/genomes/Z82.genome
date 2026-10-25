@@ -1,0 +1,55 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene("s1", "value of doing this option now: buy, recall, attack, tribute, and threat-discounted moves")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.22 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p <= 0:
+            return 0
+        return max(1, 77 - 20 * threat_move(o.tile) / max(0.9715, me().strength * me().health_frac))
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene("s4", "how much closer a step brings me to the goals, gains doubled, minus 2 per enemy threatening the step", parents=["s4"])
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if d > 0:
+        d = d * 2
+    return d - 2 * threat(t)
+
+@gene("Z4a", "number of enemy units whose attack reach covers a tile", parents=["s4"])
+def threat(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+@gene("Z16a", "health-weighted strength of enemy champions that can reach a tile next turn, with one extra step of slack", parents=["Z9a"])
+def threat_move(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac for u in enemies() if u.is_champion and dist(u.pos, t) <= u.attack_range + u.move_speed + 1)

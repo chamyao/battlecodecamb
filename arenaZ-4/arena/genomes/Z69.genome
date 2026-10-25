@@ -1,0 +1,50 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now, moves need a clear safe gain from the step value')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if step_value(o.tile) > 0.5 else 0
+    return 0
+
+@gene('s3', 'distance field to the walk goals chosen by walk_goals')
+def goal_field() -> Field:
+    return field(walk_goals())
+
+@gene('Z86a', 'where to walk: unlocked altars when holding gems and any remain, else awake or rewarding camp groups, else any living group', parents=['s2'])
+def walk_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            if group_reward(g) or group_gems(g) > 0 or group_gold(g) > 0:
+                acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z149a', 'step value for a move: goal-field gain minus enemy threat weighted 3 over my health', parents=['Z37a'])
+def step_value(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    threat = sum(e.strength * e.health_frac for e in enemies() if dist(e.pos, t) <= e.attack_range + 1)
+    hp = max(me().health, 1)
+    return gain - 3 * threat / hp

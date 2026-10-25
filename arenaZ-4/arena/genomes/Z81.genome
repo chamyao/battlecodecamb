@@ -1,0 +1,92 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene('Z155a', 'value of doing this option now, moves rewarded by progress and discounted by slack step threat plus squared-distance-decayed champion threat', parents=['Z137a', 's1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = safe_progress(o.tile)
+        if p <= 0:
+            return 0
+        penalty = 20 * threat_move(o.tile) + 10 * threat_sq(o.tile)
+        return max(1, 72 + p - penalty / max(0.9715, me().strength * me().health_frac))
+    return 0
+
+@gene('Z155b', 'skip listing option kinds score() never values')
+def consider(kind: Num) -> Bool:
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CAST or kind == CANCEL)
+
+@gene('Z155c', 'compute the walk-goal distance field once per turn', parents=['s3', 'Z86a'])
+def update() -> None:
+    GF = field(walk_goals())
+
+@gene('Z86a', 'where to walk: unlocked altars when holding gems and any remain, else awake or rewarding camp groups, else any living group', parents=['s2'])
+def walk_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            if group_reward(g) or group_gems(g) > 0 or group_gold(g) > 0:
+                acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z155d', 'distance field to the walk goals (cached keep)', parents=['s3'])
+def goal_field() -> Field:
+    return GF
+
+@gene('Z137b', 'how much closer a step brings me to the goals, gains doubled, plus bush cover bonus, minus 2 per enemy threatening the step', parents=['s4'])
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    g = d * 2 if d > 0 else d
+    if g > 0:
+        return g + cover_bonus(t) - 2 * threat(t)
+    return g
+
+@gene('Z155e', 'step progress penalized when the destination is crowded by enemy champions', parents=['Z147a', 'Z137b'])
+def safe_progress(t: Tile) -> Num:
+    p = progress(t)
+    if p <= 0:
+        return p
+    crowd = count(dist(u.pos, t) <= 2 for u in enemies() if u.is_champion)
+    return p - 0.5 * crowd
+
+@gene('Z125a', 'small bonus for stepping into a bush when enemy champions are within 6 tiles of it', parents=['s4'])
+def cover_bonus(t: Tile) -> Num:
+    if not (t in bushes()):
+        return 0
+    n = count(u.is_champion and dist(u.pos, t) <= 12 for u in enemies())
+    return 0.5 if n > 0 else 0
+
+@gene('Z16a', 'health-weighted strength of enemy champions that can reach a tile next turn, with one extra step of slack', parents=['Z9a'])
+def threat_move(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac for u in enemies() if u.is_champion and dist(u.pos, t) <= u.attack_range + u.move_speed + 1)
+
+@gene("Z4a", "number of enemy units whose attack reach covers a tile", parents=["s4"])
+def threat(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+@gene('Z168a', 'squared-distance-decayed strength of enemy champions within 8 tiles of a tile, weighted by their health', parents=['Z104a'])
+def threat_sq(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac / (1 + dist(u.pos, t) * dist(u.pos, t)) for u in enemies() if u.is_champion and dist(u.pos, t) <= 8)

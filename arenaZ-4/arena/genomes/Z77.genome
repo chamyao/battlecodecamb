@@ -1,0 +1,55 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.2457 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: unlocked altars once gems reach 3 (if any exist), else valuable living camp groups')
+def goals() -> Tiles:
+    if gems() >= 3:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    return camp_goals()
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('Z162a', 'tiles of living camp groups that hold gems or gold or await capture, else all living groups', parents=['s2'])
+def camp_goals() -> Tiles:
+    rich = near(tile(-5, -5), 0)
+    alive_groups = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            alive_groups = alive_groups | group_tiles(g)
+            if group_reward(g) or group_gems(g) + group_gold(g) > 0:
+                rich = rich | group_tiles(g)
+    if size(rich) > 0:
+        return rich
+    return alive_groups
+
+@gene('s4', 'how much closer a step brings me to the goals, minus 2 per enemy threatening the step')
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t) - 2 * threat(t)
+
+@gene('Z4a', 'number of enemy units whose attack reach covers a tile', parents=['s4'])
+def threat(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
