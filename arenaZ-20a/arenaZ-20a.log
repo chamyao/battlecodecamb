@@ -371,3 +371,24 @@
 [13:40:42] [Z] rejected mutate session: queue timeout
 [13:41:52] [Z] rejected mutate session: queue timeout
 [13:42:53] [Z] rejected mutate session: queue timeout
+[13:48:33] [Z] birth Z212 (mutate session) of ['Z171'] species S28; 24 genomes $0.00
+[13:49:21] [Z] rejected mutate session: behavioural twin
+[13:50:09] [Z] rejected mutate session: behavioural twin
+[13:50:22] [Z] birth Z213 (mutate session) of ['Z211'] species S68; 24 genomes $0.00
+[13:50:42] [Z] new species S69 founded by Z214
+[13:50:42] [Z] birth Z214 (tune ) of ['Z212'] species S69; 24 genomes $0.00
+[13:51:05] [Z] birth Z215 (tune ) of ['Z208'] species S66; 24 genomes $0.00
+[13:51:05] [Z] new species S70 founded by Z216
+[13:51:05] [Z] birth Z216 (mutate session) of ['Z179'] species S70; 24 genomes $0.00
+[13:52:24] [Z] birth Z217 (mutate session) of ['Z204'] species S65; 24 genomes $0.00
+[13:52:47] [Z] rejected llm_cross session: behavioural twin
+[13:53:31] [Z] new species S71 founded by Z218
+[13:53:31] [Z] birth Z218 (mutate session) of ['Z210'] species S71; 24 genomes $0.00
+[13:54:12] [Z] new species S72 founded by Z219
+[13:54:12] [Z] birth Z219 (mutate session) of ['Z170'] species S72; 24 genomes $0.00
+[13:54:52] [Z] summary: births 220 deaths 197 games 174848 $0.00; top [('Z218', 42.88, 0.86, 136, 'S71'), ('Z213', 42.55, 0.81, 304, 'S68'), ('Z215', 42.43, 0.8, 280, 'S66')]; top vs anchors {'Z218': None, 'Z213': None, 'Z215': None}
+[13:54:52] [Z] birth Z220 (mutate session) of ['Z210'] species S57; 24 genomes $0.00
+[13:55:27] [Z] new species S73 founded by Z221
+[13:55:27] [Z] birth Z221 (mutate session) of ['Z208'] species S73; 24 genomes $0.00
+[13:55:47] [Z] rejected tune : behavioural twin
+[13:55:53] [Z] birth Z222 (mutate session) of ['Z216'] species S70; 24 genomes $0.00

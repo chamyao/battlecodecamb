@@ -1,0 +1,18 @@
+```python
+@gene('Z139e', 'once per turn: compute the goal distance field', parents=['s3'])
+def update() -> None:
+    carry = gems() >= 8 or (gems() > 0 and round() > 1900)
+    if round() >= NEXTGF or carry != CARRY:
+        GF = goal_field()
+        NEXTGF = round() + 6
+        CARRY = carry
+    if not HFOK:
+        HF = field(my_spawn())
+        HFOK = True
+    FOEHIT = near(tile(-5, -5), 0)
+    for u in enemies():
+        FOEHIT = FOEHIT | near(u.pos, 1)
+    CAMPHIT = near(tile(-5, -5), 0)
+    for c in camps():
+        CAMPHIT = CAMPHIT | near(c.pos, 1)
+```
