@@ -343,6 +343,28 @@ calls per gene for team 0's champion 0. Fitting each genome's per-turn gap (real
   ~1.02, but widens starter (to -4%) and B1092 (to +4%), and needs the first pass at ~1960. It is not
   applied; see the message log for the decision.
 
+## The fixed turn and per-option prices, from consider() variants (Oct 25)
+
+Idle variants whose `consider()` drops kinds from the listing (never act; identical games against v23):
+- An empty turn (only PICK listed) costs ~1130 in the bot. The sim charged ~525, because the 7b2ff02f
+  pass refit had moved fixed cost into the complex genomes' later passes.
+- Dropping CAST saves 4.3k real against 4.1k in the sim; dropping WARD 2.54k against 2.28k; dropping
+  MOVE 1.0-1.5k against 1.1-1.7k. All listing together was under by ~500-650 per turn, ~7.5 per option
+  for idle's ~66 options.
+Refit, bounded at zero:
+- first pass 93 -> 700 (the measured empty turn);
+- per option scored 30 -> 37;
+- later passes 474 -> 0 (a free fit wants them below zero: complex genomes' second passes are priced
+  high elsewhere).
+Whole game (real/sim; ambush / lanes / big-world):
+- empty turn: 1.003 / 0.995; idle: 0.998 / 0.982 / 0.995 (was 0.46 and 0.88-0.95)
+- calib5: 0.976 / 0.975; starter: 1.013 / 1.023 / 1.015
+- seed: 1.019 / 1.022 / 1.005; B318: 1.017 / 1.014 / 1.004; B792: 1.005 / 1.009 / 0.995
+- A458: 1.024 / 1.026 / 1.010; B1145: 1.004 / 1.008 / 0.993; B1092: 1.004 / 0.979 / 0.988
+- v23: 1.102 / 1.123 / 1.099 (its per-option memo hits, above).
+80 games against builtin:starter: identical at 100x; at 1x seed, v23 and B792 are identical to 8a94ac7,
+B318 79 -> 78, starter 40 -> 38. B792 vs B318 at 1x: 49 (afc31666) -> 45.
+
 ## Bot-side costs worth knowing (what the search pays for)
 
 - A single host bitboard bit test or set costs ~120-170 fuel in the bot. The runtime keeps static

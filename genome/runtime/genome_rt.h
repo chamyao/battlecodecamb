@@ -2115,7 +2115,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	{
 		// the pass guard: a later pass starts only with at least reserve() fuel left
 		if (pass > 0 && !draft && static_cast<double>(X.api.fuel_remaining()) < reserve) break;
-		if (!draft) X.extra(pass == 0 ? 93 : 474); // a pass's own work in the bot (refitted with the set algebra's prices on 7 genomes x 3 maps, identical games; FUEL.md)
+		if (!draft) X.extra(pass == 0 ? 700 : 0); // a turn's fixed work in the bot: an empty turn (consider() lists nothing) costs ~1.13k; later passes' cost is in what they list and score (FUEL.md)
 		X.new_pass();
 #ifdef GENOME_PROF
 		std::int64_t f_upd = 0;
@@ -2134,7 +2134,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 			bool skip = false;
 			for (const Option& f : failed) skip |= same(o, f);
 			if (skip) continue;
-			X.extra(30); // the loop's own work per option scored in the bot (call, compare), beyond the gene's operations
+			X.extra(37); // the loop's own work per option scored in the bot (call, compare), beyond the gene's operations (idle genome, FUEL.md)
 			const double s = g.score_option(o);
 			if (!best || s > bs) best = &o, bs = s;
 		}
