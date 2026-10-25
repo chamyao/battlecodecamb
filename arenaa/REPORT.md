@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 01:56 UTC: first Arena A genome on the ladder
+
+- Workflow change (Cham): upload first, validate later (variety on the real ladder).
+- A61188 (arenaA-6, panel 867/1040 vs v23 723; 50/80 vs B318, 57/80 vs v22) passed the real-cambc smoke
+  test (3/3 vs B792, no crashes) and is live as ladder version 27 (01:54:54Z). Sim vs B792 on f23aaa0:
+  A61188 49/80, A61206 47, A61205 43. Post-upload validation (anchors + 80 real games vs B792) running
+  (genome lead).
+
 ## 2026-10-25 01:50 UTC: evaluation change verdict (final populations)
 
 - Final populations on the 13-opponent panel (1,040 games each; seed v23 723), arenaA-6 (control, old
