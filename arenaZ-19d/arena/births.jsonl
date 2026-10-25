@@ -1,1 +1,11 @@
 {"arena": "Z", "t": 1792917031.9, "name": "seed", "birth": 0, "parents": [], "species": "S0", "mu": 25.0, "op": "seed"}
+{"arena": "Z", "t": 1792917231.1, "name": "Z1", "birth": 1, "parents": ["seed"], "species": "S1", "mu": 25.007925552726373, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917588.9, "name": "Z2", "birth": 2, "parents": ["seed"], "species": "S0", "mu": 25.960735430339565, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917590.8, "name": "Z3", "birth": 3, "parents": ["seed"], "species": "S0", "mu": 25.48859736837916, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917594.5, "name": "Z4", "birth": 4, "parents": ["seed"], "species": "S2", "mu": 25.40192079103055, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917594.7, "name": "Z5", "birth": 5, "parents": ["seed"], "species": "S3", "mu": 25.40192079103055, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917595.1, "name": "Z6", "birth": 6, "parents": ["seed"], "species": "S4", "mu": 25.318534043859984, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917595.3, "name": "Z7", "birth": 7, "parents": ["seed"], "species": "S5", "mu": 25.318534043859984, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917596.4, "name": "Z8", "birth": 8, "parents": ["Z1"], "species": "S1", "mu": 27.197652235346528, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792917614.0, "name": "Z9", "birth": 9, "parents": ["Z7"], "species": "S5", "mu": 30.556267349659933, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792917614.8, "name": "Z10", "birth": 10, "parents": ["Z7"], "species": "S5", "mu": 30.789048601110878, "op": "tune", "model": ""}
