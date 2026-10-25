@@ -40,6 +40,9 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-25 | genome/search EC2 arenaZ-16 (arenaZ-11r with Opus splits: births $3.00 + splits $3.58 outside the births budget; Arena A reserve) | 557 | 6.58 | 86.93 |
 | 2026-10-25 | genome/search EC2 arenaZ-1x (arenaZ-1 resumed to --budget 15, $3.07 -> $14.34; stopped at 1444 births, flat since ~900; Arena A reserve) | 969 | 11.27 | 98.2 |
 | 2026-10-25 | Arena service exploit-3 (run 33; fighter exploiter vs v28, Haiku + Opus/10, $10 cap; stalled at the 06:50 account credit outage, then stopped; Arena B, Cham-approved) | ~2700 | 9.15 | (Arena B) |
+| 2026-10-25 | genome/search EC2 arenaZ-17a (Z-15 + rng-salt 1, --cull legacy; stopped at 407 births, API credits out 06:50; Arena A reserve) | 407 | 10.40 | 108.6 |
+| 2026-10-25 | genome/search EC2 arenaZ-17b (Z-15, --cull min-mu, salt 0; stopped at 411 births; Arena A reserve) | 411 | 8.35 | 116.95 |
+| 2026-10-25 | genome/search EC2 arenaZ-17c (Z-15 + rng-salt 1, --cull min-mu; stopped at 463 births; Arena A reserve) | 463 | 7.28 | 124.23 |
 
 ## Ladder uploads (Cham, Oct 24)
 
