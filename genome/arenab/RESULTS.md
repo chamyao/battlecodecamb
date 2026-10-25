@@ -273,3 +273,17 @@ intel's v29-run (r3 also runs when awake camps would deal 2.5x my health; i19 ca
 95,846 -> 96,629, deaths 362 -> 352, starvation 38 -> 32, but reverse-spiral, starfish A, boss-battle B and big-world are
 worse. Rejected. Starvation is a group-wake/cohesion problem (one champion wakes the 4-elk group); it goes with intel's
 early buddy-walk. Contest monolith deaths are the price of its only gems.
+
+## Oct 25 ~10:20: directed early-game edits on v33, all rejected (intel, real vs v33)
+| edit | real |
+|---|---|
+| early retreat home when outnumbered (r < 300) | 4-8 |
+| buddy-up when an enemy champion is near | 3-5 |
+| pair-walk to the nearest ally (r < 300) | 4-4, solo +635 |
+| value-weighted camp choice | slower solo in all forms (+3.6k to +12.9k rounds) |
+| fight targeting by hits-to-kill + heal/shield only below 70% | 6-6 (near mirror) |
+| spread: skip camps an ally holds | 3-7, monster deaths 4.53 -> 6.09 |
+| (mine) shop orders with Durability/Power | best 45 vs v32 but 38 vs v31 |
+| (mine) v29-run on v33 | solo mixed, starvation 38 -> 32 |
+Signal: any edit that separates or redirects champions loses fights; doubled-up captures protect us. The early gap is
+per-champion strength (items, 90% of it earnings). Directed early-game work paused; gains left to the arena and tune-B.
