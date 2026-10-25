@@ -2,6 +2,19 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 05:35 UTC: Z-15 and Z-16 done
+
+- Z-15 (batched Opus via API) done at 475 births, $17.75. Panel best 176 (b290), 185 (b320), 207 (b405);
+  Z-8x had 207 at b402. Same quality per birth, about 2x births per hour, $0.037/birth vs $0.050 (~25%
+  cheaper). Verdict: adopt batching for API runs. This corrects my 05:10 note ("slightly worse per birth").
+- Z-16 (Opus splits) done at 557 births, $6.58 ($3.58 of it splits). Panel best 117 (b303), 139 (b423), 199
+  (b532). It beats Z-11r (Haiku splits: 131 at b622), but the no-split baseline Z-1 had 212 at b500. So
+  splitting raised gene counts (median 8 vs 6) without a measurable panel gain. Verdict: not adopted.
+- A-8 m15: 1006 (b1528). A-8c final: 966 (m15), 946 (m16). Session writer ahead at every milestone.
+- Z-1x: 255 at m13 (b1309), flat since ~b900.
+- Gate: new paired rule (h2h vs v29 >= 43/80; an anchor blocks only on a sign test p < 0.1).
+  A-8c's near-misses, re-gated: 6 of 11 done, none pass.
+
 ## 2026-10-25 05:25 UTC
 
 - Relay Z-10 leg 9 done: births 401 -> 452 in ~18 min, sha 5a5df8f, 49 requests, all validated. Ratings are
