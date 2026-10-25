@@ -178,3 +178,11 @@ after genome/v0 fd778fc. Recommended next upload: A81582-rh-mono-all.
 cash4 is a small, insignificant gain (~+4/80); kept as cand/A81582-rh-mono-all-cash4 to ride along a later upload.
 01shortcut solo (sim, rounds/deaths): v29 2000/2000 (9/7), ringheal 2000/2000 (30/30), rh-mono 1584/1709 (5/6),
 rh-mono-all 1563/1709 (4/6): mono does not regress shortcut once the ring fix is present.
+
+## Oct 25 06:39: v30 = A81582-ringheal live; rh-mono-all is the v31 candidate (genome/v0 7f5de79)
+- Search, solo-farm vs v30 (53,100): rh-mono-all 49,654, passes (warns: 01boss-battle +813, 01gold-rush +216).
+  ringheal-mono 52,774, blocks on boss-battle, gold-rush, elk-arena. The 01shortcut "+522" was raw A81582's
+  missing ring fix, not mono.
+- Search, v30 regates of A81615/A91640/A81582, raw and +mono: all six blocked by solo-farm.
+- Intel, paired rows for rh-mono-all vs ringheal's: net +9, no significant drop (rall2 +6, p 0.07); monster deaths 6.53 -> 4.74.
+  Regression: boss-battle +534 rounds (only altar behind a monolith). Intel is building a narrow exemption.
