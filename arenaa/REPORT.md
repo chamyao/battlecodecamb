@@ -2,6 +2,16 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 09:05 UTC: writer-side screening is the biggest Z signal; Z-20 launched
+
+- Final-population panels (477 births): Z-18b (writer screened children with its own 80-game genome_eval
+  head-to-heads) **610/880** (Z462; top-3 mean 607). Z-18d (clean, no screening, min-mu) 301. For reference, Z-5
+  394 (b413) and the API arms 190-207. None carry the A-line table.
+- One uncontrolled run, but by far the largest Z gap seen. Z-20a/b test it (SCREEN.md): the Z-19 setup plus
+  permission to screen with genome_eval (--threads 1, logged), against Z-19a/b as controls.
+- Asked the search session to check whether Z462's map-specific tuning overfits the 40 panel maps (the panel holds
+  out opponents, not maps).
+
 ## 2026-10-25 08:55 UTC
 
 - Correction: only Z-18a copied the A-line table; Z-18b's draft is its own (I had counted VESPER_VALE mentions).
