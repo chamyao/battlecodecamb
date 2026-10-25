@@ -1,0 +1,10 @@
+```python
+@gene("w6", "how much closer a step onto t brings me to GOAL (0: no walk this turn); turn-start field and blocks; a step onto an enemy-adjacent tile gains nothing below 30% health")
+def step_gain(t: Tile) -> Num:
+    if not OPEN or t in BLOCK:
+        return 0
+    g = at(FIELD, here()) - at(FIELD, t)
+    if g > 0 and me().health_frac < 0.3 and any(dist(e.pos, t) <= 1 for e in enemies()):
+        return 0
+    return g
+```
