@@ -1,0 +1,14 @@
+```python
+@gene('Z76a', 'goal tiles narrowed to gem clusters when one is not much farther than the other goals, with a wider margin, with a narrow margin', parents=['s3'])
+def gem_first(gt: Tiles) -> Tiles:
+    gem = gt & type_spawns(GEM_CLUSTER)
+    if size(gem) == 0:
+        return gt
+    rest = gt - type_spawns(GEM_CLUSTER)
+    if size(rest) == 0:
+        return gem
+    if dist(nearest(gem, me().pos), me().pos) <= dist(nearest(rest, me().pos), me().pos) + 4:
+        return gem
+    return gt
+
+```

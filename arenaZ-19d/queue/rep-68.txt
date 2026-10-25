@@ -1,0 +1,6 @@
+```python
+@gene("s3", "distance field to the goals, skipping golem and monolith camps, gem clusters first when close")
+def goal_field() -> Field:
+    return field(gem_first(goals() - type_spawns(GOLD_CLUSTER)))
+
+```
