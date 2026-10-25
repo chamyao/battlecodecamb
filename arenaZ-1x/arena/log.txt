@@ -3067,3 +3067,46 @@
 [05:03:53] [Z] birth Z1288 (mutate claude-opus-5-5) of ['Z1222'] species S642; 24 genomes $12.17
 [05:04:02] [Z] new species S665 founded by Z1289
 [05:04:02] [Z] birth Z1289 (llm_cross claude-haiku-5-5) of ['Z1254', 'Z1285'] species S665; 24 genomes $12.17
+[05:04:20] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:04:30] [Z] new species S666 founded by Z1290
+[05:04:30] [Z] summary: births 1290 deaths 1267 games 315296 $12.17; top [('Z1257', 44.01, 0.85, 456, 'S639'), ('Z1283', 43.89, 0.83, 160, 'S662'), ('Z1280', 43.85, 0.84, 144, 'S660')]; top vs anchors {'Z1257': 1.0, 'Z1283': None, 'Z1280': None}
+[05:04:30] [Z] birth Z1290 (mutate claude-haiku-5-5) of ['Z1285'] species S666; 24 genomes $12.17
+[05:04:38] [Z] new species S667 founded by Z1291
+[05:04:38] [Z] birth Z1291 (mutate claude-haiku-5-5) of ['Z1257'] species S667; 24 genomes $12.17
+[05:04:38] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:04:57] [Z] new species S668 founded by Z1292
+[05:04:57] [Z] birth Z1292 (tune ) of ['Z1281'] species S668; 24 genomes $12.17
+[05:05:05] [Z] birth Z1293 (mutate claude-haiku-5-5) of ['Z1282'] species S661; 24 genomes $12.17
+[05:05:05] [Z] rejected tune : behavioural twin
+[05:05:23] [Z] new species S669 founded by Z1294
+[05:05:23] [Z] birth Z1294 (tune ) of ['Z1279'] species S669; 24 genomes $12.17
+[05:05:23] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:05:39] [Z] birth Z1295 (tune ) of ['Z1291'] species S667; 24 genomes $12.18
+[05:05:48] [Z] new species S670 founded by Z1296
+[05:05:48] [Z] birth Z1296 (llm_cross claude-haiku-5-5) of ['Z1264', 'Z1288'] species S670; 24 genomes $12.18
+[05:06:00] [Z] birth Z1297 (llm_cross claude-haiku-5-5) of ['Z1280', 'Z1257'] species S667; 24 genomes $12.18
+[05:06:13] [Z] birth Z1298 (mutate claude-haiku-5-5) of ['Z1269'] species S652; 24 genomes $12.24
+[05:06:24] [Z] birth Z1299 (mutate claude-haiku-5-5) of ['Z1264'] species S657; 24 genomes $12.24
+[05:06:32] [Z] champion anchor champ26-Z1285 (mu 44.2)
+[05:06:32] [Z] summary: births 1300 deaths 1277 games 316664 $12.24; top [('Z1285', 44.2, 0.84, 176, 'S655'), ('Z1278', 43.96, 0.81, 272, 'S656'), ('Z1264', 43.79, 0.8, 328, 'S651')]; top vs anchors {'Z1285': None, 'Z1278': 0.875, 'Z1264': None}
+[05:06:32] [Z] birth Z1300 (mutate claude-opus-5-5) of ['Z1250'] species S649; 24 genomes $12.24
+[05:06:40] [Z] birth Z1301 (mutate claude-haiku-5-5) of ['Z1257'] species S667; 24 genomes $12.24
+[05:06:59] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:07:07] [Z] birth Z1302 (mutate claude-haiku-5-5) of ['Z1285'] species S666; 24 genomes $12.24
+[05:07:16] [Z] birth Z1303 (mutate claude-haiku-5-5) of ['Z1257'] species S667; 24 genomes $12.24
+[05:07:21] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[05:07:33] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:07:40] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 202: gene progress redefined or shadows a builtin
+[05:07:54] [Z] birth Z1304 (mutate claude-opus-5-5) of ['Z1279'] species S644; 24 genomes $12.31
+[05:08:03] [Z] birth Z1305 (tune ) of ['Z1264'] species S657; 24 genomes $12.31
+[05:08:11] [Z] new species S671 founded by Z1306
+[05:08:11] [Z] birth Z1306 (llm_cross claude-haiku-5-5) of ['Z1279', 'Z1264'] species S671; 24 genomes $12.31
+[05:08:22] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 157: gene goal_field redefined or shadows a builtin
+[05:08:40] [Z] birth Z1307 (mutate claude-haiku-5-5) of ['Z1264'] species S657; 24 genomes $12.31
+[05:08:40] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:08:51] [Z] rejected mutate claude-haiku-5-5: GenomeError: goal_field line 146: unknown name ALSZ
+[05:08:54] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 307: unknown name WEAKC
+[05:08:57] [Z] rejected tune : behavioural twin
+[05:09:06] [Z] new species S672 founded by Z1308
+[05:09:06] [Z] birth Z1308 (llm_cross claude-haiku-5-5) of ['Z1303', 'Z1261'] species S672; 24 genomes $12.32
+[05:09:16] [Z] birth Z1309 (mutate claude-haiku-5-5) of ['Z1278'] species S656; 24 genomes $12.32

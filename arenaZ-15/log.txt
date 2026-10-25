@@ -802,3 +802,60 @@
 [05:03:38] [Z] rejected tune : behavioural twin
 [05:03:41] [Z] rejected mutate claude-opus-5-5: GenomeError: score line 28: unknown name HF
 [05:03:41] [Z] rejected mutate claude-opus-5-5: GenomeError: score line 29: unknown name HF
+[05:05:01] [Z] rejected mutate claude-opus-5-5: GenomeError: score line 30: unknown name SAFE
+[05:05:01] [Z] rejected mutate claude-opus-5-5: GenomeError: score line 30: unknown name SAFE
+[05:05:10] [Z] new species S225 founded by Z406
+[05:05:10] [Z] birth Z406 (mutate claude-opus-5-5) of ['Z403'] species S225; 24 genomes $14.93
+[05:05:12] [Z] birth Z407 (mutate claude-opus-5-5) of ['Z391'] species S213; 24 genomes $14.93
+[05:05:13] [Z] birth Z408 (mutate claude-opus-5-5) of ['Z405'] species S224; 24 genomes $14.93
+[05:05:15] [Z] birth Z409 (mutate claude-opus-5-5) of ['Z397'] species S221; 24 genomes $14.93
+[05:05:16] [Z] summary: births 410 deaths 387 games 93552 $14.93; top [('Z408', 37.04, 6.0, 0, 'S224'), ('Z360', 37.03, 0.8, 1328, 'S206'), ('Z406', 36.81, 6.0, 0, 'S225')]; top vs anchors {'Z360': 0.875, 'Z398': 0.938, 'Z403': 1.0}
+[05:05:16] [Z] birth Z410 (mutate claude-opus-5-5) of ['Z403'] species S225; 24 genomes $14.93
+[05:05:18] [Z] birth Z411 (mutate claude-opus-5-5) of ['Z334'] species S189; 24 genomes $14.93
+[05:05:19] [Z] new species S226 founded by Z412
+[05:05:19] [Z] birth Z412 (tune ) of ['Z405'] species S226; 24 genomes $14.93
+[05:05:40] [Z] new species S227 founded by Z413
+[05:05:40] [Z] birth Z413 (tune ) of ['Z410'] species S227; 24 genomes $14.97
+[05:05:42] [Z] birth Z414 (mutate claude-opus-5-5) of ['Z360'] species S206; 24 genomes $14.97
+[05:05:43] [Z] birth Z415 (tune ) of ['Z398'] species S200; 24 genomes $14.97
+[05:05:43] [Z] rejected tune : behavioural twin
+[05:05:44] [Z] birth Z416 (tune ) of ['Z360'] species S206; 24 genomes $14.97
+[05:05:56] [Z] rejected tune : behavioural twin
+[05:06:10] [Z] new species S228 founded by Z417
+[05:06:10] [Z] birth Z417 (llm_cross claude-opus-5-5) of ['Z357', 'Z410'] species S228; 24 genomes $15.20
+[05:06:12] [Z] new species S229 founded by Z418
+[05:06:12] [Z] birth Z418 (llm_cross claude-opus-5-5) of ['Z399', 'Z410'] species S229; 24 genomes $15.20
+[05:06:19] [Z] rejected llm_cross claude-opus-5-5: GenomeError: score line 75: expected Tile, got Num
+[05:06:23] [Z] new species S230 founded by Z419
+[05:06:23] [Z] birth Z419 (mutate claude-opus-5-5) of ['Z403'] species S230; 24 genomes $15.49
+[05:06:24] [Z] summary: births 420 deaths 397 games 95464 $15.49; top [('Z403', 37.83, 0.8, 408, 'S219'), ('Z419', 37.83, 6.0, 0, 'S230'), ('Z418', 37.06, 0.92, 88, 'S229')]; top vs anchors {'Z403': 1.0, 'Z418': None, 'Z412': None}
+[05:06:24] [Z] birth Z420 (mutate claude-opus-5-5) of ['Z374'] species S202; 24 genomes $15.49
+[05:06:26] [Z] birth Z421 (mutate claude-opus-5-5) of ['Z387'] species S217; 24 genomes $15.49
+[05:06:26] [Z] rejected tune : behavioural twin
+[05:06:29] [Z] new species S231 founded by Z422
+[05:06:29] [Z] birth Z422 (llm_cross claude-opus-5-5) of ['Z387', 'Z401'] species S231; 24 genomes $15.49
+[05:06:50] [Z] rejected mutate claude-opus-5-5: GenomeError: update line 186: goal_field takes (Tiles, Bool)
+[05:06:57] [Z] birth Z423 (mutate claude-opus-5-5) of ['Z389'] species S212; 24 genomes $15.60
+[05:06:59] [Z] birth Z424 (mutate claude-opus-5-5) of ['Z408'] species S224; 24 genomes $15.60
+[05:07:26] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[05:07:39] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 140: unknown name EN
+[05:07:49] [Z] birth Z425 (mutate claude-opus-5-5) of ['Z412'] species S226; 24 genomes $15.93
+[05:07:51] [Z] birth Z426 (mutate claude-opus-5-5) of ['Z417'] species S228; 24 genomes $15.93
+[05:07:52] [Z] new species S232 founded by Z427
+[05:07:52] [Z] birth Z427 (mutate claude-opus-5-5) of ['Z415'] species S232; 24 genomes $15.93
+[05:07:52] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[05:07:52] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[05:07:54] [Z] birth Z428 (mutate claude-opus-5-5) of ['Z403'] species S225; 24 genomes $15.93
+[05:08:07] [Z] birth Z429 (mutate claude-opus-5-5) of ['Z357'] species S203; 24 genomes $15.97
+[05:08:07] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[05:08:13] [Z] rejected tune : behavioural twin
+[05:08:33] [Z] new species S233 founded by Z430
+[05:08:33] [Z] summary: births 430 deaths 407 games 99632 $16.07; top [('Z427', 36.98, 0.85, 128, 'S232'), ('Z413', 36.98, 0.8, 416, 'S227'), ('Z403', 36.66, 0.79, 656, 'S219')]; top vs anchors {'Z427': None, 'Z413': None, 'Z403': 1.0}
+[05:08:33] [Z] birth Z430 (llm_cross claude-opus-5-5) of ['Z413', 'Z395'] species S233; 24 genomes $16.07
+[05:08:42] [Z] birth Z431 (tune ) of ['Z427'] species S232; 24 genomes $16.07
+[05:09:15] [Z] rejected mutate claude-opus-5-5: GenomeError: update line 177: cannot assign to near
+[05:09:25] [Z] birth Z432 (mutate claude-opus-5-5) of ['Z421'] species S217; 24 genomes $16.29
+[05:09:25] [Z] rejected tune : behavioural twin
+[05:09:26] [Z] new species S234 founded by Z433
+[05:09:26] [Z] birth Z433 (mutate claude-opus-5-5) of ['Z424'] species S234; 24 genomes $16.29
+[05:09:28] [Z] birth Z434 (mutate claude-opus-5-5) of ['Z419'] species S230; 24 genomes $16.29
