@@ -143,3 +143,8 @@ gold vs a real opponent (intel: pilgrimage gold 4,583 vs 14,258, gold-rush 3,474
 Sim, bot seeds: vs idle total rounds 100,601 -> 99,212, games short of 1000 10 -> 5; vs v29 46/80, vs A81582 40/80.
 Real cambc --release (genome/v0 fd778fc builds): **A81582-ringheal vs v29: 55/80**, 0 crashes (capped normal turns 450 vs 301);
 plain A81582 vs v29: 50/80 on the same builds.
+
+## Oct 25 06:2x: search passes vs v29, checked against v30 (A81582-ringheal)
+Sim, bot seeds, /80 vs A81582-ringheal: A81615 37, A91640 40. With the ring+heal fixes grafted on
+(ring lines in v2, r2 heal uses i22): A81615-rh 38, A91640-rh 40. Not forwarded; search told to
+regate vs v30 once it is live.
