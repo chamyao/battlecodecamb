@@ -1,0 +1,11 @@
+```python
+@gene('m15', 'nearest open tile next to any altar (not blocked, and not a camp spawn a respawn would take), else any open one, else nearest tile next to any altar', parents=['m15'])
+def bank_t3() -> Tile:
+    open_ring = ALTAR_RING - taken()
+    free = open_ring - camp_spawns()
+    if size(free) > 0:
+        return closest(free)
+    if size(open_ring) > 0:
+        return closest(open_ring)
+    return closest(ALTAR_RING)
+```
