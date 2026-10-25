@@ -1,0 +1,22 @@
+```python
+@gene('s1', 'value of doing this option now: cast abilities, strength shards, recall at a quarter health, focus the most hurt target')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 + item_strength(o.item) if item_cost(o.item) >= 30 and item_strength(o.item) > 0 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+```

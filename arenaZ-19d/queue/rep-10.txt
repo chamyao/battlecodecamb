@@ -1,0 +1,6 @@
+```python
+@gene("s3", "distance field to the goals, skipping golem and monolith camps")
+def goal_field() -> Field:
+    return field(goals() - type_spawns(MONOLITH) - type_spawns(GOLEM))
+
+```

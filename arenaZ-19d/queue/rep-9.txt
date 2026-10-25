@@ -1,0 +1,36 @@
+```python
+@gene('s1', 'value of doing this option now: cast abilities, farm camps until 10 gems, recall at a quarter health')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() < 10 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s3", "distance field to the goals: keep farming camps until the bag holds 10 gems")
+def goal_field() -> Field:
+    if gems() < 10 and round() < 1900:
+        return field(farm_goals())
+    return field(goals())
+
+@gene("new", "camp groups to farm: living groups other than golems and monoliths", parents=["s3"])
+def farm_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc - type_spawns(MONOLITH) - type_spawns(GOLEM)
+
+```

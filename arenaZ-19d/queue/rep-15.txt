@@ -1,0 +1,35 @@
+```python
+@gene('s1', 'value of doing this option now: cast abilities, strength shards, recall at a quarter health')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 + item_strength(o.item) if item_cost(o.item) >= 30 and item_strength(o.item) > 0 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() < 15 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: a free altar once the bag holds 15 gems, else a living camp group other than golems and monoliths')
+def goals() -> Tiles:
+    if gems() >= 15 or (gems() > 0 and round() > 1900):
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc - type_spawns(MONOLITH) - type_spawns(GOLEM)
+
+```

@@ -20,3 +20,30 @@
 [08:40:14] [Z] birth Z9 (tune ) of ['Z7'] species S5; 10 genomes $0.00
 [08:40:14] [Z] summary: births 10 deaths 0 games 8768 $0.00; top [('Z5', 31.53, 1.01, 88, 'S3'), ('Z7', 30.79, 0.97, 88, 'S5'), ('Z10', 30.79, 6.0, 0, 'S5')]; top vs anchors {'Z5': 1.0, 'Z7': 0.875, 'Z6': 0.625}
 [08:40:14] [Z] birth Z10 (tune ) of ['Z7'] species S5; 11 genomes $0.00
+[08:43:29] [Z] birth Z11 (mutate session) of ['Z1'] species S1; 12 genomes $0.00
+[08:43:29] [Z] new species S6 founded by Z12
+[08:43:29] [Z] birth Z12 (mutate session) of ['Z5'] species S6; 13 genomes $0.00
+[08:43:30] [Z] birth Z13 (mutate session) of ['Z6'] species S4; 14 genomes $0.00
+[08:43:30] [Z] birth Z14 (mutate session) of ['Z5'] species S3; 15 genomes $0.00
+[08:43:30] [Z] rejected mutate session: behavioural twin
+[08:43:30] [Z] birth Z15 (mutate session) of ['Z7'] species S5; 16 genomes $0.00
+[08:43:31] [Z] new species S7 founded by Z16
+[08:43:31] [Z] birth Z16 (mutate session) of ['Z6'] species S7; 17 genomes $0.00
+[08:43:32] [Z] rejected mutate session: behavioural twin
+[08:44:09] [Z] rejected cross : behavioural twin
+[08:44:14] [Z] birth Z17 (tune ) of ['Z12'] species S6; 18 genomes $0.00
+[08:49:05] [Z] birth Z18 (mutate session) of ['Z12'] species S6; 19 genomes $0.00
+[08:49:09] [Z] new species S8 founded by Z19
+[08:49:09] [Z] birth Z19 (mutate session) of ['Z14'] species S8; 20 genomes $0.00
+[08:49:11] [Z] new species S9 founded by Z20
+[08:49:11] [Z] summary: births 20 deaths 0 games 15832 $0.00; top [('Z5', 31.27, 0.8, 1040, 'S3'), ('Z18', 31.22, 1.02, 72, 'S6'), ('Z6', 30.88, 0.8, 920, 'S4')]; top vs anchors {'Z5': 0.821, 'Z18': None, 'Z6': 0.667}
+[08:49:11] [Z] birth Z20 (mutate session) of ['Z14'] species S9; 21 genomes $0.00
+[08:50:39] [Z] new species S10 founded by Z21
+[08:50:39] [Z] birth Z21 (mutate session) of ['Z13'] species S10; 22 genomes $0.00
+[08:50:40] [Z] new species S11 founded by Z22
+[08:50:40] [Z] birth Z22 (mutate session) of ['Z15'] species S11; 23 genomes $0.00
+[08:50:43] [Z] new species S12 founded by Z23
+[08:50:43] [Z] birth Z23 (mutate session) of ['Z13'] species S12; 24 genomes $0.00
+[08:50:43] [Z] rejected mutate session: behavioural twin
+[08:50:44] [Z] new species S13 founded by Z24
+[08:50:44] [Z] birth Z24 (mutate session) of ['Z15'] species S13; 24 genomes $0.00

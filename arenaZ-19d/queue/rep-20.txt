@@ -1,0 +1,6 @@
+```python
+@gene("new", "which option kinds to list at all: skip wards, locks and cancels to save fuel", parents=["s4"])
+def consider(kind: Num) -> Bool:
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+
+```
