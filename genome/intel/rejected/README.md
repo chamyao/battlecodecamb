@@ -361,3 +361,9 @@ Rejected. Ranking groups by value sends the whole team to the same distant rich 
 - lanes 2-0
 
 Rejected. Like the early retreat, pulling a champion off its own fight to regroup costs more than it saves.
+
+**B1873bb-pair** (the general version): before r300 the camp walk (rule 20) goes to the nearest visible ally when it is more than 6 away.
+- vs idle: total rounds 47,923 → 48,558 (worst map expanse +142).
+- 34/80 vs bossbush.
+- Real vs the v33 build: 4-4 (swirl, monolith, elkring and lanes each 1-1, mostly by side).
+- Not a pass: no gain, and slower solo.
