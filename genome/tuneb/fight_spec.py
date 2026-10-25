@@ -4,7 +4,7 @@ import json, sys
 sys.path.insert(0, '.')
 from genome.tuneb import const_spec as cs
 
-REUSE = ['run_hp', 'recall_hp', 'thr_r', 'thr_hp', 'thr_r2', 'thr2_r', 'thr_eta', 'fire_r', 'fir_hp', 'ahead_r',
+REUSE = ['cash_min', 'bag_eta', 'bag_thr', 'run_hp', 'recall_hp', 'thr_r', 'thr_hp', 'thr_r2', 'thr2_r', 'thr_eta', 'fire_r', 'fir_hp', 'ahead_r',
          'ahead_fin_r', 'ahead_hpw', 'ahead_cc', 'heal_hp', 'pref_eta', 'pref_gems']
 EXTRA = {'run_hp': [0.5], 'recall_hp': [0.5], 'heal_hp': [0.9]}
 
@@ -35,11 +35,21 @@ SWITCH = [
 ]
 
 
-def variants(text):
+# a knob moved by a promoted edit: (name, new current, new values)
+MOVED = {}
+
+
+def variants(text, moved=None):
+    moved = moved or MOVED
     out = []
+    allk = {k[0]: k for k in cs.KNOBS + cs.RH + cs.B32}
     by = {k[0]: k for k in cs.knobs(text)}
+    for n, (cur, vals) in moved.items():
+        if n in allk:
+            by[n] = (n, allk[n][1], cur, vals)
     knobs = [by[n] for n in REUSE if n in by]
-    knobs = [(n, t, c, v + EXTRA.get(n, [])) for n, t, c, v in knobs] + NEW
+    knobs = [(n, t, c, v + EXTRA.get(n, [])) for n, t, c, v in knobs]
+    knobs += [(n, t, moved[n][0], moved[n][1]) if n in moved else (n, t, c, v) for n, t, c, v in NEW]
     for n, tpl, cur, vals in knobs:
         old = tpl.format(cs.fmt(cur))
         if n == 'fight_rng' or n == 'reach_pad':
@@ -56,7 +66,7 @@ def variants(text):
 
 
 if __name__ == '__main__':
-    v = variants(open(sys.argv[2]).read())
+    v = variants(open(sys.argv[2]).read(), json.loads(sys.argv[3]) if len(sys.argv) > 3 else None)
     v.insert(0, dict(tag='centre', edits=[]))
     json.dump(v, open(sys.argv[1], 'w'), indent=0)
     print(len(v))
