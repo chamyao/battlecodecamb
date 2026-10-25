@@ -1,0 +1,13 @@
+```python
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked), preferring altars with no visible enemy champion within 2 (1000 if none)")
+def altar_eta() -> Num:
+    h = here()
+    ok = altars() - locked_altars()
+    clear = ok - ring(enemy_tiles(), 2)
+    d = min((max(0, dist(h, a) - 1) for a in clear), default=-1)
+    if d < 0:
+        d = min((max(0, dist(h, a) - 1) for a in ok), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```

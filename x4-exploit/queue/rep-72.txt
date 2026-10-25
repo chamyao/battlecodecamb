@@ -1,0 +1,8 @@
+```python
+@gene("r16", "standing on a cleared camp spawn: hold so the capture timer runs, unless below 25% health with an enemy champion within 2 (the hold would just feed it a kill)")
+def r_hold() -> Bool:
+    g = spawn_group(here())
+    if g < 0 or not group_reward(g):
+        return False
+    return not (hurt_below(0.25) and count(dist(e.pos, here()) <= 2 for e in enemies()) > 0)
+```

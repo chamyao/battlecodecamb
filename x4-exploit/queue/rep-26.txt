@@ -1,0 +1,5 @@
+```python
+@gene("s14", "the first visible camp in reach (intel: farmable first), the most hurt one first (finish a camp before starting another)", parents=["s14"])
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: (10 if farmable(c) else 0) - c.health_frac)
+```

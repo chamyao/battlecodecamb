@@ -1,0 +1,14 @@
+```python
+@gene("m3", "an altar within lock reach (2), not already locked if one is free, preferring the one nearest a visible enemy champion (lock where they bank)")
+def lock_altar() -> Tile:
+    s = altars() & near(here(), 2)
+    if size(s) == 0:
+        return tile(-1, -1)
+    free = s - locked_altars()
+    if size(free) == 0:
+        return first_tile(s)
+    ev = enemies()
+    if count_units(ev) == 0:
+        return first_tile(free)
+    return best(free, lambda t: -min(dist(e.pos, t) for e in ev))
+```
