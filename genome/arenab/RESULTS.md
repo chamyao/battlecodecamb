@@ -109,3 +109,9 @@ v29-gg (genome/arenab/cand/v29-gg.genome) = v29 + gem-groups-cm's edit (nearest 
   (980 -> 800 gems, deaths 6 -> 21.5); rushbait/reverse-spiral/contest/boss-battle unchanged (their gems
   are in monolith/golem groups). Sum of rounds over 80 games: 53,218 -> 50,771.
 - head to head vs v29: 39/80 (even), which is why h2h-only gates kept dropping it.
+
+**Sim/real divergence (confirmed by the genome lead, Oct 25 ~05:58):** in every real genome bot, group_gems / group_gold /
+group_reward return 0 (bot_api.cpp builds groups from sdk_map_camp_layout without storing rewards); the sim fills them.
+So v29-gg plays identically to v29 in real cambc (vs a do-nothing bot: same rounds, same final 1008 gems / 2 kills /
+19238 gold on elk-arena; real h2h 39/80 mirrored). Every gem-reward-weighted genome so far was sim-only. The fuel session
+has the fix; re-test v29-gg in real after it lands.
