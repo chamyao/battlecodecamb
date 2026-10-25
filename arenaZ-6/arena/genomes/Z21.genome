@@ -1,0 +1,78 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+EC: Tiles
+
+@gene("s1", "value of doing this option now", parents=["s1"])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z32a', 'where to walk: spawn when badly hurt; altar once carrying enough gems (or late/low hp/winning); else cleared groups, gem camps, any camp; else altar with any gems', parents=['s2'])
+def goals() -> Tiles:
+    hp = me().health_frac
+    if hp < 0.3:
+        return my_spawn()
+    g0 = gems()
+    alt = near(tile(-5, -5), 0)
+    if g0 > 0:
+        for a in altars() - locked_altars():
+            alt = alt | near(a, 1)
+        urgent = g0 >= 20 or round() > 1750 or hp < 0.5 or team_gems() + g0 >= 1000
+        if urgent and size(alt) > 0:
+            return alt
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    rich = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            rich = rich | group_tiles(g)
+    if size(rich) > 0:
+        return rich
+    if size(alt) > 0:
+        return alt
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals (cached per turn in update)", parents=["s3"])
+def goal_field() -> Field:
+    return GF
+
+@gene('Z32b', 'closer step toward goals, minus a penalty for enemy champions near the destination (cached tiles); unreachable tiles are rejected', parents=['s4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    there = at(f, t)
+    if there >= 1000000000:
+        return -1
+    step = at(f, me().pos) - there
+    danger = sum(1 for p in EC if dist(p, t) <= 2)
+    return step * 2 - danger * 3
+
+@gene('Z13a', 'once per turn: goal distance field and visible enemy champion tiles', parents=['Z13a'])
+def update() -> None:
+    GF = field(goals())
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        if u.is_champion:
+            acc = acc | near(u.pos, 0)
+    EC = acc

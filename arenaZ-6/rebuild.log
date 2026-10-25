@@ -24,3 +24,37 @@ In function ‘constexpr void std::__final_insertion_sort(_RandomAccessIterator,
 [ 46%] Linking CXX static library libcbs.a
 [ 73%] Built target cbs
 [ 80%] Building CXX object interp/CMakeFiles/interp.dir/src/policy.cpp.o
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp: In member function ‘void interp::{anonymous}::Interp::turn()’:
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:926:84: warning: format ‘%d’ expects argument of type ‘int’, but argument 5 has type ‘int64_t’ {aka ‘long int’} [-Wformat=]
+  926 |                                 std::printf("@@DT r=%u champ=%u total=%lld blocks=%d calls=%llu adj=%lld\n", round_now, self(),
+      |                                                                                   ~^
+      |                                                                                    |
+      |                                                                                    int
+      |                                                                                   %ld
+  927 |                                                         static_cast<long long>(api.spent - spent0), blocks_this_turn,
+      |                                                                                                     ~~~~~~~~~~~~~~~~
+      |                                                                                                     |
+      |                                                                                                     int64_t {aka long int}
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp: In lambda function:
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::field’ [-Wmissing-field-initializers]
+ 2411 |                         Interp in{ api, *prog, Rng{ s | 1 } };
+      |                                                             ^
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::camp_ids’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::work’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::memo0’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::sightings’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::static_block’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::dyn_block’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::camps_cache’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::camp_tiles’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::blocked_cache’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:2411:61: warning: missing initializer for member ‘interp::{anonymous}::Interp::map_sets’ [-Wmissing-field-initializers]
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp: At global scope:
+/root/bc/genome/w/arenaZ-6/interp/src/policy.cpp:591:7: warning: ‘interp::{anonymous}::Value interp::{anonymous}::set_of(const cbs::Bitboard&)’ defined but not used [-Wunused-function]
+  591 | Value set_of(const Bitboard& b)
+      |       ^~~~~~
+[ 86%] Linking CXX static library libinterp.a
+[ 86%] Built target interp
+[ 93%] Building CXX object CMakeFiles/genome_eval.dir/tools/genome_eval.cpp.o
+[100%] Linking CXX executable genome_eval
+[100%] Built target genome_eval
