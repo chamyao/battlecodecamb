@@ -80,3 +80,7 @@ Paired with b8: 27-23 -> 31-19, gems +87 +- 39, stuck 31.5 -> 4.0. elk_arena vs 
 ## Batch 10 (2026-10-25)
 
 Paired with b9: 48 of 50 games have identical scores, boss_battle included (363-1352). The v33 change was not observed; v33 activation is unconfirmed. See batches/b10.md.
+
+## Batch 11 (2026-10-25, live v34 = v33-cash3-ahead4)
+
+Paired with b10: 32-18 -> 28-22 (3 flips to a win, 7 to a loss, p ~0.34), gems -41 +- 35, gems lost on death +44. Negative trend vs v33; flagged to the leads (revert target v33). See batches/b11.md.
