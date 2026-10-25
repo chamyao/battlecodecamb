@@ -3569,3 +3569,29 @@
 [07:10:25] [B] birth B1837 (mutate session) of ['B1833'] species S8; 24 genomes $11.08
 [07:10:34] [B] birth B1838 (tune ) of ['B1816'] species S6; 24 genomes $11.08
 [07:10:36] [B] birth B1839 (mutate session) of ['B1826'] species S10; 24 genomes $11.08
+[07:11:00] [B] summary: births 1840 deaths 1817 games 434248 $11.08; top [('B1836', 49.1, 0.91, 144, 'S10'), ('B1838', 48.9, 0.97, 88, 'S6'), ('B1821', 48.62, 0.81, 368, 'S10')]; top vs anchors {'B1836': 0.917, 'B1838': 0.781, 'B1821': 0.725}
+[07:11:00] [B] birth B1840 (mutate session) of ['B1833'] species S8; 24 genomes $11.08
+[07:11:23] [B] birth B1841 (mutate session) of ['B1838'] species S6; 24 genomes $11.08
+[07:11:25] [B] rejected mutate session: behavioural twin
+[07:11:46] [B] birth B1842 (mutate session) of ['B1546'] species S5; 24 genomes $11.08
+[07:11:51] [B] birth B1843 (tune ) of ['B1733'] species S9; 24 genomes $11.08
+[07:12:01] [B] rejected mutate session: behavioural twin
+[07:12:24] [B] birth B1844 (cross ) of ['B1821', 'B1836'] species S10; 24 genomes $11.08
+[07:12:32] [B] birth B1845 (mutate session) of ['B1821'] species S10; 24 genomes $11.08
+[07:12:40] [B] birth B1846 (mutate session) of ['B1413'] species S2; 24 genomes $11.08
+[07:13:02] [B] birth B1847 (mutate session) of ['B1820'] species S3; 24 genomes $11.08
+[07:13:06] [B] rejected mutate session: behavioural twin
+[07:13:13] [B] rejected mutate session: behavioural twin
+[07:13:26] [B] rejected cross : behavioural twin
+[07:13:31] [B] rejected mutate session: behavioural twin
+[07:13:36] [B] rejected mutate session: behavioural twin
+[07:13:58] [B] birth B1848 (mutate session) of ['B1817'] species S7; 24 genomes $11.08
+[07:14:02] [B] birth B1849 (mutate session) of ['B1821'] species S10; 24 genomes $11.08
+[07:14:19] [B] rejected llm_cross session: behavioural twin
+[07:14:25] [B] rejected tune : behavioural twin
+[07:14:49] [B] champion anchor champ37-B1845 (mu 49.3)
+[07:14:49] [B] summary: births 1850 deaths 1827 games 437472 $11.08; top [('B1845', 49.33, 0.88, 168, 'S10'), ('B1844', 49.3, 0.87, 152, 'S10'), ('B1816', 48.83, 0.84, 576, 'S6')]; top vs anchors {'B1845': 0.833, 'B1844': 0.833, 'B1816': 0.75}
+[07:14:49] [B] birth B1850 (llm_cross session) of ['B1413', 'B1849'] species S10; 24 genomes $11.08
+[07:14:57] [B] birth B1851 (mutate session) of ['B1844'] species S10; 24 genomes $11.08
+[07:14:58] [B] birth B1852 (mutate session) of ['B1849'] species S10; 24 genomes $11.08
+[07:15:06] [B] birth B1853 (cross ) of ['B1841', 'B1816'] species S6; 24 genomes $11.08

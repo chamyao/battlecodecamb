@@ -1,0 +1,5 @@
+```python
+@gene('s13', 'the reachable enemy champion I can kill fastest: fewest of my basic attacks to kill (health plus shield / my attack damage), a gem carrier counting as up to 2 hits nearer (its death drops the gems to us)')
+def fight_foe() -> Unit:
+    return best(enemies(), lambda u: -((u.health + shield(u)) / max(1, attack_damage(me(), u))) + min(2, unit_gems(u) / 10) if in_reach(u) else -INF)
+```

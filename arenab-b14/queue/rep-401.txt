@@ -1,0 +1,13 @@
+```python
+@gene('a12', 'dash this turn: retreat whenever fuel > 35k (escape matters most); other walks with GOAL over 2 away (the camp walk: over 4 away, the dash is kept for escapes near camps), fuel > 41k, and not when hurt below 35% with no retreat rule')
+def dash_gate() -> Bool:
+    if RULE == 3:
+        return fuel() > 35000
+    if not valid(GOAL):
+        return False
+    if dist(here(), GOAL) <= (4 if RULE == 20 else 2):
+        return False
+    if me().health_frac < 0.35 and RULE != 4 and RULE != 5:
+        return False
+    return fuel() > 41248
+```
