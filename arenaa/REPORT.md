@@ -7,6 +7,8 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Z-18a m1 517 at b112 looked too good. Its writer had copied A61188's exact draft table (and shop items) from the
   repo at Z15; 18b is contaminated too (34/40), 18c/18d barely or not. Cancelled; Z-19a-d restart with an
   isolation rule (CULL.md). Z-5 and the relay show no such copy.
+- The search session checked all 270 Z panel snapshot genomes (Z-1x, Z-2 to Z-17): the A-line table appears only in
+  Z-18a (Z105 / Z107 / Z109). Earlier Z results stand. Z-18 scores are void; Z-19 panels are attached.
 - Lesson for the training setup: session writers can read the whole repo, so "from the starter" must be enforced
   (instruction + fingerprint check, ideally a checkout without evolved genomes).
 - A-9 panel: m20 1026 (b2026), m21 1019 (b2187). Flat at ~1020 since b1777. v32 (B1873) is now live; nothing
