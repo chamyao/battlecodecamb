@@ -1,0 +1,20 @@
+```python
+@gene('w4', 'nearest tile of s by walking (camp tiles allowed as goals), preferring tiles no enemy champion stands next to when s has any; if none is reachable, the nearest free tile within 2 of s so we wait close by; invalid if s is empty')
+def closest(s: Tiles) -> Tile:
+    if size(s) == 0:
+        return tile(-1, -1)
+    if here() in s:
+        return here()
+    cand = s - taken()
+    safe = cand - ring(enemy_tiles(), 1)
+    if size(safe) > 0:
+        cand = safe
+    t = walk_nearest(cand, here(), blocked() - cand)
+    if valid(t):
+        return t
+    b = blocked()
+    near_s = ring(s, 2) - b
+    if here() in near_s:
+        return here()
+    return walk_nearest(near_s, here(), b)
+```

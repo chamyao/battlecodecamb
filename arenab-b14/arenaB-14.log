@@ -983,3 +983,20 @@
 [08:35:39] [B] rejected cross : solo-farm: 52754 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 498
 [08:35:46] [B] rejected mutate session: behavioural twin
 [08:36:10] [B] birth B2026 (cross ) of ['B2021', 'B2024'] species S4; 24 genomes $11.08
+[08:36:22] [B] rejected llm_cross session: solo-farm: 60165 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 562
+[08:36:40] [B] birth B2027 (mutate session) of ['B2019'] species S3; 24 genomes $11.08
+[08:36:44] [B] birth B2028 (tune ) of ['B2021'] species S4; 24 genomes $11.08
+[08:36:48] [B] birth B2029 (tune ) of ['B2009'] species S6; 24 genomes $11.08
+[08:37:27] [B] summary: births 2030 deaths 2007 games 492296 $11.08; top [('B2005', 50.44, 0.85, 376, 'S10'), ('B2008', 49.55, 0.83, 264, 'S10'), ('B2018', 49.17, 0.82, 224, 'S6')]; top vs anchors {'B2005': 0.825, 'B2008': 0.705, 'B2018': 0.792}
+[08:37:27] [B] birth B2030 (mutate session) of ['B1998'] species S8; 24 genomes $11.08
+[08:37:32] [B] birth B2031 (mutate session) of ['B2029'] species S6; 24 genomes $11.08
+[08:37:33] [B] anchor v29-ringgg frozen at mu 46.40 after 200 games
+[08:37:43] [B] birth B2032 (mutate session) of ['B1859'] species S1; 24 genomes $11.08
+[08:38:16] [B] birth B2033 (mutate session) of ['B2025'] species S11; 24 genomes $11.08
+[08:38:20] [B] birth B2034 (mutate session) of ['B2030'] species S11; 24 genomes $11.08
+[08:38:27] [B] rejected mutate session: behavioural twin
+[08:39:02] [B] birth B2035 (mutate session) of ['B1998'] species S11; 24 genomes $11.08
+[08:39:03] [B] birth B2036 (mutate session) of ['B2021'] species S4; 24 genomes $11.08
+[08:39:13] [B] birth B2037 (mutate session) of ['B2008'] species S10; 24 genomes $11.08
+[08:39:32] [B] rejected cross : solo-farm: 54586 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 498
+[08:39:34] [B] birth B2038 (tune ) of ['B2008'] species S10; 24 genomes $11.08
