@@ -556,3 +556,71 @@
 [06:43:46] [Z] birth Z250 (mutate claude-opus-5-5) of ['Z237'] species S155; 24 genomes $8.63
 [06:43:46] [Z] rejected mutate claude-opus-5-5: behavioural twin
 [06:43:47] [Z] birth Z251 (mutate claude-opus-5-5) of ['Z203'] species S130; 24 genomes $8.63
+[06:44:08] [Z] new species S161 founded by Z252
+[06:44:08] [Z] birth Z252 (mutate claude-opus-5-5) of ['Z170'] species S161; 24 genomes $8.73
+[06:44:09] [Z] new species S162 founded by Z253
+[06:44:09] [Z] birth Z253 (mutate claude-opus-5-5) of ['Z239'] species S162; 24 genomes $8.73
+[06:44:23] [Z] new species S163 founded by Z254
+[06:44:23] [Z] birth Z254 (llm_cross claude-opus-5-5) of ['Z245', 'Z194'] species S163; 24 genomes $8.80
+[06:44:48] [Z] new species S164 founded by Z255
+[06:44:48] [Z] birth Z255 (llm_cross claude-opus-5-5) of ['Z252', 'Z212'] species S164; 24 genomes $8.86
+[06:45:20] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:45:22] [Z] new species S165 founded by Z256
+[06:45:22] [Z] birth Z256 (mutate claude-opus-5-5) of ['Z240'] species S165; 24 genomes $9.07
+[06:45:22] [Z] new species S166 founded by Z257
+[06:45:22] [Z] birth Z257 (mutate claude-opus-5-5) of ['Z249'] species S166; 24 genomes $9.07
+[06:45:23] [Z] new species S167 founded by Z258
+[06:45:23] [Z] birth Z258 (mutate claude-opus-5-5) of ['Z251'] species S167; 24 genomes $9.07
+[06:45:23] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:45:24] [Z] new species S168 founded by Z259
+[06:45:24] [Z] birth Z259 (mutate claude-opus-5-5) of ['Z249'] species S168; 24 genomes $9.07
+[06:45:25] [Z] summary: births 260 deaths 237 games 62000 $9.07; top [('Z190', 36.14, 0.79, 1248, 'S119'), ('Z170', 35.96, 0.79, 1792, 'S108'), ('Z255', 35.95, 0.84, 120, 'S164')]; top vs anchors {'Z190': 0.75, 'Z170': 0.857, 'Z255': None}
+[06:45:25] [Z] birth Z260 (mutate claude-opus-5-5) of ['Z228'] species S148; 24 genomes $9.07
+[06:45:27] [Z] birth Z261 (mutate claude-opus-5-5) of ['Z254'] species S163; 24 genomes $9.07
+[06:46:05] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[06:46:31] [Z] new species S169 founded by Z262
+[06:46:31] [Z] birth Z262 (llm_cross claude-opus-5-5) of ['Z260', 'Z251'] species S169; 24 genomes $9.21
+[06:46:49] [Z] new species S170 founded by Z263
+[06:46:49] [Z] birth Z263 (mutate claude-opus-5-5) of ['Z260'] species S170; 24 genomes $9.39
+[06:46:50] [Z] new species S171 founded by Z264
+[06:46:50] [Z] birth Z264 (mutate claude-opus-5-5) of ['Z240'] species S171; 24 genomes $9.39
+[06:46:51] [Z] new species S172 founded by Z265
+[06:46:51] [Z] birth Z265 (mutate claude-opus-5-5) of ['Z170'] species S172; 24 genomes $9.39
+[06:46:51] [Z] birth Z266 (mutate claude-opus-5-5) of ['Z260'] species S148; 24 genomes $9.39
+[06:46:52] [Z] birth Z267 (mutate claude-opus-5-5) of ['Z247'] species S160; 24 genomes $9.39
+[06:46:53] [Z] new species S173 founded by Z268
+[06:46:53] [Z] birth Z268 (mutate claude-opus-5-5) of ['Z170'] species S173; 24 genomes $9.39
+[06:46:54] [Z] new species S174 founded by Z269
+[06:46:54] [Z] birth Z269 (mutate claude-opus-5-5) of ['Z251'] species S174; 24 genomes $9.39
+[06:47:13] [Z] summary: births 270 deaths 247 games 64792 $9.43; top [('Z270', 36.61, 6.0, 0, 'S169'), ('Z170', 36.07, 0.79, 1960, 'S108'), ('Z190', 35.95, 0.81, 1408, 'S119')]; top vs anchors {'Z170': 0.857, 'Z190': 0.833, 'Z251': 0.875}
+[06:47:13] [Z] birth Z270 (mutate claude-opus-5-5) of ['Z262'] species S169; 24 genomes $9.43
+[06:47:36] [Z] new species S175 founded by Z271
+[06:47:36] [Z] birth Z271 (llm_cross claude-opus-5-5) of ['Z212', 'Z267'] species S175; 24 genomes $9.69
+[06:47:37] [Z] new species S176 founded by Z272
+[06:47:37] [Z] birth Z272 (llm_cross claude-opus-5-5) of ['Z194', 'Z252'] species S176; 24 genomes $9.69
+[06:47:37] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[06:47:37] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[06:48:06] [Z] birth Z273 (mutate claude-opus-5-5) of ['Z265'] species S172; 24 genomes $9.77
+[06:48:07] [Z] birth Z274 (mutate claude-opus-5-5) of ['Z242'] species S157; 24 genomes $9.77
+[06:48:08] [Z] new species S177 founded by Z275
+[06:48:08] [Z] birth Z275 (mutate claude-opus-5-5) of ['Z170'] species S177; 24 genomes $9.77
+[06:48:08] [Z] birth Z276 (mutate claude-opus-5-5) of ['Z170'] species S108; 24 genomes $9.77
+[06:48:24] [Z] rejected tune : behavioural twin
+[06:48:43] [Z] new species S178 founded by Z277
+[06:48:43] [Z] birth Z277 (llm_cross claude-opus-5-5) of ['Z251', 'Z252'] species S178; 24 genomes $10.02
+[06:48:46] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:48:47] [Z] birth Z278 (mutate claude-opus-5-5) of ['Z231'] species S151; 24 genomes $10.02
+[06:48:47] [Z] new species S179 founded by Z279
+[06:48:47] [Z] birth Z279 (mutate claude-opus-5-5) of ['Z170'] species S179; 24 genomes $10.02
+[06:48:47] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:48:50] [Z] new species S180 founded by Z280
+[06:48:50] [Z] summary: births 280 deaths 257 games 67168 $10.02; top [('Z252', 36.42, 0.8, 616, 'S161'), ('Z253', 36.01, 0.79, 504, 'S162'), ('Z251', 35.98, 0.79, 632, 'S130')]; top vs anchors {'Z252': 1.0, 'Z253': 0.938, 'Z251': 0.938}
+[06:48:50] [Z] birth Z280 (llm_cross claude-opus-5-5) of ['Z255', 'Z264'] species S180; 24 genomes $10.02
+[06:49:14] [Z] new species S181 founded by Z281
+[06:49:14] [Z] birth Z281 (mutate claude-opus-5-5) of ['Z201'] species S181; 24 genomes $10.24
+[06:49:16] [Z] new species S182 founded by Z282
+[06:49:16] [Z] birth Z282 (mutate claude-opus-5-5) of ['Z274'] species S182; 24 genomes $10.24
+[06:49:18] [Z] new species S183 founded by Z283
+[06:49:18] [Z] birth Z283 (llm_cross claude-opus-5-5) of ['Z264', 'Z190'] species S183; 24 genomes $10.24
+[06:49:19] [Z] new species S184 founded by Z284
+[06:49:19] [Z] birth Z284 (llm_cross claude-opus-5-5) of ['Z252', 'Z212'] species S184; 24 genomes $10.24
