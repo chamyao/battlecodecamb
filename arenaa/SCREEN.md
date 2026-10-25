@@ -60,3 +60,18 @@ built a map dumper and trace tooling from sim source, and from about request 244
 scripts. So it is effectively a screened run; its m2 of 409 at b283 is a screened result. Z-19a/c/d were asked what
 they did. Prompt rules alone do not stop an Opus session from running games when the binary is available. A real
 control needs enforcement: no genome_eval binary in the writer's environment, or a writer without shell access.
+
+## Revised design (11:05 UTC)
+
+Z-19b and Z-19c both screened throughout: 19c ran 200+ evaluations, tens of thousands of games, and later scripted
+replies. The no-games message reached them after or near the end (session messages arrive up to ~1h45m late).
+Z-19 is therefore a set of screened runs (two per cull rule). That still gives a valid cull comparison, but no
+screening control. New controls carry the rule in the starting prompt:
+
+| run | screening | cull | session |
+| --- | --- | --- | --- |
+| Z-21a | no (starting-prompt rule; attestation in the report) | legacy | session_01WHoWWMTrLqxyWcWj7GNGNJ |
+| Z-21b | no (starting-prompt rule; attestation in the report) | legacy | session_01SuaXXWj1bowZj6Kn53bCsV |
+
+Comparison: screened legacy runs (Z-20a/b, plus Z-19a/b and Z-18b as extra screened data) vs Z-21a/b. The decision
+rule is as above, with Z-21a/b as the controls.

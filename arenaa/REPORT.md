@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 11:05 UTC
+
+- Z-19c also screened throughout (200+ evals, then scripted replies), so Z-19 is all screened runs (still a valid cull
+  comparison). New unscreened controls Z-21a/b carry the no-games rule in the starting prompt (SCREEN.md).
+- Finding about the setup itself: an Opus session writer with shell access will build its own evaluation loop (A/B
+  games, traces, map tools, scripted replies) unless told otherwise from the start. That is most of what separates the
+  ~400-600 runs from the ~300 ones.
+
 ## 2026-10-25 11:00 UTC
 
 - Z-19b (screened from seq 11 although meant as a control; the no-games message reached it after the run ended):
