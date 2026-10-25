@@ -355,3 +355,32 @@ Behaviours an exploiter population should find:
 - the rush banker, with a first tribute before r50.
 
 `stress/hunter` and `stress/hunter-carry` cover only the hunter type.
+
+## Economy mechanism (real b5, v28; `econ_source.py`), up to r500
+
+| per game, our losses (32) | us | them |
+|---|---|---|
+| gold from captures | 1,654 | 2,089 |
+| gold from kills | 53 | 508 |
+| other gold (passives, camp kills) | 0 | 108 |
+| captures by r500 | 22.7 | 22.7 |
+| gold per capture event | 88 | 99 |
+| **champions on a capture (sharing the reward)** | **1.8** | **1.0** |
+| gold spent in the shop | 1,387 | 2,458 |
+| Treasure shards bought / champions holding them / most on one champion | 9.8 / 3.9 / 3.4 | 2.6 / 1.9 / 1.0 |
+| first Treasure emblem (5 shards on one champion) | never by r500 | never |
+
+In our wins: captures 29.6 vs 20.3, gold from captures 1,984 vs 1,406, and the same 1.8 vs 1.0 champions per capture.
+
+Mechanism, in order of size:
+1. **They earn kill bounties early:** 508 against our 53 by r500, about 40-80 gold per 50 rounds from r50 on.
+2. **We capture in pairs, they capture solo.** The capture count is equal, but we tie up 1.8 champions per capture
+   to their 1.0, so their spare champion-time goes into kills and more groups. In the sim, forcing solo captures
+   (`rejected/v28-solo`: skip groups an ally stands on) gives more captures but loses: 33/80 vs v28, and 5-12 points
+   lower vs farmer, hunter and B792, because the pair protects us in fights.
+3. **Treasure shards are wasted.** We buy about 10 by r500 but spread them over about 4 champions, so no Treasure
+   emblem (its +20% gold passive needs 5 matching shards on one champion) is ever completed. This one is for tune-B: the shop
+   plan (a11 next_shard / a15 shard_until) splits each purchase by kind per champion, not by who should carry Treasure.
+   The earlier "carry" test (all of Vesper Vale's shards Treasure-Str: 29/80 vs B318) changed both the gold and the fight
+   stats, so it does not isolate this.
+4. **Draft:** both sides take Vesper Vale (100% / 88%), so the gold passive is not the difference.
