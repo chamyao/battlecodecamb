@@ -229,6 +229,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   28 = genome a61188-mono (A61188 + Arena B's farmable-camps edit for monolith deaths; genome/v0 568cbf5, genome
   sha256 54e1275a..., bundle sha256 8a921761...; submitted 03:43:47 UTC Oct 25). Smoke vs A61188: great-wall 2-0
   (monolith deaths ~halved), shortcut 1-1, 0 crashes. Revert target: v27 (A61188, 8f44d04a).
+  v28 vs A61188, 50 paired unranked: monolith deaths 1.86 -> 0.58/game, 13-37 -> 18-32; ranked 14-11 early.
+  A61188 final ranked 33-22.
+  29 = genome v28-emblem (v28 + Treasure shards concentrated on one carrier until its emblem; genome/v0 97194bf,
+  genome sha256 781ad53e..., bundle sha256 61743fda...; submitted 05:11:34 UTC Oct 25). Real vs v28 45/80,
+  0 crashes. Revert target: v28 (a61188-mono, 8a921761).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
