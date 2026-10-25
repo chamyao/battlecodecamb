@@ -126,7 +126,8 @@ def main():
                     help="arena dir on remote/genome, a chain of resumed jobs' dirs joined by +, or a job prefix "
                          "ending in * (arenaA-*: every arenaA-N job on jobs/genome, finished when all have an rc); "
                          "(e.g. arenaB-1/arena+arenaB-2/arena): the latest pushed one is read, and the chain is "
-                         "finished when its last job has an rc file")
+                         "finished when its last job has an rc file; or branch:<branch>:<dir>:<finished-marker path> "
+                         "for an arena mirrored to a branch")
     ap.add_argument("--ref", default=str(ROOT / REF), help="the live ladder bot")
     ap.add_argument("--anchors", action="append", default=None,
                     help="comma list of anchors for the drop check; may be repeated (lists are joined)")
@@ -197,6 +198,22 @@ def main():
                 finished += status in ("exited", "failed", "stopped", "cancelled")
                 fetch = lambda p, base=base, rdir=rdir: _http(f"{base}/files/{rdir}/{p}")
                 dirs, arena, job = [keyname or chain], chain, f"run{run_id}"
+            elif chain.startswith("branch:"):  # a mirrored arena: branch:<branch>:<dir>:<file that marks it finished>
+                br, rdir, donef = (chain[7:].split(":") + [""])[:3]
+                git("fetch", "-q", "origin", br)
+                st = git("show", f"origin/{br}:{rdir}/state.json")
+                if st.returncode != 0:
+                    log(f"{chain}: no state yet")
+                    continue
+                s = json.loads(st.stdout)
+                finished += bool(donef) and git("cat-file", "-e", f"origin/{br}:{donef}").returncode == 0
+
+                def fetch(p, br=br, rdir=rdir):
+                    g = git("show", f"origin/{br}:{rdir}/{p}")
+                    if g.returncode != 0:
+                        raise FileNotFoundError(p)
+                    return g.stdout
+                dirs, arena, job = [rdir], chain, rdir.split("/")[0]
             elif chain.endswith("*"):  # every job <prefix>N on jobs/genome, in order: a chain of resumes
                 import re
                 names = git("ls-tree", "--name-only", "origin/jobs/genome").stdout.split()
@@ -207,7 +224,7 @@ def main():
             else:
                 dirs = chain.split("+")
                 done = git("cat-file", "-e", f"origin/remote/genome:{dirs[-1].split('/')[0]}/rc").returncode == 0
-            if not chain.startswith("api:"):
+            if not chain.startswith(("api:", "branch:")):
                 if not dirs:
                     continue
                 finished += done
