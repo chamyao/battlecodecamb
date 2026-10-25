@@ -5,18 +5,17 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-25 00:09 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 7.57 7.03 7.51 on 16 threads.
-Disk: 8.5G used of 38G.
+Updated 2026-10-25 00:15 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 14.93 11.32 9.22 on 16 threads.
+Disk: 8.7G used of 38G.
 
 ## python3 processes
 ```
 474363 python3 -m genome.search.arena --out /root/bc/genome/out/arenaA-6/arena --resume-from /root/bc/genome/out/arenaA-6/../arenaA-3/arena --tag A6 --seed genome/seeds/v23.genome --budget 7.77 --threads 5 --fixed-anchors --refingerprint --gate-every 100000000
+494458 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-2/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-2/starter.genome --budget 3 --threads 5 --fixed-anchors --gate-every 100000000 --rng-salt 1
+506657 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-3/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-3/starter.genome --budget 3 --threads 5 --fixed-anchors --gate-every 100000000
 ```
 ## tick.log (last 40 lines)
 ```
-fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
-[22:20:15] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
 [22:25:19] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:30:22] genome: job lineage-A exited rc=0
 fatal: not a git repository: /root/bc/genome/w/simspeed-exact-1/.git/worktrees/base
@@ -54,4 +53,7 @@ Terminated
 [00:09:24] genome: started job arenaZ-2 at 7e40b6f9582dc78a054cc969f81077bf58ea5294
 [00:09:24] genome: job panelA-6 exited rc=stopped
 [00:09:30] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[00:14:45] genome: started job arenaZ-3 at 7e40b6f9582dc78a054cc969f81077bf58ea5294
+[00:14:59] genome: started job arenaZ-4 at 7e40b6f9582dc78a054cc969f81077bf58ea5294
+[00:15:05] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
