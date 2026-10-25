@@ -1,0 +1,7 @@
+```python
+@gene('B2249d', 'the enemy champion carrying the most gems (its death drops them to us), then nearest, preferring the weaker one at similar range; champions on their own spawn are skipped so they do not mask a reachable target', parents=['a4'])
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    h = here()
+    return best(enemies(), lambda u: -1000 if u.pos in es else unit_gems(u) * 10 - dist(h, u.pos) - 4 * u.health_frac)
+```

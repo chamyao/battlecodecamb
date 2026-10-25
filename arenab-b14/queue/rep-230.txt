@@ -1,0 +1,8 @@
+```python
+@gene('s8', 'under fire: in danger, or a non-recalling enemy champion could hit us within 5 turns (a 5-turn recall would be cancelled); far or leaving enemies no longer block a recall or cash-out')
+def under_fire() -> Bool:
+    if in_danger():
+        return True
+    h = here()
+    return any(not is_recalling(u) and eta(dist(h, u.pos) - u.attack_range, u.move_speed) <= 5 for u in enemies())
+```

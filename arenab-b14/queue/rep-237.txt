@@ -1,0 +1,23 @@
+```python
+@gene("a13", "a purchase is still due this turn unless an enemy champion can hit us (then fight or move first); cheap gold and spawn tests first")
+def shop_pending() -> Bool:
+    if gold() < 10 or RULE < 2 or not at_spawn() or not can_shop():
+        return False
+    if foe_in_reach():
+        return False
+    if LOCK_BUY and not has_lock():
+        return True
+    return gold() >= 30 and next_shard() >= 0
+
+@gene("r16", "standing on a cleared camp spawn: hold so the capture timer runs, unless the capture is contested (an enemy champion within 3: the timer cannot finish) or an ally with a lower type id already holds the same group (one holder takes the whole reward; extra allies only split it)")
+def r_hold() -> Bool:
+    p = here()
+    g = spawn_group(p)
+    if g < 0 or not group_reward(g):
+        return False
+    if any(dist(p, u.pos) <= 3 for u in enemies()):
+        return False
+    ts = group_tiles(g)
+    t = me().type
+    return not any(a.pos != p and a.pos in ts and a.type < t for a in allies())
+```

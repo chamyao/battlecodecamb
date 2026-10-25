@@ -1,0 +1,17 @@
+```python
+@gene("a16", "units of the next shard still to buy; when one more unit than the split gives would complete an emblem of that shard (5 matching combine), buy it now and take it from the later kinds")
+def shard_left() -> Num:
+    d = shards_done()
+    n = shard_until(4)
+    for k in range(4):
+        if d < shard_until(k + 1):
+            rem = shard_until(k + 1) - d
+            item = 18 if k == 0 else (28 if k == 1 else (6 if k == 2 else 10))
+            own = items_owned(item)
+            part = own - 5 * floor(own / 5)
+            need = 5 - part
+            if part > 0 and need == rem + 1 and d + need <= n:
+                return need
+            return rem
+    return 0
+```
