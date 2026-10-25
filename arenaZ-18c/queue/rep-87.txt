@@ -1,0 +1,11 @@
+```python
+GOALF: Field = None
+
+@gene("s3", "distance field to the goals, computed once per turn in update")
+def goal_field() -> Field:
+    return GOALF
+
+@gene("new", "compute the goal distance field once per turn instead of every pass", parents=["s3"])
+def update() -> None:
+    GOALF = field(goals())
+```
