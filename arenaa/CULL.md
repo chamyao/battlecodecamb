@@ -82,7 +82,7 @@ measurable effect on panel strength at this length. Caveats: the runs were stopp
 
 Z-18a m1 was 517 at b112, far above anything earlier. The check: Z-18a's writer added A61188's exact draft table
 (pick_value Vendetta 6 / Vesper Vale 5 / Tavi 4 / Ryth 3 / Ren 2) at Z15, and its shop sequence uses A61188's items.
-The starter has neither. 34 of Z-18b's last 40 genomes carry the table; 18c has 0 and 18d has 3. The writers had
+The starter has neither. (Correction 08:55: my first count matched any VESPER_VALE mention. The exact-table audit finds the copy only in Z-18a; Z-18b's draft is its own.) The writers had
 read evolved genomes in the repo (genome/candidates etc.), so Z-18 does not measure training from the starter, and
 the contamination is uneven across arms. Cancelled.
 Z-5's Z392 and the relay's Z400 do not carry the table (their draft and shop genes are their own).
@@ -96,3 +96,12 @@ LANGUAGE; no other genomes, policies or runs). After the runs, check the genomes
 | Z-19b | legacy | session_01R9v74DAjVMtZPr6b1Yk49e |
 | Z-19c | min-mu | session_01KiAQyz3ExQJnqUuMh5hXuT |
 | Z-19d | min-mu | session_01LfY14SU47oxSPeSiE8zGZ6 |
+
+### Z-18b (finished despite the stop) and writer-side screening
+
+Z-18b missed the stop and ran to 477 births (in-arena top Z400 47.5). Its writer screened candidates with its own
+80-game genome_eval head-to-heads before replying. That is a different treatment (extra compute in the loop) and
+keeps it out of the cull comparison. Z-19 writers were told (08:55) not to run their own games; the arena feedback
+is their only signal. Writer-side screening is a candidate experiment of its own.
+Z-18b also reports that 00road-of-riches and 01shortcut end 0-0 for every bot (no TRIBUTE option ever appears);
+this was sent to the search session to check against the real engine.

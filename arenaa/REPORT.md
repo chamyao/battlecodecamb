@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 08:55 UTC
+
+- Correction: only Z-18a copied the A-line table; Z-18b's draft is its own (I had counted VESPER_VALE mentions).
+- Z-18b finished (477 births) with its writer screening children by its own 80-game head-to-heads, which is an
+  uncontrolled extra. Z-19 writers were told not to run their own games, so the arms stay comparable.
+  Writer-side screening is a candidate experiment.
+- Possible sim issue (from Z-18b): 00road-of-riches and 01shortcut end 0-0 for every bot (no TRIBUTE option);
+  sent to the search session to check.
+
 ## 2026-10-25 08:40 UTC: A-9 leg 2 done
 
 - Leg 2: births 2026 -> 2430 in 71 min. 303 accepted, 94 twins (24%, down from 44%), 0 invalid. In-arena top
