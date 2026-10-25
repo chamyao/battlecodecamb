@@ -64,3 +64,7 @@ Records on this plan: v22 15-35, v25 18-32, v26 17-33, v27 13-37, **v28 18-32**.
 ## Batch 6 (2026-10-25, live v29)
 
 Paired with b5 on b1 plan: 18-32 -> 20-30, gems +42 +- 38 (not significant). Treasure emblems by r250 0.28 -> 1.34 (fingerprint and goal met). No-bank losses on elk_arena and shortcut match the ring bug fixed in the ringheal children. See batches/b6.md.
+
+## Batch 7 (2026-10-25, live v30)
+
+Paired with b6: 20-30 -> 21-29, gems -12 +- 30. Stuck rounds 76 -> 13 (heal fix). Monolith deaths +1.7 and camp deaths +2.0 (A-8 lineage lacks the mono fix; rh-mono-all adds it). elk_arena is still no-bank vs a real opponent (gold-only captures). See batches/b7.md.
