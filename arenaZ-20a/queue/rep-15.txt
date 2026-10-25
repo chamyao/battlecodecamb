@@ -1,0 +1,9 @@
+```python
+@gene('Z10b', 'distance field to my spawn', parents=['s4'])
+def home_field() -> Field:
+    block = walls() | holes() | altars()
+    for c in camps():
+        if is_awake(c):
+            block = block | near(c.pos, 2)
+    return field_avoid(my_spawn(), block - near(me().pos, 1), near(tile(-5, -5), 0))
+```
