@@ -1,0 +1,7 @@
+```python
+@gene('a4', 'the nearest visible enemy champion, preferring the weaker one at similar range; one channelling a tribute or recall comes first (a cast cancels the channel); champions on their own spawn are skipped so they do not mask a reachable target')
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    h = here()
+    return best(enemies(), lambda u: -1000 if u.pos in es else -dist(h, u.pos) - 2 * u.health_frac + (60 if is_tributing(u) or is_recalling(u) else 0))
+```
