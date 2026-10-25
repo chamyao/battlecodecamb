@@ -1,0 +1,9 @@
+```python
+@gene("a5", "cast-ahead applies: nearest enemy within 4 and not on its spawn, or within 6 when below 30% health or channelling a tribute (finish it or break the channel)")
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    if not exists(f) or f.pos in enemy_spawn():
+        return False
+    d = dist(here(), f.pos)
+    return d <= 4 or (d <= 6 and (f.health_frac < 0.3 or is_tributing(f)))
+```

@@ -1,0 +1,14 @@
+```python
+@gene("v1", "value of doing this option now; a pending purchase holds every option except an attack on an enemy champion (fight first, shop after)")
+def score(o: Option) -> Num:
+    k = o.kind
+    if k == PICK:
+        return pick_value(o.champ)
+    if k == BUY or k == BUY_LOCK:
+        return shop_value(o)
+    if shop_pending() and not (k == ATTACK and o.unit.is_enemy and o.unit.is_champion):
+        return 0
+    if k == CAST:
+        return cast_value(o)
+    return act_value(o)
+```
