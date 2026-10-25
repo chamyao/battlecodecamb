@@ -1,0 +1,7 @@
+```python
+@gene('B2111a', 'a basic attack now kills this enemy champion (exact damage against health plus shield), or it is channelling a tribute in reach (the hit breaks the channel)', parents=['a0'])
+def kill_shot(u: Unit) -> Bool:
+    if not u.is_enemy or not u.is_champion or not in_reach(u):
+        return False
+    return attack_damage(me(), u) >= u.health + shield(u) or is_tributing(u)
+```
