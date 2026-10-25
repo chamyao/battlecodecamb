@@ -453,3 +453,70 @@
 [06:38:03] [Z] birth Z252 (tune ) of ['Z248'] species S114; 24 genomes $5.27
 [06:38:15] [Z] birth Z253 (mutate claude-opus-5-5) of ['Z228'] species S108; 24 genomes $5.32
 [06:38:16] [Z] birth Z254 (mutate claude-opus-5-5) of ['Z239'] species S115; 24 genomes $5.32
+[06:39:02] [Z] birth Z255 (mutate claude-opus-5-5) of ['Z220'] species S103; 24 genomes $5.49
+[06:39:03] [Z] birth Z256 (mutate claude-opus-5-5) of ['Z239'] species S115; 24 genomes $5.49
+[06:39:03] [Z] birth Z257 (mutate claude-opus-5-5) of ['Z239'] species S115; 24 genomes $5.49
+[06:39:04] [Z] birth Z258 (mutate claude-opus-5-5) of ['Z243'] species S102; 24 genomes $5.49
+[06:39:05] [Z] birth Z259 (mutate claude-opus-5-5) of ['Z237'] species S108; 24 genomes $5.49
+[06:39:05] [Z] summary: births 260 deaths 237 games 58072 $5.49; top [('Z197', 36.37, 0.79, 1048, 'S85'), ('Z256', 35.78, 6.0, 0, 'S115'), ('Z257', 35.78, 6.0, 0, 'S115')]; top vs anchors {'Z197': 0.833, 'Z237': None, 'Z236': 0.875}
+[06:39:05] [Z] birth Z260 (mutate claude-opus-5-5) of ['Z243'] species S102; 24 genomes $5.49
+[06:39:06] [Z] birth Z261 (mutate claude-opus-5-5) of ['Z244'] species S101; 24 genomes $5.49
+[06:39:07] [Z] birth Z262 (mutate claude-opus-5-5) of ['Z237'] species S108; 24 genomes $5.49
+[06:39:30] [Z] birth Z263 (tune ) of ['Z220'] species S103; 24 genomes $5.49
+[06:39:47] [Z] new species S118 founded by Z264
+[06:39:47] [Z] birth Z264 (llm_cross claude-opus-5-5) of ['Z166', 'Z255'] species S118; 24 genomes $5.56
+[06:40:31] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:40:33] [Z] birth Z265 (mutate claude-opus-5-5) of ['Z259'] species S108; 24 genomes $5.69
+[06:40:34] [Z] new species S119 founded by Z266
+[06:40:34] [Z] birth Z266 (mutate claude-opus-5-5) of ['Z211'] species S119; 24 genomes $5.69
+[06:40:34] [Z] birth Z267 (mutate claude-opus-5-5) of ['Z259'] species S108; 24 genomes $5.69
+[06:40:35] [Z] birth Z268 (mutate claude-opus-5-5) of ['Z259'] species S108; 24 genomes $5.69
+[06:40:36] [Z] birth Z269 (mutate claude-opus-5-5) of ['Z244'] species S101; 24 genomes $5.69
+[06:40:36] [Z] summary: births 270 deaths 247 games 60344 $5.69; top [('Z256', 35.4, 0.8, 216, 'S115'), ('Z258', 35.07, 0.81, 168, 'S102'), ('Z220', 35.07, 0.81, 688, 'S103')]; top vs anchors {'Z256': 0.875, 'Z258': 1.0, 'Z220': 0.958}
+[06:40:36] [Z] birth Z270 (mutate claude-opus-5-5) of ['Z255'] species S103; 24 genomes $5.69
+[06:40:58] [Z] rejected tune : behavioural twin
+[06:40:58] [Z] rejected tune : behavioural twin
+[06:40:59] [Z] rejected tune : behavioural twin
+[06:41:06] [Z] rejected tune : behavioural twin
+[06:41:08] [Z] new species S120 founded by Z271
+[06:41:08] [Z] birth Z271 (mutate claude-opus-5-5) of ['Z259'] species S120; 24 genomes $5.73
+[06:41:08] [Z] new species S121 founded by Z272
+[06:41:08] [Z] birth Z272 (tune ) of ['Z258'] species S121; 24 genomes $5.73
+[06:41:17] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[06:41:24] [Z] new species S122 founded by Z273
+[06:41:24] [Z] birth Z273 (mutate claude-opus-5-5) of ['Z166'] species S122; 24 genomes $5.89
+[06:41:25] [Z] birth Z274 (mutate claude-opus-5-5) of ['Z258'] species S102; 24 genomes $5.89
+[06:41:25] [Z] new species S123 founded by Z275
+[06:41:25] [Z] birth Z275 (mutate claude-opus-5-5) of ['Z262'] species S123; 24 genomes $5.89
+[06:41:37] [Z] birth Z276 (cross ) of ['Z265', 'Z267'] species S108; 24 genomes $5.89
+[06:41:59] [Z] birth Z277 (mutate claude-opus-5-5) of ['Z258'] species S121; 24 genomes $6.00
+[06:41:59] [Z] birth Z278 (mutate claude-opus-5-5) of ['Z166'] species S77; 24 genomes $6.00
+[06:42:00] [Z] new species S124 founded by Z279
+[06:42:00] [Z] birth Z279 (mutate claude-opus-5-5) of ['Z269'] species S124; 24 genomes $6.00
+[06:42:01] [Z] new species S125 founded by Z280
+[06:42:01] [Z] summary: births 280 deaths 257 games 62296 $6.00; top [('Z269', 35.83, 0.8, 200, 'S101'), ('Z279', 35.83, 6.0, 0, 'S124'), ('Z267', 35.74, 0.82, 160, 'S108')]; top vs anchors {'Z269': None, 'Z267': 0.875, 'Z252': 0.875}
+[06:42:01] [Z] birth Z280 (mutate claude-opus-5-5) of ['Z265'] species S125; 24 genomes $6.00
+[06:42:01] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:42:18] [Z] new species S126 founded by Z281
+[06:42:18] [Z] birth Z281 (mutate claude-opus-5-5) of ['Z265'] species S126; 24 genomes $6.06
+[06:42:19] [Z] birth Z282 (mutate claude-opus-5-5) of ['Z244'] species S101; 24 genomes $6.06
+[06:42:19] [Z] birth Z283 (mutate claude-opus-5-5) of ['Z220'] species S103; 24 genomes $6.06
+[06:42:21] [Z] birth Z284 (tune ) of ['Z275'] species S123; 24 genomes $6.06
+[06:42:56] [Z] new species S127 founded by Z285
+[06:42:56] [Z] birth Z285 (llm_cross claude-opus-5-5) of ['Z232', 'Z283'] species S127; 24 genomes $6.14
+[06:43:06] [Z] birth Z286 (mutate claude-opus-5-5) of ['Z197'] species S85; 24 genomes $6.28
+[06:43:08] [Z] birth Z287 (mutate claude-opus-5-5) of ['Z244'] species S101; 24 genomes $6.28
+[06:43:08] [Z] birth Z288 (mutate claude-opus-5-5) of ['Z270'] species S103; 24 genomes $6.28
+[06:43:09] [Z] new species S128 founded by Z289
+[06:43:09] [Z] birth Z289 (mutate claude-opus-5-5) of ['Z252'] species S128; 24 genomes $6.28
+[06:43:10] [Z] summary: births 290 deaths 267 games 63936 $6.28; top [('Z197', 36.11, 0.8, 1392, 'S85'), ('Z286', 36.11, 6.0, 0, 'S85'), ('Z274', 35.8, 0.8, 224, 'S102')]; top vs anchors {'Z197': 0.781, 'Z274': None, 'Z270': 0.875}
+[06:43:10] [Z] birth Z290 (mutate claude-opus-5-5) of ['Z281'] species S126; 24 genomes $6.28
+[06:43:10] [Z] birth Z291 (mutate claude-opus-5-5) of ['Z269'] species S124; 24 genomes $6.28
+[06:43:13] [Z] new species S129 founded by Z292
+[06:43:13] [Z] birth Z292 (mutate claude-opus-5-5) of ['Z267'] species S129; 24 genomes $6.28
+[06:43:34] [Z] rejected tune : behavioural twin
+[06:43:36] [Z] rejected tune : behavioural twin
+[06:43:38] [Z] new species S130 founded by Z293
+[06:43:38] [Z] birth Z293 (mutate claude-opus-5-5) of ['Z270'] species S130; 24 genomes $6.31
+[06:43:44] [Z] rejected tune : behavioural twin
+[06:44:05] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
