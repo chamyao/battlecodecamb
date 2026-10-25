@@ -263,7 +263,9 @@ real. I split it with score variants (they never act; identical games against th
   gene predicted framed is framed in its wasm; 18 more are framed through inlined callees and keep
   their old pricing. Those primitives' prices were fitted in framed genes, so they already include one
   frame each. The sim now charges the frame (12) only for a framed gene call that ran none of them
-  (`FRAME_GUARD` / `FU_`, simulator only).
+  (`FRAME_GUARD` / `FU_`, simulator only). The guard's destructor only records the fuel; the next charge
+  bills it. A charge can suspend the coroutine, and a cancelled coroutine unwinds by exception, which must
+  not leave a destructor.
 - **`nearest`.** The bot walks every chunk of the set, unordered: +2 per map chunk and +20 base on top of
   46 + 52 per tile (gap 48 on 16 chunks, 356-363 on 169).
 
@@ -288,6 +290,39 @@ Whole game, the same games against the interpreted v23 (sim old -> new pricing, 
 Against builtin:starter, 80 games: identical at 100x for all five genomes. At 1x, seed, B318 and B792 are
 identical; starter wins 40 -> 41, v23 79 -> 78, as their suspensions rise with the higher price.
 B792 vs B318 at 1x: 44 -> 44 wins, a few games different.
+
+## Set algebra and the pass price, refitted on the arena genomes (Oct 25)
+
+Whole game against the interpreted v23, the arena's top genomes were A458 1.00-1.02, B1145 0.97-0.99 and
+B1092 0.94-0.98. B1092's costliest gene, `closest` (19% of its fuel, 0.82 in the profile), has a fallback
+that A458's lacks: `ring(s, 2)`, a `near` plus a union for every tile of `s`.
+
+`examples/calib8.genome` probes the set operations alone (00ambush, 01big-world, 00lanes, 00packs).
+Static set reads and `size` match (0.95-1.01). Each operation that makes a new set is under by ~80-110,
+once per operation: one union is under 74-107 and three unions 220-311. Refitted prices:
+- `near`: 202 + 1.06 x chunks (was 122 + 1.03).
+- `|` and `&`: 188 + 2.88 x chunks (was 76 + 3.1).
+- `-`: 176 + 3.9 x chunks (was 77 + 4.0).
+The pass price had been fitted per turn on seed and v23, so it had absorbed their set-op shortfall. It is
+refitted jointly on seed, B318, B792, starter, A458, B1145 and B1092 x 3 maps: first pass 575 -> 93,
+later passes 1074 -> 474. A fit with a free later-pass term wants it below zero, so it is bounded to keep
+both positive.
+
+Whole game (real/sim; 00ambush / 00lanes / 01big-world):
+- seed: 1.014 / 1.015 / 1.000
+- B318: 1.012 / 1.007 / 0.999
+- B792: 1.001 / 1.003 / 0.991
+- starter: 0.985 / 0.996 / 0.983
+- A458: 1.020 / 1.019 / 1.005
+- B1145: 1.000 / 1.001 / 0.988
+- B1092: 1.000 / 0.974 / 0.984
+The seven span 0.974-1.020, against 0.934-1.017 before. v23 is 1.11-1.14; it was 1.10-1.12, over for
+reasons outside these constructs. The idle genome drops to 0.88-0.91: it lists ~66 options a turn with no
+consider(), and the per-option gap above is still open.
+
+Against builtin:starter, 80 games, 100x: identical for all five reference genomes. At 1x the results move
+with the prices: seed identical; B318 and B792 79 -> 78; starter 40 -> 38; v23 79 -> 78. B792 vs B318 at
+1x: 44 -> 48 of 80.
 
 ## Bot-side costs worth knowing (what the search pays for)
 
