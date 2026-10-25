@@ -263,7 +263,9 @@ real. I split it with score variants (they never act; identical games against th
   gene predicted framed is framed in its wasm; 18 more are framed through inlined callees and keep
   their old pricing. Those primitives' prices were fitted in framed genes, so they already include one
   frame each. The sim now charges the frame (12) only for a framed gene call that ran none of them
-  (`FRAME_GUARD` / `FU_`, simulator only).
+  (`FRAME_GUARD` / `FU_`, simulator only). The guard's destructor only records the fuel; the next charge
+  bills it. A charge can suspend the coroutine, and a cancelled coroutine unwinds by exception, which must
+  not leave a destructor.
 - **`nearest`.** The bot walks every chunk of the set, unordered: +2 per map chunk and +20 base on top of
   46 + 52 per tile (gap 48 on 16 chunks, 356-363 on 169).
 
