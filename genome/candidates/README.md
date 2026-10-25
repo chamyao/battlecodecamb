@@ -89,3 +89,11 @@ enemies on their own spawn, so hurt carriers next to an enemy spawn can heal. Re
 - Arena B lead, real cambc at fd778fc: 55/80 vs v29, 0 crashes (plain A81582: 50/80 on the same builds); capped turns 450 vs 301.
 - Sim: 46/80 vs v29, 40/80 vs A81582; solo vs idle: games short of 1000 halved (10 -> 5).
 - My smoke, real vs v29 (side A, hard maps): 3 losses. My full real cambc vs v29, 40 maps x 2 sides: 57/80, 0 crashes. Next upload.
+
+## A81582-ringheal-mono (v30 + v28's monolith fix via graft.py mono; candidate for after v30)
+
+genome/candidates/A81582-ringheal-mono.genome, sha256 9a566695b7b06184... (genome/arenab 5019e0cc).
+The A-8/A-9 lineage never got intel's farmable-camps fix; solo on great-wall v30 loses 38-45 champions per game, v29 11-12.
+- Arena B lead, real cambc: 45/80 vs v30 (ringheal), 57/80 vs v29, 0 crashes. Solo vs idle, all 80 games: deaths 356 (v30 522),
+  rounds 98,956 (v30 99,212). Sim: 40/80 vs v30, 50/80 vs v29.
+- My real 80 vs v30: running.
