@@ -1,0 +1,12 @@
+```python
+@gene('a2', 'value of a cast option: dash on walks and cash-out retreats, cast-ahead, casts and resets of a fight; in a fight a damaging dash lands next to the target', parents=['a2'])
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        if RULE == 7 and valid(TGT) and valid(o.tile) and dist(o.tile, TGT) <= 1 and ability_modifier(me(), o.slot) > 0:
+            return 160 - o.slot
+        return dash_value(o) if (RULE == 3 or RULE == 20 or RULE == 5 or walks()) else 0
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+```
