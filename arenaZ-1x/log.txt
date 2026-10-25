@@ -1627,3 +1627,46 @@
 [04:21:37] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 227: gene goal_field redefined or shadows a builtin
 [04:21:43] [Z] rejected mutate claude-haiku-5-5: behavioural twin
 [04:22:01] [Z] birth Z1125 (mutate claude-haiku-5-5) of ['Z1061'] species S555; 24 genomes $10.61
+[04:22:08] [Z] new species S604 founded by Z1126
+[04:22:08] [Z] birth Z1126 (llm_cross claude-haiku-5-5) of ['Z1061', 'Z1107'] species S604; 24 genomes $10.61
+[04:22:15] [Z] birth Z1127 (mutate claude-haiku-5-5) of ['Z1115'] species S602; 24 genomes $10.61
+[04:22:30] [Z] rejected mutate claude-haiku-5-5: EditError: no change
+[04:22:45] [Z] birth Z1128 (mutate claude-haiku-5-5) of ['Z1120'] species S600; 24 genomes $10.67
+[04:22:56] [Z] new species S605 founded by Z1129
+[04:22:56] [Z] birth Z1129 (mutate claude-opus-5-5) of ['Z1072'] species S605; 24 genomes $10.68
+[04:23:04] [Z] new species S606 founded by Z1130
+[04:23:04] [Z] summary: births 1130 deaths 1107 games 280856 $10.68; top [('Z1115', 43.5, 0.81, 208, 'S581'), ('Z1126', 43.05, 0.89, 120, 'S604'), ('Z1127', 42.93, 0.94, 96, 'S602')]; top vs anchors {'Z1115': None, 'Z1126': None, 'Z1127': 1.0}
+[04:23:04] [Z] birth Z1130 (llm_cross claude-haiku-5-5) of ['Z1120', 'Z1125'] species S606; 24 genomes $10.68
+[04:23:25] [Z] new species S607 founded by Z1131
+[04:23:25] [Z] birth Z1131 (llm_cross claude-haiku-5-5) of ['Z1109', 'Z1128'] species S607; 24 genomes $10.68
+[04:23:25] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:23:46] [Z] new species S608 founded by Z1132
+[04:23:46] [Z] birth Z1132 (llm_cross claude-haiku-5-5) of ['Z1126', 'Z1111'] species S608; 24 genomes $10.69
+[04:23:53] [Z] birth Z1133 (mutate claude-haiku-5-5) of ['Z1094'] species S597; 24 genomes $10.69
+[04:23:53] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[04:24:01] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 227: gene altar_tiles redefined or shadows a builtin
+[04:24:11] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:24:19] [Z] new species S609 founded by Z1134
+[04:24:19] [Z] birth Z1134 (mutate claude-haiku-5-5) of ['Z1125'] species S609; 24 genomes $10.70
+[04:24:25] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:24:40] [Z] new species S610 founded by Z1135
+[04:24:40] [Z] birth Z1135 (mutate claude-opus-5-5) of ['Z1121'] species S610; 24 genomes $10.76
+[04:24:40] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:24:47] [Z] birth Z1136 (mutate claude-haiku-5-5) of ['Z1122'] species S601; 24 genomes $10.76
+[04:25:14] [Z] birth Z1137 (mutate claude-haiku-5-5) of ['Z1131'] species S607; 24 genomes $10.77
+[04:25:14] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:25:23] [Z] birth Z1138 (llm_cross claude-haiku-5-5) of ['Z1031', 'Z1131'] species S607; 24 genomes $10.77
+[04:25:44] [Z] birth Z1139 (tune ) of ['Z1126'] species S604; 24 genomes $10.77
+[04:25:50] [Z] summary: births 1140 deaths 1117 games 283096 $10.77; top [('Z1137', 43.27, 0.9, 104, 'S607'), ('Z999', 42.99, 0.8, 1720, 'S537'), ('Z1109', 42.96, 0.8, 464, 'S577')]; top vs anchors {'Z1137': None, 'Z999': 0.896, 'Z1109': 0.75}
+[04:25:50] [Z] birth Z1140 (mutate claude-haiku-5-5) of ['Z1031'] species S585; 24 genomes $10.77
+[04:25:55] [Z] birth Z1141 (mutate claude-haiku-5-5) of ['Z999'] species S537; 24 genomes $10.77
+[04:26:18] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:26:21] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:26:35] [Z] new species S611 founded by Z1142
+[04:26:35] [Z] birth Z1142 (mutate claude-opus-5-5) of ['Z1141'] species S611; 24 genomes $10.82
+[04:26:35] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:26:55] [Z] new species S612 founded by Z1143
+[04:26:55] [Z] birth Z1143 (tune ) of ['Z1137'] species S612; 24 genomes $10.83
+[04:27:02] [Z] new species S613 founded by Z1144
+[04:27:02] [Z] birth Z1144 (llm_cross claude-haiku-5-5) of ['Z1121', 'Z1115'] species S613; 24 genomes $10.83
+[04:27:08] [Z] birth Z1145 (mutate claude-haiku-5-5) of ['Z1061'] species S539; 24 genomes $10.83
