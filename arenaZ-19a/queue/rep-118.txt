@@ -1,0 +1,6 @@
+```python
+@gene("Z132d", "join an ally fight: a fresh focus call within 10 tiles, healthy, bag under 30")
+def assist_on() -> Bool:
+    age = (round() - read_shared(2)) % 200
+    return age <= 3 and me().health_frac > 0.45 and gems() < 30 and dist(me().pos, focus_tile()) <= 10 and dist(me().pos, focus_tile()) > me().attack_range
+```
