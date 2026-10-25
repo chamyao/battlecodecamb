@@ -49,3 +49,6 @@ A61188 + a farmable() gene: camp attacks only on farmable camps (no hits on mono
 - Arena B lead, real cambc: 42/80 vs A61188, 49/80 vs B792, 49/80 vs the v25 build, 0 crashes. Sim: all 15 anchors +0..+4.
 - Smoke, real cambc vs A61188, both sides: 00great-wall 2-0 (deaths 16/19 vs 31/34), 01shortcut 1-1 (11/22 vs 27/26),
   00lanes identical games. 0 crashes.
+- Live as ladder version 28 (2026-10-25T03:43:47Z, bundle sha256 8a921761...).
+- Validation, intel batch 5 (the same 50 band matchups as batch 4): 18-32 vs v27's 13-37; 5 flips to a win, 0 to a loss
+  (p ~0.03). Monolith deaths 1.86 -> 0.58 per game; gems submitted +39 +- 23 per game.
