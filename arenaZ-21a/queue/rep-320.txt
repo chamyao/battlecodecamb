@@ -1,0 +1,7 @@
+```python
+@gene('Z73a', 'no awake camp can reach me next turn and no enemy champion within 6: a recall here will not be cancelled', parents=['s1'])
+def safe() -> Bool:
+    if any(dist(u.pos, me().pos) <= 6 for u in enemies()):
+        return False
+    return not any(is_awake(c) and dist(c.pos, me().pos) <= c.attack_range + 1 for c in camps())
+```

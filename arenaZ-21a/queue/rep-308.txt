@@ -1,0 +1,7 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, or to spawn when fleeing")
+def progress(t: Tile) -> Num:
+    if fleeing():
+        return at(flee_field(), me().pos) - at(flee_field(), t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

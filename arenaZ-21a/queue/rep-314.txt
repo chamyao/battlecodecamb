@@ -1,0 +1,31 @@
+```python
+@gene("new", "a cleared group waiting for capture is within 2 tiles (or under me): stay and finish the 5-round capture before walking home", parents=["s3"])
+def capturing() -> Bool:
+    for g in range(num_groups()):
+        if group_reward(g):
+            ts = group_tiles(g)
+            if dist(nearest(ts, me().pos), me().pos) <= 2:
+                return True
+    return False
+
+@gene('s3', 'distance field to the goals plus enemy champions worth hunting, or home to heal when hurt (above a quarter health only once no capture is pending nearby), empty-handed and not in a fight')
+def goal_field() -> Field:
+    if gems() == 0 and me().health_frac < 0.5 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        if me().health_frac < 0.25 or not capturing():
+            return field(my_spawn())
+    return field(open_goals() | hunt_tiles())
+
+@gene('Z112a', 'walk or dash home instead of fighting: below 30 percent health with an awake camp or enemy champion close, or below 60 percent when the enemies within 5 outnumber us by two', parents=['s1'])
+def fleeing() -> Bool:
+    hf = me().health_frac
+    if hf >= 0.6:
+        return False
+    foes = count(dist(u.pos, me().pos) <= 5 for u in enemies())
+    if foes >= 2 and foes >= 3 + count(dist(a.pos, me().pos) <= 5 for a in allies()):
+        return True
+    if hf >= 0.3:
+        return False
+    if any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+        return True
+    return any(is_awake(c) and dist(c.pos, me().pos) <= c.attack_range + 1 for c in camps())
+```
