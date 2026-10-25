@@ -1,0 +1,72 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; also uses abilities (damage, shield/heal, dash)')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.5607)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'progress toward goals, discounted by nearby enemies when hurt')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    p = at(f, me().pos) - at(f, t)
+    if me().health_frac < 0.5:
+        if count(dist(u.pos, t) <= 3 for u in enemies()) > 0:
+            p -= 2
+    if me().health_frac < 0.3:
+        if count(dist(u.pos, t) <= 6 for u in enemies()) > 0:
+            p -= 4
+    return p
+
+@gene('Z38a', 'value of casting an ability option', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_enemy and o.unit.is_champion:
+                return 80 + (1 - o.unit.health_frac) * 20
+            if o.unit.is_camp:
+                return 65 if gems() == 0 else 30
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        if me().health_frac < 0.7 and count(dist(u.pos, me().pos) <= 4 for u in enemies()) > 0:
+            return 75 + (0.7 - me().health_frac) * 50
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and progress(o.tile) > 3 and me().health_frac > 0.5:
+            return 55
+        return 0
+    return 0

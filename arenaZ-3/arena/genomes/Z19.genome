@@ -1,0 +1,55 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.3146 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p <= 0:
+            return 0
+        boost = 1.5 if gems() > 0 else 1.0
+        return 50 * p * boost
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else a living camp group, preferring groups with gems or gold')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.5607)
+        return acc
+    valuable = near(tile(-5, -5), 0)
+    anyg = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            anyg = anyg | group_tiles(g)
+            if group_gems(g) + group_gold(g) > 0:
+                valuable = valuable | group_tiles(g)
+    if size(valuable) > 0:
+        return valuable
+    return anyg
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'how much closer a step brings me to the goals (0 if goal unreachable)')
+def progress(t: Tile) -> Num:
+    gf = goal_field()
+    here = at(gf, me().pos)
+    there = at(gf, t)
+    if here >= 100000000 or there >= 100000000:
+        return 0
+    return here - there

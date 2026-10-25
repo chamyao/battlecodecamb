@@ -2,3 +2,107 @@
 [00:14:59] [Z] new arena Z: seed seed in species S0, 1 anchors
 [00:14:59] [Z] fixed anchors: starter 25.00
 [00:14:59] [Z] distinct games: 0 genome pairs seeded with their played maps from matches.jsonl
+[00:15:03] [Z] rejected tune : behavioural twin
+[00:15:04] [Z] rejected tune : behavioural twin
+[00:15:08] [Z] rejected mutate claude-haiku-5-5: GenomeError: score line 22: expected Bool, got Num
+[00:15:08] [Z] birth Z1 (mutate claude-haiku-5-5) of ['seed'] species S0; 2 genomes $0.00
+[00:15:13] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:15] [Z] new species S1 founded by Z2
+[00:15:15] [Z] birth Z2 (mutate claude-haiku-5-5) of ['seed'] species S1; 3 genomes $0.00
+[00:15:17] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:23] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:24] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:26] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:27] [Z] rejected tune : behavioural twin
+[00:15:29] [Z] birth Z3 (tune ) of ['seed'] species S0; 4 genomes $0.01
+[00:15:33] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:36] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 41: expected Bool, got Num
+[00:15:43] [Z] rejected mutate claude-haiku-5-5: EditError: no change
+[00:15:43] [Z] birth Z4 (mutate claude-opus-5-5) of ['seed'] species S0; 5 genomes $0.03
+[00:15:45] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:52] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:53] [Z] new species S2 founded by Z5
+[00:15:53] [Z] birth Z5 (mutate claude-haiku-5-5) of ['Z1'] species S2; 6 genomes $0.04
+[00:15:55] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:15:59] [Z] rejected tune : behavioural twin
+[00:15:59] [Z] rejected mutate claude-haiku-5-5: EditError: no change
+[00:16:04] [Z] new species S3 founded by Z6
+[00:16:04] [Z] birth Z6 (mutate claude-haiku-5-5) of ['Z3'] species S3; 7 genomes $0.04
+[00:16:10] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:16:11] [Z] new species S4 founded by Z7
+[00:16:11] [Z] birth Z7 (tune ) of ['seed'] species S4; 8 genomes $0.05
+[00:16:12] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[00:16:20] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:16:21] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:16:23] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:16:24] [Z] rejected tune : behavioural twin
+[00:16:26] [Z] rejected tune : behavioural twin
+[00:16:29] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 49: expected Bool, got Num
+[00:16:32] [Z] birth Z8 (mutate claude-haiku-5-5) of ['Z7'] species S4; 9 genomes $0.05
+[00:16:37] [Z] birth Z9 (mutate claude-haiku-5-5) of ['Z7'] species S4; 10 genomes $0.05
+[00:16:39] [Z] summary: births 10 deaths 0 games 1888 $0.05; top [('Z7', 26.47, 0.82, 256, 'S4'), ('Z10', 26.47, 6.0, 0, 'S4'), ('Z9', 26.34, 6.0, 0, 'S4')]; top vs anchors {'Z7': 0.75, 'Z8': 0.562, 'Z5': 0.312}
+[00:16:39] [Z] birth Z10 (mutate claude-haiku-5-5) of ['Z7'] species S4; 11 genomes $0.05
+[00:16:43] [Z] new species S5 founded by Z11
+[00:16:43] [Z] birth Z11 (mutate claude-haiku-5-5) of ['seed'] species S5; 12 genomes $0.05
+[00:16:52] [Z] rejected tune : behavioural twin
+[00:16:54] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:17:02] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:17:05] [Z] birth Z12 (mutate claude-haiku-5-5) of ['Z7'] species S4; 13 genomes $0.09
+[00:17:05] [Z] new species S6 founded by Z13
+[00:17:05] [Z] birth Z13 (mutate claude-opus-5-5) of ['Z10'] species S6; 14 genomes $0.09
+[00:17:16] [Z] birth Z14 (mutate claude-haiku-5-5) of ['Z5'] species S2; 15 genomes $0.09
+[00:17:19] [Z] birth Z15 (mutate claude-haiku-5-5) of ['Z13'] species S6; 16 genomes $0.09
+[00:17:20] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:17:31] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:17:32] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:17:32] [Z] birth Z16 (mutate claude-haiku-5-5) of ['Z7'] species S4; 17 genomes $0.09
+[00:17:36] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 42: expected Bool, got Num
+[00:17:41] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 46: gene goal_field redefined or shadows a builtin
+[00:17:43] [Z] new species S7 founded by Z17
+[00:17:43] [Z] birth Z17 (mutate claude-haiku-5-5) of ['Z8'] species S7; 18 genomes $0.09
+[00:17:52] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:17:52] [Z] new species S8 founded by Z18
+[00:17:52] [Z] birth Z18 (mutate claude-opus-5-5) of ['Z10'] species S8; 19 genomes $0.13
+[00:17:54] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:18:02] [Z] new species S9 founded by Z19
+[00:18:02] [Z] birth Z19 (mutate claude-haiku-5-5) of ['Z16'] species S9; 20 genomes $0.13
+[00:18:04] [Z] new species S10 founded by Z20
+[00:18:04] [Z] summary: births 20 deaths 0 games 3760 $0.13; top [('Z15', 29.97, 0.9, 160, 'S6'), ('Z13', 29.54, 0.92, 168, 'S6'), ('Z18', 29.47, 0.98, 104, 'S8')]; top vs anchors {'Z15': 0.75, 'Z13': 1.0, 'Z18': None}
+[00:18:04] [Z] birth Z20 (mutate claude-haiku-5-5) of ['Z18'] species S10; 21 genomes $0.13
+[00:18:05] [Z] new species S11 founded by Z21
+[00:18:05] [Z] birth Z21 (mutate claude-haiku-5-5) of ['Z15'] species S11; 22 genomes $0.13
+[00:18:21] [Z] birth Z22 (mutate claude-haiku-5-5) of ['Z13'] species S6; 23 genomes $0.13
+[00:18:22] [Z] birth Z23 (mutate claude-haiku-5-5) of ['Z21'] species S11; 24 genomes $0.13
+[00:18:28] [Z] new species S12 founded by Z24
+[00:18:28] [Z] birth Z24 (mutate claude-opus-5-5) of ['Z15'] species S12; 24 genomes $0.16
+[00:18:36] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:18:39] [Z] new species S13 founded by Z25
+[00:18:39] [Z] birth Z25 (llm_cross claude-haiku-5-5) of ['Z18', 'Z20'] species S13; 24 genomes $0.16
+[00:18:41] [Z] new species S14 founded by Z26
+[00:18:41] [Z] birth Z26 (mutate claude-haiku-5-5) of ['Z22'] species S14; 24 genomes $0.16
+[00:18:47] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:18:54] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:18:55] [Z] new species S15 founded by Z27
+[00:18:55] [Z] birth Z27 (mutate claude-haiku-5-5) of ['Z23'] species S15; 24 genomes $0.16
+[00:18:55] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 56: gene goal_field redefined or shadows a builtin
+[00:19:03] [Z] birth Z28 (mutate claude-haiku-5-5) of ['Z24'] species S12; 24 genomes $0.17
+[00:19:07] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:19:12] [Z] rejected tune : behavioural twin
+[00:19:14] [Z] birth Z29 (mutate claude-opus-5-5) of ['Z26'] species S14; 24 genomes $0.19
+[00:19:18] [Z] new species S16 founded by Z30
+[00:19:18] [Z] summary: births 30 deaths 7 games 5352 $0.19; top [('Z29', 31.79, 1.3, 40, 'S14'), ('Z28', 30.93, 0.98, 88, 'S12'), ('Z30', 30.93, 6.0, 0, 'S16')]; top vs anchors {'Z29': None, 'Z28': None, 'Z18': None}
+[00:19:18] [Z] birth Z30 (mutate claude-haiku-5-5) of ['Z28'] species S16; 24 genomes $0.19
+[00:19:21] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:19:28] [Z] birth Z31 (mutate claude-haiku-5-5) of ['Z24'] species S12; 24 genomes $0.19
+[00:19:28] [Z] new species S17 founded by Z32
+[00:19:28] [Z] birth Z32 (tune ) of ['Z18'] species S17; 24 genomes $0.19
+[00:19:34] [Z] birth Z33 (llm_cross claude-haiku-5-5) of ['Z20', 'Z9'] species S10; 24 genomes $0.19
+[00:19:43] [Z] new species S18 founded by Z34
+[00:19:43] [Z] birth Z34 (tune ) of ['Z25'] species S18; 24 genomes $0.19
+[00:19:44] [Z] new species S19 founded by Z35
+[00:19:44] [Z] birth Z35 (mutate claude-haiku-5-5) of ['Z31'] species S19; 24 genomes $0.19
+[00:19:48] [Z] birth Z36 (mutate claude-haiku-5-5) of ['Z28'] species S16; 24 genomes $0.19
+[00:19:56] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 65: cannot assign to near
+[00:20:03] [Z] new species S20 founded by Z37
+[00:20:03] [Z] birth Z37 (mutate claude-haiku-5-5) of ['Z33'] species S20; 24 genomes $0.20
+[00:20:03] [Z] birth Z38 (mutate claude-haiku-5-5) of ['Z27'] species S15; 24 genomes $0.20
