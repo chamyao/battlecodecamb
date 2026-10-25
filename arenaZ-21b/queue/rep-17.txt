@@ -1,0 +1,18 @@
+```python
+GK: Num = -1
+GF: Field = None
+
+@gene("new", "recompute the goal distance field only when the goal set changes; skip while channeling or dead", parents=["s3"])
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = goals()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene("s3", "distance field to the goals, cached in update()")
+def goal_field() -> Field:
+    return GF
+```

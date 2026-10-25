@@ -1,0 +1,17 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; no credit for stepping into a spot where visible enemy champions outnumber us")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if d <= 0:
+        return d
+    if outnumbered(t):
+        return 0
+    return d
+
+@gene("new", "more visible enemy champions than allies (me included) within 4 of a tile", parents=["s4"])
+def outnumbered(t: Tile) -> Bool:
+    e = count(dist(u.pos, t) <= 4 for u in enemies())
+    if e == 0:
+        return False
+    return e > 1 + count(dist(u.pos, t) <= 4 for u in allies())
+```

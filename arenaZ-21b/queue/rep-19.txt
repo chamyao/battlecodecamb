@@ -1,0 +1,25 @@
+```python
+GK: Num = -1
+
+@gene("new", "the goals without monolith and golem spawns (kept if nothing else is left)", parents=["s3"])
+def goal_set() -> Tiles:
+    gs = goals()
+    if gems() > 0:
+        return gs
+    rest = gs - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    return rest if size(rest) > 0 else gs
+
+@gene("Z17a", "recompute the goal distance field only when the goal set changes; skip while channeling or dead")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = goal_set()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene("s4", "how much closer a step brings me to the goals (field cached until the goals change)")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+```

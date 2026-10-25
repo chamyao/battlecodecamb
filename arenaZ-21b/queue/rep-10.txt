@@ -1,0 +1,55 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: cache the distance field to the goals", parents=["s3"])
+def update() -> None:
+    GF = goal_field()
+
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 3 if o.champ == HEART_OF_RUIN else 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "worth of casting: damage and stuns on enemy champions and fought camps, area hits, shields when hurt, heals", parents=["s1"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 65
+        return 0
+    if k == AB_AOE:
+        if not valid(o.tile):
+            return 0
+        r = slot_radius(o.slot)
+        n = count(dist(u.pos, o.tile) <= r for u in enemies())
+        c = count(dist(u.pos, o.tile) <= r and (gems() == 0 or is_awake(u)) for u in camps())
+        return 64 + n * 3 + c if n + c > 0 else 0
+    if k == AB_SHIELD:
+        return 75 if me().health_frac < 0.95 else 0
+    if k == AB_HEAL:
+        return 85 if exists(o.unit) and o.unit.health_frac < 0.6 else 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals (field cached per turn)")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+```

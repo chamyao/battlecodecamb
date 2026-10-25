@@ -1,0 +1,11 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: cache the distance field to the goals", parents=["s3"])
+def update() -> None:
+    GF = goal_field()
+
+@gene("s4", "how much closer a step brings me to the goals (field cached once per turn)")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+```

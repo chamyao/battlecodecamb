@@ -1,0 +1,32 @@
+```python
+GK: Num = -1
+GF: Field = None
+
+@gene("new", "recompute the goal distance field only when the goal set changes; skip while channeling or dead", parents=["s3"])
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = goals()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene("s3", "distance field to the goals, cached in update()")
+def goal_field() -> Field:
+    return GF
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group (monolith and golem spawns only as a last resort)")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    rest = acc - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    return rest if size(rest) > 0 else acc
+```

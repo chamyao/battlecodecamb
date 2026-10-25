@@ -1,0 +1,17 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else a living camp group with no monolith or golem and no enemy champion on it")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    safe = acc - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    for u in enemies():
+        safe = safe - near(u.pos, 3)
+    return safe if size(safe) > 0 else acc
+```

@@ -1,0 +1,40 @@
+```python
+@gene("s1", "value of doing this option now; when hurt, step out of reach before recalling (damage cancels recall)")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac >= 0.4:
+            return 0
+        return 0 if in_fight() else 90
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if gems() == 0:
+            return 60
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.4 and in_fight():
+            g = threat_dist(o.tile) - threat_dist(me().pos)
+            return 95 + g if g > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "distance from a tile to the nearest awake camp or visible enemy champion", parents=["Z7b"])
+def threat_dist(t: Tile) -> Num:
+    a = min((dist(u.pos, t) for u in camps() if is_awake(u)), default=99)
+    b = min((dist(u.pos, t) for u in enemies()), default=99)
+    return min(a, b)
+
+@gene("Z17b", "skip listing option kinds this policy never takes, and shopping away from spawn")
+def consider(kind: Num) -> Bool:
+    if kind == BUY:
+        return can_shop()
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
+```

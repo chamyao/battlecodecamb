@@ -1,0 +1,39 @@
+```python
+GG: Num = -9
+
+@gene("Z11a", "once per turn: walk field to altars when carrying gems, else to the team target camp group shared in byte 0 (recomputed only when the target changes)")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    if gems() > 0:
+        if GG != -2:
+            GG = -2
+            GF = goal_field()
+        return
+    g = read_shared(0) - 1
+    if g < 0 or g >= num_groups() or group_respawning(g):
+        g = nearest_group()
+        write_shared(0, g + 1)
+    if g < 0:
+        GG = -9
+        GF = goal_field()
+        return
+    if g != GG:
+        GG = g
+        GF = field(group_tiles(g))
+
+@gene("new", "the living camp group nearest to me by step distance, monolith and golem spawns excluded (-1 if none)", parents=["Z11a"])
+def nearest_group() -> Num:
+    p = me().pos
+    bd = INF
+    bg = -1
+    for h in range(num_groups()):
+        if not group_respawning(h):
+            ts = group_tiles(h) - type_spawns(MONOLITH) - type_spawns(GOLEM)
+            if size(ts) > 0:
+                d = dist(nearest(ts, p), p)
+                if d < bd:
+                    bd = d
+                    bg = h
+    return bg
+```
