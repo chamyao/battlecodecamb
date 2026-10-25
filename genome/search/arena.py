@@ -93,7 +93,12 @@ class Arena:
             (self.out / d).mkdir(parents=True, exist_ok=True)
         self.lock = threading.RLock()
         self.sc = Scorer([], threads=1, bot_seeds=args.bot_seeds)
-        self.claude = Claude(args.budget, opus_every=args.opus_every)
+        if args.llm_queue:  # every Claude call goes to a file queue answered by a Claude Code session (queuellm.py)
+            from .queuellm import QueueClaude
+            self.claude = QueueClaude(args.llm_queue, args.queue_timeout, self.queue_feedback)
+            self.q_reported, self.q_alive = set(), set()
+        else:
+            self.claude = Claude(args.budget, opus_every=args.opus_every)
         self.claude.spent = sum(r.get("cost", 0.0) for r in self._read("children"))
         self.maps = sorted(MAPS)
         self.specs = {}
@@ -295,13 +300,25 @@ class Arena:
         with self.lock:
             a, b = self.s["members"][an], self.s["members"][bn]
             sa, sb = self.spec(a), self.spec(b)
+        details = self.a.game_details or bool(self.a.llm_queue)
         out = subprocess.run([str(self.sc_eval()), "--a", sa, "--b", sb, "--games", str(2 * len(maps)),
                               "--threads", "1", "--seed", str(seed), *(["--bot-seeds"] if self.a.bot_seeds else []),
-                              *maps], capture_output=True,
+                              *(["--details"] if details else []), *maps], capture_output=True,
                              text=True, timeout=1800)
         if out.returncode != 0:
             return {"error": f"exit {out.returncode}: {out.stderr[-200:]}"}
-        return json.loads(out.stdout)
+        lines = [json.loads(l) for l in out.stdout.splitlines() if l.strip().startswith("{")]
+        st = lines[-1]
+        if details:  # per game: map, A won, A's and B's deaths not caused by enemy champions (camps, monoliths, ...)
+            g = []
+            for d in lines[:-1]:
+                if "deaths" not in d:
+                    continue
+                at = 1 if d["a_side"] == "B" else 0
+                g.append([Path(d["map"]).stem, int(d["winner"] == at), d["deaths"][at] - d["kills"][1 - at],
+                          d["deaths"][1 - at] - d["kills"][at]])
+            st["per_game"] = g
+        return st
 
     @staticmethod
     def sc_eval():
@@ -343,6 +360,15 @@ class Arena:
                     ag[1] += n
                 if x["kind"] == "genome":
                     self.s["species"][x["species"]]["games"] += n
+            for row in st.get("per_game", []):  # per member: wins by map, deaths not caused by champions
+                mp, aw, ad, bd = row
+                for m, won, dd in ((a, aw, ad), (b, 1 - aw, bd)):
+                    ms = m.setdefault("map_stats", {}).setdefault(mp, [0, 0])
+                    ms[0] += won
+                    ms[1] += 1
+                    nc = m.setdefault("nc_deaths", [0, 0])
+                    nc[0] += dd
+                    nc[1] += 1
             self.s["matches"] += 1
             self.s["games"] += n
             self.s["since_birth"] += 1
@@ -350,6 +376,7 @@ class Arena:
                                     "games": n, "a_wins": w, "results": st.get("results"),
                                     "a_gems": st["a_gems"], "b_gems": st["b_gems"],
                                     "a_fuel": st.get("a_fuel_per_game"), "a_susp": st.get("a_suspensions"),
+                                    **({"per_game": st["per_game"]} if "per_game" in st else {}),
                                     "mu_before": before, "mu": [a["mu"], b["mu"]], "sigma": [a["sigma"], b["sigma"]]})
             self.cull()
 
@@ -402,6 +429,17 @@ class Arena:
             ptext = (self.out / parent["path"]).read_text()
             prefix = f"{self.a.tag}{seq}"
         parents = [parent["name"]]
+        if self.a.llm_queue:
+            from .queuellm import QueueTimeout
+            self.claude.context(op, [parent["name"]] + ([partner["name"]] if partner else []), seq)
+            try:
+                return self._propose_ops(op, ptext, parent, partner, parents, prefix, r, seq)
+            except QueueTimeout as e:
+                return self.check(operators.Child(None, op, "queue timeout", {"detail": str(e)}, "session"),
+                                  parents, seq)
+        return self._propose_ops(op, ptext, parent, partner, parents, prefix, r, seq)
+
+    def _propose_ops(self, op, ptext, parent, partner, parents, prefix, r, seq):
         if op == "tune":
             child = operators.tune(ptext, r)
         elif op == "cross":
@@ -420,6 +458,44 @@ class Arena:
             child = operators.mutate(ptext, self.claude, r, prefix, self._stats_line(parent), two,
                                      notes_fn=self.intel_notes, variant=self.a.mutate_prompt)
         return self.check(child, parents, seq)
+
+    @staticmethod
+    def _member_brief(m):
+        """Compact per-member results for the session's feedback: rating, worst 3 maps by win rate (>= 2 games),
+        and deaths per game not caused by enemy champions."""
+        out = [m["name"], round(m["mu"], 2), round(m["sigma"], 2), m["games"]]
+        ms = [(w / n, mp, w, n) for mp, (w, n) in m.get("map_stats", {}).items() if n >= 2]
+        worst = [[mp, w, n] for _, mp, w, n in sorted(ms)[:3]]
+        nc = m.get("nc_deaths", [0, 0])
+        return out + [worst, round(nc[0] / nc[1], 2) if nc[1] else None]
+
+    def queue_feedback(self):
+        """Feedback for the next queued request: outcomes of earlier queued children not yet reported; for every live
+        queued child [name, mu, sigma, games, worst 3 maps [map, wins, games], non-champion deaths per game]; the
+        queued children that died since the last request; the top 5 (same fields)."""
+        with self.lock:
+            fb = {"outcomes": []}
+            for r in self._read("children"):
+                if r.get("model") != "session" or r["seq"] in self.q_reported:
+                    continue
+                self.q_reported.add(r["seq"])
+                info = (r.get("log") or {}).get("llm")
+                q = info.get("queue_seq") if isinstance(info, dict) else None
+                out = "accepted" if r.get("accepted") else "twin" if r.get("twin_of") else "invalid"
+                fb["outcomes"].append({"child_seq": r["seq"], "request": q, "op": r["op"], "outcome": out,
+                                       **({"name": r["name"]} if r.get("accepted") else {}),
+                                       **({"twin_of": r["twin_of"]} if r.get("twin_of") else {}),
+                                       **({"error": (r.get("error") or "")[:160]} if out == "invalid" else {})})
+                if r.get("accepted"):
+                    self.q_alive.add(r["name"])
+            mem = self.s["members"]
+            alive = {n for n in self.q_alive if n in mem and mem[n].get("alive", True)}
+            fb["died"] = sorted(self.q_alive - alive)
+            self.q_alive = alive
+            fb["rated"] = [self._member_brief(mem[n]) for n in sorted(alive)]
+            fb["top5"] = [self._member_brief(m) for m in sorted(self.genomes(), key=lambda m: -m["mu"])[:5]]
+            fb["births"] = self.s["births"]
+            return fb
 
     def _stats_line(self, m):
         return f"rating {m['mu']:.1f} ± {m['sigma']:.1f} over {m['games']} games in the arena"
@@ -601,7 +677,8 @@ class Arena:
                 with self.lock:
                     want_birth = (births_open and len(births) < a.births_in_flight
                                   and len(self.s["newborn_queue"]) <= a.threads
-                                  and (len(self.genomes()) < a.capacity or self.s["since_birth"] >= a.random_matches))
+                                  and (len(self.genomes()) < a.capacity or self.s["since_birth"] >= a.random_matches)
+                                  and not (a.max_births and self.s["births"] >= a.max_births))
                 if want_birth:
                     seq += 1
                     births[bpool.submit(self.propose, seq)] = seq
@@ -638,6 +715,9 @@ class Arena:
                             self.log(f"birth error: {type(e).__name__}: {e}")
                             continue
                         m = self.accept(rec, source)
+                        if a.max_births and self.s["births"] >= a.max_births and births_open:
+                            births_open = False
+                            self.log(f"{self.s['births']} births (--max-births {a.max_births}): no more births")
                         if m:
                             self.log(f"birth {m['name']} ({rec['op']} {rec['model'] or ''}) of {rec['parents']} "
                                      f"species {m['species']}; {len(self.genomes())} genomes ${self.claude.spent:.2f}")
@@ -650,6 +730,8 @@ class Arena:
             self.summary()
             self.save()
         self.log(f"done: spent ${self.claude.spent:.2f}")
+        if self.a.llm_queue:
+            (Path(self.a.llm_queue) / "DONE").write_text(time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 def main(argv=None):
@@ -688,6 +770,12 @@ def main(argv=None):
     ap.add_argument("--summary-every", type=int, default=10)
     ap.add_argument("--max-hours", type=float, default=48)
     ap.add_argument("--tail-matches", type=int, default=200, help="matches played after the budget runs out")
+    ap.add_argument("--llm-queue", default="", help="file-queue LLM backend directory (queuellm.py): a Claude Code "
+                                                    "session answers every Claude call")
+    ap.add_argument("--queue-timeout", type=float, default=900, help="seconds a queued request waits for its reply")
+    ap.add_argument("--max-births", type=int, default=0, help="stop births at this total (0: budget only)")
+    ap.add_argument("--game-details", action="store_true",
+                    help="record per-game map results and non-champion deaths (always on with --llm-queue)")
     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
     ap.add_argument("--anchor-sigma", type=float, default=1.0)
@@ -720,9 +808,9 @@ def main(argv=None):
         for m in st["members"].values():
             if m["kind"] == "anchor" and m.get("source") is None:
                 m["path"] = _rebase(m["path"])
-                alt = ROOT / "arena_policies" / Path(m["path"]).name
-                if not Path(m["path"]).exists() and alt.exists():  # an anchor given inline again (service policies)
-                    m["path"] = str(alt)
+                for alt in (ROOT / "arena_policies" / Path(m["path"]).name, ROOT / Path(m["path"]).name):
+                    if not Path(m["path"]).exists() and alt.exists():  # given inline again (service policies), or
+                        m["path"] = str(alt)                           # copied to the checkout root (EC2 jobs)
             elif m["kind"] == "anchor":
                 m["path"] = f"genomes/{Path(m['path']).name}"
         (out / "state.json").write_text(json.dumps(st))
@@ -735,7 +823,8 @@ def _rebase(path):
     # the repository-relative part starts at the first known top directory (arena_policies/ holds anchors a run was
     # given inline); a bare file name only if none is found
     tops = ("arena_policies", "policies", "genome")
-    i = next((k for k, x in enumerate(parts) if x in tops), len(parts) - 1)
+    i = max((k for k, x in enumerate(parts[:-1]) if x in tops), default=len(parts) - 1)  # the last one: EC2 checkouts
+    # live under .../genome/w/<job>/, so an earlier "genome" is part of the old root, not the repository path
     return str(ROOT.joinpath(*parts[i:]))
 
 
