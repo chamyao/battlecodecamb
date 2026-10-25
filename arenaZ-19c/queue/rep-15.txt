@@ -1,0 +1,28 @@
+```python
+@gene("s1", "value of doing this option now; drafts strong champions, uses abilities, backs off from threats before recalling when low")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    low = me().health_frac < 0.35
+    if o.kind == RECALL:
+        return 90 if low and threat_gap(me().pos) > 4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if low and threat_gap(me().pos) <= 4:
+            return 86 if threat_gap(o.tile) > threat_gap(me().pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "distance from tile t to the nearest enemy champion or awake camp (99 if none seen)", parents=["s1"])
+def threat_gap(t: Tile) -> Num:
+    return min(min((dist(u.pos, t) for u in enemies()), default=99), min((dist(c.pos, t) for c in camps() if is_awake(c)), default=99))
+```

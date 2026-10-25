@@ -3,3 +3,34 @@
 [08:30:33] [Z] fixed anchors: starter-anchor 25.00
 [08:30:38] [Z] rejected tune : behavioural twin
 [08:30:40] [Z] rejected tune : behavioural twin
+[08:32:57] [Z] birth Z1 (mutate session) of ['seed'] species S0; 2 genomes $0.00
+[08:33:00] [Z] birth Z2 (mutate session) of ['seed'] species S0; 3 genomes $0.00
+[08:33:01] [Z] new species S1 founded by Z3
+[08:33:01] [Z] birth Z3 (mutate session) of ['seed'] species S1; 4 genomes $0.00
+[08:33:21] [Z] new species S2 founded by Z4
+[08:33:21] [Z] birth Z4 (mutate session) of ['seed'] species S2; 5 genomes $0.00
+[08:33:21] [Z] new species S3 founded by Z5
+[08:33:21] [Z] birth Z5 (mutate session) of ['seed'] species S3; 6 genomes $0.00
+[08:33:22] [Z] new species S4 founded by Z6
+[08:33:22] [Z] birth Z6 (mutate session) of ['seed'] species S4; 7 genomes $0.00
+[08:33:24] [Z] new species S5 founded by Z7
+[08:33:24] [Z] birth Z7 (mutate session) of ['seed'] species S5; 8 genomes $0.00
+[08:33:24] [Z] new species S6 founded by Z8
+[08:33:24] [Z] birth Z8 (mutate session) of ['seed'] species S6; 9 genomes $0.00
+[08:33:52] [Z] new species S7 founded by Z9
+[08:33:52] [Z] birth Z9 (tune ) of ['Z7'] species S7; 10 genomes $0.00
+[08:38:28] [Z] new species S8 founded by Z10
+[08:38:28] [Z] summary: births 10 deaths 0 games 5688 $0.00; top [('Z8', 29.06, 0.81, 560, 'S6'), ('Z7', 28.43, 0.81, 632, 'S5'), ('Z5', 27.97, 0.8, 712, 'S3')]; top vs anchors {'Z8': 0.708, 'Z7': 0.768, 'Z5': 0.675}
+[08:38:28] [Z] birth Z10 (mutate session) of ['Z2'] species S8; 11 genomes $0.00
+[08:38:28] [Z] birth Z11 (mutate session) of ['Z7'] species S5; 12 genomes $0.00
+[08:38:31] [Z] rejected mutate session: behavioural twin
+[08:38:33] [Z] new species S9 founded by Z12
+[08:38:33] [Z] birth Z12 (mutate session) of ['Z7'] species S9; 13 genomes $0.00
+[08:39:04] [Z] new species S10 founded by Z13
+[08:39:04] [Z] birth Z13 (llm_cross session) of ['Z8', 'Z1'] species S10; 14 genomes $0.00
+[08:39:22] [Z] new species S11 founded by Z14
+[08:39:22] [Z] birth Z14 (mutate session) of ['Z3'] species S11; 15 genomes $0.00
+[08:39:49] [Z] new species S12 founded by Z15
+[08:39:49] [Z] birth Z15 (mutate session) of ['Z3'] species S12; 16 genomes $0.00
+[08:39:49] [Z] rejected mutate session: behavioural twin
+[08:40:00] [Z] birth Z16 (tune ) of ['Z15'] species S12; 17 genomes $0.00

@@ -1,0 +1,37 @@
+```python
+@gene("Z7b", "value of casting an ability: damage and stuns on fights, area hits on clusters, resets only with a target in reach, shields and heals when hurt")
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        return 55 if not can_attack() and fighting_r(me().attack_range) else 0
+    if k == AB_SHIELD:
+        return 75 if fighting_r(4) else 0
+    if k == AB_HEAL:
+        if exists(o.unit):
+            return 85 if o.unit.health_frac < 0.6 else 0
+        return 0
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 82
+            if o.unit.is_camp and gems() == 0:
+                return 65
+        return 0
+    if k == AB_AOE:
+        if not fighting_r(5):
+            return 0
+        r = max(1, slot_radius(o.slot))
+        n = 2 * count(dist(u.pos, o.tile) <= r for u in enemies()) + count(is_awake(c) and dist(c.pos, o.tile) <= r for c in camps())
+        return 60 + 5 * n if n > 0 else 0
+    if k == AB_DASH:
+        return 52 if progress(o.tile) >= 2 else 0
+    return 0
+
+
+@gene("new", "an enemy champion or awake camp is within r tiles", parents=["Z7b"])
+def fighting_r(r: Num) -> Bool:
+    p = me().pos
+    if any(dist(u.pos, p) <= r for u in enemies()):
+        return True
+    return any(is_awake(c) and dist(c.pos, p) <= r for c in camps())
+```

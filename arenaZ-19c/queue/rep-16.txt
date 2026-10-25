@@ -1,0 +1,39 @@
+```python
+@gene("Z6b", "value of casting an ability: damage and stuns on fights, resets after an attack, shields and heals when hurt, dash away when low")
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        return 55 if not can_attack() and fighting() else 0
+    if k == AB_SHIELD:
+        return 75 if fighting() else 0
+    if k == AB_HEAL:
+        if exists(o.unit):
+            return 85 if o.unit.health_frac < 0.6 else 0
+        return 0
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 82
+            if o.unit.is_camp and gems() < 8:
+                return 65
+        return 0
+    if k == AB_DASH:
+        if me().health_frac < 0.35 and fighting():
+            return 88 if threat_gap(o.tile) >= 2 else 0
+        return 52 if progress(o.tile) >= 2 else 0
+    return 0
+
+@gene("Z6c", "an enemy champion or awake camp is close enough to fight")
+def fighting() -> Bool:
+    p = me().pos
+    if any(dist(u.pos, p) <= 4 for u in enemies()):
+        return True
+    return any(is_awake(c) and dist(c.pos, p) <= 5 for c in camps())
+
+@gene("new", "how much farther tile t is than my position from the nearest threat", parents=["Z6c"])
+def threat_gap(t: Tile) -> Num:
+    p = me().pos
+    a = min(min((dist(u.pos, p) for u in enemies()), default=99), min((dist(c.pos, p) for c in camps() if is_awake(c)), default=99))
+    b = min(min((dist(u.pos, t) for u in enemies()), default=99), min((dist(c.pos, t) for c in camps() if is_awake(c)), default=99))
+    return b - a
+```

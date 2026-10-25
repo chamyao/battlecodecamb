@@ -1,0 +1,17 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else a living camp group that is not a monolith or golem")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            k = spawn_type(nearest(ts, me().pos))
+            if k != MONOLITH and k != GOLEM:
+                acc = acc | ts
+    return acc
+```
