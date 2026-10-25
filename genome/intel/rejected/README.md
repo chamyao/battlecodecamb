@@ -245,3 +245,29 @@ group, awake or not, unless the r15 push is on, so it has no special case for an
 
 38/80 vs v28 overall. On the boss map it wins 1 of 8 against v28's 4 of 8 (2-game samples). Rejected: banking beside an
 awake monolith when an enemy is nearer still gets our carrier hit once that enemy dies or leaves.
+
+## Bank-access fallback on v28-emblem (v29 candidate); --bot-seeds, runtime genome/v0 97194bf
+
+- **v29-bank** = v29 + both parts:
+  - Stall fallback: a bank walk with no field progress for 8 rounds gives up that altar ring until a tribute.
+  - BREAK: enemy locks in reach are broken while carrying (the new option kind).
+- **Variants:** BREAK only (v29-break) 37/80; stall only (`v29-stall`) **40/80**; stall at 15 rounds 38; BREAK only at
+  an adjacent altar under a bank rule (`v29-bank2`) 38. BREAK at 145 costs: it spends attacks on locks we were not
+  going to use.
+
+| 3 bank-access maps, wins of 18 (vs B792, farmer, lockall; 2 games each) | shortcut | broken-curve | elk-arena |
+|---|---|---|---|
+| v28-emblem (base) | 5/6 | 4/6 | 2/6 |
+| v29-bank | 6/6 | 5/6 | 2/6 |
+| v29-stall | 6/6 | 5/6 | 1/6 |
+
+Example gem gains: shortcut vs B792 414 → 670; broken-curve vs farmer 624 → 1,055.
+
+v29-stall vs the anchors (base in brackets): L1c 58 (54), gconv1 66 (62), v7 76 (77), L1 58 (60), rall2 60 (63),
+metadraft 76 (72), hunter 66 (64), hunter-carry 61 (66), farmer 44 (46), deathball 65 (62), rushbank 59 (60),
+lockall 65 (64), **B318 48 (53)**, B792 47 (49), seed 59 (59), v28 51 (52). B318 drops by 5.
+
+**Real cambc smoke** (v29-stall vs the v28-emblem build, both sides): shortcut 627-381 W / 184-632 L; broken-curve
+673-1020 L / 1010-66 W; elk-arena 1044-324 W / 504-792 L. That is **3-3**, with +138 gems per game.
+
+Not a pass: it banks more on these maps but does not win more, and one anchor drops by 5.
