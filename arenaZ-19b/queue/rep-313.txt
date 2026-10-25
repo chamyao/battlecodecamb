@@ -1,0 +1,26 @@
+```python
+@gene("Z6a", "true when the bag should be taken to an altar: 18 gems, low health or the end of the game")
+def banking() -> Bool:
+    g = gems()
+    if g >= 18:
+        return True
+    if g > 0 and (me().health_frac < 0.5 or round() > 1850):
+        return True
+    return False
+
+@gene("s4", "how much closer a step brings me to the goals; never stuck on a dead camp tile of an uncleared group; with a bag worth banking never step next to an enemy champion")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    here = at(f, me().pos)
+    if here == 0:
+        sg = spawn_group(me().pos)
+        if sg >= 0 and not group_reward(sg):
+            live = nearest(camp_tiles(), me().pos)
+            if valid(live) and dist(live, me().pos) > me().attack_range:
+                return dist(live, me().pos) - dist(live, t)
+    d = here - at(f, t)
+    if d > 0 and gems() >= 10:
+        if any(dist(u.pos, t) <= 1 for u in enemies()):
+            return 0
+    return d
+```

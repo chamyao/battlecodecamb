@@ -1,0 +1,38 @@
+```python
+@gene("s2", "where to walk (never stuck on a dead camp tile of an uncleared group): home when badly hurt, a cleared group close by to capture, an altar when banking, else a living camp group, golems only after round 800 and the monolith only late with three allies around")
+def goals() -> Tiles:
+    if me().health_frac < 0.45 and not channeling():
+        return my_spawn()
+    acc = near(tile(-5, -5), 0)
+    ripe = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            acc = acc | gt
+            if group_reward(g):
+                ripe = ripe | gt
+    if size(ripe) > 0 and dist(nearest(ripe, me().pos), me().pos) <= 5:
+        return ripe
+    if me().pos in acc and not any(dist(u.pos, me().pos) <= me().attack_range for u in camps()):
+        acc = (acc - (vision() - camp_tiles())) | ripe
+    alt = near(tile(-5, -5), 0)
+    for a in altars() - locked_altars():
+        alt = alt | near(a, 1)
+    if banking():
+        return alt
+    if round() < 1200 or count(dist(u.pos, me().pos) <= 6 for u in allies()) < 3:
+        safe = acc - type_spawns(MONOLITH)
+        if round() < 800:
+            safe = safe - type_spawns(GOLEM)
+        if size(safe) > 0:
+            return safe
+    if size(acc) == 0 and gems() > 0:
+        return alt
+    return acc
+
+@gene("Z21a", "how many awake camps and enemy champions can hit a tile (enemy reach includes their step and spell range)")
+def threat_at(t: Tile) -> Num:
+    c = count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps())
+    e = count(dist(u.pos, t) <= max(u.attack_range + 1, 4) for u in enemies())
+    return c + e
+```
