@@ -4367,3 +4367,16 @@
 [10:11:45] [B] birth B2274 (mutate session) of ['B2257'] species S4; 24 genomes $11.08
 [10:11:47] [B] rejected tune : behavioural twin
 [10:12:02] [B] birth B2275 (mutate session) of ['B2180'] species S10; 24 genomes $11.08
+[10:12:22] [B] rejected mutate session: behavioural twin
+[10:12:46] [B] rejected cross : behavioural twin
+[10:12:56] [B] rejected mutate session: behavioural twin
+[10:12:59] [B] birth B2276 (mutate session) of ['B2195'] species S11; 24 genomes $11.08
+[10:13:23] [B] birth B2277 (mutate session) of ['B2258'] species S11; 24 genomes $11.08
+[10:13:24] [B] birth B2278 (cross ) of ['B2275', 'B2271'] species S10; 24 genomes $11.08
+[10:13:31] [B] rejected tune : behavioural twin
+[10:13:52] [B] rejected tune : behavioural twin
+[10:14:11] [B] birth B2279 (mutate session) of ['B2277'] species S11; 24 genomes $11.08
+[10:14:13] [B] summary: births 2280 deaths 2257 games 566888 $11.08; top [('B2271', 49.48, 0.88, 144, 'S10'), ('B2280', 49.48, 6.0, 0, 'S10'), ('B2180', 48.74, 0.84, 1360, 'S6')]; top vs anchors {'B2271': 0.688, 'B2180': 0.684, 'B2276': 0.917}
+[10:14:14] [B] birth B2280 (mutate session) of ['B2271'] species S10; 24 genomes $11.08
+[10:14:23] [B] rejected mutate session: behavioural twin
+[10:14:48] [B] rejected mutate session: behavioural twin
