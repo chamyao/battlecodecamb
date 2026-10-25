@@ -1,0 +1,106 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HEALING: Bool = False
+THREAT: Bool = False
+
+@gene('s1', 'value of doing this option now; heals, shields when hurt or threatened, casts abilities on enemy champions first, focus-fires weak camp units, dashes toward goals, avoids bad duels; recalls when healing and no enemy champion is close (cached)')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 55 if o.item == 6 else 0
+    hf = me().health_frac
+    if o.kind == RECALL:
+        if HEALING and not THREAT and not (me().pos in my_spawn()):
+            return 90
+        return 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 75 if hf < 0.6 or (THREAT and hf < 0.95) else 0
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+                return 78
+            if exists(o.unit) and o.unit.is_camp and gems() == 0 and not HEALING:
+                return 58
+        if k == AB_DASH:
+            if valid(o.tile) and not (HEALING and me().pos in my_spawn()):
+                if progress(o.tile) >= 2:
+                    return 55
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if hf > 0.3 or o.unit.health_frac < 0.3:
+                return 80 + 15 * (1 - o.unit.health_frac) + min(unit_gems(o.unit), 50) / 10
+            return 0
+        return 88 + 5 * (4.9169 - o.unit.health_frac) if gems() == 0 and not HEALING else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if HEALING and me().pos in my_spawn():
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when hurt, altar first with many gems or late game, capturable group, altar with any gems, else camps (no golems early, no monoliths)')
+def goals() -> Tiles:
+    empty = near(tile(-5, -5), 0)
+    if HEALING:
+        return my_spawn()
+    alt = empty
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            alt = alt | near(a, 1)
+    if size(alt) > 0:
+        if gems() >= 30 or round() > 1800:
+            return alt
+    rew = empty
+    acc = empty
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    if size(alt) > 0:
+        return alt
+    safe = acc - type_spawns(MONOLITH)
+    if round() < 600:
+        easy = safe - type_spawns(GOLEM)
+        if size(easy) > 0:
+            return easy
+    if size(safe) > 0:
+        return safe
+    return acc
+
+@gene('s4', 'how much closer a step brings me to the goals (reads the per-turn field keep directly)')
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z9a', 'track healing (enter at 40%, earlier when carrying gems); cache close enemy champion; while healing the home field avoids seen enemies; with many gems the goal field avoids seen enemies too; else goal field once per turn', parents=['s1', 's2', 's3', 's4'])
+def update() -> None:
+    hf = me().health_frac
+    thr = 0.4 + min(gems(), 50) / 300
+    if hf < thr:
+        HEALING = True
+    if hf > 0.9:
+        HEALING = False
+    mp = me().pos
+    THREAT = any(u.is_champion and dist(u.pos, mp) <= 4 for u in enemies())
+    empty = near(tile(-5, -5), 0)
+    if HEALING:
+        if not (mp in my_spawn()):
+            GF = field_avoid(my_spawn(), enemy_tiles(), empty)
+    elif gems() >= 30:
+        GF = field_avoid(goals(), enemy_tiles(), empty)
+    else:
+        GF = field(goals())
+
+@gene('Z148a', 'skip listing option kinds the policy never uses (wards, locks) to save fuel', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    return True

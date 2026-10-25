@@ -1,0 +1,113 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HEALING: Bool = False
+ECH: Tiles = None
+
+@gene('Z143a', 'value of doing this option now; recall follows healing state when no cached enemy champion is close; focus gem-carrying and weak enemies; fight back awake camps even with gems; finish hurt camps first; tribute above fighting when no enemy champion is near; dash toward goals', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    hf = me().health_frac
+    if o.kind == RECALL:
+        if HEALING and not (me().pos in my_spawn()):
+            if any(dist(e, me().pos) <= 4 for e in ECH):
+                return 0
+            return 90
+        return 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 75 if hf < 0.6 else 0
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+                return 78
+            if exists(o.unit) and o.unit.is_camp and gems() == 0 and not HEALING:
+                return 58
+        if k == AB_DASH:
+            if valid(o.tile) and not (HEALING and me().pos in my_spawn()):
+                if progress(o.tile) >= 2:
+                    return 55
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if hf > 0.3 or o.unit.health_frac < 0.3:
+                return 80 + 12 * (1 - o.unit.health_frac) + min(unit_gems(o.unit), 50) / 10
+            return 0
+        if HEALING:
+            return 0
+        if gems() == 0 or (o.unit.is_camp and is_awake(o.unit)):
+            return 60 + 5 * (1 - o.unit.health_frac)
+        return 0
+    if o.kind == TRIBUTE:
+        if any(dist(e, me().pos) <= 4 for e in ECH):
+            return 70
+        return 95
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when hurt, altar first with many gems (or any gems in the final rounds), capturable group, altar with gems, else camps (no golems early, no monoliths)')
+def goals() -> Tiles:
+    empty = near(tile(-5, -5), 0)
+    if HEALING:
+        return my_spawn()
+    alt = empty
+    g0 = gems()
+    if g0 > 0:
+        for a in altars() - locked_altars():
+            alt = alt | near(a, 1)
+    if size(alt) > 0:
+        if g0 >= 30 or round() > 1820:
+            return alt
+    rew = empty
+    acc = empty
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    if size(alt) > 0:
+        return alt
+    safe = acc - type_spawns(MONOLITH)
+    if round() < 600:
+        easy = safe - type_spawns(GOLEM)
+        if size(easy) > 0:
+            return easy
+    if size(safe) > 0:
+        return safe
+    return acc
+
+@gene('Z143b', 'how much closer a step brings me to the goals; stay on spawn while healing; when carrying gems or healing, steps near cached enemy champions count less', parents=['s4'])
+def progress(t: Tile) -> Num:
+    if HEALING and me().pos in my_spawn():
+        return 0
+    d = at(GF, me().pos) - at(GF, t)
+    if d > 0 and (HEALING or gems() > 0):
+        d -= 0.6 * count(dist(e, t) <= 2 for e in ECH)
+    return d
+
+@gene('Z9a', 'track healing (enter at 40%, earlier with more gems); cache enemy champion tiles once per turn when carrying gems or healing; home field avoids seen enemies while healing; skip field while resting on spawn', parents=['s1', 's2', 's3', 's4'])
+def update() -> None:
+    hf = me().health_frac
+    thr = 0.4 + min(gems(), 50) / 300
+    if hf < thr:
+        HEALING = True
+    if hf > 0.9:
+        HEALING = False
+    empty = near(tile(-5, -5), 0)
+    ECH = empty
+    if HEALING or gems() > 0:
+        for u in enemies():
+            if u.is_champion:
+                ECH = ECH | near(u.pos, 0)
+    if HEALING:
+        if not (me().pos in my_spawn()):
+            GF = field_avoid(my_spawn(), enemy_tiles(), empty)
+    else:
+        GF = field(goals())
