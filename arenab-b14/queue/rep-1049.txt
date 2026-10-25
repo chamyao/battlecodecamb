@@ -1,0 +1,10 @@
+```python
+@gene('r12', 'threat near: enemy within 5, two or more enemies within 9, hurt with an enemy within 7, or able to hit us within 2 turns (cheap checks first; a 3-turn eta held captures and bags too long against passers-by)')
+def threat_near() -> Bool:
+    if enemies_within(5) > 0:
+        return True
+    n9 = enemies_within(9)
+    if n9 >= 2 or (n9 > 0 and hurt_below(0.5) and enemies_within(7) > 0):
+        return True
+    return n9 > 0 and threat_eta() <= 2
+```

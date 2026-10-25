@@ -1,0 +1,8 @@
+```python
+@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem), not below half health into one an enemy champion stands within 2 of")
+def r_live() -> Bool:
+    c = live_camp()
+    if dist(camp_goal(), here()) != 0 or not exists(c) or c.pos in BIG_CAMPS:
+        return False
+    return not hurt_below(0.5) or count(dist(e.pos, c.pos) <= 2 for e in enemies()) == 0
+```

@@ -1579,3 +1579,31 @@
 [10:45:29] [B] birth B2352 (mutate session) of ['B2334'] species S11; 24 genomes $11.08
 [10:45:51] [B] birth B2353 (mutate session) of ['B2224'] species S3; 24 genomes $11.08
 [10:46:04] [B] birth B2354 (mutate session) of ['B2195'] species S8; 24 genomes $11.08
+[10:46:19] [B] birth B2355 (mutate session) of ['B2195'] species S11; 24 genomes $11.08
+[10:46:35] [B] birth B2356 (mutate session) of ['B2347'] species S10; 24 genomes $11.08
+[10:46:37] [B] birth B2357 (tune ) of ['B2351'] species S10; 24 genomes $11.08
+[10:46:48] [B] birth B2358 (tune ) of ['B2283'] species S9; 24 genomes $11.08
+[10:47:12] [B] birth B2359 (mutate session) of ['B2349'] species S11; 24 genomes $11.08
+[10:47:41] [B] summary: births 2360 deaths 2337 games 592344 $11.08; top [('B2357', 48.93, 0.92, 112, 'S10'), ('B2335', 48.19, 0.81, 328, 'S6'), ('B2360', 47.73, 6.0, 0, 'S10')]; top vs anchors {'B2357': 0.75, 'B2335': 0.639, 'B2358': 0.812}
+[10:47:41] [B] birth B2360 (cross ) of ['B2357', 'B2356'] species S10; 24 genomes $11.08
+[10:47:41] [B] rejected llm_cross session: solo-farm: 56550 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 524
+[10:47:52] [B] rejected mutate session: behavioural twin
+[10:48:13] [B] birth B2361 (cross ) of ['B2360', 'B2357'] species S10; 24 genomes $11.08
+[10:48:18] [B] birth B2362 (tune ) of ['B2360'] species S10; 24 genomes $11.08
+[10:48:18] [B] birth B2363 (mutate session) of ['B2358'] species S9; 24 genomes $11.08
+[10:48:50] [B] rejected tune : behavioural twin
+[10:48:59] [B] birth B2364 (mutate session) of ['B2176'] species S7; 24 genomes $11.08
+[10:49:08] [B] birth B2365 (mutate session) of ['B2176'] species S7; 24 genomes $11.08
+[10:49:22] [B] birth B2366 (mutate session) of ['B2362'] species S10; 24 genomes $11.08
+[10:49:33] [B] birth B2367 (mutate session) of ['B2362'] species S10; 24 genomes $11.08
+[10:49:46] [B] birth B2368 (mutate session) of ['B2361'] species S10; 24 genomes $11.08
+[10:50:05] [B] rejected mutate session: behavioural twin
+[10:50:18] [B] rejected tune : behavioural twin
+[10:50:20] [B] rejected mutate session: behavioural twin
+[10:50:33] [B] birth B2369 (tune ) of ['B2293'] species S4; 24 genomes $11.08
+[10:50:44] [B] rejected tune : behavioural twin
+[10:50:53] [B] rejected mutate session: behavioural twin
+[10:51:12] [B] summary: births 2370 deaths 2347 games 595072 $11.08; top [('B2354', 47.27, 0.81, 232, 'S8'), ('B2370', 47.27, 6.0, 0, 'S11'), ('B2365', 46.96, 0.84, 160, 'S7')]; top vs anchors {'B2354': 0.679, 'B2365': 0.55, 'B2312': 0.658}
+[10:51:12] [B] birth B2370 (mutate session) of ['B2354'] species S11; 24 genomes $11.08
+[10:51:23] [B] rejected mutate session: behavioural twin
+[10:51:34] [B] rejected mutate session: behavioural twin
