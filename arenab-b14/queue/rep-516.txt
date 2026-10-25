@@ -1,0 +1,13 @@
+```python
+@gene('r5', 'recall with gems when below half health, or with 10+ gems below 70% health, and nothing near; not when an altar is adjacent or within 4 turns (2 with a bag of 20+: a big bag is not risked on a hurt walk) (bank walk instead)')
+def r_cashout() -> Bool:
+    if at_spawn() or gems() <= 0 or under_fire():
+        return False
+    if valid(adj_altar()):
+        return False
+    if altar_eta() <= (2 if gems() >= 20 else 4) and hurt_below(0.7):
+        return False
+    if gems() >= 10 and hurt_below(0.7):
+        return True
+    return hurt_below(0.5)
+```

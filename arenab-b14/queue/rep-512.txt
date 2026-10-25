@@ -1,0 +1,5 @@
+```python
+@gene('s14', 'the camp in reach to hit: farmable first, then one our next hit kills, then awake ones (already hitting us), then the lowest health', parents=['s14'])
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: (1000 if farmable(c) else 0) + (300 if attack_damage(me(), c) >= c.health else 0) + (150 if is_awake(c) else 0) - c.health / 10 if in_reach(c) else -INF)
+```
