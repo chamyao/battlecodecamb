@@ -10,6 +10,7 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-24 | Budget (Cham, ~23:30 UTC): Arena B next run +$3 (B cap $11), exploiter test vs B792 $2 | — | — | +$5 committed |
 | 2026-10-25 | Exploiter test exploit-1 (arena run 21, pool B792, bot seeds) | 504 programs | 2.03 | exploiter $2.03 of $2 |
 | 2026-10-25 | Arena B runs 24 (01:43-02:21, 3 anchors missing by a resume bug) and 27 (restart 02:23) | 1,419 births by 02:21 | 3.06 | Arena B $11.08 of $11 (cap reached ~02:32 UTC) |
+| 2026-10-25 | Standing approval (Cham, ~03:35 UTC, to the Arena B lead): API credits are not real money; Arena B may spend as needed, keep logging | — | — | no cap for Arena B |
 
 ## Ladder uploads (Cham, Oct 24)
 
