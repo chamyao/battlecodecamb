@@ -243,6 +243,9 @@ public:
 	std::uint64_t pass_id = 0;
 
 	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
+#ifdef GENOME_PROF
+	mutable long long extra_sum = 0; // simulator: fuel charged by extra() (GENOME_TURN_CALLS lines)
+#endif
 	// Simulator only: a gene whose bot code needs a shadow-stack frame (it inlines a primitive with an
 	// address-taken local: lang.FRAMED_PRIMS) pays the frame (~12 fuel) on every call. The framed
 	// primitives' prices already carry one frame, so a call is charged it only when it ran none of them
@@ -278,6 +281,9 @@ public:
 #ifndef GENOME_BOT
 		const std::int64_t f = (fuel > 0 ? static_cast<std::int64_t>(fuel) : 0) + frame_take();
 		if (f > 0) api.compute(f);
+#ifdef GENOME_PROF
+		extra_sum += f;
+#endif
 #endif
 	}
 	double chunks() const { return ((m.W + 7) / 8) * ((m.H + 7) / 8); }
@@ -1481,7 +1487,7 @@ public:
 		}
 		return props_[s];
 	}
-	double slot_kind(double s) { return extra(90), props(static_cast<int>(s)).kind; }
+	double slot_kind(double s) { return extra(44), props(static_cast<int>(s)).kind; } // a cached read in the bot (score variants, FUEL.md)
 	bool slot_ready(double s)
 	{
 		const int i = static_cast<int>(s);
@@ -1491,7 +1497,7 @@ public:
 		extra(90);
 		return cd <= 0;
 	}
-	double slot_range(double s) { return extra(90), props(static_cast<int>(s)).range; }
+	double slot_range(double s) { return extra(44), props(static_cast<int>(s)).range; }
 	double slot_radius(double s) { return props(static_cast<int>(s)).radius; }
 	double slot_targets(double s) { return props(static_cast<int>(s)).targets; }
 	bool slot_moveless(double s) { return props(static_cast<int>(s)).attributes & 1u; }
@@ -2060,6 +2066,9 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	std::int64_t f_opt = 0, f_score = 0, f_exec = 0, t0 = X.api.fuel_remaining(), tp, start = t0;
 	const long long ops0 = X.ops;
 	int npass = 0, nopts = 0;
+#ifdef GENOME_PROF
+	const long long extra0 = X.extra_sum;
+#endif
 #define PROF_MARK(acc) (tp = X.api.fuel_remaining(), acc += t0 - tp, t0 = tp)
 #else
 #define PROF_MARK(acc) ((void)0)
@@ -2187,7 +2196,8 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #ifdef GENOME_PROF
 	if (turn_calls && !draft && X.api.team() == 0)
 	{
-		std::printf("@@TC r%d c%d passes %d opts %d", static_cast<int>(X.round()), X.api.champ(), npass, nopts);
+		std::printf("@@TC r%d c%d passes %d opts %d ops %lld extra %lld spent %lld", static_cast<int>(X.round()), X.api.champ(), npass, nopts,
+					X.ops - ops0, X.extra_sum - extra0, static_cast<long long>(X.api.spent));
 		for (int i = 0; i < 256; ++i)
 			if (X.turn_calls_buf[i]) std::printf(" %d:%d", i, X.turn_calls_buf[i]);
 		std::printf("\n");

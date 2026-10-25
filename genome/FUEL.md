@@ -324,6 +324,25 @@ Against builtin:starter, 80 games, 100x: identical for all five reference genome
 with the prices: seed identical; B318 and B792 79 -> 78; starter 40 -> 38; v23 79 -> 78. B792 vs B318 at
 1x: 44 -> 48 of 80.
 
+## Joint per-option refit (Oct 25): what it found
+
+Per-turn records (`GENOME_TURN_CALLS=1` in the profiling sim): `@@TC r c passes opts ops extra spent`, then
+calls per gene for team 0's champion 0. Fitting each genome's per-turn gap (real - sim) on these, over
+11 genomes x 3 maps:
+- Counted operations (F) are 2-6% of sim fuel; primitive extras are 70-90%.
+- The gap per option scored follows the score's shape, not a shared constant. Simple scores (idle,
+  calib5, starter) are under by 2-17 per option. The seed family is over by 30-40, A458 by ~60, v23 by ~78.
+- Score variants show why. A memoised gene's hit costs ~30 in the bot when its caller inlines it,
+  against 73 charged, while the seed family, whose callers are large genes, is slightly under on memo
+  hits. The real price depends on the compiler's inlining, which no per-construct price captures.
+- `slot_kind` / `slot_range` were charged 90, but the bot reads them from a per-pass cache: ~44
+  (score variant, slot_kind per CAST option: 2.05 -> 1.10 of real). That moves v23 from
+  1.135 / 1.111 / 1.109 to 1.109 / 1.091 / 1.088 (00lanes, 00ambush, 01big-world). The others barely
+  call it and are unchanged. Against builtin:starter at 1x, v23 is now identical (79 wins).
+- A bounded joint fit (pass, option and memo-hit prices) would bring v23 to ~1.03-1.04 and idle to
+  ~1.02, but widens starter (to -4%) and B1092 (to +4%), and needs the first pass at ~1960. It is not
+  applied; see the message log for the decision.
+
 ## Bot-side costs worth knowing (what the search pays for)
 
 - A single host bitboard bit test or set costs ~120-170 fuel in the bot. The runtime keeps static
