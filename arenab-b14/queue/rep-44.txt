@@ -1,0 +1,9 @@
+```python
+@gene("a16", "units of the next shard still to buy, summed over every remaining kind of the split that is the same item (one bigger BUY instead of several passes)", parents=["a16"])
+def shard_left() -> Num:
+    d = shards_done()
+    for k in range(4):
+        if d < shard_until(k + 1):
+            return shard_until(k + 1) - d
+    return 1 if gold() >= 30 and next_shard() >= 0 else 0
+```

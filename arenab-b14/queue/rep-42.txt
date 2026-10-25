@@ -1,0 +1,11 @@
+```python
+@gene("a13", "a purchase is still due this turn (other options wait, unscored), unless an enemy champion is in attack range (then fight first); cheap gold test first", parents=["a13"])
+def shop_pending() -> Bool:
+    if gold() < 10:
+        return False
+    if RULE < 2 or not at_spawn() or not can_shop():
+        return False
+    if foe_in_reach():
+        return False
+    return (LOCK_BUY and not has_lock()) or (next_shard() >= 0 and gold() >= 30)
+```
