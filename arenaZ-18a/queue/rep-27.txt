@@ -1,0 +1,21 @@
+```python
+@gene("Z12b", "value of a cast: damage or stun on an enemy champion or camp; shield or heal on myself when hurt or an enemy champion is close")
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_SHIELD or k == AB_HEAL:
+        if o.unit != me():
+            return 0
+        if me().health_frac < 0.7 or any(dist(u.pos, me().pos) <= 3 for u in enemies()):
+            return 85
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy and o.unit.is_champion:
+            return 86
+        if exists(o.unit) and o.unit.is_camp:
+            return 65
+        if any(u.pos == o.tile for u in enemies()):
+            return 84
+        if any(c.pos == o.tile for c in camps()):
+            return 64
+    return 0
+```

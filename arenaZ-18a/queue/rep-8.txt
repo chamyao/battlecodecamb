@@ -1,0 +1,38 @@
+```python
+@gene("s1", "value of doing this option now: draft strong champions, treasure shards early then power strength")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "draft preference: Vendetta, Vesper Vale, Tavi, Ryth, Ren, then anything", parents=["s1"])
+def pick_value(c: Num) -> Num:
+    if c == VENDETTA:
+        return 6
+    if c == VESPER_VALE:
+        return 5
+    if c == TAVI:
+        return 4
+    if c == RYTH:
+        return 3
+    if c == REN:
+        return 2
+    return 1
+
+@gene("new", "shop: treasure strength shards before round 300, power strength after; bigger buys first", parents=["s1"])
+def shop_value(o: Option) -> Num:
+    want = 18 if round() < 300 else 6
+    return 100 + o.count / 100 if o.item == want else 0
+```

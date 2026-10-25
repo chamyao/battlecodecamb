@@ -1,0 +1,18 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else a living camp group of modest design strength (any living group if none)")
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    easy = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+            if sum(camp_base_strength(spawn_type(t)) for t in group_tiles(g)) < 240:
+                easy = easy | group_tiles(g)
+    if size(easy) > 0:
+        return easy
+    return acc
+```

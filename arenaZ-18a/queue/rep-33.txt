@@ -1,0 +1,30 @@
+```python
+@gene("s1", "value of doing this option now: draft, casts, heal on spawn, no fights on the enemy spawn, recall earlier when carrying gems")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < (0.45 if gems() > 0 else 0.3) else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 0 if o.unit.pos in enemy_spawn() else 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health_frac < 0.9 and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals, minus a penalty for stepping next to enemy champions when hurt")
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.5 and any(dist(u.pos, t) <= u.attack_range + 1 for u in enemies()):
+        return gain - 2
+    return gain
+```

@@ -1,0 +1,18 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else a living group holding gems (any living group if none)")
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    rich = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+            if group_gems(g) > 0 and not any(spawn_type(t) == MONOLITH for t in group_tiles(g)):
+                rich = rich | group_tiles(g)
+    if size(rich) > 0:
+        return rich
+    return acc
+```

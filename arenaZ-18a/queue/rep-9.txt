@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; never step into reach of an awake camp while carrying gems")
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() > 0 and any(is_awake(c) and dist(c.pos, t) <= c.attack_range for c in camps()):
+        return gain - 2
+    return gain
+```
