@@ -28,10 +28,11 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Z-18b finished (477 births) with its writer screening children by its own 80-game head-to-heads, which is an
   uncontrolled extra. Z-19 writers were told not to run their own games, so the arms stay comparable.
   Writer-side screening is a candidate experiment.
-- The 0-0 maps (00road-of-riches, 01shortcut) are a gap in runtime 648bafd, which has no BREAK option to unlock a
-  locked altar; ca5180b plays them normally. The tiebreak is side-fixed, so each pair gets exactly 2 of 4 games:
-  a constant +22/880 for every Z genome and opponent, zero variance. Z-vs-Z comparisons are unaffected; absolute Z
-  panel numbers include the fixed 22. One more reason the next series should move to ca5180b.
+- The 0-0 maps (00road-of-riches, 01shortcut), corrected 09:35: they are NOT a runtime gap. Z470 (Z-18a) farms both
+  on 648bafd. It is a goal-selection blind spot of the starter lineage, fixed by "goals that track dead camp spawns".
+  The tiebreak in 0-0 games is not side-fixed either, so it adds up to about +/-22/880 of genome-dependent noise to
+  Z-vs-Z comparisons. That is small next to the gaps seen (610 vs 394), and genomes that learn these maps gain up
+  to 4 games per opponent on merit.
 - Z-18b's final population (477 births, writer screened with its own games) will be scored once for reference.
 
 ## 2026-10-25 08:40 UTC: A-9 leg 2 done
