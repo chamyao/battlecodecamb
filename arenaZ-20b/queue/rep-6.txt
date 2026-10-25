@@ -1,0 +1,26 @@
+```python
+LOW: Num = 0.45
+
+GF: Field = None
+HURT: Bool = False
+
+@gene("new", "once per turn: retreat state and the walking field (home when hurt)", parents=["s4"])
+def update() -> None:
+    hf = me().health_frac
+    if hf < LOW:
+        HURT = True
+    if hf > 0.95 or not alive():
+        HURT = False
+    if HURT:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+
+@gene("s4", "how much closer a step brings me to the goals (or home when hurt)")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene("s3", "distance field to the goals (cached per turn)")
+def goal_field() -> Field:
+    return GF
+```

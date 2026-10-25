@@ -1,0 +1,42 @@
+```python
+LOW: Num = 0.3
+
+GF: Field = None
+HURT: Bool = False
+
+@gene("new", "once per turn: retreat state and the walking field (home when hurt)", parents=["s4"])
+def update() -> None:
+    hf = me().health_frac
+    if hf < LOW:
+        HURT = True
+    if hf > 0.95 or not alive():
+        HURT = False
+    if HURT:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+
+@gene("s4", "how much closer a step brings me to the goals (or home when hurt)")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if HURT and not any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps()) and count(e.is_champion for e in enemies()) == 0 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if (o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit):
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

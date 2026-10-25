@@ -1,0 +1,35 @@
+```python
+LOW: Num = 0.35
+
+@gene("s2", "where to walk: home when hurt, an altar with gems, else a living camp group that is safe to fight")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            k = max((spawn_type(t) for t in gt), default=-1)
+            if k != MONOLITH and k != GOLEM:
+                acc = acc | gt
+    return acc
+
+GF: Field = None
+HURT: Bool = False
+
+@gene("new", "once per turn: retreat state and the goal field", parents=["s3"])
+def update() -> None:
+    hf = me().health_frac
+    if hf < LOW:
+        HURT = True
+    if hf > 0.95 or not alive():
+        HURT = False
+    GF = field(goals())
+
+@gene("s3", "distance field to the goals (cached per turn)")
+def goal_field() -> Field:
+    return GF
+```
