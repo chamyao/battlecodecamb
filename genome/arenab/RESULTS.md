@@ -366,3 +366,6 @@ Only the cast-ahead range edit (a5 ahead_on `d <= 5` -> `d <= 4`) is up against 
 | v33-cash3-ahead4 (+ r5 `g < 3`) | 44 (mine 44) | 44 | 46 (mine 46) | 59 | 65 | 364-381 | 95,088 / 352 |
 Recommended v34: v33-cash3-ahead4 (cash_min has been >= 42 on every base tried: v29, v31, v33); fallback v33-ahead4.
 Sim favourites (thr_r2 8/9, kill185, fire_r 7) were 36-40 in real; thr_r2=6 and run_firedonly were noise that collapsed vs v31.
+
+## Oct 25 ~16:30: v34 = v33-cash3-ahead4 going up (genome/v0 c9dddf3); genome lead real 44/80 vs v33 (matches)
+Batch 11 paired with b10.
