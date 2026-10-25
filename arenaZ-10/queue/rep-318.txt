@@ -1,0 +1,64 @@
+```python
+@gene('s1', 'value of doing this option now; casts abilities, treasure shards early then bruiser strength, recall at 35% (50% when carrying 20+ gems in a fight) or to spend banked gold, fights back against awake camps while carrying gems; when hurt with gems, steps away from enemy champions within 4 toward the goals')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        if me().health_frac < 0.35:
+            return 90
+        if gems() >= 20 and me().health_frac < 0.5 and in_fight():
+            return 88
+        return 52 if shop_trip() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        pr = progress(o.tile)
+        if gems() > 0 and me().health_frac < 0.5 and pr >= 0:
+            p = me().pos
+            foes = count(u.is_champion and dist(u.pos, p) <= 4 for u in enemies())
+            if foes > 0 and all(dist(u.pos, o.tile) > dist(u.pos, p) for u in enemies() if u.is_champion and dist(u.pos, p) <= 4):
+                return 56
+        return 50 if pr > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group (monoliths only when nothing else is left)")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    easy = acc - type_spawns(MONOLITH)
+    if size(easy) > 0:
+        return easy
+    return acc
+
+@gene('Z169a', 'worth recalling to shop: 60+ gold before round 300, 90+ before round 600 (treasure shards compound), else 120+; no gems carried, not home, nothing hostile near, not about to reach a camp, not in the last 150 rounds', parents=['s1'])
+def shop_trip() -> Bool:
+    r = round()
+    need = 60 if r < 300 else (90 if r < 600 else 120)
+    if gold() < need or gems() > 0 or can_shop() or r > 1850:
+        return False
+    p = me().pos
+    if any(dist(u.pos, p) <= 6 for u in enemies()):
+        return False
+    if any(is_awake(u) and dist(u.pos, p) <= 4 for u in camps()):
+        return False
+    return at(goal_field(), p) > 3
+```
