@@ -1,0 +1,8 @@
+```python
+@gene('Z295a', 'the enemy champions within 6 outnumber me and my allies within 6 (two or more enemies, at least one more than us)', parents=['s1'])
+def outnumbered() -> Bool:
+    foes = count(dist(u.pos, me().pos) <= 6 for u in enemies())
+    if foes < 2:
+        return False
+    return foes >= 2 + count(dist(a.pos, me().pos) <= 6 for a in allies())
+```

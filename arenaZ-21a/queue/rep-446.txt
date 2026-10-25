@@ -1,0 +1,15 @@
+```python
+@gene('Z62a', 'draft preference: Ryth, Vesper Vale, Vendetta, then Varg and Tavi', parents=['s1'])
+def pick_value(c: Num) -> Num:
+    if c == RYTH:
+        return 10
+    if c == VESPER_VALE:
+        return 9
+    if c == VENDETTA:
+        return 8
+    if c == VARG:
+        return 7
+    if c == TAVI:
+        return 6
+    return 1
+```

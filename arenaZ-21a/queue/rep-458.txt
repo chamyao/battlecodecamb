@@ -1,0 +1,10 @@
+```python
+@gene('Z231a', 'a cleared group waiting for capture is within 3 tiles (or under me): stay and finish the 5-round capture before walking home', parents=['s3'])
+def capturing() -> Bool:
+    for g in range(num_groups()):
+        if group_reward(g):
+            ts = group_tiles(g)
+            if dist(nearest(ts, me().pos), me().pos) <= 3:
+                return True
+    return False
+```
