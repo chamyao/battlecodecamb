@@ -1,0 +1,10 @@
+```python
+@gene('Z139c', 'how much closer a step brings me to my spawn', parents=['s4'])
+def home_step(t: Tile) -> Num:
+    d = at(home_field(), me().pos) - at(home_field(), t)
+    here = min((dist(c.pos, me().pos) for c in camps() if is_awake(c)), default=99)
+    there = min((dist(c.pos, t) for c in camps() if is_awake(c)), default=99)
+    if here <= 7:
+        return (there - here) + 0.1 * d
+    return d
+```

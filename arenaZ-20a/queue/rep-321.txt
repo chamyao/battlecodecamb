@@ -1,0 +1,7 @@
+```python
+@gene('s3', 'distance field to the goals')
+def goal_field() -> Field:
+    if round() < 312:
+        return field(goals() - type_spawns(MONOLITH) - type_spawns(GOLEM))
+    return field(goals() - type_spawns(MONOLITH))
+```
