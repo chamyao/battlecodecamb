@@ -228,3 +228,20 @@ HP lead plus more casts in the fights we win. So the band's edge is economic (mo
 
 No fight rule closes the gap. The lever is the item lead itself, which comes from the economy gap (kill bounties
 plus gem-group captures).
+
+## v28-boss (01boss_battle; --bot-seeds, runtime genome/v0 ca5180b)
+
+A bank walk into an awake monolith's range waits only while we would be its nearest target (an awake monolith hits
+the nearest champion; an enemy champion nearer to it takes the hits). `farmable` itself never hits a camp in a monolith's
+group, awake or not, unless the r15 push is on, so it has no special case for an awake monolith.
+
+| 01boss-battle, 2 games each | v28 W / gems / non-champion deaths | v28-boss |
+|---|---|---|
+| vs B792 | 1 / 463-670 / 22 | 1 / 522-478 / 18 |
+| vs farmer | 0 / 96-526 / 10.5 | 0 / 96-504 / 10.5 |
+| vs hunter | 2 / 437-245 / 16.5 | 0 / 412-549 / 20 |
+| vs A61188 | 1 / 0-0 / 9 | 0 / 359-487 / 11.5 |
+| vs v28 itself | — | 0 / 557-927 / 20.5 |
+
+38/80 vs v28 overall. On the boss map it wins 1 of 8 against v28's 4 of 8 (2-game samples). Rejected: banking beside an
+awake monolith when an enemy is nearer still gets our carrier hit once that enemy dies or leaves.
