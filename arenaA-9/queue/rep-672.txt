@@ -1,0 +1,12 @@
+```python
+@gene('a16', "units of the next shard still to buy: what the turn's budget still pays for, capped at the shards that finish the current emblem (no surplus treasure or jungle shards)")
+def shard_left() -> Num:
+    n = floor(SHOP_GOLD / 30) - shards_done()
+    if n <= 0:
+        return 0
+    ns = next_shard()
+    need = 5 - items_owned(ns)
+    if ns != 36 and need > 0:
+        return min(n, need)
+    return n
+```
