@@ -1,0 +1,62 @@
+```python
+@gene('s1', 'value of doing this option now: draft, casts, focus the weakest foe, heal on spawn, cash out a big bag, recall only out of danger')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        if under_threat():
+            return 0
+        if me().health_frac < (0.45 if gems() > 0 else 0.3):
+            return 90
+        if gems() >= 10 and me().health_frac < 0.5:
+            return 90
+        return 45 if gems() == 0 and gold() >= 210 else 0
+    if o.kind == CAST:
+        return cast_v2(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 0 if o.unit.pos in enemy_spawn() else 80 + 10 * (1 - o.unit.health_frac)
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health_frac < 0.9 and count_units(enemies()) == 0:
+            return 0
+        return 50 if step_gain(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "walking field home, for retreats", parents=["s1"])
+def home_field() -> Field:
+    return field(my_spawn())
+
+@gene("new", "how much closer a step brings me: toward home when badly hurt under threat, else toward the goals", parents=["s1"])
+def step_gain(t: Tile) -> Num:
+    if me().health_frac < 0.35 and under_threat():
+        return at(home_field(), me().pos) - at(home_field(), t)
+    return progress(t)
+
+@gene("new", "value of a cast: damage or stun on foes and camps, shield or heal when hurt, attack resets once the attack is spent, dash two steps toward the goal", parents=["s1"])
+def cast_v2(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 85 if o.unit == me() and me().health_frac < 0.7 else 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        r = me().attack_range
+        if any(dist(u.pos, me().pos) <= r for u in enemies()):
+            return 88
+        return 66 if gems() == 0 and any(dist(c.pos, me().pos) <= r for c in camps()) else 0
+    if k == AB_DASH:
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy and o.unit.is_champion:
+            return 86
+        if exists(o.unit) and o.unit.is_camp and gems() == 0:
+            return 65
+        if any(u.pos == o.tile for u in enemies()):
+            return 84
+    return 0
+```

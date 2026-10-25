@@ -1,0 +1,8 @@
+```python
+@gene("Z82b", "how much closer a step brings me: toward home when badly hurt, or hurt with a big bag, under threat; else toward the goals")
+def step_gain(t: Tile) -> Num:
+    hf = me().health_frac
+    if (hf < 0.35 or (hf < 0.5 and gems() >= 10)) and under_threat():
+        return at(home_field(), me().pos) - at(home_field(), t)
+    return progress(t)
+```
