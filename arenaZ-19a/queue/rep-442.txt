@@ -1,0 +1,5 @@
+```python
+@gene("Z169k", "the visible enemy champion most worth killing: many gems, low health")
+def prey() -> Unit:
+    return best(enemies(), lambda u: unit_gems(u) * (1.5 - u.health_frac))
+```

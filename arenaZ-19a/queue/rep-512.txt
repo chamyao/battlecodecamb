@@ -1,0 +1,12 @@
+```python
+@gene("Z402f", "end of turn: announce the enemy champion I just hit or cast on so allies focus it (shared bytes 0-2: x, y, round)")
+def after() -> None:
+    t = acted_tile(ATTACK)
+    if acted(CAST) and not acted(ATTACK):
+        t = acted_tile(CAST)
+    if acted(ATTACK) or acted(CAST):
+        if any(dist(u.pos, t) == 0 for u in enemies()):
+            write_shared(0, t.x)
+            write_shared(1, t.y)
+            write_shared(2, round() % 200)
+```

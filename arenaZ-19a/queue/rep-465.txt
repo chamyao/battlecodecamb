@@ -1,0 +1,5 @@
+```python
+@gene("Z430j", "an enemy champion worth hunting: carries 12+ gems, weaker than me, within 7 tiles but out of reach")
+def hunt_ok(u: Unit) -> Bool:
+    return unit_gems(u) >= 12 and u.health_frac < me().health_frac and me().health_frac > 0.5 and dist(u.pos, me().pos) <= 7 and dist(u.pos, me().pos) > me().attack_range
+```
