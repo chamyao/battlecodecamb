@@ -1,0 +1,11 @@
+```python
+@gene("Z176a", "which option kinds to list: never wards or locks; casts only with a slot ready and a foe or camp within 6")
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK:
+        return False
+    if kind == CAST:
+        if not (slot_ready(0) or slot_ready(1)):
+            return False
+        return any(dist(u.pos, me().pos) <= 6 for u in enemies()) or any(dist(u.pos, me().pos) <= 6 for u in camps())
+    return True
+```
