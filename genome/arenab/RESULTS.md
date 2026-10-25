@@ -190,3 +190,8 @@ rh-mono-all 1563/1709 (4/6): mono does not regress shortcut once the ring fix is
 ## Oct 25 ~07:00: A81582-rmab (intel boss-battle exemption on rh-mono-all)
 Real /80 vs rh-mono-all: 41, 0 crashes (near mirror; one-map change). Intel: boss-battle real 2-0, solo 1974 -> 1423 rounds.
 Safe to ride along with the v31 upload.
+
+## Oct 25 06:51: rh-mono-all confirmed as v31 (after batch 7)
+Genome lead real 51/80 vs v30 (same as ours). Search full gate vs v30: sim h2h 42 (bar 43), solo-farm pass, paired anchors
+no blocks (v29 55 vs 44, v28 56 vs 46, A61188 59 vs 49). rmab held for its own version after batch 8.
+Intel: gold-rush +216 is mono (centre monolith group of ~24 gold clusters in its range); accepted trade-off.
