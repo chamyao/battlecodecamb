@@ -1,0 +1,5 @@
+```python
+@gene("Z140c", "hurt and threatened: walk out of reach before recalling (damage cancels a recall)")
+def retreating() -> Bool:
+    return me().health_frac < 0.3 and danger_at(me().pos) > 0
+```

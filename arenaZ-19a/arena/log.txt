@@ -256,3 +256,26 @@
 [10:05:36] [Z] birth Z135 (mutate session) of ['Z106'] species S79; 24 genomes $0.00
 [10:05:37] [Z] rejected mutate session: behavioural twin
 [10:05:42] [Z] birth Z136 (mutate session) of ['Z127'] species S70; 24 genomes $0.00
+[10:11:48] [Z] rejected mutate session: behavioural twin
+[10:11:56] [Z] rejected mutate session: behavioural twin
+[10:12:01] [Z] birth Z137 (mutate session) of ['Z133'] species S77; 24 genomes $0.00
+[10:12:03] [Z] birth Z138 (mutate session) of ['Z117'] species S69; 24 genomes $0.00
+[10:12:11] [Z] birth Z139 (mutate session) of ['Z106'] species S79; 24 genomes $0.00
+[10:12:14] [Z] summary: births 140 deaths 117 games 62504 $0.00; top [('Z111', 37.29, 0.8, 1056, 'S65'), ('Z120', 36.81, 0.8, 848, 'S71'), ('Z106', 36.77, 0.79, 952, 'S53')]; top vs anchors {'Z111': 0.844, 'Z120': 0.781, 'Z106': 0.917}
+[10:12:14] [Z] birth Z140 (mutate session) of ['Z133'] species S77; 24 genomes $0.00
+[10:12:16] [Z] new species S80 founded by Z141
+[10:12:16] [Z] birth Z141 (llm_cross session) of ['Z135', 'Z96'] species S80; 24 genomes $0.00
+[10:12:21] [Z] birth Z142 (mutate session) of ['Z117'] species S69; 24 genomes $0.00
+[10:12:28] [Z] rejected tune : behavioural twin
+[10:13:55] [Z] rejected tune : behavioural twin
+[10:18:12] [Z] birth Z143 (mutate session) of ['Z111'] species S65; 24 genomes $0.00
+[10:18:19] [Z] new species S81 founded by Z144
+[10:18:19] [Z] birth Z144 (llm_cross session) of ['Z141', 'Z116'] species S81; 24 genomes $0.00
+[10:18:23] [Z] birth Z145 (mutate session) of ['Z108'] species S64; 24 genomes $0.00
+[10:18:26] [Z] birth Z146 (mutate session) of ['Z120'] species S71; 24 genomes $0.00
+[10:18:32] [Z] birth Z147 (mutate session) of ['Z125'] species S63; 24 genomes $0.00
+[10:18:32] [Z] rejected mutate session: behavioural twin
+[10:18:32] [Z] rejected mutate session: behavioural twin
+[10:18:36] [Z] new species S82 founded by Z148
+[10:18:36] [Z] birth Z148 (mutate session) of ['Z139'] species S82; 24 genomes $0.00
+[10:19:50] [Z] birth Z149 (tune ) of ['Z143'] species S65; 24 genomes $0.00
