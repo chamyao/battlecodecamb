@@ -1,0 +1,12 @@
+```python
+@gene("a7", "a dash onto the landing tile that brings us closest to GOAL (slot 0 first); below half health never onto a tile next to a visible enemy champion")
+def dash_value(o: Option) -> Num:
+    if not dash_gate():
+        return 0
+    s = dash_spot()
+    if not valid(s) or o.tile != s:
+        return 0
+    if hurt_below(0.5) and s in ring(enemy_tiles(), 1):
+        return 0
+    return 140 - o.slot
+```
