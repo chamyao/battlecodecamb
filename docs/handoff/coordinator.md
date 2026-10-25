@@ -14,7 +14,7 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
 
 ## Live and history
-- Live (Oct 25 ~14:54 UTC): v33's bundle again (genome B1873-bossbush, 37e7be1a...; ranked 86-74, band 32-18),
+- Live (Oct 25 14:56 UTC): v36 = genome v33-ahead4 (v34 minus cash3). Before it, v35 = v33's bundle again (genome B1873-bossbush, 37e7be1a...; ranked 86-74, band 32-18),
   re-uploaded after v34 (v33-cash3-ahead4, 9842ac5c) went 28-22 on the band. Before: v32 = B1873
   (52a3fb56..., band 31-19), v31 = A81582-rh-mono-all
   (e4932580..., first winning band batch 27-23), v30 =

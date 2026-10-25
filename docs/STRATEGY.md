@@ -257,6 +257,9 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   44/80 (three runs), 0 crashes, fewer capped turns. Revert target: v33 (37e7be1a).
   v34 band batch 11: 28-22 vs v33's 32-18 on the same games, gems -41.
   35 = revert to v33's bundle (37e7be1a; genome line, ~14:54 UTC Oct 25).
+  (v34 paired vs v33: gems -33, 4 L->W / 8 W->L; gems lost on death 105 vs 80; cash-at-3 put carriers in fights.)
+  36 = genome v33-ahead4 (v34 without the cash3 edit; live 14:56:30 UTC Oct 25). Real vs v33 44/80, 0 crashes.
+  Revert target: v33 (37e7be1a).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
