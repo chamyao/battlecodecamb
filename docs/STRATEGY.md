@@ -234,6 +234,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   29 = genome v28-emblem (v28 + Treasure shards concentrated on one carrier until its emblem; genome/v0 97194bf,
   genome sha256 781ad53e..., bundle sha256 61743fda...; submitted 05:11:34 UTC Oct 25). Real vs v28 45/80,
   0 crashes. Revert target: v28 (a61188-mono, 8a921761).
+  v28 final ranked 25-20; v29 unranked batch 20-30.
+  30 = genome A81582-ringheal (Arena A's A81582 + ring and heal bug fixes; genome/v0 69db2f6, genome sha256
+  9620bbfb..., bundle sha256 90450da2...; submitted 06:39:47 UTC Oct 25). Real vs v29 57/80 and 55/80, 0 crashes;
+  450 capped turns vs v29's 301 in that h2h. Revert target: v29 (61743fda).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
