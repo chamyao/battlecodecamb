@@ -149,7 +149,7 @@ genome/candidates/v33-ahead4.genome, sha256 7bead1581516d949... (genome/arenab).
 - Live as ladder version 36 (2026-10-25T14:56:30Z, bundle sha256 614be6e6...). Validation: intel batch 12, paired vs b10 and b11.
 - Batch 12 (intel b12.md, bd7a24b): 31-19 vs b10's 32-18 (4 flipped to wins, 5 to losses), gems -42 +- 34; vs b11 28-22 -> 31-19.
   ahead4 is record-neutral but costs ~40 gems/game in both b11 and b12; cash3 alone added losses on packs, the_farm
-  and lanes. Reverted to v33 (bundle 37e7be1a...).
+  and lanes. Reverted: v33 re-submitted as ladder version 37 (2026-10-25T15:28:27Z, bundle 37e7be1a...).
 
 **Upload bar (2026-10-25, after v34/v36):** a +3-4/80 local real-cambc edge from a constant tweak did not carry to the
 band twice. A constant-only tweak now needs real cambc >= 46/80 vs live (0 crashes) for an upload; under that it is
