@@ -110,13 +110,13 @@ def precompile(paths, jobs=4):
 
 def econ(a, b, games=80, seed=1, bot_seeds=True, threads=4, maps=None):
     """Economy checkpoints from side a's view: earned gold at r250 / r500 and gold spent (item points) at r500,
-    ours minus theirs, means over games; plus the win rate."""
+    ours minus theirs, means over games; champion kills / deaths by r250; plus the win rate."""
     maps = maps or MAPS
     cmd = [EVAL_ECON, '--a', side(a), '--b', side(b), '--threads', str(threads), '--checkpoints', '250']
     cmd += ['--bot-seeds', '--games', str(2 * len(maps))] if bot_seeds else ['--games', str(games), '--seed', str(seed)]
     out = subprocess.run(cmd + maps, capture_output=True, text=True, check=True).stdout
     G = [json.loads(l) for l in out.splitlines() if l.startswith('{"game"')]
-    acc = dict(gold250=0.0, gold500=0.0, items500=0.0, items500_us=0.0, win=0.0)
+    acc = dict(gold250=0.0, gold500=0.0, items500=0.0, items500_us=0.0, deaths250=0.0, kills250=0.0, win=0.0)
     for g in G:
         us = 0 if g['a_side'] == 'A' else 1
         cp = {c[0]: c for c in g['cp']}
@@ -124,6 +124,9 @@ def econ(a, b, games=80, seed=1, bot_seeds=True, threads=4, maps=None):
         for r, key in ((250, 'gold250'), (500, 'gold500')):
             c = cp.get(r, last)
             acc[key] += (c[5 + us] - c[6 - us]) / 100
+        c = cp.get(250, last)
+        acc['deaths250'] += c[8 - us]  # their champion kills by r250 = our deaths to champions
+        acc['kills250'] += c[7 + us]
         c = cp.get(500, last)
         acc['items500'] += c[9 + us] - c[10 - us]
         acc['items500_us'] += c[9 + us]
