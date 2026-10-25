@@ -135,3 +135,33 @@ retreats are caught, and group-up walks carriers around). Same pattern as cashou
   to the monolith. The mono edit forbids hitting those, and hitting them wakes the monolith. Real band teams bank
   there 10-25 times a game. A "hit the altar blocker" variant (r13 with a non-monolith blocker) gains little (385 vs
   362 gems vs B792), and the rule's TGT still comes from reach_camp, so a clean fix needs c2/a0 edits too. Not pursued yet.
+
+## Early bankers (real replays, `early_bankers.py`, b1-b5) and rushbank-v2
+
+| | noobers (4-21 vs us) | GLM5.3 (9-16) | stress/rushbank vs v28 (4 local cambc games on noobers' maps) |
+|---|---|---|---|
+| their first tribute (median) | r37 | r79 | r31 |
+| their first kill on us (median) | r239 | r293 | r225 |
+| our deaths to them by r500 / kill bounties | 5.6 / 629 gold | 2.2 / 270 | 2.5 / 293 |
+| our deaths before r500 in our half / at our camps | 69% / 71% | 24% / 49% | 90% / 50% |
+| ... victim alone / carrying | 46% / 39% | 64% / 56% | 40% / 50% |
+| ... enemy pack within 5 | 2.5 | 1.8 | 2.2 |
+
+noobers bank by r37, then raid our half: they kill us at our own camps with packs of about 2.5, twice as often as
+rushbank does. GLM5.3 kills us alone in their half instead.
+
+rushbank-v2 (`rejected/rushbank-v2.genome`) adds the raid: after the team has banked, from r80 to r600 a champion with
+under 10 gems walks to camps in our half. It makes the anchor weaker, not stronger. v28 wins 74/80 against it
+(plain rushbank: 53). With the raid only when an ally is within 5, v28 wins 68; ending it at r400, 62. A B792-level
+fighter loses the raids it starts, so the noobers raid works only with their fights, and a rule edit does not
+reproduce it.
+
+## v28-shortcut (GAPS #5, 01shortcut; rejected)
+
+When every altar-adjacent tile is a camp spawn, r13 fights the non-monolith camp standing on the bank tile even
+inside a monolith group, and c2 points rule 13 at it (new gene i12 blocker).
+- Sim on 01shortcut: gems vs B792 362 → 557, vs farmer 585 → 599, vs hunter 546 → 574.
+- Overall: 38/80 vs v28; anchors 0 to −3.
+- Real cambc smoke on 01shortcut vs the v28 build: **lost both** (292-695 as A, 516-872 as B).
+
+The sim's shortcut gain does not hold in the real engine.
