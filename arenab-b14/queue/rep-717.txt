@@ -1,0 +1,8 @@
+```python
+@gene("r17", "bank before a dangerous group: 10+ gems (6+ while an enemy champion is within 8, it will contest the fight) and the next group's strength is 240+")
+def r_bankgroup() -> Bool:
+    g = camp_goal()
+    if not valid(g) or group_threat(g) < 240 or fuel() <= 65000:
+        return False
+    return gems() >= 10 or (gems() >= 6 and count(dist(e.pos, here()) <= 8 for e in enemies()) > 0)
+```
