@@ -220,6 +220,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   26 = genome B792 (genome line Arena B, genome/v0 b5d606b, genome sha256 fa178e51..., bundle sha256 f03df323...;
   submitted by the genome line's intel session 21:24:48 UTC). Gate vs v25: sim 47/80, real cambc 43/80, 0 crashes;
   11 first turns at the 200k cap (B318 110), 279 capped normal turns (B318 692). Revert target: v25 (548bb21d).
+  B792 ranked 51-59 after 110 (v24 67-53); same lock-stall as v24 (01broken_curve 0-1015); genome runtime had
+  no lock-attack action (being added by the genome line).
+  27 = genome A61188 (genome line Arena A, genome/v0 0372259, genome sha256 9abfbc94..., bundle sha256
+  8f44d04a...; submitted 01:54:54 UTC Oct 25 under Cham's "upload first, validate later" per the genome lead).
+  Pre-upload: real cambc smoke vs B792 3/3, sim vs B792 49/80. Revert target: v26 (B792, f03df323).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any

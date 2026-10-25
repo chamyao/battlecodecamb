@@ -14,8 +14,8 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
 
 ## Live and history
-- Live (Oct 24 21:25 UTC): ladder version 26 = genome B792 (genome line; bundle sha256 f03df323...), after
-  v25 = genome B318 (548bb21d, 20:40). Both uploaded by the genome line, which shares the ladder slot and
+- Live (Oct 25 01:55 UTC): ladder version 27 = genome A61188 (bundle 8f44d04a...), after v26 = genome B792
+  (f03df323, 51-59 ranked) and v25 = genome B318 (548bb21d, 8-12). Both uploaded by the genome line, which shares the ladder slot and
   tells the coordinator before uploading. Last FunSearch-line bot: v24 = v22's ZIP (deploy/v0 ee85727,
   d86fbda6), 63-47 ranked. Pending Cham: style-gsub2-11k33 (cleared main3r +15..+51, cambc-safe, ZIP 9a80ccec...).
 - Ranked: tune-5 11-19; v17 7-3; v18 about 11-14. Unranked vs ladder #1-#9 + vc? (same 10 groups each time):
