@@ -38,4 +38,5 @@ Cham, Oct 25 ~01:50 UTC: upload first for variety on the real ladder, validate a
 - Smoke test, real cambc 3.0.5 --release vs B792 (v26): 3/3 wins (00lanes, 01big-world, 00ambush), 0 crashes.
 - Sim at f23aaa0, bot seeds, 80 distinct games vs B792: 49/80 (A61206 47, A61205 43).
 - Arena A panel (648bafd, Arena A lead): 867/1040 over 13 opponents; vs B318 50/80, tune-v20-L1c 57/80, style-gconv1 60/80.
-- Still to run after upload: anchor-drop check and the full real-cambc 80 vs B792.
+- Live as ladder version 27 (2026-10-25T01:54:54Z, bundle sha256 8f44d04a...).
+- Post-upload: real cambc 3.0.5 --release vs B792 (v26), 40 maps x 2 sides: 47/80, 0 crashes either side. Anchor-drop check not yet run.
