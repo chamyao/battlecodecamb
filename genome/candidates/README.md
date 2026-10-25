@@ -88,4 +88,4 @@ genome/candidates/A81582-ringheal.genome, sha256 9620bbfbce8afff4... (genome/are
 enemies on their own spawn, so hurt carriers next to an enemy spawn can heal. Reads neither group_gems nor group_gold.
 - Arena B lead, real cambc at fd778fc: 55/80 vs v29, 0 crashes (plain A81582: 50/80 on the same builds); capped turns 450 vs 301.
 - Sim: 46/80 vs v29, 40/80 vs A81582; solo vs idle: games short of 1000 halved (10 -> 5).
-- My smoke, real vs v29 (side A only, hard maps): 01gold-rush L, 01broken-curve L, 00great-wall L (same game as A81582's). Full real 80 running.
+- My smoke, real vs v29 (side A, hard maps): 3 losses. My full real cambc vs v29, 40 maps x 2 sides: 57/80, 0 crashes. Next upload.
