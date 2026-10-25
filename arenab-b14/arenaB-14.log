@@ -1258,3 +1258,11 @@
 [09:34:40] [B] birth B2183 (tune ) of ['B2052'] species S3; 24 genomes $11.08
 [09:34:44] [B] birth B2184 (mutate session) of ['B2173'] species S10; 24 genomes $11.08
 [09:35:11] [B] rejected tune : behavioural twin
+[09:35:19] [B] rejected mutate session: behavioural twin
+[09:35:31] [B] birth B2185 (mutate session) of ['B2184'] species S10; 24 genomes $11.08
+[09:36:00] [B] rejected mutate session: behavioural twin
+[09:36:03] [B] birth B2186 (mutate session) of ['B2181'] species S11; 24 genomes $11.08
+[09:36:08] [B] rejected mutate session: behavioural twin
+[09:36:30] [B] birth B2187 (mutate session) of ['B2158'] species S1; 24 genomes $11.08
+[09:36:42] [B] rejected mutate session: solo-farm: 59801 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 576
+[09:36:47] [B] rejected llm_cross session: behavioural twin
