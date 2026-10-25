@@ -61,3 +61,48 @@ v28 + Treasure shards concentrated on one carrier until its emblem completes (ea
   hunter-carry +7, rall2 +3, metadraft/farmer/lockall -4 each.
 - Smoke, real cambc vs v28: 00lanes, 01big-world, 01gold-rush 3/3 wins (close), 0 crashes.
 - Live as ladder version 29 (2026-10-25T05:11:34Z, bundle sha256 61743fda...). Validation: intel batch 6, paired vs b5.
+
+## A81582 (Arena A, arenaA-8 session-writer run; candidate)
+
+genome/candidates/A81582.genome, sha256 0b367e241df6... (remote/genome fbf8ced5 gate-v29/A8-A81582.genome).
+- Gatekeeper-19 vs v29 (v28-emblem), paired rule: h2h 50/80 (55/80 at fuel x10); no anchor block (closest:
+  a61188-mono 44/52, p 0.128; A61188 48/55, p 0.162).
+- Real cambc smoke vs v29: 1-3 (won 00lanes; lost 01big-world, 00great-wall, 01boss-battle), 0 crashes.
+- Real cambc 3.0.5 --release vs v29, 40 maps x 2 sides: 52/80, 0 crashes either side. Upload after batch 6 validates v29.
+
+## A81582-ringgg (A81582 + Arena B's ring fix and weak-gem-groups-first; supersedes A81582 as the next upload)
+
+genome/candidates/A81582-ringgg.genome, sha256 aa5e6aa743675e10... (genome/arenab 5e3aeef2 cand/A81582-ringgg.genome).
+Needs the group gold/gems bot fix (genome/v0 fd778fc or later).
+- Arena B lead, real cambc (built at fd778fc): 49/80 vs v29, 0 crashes; capped normal turns 473 vs 307 (watch).
+  Solo vs a do-nothing bot, rounds to 1000 over 10 maps: 16,393 (A81582) -> 14,725.
+- Sim: 45/80 vs v29, 39/80 vs A81582; solo total vs idle 100,601 -> 96,568.
+- Smoke, real vs v29: 01elk-arena W 1014-84, 01broken-curve L 730-1001, 00great-wall W 1016-641; 0 crashes.
+- WITHDRAWN (Arena B lead, 06:14 UTC): in real cambc it loses 01pilgrimage, 01gold-rush and 01broken-curve 0-2 each vs v29;
+  gem-first starves gold against a real opponent.
+
+## A81582-ringheal (A81582 + two solo-farming bug fixes, no gem-groups)
+
+genome/candidates/A81582-ringheal.genome, sha256 9620bbfbce8afff4... (genome/arenab 7ac4808c cand/A81582-ringheal.genome).
+(1) Altar rings exclude small-camp spawn tiles, so bank walks never target a tile a living camp blocks; (2) r2 ignores
+enemies on their own spawn, so hurt carriers next to an enemy spawn can heal. Reads neither group_gems nor group_gold.
+- Arena B lead, real cambc at fd778fc: 55/80 vs v29, 0 crashes (plain A81582: 50/80 on the same builds); capped turns 450 vs 301.
+- Sim: 46/80 vs v29, 40/80 vs A81582; solo vs idle: games short of 1000 halved (10 -> 5).
+- My smoke, real vs v29 (side A, hard maps): 3 losses. My full real cambc vs v29, 40 maps x 2 sides: 57/80, 0 crashes. Next upload.
+- Live as ladder version 30 (2026-10-25T06:39:47Z, bundle sha256 90450da2...). Validation: intel batch 7, paired vs b6.
+
+## A81582-ringheal-mono (v30 + v28's monolith fix via graft.py mono; candidate for after v30)
+
+genome/candidates/A81582-ringheal-mono.genome, sha256 9a566695b7b06184... (genome/arenab 5019e0cc).
+The A-8/A-9 lineage never got intel's farmable-camps fix; solo on great-wall v30 loses 38-45 champions per game, v29 11-12.
+- Arena B lead, real cambc: 45/80 vs v30 (ringheal), 57/80 vs v29, 0 crashes. Solo vs idle, all 80 games: deaths 356 (v30 522),
+  rounds 98,956 (v30 99,212). Sim: 40/80 vs v30, 50/80 vs v29.
+- My real cambc vs v30 (ringheal), 40 maps x 2 sides: 45/80, 0 crashes; wins both sides on 00great-wall and 01shortcut. v31 candidate.
+
+## A81582-rh-mono-all (v30 + mono + intel's rhm contest rule + gg6 gem-first after 6 buys; supersedes rh-mono for v31)
+
+genome/candidates/A81582-rh-mono-all.genome, sha256 f54246b181c6caa1... (genome/arenab 843629e0). Reads group_gems:
+needs a build at or after genome/v0 fd778fc.
+- Arena B lead, real cambc: 51/80 vs v30, 49/80 vs rh-mono, 62/80 vs v29, 0 crashes. Solo vs idle 97,417 rounds, 379 deaths
+  (v30 99,212 / 522). Sim 42/80 vs v30.
+- My real 80 vs v30: running.
