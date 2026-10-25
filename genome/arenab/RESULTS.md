@@ -369,3 +369,8 @@ Sim favourites (thr_r2 8/9, kill185, fire_r 7) were 36-40 in real; thr_r2=6 and 
 
 ## Oct 25 ~16:30: v34 = v33-cash3-ahead4 going up (genome/v0 c9dddf3); genome lead real 44/80 vs v33 (matches)
 Batch 11 paired with b10.
+
+## Oct 25 ~16:55: band batch 11 (v34 = v33-cash3-ahead4), paired with b10
+28-22 (b10 32-18): 3 flips up, 7 down, p ~0.34. Gems -41 +- 35, captured -56 +- 32, gems lost on death +44 +- 44. Fits cash3
+(earlier, smaller cash-outs). Proposed: v35 = v33-ahead4 (no cash3), b12 paired with b10/b11; revert to v33 if it is also down.
+Note: cash_min looked good in every real local h2h (v29, v31, v33 bases) but local opponents are all our own lineage.
