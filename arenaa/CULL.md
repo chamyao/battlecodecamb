@@ -63,3 +63,17 @@ arenaa/z18{a,b,c,d}-mirror; panels end on queue/DONE.
 
 The rng-salt patch does not apply on the queue patch and is not needed: session replies differ run to run, so each
 run is its own replicate. The measures and the decision rule are as above.
+
+## Z-17 result (07:20 UTC; stopped early when the API credits ran out)
+
+| arm | stop | best | top-3 | rank 1-3 culled | mean victim rank (of ~25) | gene-ID crosses | species alive |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Z-15 legacy s0 | 475 (207 at b405) | 207 | | 32 | 18.4 | 0 | 24 |
+| 17a legacy s1 | 407 | 200 | 183.0 | 33 | 18.3 | 0 | 24 |
+| 17b min-mu s0 | 411 | 190 | 167.3 | 8 | 22.2 | 9 | 19 |
+| 17c min-mu s1 | 463 | 194 | 190.3 | 12 | 20.6 | 27 | 18 |
+
+Mechanism confirmed: min-mu stops culling the leaders and lets species grow, so crossover by gene ID returns.
+Strength: the decision rule is not met (min-mu 190 / 194 vs legacy 200 / 207 at ~400 births). Verdict: no
+measurable effect on panel strength at this length. Caveats: the runs were stopped early, and births after
+06:50 were tunes and gene-ID crosses only. Z-18 (session writers) is the second test.

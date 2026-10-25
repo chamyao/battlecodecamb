@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 07:25 UTC: Z-17 result (cull fix)
+
+- Final panel at the stop: legacy 200 (17a), 207 (Z-15); min-mu 190 (17b), 194 (17c). The decision rule is not
+  met, so there is no measurable strength effect at ~400 births. The mechanism works: the top-3 members culled drop
+  from 33 to 8-12, species grow, and gene-ID crossovers appear (0 -> 9 / 27). Details in CULL.md. Z-18 (session
+  writers) continues the test. A-9 stays on legacy.
+
 ## 2026-10-25 07:10 UTC: API credits out; Z-17 stopped; Z-18 on sessions
 
 - API credits ran out at 06:50 (account balance). Z-17a/b/c were stopped at 357 / 351 / 415 births; final
