@@ -287,3 +287,10 @@ early buddy-walk. Contest monolith deaths are the price of its only gems.
 | (mine) v29-run on v33 | solo mixed, starvation 38 -> 32 |
 Signal: any edit that separates or redirects champions loses fights; doubled-up captures protect us. The early gap is
 per-champion strength (items, 90% of it earnings). Directed early-game work paused; gains left to the arena and tune-B.
+
+## Correction (Oct 25 ~10:40): bossbush is not a one-map change
+ALTAR_MONO = size(ALTAR_RING & MONO_GROUPS) > 0 is static per map but true on several maps (genome lead sim: games differ
+vs other opponents on shortcut, starvation, eight, big-world as well as boss-battle). The vs-B1873 run only showed boss-battle
+because that was the one map where the bush tie-break mattered against that opponent. b10: 32-18 vs b9 31-19 (48/50 games
+identical; boss_battle vs JBD unchanged 363-1352), so no harm. The precise boss-battle condition would be "no ALTAR_RING tile
+outside MONO_GROUPS".
