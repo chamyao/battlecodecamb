@@ -1,0 +1,5 @@
+```python
+@gene("w10", "GOAL can be walked to: valid, not here, not terrain, not held by a unit other than a camp")
+def walk_open() -> Bool:
+    return valid(GOAL) and GOAL != here() and not (GOAL in TERRAIN) and not (GOAL in taken())
+```

@@ -1,0 +1,14 @@
+```python
+@gene('B2926a', 'the in-reach enemy champion the fight targets dies now to one basic attack or to a ready damage ability (exact damage against health plus shield)', parents=['r7'])
+def r_killshot() -> Bool:
+    f = fight_foe()
+    if not exists(f):
+        return False
+    hp = f.health + shield(f)
+    if attack_damage(me(), f) >= hp:
+        return True
+    for s in range(2):
+        if slot_ready(s) and slot_kind(s) == AB_DAMAGE and dist(here(), f.pos) <= slot_range(s) and cast_damage(me(), s, f) >= hp:
+            return True
+    return False
+```

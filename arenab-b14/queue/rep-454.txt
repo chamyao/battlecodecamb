@@ -1,0 +1,15 @@
+```python
+@gene('m11', "the camp walk's goal: nearest non-big spawn of a live group, falling back to any non-big camp spawn, then any camp spawn (intel: weak gem-paying groups first once I have bought 6 times, unless the nearest gem group is over 15 tiles farther than the nearest live group)", parents=["m11"])
+def camp_goal() -> Tile:
+    t = closest(CAMP_BASE - respawning() - BIG_CAMPS)
+    if BUYS >= 6 and size(GEM_BASE) > 0:
+        tg = closest(GEM_BASE - respawning())
+        if valid(tg) and (not valid(t) or dist(here(), tg) <= dist(here(), t) + 15):
+            return tg
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```

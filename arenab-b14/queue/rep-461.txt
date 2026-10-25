@@ -1,0 +1,15 @@
+```python
+@gene("r11", "bag ready: 15+ (20+ when the altar is over 8 turns away, no enemy is in sight and we are above 70% health: fewer long bank trips), or 10+ with an altar 2 turns away, 13+ with a threat near, or late, or hurt", parents=['r11'])
+def bag_ready() -> Bool:
+    g = gems()
+    if g >= 20 or round() > 1500 or hurt_below(0.3):
+        return True
+    if g < 10:
+        return False
+    ae = altar_eta()
+    if ae <= 2 or (g >= 13 and threat_near()):
+        return True
+    if g < 15:
+        return False
+    return not (ae > 8 and count_units(enemies()) == 0 and not hurt_below(0.7))
+```

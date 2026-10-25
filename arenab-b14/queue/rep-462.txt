@@ -1,0 +1,53 @@
+```python
+@gene('v2', 'start of turn: choose the rule, its goal and target; shared-memory and priority writes (fighters, retreaters and pre-fight bankers act first next round) (intel: altar rings without small-camp spawn tiles) (intel: weak gem-paying camp set at round 3; count shop spends); the camp walk keeps its previous camp tile while that group lives and the tile stays free, unless the new goal is more than 3 tiles nearer; a champion starting a tribute acts early next round (the channel starts before enemies step in), capture holders after fighters', parents=['v2'])
+def update() -> None:
+    if not MAPPED:
+        ALTAR_RING = altar_ring()
+        SAFE_RING = safe_altar_ring()
+        small = camp_spawns() - type_spawns(MONOLITH) - type_spawns(GOLEM)
+        if size(ALTAR_RING - small) > 0:
+            ALTAR_RING = ALTAR_RING - small
+        if size(SAFE_RING - small) > 0:
+            SAFE_RING = SAFE_RING - small
+        MONO_GROUPS = mono_groups()
+        TERRAIN = walls() | holes() | altars() | enemy_spawn()
+        BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
+        SK0 = slot_kind(0)
+        SK1 = slot_kind(1)
+        MAPPED = True
+    if not GEM_MAPPED and round() >= 3:
+        GEM_BASE = CAMP_BASE & gem_groups()
+        GEM_MAPPED = True
+    if gold() <= LAST_GOLD - 30:
+        BUYS = BUYS + 1
+    LAST_GOLD = gold()
+    RULE = rule()
+    GOAL = rule_goal()
+    TGT = rule_target()
+    if RULE == 20:
+        if valid(CAMP_T) and valid(GOAL) and CAMP_T != GOAL and not (CAMP_T in respawning()) and not (CAMP_T in ally_tiles()) and not (CAMP_T in enemy_tiles()) and dist(here(), CAMP_T) <= dist(here(), GOAL) + 3:
+            GOAL = CAMP_T
+        CAMP_T = GOAL
+    else:
+        CAMP_T = tile(-1, -1)
+    OPEN = False
+    if walks() and valid(GOAL) and GOAL != here():
+        BLOCK = blocked()
+        OPEN = walk_open()
+        FIELD = walk_field()
+    LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
+    if LOCK_BUY:
+        write_shared(7, read_shared(7) + 2)
+    SHOP_GOLD = gold() - (10 if LOCK_BUY else 0)
+    if RULE == 8:
+        write_shared(7, read_shared(7) + 1)
+    if RULE == 7 or RULE == 3 or RULE == 9:
+        set_priority(150 + rand(20))
+    elif RULE == 6 or RULE == 10 or RULE == 17:
+        set_priority(220)
+    elif RULE == 16:
+        set_priority(140)
+    elif RULE == 20:
+        set_priority(1 + rand(100))
+```
