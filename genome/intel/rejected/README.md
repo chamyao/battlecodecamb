@@ -395,3 +395,8 @@ Related: in b9 losses we hold 189 vs 201 gold at r250 and 407 vs 277 at r500 (te
   - stampede 1-1, shortcut 1-1, lanes 1-1
 
 Rejected. Doubling up evidently protects us: a lone champion on a group is weaker against the opponent. Again it points to fights, not routing.
+
+**B1873bb-spread2** (the lead's guardrail): a displaced champion goes only to a free group with design strength under 240; otherwise it joins the ally as before.
+- vs idle: +301 rounds; monster deaths 4.42 (base 4.53), so the lone-wake deaths are fixed.
+- Real vs the v33 build: **2-8**. packs 0-2, shortcut 0-2, elkring 0-2 (gold 5,129 / 4,291 vs 7,580 / 6,920), stampede 1-1, lanes 1-1.
+- Rejected. Spreading costs us the fights, not the camps.
