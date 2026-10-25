@@ -30,3 +30,13 @@ Built on genome/v0 212a505 (fuel runtime + simspeed + deploy/v0 7ea42c7 interp).
 - Sim, arena engine 212a505, bot seeds, 80 distinct games: 47/80 vs B318 (live v25). Anchors, B792 vs B318's own /80:
   tune-v20-L1c 52/45, style-gconv1 50/51, v7 78/76, tune-v20-L1 49/47, rall2 55/52, metadraft 72/69 (worst -1). Fuel x10: 44/80.
 - Real cambc 3.0.5 --release vs the v25 build (genome/v0 2013533 B318), 40 maps x 2 sides: 43/80, 0 crashes either side.
+
+## A61188 (Arena A, arenaA-6; candidate for the next ladder version, "upload first, validate later")
+
+genome/candidates/A61188.genome, sha256 9abfbc94153db0ba... (from remote/genome arenaA-6/arena/genomes/A61188.genome).
+Cham, Oct 25 ~01:50 UTC: upload first for variety on the real ladder, validate afterwards. Built on genome/v0 f23aaa0.
+- Smoke test, real cambc 3.0.5 --release vs B792 (v26): 3/3 wins (00lanes, 01big-world, 00ambush), 0 crashes.
+- Sim at f23aaa0, bot seeds, 80 distinct games vs B792: 49/80 (A61206 47, A61205 43).
+- Arena A panel (648bafd, Arena A lead): 867/1040 over 13 opponents; vs B318 50/80, tune-v20-L1c 57/80, style-gconv1 60/80.
+- Live as ladder version 27 (2026-10-25T01:54:54Z, bundle sha256 8f44d04a...).
+- Post-upload: real cambc 3.0.5 --release vs B792 (v26), 40 maps x 2 sides: 47/80, 0 crashes either side. Anchor-drop check not yet run.
