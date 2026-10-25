@@ -55,6 +55,7 @@ std::shared_ptr<const Map> build_map_from_engine()
 	// Map::camp_at is left empty: nothing in the bot reads it (filling 10k ints costs 40k fuel).
 	// The whole static camp layout in one call (per group: id, gold, gems, max respawn, camp
 	// count, then per camp: id, design, x, y); per-camp queries cost ~300 fuel each here.
+	// The group rewards are kept too (group_gems / group_gold read them).
 	std::uint32_t nw = 0;
 	sdk_map_camp_layout(nullptr, 0, &nw);
 	std::vector<std::uint32_t> lay(nw);
@@ -71,6 +72,9 @@ std::shared_ptr<const Map> build_map_from_engine()
 		for (std::uint32_t i = 0; i + 5 <= lay.size(); i += 5 + 4 * lay[i + 4])
 		{
 			const std::uint32_t g = lay[i];
+			m->groups[g].gold = static_cast<int>(lay[i + 1]);
+			m->groups[g].gems = static_cast<int>(lay[i + 2]);
+			m->groups[g].respawn = static_cast<int>(lay[i + 3]);
 			for (std::uint32_t k = 0; k < lay[i + 4]; ++k)
 			{
 				const std::uint32_t* c = &lay[i + 5 + 4 * k];
