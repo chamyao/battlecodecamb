@@ -1,0 +1,3 @@
+{"arena": "Z", "t": 1792888737.6, "name": "seed", "birth": 0, "parents": [], "species": "S0", "mu": 25.0, "op": "seed"}
+{"arena": "Z", "t": 1792888741.1, "name": "Z1", "birth": 1, "parents": ["seed"], "species": "S0", "mu": 24.994115983428888, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792888746.2, "name": "Z2", "birth": 2, "parents": ["seed"], "species": "S0", "mu": 24.798176046652287, "op": "mutate", "model": "claude-haiku-5-5"}

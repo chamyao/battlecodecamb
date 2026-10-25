@@ -1,0 +1,41 @@
+{
+ "id": 23,
+ "label": "arenaZ-7",
+ "module": "genome.search.arena",
+ "args": [
+  "--out",
+  "runs/arenaZ-7/arena",
+  "--tag",
+  "Z",
+  "--seed",
+  "genome/examples/starter.genome",
+  "--anchors",
+  "genome/examples/starter.genome",
+  "--budget",
+  "3",
+  "--threads",
+  "3",
+  "--fixed-anchors",
+  "--gate-every",
+  "100000000",
+  "--rng-salt",
+  "2"
+ ],
+ "workdir": "fresh",
+ "fresh": 1,
+ "ref": "1ea78e2bc39a96b804a2d9566f89c44892afab3d (1ea78e2bc39a)",
+ "threads": 3,
+ "budget": 3.0,
+ "pid": 311730,
+ "status": "running",
+ "exit_code": null,
+ "error": null,
+ "created_by": "anon:genome-search",
+ "created_at": 1792888716.6345506,
+ "started_at": 1792888716.638035,
+ "finished_at": null,
+ "extra": {
+  "policies": {},
+  "overlay": null
+ }
+}
