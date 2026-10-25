@@ -530,3 +530,27 @@
 [13:15:42] [Z] rejected llm_cross session: behavioural twin
 [13:15:54] [Z] rejected tune : behavioural twin
 [13:16:10] [Z] birth Z297 (mutate session) of ['Z273'] species S99; 24 genomes $0.00
+[13:16:40] [Z] birth Z298 (mutate session) of ['Z274'] species S96; 24 genomes $0.00
+[13:17:22] [Z] birth Z299 (mutate session) of ['Z291'] species S101; 24 genomes $0.00
+[13:17:58] [Z] rejected mutate session: behavioural twin
+[13:18:11] [Z] champion anchor champ6-Z298 (mu 43.1)
+[13:18:11] [Z] summary: births 300 deaths 277 games 134960 $0.00; top [('Z300', 43.73, 6.0, 0, 'S94'), ('Z298', 43.09, 0.85, 136, 'S96'), ('Z268', 42.76, 0.79, 784, 'S87')]; top vs anchors {'Z298': 1.0, 'Z268': 1.0, 'Z280': 1.0}
+[13:18:11] [Z] birth Z300 (tune ) of ['Z281'] species S94; 24 genomes $0.00
+[13:18:36] [Z] birth Z301 (mutate session) of ['Z281'] species S94; 24 genomes $0.00
+[13:19:12] [Z] birth Z302 (mutate session) of ['Z281'] species S94; 24 genomes $0.00
+[13:19:48] [Z] new species S102 founded by Z303
+[13:19:48] [Z] birth Z303 (mutate session) of ['Z282'] species S102; 24 genomes $0.00
+[13:20:17] [Z] birth Z304 (mutate session) of ['Z292'] species S76; 24 genomes $0.00
+[13:20:43] [Z] new species S103 founded by Z305
+[13:20:43] [Z] birth Z305 (mutate session) of ['Z271'] species S103; 24 genomes $0.00
+[13:21:21] [Z] birth Z306 (mutate session) of ['Z286'] species S100; 24 genomes $0.00
+[13:21:56] [Z] birth Z307 (mutate session) of ['Z280'] species S90; 24 genomes $0.00
+[13:22:27] [Z] birth Z308 (mutate session) of ['Z268'] species S87; 24 genomes $0.00
+[13:23:06] [Z] birth Z309 (mutate session) of ['Z298'] species S96; 24 genomes $0.00
+[13:23:26] [Z] summary: births 310 deaths 287 games 137968 $0.00; top [('Z306', 43.53, 0.84, 144, 'S100'), ('Z307', 43.19, 0.83, 136, 'S90'), ('Z253', 42.92, 0.79, 1504, 'S74')]; top vs anchors {'Z306': None, 'Z307': None, 'Z253': 0.917}
+[13:23:26] [Z] birth Z310 (tune ) of ['Z305'] species S103; 24 genomes $0.00
+[13:23:43] [Z] birth Z311 (mutate session) of ['Z296'] species S85; 24 genomes $0.00
+[13:24:25] [Z] birth Z312 (mutate session) of ['Z302'] species S94; 24 genomes $0.00
+[13:25:01] [Z] birth Z313 (mutate session) of ['Z304'] species S76; 24 genomes $0.00
+[13:25:42] [Z] birth Z314 (mutate session) of ['Z304'] species S76; 24 genomes $0.00
+[13:26:20] [Z] birth Z315 (mutate session) of ['Z304'] species S76; 24 genomes $0.00
