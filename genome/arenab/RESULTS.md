@@ -200,3 +200,7 @@ Intel: gold-rush +216 is mono (centre monolith group of ~24 gold clusters in its
 B1782 sha 80890c76 is byte-identical to genome/intel/directed/A81582-gg6; B1783 = gg3. Relay top B1796 (gg6 lineage),
 real /80 vs rh-mono-all: 37 raw, 41 with mono (sim 34, 37). Not forwarded. Leg 6 asked to insert rh-mono-all and rmab.
 exploit-3 stopped at $9.15 when API credits ran out (06:50Z).
+
+## Oct 25 07:15: band batch 7 (v30), paired with b6
+21-29 (b6 20-30). Stuck champion-rounds -63 +- 48 (heal fix live); monolith deaths +1.7 +- 0.8, camp deaths +2.0 +- 0.7
+(shortcut 0-2 at 12 monolith deaths/game, great_wall 35). elk_arena still no-bank vs real opponents. v31 = rh-mono-all next.
