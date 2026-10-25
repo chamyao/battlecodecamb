@@ -2,6 +2,18 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 04:25 UTC
+
+- Relay Z-10 leg 6 done: births 252 -> 301 in ~24 min, sha 821678f on arenaa/z10-relay. Mutations
+  32 accepted / 3 twins / 1 invalid; llm_cross 10 / 1 / 1; tune 7 / 5 twins / 0. Both invalids came from
+  placeholder replies to the re-waited seqs; that gotcha is now in the leg template. In-arena top: champ5
+  anchor Z239 at 35.27, then Z262 34.81, Z285 34.69, Z297 34.64. Their shared traits: champion-targeted
+  casts scored above the 90 low-health recall, and a "step away from enemy champions when carrying gems"
+  MOVE rule.
+- Leg 7 (301 -> 350) started: session_01J5wZp78NVLDdB8UzDAm3TT.
+- No new panel leaders. Z-5 is still the best loop (394/880) and A61188 the best bot. A-8, A-8c, Z-15 and
+  Z-16 have no milestone yet.
+
 ## 2026-10-25 04:05 UTC
 
 - Genes per genome in final populations: Haiku runs stay at 6 (Z-1 6-7; Z-1x 6-8 after ~1,000 births;
