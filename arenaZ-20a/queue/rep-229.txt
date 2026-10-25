@@ -1,0 +1,5 @@
+```python
+@gene('Z36a', 'an awake camp could hit me here', parents=['s1'])
+def threatened() -> Bool:
+    return any(is_awake(c) and dist(c.pos, me().pos) <= 3 for c in camps()) or any(dist(u.pos, me().pos) <= 5 for u in enemies())
+```
