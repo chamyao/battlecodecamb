@@ -1,0 +1,13 @@
+```python
+@gene("r2", "heal on spawn: below 90% health (full health when an enemy champion is within 8) and nothing can be hit from here; leaving at 90% gets back to the farm sooner")
+def r_heal() -> Bool:
+    if not at_spawn():
+        return False
+    if foe_in_reach():
+        return False
+    if me().health >= me().max_health:
+        return False
+    if me().health < 0.9 * me().max_health:
+        return True
+    return any(dist(u.pos, here()) <= 8 for u in enemies())
+```

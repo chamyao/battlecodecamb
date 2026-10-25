@@ -1,0 +1,25 @@
+```python
+@gene("a11", "next shard to buy: half treasure strength, half the rest jungle health, then power strength/health; Treasure shards go to one carrier until its emblem (5 matching shards, +20% gold) is complete, the others buy jungle health in that share (intel: our Treasure was spread over 4 champions and no emblem was made)")
+def next_shard() -> Num:
+    d = shards_done()
+    c = treas_carrier()
+    if c and items_owned(19) == 0:
+        return 18
+    if d < shard_until(1):
+        return 18 if c else 28
+    if d < shard_until(2):
+        return 28
+    if d < shard_until(3):
+        return 6
+    if d < shard_until(4):
+        return 10
+    return -1
+
+@gene("new", "this champion carries the team's Treasure: our Vesper Vale, or without one the champion with the lowest type id", parents=["a11"])
+def treas_carrier() -> Bool:
+    if me().type == VESPER_VALE:
+        return True
+    if any(a.type == VESPER_VALE for a in allies()):
+        return False
+    return not any(a.type < me().type for a in allies())
+```

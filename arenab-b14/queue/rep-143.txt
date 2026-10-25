@@ -1,0 +1,17 @@
+```python
+@gene("a6", "fight casts: shield/heal on self first (heal only when hurt), a damage cast that kills the target at TGT outright ranks above them (kill bounty), then the slot at TGT, attack resets once the attack is spent")
+def strike_cast(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD:
+        return 170 - o.slot if o.unit == me() else 0
+    if k == AB_HEAL:
+        return 170 - o.slot if o.unit == me() and me().health < me().max_health else 0
+    if k == AB_RESET:
+        return 150 - o.slot if not can_attack() else 0
+    if o.tile != TGT:
+        return 0
+    u = o.unit
+    if (k == AB_DAMAGE or k == AB_CC) and exists(u) and u.is_enemy and u.is_champion:
+        if cast_damage(me(), o.slot, u) >= u.health + shield(u):
+            return 185 - o.slot
+    return 170 - o.slot
+```

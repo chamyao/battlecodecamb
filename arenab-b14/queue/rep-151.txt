@@ -1,0 +1,26 @@
+```python
+@gene("a9", "shopping on spawn: the team's altar lock, then shards in the policy's split; Treasure goes to one carrier until its emblem (5 matching shards, +20% gold) is complete, the others buy jungle health in its place (intel: our Treasure was spread over 4 champions and no emblem was made)")
+def shop_value(o: Option) -> Num:
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and RULE >= 2 and at_spawn() else 0
+    if RULE < 2 or not at_spawn():
+        return 0
+    if treas_carrier() and items_owned(19) == 0:
+        return 195 + o.count / 100 if o.item == 18 else 0
+    want = next_shard()
+    if want == 18 and not treas_carrier():
+        want = 28
+    if o.item != want:
+        return 0
+    if o.count > shard_left():
+        return 0
+    return 190 + o.count / 100
+
+@gene("new", "this champion carries the team's Treasure: our Vesper Vale, or without one the champion with the lowest type id", parents=["a9"])
+def treas_carrier() -> Bool:
+    if me().type == VESPER_VALE:
+        return True
+    if any(a.type == VESPER_VALE for a in allies()):
+        return False
+    return not any(a.type < me().type for a in allies())
+```

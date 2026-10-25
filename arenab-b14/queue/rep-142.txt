@@ -1,0 +1,12 @@
+```python
+@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp of that same group (not monolith or golem), so the group gets cleared and captured instead of waking another")
+def r_live() -> Bool:
+    h = here()
+    if dist(camp_goal(), h) != 0:
+        return False
+    c = live_camp()
+    if not exists(c) or c.pos in BIG_CAMPS:
+        return False
+    g = spawn_group(h)
+    return g < 0 or camp_group(c) == g
+```

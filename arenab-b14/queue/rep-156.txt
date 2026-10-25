@@ -1,0 +1,6 @@
+```python
+@gene('s13', 'in-reach enemy champion off its own spawn: one my next basic attack kills first (exact damage against health plus shield: the bounty), then carried gems, then lowest health')
+def fight_foe() -> Unit:
+    es = enemy_spawn()
+    return best(enemies(), lambda u: (100000 if attack_damage(me(), u) >= u.health + shield(u) else 0) + unit_gems(u) * 10 - u.health if in_reach(u) and not (u.pos in es) else -INF)
+```

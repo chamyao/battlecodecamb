@@ -1,0 +1,30 @@
+```python
+@gene("c1", "where this turn's rule walks; before round 1000 the camp walk leaves a group to an ally already nearer to it (by 3+) and takes the nearest other live group, so we capture solo in parallel instead of in pairs")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        g = camp_goal()
+        if valid(g) and round() < 1000:
+            gi = spawn_group(g)
+            h = here()
+            if gi >= 0 and any(u.pos != h and dist(u.pos, g) + 3 <= dist(h, g) for u in allies()):
+                alt = CAMP_BASE - respawning() - BIG_CAMPS - group_tiles(gi)
+                if size(alt) > 0:
+                    a = closest(alt)
+                    if valid(a):
+                        return a
+        return g
+    return tile(-1, -1)
+```

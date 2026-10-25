@@ -1,0 +1,28 @@
+```python
+@gene('B2148a', 'option kinds worth listing this pass; dash casts also on the threatened bank walk (rule 11: get the bag to the altar before the chaser); attacks also listed when a champion is in reach under retreat, hold or walking rules', parents=['v3'])
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == CAST:
+        return r == 7 or r == 14 or ((r == 3 or r == 11 or r == 20) and dash_gate() and (SK0 == AB_DASH or SK1 == AB_DASH)) or (r >= 6 and ahead_on())
+    if k == ATTACK:
+        if r == 7 or r == 13 or r == 14 or r == 20:
+            return True
+        return (r == 3 or r >= 9) and foe_in_reach()
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == WARD:
+        return r == 20 and here() in bushes() and count_units(enemies()) == 0
+    return False
+```

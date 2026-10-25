@@ -1,0 +1,11 @@
+```python
+@gene("i1", "camp in reach worth hitting: not in a monolith's group (a hit wakes the group), unless the team goes for monoliths (intel GAPS #1); a sleeping camp is not woken below 45% health (a fresh camp fight while hurt feeds a kill)", parents=["s14"])
+def farmable(c: Unit) -> Bool:
+    if not in_reach(c):
+        return False
+    if not is_awake(c) and me().health_frac < 0.45:
+        return False
+    if not (camp_spawn(c) in MONO_GROUPS):
+        return True
+    return r_mono()
+```

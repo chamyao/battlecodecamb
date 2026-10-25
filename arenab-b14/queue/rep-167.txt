@@ -1,0 +1,35 @@
+```python
+@gene('v3', "option kinds worth listing this pass: only those this turn's rule (or shopping, cast-ahead) can use; shop kinds only when we can actually shop on spawn; attacks also while walking to a live camp or monolith; dash casts on cash-out and walking rules; cast-ahead also on the retreat (stun or hit the chaser so we get away alive)", parents=['v3'])
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == ATTACK:
+        return r == 7 or r == 13 or r == 14 or r == 15 or r == 18 or r == 20
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == CAST:
+        if r == 7 or r == 14:
+            return True
+        if (SK0 == AB_DASH or SK1 == AB_DASH) and (r == 3 or r == 5 or r == 20 or walks()):
+            if dash_gate():
+                return True
+        return (r >= 6 or r == 3) and ahead_on()
+    if k == WARD:
+        return r == 20 and count_units(enemies()) == 0 and here() in bushes()
+    return False
+
+@gene("s2", "standing on our spawn region (cheap shop test first, then the spawn set)")
+def at_spawn() -> Bool:
+    return can_shop() and here() in my_spawn()
+```

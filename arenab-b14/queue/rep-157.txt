@@ -1,0 +1,14 @@
+```python
+@gene("a9", "shopping on spawn: the team's altar lock, then shards in the policy's split; once my Treasure emblem is complete the Treasure share buys power strength instead (Treasure early, then Bruiser)")
+def shop_value(o: Option) -> Num:
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and RULE >= 2 and at_spawn() else 0
+    want = next_shard()
+    if want == 18 and items_owned(19) > 0:
+        want = 6
+    if o.item != want:
+        return 0
+    if o.count > shard_left() or RULE < 2 or not at_spawn():
+        return 0
+    return 190 + o.count / 100
+```

@@ -1,0 +1,23 @@
+```python
+@gene('m11', "the camp walk's goal: before round 600 the nearest live non-big group whose design strength is under 240 (cheap safe solo captures first), else the nearest non-big spawn of a live group, falling back to any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    base = CAMP_BASE - respawning() - BIG_CAMPS
+    if round() < 600 and size(base) > 0:
+        weak = base - base
+        for g in range(num_groups()):
+            gt = group_tiles(g) & base
+            if size(gt) > 0:
+                if sum(camp_base_strength(spawn_type(s)) for s in group_tiles(g)) < 240:
+                    weak = weak | gt
+        if size(weak) > 0:
+            w = closest(weak)
+            if valid(w):
+                return w
+    t = closest(base)
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```

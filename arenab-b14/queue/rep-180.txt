@@ -1,0 +1,12 @@
+```python
+@gene("w12", "tiles held by something other than a camp (never a goal); the spawn tiles of a cleared group an ally already stands on are taken too, so nobody walks to a capture that is already running")
+def taken() -> Tiles:
+    acc = blocked() - camp_block()
+    h = here()
+    for u in allies():
+        if u.pos != h:
+            g = spawn_group(u.pos)
+            if g >= 0 and group_reward(g):
+                acc = acc | group_tiles(g)
+    return acc
+```

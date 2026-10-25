@@ -1,0 +1,12 @@
+```python
+@gene("m13", "nearest tile next to a safe altar that no enemy lock blocks; carrying 10+ gems, skip altar tiles within 3 of a visible enemy champion when another such tile exists (do not walk the bag into a kill bounty)")
+def bank_t1() -> Tile:
+    s = SAFE_RING - ring(locked_altars(), 1)
+    if gems() >= 10:
+        et = enemy_tiles()
+        if size(et) > 0:
+            calm = s - ring(et, 3)
+            if size(calm) > 0:
+                return closest(calm)
+    return closest(s)
+```
