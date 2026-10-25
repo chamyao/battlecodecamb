@@ -1,0 +1,109 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GFIELD: Field = None
+
+@gene('s1', 'value of doing this option now; moves scale with progress toward goals (steeper when carrying gems); casts via cast_value', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p > 0:
+            w = 8 if gems() > 0 else 5
+            return 25 + w * min(p, 5)
+        return 0
+    return 0
+
+@gene('Z114a', 'skip option kinds that score() never values (ward, lock, buy-lock, cancel) to save fuel', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    return True
+
+@gene('s2', 'where to walk: an unlocked altar when carrying gems, else a living camp group worth taking (gems/gold/reward), else any living group', parents=['s2'])
+def goals() -> Tiles:
+    alt = altars() - locked_altars()
+    if gems() > 0 and size(alt) > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in alt:
+            acc = acc | near(a, 0.5607)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    fallback = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            fallback = fallback | group_tiles(g)
+            if group_gems(g) + group_gold(g) > 0 or group_reward(g):
+                acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    return fallback
+
+@gene('Z114b', 'compute the goal distance field once per turn', parents=['s3'])
+def update() -> None:
+    GFIELD = field(goals())
+
+@gene("s3", "distance field to the goals (cached per turn); go home to heal when badly hurt and stay until nearly full", parents=["s3"])
+def goal_field() -> Field:
+    hf = me().health_frac
+    if hf < 0.3 or (hf < 0.95 and me().pos in my_spawn()):
+        return field(my_spawn())
+    return GFIELD
+
+@gene('Z114c', 'progress toward goals; penalty scales with nearby enemy strength (heavier when hurt), small bonus for safe steps while carrying gems', parents=['s4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    p = at(f, me().pos) - at(f, t)
+    d = count(dist(u.pos, t) <= 3 for u in enemies())
+    threat = sum(u.strength * u.health_frac for u in enemies() if dist(u.pos, t) <= 4)
+    if me().health_frac < 0.5:
+        p -= 2 * threat + 4 * d
+    elif d > 2:
+        p -= threat + d
+    if gems() > 0 and d == 0:
+        p += 1
+    return p
+
+@gene('Z181a', 'value of casting an ability option; damage scales more steeply with target low health, shield and heal keyed to health and nearby threat, dash by progress', parents=['Z49a', 'Z49a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 70 + 25 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and gems() == 0:
+                return 55
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(u.pos, o.tile) <= r for u in enemies())
+            return 72 if n > 0 else 0
+        return 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.9 and count(dist(u.pos, me().pos) <= 5 for u in enemies()) > 0:
+            return 65 + 10 * (1 - me().health_frac)
+        return 0
+    if k == AB_HEAL:
+        if me().health_frac < 0.6 and count(dist(u.pos, me().pos) <= 6 for u in enemies()) > 0:
+            return 70
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and me().health_frac > 0.5:
+            pr = progress(o.tile)
+            if pr >= 3:
+                return min(40 + pr * 3, 70)
+        return 0
+    return 0
