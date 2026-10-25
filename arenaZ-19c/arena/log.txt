@@ -202,3 +202,29 @@
 [09:50:00] [Z] birth Z115 (mutate session) of ['Z102'] species S49; 24 genomes $0.00
 [09:50:04] [Z] rejected llm_cross session: behavioural twin
 [09:50:49] [Z] birth Z116 (tune ) of ['Z77'] species S37; 24 genomes $0.00
+[09:52:14] [Z] birth Z117 (mutate session) of ['Z87'] species S45; 24 genomes $0.00
+[09:52:15] [Z] rejected mutate session: behavioural twin
+[09:52:17] [Z] birth Z118 (mutate session) of ['Z87'] species S45; 24 genomes $0.00
+[09:52:47] [Z] new species S50 founded by Z119
+[09:52:47] [Z] birth Z119 (tune ) of ['Z118'] species S50; 24 genomes $0.00
+[09:54:33] [Z] summary: births 120 deaths 97 games 50800 $0.00; top [('Z81', 38.43, 0.79, 784, 'S39'), ('Z117', 38.3, 0.83, 168, 'S45'), ('Z107', 38.07, 0.79, 416, 'S47')]; top vs anchors {'Z81': 0.75, 'Z117': 0.625, 'Z107': None}
+[09:54:33] [Z] birth Z120 (mutate session) of ['Z89'] species S41; 24 genomes $0.00
+[09:54:35] [Z] birth Z121 (mutate session) of ['Z90'] species S40; 24 genomes $0.00
+[09:54:35] [Z] birth Z122 (mutate session) of ['Z87'] species S23; 24 genomes $0.00
+[09:54:36] [Z] birth Z123 (mutate session) of ['Z81'] species S39; 24 genomes $0.00
+[09:54:40] [Z] new species S51 founded by Z124
+[09:54:40] [Z] birth Z124 (llm_cross session) of ['Z81', 'Z99'] species S51; 24 genomes $0.00
+[09:56:11] [Z] birth Z125 (mutate session) of ['Z77'] species S37; 24 genomes $0.00
+[09:56:13] [Z] birth Z126 (mutate session) of ['Z116'] species S37; 24 genomes $0.00
+[09:56:14] [Z] rejected mutate session: behavioural twin
+[09:58:42] [Z] birth Z127 (mutate session) of ['Z87'] species S23; 24 genomes $0.00
+[09:58:43] [Z] birth Z128 (mutate session) of ['Z111'] species S48; 24 genomes $0.00
+[09:58:44] [Z] birth Z129 (mutate session) of ['Z77'] species S37; 24 genomes $0.00
+[09:58:45] [Z] summary: births 130 deaths 107 games 53472 $0.00; top [('Z117', 38.43, 0.82, 440, 'S45'), ('Z124', 38.35, 0.8, 248, 'S51'), ('Z130', 38.35, 6.0, 0, 'S51')]; top vs anchors {'Z117': 0.812, 'Z124': None, 'Z118': 0.938}
+[09:58:45] [Z] birth Z130 (mutate session) of ['Z124'] species S51; 24 genomes $0.00
+[09:58:45] [Z] birth Z131 (mutate session) of ['Z81'] species S39; 24 genomes $0.00
+[09:59:32] [Z] birth Z132 (tune ) of ['Z117'] species S45; 24 genomes $0.00
+[10:00:15] [Z] new species S52 founded by Z133
+[10:00:15] [Z] birth Z133 (mutate session) of ['Z121'] species S52; 24 genomes $0.00
+[10:00:16] [Z] birth Z134 (mutate session) of ['Z126'] species S37; 24 genomes $0.00
+[10:00:16] [Z] birth Z135 (mutate session) of ['Z123'] species S39; 24 genomes $0.00

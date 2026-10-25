@@ -1,0 +1,11 @@
+```python
+@gene('Z73a', 'distance from tile t to the nearest enemy champion or awake camp (99 if none seen)', parents=['s1'])
+def threat_gap(t: Tile) -> Num:
+    d = 99
+    if size(TH) > 0:
+        d = dist(t, nearest(TH, t))
+    e = enemy_tiles()
+    if size(e) > 0:
+        d = min(d, dist(t, nearest(e, t)) - 2)
+    return d
+```
