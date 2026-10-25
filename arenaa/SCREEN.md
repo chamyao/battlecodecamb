@@ -88,3 +88,8 @@ rule is as above, with Z-21a/b as the controls.
 Per birth, screening leads (365/367 at ~110 vs 339/272 at ~180). Per wall hour the controls are faster: at 12:19,
 Z-21 had ~290 births in 75 min and Z-20 ~190 in 3h15. The verdict needs both views; the final comparison is at
 matched births and at matched wall time.
+
+Z-21a (control) finished: 478 births in ~1h46m (11:05-12:51), mirror 4748376. In-arena top Z476 42.6. Its writer
+attests that it ran no games, traces or replays, built no game tools, opened no other genome or run, and wrote every
+reply by hand. A clean control. Its final population is to be scored once. For comparison, the screened Z-19 runs took
+3h09-4h19 for the same births.
