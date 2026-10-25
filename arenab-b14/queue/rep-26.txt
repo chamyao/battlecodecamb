@@ -1,0 +1,7 @@
+```python
+@gene("s5", "a visible enemy champion is in my attack range, or I am in its attack range (ranged foes count at their own reach)", parents=["s5"])
+def foe_in_reach() -> Bool:
+    h = here()
+    ar = me().attack_range
+    return any(dist(h, u.pos) <= max(ar, u.attack_range) for u in enemies())
+```

@@ -1,0 +1,6 @@
+```python
+@gene("s15", "the nearest visible camp, skipping monolith and golem groups and favouring hurt camps (a hurt camp is nearly cleared)", parents=["s15"])
+def live_camp() -> Unit:
+    h = here()
+    return best(camps(), lambda c: -dist(h, c.pos) - 3 * c.health_frac - (100 if camp_spawn(c) in BIG_CAMPS or camp_spawn(c) in MONO_GROUPS else 0))
+```
