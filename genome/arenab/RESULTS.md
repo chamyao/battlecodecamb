@@ -313,3 +313,8 @@ All 0 crashes. On the B1873 line the sim h2h no longer predicts real in either d
 Real /80 vs v33, 0 crashes: B2180 (champ44) 41 (capped 477), B2295 (champ46) 39 (507), B2249 (champ45) 33 (526).
 Tops now run ~9.3-10 suspensions/match in the sim vs ~7.6 for the leg-7 tops; leg 10 adds a gate rejecting children
 >10% above their parent's a_susp, and v33 as a weight-2 anchor. panelB-14 m22 1103 (peak m19 1142): the arena has plateaued.
+
+## Oct 25 ~12:30: 00contest outnumbered hold (genome lead ladder note: contest 5-8 over v31-v33)
+v33-contest (cand/): on MONO_ONLY maps after r800, r15 only fires when visible enemies within 8 <= allies within 6.
+Solo: contest A 1911 -> 1866, rest identical. Real vs v33: 39/80, contest 1-1 (unchanged; v33 mirrors fight the
+same way), 0 crashes. Not testable locally without an opponent that contests the monoliths; not recommended for upload.
