@@ -40,3 +40,12 @@ Cham, Oct 25 ~01:50 UTC: upload first for variety on the real ladder, validate a
 - Arena A panel (648bafd, Arena A lead): 867/1040 over 13 opponents; vs B318 50/80, tune-v20-L1c 57/80, style-gconv1 60/80.
 - Live as ladder version 27 (2026-10-25T01:54:54Z, bundle sha256 8f44d04a...).
 - Post-upload: real cambc 3.0.5 --release vs B792 (v26), 40 maps x 2 sides: 47/80, 0 crashes either side. Anchor-drop check not yet run.
+
+## a61188-mono (Arena B directed edit of A61188; candidate for v28, upload first)
+
+genome/candidates/a61188-mono.genome, sha256 54e1275ad91bee73... (genome/intel 35046ccf directed/a61188-mono.genome).
+A61188 + a farmable() gene: camp attacks only on farmable camps (no hits on monoliths), aimed at v27's monolith losses
+(5 of its 18 ranked losses). Built on genome/v0 ca5180b.
+- Arena B lead, real cambc: 42/80 vs A61188, 49/80 vs B792, 49/80 vs the v25 build, 0 crashes. Sim: all 15 anchors +0..+4.
+- Smoke, real cambc vs A61188, both sides: 00great-wall 2-0 (deaths 16/19 vs 31/34), 01shortcut 1-1 (11/22 vs 27/26),
+  00lanes identical games. 0 crashes.
