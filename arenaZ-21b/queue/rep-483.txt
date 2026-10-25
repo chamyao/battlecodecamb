@@ -1,0 +1,11 @@
+```python
+@gene("Z370a", "worth of locking this altar: an enemy champion is tributing at it (the lock cancels the channel), or a visible enemy carrying 5+ gems is within 3 of it")
+def lock_value(a: Tile) -> Num:
+    if not valid(a):
+        return 0
+    if any(is_tributing(u) and dist(u.pos, a) <= 1 for u in enemies()):
+        return 98
+    if any(unit_gems(u) >= 5 and dist(u.pos, a) <= 3 for u in enemies()):
+        return 75
+    return 0
+```
