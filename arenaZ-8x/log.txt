@@ -431,3 +431,12 @@
 [03:23:39] [Z] champion anchor champ8-Z282 (mu 36.4)
 [03:23:39] [Z] summary: births 400 deaths 377 games 95520 $19.95; top [('Z282', 36.44, 0.8, 1616, 'S144'), ('Z285', 36.38, 0.79, 1520, 'S134'), ('Z395', 36.26, 0.86, 120, 'S115')]; top vs anchors {'Z282': 0.938, 'Z285': 0.95, 'Z395': 1.0}
 [03:23:39] [Z] birth Z400 (llm_cross claude-opus-5-5) of ['Z282', 'Z372'] species S184; 24 genomes $19.95
+[03:23:58] [Z] rejected mutate claude-opus-5-5: GenomeError: recall_value line 227: unknown name RBLK
+[03:24:10] [Z] rejected tune : behavioural twin
+[03:24:10] [Z] spent $20.08 of $20.00: no more births
+[03:24:14] [Z] new species S185 founded by Z401
+[03:24:14] [Z] birth Z401 (mutate claude-opus-5-5) of ['Z355'] species S185; 24 genomes $20.08
+[03:24:16] [Z] new species S186 founded by Z402
+[03:24:16] [Z] birth Z402 (mutate claude-opus-5-5) of ['Z386'] species S186; 24 genomes $20.08
+[03:25:22] [Z] summary: births 402 deaths 379 games 97832 $20.08; top [('Z282', 36.93, 0.79, 1808, 'S144'), ('Z393', 36.67, 0.79, 376, 'S181'), ('Z386', 36.55, 0.79, 408, 'S182')]; top vs anchors {'Z282': 0.938, 'Z393': 1.0, 'Z386': None}
+[03:25:23] [Z] done: spent $20.08
