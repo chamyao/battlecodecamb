@@ -5,19 +5,14 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-25 05:40 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 3.36 3.74 7.09 on 16 threads.
+Updated 2026-10-25 05:46 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 2.87 3.51 6.03 on 16 threads.
 Disk: 13G used of 38G.
 
 ## python3 processes
 ```
-715799 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-1x/arena --resume-from /root/bc/genome/out/arenaZ-1x/../arenaZ-1/arena --tag Z --seed genome/examples/starter.genome --budget 15 --threads 5 --fixed-anchors --gate-every 100000000
 ```
 ## tick.log (last 40 lines)
 ```
-[03:02:55] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[03:08:08] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[03:13:21] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[03:18:35] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [03:23:48] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [03:28:51] genome: job arenaZ-8x exited rc=0
 [03:29:02] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -54,4 +49,8 @@ Disk: 13G used of 38G.
 [05:30:28] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [05:35:41] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [05:40:54] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+Terminated
+[05:46:06] genome: stopped job arenaZ-1x (by arenaZ-1x.stop)
+[05:46:06] genome: job arenaZ-1x exited rc=stopped
+[05:46:16] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
