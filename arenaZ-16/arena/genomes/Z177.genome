@@ -94,12 +94,18 @@ def cast_value(o: Option) -> Num:
                     return 75
         return 0
     if k == AB_DASH:
-        if valid(o.tile) and me().health_frac > 0.45:
-            if not any(dist(u.pos, me().pos) <= 5 for u in enemies()):
-                p = progress(o.tile)
-                if p >= 2:
-                    return 40 + 5 * min(p, 8)
+        if valid(o.tile):
+            return dash_value(o.tile)
         return 0
+    return 0
+
+@gene('X280a', 'value of dashing to a valid tile: toward goals when healthy and no enemies close, capped progress', parents=['Z26a'])
+def dash_value(t: Tile) -> Num:
+    if me().health_frac > 0.45:
+        if not any(dist(u.pos, me().pos) <= 5 for u in enemies()):
+            p = progress(t)
+            if p >= 2:
+                return 40 + 5 * min(p, 8)
     return 0
 
 @gene('Z21a', 'once per turn: retreat state with hysteresis (go home below 38% health, stay until 90%), then cache the matching distance field', parents=['s3'])

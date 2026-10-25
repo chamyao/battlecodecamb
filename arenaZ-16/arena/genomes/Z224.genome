@@ -95,15 +95,20 @@ def cast_value(o: Option) -> Num:
         return 0
     if k == AB_DASH:
         if valid(o.tile):
-            g = raw_gain(o.tile)
-            if RETREAT:
-                if g >= 2:
-                    return 70 + 5 * min(g, 8)
-                return 0
-            if me().health_frac > 0.45 and g >= 2:
-                if not any(dist(u.pos, me().pos) <= 5 for u in enemies()):
-                    return 40 + 5 * min(g, 8)
+            return dash_tile_value(o.tile)
         return 0
+    return 0
+
+@gene('X270a', 'value of dashing to a tile: home when retreating, toward goals when healthy and calm', parents=['Z26a'])
+def dash_tile_value(t: Tile) -> Num:
+    g = raw_gain(t)
+    if RETREAT:
+        if g >= 2:
+            return 70 + 5 * min(g, 8)
+        return 0
+    if me().health_frac > 0.45 and g >= 2:
+        if not any(dist(u.pos, me().pos) <= 5 for u in enemies()):
+            return 40 + 5 * min(g, 8)
     return 0
 
 @gene('Z300a', 'raw distance gained toward the current goal field (spawn while retreating) by moving to tile t', parents=['s4'])
