@@ -1,0 +1,51 @@
+```python
+@gene('Z180b', 'once per turn: cache the distance field to the goals not occupied by another ally, nor next to one before round 1000 (spread allies over camps early, group up late; altars only exclude occupied tiles); hurt with no gems, prefer camps away from visible enemy champions; carrying 10+ gems, route around the reach (+1) of visible enemy champions when a detour exists', parents=['s4'])
+def update() -> None:
+    g = goals()
+    p = me().pos
+    others = ally_tiles() - near(p, 0)
+    taken = others
+    if gems() == 0 and round() < 1000:
+        for a in others:
+            taken = taken | near(a, 1)
+    free = g - taken
+    if size(free) == 0:
+        free = g - others
+    if size(free) == 0:
+        free = g
+    if gems() == 0 and me().health_frac < 0.6:
+        hot = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                hot = hot | near(u.pos, max(u.attack_range, 1) + 2)
+        calm = free - hot
+        if size(calm) > 0:
+            free = calm
+    if gems() >= 10:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, max(u.attack_range, 1) + 1)
+        danger = danger - near(p, 0)
+        if size(danger) > 0:
+            safe = field_avoid(free - danger, danger, near(p, 0))
+            if at(safe, p) < 100000:
+                GF = safe
+                return
+    GF = field(free)
+
+@gene('Z180a', 'worth recalling to shop: 60+ gold before round 300, 90+ before round 600 (treasure shards compound), 120+ before round 1200, else 150+ (fewer late trips), or 60+ when already below 55% health (heal and shop in one trip); no gems carried, not home, nothing hostile near, not about to reach a camp, not in the last 150 rounds', parents=['s1'])
+def shop_trip() -> Bool:
+    r = round()
+    need = 60 if r < 300 else (90 if r < 600 else (120 if r < 1200 else 150))
+    if me().health_frac < 0.55:
+        need = 60
+    if gold() < need or gems() > 0 or can_shop() or r > 1850:
+        return False
+    p = me().pos
+    if any(dist(u.pos, p) <= 5 for u in enemies()):
+        return False
+    if any(is_awake(u) and dist(u.pos, p) <= 4 for u in camps()):
+        return False
+    return at(GF, p) > 3
+```
