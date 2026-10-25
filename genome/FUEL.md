@@ -10,28 +10,37 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
-## State of calibration (Oct 25, genome/fuel after TELEPORT / BUY_TP / SELL)
+## State of calibration (Oct 25, memo hits typed and by call site)
 
 Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against the interpreted v23
-(`~/ws/bots/v23interp`), sim at 1000x against `gconv1.pol` with `--bot-seeds`. Real runs are from the current
-bot: after the simspeed merge, `combine()` copy-constructs its result, which made the bot's set
-operations cheaper, so set-op prices were refitted and every real run was redone.
+(`~/ws/bots/v23interp`), sim at 1000x against `gconv1.pol` with `--bot-seeds`. Real runs are from the current bot.
 
 | genome | 00ambush | 00lanes | 01big-world |
 |---|---|---|---|
-| seed | 1.015 | 1.016 | 1.001 |
-| B318 | 1.013 | 1.008 | 0.999 |
-| B792 | 1.001 | 1.003 | 0.990 |
-| A458 (arena A) | 1.021 | 1.020 | 1.006 |
-| A61188 (live as v27) | 1.023 | 1.026 | 1.008 |
-| B1145 (arena B #1) | 0.999 | 1.001 | 0.987 |
-| B1092 (arena B, other species) | 0.999 | 0.973 | 0.983 |
-| starter | 1.008 | 1.015 | 1.009 |
+| seed | 0.982 | 0.970 | 0.967 |
+| B318 | 0.980 | 0.962 | 0.966 |
+| B792 | 0.972 | 0.962 | 0.960 |
+| A458 (arena A) | 0.988 | 0.974 | 0.971 |
+| A61188 (live as v27) | 0.989 | 0.974 | 0.972 |
+| B1145 (arena B #1) | 0.971 | 0.961 | 0.959 |
+| B1092 (arena B, other species) | 0.973 | 0.938 | 0.957 |
+| starter | 1.026 | 1.032 | 1.025 |
 | idle (no consider()) | 0.984 | 0.969 | 0.983 |
-| v23 | 1.102 | 1.118 | 1.100 |
+| v23 | 1.031 | 1.030 | 1.022 |
+
+Head-to-head against real cambc at 1x, 80 games each (both sides, all maps):
+
+| matchup | real wins | sim wins | sim picks the real winner |
+|---|---|---|---|
+| A61188 vs B792 | 48 | 48 | 58 of 80 |
+| B792 vs B318 | 40 | 42 | 52 of 80 |
+| B1145 vs A61188 (held out) | 32 | 32 | 54 of 80 |
+
+Evolved genomes run 1-6% under in absolute terms (starter and v23 2-3% over). So they may hit the
+real per-turn cap a little more often than the sim predicts. Real cambc stays the upload decider.
 
 Open gaps:
-- v23 is over by 9-12%. Its per-option score path calls memoised genes (`here`, `walks`,
+- (closed Oct 25: typed memo hits; v23 is now 1.01-1.02) v23 was over by 9-12%. Its per-option score path calls memoised genes (`here`, `walks`,
   `shop_pending`) that the compiler inlines. Such a hit costs ~30 in the bot against 73 charged, while
   the seed family's memo hits, called from large genes, are slightly under. A fix needs memo-hit cost
   per call site (inlined or not) from each genome's wasm; parked by the genome lead.
@@ -63,6 +72,53 @@ Tools: `tools/prof_pair.sh`, score variants (genomes that never act), `consider(
 for champion 0), and `GENOME_DEFS=GENOME_TURN_ORDER` in the bot. A cambc run needs its own bot folder
 per concurrent run. Rebuild `genome/build` and `genome/build-prof` after every runtime change:
 `genome_eval` refuses a genome compiled against another Ctx layout.
+
+## Memo hits by return type, and per-call-site inlining (Oct 25)
+
+I read the bot's compiled code per genome: genes.cpp built as the bot builds it (wasi-sdk -O3, the host
+bitboard, GENOME_BOT), with each gene's out-of-line calls listed from the relocations. Most memoised genes
+are called, not inlined (`here` from ~30 sites in A61188). Score variants then read one memoised gene on
+every option, never acting, against idle, measuring real cost per hit:
+
+| return type | in the wasm | real cost per hit |
+|---|---|---|
+| Num | inlined | ~27 |
+| Bool | inlined | ~35 |
+| Tile | called | ~44 |
+| Unit | called | ~57 |
+| Tiles | inlined | ~68 |
+| Num (large body) | called | ~30 |
+| Tiles (large body) | called | ~80 |
+
+So inlining moves a hit little; its return type (the copy out) sets the cost. The sim had charged 73 for
+every non-set type and 78 for sets. Hits are now priced by type (`lang.MEMO_HIT`: 30 / 30 / 44 / 57 / 74).
+- The per-pass price was refitted with it (later passes 0 -> 800).
+- A caller-dependent extra (more from callers with a shadow-stack frame, as a whole-game fit suggested)
+  was tried at +12 and +24. It brings whole-game ratios nearer 1, but on the two matchups used to choose
+  prices it did worse (63 -> 58 -> 55 and 54 -> 52 of 80). The held-out matchup then decided: +12, below.
+
+Held out (not used to choose prices), B1145 vs A61188, 80 real games: B1145 wins 32.
+- bc70ece: sim 39, picks the real winner in 53 of 80.
+- typed: sim 32, 52 of 80.
+- framed +12: sim 32, 54 of 80.
+Framed +12 won the held-out matchup by 2 games (within noise; summed over the three matchups typed leads
+169 to 164), and by the agreed rule it ships: `lang.MEMO_FRAMED` = 12 per hit from a caller with a frame,
+the price set at each call site (MH_).
+
+80 real games each, A61188 vs B792 (real 48) and B792 vs B318 (real 40), at 1x:
+
+| pricing | A61188 vs B792 | B792 vs B318 |
+|---|---|---|
+| bc70ece | 40 wins, 54 / 80 agree | 49 wins, 53 / 80 agree |
+| typed hits, later 800 | 51 wins, 63 / 80 agree | 40 wins, 54 / 80 agree |
+| + framed +12 | 48 wins, 58 / 80 agree | 42 wins, 52 / 80 agree |
+
+BUY_LOCK is now listed only where consumables can be bought (on spawn or dead, as BUY_TP). Before, Tavi
+off spawn listed it, and the engine refused it.
+
+Identity against bc70ece, 80 games: 100x identical for starter, seed, v23, B318, B792 and B792 vs B318
+(44). At 1x the results move with the prices (seed 79 -> 78, B792 79 -> 78, v23 78 -> 79; B318 and
+starter keep their wins).
 
 ## A61188 vs B792 at 1x: why the sim moved from 49 to 40 of 80 (Oct 25)
 

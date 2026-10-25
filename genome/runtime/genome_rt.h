@@ -254,6 +254,7 @@ public:
 	// address-taken local: lang.FRAMED_PRIMS) pays the frame (~12 fuel) on every call. The framed
 	// primitives' prices already carry one frame, so a call is charged it only when it ran none of them
 	// (e.g. a score gene using me() only on MOVE options still pays the frame on every option).
+	double memo_hit = 0; // simulator: the next memoised gene hit's price, set at its call site (MH_)
 	bool frame_open = false;
 	mutable double frame_acc = 0; // frame fuel not yet charged
 	static constexpr double FRAME_FUEL = 12;
@@ -1666,9 +1667,10 @@ public:
 						extra(55);
 					}
 				}
-			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock()) out.add(BUY_LOCK);
 			// consumables only on spawn or while dead (items may be bought elsewhere by Tavi)
-			if (want(BUY_TP) && (!(st & cbs::state_bit::alive) || (row_classes(self_u.pos.y)[self_u.pos.x] & kMySpawn)))
+			const bool cons_shop = !(st & cbs::state_bit::alive) || (row_classes(self_u.pos.y)[self_u.pos.x] & kMySpawn);
+			if (want(BUY_LOCK) && cons_shop && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock()) out.add(BUY_LOCK);
+			if (want(BUY_TP) && cons_shop)
 			{
 				load_cons();
 				extra(TP_BUY_CHECK);
@@ -2082,7 +2084,8 @@ private:
 	}
 };
 
-// FRAME_GUARD at the top of a framed gene, FU_ before each framed primitive (simulator only; nothing in the bot)
+// FRAME_GUARD at the top of a framed gene, FU_ before each framed primitive, MH_(p) before a memoised gene's call
+// (simulator only; nothing in the bot)
 struct FrameGuard
 {
 	Ctx& X;
@@ -2091,9 +2094,11 @@ struct FrameGuard
 	~FrameGuard() { X.frame_close(saved); }
 };
 #ifdef GENOME_BOT
+#define MH_(p) ((void)0)
 #define FRAME_GUARD ((void)0)
 #define FU_ ((void)0)
 #else
+#define MH_(p) (X.memo_hit = (p))
 #define FRAME_GUARD FrameGuard frame_guard_(X)
 #define FU_ X.frame_used()
 #endif
@@ -2187,7 +2192,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	{
 		// the pass guard: a later pass starts only with at least reserve() fuel left
 		if (pass > 0 && !draft && static_cast<double>(X.api.fuel_remaining()) < reserve) break;
-		if (!draft) X.extra(pass == 0 ? 700 : 0); // a turn's fixed work in the bot: an empty turn (consider() lists nothing) costs ~1.13k; later passes' cost is in what they list and score (FUEL.md)
+		if (!draft) X.extra(pass == 0 ? 700 : 800); // a turn's fixed work in the bot: an empty turn (consider() lists nothing) costs ~1.13k; a later pass ~0.8k (fitted with the typed memo-hit prices on real head-to-heads; FUEL.md)
 		X.new_pass();
 #ifdef GENOME_PROF
 		std::int64_t f_upd = 0;
