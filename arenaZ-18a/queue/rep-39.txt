@@ -1,0 +1,34 @@
+```python
+@gene("s1", "value of doing this option now: draft, casts, focus the weakest foe, heal on spawn, cash out a big bag, recall only out of danger")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if under_threat():
+            return 0
+        if me().health_frac < 0.35:
+            return 90
+        if gems() >= 10 and me().health_frac < 0.5:
+            return 90
+        return 45 if gems() == 0 and gold() >= 210 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (1 - o.unit.health_frac)
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health_frac < 0.9 and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "an enemy champion within 5 or an awake camp within its range + 1", parents=["s1"])
+def under_threat() -> Bool:
+    p = me().pos
+    return any(dist(p, u.pos) <= 5 for u in enemies()) or any(is_awake(c) and dist(p, c.pos) <= c.attack_range + 1 for c in camps())
+```

@@ -1,0 +1,6 @@
+```python
+@gene("Z39a", "bag ready to bank: 5+ gems, or any gems late, hurt, or with an enemy champion in sight")
+def bag_ready() -> Bool:
+    g = gems()
+    return g >= 5 or (g > 0 and (round() > 1700 or me().health_frac < 0.5 or count_units(enemies()) > 0))
+```

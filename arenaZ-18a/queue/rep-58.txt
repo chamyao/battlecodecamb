@@ -1,0 +1,24 @@
+```python
+@gene("Z51b", "value of a cast: damage or stun on foes and camps, shield or heal when hurt, attack resets once the attack is spent, dash two steps toward the goal")
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 85 if o.unit == me() and me().health_frac < 0.7 else 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        r = me().attack_range
+        if any(dist(u.pos, me().pos) <= r for u in enemies()):
+            return 88
+        return 66 if gems() == 0 and any(dist(c.pos, me().pos) <= r for c in camps()) else 0
+    if k == AB_DASH:
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy and o.unit.is_champion:
+            return 86
+        if exists(o.unit) and o.unit.is_camp and gems() == 0:
+            return 65
+        if any(u.pos == o.tile for u in enemies()):
+            return 84
+    return 0
+```
