@@ -2958,3 +2958,16 @@
 [04:00:58] [B] birth B1462 (mutate session) of ['B1460'] species S6; 24 genomes $11.08
 [04:01:05] [B] birth B1463 (mutate session) of ['B1451'] species S4; 24 genomes $11.08
 [04:08:43] [B] anchor v27-A61188 frozen at mu 45.54 after 200 games
+[04:11:59] [B] birth B1464 (mutate session) of ['B1460'] species S6; 24 genomes $11.08
+[04:12:16] [B] birth B1465 (mutate session) of ['B1452'] species S4; 24 genomes $11.08
+[04:12:17] [B] birth B1466 (mutate session) of ['B1450'] species S4; 24 genomes $11.08
+[04:12:21] [B] birth B1467 (tune ) of ['B1455'] species S6; 24 genomes $11.08
+[04:12:21] [B] anchor v28-a61188-mono frozen at mu 46.18 after 200 games
+[04:12:44] [B] birth B1468 (cross ) of ['B1390', 'B1448'] species S4; 24 genomes $11.08
+[04:12:45] [B] rejected mutate session: GenomeError: fight_foe line 556: unknown function kill_shot
+[04:12:59] [B] birth B1469 (mutate session) of ['B1413'] species S2; 24 genomes $11.08
+[04:13:02] [B] rejected tune : behavioural twin
+[04:13:15] [B] summary: births 1470 deaths 1447 games 334088 $11.08; top [('B1462', 46.38, 0.81, 736, 'S6'), ('B1464', 46.23, 0.84, 136, 'S6'), ('B1460', 45.75, 0.8, 568, 'S6')]; top vs anchors {'B1462': 0.632, 'B1464': 0.812, 'B1460': 0.669}
+[04:13:15] [B] birth B1470 (mutate session) of ['B1459'] species S4; 24 genomes $11.08
+[04:13:36] [B] birth B1471 (mutate session) of ['B1458'] species S6; 24 genomes $11.08
+[04:13:36] [B] birth B1472 (mutate session) of ['B1460'] species S6; 24 genomes $11.08

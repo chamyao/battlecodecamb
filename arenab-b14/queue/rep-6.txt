@@ -1,0 +1,9 @@
+```python
+@gene('r3', 'retreat on foot: below 30% health and under fire or with a threat near; below 50% when two or more enemy champions are within 4 (outnumbered)', parents=['r3'])
+def r_run() -> Bool:
+    if at_spawn():
+        return False
+    if hurt_below(0.3):
+        return under_fire() or threat_near()
+    return hurt_below(0.5) and enemies_within(4) >= 2
+```

@@ -1,0 +1,18 @@
+```python
+@gene("w9", "the dash landing tile closest to GOAL by walking (first in row-major order on ties), invalid if none; on a retreat, never land within reach of a visible enemy champion", parents=["w9"])
+def dash_spot() -> Tile:
+    if not valid(GOAL) or GOAL == here():
+        return tile(-1, -1)
+    mine = at(FIELD, here())
+    bd = mine
+    s = tile(-1, -1)
+    flee = RULE == 3
+    for t in near(here(), 2):
+        d = at(FIELD, t)
+        if d < bd and t != here() and not (t in BLOCK):
+            if not flee or not any(u.is_champion and dist(u.pos, t) <= u.attack_range + 1 for u in enemies()):
+                if dash_path_ok(t):
+                    bd = d
+                    s = t
+    return s
+```
