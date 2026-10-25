@@ -378,9 +378,29 @@ Mechanism, in order of size:
    to their 1.0, so their spare champion-time goes into kills and more groups. In the sim, forcing solo captures
    (`rejected/v28-solo`: skip groups an ally stands on) gives more captures but loses: 33/80 vs v28, and 5-12 points
    lower vs farmer, hunter and B792, because the pair protects us in fights.
-3. **Treasure shards are wasted.** We buy about 10 by r500 but spread them over about 4 champions, so no Treasure
-   emblem (its +20% gold passive needs 5 matching shards on one champion) is ever completed. This one is for tune-B: the shop
-   plan (a11 next_shard / a15 shard_until) splits each purchase by kind per champion, not by who should carry Treasure.
-   The earlier "carry" test (all of Vesper Vale's shards Treasure-Str: 29/80 vs B318) changed both the gold and the fight
-   stats, so it does not isolate this.
+3. **Correction: Treasure is not wasted.** econ_source.py looked for emblems among shop purchases, but emblems form by
+   themselves from 5 shards, so its "never" was an artefact. From inventories, champions holding a Treasure emblem in
+   real b5: by r250 us 0.28 / them 0.58; by r500 us 2.04 / them 0.92; at the end us 4.0 / them 1.2. What v28 lacks is an
+   early emblem. `directed/v28-emblem` (Treasure shards go to one carrier until its emblem is complete) gets 1.67 by r250
+   (v28: 0.50) in local cambc games, and beats v28 52/80 in the sim (see "v28-emblem" below).
 4. **Draft:** both sides take Vesper Vale (100% / 88%), so the gold passive is not the difference.
+
+
+## v28-emblem (directed; --bot-seeds /80, runtime genome/v0 ca5180b)
+
+v28 + Treasure shards (item 18) go to one carrier (our Vesper Vale, else the champion with the lowest type id) until
+it owns the Treasure emblem. The other champions buy Jungle-HP in place of their Treasure share. After the emblem
+the carrier returns to v28's plan.
+
+**Head to head vs v28: 52/80.** Variants (in rejected/): Vesper Vale only 39/80; no Treasure after the emblem 35/80.
+
+| anchor | L1c | gconv1 | v7 | L1 | rall2 | metadraft | hunter | hunter-carry | farmer | deathball | rushbank | lockall | B318 | B792 | seed | A61188 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v28 | 55 | 60 | 77 | 58 | 60 | 76 | 65 | 59 | 50 | 63 | 53 | 68 | 53 | 52 | 57 | 41 |
+| v28-emblem | 54 | 62 | 77 | 60 | 63 | **72** | 64 | 66 | **46** | 62 | 60 | **64** | 53 | 49 | 59 | 57 |
+
+Three anchors drop by 4: metadraft, farmer and lockall (one game over the bar; SE about ±4.5). Big gains vs A61188
+(+16), rushbank and hunter-carry (+7 each).
+
+Local cambc, v28-emblem vs v28, 6 maps: won 4 of 6. Gold by r250 874 vs 951 and by r500 2,281 vs 2,209. Champions
+with a Treasure emblem by r250 1.67 vs 0.50, by r500 3.0 vs 3.2. Team item points at r500 65 vs 66.
