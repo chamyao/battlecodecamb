@@ -1,0 +1,35 @@
+```python
+@gene('s1', 'value of doing this option now; drafts strong champions, uses abilities, backs off from threats before recalling when low')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o.champ)
+    if o.kind == BUY:
+        return 100 if (o.item == 18 + shop_line() and items_owned(19 + shop_line()) == 0) or (o.item == 36 + shop_line() and items_owned(19 + shop_line()) > 0) else 0
+    low = me().health_frac < 0.35
+    if o.kind == RECALL:
+        if low and threat_gap(me().pos) > 4:
+            return 90
+        return 45 if gold() >= 300 and threat_gap(me().pos) > 4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() < 8 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if low and threat_gap(me().pos) <= 4:
+            return 86 if threat_gap(o.tile) > threat_gap(me().pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "which stat line this champion shops: focus for Marcella and Heart of Ruin, health for Ryth, else strength", parents=["s1"])
+def shop_line() -> Num:
+    t = me().type
+    if t == MARCELLA or t == HEART_OF_RUIN:
+        return 2
+    if t == RYTH:
+        return 4
+    return 0
+```

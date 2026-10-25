@@ -1,0 +1,10 @@
+```python
+@gene('Z6c', 'an enemy champion or awake camp is within r tiles', parents=['s1'])
+def fighting(r: Num) -> Bool:
+    p = me().pos
+    if any(dist(u.pos, p) <= r for u in enemies()):
+        return True
+    if r <= 3 and gems() < 8:
+        return any(dist(c.pos, p) <= r for c in camps())
+    return any(is_awake(c) and dist(c.pos, p) <= r for c in camps())
+```
