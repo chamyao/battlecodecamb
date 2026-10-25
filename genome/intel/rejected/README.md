@@ -298,3 +298,19 @@ Not a pass. The gate removes most monster deaths on starvation and starfish (33 
 ## Superseded (2026-10-25)
 
 A81582-ringgg (Arena B lead: real 0-2 on pilgrimage, gold-rush and broken-curve, so withdrawn) and A81582-rgheal (heal fix on it: vs idle reverse-spiral 115 -> 1007, rushbait 16 -> 1006; 42/80 vs A81582-ringgg; anchors unchanged). Superseded by genome/arenab/cand/A81582-ringheal.genome (real 55/80 vs v29).
+
+## Team rendezvous at strong camp groups, on A81582-ringheal (2026-10-25)
+
+STRONG = groups with design strength 240+, monolith and golem groups excluded. A strong sleeping group is hit only when group_go holds. A champion waiting at one posts a rally (shared slots 20-21), and teammates on the camp walk go to a rally posted within 20 rounds.
+
+Note: allies() lists visible allies only, so "all alive" has to come from a team size counted at round 2 (TEAM_N).
+
+**Columns.** vs idle: monster deaths per game and total rounds over 40 maps. Base A81582-ringheal: 6.53 deaths, 49,606 rounds.
+
+| child | engage when | deaths | rounds | notes |
+|---|---|---|---|---|
+| rdv | 3 of us within 5 | 6.36 | 49,382 | starvation 30.5 deaths: three champions still lose to 4 elks at r90 |
+| rdv5 | whole team (TEAM_N) within 5 | — | — | starvation 11.5 deaths, but starfish stalls (748 gems by r1992) and pilgrimage is +283 rounds |
+| rdv5w | whole team, or after 30 rounds of waiting | 5.83 | 49,338 | worst map +68. 38/80 vs ringheal; anchors net -6 (none significant). Real 2-2: starfish 2-0, starvation 0-2 (144 gems and 40 deaths as B: enemy champions pick off the waiting team) |
+
+Not a pass. Waiting at a strong group costs tempo and exposes the team against real opponents. The solo gain doesn't carry over.
