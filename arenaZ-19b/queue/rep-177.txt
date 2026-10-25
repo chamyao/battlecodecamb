@@ -1,0 +1,5 @@
+```python
+@gene("new", "start of turn: the healer acts after the fighters so it heals fresh damage", parents=["s1"])
+def update() -> None:
+    set_priority(1 if slot_kind(0) == AB_HEAL else 5)
+```
