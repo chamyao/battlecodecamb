@@ -1,0 +1,11 @@
+```python
+@gene("m2", "an altar next to us: not locked if one is free, and among those one no enemy champion stands next to (the tribute channel is not broken)")
+def adj_altar() -> Tile:
+    adj = altars() & near(here(), 1)
+    if size(adj) == 0:
+        return tile(-1, -1)
+    free = adj - locked_altars()
+    s = free if size(free) > 0 else adj
+    hot = ring(enemy_tiles(), 1)
+    return best(s, lambda t: 0 if t in hot else 1)
+```
