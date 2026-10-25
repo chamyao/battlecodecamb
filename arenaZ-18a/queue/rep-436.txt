@@ -1,0 +1,11 @@
+```python
+@gene('Z490j', 'bag ready to bank: 8+ gems, or any gems late, hurt, with an enemy champion in sight or an altar within 4')
+def bag_ready() -> Bool:
+    g = gems()
+    if g >= 6:
+        return True
+    if g == 0:
+        return False
+    return round() > 1700 or me().health_frac < 0.5 or count_units(enemies()) > 0 or any(dist(a, me().pos) <= 4 for a in altars())
+
+```

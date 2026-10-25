@@ -1,0 +1,51 @@
+```python
+@gene('Z403a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag')
+def update() -> None:
+    if not MAPPED:
+        BIGS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        MAPPED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    BAGR = bag_ready()
+    k = goal_key()
+    force = k != GKEY
+    if force:
+        GKEY = k
+        if BAGR:
+            ALT = near(tile(-5, -5), 0)
+            for a in altars() - locked_altars():
+                ALT = ALT | near(a, 1)
+        else:
+            LIVEG = near(tile(-5, -5), 0)
+            REWG = LIVEG
+            for gi in range(num_groups()):
+                if not group_respawning(gi):
+                    gt = group_tiles(gi)
+                    if group_reward(gi):
+                        REWG = REWG | gt
+                    elif size(gt & BIGS) == 0:
+                        LIVEG = LIVEG | gt
+    HIT = me().health < LASTHP - 0.5
+    LASTHP = me().health
+    RETREAT = me().health_frac < 0.32 and (HIT or under_threat())
+    here = me().pos
+    unseen = camp_spawns() - vision() - DEAD
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | unseen) - near(here, 0)
+    tgt = my_spawn() if RETREAT else goals()
+    if here in tgt:
+        GOAL = here
+    elif force or not valid(GOAL) or not (GOAL in tgt) or GOAL == here or round() >= GTURN:
+        cand = tgt - (blk - live - unseen)
+        GOAL = walk_nearest(cand, here, blk - cand)
+        GTURN = round() + 6
+    if GOAL != WGOAL or round() >= WFT or dist(here, GOAL) <= 8 or RETREAT:
+        g = near(GOAL, 0)
+        WF = field_avoid(g, blk - g, near(here, 0))
+        WGOAL = GOAL
+        WFT = round() + 3
+
+```
