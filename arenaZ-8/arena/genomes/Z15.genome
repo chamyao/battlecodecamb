@@ -1,0 +1,108 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene('s1', 'value of doing this option now')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if not carry_mode() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 49 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when hurt, altar when carrying enough, cleared camps to capture, else non-monolith camps')
+def goals() -> Tiles:
+    empty = near(tile(-5, -5), 0)
+    if me().health_frac < 0.35:
+        return my_spawn()
+    if carry_mode():
+        acc = empty
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    reward = empty
+    acc = empty
+    mono = type_spawns(MONOLITH)
+    for g in range(num_groups()):
+        if group_reward(g):
+            reward = reward | group_tiles(g)
+        elif not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & mono) == 0:
+                acc = acc | gt
+    if size(reward) > 0:
+        return reward
+    if size(acc) > 0:
+        return acc
+    if gems() > 0:
+        alt = empty
+        for a in altars() - locked_altars():
+            alt = alt | near(a, 1)
+        if size(alt) > 0:
+            return alt
+    return my_spawn()
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'how much closer a step brings me to the goals (cached field)')
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z4a', 'compute the goal distance field once per turn', parents=['s4'])
+def update() -> None:
+    GF = goal_field()
+
+@gene('Z4b', 'value of casting an ability option', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 75
+            if o.unit.is_camp and gems() == 0:
+                return 55
+        return 0
+    if k == AB_SHIELD:
+        if hf < 0.7 and count_units(enemies()) > 0:
+            return 72
+        return 0
+    if k == AB_HEAL:
+        return 72 if hf < 0.6 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and hf > 0.5:
+            return 45 if progress(o.tile) >= 2 else 0
+        return 0
+    return 0
+
+@gene('Z9a', 'skip listing option kinds score() never values (fuel saver)', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    return True
+
+@gene('Z18a', 'carrying enough gems to be worth a tribute trip now', parents=['Z9a', 's1', 's2', 's3'])
+def carry_mode() -> Bool:
+    g = gems()
+    if g >= 40:
+        return True
+    if g > 0 and round() > 1750:
+        return True
+    return False

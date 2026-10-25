@@ -339,3 +339,86 @@ ladder block removed
 [01:33:01] [Z] birth Z169 (mutate claude-haiku-5-5) of ['Z162'] species S79; 24 genomes $0.76
 [01:33:02] [Z] summary: births 170 deaths 147 games 24312 $0.76; top [('Z160', 31.1, 0.82, 168, 'S69'), ('Z129', 30.91, 0.79, 424, 'S54'), ('Z170', 30.91, 6.0, 0, 'S76')]; top vs anchors {'Z160': 0.5, 'Z129': 0.75, 'Z167': 0.875}
 [01:33:02] [Z] birth Z170 (mutate claude-haiku-5-5) of ['Z129'] species S76; 24 genomes $0.76
+[01:33:15] [Z] rejected tune : behavioural twin
+[01:33:17] [Z] new species S83 founded by Z171
+[01:33:17] [Z] birth Z171 (tune ) of ['Z167'] species S83; 24 genomes $0.76
+[01:33:21] [Z] new species S84 founded by Z172
+[01:33:21] [Z] birth Z172 (mutate claude-haiku-5-5) of ['Z126'] species S84; 24 genomes $0.76
+[01:33:33] [Z] birth Z173 (mutate claude-haiku-5-5) of ['Z160'] species S69; 24 genomes $0.80
+[01:33:36] [Z] birth Z174 (mutate claude-opus-5-5) of ['Z167'] species S81; 24 genomes $0.80
+[01:33:39] [Z] birth Z175 (mutate claude-haiku-5-5) of ['Z127'] species S82; 24 genomes $0.80
+[01:33:54] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:33:56] [Z] new species S85 founded by Z176
+[01:33:56] [Z] birth Z176 (mutate claude-haiku-5-5) of ['Z150'] species S85; 24 genomes $0.80
+[01:33:57] [Z] new species S86 founded by Z177
+[01:33:57] [Z] birth Z177 (mutate claude-haiku-5-5) of ['Z150'] species S86; 24 genomes $0.80
+[01:34:08] [Z] birth Z178 (mutate claude-haiku-5-5) of ['Z152'] species S74; 24 genomes $0.80
+[01:34:13] [Z] new species S87 founded by Z179
+[01:34:13] [Z] birth Z179 (mutate claude-haiku-5-5) of ['Z173'] species S87; 24 genomes $0.80
+[01:34:14] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:34:25] [Z] new species S88 founded by Z180
+[01:34:25] [Z] summary: births 180 deaths 157 games 26016 $0.80; top [('Z129', 30.49, 0.8, 520, 'S54'), ('Z176', 30.47, 0.93, 88, 'S85'), ('Z172', 30.46, 0.83, 144, 'S84')]; top vs anchors {'Z129': 0.75, 'Z176': None, 'Z172': None}
+[01:34:25] [Z] birth Z180 (mutate claude-haiku-5-5) of ['Z159'] species S88; 24 genomes $0.80
+[01:34:32] [Z] new species S89 founded by Z181
+[01:34:32] [Z] birth Z181 (llm_cross claude-haiku-5-5) of ['Z170', 'Z176'] species S89; 24 genomes $0.83
+[01:34:34] [Z] birth Z182 (mutate claude-opus-5-5) of ['Z165'] species S80; 24 genomes $0.83
+[01:34:47] [Z] new species S90 founded by Z183
+[01:34:47] [Z] birth Z183 (llm_cross claude-haiku-5-5) of ['Z119', 'Z177'] species S90; 24 genomes $0.83
+[01:34:53] [Z] new species S91 founded by Z184
+[01:34:53] [Z] birth Z184 (mutate claude-haiku-5-5) of ['Z176'] species S91; 24 genomes $0.83
+[01:34:54] [Z] new species S92 founded by Z185
+[01:34:54] [Z] birth Z185 (llm_cross claude-haiku-5-5) of ['Z176', 'Z170'] species S92; 24 genomes $0.83
+[01:35:03] [Z] birth Z186 (mutate claude-haiku-5-5) of ['Z171'] species S83; 24 genomes $0.83
+[01:35:05] [Z] rejected tune : behavioural twin
+[01:35:10] [Z] birth Z187 (mutate claude-haiku-5-5) of ['Z172'] species S84; 24 genomes $0.83
+[01:35:16] [Z] birth Z188 (tune ) of ['Z180'] species S88; 24 genomes $0.83
+[01:35:19] [Z] birth Z189 (mutate claude-haiku-5-5) of ['Z161'] species S78; 24 genomes $0.83
+[01:35:32] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:35:32] [Z] new species S93 founded by Z190
+[01:35:32] [Z] summary: births 190 deaths 167 games 27384 $0.86; top [('Z186', 31.13, 0.88, 112, 'S83'), ('Z190', 31.02, 6.0, 0, 'S93'), ('Z139', 30.89, 0.8, 440, 'S68')]; top vs anchors {'Z186': None, 'Z139': 0.5, 'Z176': None}
+[01:35:32] [Z] birth Z190 (llm_cross claude-haiku-5-5) of ['Z180', 'Z186'] species S93; 24 genomes $0.86
+[01:35:38] [Z] birth Z191 (mutate claude-opus-5-5) of ['Z181'] species S89; 24 genomes $0.86
+[01:35:41] [Z] birth Z192 (mutate claude-haiku-5-5) of ['Z176'] species S85; 24 genomes $0.86
+[01:35:48] [Z] birth Z193 (mutate claude-haiku-5-5) of ['Z184'] species S91; 24 genomes $0.86
+[01:35:58] [Z] birth Z194 (mutate claude-haiku-5-5) of ['Z126'] species S69; 24 genomes $0.86
+[01:36:03] [Z] birth Z195 (mutate claude-haiku-5-5) of ['Z126'] species S69; 24 genomes $0.86
+[01:36:05] [Z] new species S94 founded by Z196
+[01:36:05] [Z] birth Z196 (llm_cross claude-haiku-5-5) of ['Z175', 'Z126'] species S94; 24 genomes $0.86
+[01:36:16] [Z] birth Z197 (mutate claude-haiku-5-5) of ['Z127'] species S70; 24 genomes $0.86
+[01:36:16] [Z] rejected tune : behavioural twin
+[01:36:23] [Z] new species S95 founded by Z198
+[01:36:23] [Z] birth Z198 (mutate claude-haiku-5-5) of ['Z186'] species S95; 24 genomes $0.86
+[01:36:29] [Z] new species S96 founded by Z199
+[01:36:29] [Z] birth Z199 (mutate claude-haiku-5-5) of ['Z177'] species S96; 24 genomes $0.87
+[01:36:33] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:36:38] [Z] rejected mutate claude-haiku-5-5: GenomeError: update line 70: unknown function Tiles
+[01:36:47] [Z] champion anchor champ4-Z186 (mu 31.2)
+[01:36:47] [Z] summary: births 200 deaths 177 games 28904 $0.90; top [('Z186', 31.21, 0.81, 208, 'S83'), ('Z190', 31.18, 0.83, 160, 'S93'), ('Z188', 30.64, 0.82, 184, 'S88')]; top vs anchors {'Z186': None, 'Z190': None, 'Z188': 0.75}
+[01:36:47] [Z] birth Z200 (mutate claude-opus-5-5) of ['Z129'] species S76; 24 genomes $0.90
+[01:36:49] [Z] new species S97 founded by Z201
+[01:36:49] [Z] birth Z201 (mutate claude-haiku-5-5) of ['Z186'] species S97; 24 genomes $0.90
+[01:36:56] [Z] birth Z202 (llm_cross claude-haiku-5-5) of ['Z190', 'Z158'] species S83; 24 genomes $0.90
+[01:37:06] [Z] new species S98 founded by Z203
+[01:37:06] [Z] birth Z203 (mutate claude-haiku-5-5) of ['Z193'] species S98; 24 genomes $0.90
+[01:37:07] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:37:12] [Z] birth Z204 (mutate claude-haiku-5-5) of ['Z196'] species S94; 24 genomes $0.90
+[01:37:17] [Z] rejected tune : behavioural twin
+[01:37:23] [Z] new species S99 founded by Z205
+[01:37:23] [Z] birth Z205 (mutate claude-haiku-5-5) of ['Z202'] species S99; 24 genomes $0.90
+[01:37:23] [Z] birth Z206 (tune ) of ['Z139'] species S68; 24 genomes $0.90
+[01:37:30] [Z] birth Z207 (mutate claude-haiku-5-5) of ['Z198'] species S95; 24 genomes $0.90
+[01:37:43] [Z] birth Z208 (mutate claude-haiku-5-5) of ['Z198'] species S95; 24 genomes $0.90
+[01:37:45] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:37:56] [Z] new species S100 founded by Z209
+[01:37:56] [Z] birth Z209 (llm_cross claude-opus-5-5) of ['Z190', 'Z129'] species S100; 24 genomes $1.00
+[01:37:59] [Z] summary: births 210 deaths 187 games 30336 $1.00; top [('Z201', 31.92, 0.81, 192, 'S97'), ('Z150', 31.52, 0.79, 560, 'S58'), ('Z210', 30.88, 6.0, 0, 'S93')]; top vs anchors {'Z201': None, 'Z150': None, 'Z188': 0.75}
+[01:37:59] [Z] birth Z210 (mutate claude-haiku-5-5) of ['Z190'] species S93; 24 genomes $1.00
+[01:38:05] [Z] birth Z211 (llm_cross claude-haiku-5-5) of ['Z119', 'Z190'] species S93; 24 genomes $1.00
+[01:38:14] [Z] birth Z212 (mutate claude-haiku-5-5) of ['Z202'] species S99; 24 genomes $1.00
+[01:38:17] [Z] new species S101 founded by Z213
+[01:38:17] [Z] birth Z213 (mutate claude-haiku-5-5) of ['Z202'] species S101; 24 genomes $1.00
+[01:38:23] [Z] birth Z214 (mutate claude-haiku-5-5) of ['Z201'] species S97; 24 genomes $1.00
+[01:38:35] [Z] new species S102 founded by Z215
+[01:38:35] [Z] birth Z215 (mutate claude-haiku-5-5) of ['Z212'] species S102; 24 genomes $1.00
+[01:38:36] [Z] new species S103 founded by Z216
+[01:38:36] [Z] birth Z216 (mutate claude-haiku-5-5) of ['Z212'] species S103; 24 genomes $1.00
