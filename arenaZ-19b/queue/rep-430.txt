@@ -1,0 +1,20 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; never stuck on a dead camp tile of an uncleared group; with a bag worth banking never step next to an enemy champion")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    here = at(f, me().pos)
+    if here == 0:
+        sg = spawn_group(me().pos)
+        if sg >= 0 and not group_reward(sg) and not any(dist(u.pos, me().pos) <= me().attack_range for u in camps()):
+            live = live_field()
+            return at(live, me().pos) - at(live, t)
+    d = here - at(f, t)
+    if d > 0 and gems() >= 10:
+        if any(dist(u.pos, t) <= 1 for u in enemies()):
+            return 0
+    return d
+
+@gene("new", "distance field to the visible living camps, once per pass", parents=["s4"])
+def live_field() -> Field:
+    return field(camp_tiles())
+```
