@@ -1,0 +1,5 @@
+```python
+@gene('s2', 'standing on our spawn region (the spawn set alone: a champion that cannot shop this turn is still on spawn, so it heals there and never recalls from it)')
+def at_spawn() -> Bool:
+    return here() in my_spawn()
+```
