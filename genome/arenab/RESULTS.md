@@ -224,3 +224,7 @@ per-map block on 01gold-rush +417 and 00contest +333 (my runs: contest side B 40
 camp deaths -0.8; great_wall monolith deaths 35 -> 1. Stuck champion-rounds up 12.7 -> 31.5 (to check).
 elk_arena vs NotSoLonely still 18-1008: gg6 armed, but their team farms the gem groups from r37, so m11 finds them
 respawning and falls back to gold groups. A contest/fight question, not the buy gate. First winning band batch.
+
+## Oct 25 07:50: v32 = B1873 live (bundle 52a3fb56)
+b8 stuck-round rise: boss_battle carriers frozen by the altar-blocking monolith (rmab case; B1873 has the exemption),
+broken_curve one spell, corridors pre-existing. Batch 9 (paired with b8) at 08:13 watches boss_battle, gold_rush, contest.
