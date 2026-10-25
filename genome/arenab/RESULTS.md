@@ -323,3 +323,11 @@ same way), 0 crashes. Not testable locally without an opponent that contests the
 stress-contest-r150 (cand/): v33 but on MONO_ONLY maps the team goes for the monoliths from r150 at priority 120. vs v33 real:
 contest 0-2 (it loses), 39/80 overall. An early monolith rush does not reproduce the ladder losses; waiting for intel's
 replay description of the contest-winning opponents before the next try.
+
+## Oct 25 ~13:10: contest stress bot, second try (intel replay sketch)
+Intel, 4 ranked contest losses: ~half our deaths are within 6 of a monolith and outnumbered; the games turn on 200-gem monolith
+carriers dying (ours 1-3/game, theirs 0-2), half right after capture and half on the walk; they kill us more in the field.
+stress-contest-hunt (cand/): v33 + after r850 on MONO_ONLY maps chase enemy carriers of 100+ gems within 12 (priority 135).
+vs v33 real: contest 1-1 by side (side A wins both, as in every v33-family pairing), 37/80 overall, 0 crashes.
+Neither stress bot reproduces the ladder pattern: between v33-family bots, contest is decided by side. Stopping here; the
+opponents beat us there on field fighting, the same per-champion strength gap as the early game.
