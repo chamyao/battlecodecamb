@@ -145,3 +145,4 @@ Two constants: a5 ahead_on d <= 5 -> 4; r5 cash-out g < 5 -> 3.
 
 genome/candidates/v33-ahead4.genome, sha256 7bead1581516d949... (genome/arenab). Splits v34's two edits.
 - tune-B real cambc: 43 vs v33, 44 vs v32, 46 vs v31, 58 vs farmer, 68 vs rushbank. Solo identical to v33.
+- My real cambc vs v33, 40 maps x 2 sides: 44/80, 0 crashes. GO to intel as v36; validation b12 paired vs b10 and b11.
