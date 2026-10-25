@@ -1,0 +1,7 @@
+```python
+@gene('w7', 'a dash may land on p: adjacent tiles always (no middle needed), else a free middle tile (precomputed in update) next to p', parents=['w7'])
+def dash_path_ok(p: Tile) -> Bool:
+    if dist(here(), p) <= 1:
+        return True
+    return any(dist(q, p) <= 1 for q in DASH_FREE)
+```

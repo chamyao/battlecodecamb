@@ -1,0 +1,9 @@
+```python
+@gene("r9", "pre-fight bank: 5+ gems, an enemy can reach us within 3 turns but not before the tribute channel (ceil(gems/10) turns) completes, altar next to us; a channel the enemy would stun is not started")
+def r_prefight() -> Bool:
+    g = gems()
+    if g < 5 or not valid(adj_altar()):
+        return False
+    te = threat_eta()
+    return te <= 3 and floor((g + 9) / 10) <= te
+```
