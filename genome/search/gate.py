@@ -120,16 +120,60 @@ def sign_p(drops, gains):
     return sum(math.comb(n, k) for k in range(drops, n + 1)) / 2 ** n if n else 1.0
 
 
-def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, exclude=(), bars=None, rater=None):
+SOLO_CAP = 4000
+
+
+def solo_farm(spec, threads):
+    """Rounds to 1000 gems per map vs builtin:idle (the 80 distinct games, bot seeds), the mean of the two sides. A game
+    that ends at round 2000 short of 1000 gems counts 2000 + (1000 - gems) / (gems / 2000), i.e. extrapolated at its own
+    average rate, capped at SOLO_CAP (also for 0 gems)."""
+    from .score import EVAL
+    maps = sorted(MAPS)
+    out = subprocess.run([str(EVAL), "--a", spec, "--b", "builtin:idle", "--games", str(2 * len(maps)), "--threads",
+                          str(threads), "--seed", str(SEED), "--bot-seeds", "--details", *maps],
+                         capture_output=True, text=True, timeout=3600)
+    if out.returncode != 0:
+        raise RuntimeError(f"genome_eval exit {out.returncode}: {out.stderr[-300:]}")
+    per = {}
+    for line in out.stdout.splitlines():
+        d = json.loads(line) if line.strip().startswith("{") else {}
+        if "a_side" not in d:
+            continue
+        g = d["gems"][1 if d["a_side"] == "B" else 0]
+        r = d["rounds"] if g >= 1000 else min(SOLO_CAP, 2000 + (1000 - g) * 2000 / g) if g > 0 else SOLO_CAP
+        per.setdefault(Path(d["map"]).stem, []).append(r)
+    return {m: round(sum(v) / len(v), 1) for m, v in sorted(per.items())}
+
+
+def solo_check(cand, ref, max_slower=150):
+    """Block if the total rounds to 1000 gems is worse than the live bot's, or any map is > max_slower rounds slower."""
+    deltas = {m: round(cand[m] - ref[m], 1) for m in ref if m in cand}
+    total_c, total_r = round(sum(cand.values()), 1), round(sum(ref.values()), 1)
+    slow = {m: d for m, d in deltas.items() if d > max_slower}
+    return {"total": total_c, "ref_total": total_r, "max_slower": max_slower, "slower_maps": slow, "deltas": deltas,
+            "blocks": total_c > total_r or bool(slow)}
+
+
+def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, exclude=(), bars=None, rater=None,
+                solo=True, early_exit=True):
     """The paired rule: head-to-head vs the live bot >= min_wins over all 80 games; an anchor blocks only if a one-sided
     sign test on the diverging games (same map and side, candidate vs ref) gives p < sign_alpha for a drop. Maps in
-    `exclude` are left out of the anchor rows only. Needs a rater with per-game results (local)."""
+    `exclude` are left out of the anchor rows only. With solo, the solo-farm check (solo_farm/solo_check) runs first and,
+    with early_exit, a block there skips the anchor rows. Needs a rater with per-game results (local)."""
     R = rater or LocalRater()
     spec, rspec = R.side(text, "genome"), R.side(ref)
     w, n = R.rate(spec, rspec, threads)
     rec = {"h2h_wins": w, "h2h_games": n, "h2h": w / n, "clear": w >= min_wins, "rule": "paired sign test",
            "sign_alpha": sign_alpha, "anchor_rows_exclude": list(exclude)}
     bars = {} if bars is None else bars
+    if solo:  # the solo-farm check (vs builtin:idle) runs before the anchor rows: it is cheap and fails early
+        key = f"{Path(ref).name}|solo"
+        if key not in bars:
+            bars[key] = solo_farm(rspec, threads)
+        rec["solo_farm"] = solo_check(solo_farm(spec, threads), bars[key])
+        if rec["solo_farm"]["blocks"] and early_exit:
+            rec.update(anchor_deltas={}, blocked_by=["solo_farm"], passed=False)
+            return rec
     rows = {}
     for anc in anchors:
         key = f"{Path(ref).name}|{Path(anc).name}|games"
@@ -144,7 +188,7 @@ def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, excl
                                 "diverging": drops + gains, "drops": drops, "gains": gains, "p": round(pv, 4),
                                 "blocks": pv < sign_alpha}
     rec["anchor_deltas"] = rows
-    rec["blocked_by"] = [a for a, r in rows.items() if r["blocks"]]
+    rec["blocked_by"] = [a for a, r in rows.items() if r["blocks"]] + (["solo_farm"] if rec.get("solo_farm", {}).get("blocks") else [])
     fw, fn = R.rate(spec, rspec, threads, fuel_mult=10.0)
     rec.update(h2h_fuel10_wins=fw, h2h_fuel10=fw / fn)
     rec["passed"] = rec["clear"] and not rec["blocked_by"]
