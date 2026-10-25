@@ -1,0 +1,15 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; while carrying 10+ gems, no credit for stepping into reach of enemy champions that outnumber us there")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if d > 0 and gems() >= 10 and exposed(t):
+        return 0
+    return d
+
+@gene("new", "visible enemy champions that could hit this tile next turn outnumber my allies near it", parents=["s4"])
+def exposed(t: Tile) -> Bool:
+    e = count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+    if e == 0:
+        return False
+    return e > count(dist(u.pos, t) <= 3 for u in allies())
+```

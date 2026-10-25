@@ -1,0 +1,37 @@
+```python
+GK: Num = -1
+
+@gene("s2", "where to walk: an altar with gems, else the living camp tiles (no monolith or golem, no enemy champion near) that no visible ally is closer to")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    safe = acc - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    for u in enemies():
+        safe = safe - near(u.pos, 3)
+    if size(safe) == 0:
+        return acc
+    p = me().pos
+    mine = near(tile(-5, -5), 0)
+    for t in safe:
+        d = dist(p, t)
+        if not any(dist(u.pos, t) < d for u in allies() if dist(u.pos, p) > 0):
+            mine = mine | near(t, 0)
+    return mine if size(mine) > 0 else safe
+
+@gene("Z17a", "recompute the goal distance field only when the goal set changes; skip while channeling or dead")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = goals()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+```

@@ -1,0 +1,41 @@
+```python
+@gene("Z22a", "where to walk: altars when carrying, else the team target group from shared byte 0 (monolith and golem excluded), else all safe goals")
+def goal_set() -> Tiles:
+    gs = goals()
+    if gems() > 0:
+        return gs
+    g = read_shared(0) - 1
+    if g >= 0 and g < num_groups() and not group_respawning(g):
+        return group_tiles(g)
+    rest = gs - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    return rest if size(rest) > 0 else gs
+
+@gene("Z17a", "pick and share a team target group when none is live; recompute the walk field only when the goal set changes")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    if gems() == 0:
+        g = read_shared(0) - 1
+        if g < 0 or g >= num_groups() or group_respawning(g):
+            write_shared(0, nearest_group() + 1)
+    gs = goal_set()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene("new", "the living camp group nearest to me, monolith and golem spawns excluded (-1 if none)", parents=["Z17a"])
+def nearest_group() -> Num:
+    p = me().pos
+    bd = INF
+    bg = -1
+    for h in range(num_groups()):
+        if not group_respawning(h):
+            ts = group_tiles(h) - type_spawns(MONOLITH) - type_spawns(GOLEM)
+            if size(ts) > 0:
+                d = dist(nearest(ts, p), p)
+                if d < bd:
+                    bd = d
+                    bg = h
+    return bg
+```

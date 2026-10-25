@@ -1,0 +1,46 @@
+```python
+@gene("s1", "value of doing this option now; flee then recall when hurt; dash to travel or escape; hunt weak or gem-laden enemy champions when healthy")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac >= 0.4:
+            return 0
+        return 0 if in_fight() else 90
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return dash_value(o.tile)
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 10 + min(unit_gems(o.unit), 30) * 0.2
+        if gems() == 0:
+            return 60
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.4 and in_fight():
+            g = threat_dist(o.tile) - threat_dist(me().pos)
+            return 95 + g if g > 0 else 0
+        if me().health_frac > 0.6:
+            w = prey()
+            if exists(w):
+                return 70 if dist(o.tile, w.pos) < dist(me().pos, w.pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "a visible enemy champion within 5 worth chasing: low health, or carrying 10+ gems while we are not outnumbered", parents=["s1"])
+def prey() -> Unit:
+    p = me().pos
+    w = best(enemies(), lambda u: (1 - u.health_frac) * 20 + min(unit_gems(u), 40) - dist(u.pos, p) * 2)
+    if not exists(w) or dist(w.pos, p) > 5:
+        return best(allies(), lambda u: 0 - 1000)
+    if w.health_frac < 0.4:
+        return w
+    if unit_gems(w) >= 10 and count(dist(u.pos, p) <= 5 for u in enemies()) <= count(dist(u.pos, p) <= 5 for u in allies()):
+        return w
+    return best(allies(), lambda u: 0 - 1000)
+```
