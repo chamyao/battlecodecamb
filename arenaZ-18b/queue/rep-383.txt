@@ -1,0 +1,59 @@
+```python
+@gene('s1', 'value of doing this option now: draft Vesper Vale, Stellar, Prism, Ren, Tavi; jungle strength then bruiser health shards; attack resets, spells and dashes; focus weak or gem-rich champions and weak camps; recall when out of reach or to shop when rich and safe; walk home when hurt with enemies or awake camps near')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return (10 if o.champ == VESPER_VALE else (9 if o.champ == STELLAR else (8 if o.champ == PRISM else (7 if o.champ == REN else (6 if o.champ == TAVI else 1)))))
+    if o.kind == BUY:
+        return 100 + o.count if o.item == (28 if items_owned(29) == 0 else 36) else 0
+    if o.kind == RECALL:
+        return 54 if me().health_frac < 0.35 or (gold() >= 138 and count_units(enemies()) == 0 and gems() == 0) else 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_RESET:
+            return reset_value()
+        return spell_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + min(unit_gems(o.unit), 50) / 5 + 6 * (1 - o.unit.health_frac)
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if (me().health_frac < 0.35 or (gems() >= 20 and me().health_frac < 0.5)) and (count_units(enemies()) > 0 or any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())):
+            return 95 if progress(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals, or to an enemy champion within 7 tiles carrying 6 or more gems when above half health with an ally close")
+def progress(t: Tile) -> Num:
+    if me().health_frac > 0.5:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 6 and dist(prey.pos, me().pos) <= 7 and count(dist(x.pos, me().pos) <= 4 for x in allies()) >= 2:
+            return dist(prey.pos, me().pos) - dist(prey.pos, t)
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene("Z324d", "set the goal field from cached fields: home field built once, altar field and the camp field (groups worth 10+ gems) every 5 rounds or once reached")
+def update() -> None:
+    if not INIT:
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35:
+        GF = HF
+    elif gems() > 0:
+        if round() - AT >= 8:
+            AF = field(goals())
+            AT = round()
+        GF = AF
+    else:
+        if round() - CT >= 5 or at(CF, me().pos) <= 0:
+            t = goals()
+            poor = near(tile(-5, -5), 0)
+            for g in range(num_groups()):
+                if group_gems(g) < 10:
+                    poor = poor | group_tiles(g)
+            if size(t - poor) > 0:
+                t = t - poor
+            CF = field(t)
+            CT = round()
+        GF = CF
+```

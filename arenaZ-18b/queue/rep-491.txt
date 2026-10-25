@@ -1,0 +1,10 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, or to an enemy champion within 7 tiles carrying 6 or more gems when above half health with an ally close")
+def progress(t: Tile) -> Num:
+    if me().health_frac > 0.5:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 6 and dist(prey.pos, me().pos) <= 7 and count(dist(x.pos, me().pos) <= 4 for x in allies()) >= 2:
+            return dist(prey.pos, me().pos) - dist(prey.pos, t)
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```

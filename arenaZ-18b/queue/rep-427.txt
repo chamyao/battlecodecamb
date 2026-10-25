@@ -1,0 +1,44 @@
+```python
+@gene('Z426c', 'value of a spell: attack resets once the basic attack is spent, damage, aoe and cc on enemy champions or adjacent camps, ground aoe where it hits several targets, shield and heal early, dash toward the goal', parents=['s1'])
+def spell_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if not exists(o.unit):
+            if not valid(o.tile):
+                return 0
+            r = slot_radius(o.slot)
+            hits = count(dist(u.pos, o.tile) <= r for u in enemies() if u.is_champion) * 3 + count(dist(c.pos, o.tile) <= r for c in camps())
+            if hits == 0:
+                return 0
+            return 60 + 5 * hits if gems() == 0 or hits >= 3 else 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and gems() == 0:
+            return 65
+        return 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        reach = me().attack_range
+        if any(dist(u.pos, me().pos) <= reach for u in enemies() if u.is_champion):
+            return 90
+        if gems() == 0 and any(dist(c.pos, me().pos) <= reach for c in camps()):
+            return 62
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 88 if me().health_frac < 0.77 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and progress(o.tile) >= 2:
+            return 55
+        return 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals, or to an enemy champion within 7 tiles carrying 6 or more gems when above half health with an ally close")
+def progress(t: Tile) -> Num:
+    if me().health_frac > 0.5:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 6 and dist(prey.pos, me().pos) <= 7 and count(dist(x.pos, me().pos) <= 4 for x in allies()) >= 2:
+            return dist(prey.pos, me().pos) - dist(prey.pos, t)
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```
