@@ -120,3 +120,16 @@ After the fix (genome/fuel 0b1c4281, both bots rebuilt there), real cambc --rele
 - vs a do-nothing cambc bot: elk-arena 1796 -> 1272 rounds, gold-rush 2000 -> 1460, yellow-brick-road 1522 -> 867;
   broken-curve, stampede, shortcut still 2000 for both.
 - v29-gg vs v29 head to head: 39/80, 0 crashes; capped normal turns 292 vs 350.
+
+## A81582-ringgg = A81582 (Arena A, gate pass vs v29) + intel's ring fix + weak-gem-groups-first
+
+Sim, bot seeds (vs idle: total rounds / games short of 1000 / deaths per game):
+A81582 100,601 / 10 / 6.16; A81582-ring 100,368 / 9 / 6.40; **A81582-ringgg 96,568 / 8 / 5.95**.
+H2h: ringgg vs v29 45/80, vs A81582 39/80; ring vs v29 49/80.
+
+Real cambc --release, all built at genome/v0 fd778fc (has the group_gems fix):
+- **A81582-ringgg vs v29: 49/80**, 0 crashes (first turns at cap 30 vs 26; capped normal turns 473 vs 307).
+- vs a do-nothing cambc bot, rounds to 1000 (2000 = not reached), A81582 -> ringgg: broken-curve 2000 -> 1258,
+  elk-arena 1978 -> 1268, pilgrimage 1680 -> 1307, yellow-brick-road 969 -> 702, gold-rush 1359 -> 1432,
+  starfish 1083 -> 1220, starvation 1650 -> 1864, stampede 1674 = 1674, contest/shortcut 2000 both.
+  Sum over the 10 maps 16,393 -> 14,725.
