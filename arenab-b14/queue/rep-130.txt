@@ -1,0 +1,5 @@
+```python
+@gene('s8', 'under fire: in danger, or an enemy champion within 6 that could hit me before a 5-turn recall finishes (slow or walled-off ones no longer stop a cash-out)')
+def under_fire() -> Bool:
+    return in_danger() or (enemies_within(6) > 0 and threat_eta() <= 5)
+```

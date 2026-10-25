@@ -1,0 +1,11 @@
+```python
+@gene("w6", "how much closer a step onto t brings me to GOAL (0: no walk this turn); turn-start field and blocks; while carrying 8+ gems a step into an enemy champion's reach (range + 1) counts for a third, so equal-length routes keep the bag away from kill bounties")
+def step_gain(t: Tile) -> Num:
+    if not OPEN or t in BLOCK:
+        return 0
+    g = at(FIELD, here()) - at(FIELD, t)
+    if g > 0 and gems() >= 8:
+        if any(dist(u.pos, t) <= u.attack_range + 1 for u in enemies()):
+            return g * 0.34
+    return g
+```

@@ -1,0 +1,21 @@
+```python
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer; else any safe altar, else any altar; with 15+ gems and an enemy champion within 6, the nearest open altar tile of any kind when it is clearly nearer (bank before the bag becomes a bounty)', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if gems() >= 15 and enemies_within(6) > 0:
+        c = bank_t3()
+        if valid(c):
+            best_safe = a if valid(a) else b
+            if not valid(best_safe) or dist(here(), c) + 3 < dist(here(), best_safe):
+                return c
+    if valid(a) and valid(b):
+        if dist(here(), b) + 4 < dist(here(), a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```
