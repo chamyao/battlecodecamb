@@ -331,3 +331,17 @@ Not a pass. Waiting at a strong group costs tempo and exposes the team against r
 - elkring 1-1, corners 1-1, lanes 1-1, eight 1-1
 
 Rejected. Walking home alone when outnumbered gets the champion caught, and costs the team its fights.
+
+## Value-weighted camp choice on B1873 (2026-10-25)
+
+**B1873-value**: the camp walk goes to the live group with the most reward per round of travel and clearing, reward / (distance + design health / my strength). It uses one representative tile per group (REP, round 3), and gg6's gem-first branch stays on top.
+
+**Against idle, all 40 maps (B1873: 47,923 rounds, 2.3 suspensions per game):**
+
+| version | total rounds | suspensions per game | monster deaths per game |
+|---|---|---|---|
+| gold reward, scored every pass | 60,894 | 40.5 | — |
+| scored in update() every 10 rounds | 57,774 | 10.3 | — |
+| reward gold + 10 × gems, before r300 only | 51,443 | 9.1 | 5.96 (B1873: 4.53) |
+
+Rejected. Ranking groups by value sends the whole team to the same distant rich group. Nearest-first spreads the champions out and starts farming sooner, and the per-group scans cost fuel (suspensions). The early capture-pace gap in b9 is better attacked through deaths (fights) than through camp choice.
