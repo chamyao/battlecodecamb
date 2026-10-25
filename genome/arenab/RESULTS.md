@@ -299,3 +299,12 @@ outside MONO_GROUPS".
 Real /80 vs v33, 0 crashes: B2137 40, B2130 (champ43) 39, B2143 39, B2049 (champ41) 35, B2088 (champ42) 31 (capped 519).
 The population now plays v29-ringgg to ~even in the sim (445/904). Two legs without a real pass: the arena ranks by
 sim games, and on this lineage the sim and real disagree (B1873 37 sim / 47 real; now the reverse for its descendants).
+
+## Oct 25 ~11:40: tune-B fight constants on v33: sim passes, real fails
+| variant | sim /80 vs v33 (tune-B) | real /80 vs v33 |
+|---|---|---|
+| thr9 + kill185 (r12 hurt radius 7 -> 9; c0 kill-shot priority 165 -> 185) | 48 | 37 |
+| thr9 | 48 | 38 |
+| kill185 | 43 | 38 |
+All 0 crashes. On the B1873 line the sim h2h no longer predicts real in either direction (B1873 37 sim / 47 real; these
+48 sim / 37-38 real). From here, tune-B candidates are confirmed in real cambc before being reported.
