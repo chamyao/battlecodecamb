@@ -1,0 +1,12 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; standing on a dead camp tile of an uncleared group, step toward the nearest living camp instead")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    here = at(f, me().pos)
+    if here == 0:
+        sg = spawn_group(me().pos)
+        if sg >= 0 and not group_reward(sg) and not any(dist(u.pos, me().pos) <= me().attack_range for u in camps()):
+            live = field(camp_tiles())
+            return at(live, me().pos) - at(live, t)
+    return here - at(f, t)
+```

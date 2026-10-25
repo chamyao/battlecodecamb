@@ -1,0 +1,5 @@
+```python
+@gene("Z263a", "start of turn: the healer acts last, Vesper Vale first, so damage lands before heals")
+def update() -> None:
+    set_priority(1 if slot_kind(0) == AB_HEAL else (7 if me().type == VESPER_VALE else 5))
+```
