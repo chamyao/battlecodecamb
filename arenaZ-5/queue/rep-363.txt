@@ -1,0 +1,26 @@
+```python
+@gene('Z18a', 'value of casting: heal the most hurt target ahead of damage, shield when hurt, damage/cc on enemy champions or camps we fight, dash toward goals (urgently when fleeing hurt)', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy and not o.unit.is_camp:
+            return 88 if o.unit.health_frac < 0.75 else 0
+        return 88 if hf < 0.6 else 0
+    if k == AB_SHIELD:
+        return 86 if hf < 0.75 and count_units(enemies()) > 0 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and not exists(o.unit):
+            if hf < 0.3 and gems() == 0 and count_units(enemies()) > 0:
+                return 80 if progress(o.tile) >= 2 else 0
+            return 38 if progress(o.tile) >= 2 else 0
+        return 0
+    if not exists(o.unit):
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 62
+    return 0
+```

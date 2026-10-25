@@ -1,0 +1,18 @@
+```python
+@gene('Z73a', 'distance field to the goals, or to my spawn when nearly dead without gems; below 50% health the path avoids tiles near visible enemy champions', parents=['s3'])
+def safe_field() -> Field:
+    hf = me().health_frac
+    home = hf < 0.3 and gems() == 0
+    dest = my_spawn() if home else goals()
+    if hf < 0.5:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        if size(danger) > 0:
+            return field_avoid(dest, danger | walls() | holes() | altars() | enemy_spawn(), near(tile(-5, -5), 0))
+    if home:
+        return field(dest)
+    return goal_field()
+```

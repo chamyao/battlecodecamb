@@ -1,0 +1,19 @@
+```python
+@gene('Z297a', 'after acting: announce a fight with an enemy champion (attack or cast tile + round, or my own tile when one is on me) in shared bytes 0-2 so allies can join', parents=['Z73a'])
+def after() -> None:
+    t = tile(-5, -5)
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+    if not (valid(t) and t in enemy_tiles()) and acted(CAST):
+        t = acted_tile(CAST)
+    if not (valid(t) and t in enemy_tiles()):
+        here = me().pos
+        if any(u.is_champion and dist(u.pos, here) <= 2 for u in enemies()):
+            write_shared(0, here.x + 1)
+            write_shared(1, here.y + 1)
+            write_shared(2, round() % 250 + 1)
+        return
+    write_shared(0, t.x + 1)
+    write_shared(1, t.y + 1)
+    write_shared(2, round() % 250 + 1)
+```
