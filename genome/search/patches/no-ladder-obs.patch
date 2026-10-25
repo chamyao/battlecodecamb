@@ -1,0 +1,14 @@
+--- a/genome/search/prompts.py
++++ b/genome/search/prompts.py
+@@ -7,7 +7,10 @@
+ 
+ LANGUAGE = (Path(__file__).resolve().parent.parent / "LANGUAGE.md").read_text()
+ 
+-FACTS = GAME.replace("Every block a bot runs costs fuel", "Every operation and engine call a bot runs costs fuel") + """\
++# arenaZ-6: the funsearch.catalog "Observations from today's top-12 ladder games" block is left out of the prompt
++_OBS = GAME.index("Observations from today's top-12 ladder games")
++_GAME = GAME[:_OBS] + GAME[GAME.index("Bruiser (Power Strength for Vesper Vale).\n", _OBS) + len("Bruiser (Power Strength for Vesper Vale).\n"):]
++FACTS = _GAME.replace("Every block a bot runs costs fuel", "Every operation and engine call a bot runs costs fuel") + """\
+ In a genome, compiled gene code is cheap (a few fuel per operation); engine calls (distance fields
+ via field(), vision queries such as enemies()/camps()) cost more. A turn over budget is suspended.
+ """
