@@ -260,6 +260,9 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   (v34 paired vs v33: gems -33, 4 L->W / 8 W->L; gems lost on death 105 vs 80; cash-at-3 put carriers in fights.)
   36 = genome v33-ahead4 (v34 without the cash3 edit; live 14:56:30 UTC Oct 25). Real vs v33 44/80, 0 crashes.
   Revert target: v33 (37e7be1a).
+  v36 band batch 12: 31-19 vs v33's 32-18, gems -40.
+  37 = v33's bundle again (37e7be1a, 15:28:27 UTC Oct 25). Genome line's new bar: constant-only tweaks need >=46/80
+  real vs live. Next lever: champion fights (deaths to champions 6/game in wins vs 16 in losses).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
