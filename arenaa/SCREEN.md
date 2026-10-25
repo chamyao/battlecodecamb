@@ -75,3 +75,16 @@ screening control. New controls carry the rule in the starting prompt:
 
 Comparison: screened legacy runs (Z-20a/b, plus Z-19a/b and Z-18b as extra screened data) vs Z-21a/b. The decision
 rule is as above, with Z-21a/b as the controls.
+
+## First control milestones (12:35 UTC)
+
+| run | treatment | m1 | births at m1 |
+| --- | --- | --- | --- |
+| Z-20a | screened | 365 | 112 |
+| Z-20b | screened | 367 | 110 |
+| Z-21a | no own games | 339 | 186 |
+| Z-21b | no own games | 272 | 175 |
+
+Per birth, screening leads (365/367 at ~110 vs 339/272 at ~180). Per wall hour the controls are faster: at 12:19,
+Z-21 had ~290 births in 75 min and Z-20 ~190 in 3h15. The verdict needs both views; the final comparison is at
+matched births and at matched wall time.
