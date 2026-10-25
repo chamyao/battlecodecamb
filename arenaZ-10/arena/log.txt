@@ -760,3 +760,11 @@
 [04:59:19] [Z] birth Z401 (mutate session) of ['Z357'] species S195; 24 genomes $0.00
 [05:02:02] [Z] summary: births 401 deaths 378 games 73152 $0.00; top [('Z400', 37.18, 0.83, 168, 'S188'), ('Z377', 37.0, 0.81, 352, 'S185'), ('Z394', 36.86, 0.83, 208, 'S186')]; top vs anchors {'Z400': 0.75, 'Z377': 1.0, 'Z394': 0.875}
 [05:02:04] [Z] done: spent $0.00
+[05:03:56] [Z] resumed: 24 genomes, 401 births, 9144 matches, spent $0.00
+[05:03:56] [Z] fixed anchors: starter-anchor 25.00, champ1-Z45 30.05, champ2-Z92 32.04, champ3-Z137 34.11, champ4-Z191 33.83, champ5-Z239 35.27, champ6-Z285 34.69, champ7-Z347 36.05, champ8-Z396 37.83
+[05:04:23] [Z] rejected tune : behavioural twin
+[05:05:04] [Z] birth Z402 (mutate session) of ['Z399'] species S185; 24 genomes $0.00
+[05:05:17] [Z] birth Z403 (mutate session) of ['Z392'] species S194; 24 genomes $0.00
+[05:05:45] [Z] birth Z404 (mutate session) of ['Z390'] species S193; 24 genomes $0.00
+[05:06:00] [Z] new species S196 founded by Z405
+[05:06:00] [Z] birth Z405 (llm_cross session) of ['Z396', 'Z398'] species S196; 24 genomes $0.00
