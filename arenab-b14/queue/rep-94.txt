@@ -1,0 +1,13 @@
+```python
+@gene("i1", "camp in reach worth hitting: not in a monolith's group (a hit wakes the group), unless the team goes for monoliths (intel GAPS #1); not while 2+ enemy champions within 6 outnumber us there (a raid would third-party the fight)", parents=["s14"])
+def farmable(c: Unit) -> Bool:
+    if not in_reach(c):
+        return False
+    if camp_spawn(c) in MONO_GROUPS and not r_mono():
+        return False
+    h = here()
+    foes = count(dist(h, u.pos) <= 6 for u in enemies())
+    if foes < 2:
+        return True
+    return 1 + count(dist(h, u.pos) <= 6 and u.pos != h for u in allies()) >= foes
+```

@@ -1,0 +1,15 @@
+```python
+@gene('a6', 'fight casts: shield/heal on self when hurt or the slot at TGT first; damage and stun on the fight target by tile or unit; attack resets once the attack is spent')
+def strike_cast(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD or k == AB_HEAL:
+        if o.unit == me():
+            return 180 - o.slot if hurt_below(0.5) else 170 - o.slot
+        return 0
+    if k == AB_RESET:
+        return 150 - o.slot if not can_attack() else 0
+    if o.tile == TGT:
+        return 170 - o.slot
+    if exists(o.unit) and o.unit.pos == TGT:
+        return 170 - o.slot
+    return 0
+```

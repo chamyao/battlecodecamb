@@ -1,0 +1,13 @@
+```python
+@gene("r16", "standing on a cleared camp spawn: hold so the capture timer runs, unless enemy champions on the group outnumber us there (a contest we cannot win only resets the timer)")
+def r_hold() -> Bool:
+    g = spawn_group(here())
+    if g < 0 or not group_reward(g):
+        return False
+    gt = ring(group_tiles(g), 1)
+    foes = count(u.pos in gt for u in enemies())
+    if foes == 0:
+        return True
+    mates = 1 + count(u.pos in gt and u.pos != here() for u in allies())
+    return mates >= foes
+```

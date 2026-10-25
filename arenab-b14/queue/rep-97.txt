@@ -1,0 +1,27 @@
+```python
+@gene("c2", "the altar or unit tile this turn's rule acts on; a fight focuses the in-reach enemy champion we can kill now, else the one our allies are already on, else the lowest effective health (health plus shield), gem carriers weighted up")
+def rule_target() -> Tile:
+    r = rule()
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        f = best(enemies(), lambda u: focus_score(u) if in_reach(u) else -INF)
+        if exists(f) and in_reach(f):
+            return f.pos
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+
+@gene("new", "focus-fire score of an enemy champion: a kill now first, then allies already next to it, low effective health and carried gems", parents=["c2", "s13"])
+def focus_score(u: Unit) -> Num:
+    ehp = u.health + shield(u)
+    v = 0 - ehp
+    if attack_damage(me(), u) >= ehp:
+        v += 10000
+    v += 150 * count(dist(a.pos, u.pos) <= 2 and a.pos != here() for a in allies())
+    v += 5 * unit_gems(u)
+    return v
+```

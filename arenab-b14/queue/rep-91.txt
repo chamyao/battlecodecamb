@@ -1,0 +1,5 @@
+```python
+@gene("w12", "tiles held by something other than a camp (never a goal); spawns of respawning groups stay goals so we can wait on them")
+def taken() -> Tiles:
+    return blocked() - camp_block() - respawning()
+```

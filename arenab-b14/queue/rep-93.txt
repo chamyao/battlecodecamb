@@ -1,0 +1,9 @@
+```python
+@gene("a16", "units of the next shard still to buy (first five kinds of the split)")
+def shard_left() -> Num:
+    d = shards_done()
+    for k in range(5):
+        if d < shard_until(k + 1):
+            return shard_until(k + 1) - d
+    return 0
+```

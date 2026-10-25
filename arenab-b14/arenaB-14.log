@@ -137,3 +137,42 @@
 [04:42:35] [B] rejected tune : behavioural twin
 [04:42:46] [B] rejected tune : behavioural twin
 [04:42:47] [B] birth B1538 (mutate session) of ['B1533'] species S6; 24 genomes $11.08
+[04:43:04] [B] birth B1539 (mutate session) of ['B1496'] species S6; 24 genomes $11.08
+[04:43:08] [B] summary: births 1540 deaths 1517 games 348792 $11.08; top [('B1526', 47.42, 0.82, 192, 'S6'), ('B1539', 47.05, 1.24, 40, 'S6'), ('B1480', 46.4, 0.8, 528, 'S6')]; top vs anchors {'B1526': 0.75, 'B1539': None, 'B1480': 0.613}
+[04:43:08] [B] birth B1540 (mutate session) of ['B1521'] species S6; 24 genomes $11.08
+[04:43:24] [B] rejected mutate session: GenomeError: rule line 148: unknown function kill_shot
+[04:43:29] [B] birth B1541 (tune ) of ['B1496'] species S6; 24 genomes $11.08
+[04:43:30] [B] birth B1542 (mutate session) of ['B1535'] species S6; 24 genomes $11.08
+[04:43:48] [B] rejected mutate session: behavioural twin
+[04:44:08] [B] birth B1543 (mutate session) of ['B1480'] species S6; 24 genomes $11.08
+[04:44:26] [B] birth B1544 (mutate session) of ['B1539'] species S6; 24 genomes $11.08
+[04:44:27] [B] rejected tune : behavioural twin
+[04:44:31] [B] rejected mutate session: behavioural twin
+[04:44:59] [B] rejected mutate session: behavioural twin
+[04:45:00] [B] rejected mutate session: behavioural twin
+[04:45:07] [B] birth B1545 (mutate session) of ['B1526'] species S6; 24 genomes $11.08
+[04:45:27] [B] birth B1546 (mutate session) of ['B1395'] species S5; 24 genomes $11.08
+[04:45:27] [B] birth B1547 (cross ) of ['B1496', 'B1543'] species S6; 24 genomes $11.08
+[04:45:28] [B] birth B1548 (mutate session) of ['B1526'] species S6; 24 genomes $11.08
+[04:46:21] [B] rejected mutate session: behavioural twin
+[04:46:23] [B] birth B1549 (mutate session) of ['B1526'] species S6; 24 genomes $11.08
+[04:46:24] [B] champion anchor champ31-B1543 (mu 46.9)
+[04:46:24] [B] summary: births 1550 deaths 1527 games 351368 $11.08; top [('B1543', 46.86, 0.81, 192, 'S6'), ('B1550', 46.86, 6.0, 0, 'S6'), ('B1526', 46.39, 0.79, 320, 'S6')]; top vs anchors {'B1543': 0.75, 'B1526': 0.75, 'B1521': 0.672}
+[04:46:24] [B] birth B1550 (mutate session) of ['B1543'] species S6; 24 genomes $11.08
+[04:46:34] [B] rejected cross : behavioural twin
+[04:46:44] [B] birth B1551 (mutate session) of ['B1526'] species S6; 24 genomes $11.08
+[04:46:51] [B] birth B1552 (mutate session) of ['B1521'] species S6; 24 genomes $11.08
+[04:47:03] [B] birth B1553 (mutate session) of ['B1521'] species S6; 24 genomes $11.08
+[04:47:19] [B] birth B1554 (llm_cross session) of ['B1549', 'B1492'] species S6; 24 genomes $11.08
+[04:47:27] [B] rejected mutate session: EditError: syntax error line 1: unterminated string literal (detected at line 1)
+[04:47:39] [B] birth B1555 (tune ) of ['B1480'] species S6; 24 genomes $11.08
+[04:47:43] [B] rejected tune : behavioural twin
+[04:47:44] [B] birth B1556 (mutate session) of ['B1543'] species S6; 24 genomes $11.08
+[04:48:00] [B] birth B1557 (cross ) of ['B1343', 'B1537'] species S1; 24 genomes $11.08
+[04:48:20] [B] rejected mutate session: behavioural twin
+[04:48:21] [B] rejected mutate session: behavioural twin
+[04:48:29] [B] birth B1558 (mutate session) of ['B1528'] species S6; 24 genomes $11.08
+[04:48:36] [B] birth B1559 (cross ) of ['B1549', 'B1519'] species S6; 24 genomes $11.08
+[04:48:42] [B] summary: births 1560 deaths 1537 games 353312 $11.08; top [('B1543', 46.67, 0.8, 264, 'S6'), ('B1519', 46.61, 0.79, 488, 'S6'), ('B1480', 46.56, 0.82, 760, 'S6')]; top vs anchors {'B1543': 0.708, 'B1519': 0.75, 'B1480': 0.63}
+[04:48:42] [B] birth B1560 (mutate session) of ['B1480'] species S6; 24 genomes $11.08
+[04:48:52] [B] birth B1561 (tune ) of ['B1531'] species S6; 24 genomes $11.08

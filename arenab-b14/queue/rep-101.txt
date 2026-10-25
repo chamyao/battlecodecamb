@@ -1,0 +1,7 @@
+```python
+@gene("s6", "visible enemy champions within r tiles, not counting ones standing on their own spawn (they heal there instead of chasing)")
+def enemies_within(r: Num) -> Num:
+    h = here()
+    es = enemy_spawn()
+    return count(dist(h, u.pos) <= r and not (u.pos in es) for u in enemies())
+```
