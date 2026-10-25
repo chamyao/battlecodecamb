@@ -638,3 +638,61 @@
 [00:40:29] [A6] birth A61064 (cross ) of ['A61027', 'A61056'] species S0; 24 genomes $6.53
 [00:40:35] [A6] rejected mutate claude-haiku-5-5: EditError: modified fixed gene v3 (update)
 [00:40:46] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:40:56] [A6] rejected mutate claude-opus-5-5: behavioural twin
+[00:41:04] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:41:05] [A6] birth A61065 (llm_cross claude-haiku-5-5) of ['A61056', 'A61052'] species S1; 24 genomes $6.58
+[00:41:12] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:41:18] [A6] birth A61066 (mutate claude-haiku-5-5) of ['A61058'] species S0; 24 genomes $6.58
+[00:41:21] [A6] birth A61067 (mutate claude-haiku-5-5) of ['A61009'] species S0; 24 genomes $6.58
+[00:41:27] [A6] birth A61068 (mutate claude-haiku-5-5) of ['A61058'] species S0; 24 genomes $6.58
+[00:41:34] [A6] birth A61069 (tune ) of ['A61036'] species S1; 24 genomes $6.58
+[00:41:36] [A6] summary: births 1070 deaths 1047 games 250328 $6.58; top [('A6939', 42.38, 0.79, 2296, 'S0'), ('A61065', 41.99, 0.89, 104, 'S1'), ('A61027', 41.85, 0.8, 808, 'S0')]; top vs anchors {'A6939': 0.733, 'A61065': 0.812, 'A61027': 0.732}
+[00:41:36] [A6] birth A61070 (mutate claude-haiku-5-5) of ['A61034'] species S1; 24 genomes $6.58
+[00:41:43] [A6] birth A61071 (mutate claude-haiku-5-5) of ['A6939'] species S0; 24 genomes $6.58
+[00:41:53] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:41:54] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:42:03] [A6] birth A61072 (mutate claude-opus-5-5) of ['A6939'] species S0; 24 genomes $6.63
+[00:42:08] [A6] birth A61073 (mutate claude-haiku-5-5) of ['A61063'] species S1; 24 genomes $6.63
+[00:42:11] [A6] birth A61074 (mutate claude-haiku-5-5) of ['A6939'] species S0; 24 genomes $6.63
+[00:42:19] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:42:25] [A6] rejected mutate claude-haiku-5-5: GenomeError: line 597: gene respawning redefined or shadows a builtin
+[00:42:28] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:42:30] [A6] birth A61075 (mutate claude-haiku-5-5) of ['A61006'] species S0; 24 genomes $6.63
+[00:42:36] [A6] rejected tune : behavioural twin
+[00:42:43] [A6] birth A61076 (mutate claude-haiku-5-5) of ['A61027'] species S0; 24 genomes $6.63
+[00:42:47] [A6] birth A61077 (tune ) of ['A61065'] species S1; 24 genomes $6.63
+[00:42:49] [A6] birth A61078 (mutate claude-haiku-5-5) of ['A61052'] species S1; 24 genomes $6.63
+[00:43:01] [A6] rejected cross : behavioural twin
+[00:43:05] [A6] birth A61079 (mutate claude-haiku-5-5) of ['A61078'] species S1; 24 genomes $6.67
+[00:43:11] [A6] rejected mutate claude-opus-5-5: behavioural twin
+[00:43:16] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:43:23] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:43:28] [A6] summary: births 1080 deaths 1057 games 253312 $6.68; top [('A61034', 42.29, 0.79, 888, 'S1'), ('A61036', 42.22, 0.79, 800, 'S1'), ('A61065', 41.64, 0.83, 208, 'S1')]; top vs anchors {'A61034': 0.722, 'A61036': 0.771, 'A61065': 0.875}
+[00:43:28] [A6] birth A61080 (mutate claude-haiku-5-5) of ['A6939'] species S0; 24 genomes $6.68
+[00:43:31] [A6] birth A61081 (mutate claude-haiku-5-5) of ['A61036'] species S1; 24 genomes $6.68
+[00:43:39] [A6] birth A61082 (mutate claude-haiku-5-5) of ['A61065'] species S1; 24 genomes $6.68
+[00:43:47] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:43:51] [A6] birth A61083 (mutate claude-haiku-5-5) of ['A61065'] species S1; 24 genomes $6.68
+[00:43:52] [A6] rejected tune : behavioural twin
+[00:43:57] [A6] rejected tune : behavioural twin
+[00:44:07] [A6] birth A61084 (tune ) of ['A61036'] species S1; 24 genomes $6.68
+[00:44:12] [A6] birth A61085 (mutate claude-haiku-5-5) of ['A6939'] species S0; 24 genomes $6.68
+[00:44:18] [A6] rejected mutate claude-haiku-5-5: GenomeError: r_mono line 291: expected Bool, got Unit
+[00:44:28] [A6] birth A61086 (mutate claude-opus-5-5) of ['A61055'] species S0; 24 genomes $6.73
+[00:44:28] [A6] rejected cross : behavioural twin
+[00:44:36] [A6] birth A61087 (llm_cross claude-haiku-5-5) of ['A61073', 'A6939'] species S0; 24 genomes $6.73
+[00:44:41] [A6] birth A61088 (tune ) of ['A6987'] species S0; 24 genomes $6.73
+[00:44:47] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:44:57] [A6] birth A61089 (mutate claude-haiku-5-5) of ['A61082'] species S1; 24 genomes $6.73
+[00:45:01] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:45:02] [A6] summary: births 1090 deaths 1067 games 255880 $6.73; top [('A61034', 42.45, 0.79, 1008, 'S1'), ('A61082', 42.4, 0.8, 208, 'S1'), ('A61065', 42.09, 0.8, 328, 'S1')]; top vs anchors {'A61034': 0.722, 'A61082': 1.0, 'A61065': 0.792}
+[00:45:02] [A6] birth A61090 (mutate claude-haiku-5-5) of ['A6939'] species S0; 24 genomes $6.73
+[00:45:11] [A6] rejected cross : behavioural twin
+[00:45:14] [A6] birth A61091 (mutate claude-haiku-5-5) of ['A6905'] species S0; 24 genomes $6.73
+[00:45:26] [A6] birth A61092 (mutate claude-haiku-5-5) of ['A61036'] species S1; 24 genomes $6.74
+[00:45:30] [A6] birth A61093 (mutate claude-haiku-5-5) of ['A6942'] species S0; 24 genomes $6.74
+[00:45:32] [A6] birth A61094 (mutate claude-haiku-5-5) of ['A61036'] species S1; 24 genomes $6.74
+[00:45:43] [A6] birth A61095 (tune ) of ['A61058'] species S0; 24 genomes $6.78
+[00:45:49] [A6] birth A61096 (mutate claude-opus-5-5) of ['A61082'] species S1; 24 genomes $6.78
+[00:45:53] [A6] rejected mutate claude-haiku-5-5: behavioural twin
+[00:45:56] [A6] rejected tune : behavioural twin
