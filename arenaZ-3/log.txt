@@ -699,3 +699,68 @@
 [01:06:34] [Z] summary: births 350 deaths 327 games 51264 $1.77; top [('Z346', 36.56, 0.95, 88, 'S182'), ('Z281', 35.25, 0.79, 552, 'S143'), ('Z276', 35.01, 0.79, 624, 'S135')]; top vs anchors {'Z346': None, 'Z281': 0.688, 'Z276': 0.875}
 [01:06:34] [Z] birth Z350 (llm_cross claude-haiku-5-5) of ['Z331', 'Z310'] species S184; 24 genomes $1.77
 [01:06:38] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 132: cannot assign to near
+[01:06:56] [Z] birth Z351 (mutate claude-haiku-5-5) of ['Z350'] species S184; 24 genomes $1.81
+[01:06:57] [Z] new species S185 founded by Z352
+[01:06:57] [Z] birth Z352 (mutate claude-opus-5-5) of ['Z336'] species S185; 24 genomes $1.81
+[01:06:59] [Z] birth Z353 (llm_cross claude-haiku-5-5) of ['Z289', 'Z310'] species S161; 24 genomes $1.81
+[01:07:12] [Z] rejected mutate claude-haiku-5-5: GenomeError: update line 72: expected Bool, got Num
+[01:07:24] [Z] birth Z354 (mutate claude-haiku-5-5) of ['Z346'] species S182; 24 genomes $1.82
+[01:07:29] [Z] new species S186 founded by Z355
+[01:07:29] [Z] birth Z355 (mutate claude-haiku-5-5) of ['Z352'] species S186; 24 genomes $1.82
+[01:07:31] [Z] birth Z356 (mutate claude-haiku-5-5) of ['Z348'] species S183; 24 genomes $1.82
+[01:07:53] [Z] birth Z357 (mutate claude-haiku-5-5) of ['Z355'] species S186; 24 genomes $1.82
+[01:07:55] [Z] new species S187 founded by Z358
+[01:07:55] [Z] birth Z358 (mutate claude-haiku-5-5) of ['Z316'] species S187; 24 genomes $1.82
+[01:07:59] [Z] new species S188 founded by Z359
+[01:07:59] [Z] birth Z359 (mutate claude-haiku-5-5) of ['Z289'] species S188; 24 genomes $1.82
+[01:08:18] [Z] new species S189 founded by Z360
+[01:08:18] [Z] summary: births 360 deaths 337 games 52784 $1.85; top [('Z357', 35.74, 0.89, 96, 'S186'), ('Z289', 35.32, 0.79, 632, 'S141'), ('Z353', 34.93, 0.91, 96, 'S161')]; top vs anchors {'Z357': None, 'Z289': None, 'Z353': 0.625}
+[01:08:18] [Z] birth Z360 (tune ) of ['Z342'] species S189; 24 genomes $1.85
+[01:08:21] [Z] new species S190 founded by Z361
+[01:08:21] [Z] birth Z361 (mutate claude-haiku-5-5) of ['Z354'] species S190; 24 genomes $1.85
+[01:08:29] [Z] new species S191 founded by Z362
+[01:08:29] [Z] birth Z362 (mutate claude-opus-5-5) of ['Z289'] species S191; 24 genomes $1.85
+[01:08:35] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 129: cannot assign to floor
+[01:08:41] [Z] birth Z363 (mutate claude-haiku-5-5) of ['Z336'] species S176; 24 genomes $1.85
+[01:08:44] [Z] rejected tune : behavioural twin
+[01:08:51] [Z] birth Z364 (mutate claude-haiku-5-5) of ['Z360'] species S189; 24 genomes $1.86
+[01:08:51] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 70: gene goal_field redefined or shadows a builtin
+[01:09:03] [Z] new species S192 founded by Z365
+[01:09:03] [Z] birth Z365 (mutate claude-haiku-5-5) of ['Z347'] species S192; 24 genomes $1.86
+[01:09:12] [Z] birth Z366 (mutate claude-haiku-5-5) of ['Z356'] species S183; 24 genomes $1.86
+[01:09:13] [Z] birth Z367 (mutate claude-haiku-5-5) of ['Z364'] species S189; 24 genomes $1.86
+[01:09:26] [Z] new species S193 founded by Z368
+[01:09:26] [Z] birth Z368 (mutate claude-haiku-5-5) of ['Z347'] species S193; 24 genomes $1.86
+[01:09:32] [Z] birth Z369 (tune ) of ['Z342'] species S179; 24 genomes $1.86
+[01:09:41] [Z] new species S194 founded by Z370
+[01:09:41] [Z] summary: births 370 deaths 347 games 53936 $1.94; top [('Z357', 35.65, 0.82, 160, 'S186'), ('Z339', 35.03, 0.79, 304, 'S174'), ('Z369', 34.99, 1.01, 64, 'S179')]; top vs anchors {'Z357': None, 'Z339': 0.25, 'Z369': None}
+[01:09:41] [Z] birth Z370 (tune ) of ['Z365'] species S194; 24 genomes $1.94
+[01:09:50] [Z] new species S195 founded by Z371
+[01:09:50] [Z] birth Z371 (llm_cross claude-opus-5-5) of ['Z361', 'Z339'] species S195; 24 genomes $1.94
+[01:09:50] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 140: cannot assign to near
+[01:09:54] [Z] birth Z372 (mutate claude-haiku-5-5) of ['Z340'] species S178; 24 genomes $1.94
+[01:10:12] [Z] new species S196 founded by Z373
+[01:10:12] [Z] birth Z373 (tune ) of ['Z372'] species S196; 24 genomes $1.94
+[01:10:15] [Z] birth Z374 (mutate claude-haiku-5-5) of ['Z326'] species S173; 24 genomes $1.94
+[01:10:17] [Z] birth Z375 (mutate claude-haiku-5-5) of ['Z289'] species S151; 24 genomes $1.94
+[01:10:42] [Z] birth Z376 (mutate claude-haiku-5-5) of ['Z265'] species S179; 24 genomes $1.94
+[01:10:44] [Z] birth Z377 (mutate claude-haiku-5-5) of ['Z361'] species S190; 24 genomes $1.94
+[01:10:45] [Z] birth Z378 (mutate claude-haiku-5-5) of ['Z316'] species S187; 24 genomes $1.94
+[01:11:14] [Z] birth Z379 (mutate claude-haiku-5-5) of ['Z371'] species S195; 24 genomes $1.99
+[01:11:18] [Z] new species S197 founded by Z380
+[01:11:18] [Z] summary: births 380 deaths 357 games 55344 $1.99; top [('Z357', 34.94, 0.8, 232, 'S186'), ('Z265', 34.87, 0.79, 952, 'S130'), ('Z339', 34.85, 0.79, 352, 'S174')]; top vs anchors {'Z357': None, 'Z265': 1.0, 'Z339': 0.25}
+[01:11:18] [Z] birth Z380 (llm_cross claude-haiku-5-5) of ['Z372', 'Z374'] species S197; 24 genomes $1.99
+[01:11:19] [Z] new species S198 founded by Z381
+[01:11:19] [Z] birth Z381 (mutate claude-opus-5-5) of ['Z376'] species S198; 24 genomes $1.99
+[01:11:31] [Z] new species S199 founded by Z382
+[01:11:31] [Z] birth Z382 (tune ) of ['Z380'] species S199; 24 genomes $1.99
+[01:11:36] [Z] birth Z383 (mutate claude-haiku-5-5) of ['Z347'] species S193; 24 genomes $1.99
+[01:11:46] [Z] new species S200 founded by Z384
+[01:11:46] [Z] birth Z384 (llm_cross claude-haiku-5-5) of ['Z357', 'Z381'] species S200; 24 genomes $1.99
+[01:11:49] [Z] birth Z385 (mutate claude-haiku-5-5) of ['Z357'] species S186; 24 genomes $1.99
+[01:11:55] [Z] new species S201 founded by Z386
+[01:11:55] [Z] birth Z386 (mutate claude-haiku-5-5) of ['Z349'] species S201; 24 genomes $1.99
+[01:12:08] [Z] birth Z387 (mutate claude-haiku-5-5) of ['Z385'] species S186; 24 genomes $1.99
+[01:12:08] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:12:14] [Z] new species S202 founded by Z388
+[01:12:14] [Z] birth Z388 (mutate claude-haiku-5-5) of ['Z374'] species S202; 24 genomes $1.99
