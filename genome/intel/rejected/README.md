@@ -345,3 +345,19 @@ Rejected. Walking home alone when outnumbered gets the champion caught, and cost
 | reward gold + 10 × gems, before r300 only | 51,443 | 9.1 | 5.96 (B1873: 4.53) |
 
 Rejected. Ranking groups by value sends the whole team to the same distant rich group. Nearest-first spreads the champions out and starts farming sooner, and the per-group scans cost fuel (suspensions). The early capture-pace gap in b9 is better attacked through deaths (fights) than through camp choice.
+
+## Buddy-up on B1873-bossbush (2026-10-25)
+
+**B1873bb-buddy**: rule 21 at priority 162 (below the kill-shot). Before r300, off spawn, it fires when a healthy enemy champion off its own spawn is within 7, no ally is within 3, and an ally is in sight. The champion walks to the nearest visible ally.
+
+**Sim:**
+- 34/80 vs B1873-bossbush.
+- vs stress/hunter: 72/80 (base 71). Early deaths in losses 1.89 → 1.62.
+
+**Real cambc vs the v33 build: 3-5.**
+- swirl 1-1 (147-1006 with 32 deaths; 1009-639)
+- monolith 0-2
+- elkring 0-2
+- lanes 2-0
+
+Rejected. Like the early retreat, pulling a champion off its own fight to regroup costs more than it saves.
