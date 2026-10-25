@@ -201,6 +201,10 @@ FRAMED_PRIMS = {"alive", "ally_tiles", "altars", "at", "box_field", "bushes", "c
                 "read_shared", "round", "sight", "size", "spawn_group", "spawn_type", "team_gems", "territory",
                 "type_spawns", "unit_gems", "unit_gold", "visible", "vision", "walk_nearest", "walls", "ward_sight",
                 "wfield", "write_shared"}
+# A memoised gene's hit in the bot, by return type: the copy out (score variants that read a memoised gene on
+# every option, inlined or called; FUEL.md). Inlining moves it little (a Num hit is ~27 inlined, ~30 called),
+# and pricing hits by caller (framed or not) made the simulated head-to-heads less faithful.
+MEMO_HIT = {"Num": 30, "Bool": 30, "Tile": 44, "Unit": 57, "Tiles": 74, "Field": 74, "Units": 74}
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
@@ -803,9 +807,8 @@ def to_cpp(genome):
         lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:
             # zero-argument genes are pure within a pass: computed once per pass, cached on this instance
-            # a hit costs ~73 fuel in the bot for a scalar, ~78 for a shared set or field (fitted per turn on identical games)
-            hit = 78 if g.ret in ("Tiles", "Field", "Units") else 73
-            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({hit}); return val_{n}; }}",
+            # a hit costs the copy out, by return type (MEMO_HIT)
+            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({MEMO_HIT.get(g.ret, MEMO_HIT['Tiles'])}); return val_{n}; }}",
                       *(["\tFRAME_GUARD;"] if g.framed else []),
                       f"\t{CPP[g.ret]} v = [&]() -> {CPP[g.ret]} {{"]
             lines += ["\t" + l for l in body]
