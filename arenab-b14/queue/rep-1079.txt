@@ -1,0 +1,5 @@
+```python
+@gene("s15", "the nearest visible camp, a hurt one counting up to 4 tiles nearer (finish what is started, ours or an enemy's: steal the last hit)")
+def live_camp() -> Unit:
+    return best(camps(), lambda c: -dist(here(), c.pos) - 4 * c.health_frac)
+```

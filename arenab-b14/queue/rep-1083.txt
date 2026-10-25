@@ -1,0 +1,7 @@
+```python
+@gene('s10', 'fewest turns until a visible enemy champion could hit us (1000 if none); recalling enemies, enemies channelling a tribute and enemies on their own spawn are ignored (none of them can chase us now)')
+def threat_eta() -> Num:
+    h = here()
+    es = enemy_spawn()
+    return min((eta(dist(h, u.pos) - u.attack_range, u.move_speed) for u in enemies() if not is_recalling(u) and not is_tributing(u) and not (u.pos in es)), default=1000)
+```

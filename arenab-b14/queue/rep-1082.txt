@@ -1,0 +1,10 @@
+```python
+@gene('B2926a', 'the in-reach enemy champion the fight targets dies to one basic attack now (health plus shield), or carries 5+ gems and dies to two (its bag is worth the extra turn)', parents=['r7'])
+def r_killshot() -> Bool:
+    f = fight_foe()
+    if not exists(f):
+        return False
+    d = attack_damage(me(), f)
+    hp = f.health + shield(f)
+    return d >= hp or (unit_gems(f) >= 5 and 2 * d >= hp)
+```
