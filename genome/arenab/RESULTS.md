@@ -66,3 +66,13 @@ Gatekeeper (arena, 212a505, bot seeds): 47/80 vs B318 built at 212a505; anchors 
 
 B792's sim edge over B318 (47/80, bot seeds) did not show in band games. The sim selection signal
 (self-play + own past bots + stress anchors) predicts band results poorly (GENOME.md open point 4).
+
+## a61188-mono (intel, v27 + mono-spare edit), real cambc --release, all builds at genome/v0 ca5180b
+
+| vs | wins /80 | note |
+|---|---|---|
+| A61188 (v27 genome) | 42 | crashes 0; first turns at cap 12 vs 11; capped turns 318 vs 323 |
+| B792 (v26 genome) | 49 | A61188 itself vs B792: 48 |
+| B318 (v25 build, 2013533) | 49 | |
+
+Sim (intel, bot seeds): 41/80 vs A61188; non-champion deaths great-wall 25 -> 15, shortcut 17.5 -> 9.5; 15 anchors all +0..+4.
