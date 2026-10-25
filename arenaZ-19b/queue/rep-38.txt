@@ -1,0 +1,16 @@
+```python
+@gene("Z6a", "true when the bag should be taken to an altar: 20 gems, 5 when an altar is close, low health or the end of the game")
+def banking() -> Bool:
+    g = gems()
+    if g >= 20:
+        return True
+    if g == 0:
+        return False
+    if me().health_frac < 0.5 or round() > 1850:
+        return True
+    if g >= 5:
+        free = altars() - locked_altars()
+        if size(free) > 0 and dist(nearest(free, me().pos), me().pos) <= 8:
+            return True
+    return False
+```

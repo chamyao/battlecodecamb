@@ -1,0 +1,18 @@
+```python
+@gene("s2", "where to walk: home when badly hurt, an altar when banking, else a living camp group (an altar if none and carrying gems)")
+def goals() -> Tiles:
+    if me().health_frac < 0.45 and not channeling():
+        return my_spawn()
+    alt = near(tile(-5, -5), 0)
+    for a in altars() - locked_altars():
+        alt = alt | near(a, 1)
+    if banking():
+        return alt
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(acc) == 0 and gems() > 0:
+        return alt
+    return acc
+```
