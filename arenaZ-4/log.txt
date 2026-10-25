@@ -543,3 +543,79 @@ a1op ok
 [00:45:52] [Z] new species S145 founded by Z182
 [00:45:52] [Z] birth Z182 (llm_cross claude-haiku-5-5) of ['Z161', 'Z169'] species S145; 24 genomes $1.26
 [00:45:56] [Z] rejected tune : behavioural twin
+[00:46:05] [Z] rejected tune : behavioural twin
+[00:46:09] [Z] new species S146 founded by Z183
+[00:46:09] [Z] birth Z183 (llm_cross claude-haiku-5-5) of ['Z163', 'Z161'] species S146; 24 genomes $1.26
+[00:46:09] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:46:21] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:46:29] [Z] new species S147 founded by Z184
+[00:46:29] [Z] birth Z184 (mutate claude-opus-5-5) of ['Z182'] species S147; 24 genomes $1.29
+[00:46:30] [Z] new species S148 founded by Z185
+[00:46:30] [Z] birth Z185 (mutate claude-haiku-5-5) of ['Z178'] species S148; 24 genomes $1.29
+[00:46:35] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:46:42] [Z] rejected tune : behavioural twin
+[00:46:48] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:46:53] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:46:59] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:47:04] [Z] rejected tune : behavioural twin
+[00:47:05] [Z] new species S149 founded by Z186
+[00:47:05] [Z] birth Z186 (mutate claude-opus-5-5) of ['Z70'] species S149; 24 genomes $1.30
+[00:47:16] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:47:21] [Z] new species S150 founded by Z187
+[00:47:21] [Z] birth Z187 (llm_cross claude-haiku-5-5) of ['Z178', 'Z184'] species S150; 24 genomes $1.31
+[00:47:27] [Z] birth Z188 (mutate claude-haiku-5-5) of ['Z182'] species S145; 24 genomes $1.31
+[00:47:28] [Z] birth Z189 (tune ) of ['Z182'] species S145; 24 genomes $1.31
+[00:47:42] [Z] summary: births 190 deaths 167 games 40520 $1.31; top [('Z183', 31.0, 0.8, 216, 'S146'), ('Z189', 30.92, 0.94, 80, 'S145'), ('Z165', 30.9, 0.79, 304, 'S131')]; top vs anchors {'Z183': None, 'Z189': None, 'Z165': 0.5}
+[00:47:42] [Z] birth Z190 (tune ) of ['Z88'] species S71; 24 genomes $1.31
+[00:47:47] [Z] birth Z191 (llm_cross claude-haiku-5-5) of ['Z165', 'Z178'] species S141; 24 genomes $1.31
+[00:47:49] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:47:57] [Z] rejected mutate claude-haiku-5-5: type check: the new gene N must compute something score and threat_at do not compute now: it must ca
+[00:48:00] [Z] new species S151 founded by Z192
+[00:48:00] [Z] birth Z192 (mutate claude-haiku-5-5) of ['Z85'] species S151; 24 genomes $1.31
+[00:48:12] [Z] new species S152 founded by Z193
+[00:48:12] [Z] birth Z193 (mutate claude-haiku-5-5) of ['Z165'] species S152; 24 genomes $1.37
+[00:48:18] [Z] new species S153 founded by Z194
+[00:48:18] [Z] birth Z194 (llm_cross claude-opus-5-5) of ['Z189', 'Z161'] species S153; 24 genomes $1.37
+[00:48:19] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:48:30] [Z] rejected tune : behavioural twin
+[00:48:34] [Z] new species S154 founded by Z195
+[00:48:34] [Z] birth Z195 (mutate claude-haiku-5-5) of ['Z183'] species S154; 24 genomes $1.38
+[00:48:40] [Z] birth Z196 (llm_cross claude-haiku-5-5) of ['Z169', 'Z165'] species S94; 24 genomes $1.39
+[00:48:45] [Z] rejected mutate claude-haiku-5-5: type check: the new gene N must compute something safe_progress and threat_decay do not compute now:
+[00:48:46] [Z] new species S155 founded by Z197
+[00:48:46] [Z] birth Z197 (mutate claude-opus-5-5) of ['Z165'] species S155; 24 genomes $1.39
+[00:48:59] [Z] birth Z198 (mutate claude-haiku-5-5) of ['Z184'] species S147; 24 genomes $1.39
+[00:49:04] [Z] new species S156 founded by Z199
+[00:49:04] [Z] birth Z199 (mutate claude-haiku-5-5) of ['Z184'] species S156; 24 genomes $1.39
+[00:49:04] [Z] champion anchor champ4-Z165 (mu 31.4)
+[00:49:04] [Z] summary: births 200 deaths 177 games 42072 $1.39; top [('Z165', 31.41, 0.82, 352, 'S131'), ('Z200', 31.05, 6.0, 0, 'S147'), ('Z189', 30.77, 0.82, 160, 'S145')]; top vs anchors {'Z165': 0.75, 'Z189': None, 'Z86': 0.625}
+[00:49:04] [Z] birth Z200 (llm_cross claude-haiku-5-5) of ['Z184', 'Z165'] species S147; 24 genomes $1.39
+[00:49:10] [Z] new species S157 founded by Z201
+[00:49:10] [Z] birth Z201 (tune ) of ['Z161'] species S157; 24 genomes $1.39
+[00:49:22] [Z] rejected tune : behavioural twin
+[00:49:26] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:49:33] [Z] new species S158 founded by Z202
+[00:49:33] [Z] birth Z202 (mutate claude-haiku-5-5) of ['Z153'] species S158; 24 genomes $1.41
+[00:49:36] [Z] rejected mutate claude-haiku-5-5: GenomeError: close_champs line 53: expected Bool, got Num
+[00:49:36] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[00:49:55] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:49:56] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:49:57] [Z] new species S159 founded by Z203
+[00:49:57] [Z] birth Z203 (mutate claude-haiku-5-5) of ['Z183'] species S159; 24 genomes $1.42
+[00:50:10] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:50:13] [Z] new species S160 founded by Z204
+[00:50:13] [Z] birth Z204 (mutate claude-opus-5-5) of ['Z189'] species S160; 24 genomes $1.44
+[00:50:15] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:50:17] [Z] rejected mutate claude-haiku-5-5: GenomeError: adjusted_net_threat line 107: cannot assign to near
+[00:50:22] [Z] rejected mutate claude-haiku-5-5: type check: the new gene N must compute something safe_progress and threat_decay do not compute now:
+[00:50:24] [Z] rejected tune : behavioural twin
+[00:50:35] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:50:39] [Z] new species S161 founded by Z205
+[00:50:39] [Z] birth Z205 (mutate claude-haiku-5-5) of ['Z165'] species S161; 24 genomes $1.46
+[00:50:41] [Z] new species S162 founded by Z206
+[00:50:41] [Z] birth Z206 (mutate claude-opus-5-5) of ['Z153'] species S162; 24 genomes $1.46
+[00:50:51] [Z] rejected mutate claude-haiku-5-5: EditError: no change
+[00:50:54] [Z] new species S163 founded by Z207
+[00:50:54] [Z] birth Z207 (mutate claude-haiku-5-5) of ['Z160'] species S163; 24 genomes $1.47
+[00:50:59] [Z] rejected tune : behavioural twin
+[00:51:01] [Z] rejected mutate claude-haiku-5-5: behavioural twin

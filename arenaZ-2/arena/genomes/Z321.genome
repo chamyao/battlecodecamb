@@ -1,0 +1,179 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+ENEMY_NEAR: Tiles
+HEALING: Bool = False
+
+@gene('s1', 'value of doing this option now: recall when hurt and alone, focus weak champions, shield/heal in fights, fight back against awake camps', parents=['s1', 's1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return recall_value()
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 113 + 5 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 49 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems; else a cleared group awaiting capture; else a living camp group holding gems or gold; else any living group', parents=['s2', 's2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1.0462)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) + group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals; retreat earlier when enemies are within 4 tiles, at 70% carrying 10+ gems, at 50% carrying 5+; heal latch keeps me home until healthy; heal to 80% on spawn before leaving', parents=['s3', 's3', 's3'])
+def goal_field() -> Field:
+    m = me()
+    hf = m.health_frac
+    home = my_spawn()
+    limit = 0.3
+    if gems() > 0:
+        limit = 0.4
+    if gems() >= 10:
+        limit = 0.5
+    if sum(1 for u in enemies() if dist(u.pos, m.pos) <= 4) > 0:
+        limit = limit + 0.15
+    if HEALING or hf < limit:
+        return field(home)
+    if gems() >= 10 and hf < 0.7:
+        return field(home)
+    if gems() >= 5 and hf < 0.5:
+        return field(home)
+    if hf < 0.8 and m.pos in home:
+        return field(home)
+    return field(goals())
+
+@gene('s4', 'progress toward goals; threat penalty for steps into enemy range grows as health drops and is 50% larger when carrying gems; clamp widens to 12 when carrying gems, else [-2, 8]; 0 if unreachable', parents=['s4', 's4', 's4'])
+def progress(t: Tile) -> Num:
+    here = at(GF, me().pos)
+    there = at(GF, t)
+    if here >= 500000000 or there >= 500000000:
+        return 0
+    base = here - there
+    carrying = gems() > 0
+    if t in ENEMY_NEAR:
+        pen = 0.5 + 3.0 * (1.0 - me().health_frac)
+        if carrying:
+            pen = pen * 1.5
+        return base - pen
+    hi = 8
+    if carrying:
+        hi = 12
+    if base > hi:
+        return hi
+    if base < -2:
+        return -2
+    return base
+
+@gene('Z12a', 'once per turn: update heal hysteresis, compute the goal field and enemy-threat tiles (skip when dead)', parents=['s4', 's3', 's4', 'Z12a'])
+def update() -> None:
+    if alive():
+        hf = me().health_frac
+        if hf < 0.35:
+            HEALING = True
+        if hf > 0.9:
+            HEALING = False
+        GF = goal_field()
+        ENEMY_NEAR = near(me().pos, 0) - near(me().pos, 0)
+        for u in enemies():
+            ENEMY_NEAR = ENEMY_NEAR | near(u.pos, 2)
+
+@gene('Z12b', 'draft preference: Vesper Vale first, then Heart of Ruin, then Marcella, Vendetta, Ryth', parents=['s1', 'Z12b'])
+def pick_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 6
+    if c == HEART_OF_RUIN:
+        return 5
+    if c == MARCELLA:
+        return 4
+    if c == VENDETTA:
+        return 3
+    if c == RYTH:
+        return 2
+    return 0.8699
+
+@gene('Z12c', 'value of casting an ability: shield in fights or near awake camps; heal allies or self when hurt; dash toward goals (bonus when carrying gems, none when nearly dead); damage enemy champions (more when low, bonus when I am healthy); camps when empty-handed; reset when the other ability is down', parents=['s1', 'Z12c', 'Z12c'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_SHIELD:
+        if hf < 0.9 and count_units(enemies()) > 0:
+            return 85
+        if hf < 0.7:
+            if any(is_awake(c) and dist(c.pos, me().pos) <= 3 for c in camps()):
+                return 80
+        if hf < 0.6:
+            return 84
+        return 0
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy and not o.unit.is_camp:
+            return 85 if o.unit.health_frac < 0.6 else 0
+        return 85 if hf < 0.657 else 0
+    if k == AB_DASH:
+        if hf < 0.35:
+            return 0
+        if valid(o.tile):
+            p = progress(o.tile)
+            if p >= 2:
+                return min(90, 20 * p) + (20 if gems() > 0 else 0)
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                bonus = 5 if hf > 0.7 else 0
+                return 78 + 10 * (1 - o.unit.health_frac) + bonus
+            if o.unit.is_camp:
+                if gems() == 0 and hf > 0.4:
+                    return 58
+                return 25
+        return 0
+    if k == AB_RESET:
+        other = 1 - o.slot
+        return 40 if not slot_ready(other) and count_units(enemies()) > 0 else 0
+    return 0
+
+@gene('Z215a', 'recall when hurt (~40%, ~60% when carrying 5+ gems), far from spawn, and no enemy champion near enough to cancel it; value grows with gems carried', parents=['s1', 'Z215a'])
+def recall_value() -> Num:
+    hf = me().health_frac
+    carrying = gems()
+    limit = 0.4
+    if carrying >= 5:
+        limit = 0.6044
+    if hf >= limit:
+        return 0
+    here = me().pos
+    sp = nearest(my_spawn(), here)
+    if valid(sp) and dist(sp, here) <= 6:
+        return 0
+    if hf >= 0.25 and any(u.is_champion and dist(u.pos, here) <= 4 for u in enemies()):
+        return 0
+    return 90 + carrying
