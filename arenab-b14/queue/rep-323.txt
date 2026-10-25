@@ -1,0 +1,7 @@
+```python
+@gene("s5", "a visible enemy champion can hit me now or after one step (move + attack), or is in my own attack range; nearly dead ones (below 20%) ignored")
+def foe_in_reach() -> Bool:
+    h = here()
+    r = me().attack_range
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if u.health_frac > 0.2)
+```

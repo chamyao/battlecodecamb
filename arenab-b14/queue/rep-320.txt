@@ -1,0 +1,15 @@
+```python
+@gene('r5', 'recall with 5+ gems when hurt (threshold rises with carried gems) and nothing near, unless an altar is close enough to bank first; a bag of 20+ only walks to an altar 3 turns away or less (a big bag is not risked on a long hurt walk)')
+def r_cashout() -> Bool:
+    if at_spawn():
+        return False
+    g = gems()
+    if g < 5:
+        return False
+    f = min(0.8, 0.55 + g / 100)
+    if not hurt_below(f):
+        return False
+    if under_fire():
+        return False
+    return altar_eta() > (3 if g >= 20 else 6)
+```

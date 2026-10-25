@@ -1,0 +1,8 @@
+```python
+@gene("m2", "an altar next to us that the enemy has not locked (a tribute there only hits the lock), invalid if none")
+def adj_altar() -> Tile:
+    for t in altars() & near(here(), 1):
+        if not lock_enemy(t):
+            return t
+    return tile(-1, -1)
+```

@@ -1,0 +1,26 @@
+```python
+@gene("c1", "where this turn's rule walks (reads the rule update() just chose instead of re-running rule())")
+def rule_goal() -> Tile:
+    r = RULE
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+
+@gene("s15", "the nearest visible camp, preferring a living camp of the group whose spawn I stand on (finish that group so its capture can start) and passing over monolith and golem camps")
+def live_camp() -> Unit:
+    g = spawn_group(here())
+    return best(camps(), lambda c: -dist(here(), c.pos) + (20 if g >= 0 and camp_group(c) == g else 0) - (100 if camp_spawn(c) in BIG_CAMPS else 0))
+
+```
