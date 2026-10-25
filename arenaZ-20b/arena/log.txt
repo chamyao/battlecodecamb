@@ -736,3 +736,26 @@
 [14:56:53] [Z] new species S121 founded by Z428
 [14:56:53] [Z] birth Z428 (tune ) of ['Z422'] species S121; 24 genomes $0.00
 [14:57:01] [Z] birth Z429 (mutate session) of ['Z418'] species S94; 24 genomes $0.00
+[14:57:48] [Z] rejected mutate session: behavioural twin
+[14:58:19] [Z] summary: births 430 deaths 407 games 190512 $0.00; top [('Z429', 44.46, 0.84, 136, 'S94'), ('Z417', 44.24, 0.8, 408, 'S116'), ('Z423', 43.94, 0.8, 240, 'S114')]; top vs anchors {'Z429': None, 'Z417': None, 'Z423': None}
+[14:58:19] [Z] birth Z430 (mutate session) of ['Z382'] species S79; 24 genomes $0.00
+[14:58:50] [Z] birth Z431 (llm_cross session) of ['Z423', 'Z418'] species S90; 24 genomes $0.00
+[14:59:17] [Z] birth Z432 (mutate session) of ['Z362'] species S105; 24 genomes $0.00
+[14:59:53] [Z] birth Z433 (mutate session) of ['Z415'] species S85; 24 genomes $0.00
+[15:00:16] [Z] rejected mutate session: behavioural twin
+[15:00:58] [Z] birth Z434 (mutate session) of ['Z373'] species S111; 24 genomes $0.00
+[15:01:22] [Z] birth Z435 (mutate session) of ['Z362'] species S112; 24 genomes $0.00
+[15:01:47] [Z] birth Z436 (mutate session) of ['Z362'] species S112; 24 genomes $0.00
+[15:02:07] [Z] rejected tune : behavioural twin
+[15:02:17] [Z] birth Z437 (llm_cross session) of ['Z369', 'Z421'] species S90; 24 genomes $0.00
+[15:02:44] [Z] birth Z438 (llm_cross session) of ['Z346', 'Z431'] species S120; 24 genomes $0.00
+[15:03:20] [Z] birth Z439 (mutate session) of ['Z425'] species S119; 24 genomes $0.00
+[15:03:54] [Z] rejected mutate session: behavioural twin
+[15:04:39] [Z] summary: births 440 deaths 417 games 194032 $0.00; top [('Z437', 43.9, 0.83, 152, 'S90'), ('Z423', 43.89, 0.79, 432, 'S114'), ('Z417', 43.86, 0.79, 624, 'S116')]; top vs anchors {'Z437': None, 'Z423': None, 'Z417': None}
+[15:04:39] [Z] birth Z440 (mutate session) of ['Z425'] species S119; 24 genomes $0.00
+[15:04:58] [Z] rejected tune : behavioural twin
+[15:05:22] [Z] birth Z441 (mutate session) of ['Z423'] species S114; 24 genomes $0.00
+[15:05:51] [Z] rejected mutate session: behavioural twin
+[15:06:28] [Z] birth Z442 (mutate session) of ['Z431'] species S114; 24 genomes $0.00
+[15:06:55] [Z] birth Z443 (mutate session) of ['Z346'] species S104; 24 genomes $0.00
+[15:07:33] [Z] rejected mutate session: behavioural twin
