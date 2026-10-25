@@ -134,4 +134,4 @@ genome/candidates/v33-cash3-ahead4.genome, sha256 6ca9e9e63bced4a1... (genome/ar
 Two constants: a5 ahead_on d <= 5 -> 4; r5 cash-out g < 5 -> 3.
 - tune-B and Arena B lead, real cambc: 44 vs v33, 44 vs v32, 46 vs v31, 59 vs farmer, 65 vs rushbank (v33's row: 40/40/44/50/66).
   Capped turns 364-381 (v33 411-450). Solo vs idle 95,088 rounds, 352 deaths.
-- My real 80 vs v33: running.
+- My real cambc vs v33, 40 maps x 2 sides: 44/80, 0 crashes. v34 pick.
