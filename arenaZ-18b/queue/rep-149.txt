@@ -1,0 +1,19 @@
+```python
+@gene('Z56a', 'set the goal field from cached fields: home field once, altar field every 8 rounds, camp field every 5 rounds or once I reach it', parents=['s3'])
+def update() -> None:
+    if not INIT:
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35:
+        GF = HF
+    elif gems() > 0:
+        if round() - AT >= 8:
+            AF = field(goals())
+            AT = round()
+        GF = AF
+    else:
+        if round() - CT >= 5 or at(CF, me().pos) <= 0:
+            CF = field(goals())
+            CT = round()
+        GF = CF
+```

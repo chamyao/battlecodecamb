@@ -1,0 +1,23 @@
+```python
+@gene('s1', 'value of doing this option now: draft Vesper Vale first, cast spells, focus fire the weakest camp, recall when out of reach or to shop when rich and safe, walk home when hurt with enemies near')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 5 if o.champ == VESPER_VALE else (4 if o.champ == PRISM else (3 if o.champ == STELLAR else 1))
+    if o.kind == BUY:
+        return 100 + o.count if o.item == 40 else 0
+    if o.kind == RECALL:
+        return 54 if me().health_frac < 0.35 or (gold() >= 150 and count_units(enemies()) == 0 and gems() == 0) else 0
+    if o.kind == CAST:
+        return spell_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + min(unit_gems(o.unit), 50) / 5
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35 and count_units(enemies()) > 0:
+            return 95 if progress(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

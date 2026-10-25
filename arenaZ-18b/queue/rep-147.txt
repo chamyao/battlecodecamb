@@ -1,0 +1,29 @@
+```python
+@gene("Z149b", "value of a spell: damage and aoe on enemy champions or adjacent camps, cc kept for enemy champions, ground aoe where it hits several targets, shield and heal early, dash toward the goal")
+def spell_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if not exists(o.unit):
+            if not valid(o.tile):
+                return 0
+            r = slot_radius(o.slot)
+            hits = count(dist(u.pos, o.tile) <= r for u in enemies() if u.is_champion) * 3 + count(dist(c.pos, o.tile) <= r for c in camps())
+            if hits == 0:
+                return 0
+            return 60 + 5 * hits if gems() == 0 or hits >= 3 else 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if k == AB_CC:
+            return 0
+        if o.unit.is_camp and gems() == 0:
+            return 65
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 88 if me().health_frac < 0.77 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and progress(o.tile) >= 2:
+            return 55
+        return 0
+    return 0
+
+```
