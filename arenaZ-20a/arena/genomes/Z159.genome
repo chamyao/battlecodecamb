@@ -1,0 +1,111 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+FOEHIT: Tiles = None
+CAMPHIT: Tiles = None
+
+@gene('s1', 'value of doing this option now: when hurt, walk home out of camp range and recall only when safe')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 36:
+            return 100 if items_owned(36) <= items_owned(40) else 0
+        return 100 if o.item == 40 else 0
+    hurt = me().health_frac < 0.4
+    if o.kind == RECALL:
+        return 90 if (hurt or (gold() >= 300 and gems() == 0)) and not threatened() else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() < 8 and not hurt else 0
+    if o.kind == BUY_LOCK:
+        return 96 if not has_lock() else 0
+    if o.kind == LOCK:
+        if any((is_tributing(u) or unit_gems(u) >= 10) and dist(u.pos, o.tile) <= 2 for u in enemies()):
+            return 95
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        if hurt:
+            return 85 if home_step(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() >= 8 or (gems() > 0 and round() > 1900):
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals() - type_spawns(MONOLITH))
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z86a', 'an awake camp could hit me here', parents=['s1'])
+def threatened() -> Bool:
+    return any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps()) or any(dist(u.pos, me().pos) <= 4 for u in enemies())
+
+@gene('Z86b', 'distance field to my spawn', parents=['s4'])
+def home_field() -> Field:
+    return field(my_spawn())
+
+@gene('Z86c', 'how much closer a step brings me to my spawn', parents=['s4'])
+def home_step(t: Tile) -> Num:
+    d = at(home_field(), me().pos) - at(home_field(), t)
+    here = min((dist(c.pos, me().pos) for c in camps() if is_awake(c)), default=99)
+    there = min((dist(c.pos, t) for c in camps() if is_awake(c)), default=99)
+    if here <= 4:
+        return (there - here) + 0.1 * d
+    return d
+
+@gene('Z86d', 'value of casting an ability now', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hurt = me().health_frac < 0.4
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 87
+            return 65 if gems() < 8 and not hurt else 0
+        return 0
+    if k == AB_AOE:
+        if o.tile in FOEHIT:
+            return 81
+        return 40 if o.tile in CAMPHIT and gems() < 8 and not hurt else 0
+    if k == AB_RESET:
+        return 75 if not can_attack() and (threatened() or count_units(enemies()) > 0) else 0
+    if k == AB_SHIELD:
+        return 102 if threatened() or count_units(enemies()) > 0 else 0
+    if k == AB_DASH:
+        if me().health_frac < 0.4:
+            return 77 if home_step(o.tile) >= 2 else 0
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_HEAL:
+        return 75 if exists(o.unit) and o.unit.health_frac < 0.7 else 0
+    return 0
+
+@gene('Z86e', 'once per turn: compute the goal distance field', parents=['s3'])
+def update() -> None:
+    GF = goal_field()
+    FOEHIT = near(tile(-5, -5), 0)
+    for u in enemies():
+        FOEHIT = FOEHIT | near(u.pos, 1)
+    CAMPHIT = near(tile(-5, -5), 0)
+    for c in camps():
+        CAMPHIT = CAMPHIT | near(c.pos, 0.7776)

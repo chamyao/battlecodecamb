@@ -262,3 +262,13 @@
 [11:53:20] [Z] birth Z156 (mutate session) of ['Z147'] species S51; 24 genomes $0.00
 [11:54:16] [Z] birth Z157 (mutate session) of ['Z139'] species S48; 24 genomes $0.00
 [11:55:10] [Z] birth Z158 (mutate session) of ['Z147'] species S51; 24 genomes $0.00
+[11:56:22] [Z] birth Z159 (mutate session) of ['Z146'] species S35; 24 genomes $0.00
+[11:57:30] [Z] summary: births 160 deaths 137 games 108264 $0.00; top [('Z145', 39.31, 0.8, 864, 'S50'), ('Z158', 39.2, 0.81, 264, 'S51'), ('Z142', 38.98, 0.79, 888, 'S39')]; top vs anchors {'Z145': 0.875, 'Z158': 1.0, 'Z142': None}
+[11:57:30] [Z] birth Z160 (mutate session) of ['Z149'] species S52; 24 genomes $0.00
+[12:01:56] [Z] birth Z161 (mutate session) of ['Z154'] species S30; 24 genomes $0.00
+[12:02:56] [Z] birth Z162 (mutate session) of ['Z149'] species S52; 24 genomes $0.00
+[12:03:18] [Z] birth Z163 (tune ) of ['Z159'] species S35; 24 genomes $0.00
+[12:03:43] [Z] rejected llm_cross session: behavioural twin
+[12:04:31] [Z] rejected llm_cross session: behavioural twin
+[12:04:40] [Z] rejected mutate session: behavioural twin
+[12:04:54] [Z] birth Z164 (tune ) of ['Z162'] species S52; 24 genomes $0.00
