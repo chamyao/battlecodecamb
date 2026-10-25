@@ -1,0 +1,7 @@
+```python
+@gene("r3", "retreat on foot: below 30% health and under fire, unless an enemy champion in reach dies to our next basic attack (take the kill instead)")
+def r_run() -> Bool:
+    if at_spawn() or not hurt_below(0.3) or not under_fire():
+        return False
+    return not any(in_reach(u) and attack_damage(me(), u) >= u.health + shield(u) for u in enemies())
+```
