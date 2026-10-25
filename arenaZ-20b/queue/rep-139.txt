@@ -1,0 +1,33 @@
+```python
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == RYTH:
+            return 20
+        if o.champ == VESPER_VALE:
+            return 19
+        if o.champ == VENDETTA:
+            return 18
+        if o.champ == CASSI:
+            return 17
+        if o.champ == TAVI:
+            return 16
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 36 else 0
+    if o.kind == RECALL:
+        return 90 if HURT and not FIGHT else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if (o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit):
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```
