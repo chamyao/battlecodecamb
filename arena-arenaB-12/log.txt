@@ -2249,3 +2249,389 @@
 [02:53:00] [B] rejected mutate claude-haiku-5-5: behavioural twin
 [02:53:00] [B] birth B1213 (mutate claude-haiku-5-5) of ['B1113'] species S1; 24 genomes $8.52
 [02:53:01] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:53:07] [B] rejected cross : behavioural twin
+[02:53:09] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:10] [B] birth B1214 (tune ) of ['B1187'] species S1; 24 genomes $8.52
+[02:53:11] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:11] [B] anchor exploit-353 frozen at mu 44.44 after 200 games
+[02:53:14] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:53:14] [B] birth B1215 (cross ) of ['B1195', 'B1187'] species S1; 24 genomes $8.52
+[02:53:15] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:53:16] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:18] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:53:21] [B] anchor deathball frozen at mu 40.79 after 200 games
+[02:53:22] [B] rejected tune : behavioural twin
+[02:53:28] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:53:28] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:29] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:30] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:35] [B] birth B1216 (mutate claude-haiku-5-5) of ['B1198'] species S1; 24 genomes $8.53
+[02:53:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:39] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:53:40] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:40] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:53:46] [B] birth B1217 (cross ) of ['B1206', 'B1198'] species S2; 24 genomes $8.53
+[02:53:48] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:53:52] [B] birth B1218 (mutate claude-haiku-5-5) of ['B1026'] species S1; 24 genomes $8.54
+[02:53:56] [B] birth B1219 (llm_cross claude-haiku-5-5) of ['B1195', 'B1026'] species S2; 24 genomes $8.54
+[02:53:56] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:53:57] [B] summary: births 1220 deaths 1197 games 269608 $8.54; top [('B1196', 45.03, 0.8, 296, 'S1'), ('B1220', 45.03, 6.0, 0, 'S1'), ('B1113', 44.9, 0.81, 1432, 'S1')]; top vs anchors {'B1196': 0.75, 'B1113': 0.76, 'B1169': 0.75}
+[02:53:57] [B] birth B1220 (mutate claude-haiku-5-5) of ['B1196'] species S1; 24 genomes $8.54
+[02:54:00] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:54:04] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:54:09] [B] birth B1221 (mutate claude-haiku-5-5) of ['B1113'] species S1; 24 genomes $8.60
+[02:54:11] [B] anchor rushbank frozen at mu 41.68 after 200 games
+[02:54:11] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:54:12] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:54:15] [B] birth B1222 (mutate claude-opus-5-5) of ['B1169'] species S1; 24 genomes $8.60
+[02:54:17] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:54:17] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:54:22] [B] birth B1223 (mutate claude-haiku-5-5) of ['B1026'] species S1; 24 genomes $8.60
+[02:54:23] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:54:25] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:54:26] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:54:29] [B] birth B1224 (mutate claude-haiku-5-5) of ['B1178'] species S1; 24 genomes $8.60
+[02:54:29] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:54:36] [B] birth B1225 (mutate claude-haiku-5-5) of ['B1113'] species S1; 24 genomes $8.60
+[02:54:37] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:54:38] [B] birth B1226 (tune ) of ['B1169'] species S1; 24 genomes $8.60
+[02:54:38] [B] rejected tune : behavioural twin
+[02:54:44] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:54:47] [B] rejected cross : behavioural twin
+[02:54:53] [B] rejected tune : behavioural twin
+[02:54:53] [B] birth B1227 (mutate claude-haiku-5-5) of ['B1197'] species S1; 24 genomes $8.61
+[02:54:54] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:54:56] [B] birth B1228 (mutate claude-haiku-5-5) of ['B1198'] species S1; 24 genomes $8.61
+[02:55:01] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:55:03] [B] birth B1229 (mutate claude-haiku-5-5) of ['B1187'] species S1; 24 genomes $8.61
+[02:55:04] [B] rejected tune : behavioural twin
+[02:55:07] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:55:08] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:55:11] [B] rejected cross : behavioural twin
+[02:55:14] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:55:14] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:55:15] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:55:17] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:55:18] [B] summary: births 1230 deaths 1207 games 271976 $8.66; top [('B1227', 45.14, 0.92, 88, 'S1'), ('B1178', 45.04, 0.79, 520, 'S1'), ('B1221', 44.54, 0.8, 216, 'S1')]; top vs anchors {'B1227': None, 'B1178': 0.74, 'B1221': 0.583}
+[02:55:18] [B] birth B1230 (tune ) of ['B1197'] species S1; 24 genomes $8.66
+[02:55:19] [B] birth B1231 (mutate claude-opus-5-5) of ['B1206'] species S1; 24 genomes $8.66
+[02:55:22] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:55:23] [B] birth B1232 (cross ) of ['B1221', 'B1227'] species S1; 24 genomes $8.66
+[02:55:23] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:55:26] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:55:29] [B] birth B1233 (tune ) of ['B1219'] species S2; 24 genomes $8.66
+[02:55:34] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:55:37] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:55:37] [B] birth B1234 (mutate claude-haiku-5-5) of ['B1219'] species S2; 24 genomes $8.66
+[02:55:44] [B] birth B1235 (mutate claude-haiku-5-5) of ['B1221'] species S1; 24 genomes $8.66
+[02:55:44] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:55:46] [B] birth B1236 (cross ) of ['B1221', 'B1169'] species S1; 24 genomes $8.66
+[02:55:50] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:55:52] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:55:59] [B] birth B1237 (mutate claude-haiku-5-5) of ['B1166'] species S1; 24 genomes $8.67
+[02:56:02] [B] birth B1238 (mutate claude-haiku-5-5) of ['B1227'] species S1; 24 genomes $8.67
+[02:56:03] [B] birth B1239 (mutate claude-haiku-5-5) of ['B1178'] species S1; 24 genomes $8.67
+[02:56:05] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:56:06] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:56:12] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:56:12] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:56:20] [B] summary: births 1240 deaths 1217 games 273736 $8.72; top [('B1178', 45.45, 0.81, 600, 'S1'), ('B1166', 44.52, 0.79, 632, 'S1'), ('B1227', 44.47, 0.84, 152, 'S1')]; top vs anchors {'B1178': 0.723, 'B1166': 0.578, 'B1227': 0.75}
+[02:56:20] [B] birth B1240 (mutate claude-haiku-5-5) of ['B1157'] species S1; 24 genomes $8.72
+[02:56:23] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:56:24] [B] birth B1241 (mutate claude-haiku-5-5) of ['B1157'] species S1; 24 genomes $8.72
+[02:56:25] [B] rejected mutate claude-opus-5-5: behavioural twin
+[02:56:25] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:56:33] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:56:34] [B] birth B1242 (tune ) of ['B1227'] species S1; 24 genomes $8.72
+[02:56:34] [B] birth B1243 (tune ) of ['B1198'] species S2; 24 genomes $8.72
+[02:56:40] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:56:43] [B] birth B1244 (mutate claude-haiku-5-5) of ['B1219'] species S2; 24 genomes $8.72
+[02:56:45] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:56:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:56:51] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:56:53] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:56:54] [B] birth B1245 (mutate claude-haiku-5-5) of ['B1071'] species S1; 24 genomes $8.72
+[02:56:55] [B] rejected tune : behavioural twin
+[02:57:02] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:57:03] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:57:04] [B] birth B1246 (tune ) of ['B1166'] species S1; 24 genomes $8.72
+[02:57:06] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:57:06] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:57:09] [B] birth B1247 (mutate claude-haiku-5-5) of ['B1166'] species S1; 24 genomes $8.72
+[02:57:13] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:57:13] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:57:21] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:57:25] [B] birth B1248 (llm_cross claude-haiku-5-5) of ['B1243', 'B1210'] species S2; 24 genomes $8.73
+[02:57:25] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:57:26] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:57:27] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:57:33] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:57:34] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:57:35] [B] rejected tune : behavioural twin
+[02:57:47] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:57:48] [B] birth B1249 (mutate claude-opus-5-5) of ['B1216'] species S1; 24 genomes $8.78
+[02:57:50] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:57:54] [B] champion anchor champ25-B1178 (mu 45.1)
+[02:57:54] [B] summary: births 1250 deaths 1227 games 275800 $8.78; top [('B1178', 45.1, 0.8, 672, 'S1'), ('B1071', 44.99, 0.79, 2200, 'S1'), ('B1247', 44.96, 0.9, 120, 'S1')]; top vs anchors {'B1178': 0.713, 'B1071': 0.743, 'B1247': 0.703}
+[02:57:54] [B] birth B1250 (mutate claude-haiku-5-5) of ['B1166'] species S1; 24 genomes $8.78
+[02:57:55] [B] rejected tune : behavioural twin
+[02:58:03] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:58:05] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:58:08] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:58:11] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:58:16] [B] birth B1251 (mutate claude-haiku-5-5) of ['B1248'] species S2; 24 genomes $8.78
+[02:58:19] [B] birth B1252 (tune ) of ['B1243'] species S2; 24 genomes $8.78
+[02:58:24] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:58:32] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:58:33] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:58:33] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:58:34] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:58:37] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:58:44] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:58:44] [B] birth B1253 (tune ) of ['B1238'] species S1; 24 genomes $8.79
+[02:58:47] [B] birth B1254 (llm_cross claude-haiku-5-5) of ['B1071', 'B1248'] species S2; 24 genomes $8.79
+[02:58:52] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:58:54] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:58:59] [B] birth B1255 (cross ) of ['B1247', 'B1210'] species S1; 24 genomes $8.83
+[02:59:00] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:02] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:05] [B] birth B1256 (mutate claude-opus-5-5) of ['B1169'] species S1; 24 genomes $8.83
+[02:59:07] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:10] [B] birth B1257 (mutate claude-haiku-5-5) of ['B1166'] species S1; 24 genomes $8.83
+[02:59:13] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:14] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:59:20] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:21] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:22] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:59:23] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:24] [B] birth B1258 (mutate claude-haiku-5-5) of ['B1243'] species S2; 24 genomes $8.84
+[02:59:24] [B] birth B1259 (cross ) of ['B1234', 'B1248'] species S2; 24 genomes $8.84
+[02:59:27] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:59:28] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:36] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:37] [B] summary: births 1260 deaths 1237 games 278120 $8.84; top [('B1178', 45.29, 0.79, 768, 'S1'), ('B1234', 44.95, 0.8, 272, 'S2'), ('B1145', 44.7, 0.79, 1296, 'S1')]; top vs anchors {'B1178': 0.713, 'B1234': 0.75, 'B1145': 0.726}
+[02:59:37] [B] birth B1260 (cross ) of ['B1071', 'B1210'] species S1; 24 genomes $8.84
+[02:59:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:59:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[02:59:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[02:59:44] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:45] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:59:50] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[02:59:54] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[02:59:58] [B] birth B1261 (mutate claude-haiku-5-5) of ['B1210'] species S2; 24 genomes $8.84
+[02:59:59] [B] birth B1262 (mutate claude-haiku-5-5) of ['B1260'] species S1; 24 genomes $8.84
+[03:00:04] [B] birth B1263 (tune ) of ['B1178'] species S1; 24 genomes $8.84
+[03:00:06] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:00:14] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:00:16] [B] birth B1264 (cross ) of ['B1256', 'B1178'] species S1; 24 genomes $8.84
+[03:00:19] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:00:22] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:00:28] [B] birth B1265 (mutate claude-opus-5-5) of ['B1248'] species S2; 24 genomes $8.90
+[03:00:32] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:00:36] [B] birth B1266 (mutate claude-haiku-5-5) of ['B1145'] species S1; 24 genomes $8.90
+[03:00:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:00:39] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:00:39] [B] rejected tune : behavioural twin
+[03:00:41] [B] birth B1267 (cross ) of ['B1260', 'B1178'] species S1; 24 genomes $8.90
+[03:00:41] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:00:53] [B] rejected cross : behavioural twin
+[03:00:57] [B] birth B1268 (mutate claude-haiku-5-5) of ['B1178'] species S1; 24 genomes $8.90
+[03:00:57] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:01:00] [B] birth B1269 (mutate claude-haiku-5-5) of ['B1155'] species S1; 24 genomes $8.90
+[03:01:01] [B] summary: births 1270 deaths 1247 games 280000 $8.90; top [('B1216', 45.56, 0.8, 632, 'S1'), ('B1178', 44.52, 0.79, 808, 'S1'), ('B1234', 44.48, 0.82, 344, 'S2')]; top vs anchors {'B1216': 0.625, 'B1178': 0.713, 'B1234': 0.825}
+[03:01:01] [B] birth B1270 (tune ) of ['B1166'] species S1; 24 genomes $8.90
+[03:01:06] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:01:06] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:01:18] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:01:19] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:01:20] [B] birth B1271 (mutate claude-haiku-5-5) of ['B1260'] species S2; 24 genomes $8.90
+[03:01:25] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:01:25] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:01:27] [B] birth B1272 (cross ) of ['B1238', 'B1145'] species S1; 24 genomes $8.90
+[03:01:27] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:01:35] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:01:46] [B] birth B1273 (mutate claude-haiku-5-5) of ['B1247'] species S1; 24 genomes $8.96
+[03:01:47] [B] birth B1274 (mutate claude-opus-5-5) of ['B1264'] species S1; 24 genomes $8.96
+[03:01:47] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:01:53] [B] new species S3 founded by B1275
+[03:01:53] [B] birth B1275 (llm_cross claude-haiku-5-5) of ['B1238', 'B1234'] species S3; 24 genomes $8.96
+[03:01:58] [B] birth B1276 (tune ) of ['B1166'] species S1; 24 genomes $8.97
+[03:02:05] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:02:05] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:02:07] [B] birth B1277 (mutate claude-haiku-5-5) of ['B1145'] species S1; 24 genomes $8.97
+[03:02:13] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:02:16] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:02:17] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:02:18] [B] birth B1278 (cross ) of ['B1210', 'B1249'] species S1; 24 genomes $8.97
+[03:02:19] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:02:24] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:02:30] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:02:33] [B] birth B1279 (mutate claude-haiku-5-5) of ['B1256'] species S1; 24 genomes $8.97
+[03:02:33] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:02:40] [B] summary: births 1280 deaths 1257 games 282584 $8.97; top [('B1071', 45.06, 0.81, 2512, 'S1'), ('B1237', 44.9, 0.81, 424, 'S1'), ('B1260', 44.81, 0.83, 232, 'S1')]; top vs anchors {'B1071': 0.728, 'B1237': 0.729, 'B1260': 0.875}
+[03:02:40] [B] birth B1280 (mutate claude-haiku-5-5) of ['B1278'] species S1; 24 genomes $8.97
+[03:02:42] [B] birth B1281 (cross ) of ['B1071', 'B1166'] species S1; 24 genomes $8.97
+[03:02:49] [B] rejected mutate claude-haiku-5-5: GenomeError: move_value line 414: expected Bool, got Unit
+[03:02:54] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:02:54] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:02:55] [B] birth B1282 (mutate claude-opus-5-5) of ['B1198'] species S2; 24 genomes $9.03
+[03:02:57] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:03:00] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:03:00] [B] birth B1283 (mutate claude-haiku-5-5) of ['B1278'] species S1; 24 genomes $9.03
+[03:03:00] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:03:04] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:03:07] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:03:09] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:03:14] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:03:16] [B] birth B1284 (mutate claude-haiku-5-5) of ['B1273'] species S2; 24 genomes $9.03
+[03:03:20] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:03:23] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:03:32] [B] birth B1285 (mutate claude-haiku-5-5) of ['B1238'] species S1; 24 genomes $9.04
+[03:03:34] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:03:35] [B] birth B1286 (llm_cross claude-haiku-5-5) of ['B1234', 'B1256'] species S2; 24 genomes $9.04
+[03:03:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:03:42] [B] birth B1287 (llm_cross claude-haiku-5-5) of ['B1260', 'B1026'] species S2; 24 genomes $9.05
+[03:03:50] [B] birth B1288 (mutate claude-haiku-5-5) of ['B1278'] species S1; 24 genomes $9.05
+[03:03:50] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:03:58] [B] birth B1289 (mutate claude-haiku-5-5) of ['B1256'] species S1; 24 genomes $9.05
+[03:03:59] [B] summary: births 1290 deaths 1267 games 284840 $9.09; top [('B1216', 45.3, 0.8, 864, 'S1'), ('B1284', 44.85, 0.82, 160, 'S2'), ('B1273', 44.8, 0.79, 272, 'S1')]; top vs anchors {'B1216': 0.625, 'B1284': 0.7, 'B1273': 0.531}
+[03:03:59] [B] birth B1290 (tune ) of ['B1234'] species S3; 24 genomes $9.09
+[03:04:05] [B] birth B1291 (mutate claude-opus-5-5) of ['B1285'] species S1; 24 genomes $9.09
+[03:04:06] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:04:09] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:04:09] [B] birth B1292 (cross ) of ['B1273', 'B1145'] species S1; 24 genomes $9.09
+[03:04:14] [B] birth B1293 (mutate claude-haiku-5-5) of ['B1234'] species S2; 24 genomes $9.09
+[03:04:16] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:04:18] [B] rejected tune : behavioural twin
+[03:04:19] [B] birth B1294 (mutate claude-haiku-5-5) of ['B1234'] species S2; 24 genomes $9.09
+[03:04:23] [B] birth B1295 (cross ) of ['B1145', 'B1278'] species S1; 24 genomes $9.09
+[03:04:25] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:04:27] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:04:27] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:04:31] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:04:33] [B] birth B1296 (mutate claude-haiku-5-5) of ['B1284'] species S2; 24 genomes $9.10
+[03:04:37] [B] birth B1297 (mutate claude-haiku-5-5) of ['B1216'] species S1; 24 genomes $9.10
+[03:04:42] [B] birth B1298 (cross ) of ['B1166', 'B1216'] species S2; 24 genomes $9.10
+[03:04:43] [B] birth B1299 (mutate claude-haiku-5-5) of ['B1271'] species S2; 24 genomes $9.10
+[03:04:44] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:04:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:04:46] [B] champion anchor champ26-B1298 (mu 46.0)
+[03:04:46] [B] summary: births 1300 deaths 1277 games 286176 $9.10; top [('B1298', 45.97, 1.01, 72, 'S2'), ('B1216', 44.89, 0.81, 912, 'S1'), ('B1284', 44.62, 0.8, 192, 'S2')]; top vs anchors {'B1298': None, 'B1216': 0.635, 'B1284': 0.643}
+[03:04:46] [B] birth B1300 (tune ) of ['B1294'] species S3; 24 genomes $9.10
+[03:04:47] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:04:54] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:04:59] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:00] [B] birth B1301 (mutate claude-haiku-5-5) of ['B1298'] species S2; 24 genomes $9.10
+[03:05:01] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:02] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:05:03] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:05:04] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:05] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:05] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:08] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:10] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:10] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:14] [B] birth B1302 (mutate claude-haiku-5-5) of ['B1284'] species S2; 24 genomes $9.10
+[03:05:18] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:05:23] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:05:26] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:27] [B] birth B1303 (mutate claude-opus-5-5) of ['B1297'] species S2; 24 genomes $9.16
+[03:05:27] [B] birth B1304 (mutate claude-haiku-5-5) of ['B1234'] species S2; 24 genomes $9.16
+[03:05:31] [B] birth B1305 (mutate claude-haiku-5-5) of ['B1166'] species S1; 24 genomes $9.16
+[03:05:31] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:33] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:43] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:05:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:46] [B] birth B1306 (mutate claude-haiku-5-5) of ['B1273'] species S2; 24 genomes $9.17
+[03:05:47] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:05:47] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:05:50] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:05:50] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:05:53] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:54] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:05:55] [B] birth B1307 (tune ) of ['B1298'] species S2; 24 genomes $9.17
+[03:05:55] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:05:57] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:06:00] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:06:01] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:06:03] [B] birth B1308 (mutate claude-haiku-5-5) of ['B1294'] species S3; 24 genomes $9.17
+[03:06:04] [B] birth B1309 (mutate claude-haiku-5-5) of ['B1303'] species S2; 24 genomes $9.17
+[03:06:10] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:06:12] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:06:14] [B] summary: births 1310 deaths 1287 games 288720 $9.17; top [('B1302', 45.06, 0.85, 128, 'S2'), ('B1301', 44.85, 0.84, 144, 'S2'), ('B1234', 44.67, 0.8, 728, 'S2')]; top vs anchors {'B1302': 0.781, 'B1301': 0.625, 'B1234': 0.65}
+[03:06:14] [B] birth B1310 (cross ) of ['B1301', 'B1284'] species S2; 24 genomes $9.17
+[03:06:18] [B] birth B1311 (mutate claude-haiku-5-5) of ['B1292'] species S1; 24 genomes $9.17
+[03:06:23] [B] birth B1312 (tune ) of ['B1216'] species S1; 24 genomes $9.17
+[03:06:23] [B] rejected mutate claude-opus-5-5: EditError: no change
+[03:06:27] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:06:28] [B] rejected cross : behavioural twin
+[03:06:29] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:06:31] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:06:37] [B] birth B1313 (mutate claude-haiku-5-5) of ['B1302'] species S2; 24 genomes $9.26
+[03:06:37] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:06:40] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:06:40] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:06:42] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:06:43] [B] birth B1314 (mutate claude-haiku-5-5) of ['B1301'] species S2; 24 genomes $9.26
+[03:06:54] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:06:58] [B] birth B1315 (mutate claude-haiku-5-5) of ['B1303'] species S2; 24 genomes $9.26
+[03:07:03] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:07:06] [B] birth B1316 (mutate claude-haiku-5-5) of ['B1198'] species S1; 24 genomes $9.26
+[03:07:08] [B] rejected tune : behavioural twin
+[03:07:09] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:07:12] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:07:15] [B] birth B1317 (cross ) of ['B1315', 'B1314'] species S2; 24 genomes $9.26
+[03:07:30] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:07:30] [B] birth B1318 (mutate claude-opus-5-5) of ['B1302'] species S2; 24 genomes $9.32
+[03:07:31] [B] birth B1319 (mutate claude-haiku-5-5) of ['B1275'] species S3; 24 genomes $9.32
+[03:07:32] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:07:32] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:07:41] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:07:45] [B] summary: births 1320 deaths 1297 games 291248 $9.33; top [('B1275', 45.38, 0.8, 456, 'S3'), ('B1312', 45.11, 0.83, 160, 'S1'), ('B1234', 45.09, 0.8, 880, 'S2')]; top vs anchors {'B1275': 0.797, 'B1312': 0.75, 'B1234': 0.663}
+[03:07:45] [B] birth B1320 (mutate claude-haiku-5-5) of ['B1301'] species S2; 24 genomes $9.33
+[03:07:47] [B] birth B1321 (mutate claude-haiku-5-5) of ['B1198'] species S1; 24 genomes $9.33
+[03:07:47] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:07:49] [B] birth B1322 (llm_cross claude-haiku-5-5) of ['B1198', 'B1302'] species S2; 24 genomes $9.33
+[03:08:03] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:08:03] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:08:04] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:08:06] [B] birth B1323 (mutate claude-haiku-5-5) of ['B1275'] species S3; 24 genomes $9.34
+[03:08:09] [B] birth B1324 (tune ) of ['B1312'] species S2; 24 genomes $9.34
+[03:08:10] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:08:15] [B] birth B1325 (mutate claude-haiku-5-5) of ['B1275'] species S3; 24 genomes $9.34
+[03:08:20] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:08:23] [B] birth B1326 (mutate claude-haiku-5-5) of ['B1256'] species S1; 24 genomes $9.34
+[03:08:30] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:08:37] [B] birth B1327 (mutate claude-haiku-5-5) of ['B1315'] species S2; 24 genomes $9.34
+[03:08:37] [B] birth B1328 (tune ) of ['B1294'] species S3; 24 genomes $9.34
+[03:08:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:08:47] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:08:53] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:08:53] [B] birth B1329 (mutate claude-haiku-5-5) of ['B1312'] species S2; 24 genomes $9.35
+[03:08:57] [B] summary: births 1330 deaths 1307 games 293272 $9.35; top [('B1273', 45.04, 0.8, 656, 'S1'), ('B1312', 45.0, 0.8, 280, 'S1'), ('B1327', 44.98, 0.87, 104, 'S2')]; top vs anchors {'B1273': 0.614, 'B1312': 0.725, 'B1327': 0.75}
+[03:08:57] [B] birth B1330 (mutate claude-haiku-5-5) of ['B1327'] species S2; 24 genomes $9.35
+[03:08:57] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:09:03] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:09:10] [B] birth B1331 (mutate claude-haiku-5-5) of ['B1297'] species S2; 24 genomes $9.35
+[03:09:12] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:13] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:09:20] [B] birth B1332 (tune ) of ['B1322'] species S2; 24 genomes $9.35
+[03:09:22] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:09:25] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:09:26] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:09:28] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:09:28] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:29] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:09:33] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:33] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:09:38] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:09:40] [B] birth B1333 (tune ) of ['B1329'] species S2; 24 genomes $9.74
+[03:09:42] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:45] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:09:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:09:46] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:09:47] [B] birth B1334 (llm_cross claude-opus-5-5) of ['B1312', 'B1315'] species S2; 24 genomes $9.74
+[03:09:51] [B] rejected mutate claude-haiku-5-5: GenomeError: bank_t3 line 671: unknown name ALT_OPEN
