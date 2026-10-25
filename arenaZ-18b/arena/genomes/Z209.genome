@@ -1,0 +1,131 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+AF: Field = None
+HF: Field = None
+CF: Field = None
+INIT: Bool = False
+CT: Num = -99
+AT: Num = -99
+
+@gene('s1', 'value of doing this option now: use attack resets, draft Vesper Vale first, cast spells, focus fire the weakest camp, recall when out of reach, walk home when hurt with enemies near')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return (10 if o.champ == VESPER_VALE else (9 if o.champ == STELLAR else (8 if o.champ == PRISM else (7 if o.champ == REN else (6 if o.champ == TAVI else 1)))))
+    if o.kind == BUY:
+        return 100 + o.count if o.item == (40 if items_owned(41) == 0 else 36) else 0
+    if o.kind == RECALL:
+        return 54 if me().health_frac < 0.35 or (gold() >= 150 and count_units(enemies()) == 0 and gems() == 0) else 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_RESET:
+            return reset_value()
+        return spell_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + min(unit_gems(o.unit), 60) / 3
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35 and count_units(enemies()) > 0:
+            return 95 if progress(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when hurt, an altar with gems, else a living camp group that is not a monolith or golem')
+def goals() -> Tiles:
+    if me().health_frac < 0.35:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            k = spawn_type(nearest(ts, me().pos))
+            if k != MONOLITH and k != GOLEM:
+                acc = acc | ts
+    return acc
+
+@gene('s3', 'distance field to the goals (cached per turn)')
+def goal_field() -> Field:
+    return GF
+
+@gene('s4', 'how much closer a step brings me to the goals, or to a nearby enemy champion carrying many gems when I am healthy')
+def progress(t: Tile) -> Num:
+    if me().health_frac > 0.5:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 8 and dist(prey.pos, me().pos) <= 8:
+            return dist(prey.pos, me().pos) - dist(prey.pos, t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z202a', 'which option kinds to list each pass: skip wards, locks and cancels that are never taken, saving their listing fuel', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    return True
+
+@gene('Z213a', 'value of an attack reset: worth it once my basic attack is spent and an enemy champion or (when farming) a camp is still in reach', parents=['s1'])
+def reset_value() -> Num:
+    if can_attack():
+        return 0
+    reach = me().attack_range
+    if any(dist(u.pos, me().pos) <= reach for u in enemies() if u.is_champion):
+        return 90
+    if gems() == 0 and any(dist(c.pos, me().pos) <= reach for c in camps()):
+        return 62
+    return 0
+
+@gene('Z202b', 'value of a spell: damage, aoe and cc on enemy champions or adjacent camps, ground aoe where it hits several targets, shield and heal early, dash toward the goal', parents=['s1'])
+def spell_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if not exists(o.unit):
+            if not valid(o.tile):
+                return 0
+            r = slot_radius(o.slot)
+            hits = count(dist(u.pos, o.tile) <= r for u in enemies() if u.is_champion) * 3 + count(dist(c.pos, o.tile) <= r for c in camps())
+            if hits == 0:
+                return 0
+            return 60 + 5 * hits if gems() == 0 or hits >= 3 else 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and gems() == 0:
+            return 65
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 88 if me().health_frac < 0.77 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and progress(o.tile) >= 2:
+            return 55
+        return 0
+    return 0
+
+@gene('Z202c', 'set the goal field from cached fields: home field built once, altar field and the camp field (groups worth 10+ gems) every 5 rounds or once reached')
+def update() -> None:
+    if not INIT:
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35:
+        GF = HF
+    elif gems() > 0:
+        if round() - AT >= 8:
+            AF = field(goals())
+            AT = round()
+        GF = AF
+    else:
+        if round() - CT >= 5 or at(CF, me().pos) <= 0:
+            t = goals()
+            poor = near(tile(-5, -5), 0)
+            for g in range(num_groups()):
+                if group_gems(g) < 10:
+                    poor = poor | group_tiles(g)
+            if size(t - poor) > 0:
+                t = t - poor
+            CF = field(t)
+            CT = round()
+        GF = CF

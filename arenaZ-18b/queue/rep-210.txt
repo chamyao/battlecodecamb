@@ -1,0 +1,33 @@
+```python
+@gene("Z85b", "set the goal field from cached fields: home field built once, altar field and the camp field (groups worth 10+ gems) every 5 rounds or once reached")
+def update() -> None:
+    if not INIT:
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35:
+        GF = HF
+    elif gems() > 0:
+        if round() - AT >= 8:
+            AF = field(goals())
+            AT = round()
+        GF = AF
+    else:
+        if round() - CT >= 5 or at(CF, me().pos) <= 0:
+            t = goals()
+            poor = near(tile(-5, -5), 0)
+            for g in range(num_groups()):
+                if group_gems(g) < 10:
+                    poor = poor | group_tiles(g)
+            if size(t - poor) > 0:
+                t = t - poor
+            CF = field(t)
+            CT = round()
+        GF = CF
+
+AF: Field = None
+HF: Field = None
+CF: Field = None
+INIT: Bool = False
+CT: Num = -99
+AT: Num = -99
+```
