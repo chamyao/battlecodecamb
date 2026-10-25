@@ -2,6 +2,20 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 00:15 UTC
+
+- arenaA-5 final population (24 genomes, 13-opponent panel, played by 2 cloud worker sessions): mean 793
+  (held-out 487/640, anchors 305/400), best A1300 818; arenaA-3 final: mean 756 (held-out 467), best 780.
+  Control arenaA-6 (same $3.50, old evaluation) running; verdict when it ends.
+- arenaZ-1 final top 3 on its 11-opponent panel: Z449 215, Z474 194, Z468 180 of 880 (m4 104, v1 66,
+  starter 46). Z474: fs-1 47/80, fs-p1 14, fs-p2 7, fs-p3 6. Genes 4 -> 6 by birth ~100, then flat;
+  code 45 -> ~210 lines, keeps 0 -> 7.
+- Cloud sessions as compute: 86-106k games/hour per session (4 cores), ~0.6 Claude-$ of session usage
+  per ~8-min shard (mostly cache reads).
+- Queued/running: arenaZ-4 (A1 prompt), arenaZ-2 (replicate), arenaZ-3 (distinct games) on EC2;
+  arenaZ-5 (Claude Code session mutator with feedback, M2) being built; arenaZ-6 (no ladder notes),
+  arenaZ-7 (replicate) wait on the arena service's Claude cap ($60, ~$59 committed): needs Cham.
+
 ## 2026-10-25 00:05 UTC: Arena Z becomes the testbed (Cham)
 
 - Why: from the starter, progress is large and fast (46 -> 104/880 in 400 births), and Z trains only on
