@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 01:50 UTC: evaluation change verdict (final populations)
+
+- Final populations on the 13-opponent panel (1,040 games each; seed v23 723), arenaA-6 (control, old
+  evaluation) vs arenaA-5 (distinct games + bot-seeded anchors), both arenaA-3 + $3.53:
+  mean 837.0 vs 792.6; held-out (8 opponents, 640) 515.0 vs 487.1; anchors 322.1 vs 305.5; best 867 vs 818.
+  The control wins on every measure: the evaluation change is not adopted (n = 1 per arm).
+  Best genome so far: arenaA-6's at 867 (+144 over v23, about +14 points). Data: arenaa/data/.
+- Z-4 (A1 operator): panel best 49/50/53 at b100/200/300: nearly flat (baselines +50-60 over the same span).
+- Approved and specified: arenaZ-1x (Z-1 resumed to ~2,000+ births, the reference curve), arenaZ-11
+  (in-place gene splitting, arenaa/SPLIT.md), arenaZ-10 relay (arenaa/RELAY.md; leg 1 running).
+
 ## 2026-10-25 01:45 UTC
 
 - Z-5 (Claude Code session mutator with feedback, M2): birth 254/475 at 01:39 (~70 min; ~2.5x slower per
