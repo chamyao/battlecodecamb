@@ -669,3 +669,33 @@
 [08:49:52] [Z] birth Z456 (cross ) of ['Z446', 'Z417'] species S80; 24 genomes $0.00
 [08:49:53] [Z] birth Z457 (mutate session) of ['Z397'] species S91; 24 genomes $0.00
 [08:49:56] [Z] birth Z458 (tune ) of ['Z397'] species S91; 24 genomes $0.00
+[08:51:05] [Z] birth Z459 (mutate session) of ['Z453'] species S93; 24 genomes $0.00
+[08:51:07] [Z] new species S101 founded by Z460
+[08:51:07] [Z] summary: births 460 deaths 437 games 51248 $0.00; top [('Z446', 45.02, 1.03, 72, 'S80'), ('Z397', 44.47, 0.81, 328, 'S91'), ('Z460', 44.47, 6.0, 0, 'S101')]; top vs anchors {'Z446': 1.0, 'Z397': 1.0, 'Z453': 0.875}
+[08:51:07] [Z] birth Z460 (tune ) of ['Z397'] species S101; 24 genomes $0.00
+[08:51:12] [Z] birth Z461 (mutate session) of ['Z453'] species S93; 24 genomes $0.00
+[08:51:13] [Z] birth Z462 (tune ) of ['Z453'] species S93; 24 genomes $0.00
+[08:51:14] [Z] birth Z463 (mutate session) of ['Z456'] species S80; 24 genomes $0.00
+[08:51:15] [Z] birth Z464 (mutate session) of ['Z416'] species S69; 24 genomes $0.00
+[08:51:15] [Z] rejected mutate session: behavioural twin
+[08:51:15] [Z] rejected tune : behavioural twin
+[08:52:27] [Z] birth Z465 (tune ) of ['Z430'] species S98; 24 genomes $0.00
+[08:52:28] [Z] birth Z466 (mutate session) of ['Z394'] species S78; 24 genomes $0.00
+[08:52:28] [Z] rejected mutate session: behavioural twin
+[08:52:29] [Z] rejected tune : behavioural twin
+[08:52:31] [Z] birth Z467 (mutate session) of ['Z459'] species S98; 24 genomes $0.00
+[08:52:32] [Z] birth Z468 (mutate session) of ['Z455'] species S83; 24 genomes $0.00
+[08:52:32] [Z] new species S102 founded by Z469
+[08:52:32] [Z] birth Z469 (tune ) of ['Z397'] species S102; 24 genomes $0.00
+[08:52:33] [Z] new species S103 founded by Z470
+[08:52:33] [Z] summary: births 470 deaths 447 games 51824 $0.00; top [('Z446', 45.32, 0.91, 104, 'S80'), ('Z459', 44.83, 0.91, 88, 'S93'), ('Z467', 44.83, 6.0, 0, 'S98')]; top vs anchors {'Z446': 1.0, 'Z459': None, 'Z397': 1.0}
+[08:52:33] [Z] birth Z470 (mutate session) of ['Z412'] species S103; 24 genomes $0.00
+[08:53:42] [Z] birth Z471 (cross ) of ['Z468', 'Z445'] species S83; 24 genomes $0.00
+[08:53:43] [Z] rejected tune : behavioural twin
+[08:53:46] [Z] birth Z472 (mutate session) of ['Z469'] species S102; 24 genomes $0.00
+[08:53:50] [Z] birth Z473 (mutate session) of ['Z459'] species S80; 24 genomes $0.00
+[08:53:52] [Z] birth Z474 (tune ) of ['Z445'] species S83; 24 genomes $0.00
+[08:53:52] [Z] 475 births (--max-births 475): no more births
+[08:53:52] [Z] birth Z475 (mutate session) of ['Z454'] species S100; 24 genomes $0.00
+[08:53:53] [Z] birth Z476 (mutate session) of ['Z468'] species S83; 24 genomes $0.00
+[08:53:54] [Z] birth Z477 (tune ) of ['Z412'] species S103; 24 genomes $0.00
