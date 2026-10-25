@@ -759,3 +759,77 @@
 [04:53:43] [Z] new species S175 founded by Z347
 [04:53:43] [Z] birth Z347 (tune ) of ['Z329'] species S175; 24 genomes $1.67
 [04:53:48] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:54:00] [Z] birth Z348 (mutate claude-haiku-5-5) of ['Z287'] species S151; 24 genomes $1.71
+[04:54:03] [Z] new species S176 founded by Z349
+[04:54:03] [Z] birth Z349 (llm_cross claude-haiku-5-5) of ['Z331', 'Z345'] species S176; 24 genomes $1.71
+[04:54:04] [Z] champion anchor champ7-Z344 (mu 35.7)
+[04:54:04] [Z] summary: births 350 deaths 327 games 56336 $1.71; top [('Z344', 35.7, 0.87, 112, 'S174'), ('Z350', 35.35, 6.0, 0, 'S137'), ('Z349', 35.31, 6.0, 0, 'S176')]; top vs anchors {'Z344': None, 'Z331': 0.75, 'Z327': 0.875}
+[04:54:04] [Z] birth Z350 (mutate claude-opus-5-5) of ['Z345'] species S137; 24 genomes $1.71
+[04:54:11] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:54:21] [Z] birth Z351 (mutate claude-haiku-5-5) of ['Z279'] species S147; 24 genomes $1.71
+[04:54:26] [Z] birth Z352 (mutate claude-haiku-5-5) of ['Z344'] species S174; 24 genomes $1.71
+[04:54:31] [Z] rejected tune : behavioural twin
+[04:54:34] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:54:36] [Z] rejected mutate claude-haiku-5-5: GenomeError: update line 117: cannot assign to near
+[04:54:39] [Z] split Z332.cast_value: discarded (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", "not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's"]) $0.0740
+[04:54:47] [Z] new species S177 founded by Z353
+[04:54:47] [Z] birth Z353 (mutate claude-haiku-5-5) of ['Z251'] species S177; 24 genomes $1.71
+[04:54:50] [Z] new species S178 founded by Z354
+[04:54:50] [Z] birth Z354 (mutate claude-haiku-5-5) of ['Z290'] species S178; 24 genomes $1.71
+[04:54:56] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 120: gene dash_cast_value redefined or shadows a builtin
+[04:54:59] [Z] birth Z355 (mutate claude-opus-5-5) of ['Z349'] species S176; 24 genomes $1.75
+[04:55:07] [Z] birth Z356 (mutate claude-haiku-5-5) of ['Z349'] species S176; 24 genomes $1.75
+[04:55:19] [Z] new species S179 founded by Z357
+[04:55:19] [Z] birth Z357 (llm_cross claude-haiku-5-5) of ['Z318', 'Z290'] species S179; 24 genomes $1.75
+[04:55:20] [Z] new species S180 founded by Z358
+[04:55:20] [Z] birth Z358 (llm_cross claude-haiku-5-5) of ['Z352', 'Z327'] species S180; 24 genomes $1.75
+[04:55:23] [Z] birth Z359 (mutate claude-haiku-5-5) of ['Z336'] species S146; 24 genomes $1.75
+[04:55:37] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:55:40] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:55:44] [Z] new species S181 founded by Z360
+[04:55:44] [Z] summary: births 360 deaths 337 games 58616 $1.76; top [('Z356', 35.79, 0.94, 96, 'S176'), ('Z358', 35.74, 0.92, 88, 'S180'), ('Z352', 35.56, 0.82, 184, 'S174')]; top vs anchors {'Z356': 1.0, 'Z358': 0.75, 'Z352': None}
+[04:55:44] [Z] birth Z360 (mutate claude-haiku-5-5) of ['Z290'] species S181; 24 genomes $1.76
+[04:55:49] [Z] new species S182 founded by Z361
+[04:55:49] [Z] birth Z361 (mutate claude-haiku-5-5) of ['Z177'] species S182; 24 genomes $1.76
+[04:56:00] [Z] birth Z362 (mutate claude-haiku-5-5) of ['Z358'] species S180; 24 genomes $1.80
+[04:56:01] [Z] new species S183 founded by Z363
+[04:56:01] [Z] birth Z363 (mutate claude-opus-5-5) of ['Z353'] species S183; 24 genomes $1.80
+[04:56:13] [Z] new species S184 founded by Z364
+[04:56:13] [Z] birth Z364 (tune ) of ['Z331'] species S184; 24 genomes $1.80
+[04:56:17] [Z] split Z325.cast_value: discarded (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", "not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's"]) $0.0739
+[04:56:18] [Z] new species S185 founded by Z365
+[04:56:18] [Z] birth Z365 (llm_cross claude-haiku-5-5) of ['Z308', 'Z347'] species S185; 24 genomes $1.80
+[04:56:23] [Z] birth Z366 (mutate claude-haiku-5-5) of ['Z356'] species S176; 24 genomes $1.80
+[04:56:31] [Z] birth Z367 (mutate claude-haiku-5-5) of ['Z328'] species S167; 24 genomes $1.80
+[04:56:32] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 59: cannot assign to near
+[04:56:40] [Z] birth Z368 (llm_cross claude-haiku-5-5) of ['Z364', 'Z308'] species S143; 24 genomes $1.80
+[04:56:42] [Z] new species S186 founded by Z369
+[04:56:42] [Z] birth Z369 (tune ) of ['Z359'] species S186; 24 genomes $1.80
+[04:56:44] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:56:56] [Z] summary: births 370 deaths 347 games 60272 $1.80; top [('Z352', 35.62, 0.79, 288, 'S174'), ('Z368', 35.42, 0.89, 96, 'S143'), ('Z318', 35.23, 0.8, 544, 'S155')]; top vs anchors {'Z352': None, 'Z368': None, 'Z318': None}
+[04:56:56] [Z] birth Z370 (mutate claude-haiku-5-5) of ['Z335'] species S170; 24 genomes $1.81
+[04:56:57] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:57:11] [Z] new species S187 founded by Z371
+[04:57:11] [Z] birth Z371 (mutate claude-opus-5-5) of ['Z318'] species S187; 24 genomes $1.85
+[04:57:11] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:57:27] [Z] birth Z372 (llm_cross claude-haiku-5-5) of ['Z318', 'Z351'] species S166; 24 genomes $1.86
+[04:57:30] [Z] split Z251.cast_value: applied (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", 'ok']) $0.0734
+[04:57:33] [Z] birth Z373 (llm_cross claude-haiku-5-5) of ['Z251', 'Z362'] species S180; 24 genomes $1.86
+[04:57:34] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 146: gene update redefined or shadows a builtin
+[04:57:39] [Z] birth Z374 (mutate claude-haiku-5-5) of ['Z369'] species S186; 24 genomes $1.86
+[04:57:45] [Z] rejected mutate claude-haiku-5-5: GenomeError: dash_cast_value line 122: expected Bool, got Num
+[04:57:50] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[04:57:53] [Z] new species S188 founded by Z375
+[04:57:53] [Z] birth Z375 (llm_cross claude-haiku-5-5) of ['Z366', 'Z372'] species S188; 24 genomes $1.86
+[04:58:00] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[04:58:04] [Z] birth Z376 (tune ) of ['Z364'] species S184; 24 genomes $1.87
+[04:58:13] [Z] new species S189 founded by Z377
+[04:58:13] [Z] birth Z377 (mutate claude-opus-5-5) of ['Z290'] species S189; 24 genomes $1.92
+[04:58:17] [Z] birth Z378 (llm_cross claude-haiku-5-5) of ['Z251', 'Z359'] species S146; 24 genomes $1.92
+[04:58:19] [Z] birth Z379 (mutate claude-haiku-5-5) of ['Z373'] species S180; 24 genomes $1.92
+[04:58:28] [Z] summary: births 380 deaths 357 games 62472 $1.92; top [('Z371', 36.97, 0.82, 192, 'S187'), ('Z378', 35.45, 0.92, 96, 'S146'), ('Z380', 35.3, 6.0, 0, 'S188')]; top vs anchors {'Z371': 1.0, 'Z378': 0.875, 'Z331': 0.75}
+[04:58:28] [Z] birth Z380 (mutate claude-haiku-5-5) of ['Z375'] species S188; 24 genomes $1.92
+[04:58:30] [Z] birth Z381 (tune ) of ['Z365'] species S185; 24 genomes $1.92
+[04:58:35] [Z] birth Z382 (mutate claude-haiku-5-5) of ['Z371'] species S187; 24 genomes $1.92
+[04:58:46] [Z] birth Z383 (mutate claude-haiku-5-5) of ['Z380'] species S188; 24 genomes $1.92
+[04:58:49] [Z] birth Z384 (llm_cross claude-haiku-5-5) of ['Z372', 'Z371'] species S187; 24 genomes $1.92
