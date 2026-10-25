@@ -1,0 +1,8 @@
+```python
+@gene("r17", "bank before a dangerous group: 10+ gems and the next group's strength is 240+ (gem and fuel checks before the camp walk's goal)")
+def r_bankgroup() -> Bool:
+    if gems() < 10 or fuel() <= 65000:
+        return False
+    g = camp_goal()
+    return valid(g) and group_threat(g) >= 240
+```

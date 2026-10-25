@@ -1,0 +1,5 @@
+```python
+@gene("s14", "the visible camp in reach to hit: the most wounded one (fewest hits to kill), invalid-scored camps out of reach last")
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: 2 - c.health_frac if in_reach(c) else 0)
+```

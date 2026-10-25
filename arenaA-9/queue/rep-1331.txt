@@ -1,0 +1,7 @@
+```python
+@gene('s9', 'turns to cover d tiles at speed s, padded 30% for detours around terrain and units')
+def eta(d: Num, s: Num) -> Num:
+    if d <= 0:
+        return 0
+    return -floor(-(d * 13 / 10) / max(1, s))
+```
