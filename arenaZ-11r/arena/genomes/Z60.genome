@@ -6,40 +6,56 @@ GOAL_FIELD: Field = None
 @gene('s1', 'value of doing this option now: draft priorities, casts, spawn healing, safer recall')
 def score(o: Option) -> Num:
     if o.kind == PICK:
-        if o.champ == VESPER_VALE:
-            return 10
-        if o.champ == HEART_OF_RUIN:
-            return 9
-        if o.champ == MARCELLA:
-            return 8
-        if o.champ == VENDETTA:
-            return 7
-        if o.champ == RYTH:
-            return 6
-        return 1
+        return draft_value(o)
     if o.kind == BUY:
         return 100 if o.item == 6 else 0
     hf = me().health_frac
     if o.kind == RECALL:
-        if me().pos in my_spawn():
-            return 0
-        return 90 if hf < 0.38 else 0
+        return recall_value(o, hf)
     if o.kind == ATTACK:
-        if o.unit.is_champion:
-            if hf < 0.3 and o.unit.health_frac > 0.5:
-                return 0
-            return 80
-        return 60 if gems() == 0 else 0
+        return attack_value(o, hf)
     if o.kind == CAST:
         return cast_value(o)
     if o.kind == TRIBUTE:
         return 70
     if o.kind == MOVE:
-        if hf < 0.9 and me().pos in my_spawn():
-            return 0
-        p = progress(o.tile)
-        return 50 + p if p > 0 else 0
+        return move_value(o, hf)
     return 0
+
+@gene('X80a', 'draft priority of a champion pick', parents=['s1'])
+def draft_value(o: Option) -> Num:
+    if o.champ == VESPER_VALE:
+        return 10
+    if o.champ == HEART_OF_RUIN:
+        return 9
+    if o.champ == MARCELLA:
+        return 8
+    if o.champ == VENDETTA:
+        return 7
+    if o.champ == RYTH:
+        return 6
+    return 1
+
+@gene('X80b', 'value of recalling home: only when hurt and not already on spawn', parents=['s1'])
+def recall_value(o: Option, hf: Num) -> Num:
+    if me().pos in my_spawn():
+        return 0
+    return 90 if hf < 0.38 else 0
+
+@gene('X80c', 'value of attacking a champion or a camp unit', parents=['s1'])
+def attack_value(o: Option, hf: Num) -> Num:
+    if o.unit.is_champion:
+        if hf < 0.3 and o.unit.health_frac > 0.5:
+            return 0
+        return 80
+    return 60 if gems() == 0 else 0
+
+@gene('X80d', 'value of a move: hold on spawn while hurt, else progress toward goals', parents=['s1'])
+def move_value(o: Option, hf: Num) -> Num:
+    if hf < 0.9 and me().pos in my_spawn():
+        return 0
+    p = progress(o.tile)
+    return 50 + p if p > 0 else 0
 
 @gene('s2', 'where to walk: an altar when carrying gems; else a cleared group awaiting capture; else a living camp group')
 def goals() -> Tiles:
