@@ -367,3 +367,17 @@ Rejected. Like the early retreat, pulling a champion off its own fight to regrou
 - 34/80 vs bossbush.
 - Real vs the v33 build: 4-4 (swirl, monolith, elkring and lanes each 1-1, mostly by side).
 - Not a pass: no gain, and slower solo.
+
+## Fight selection on B1873-bossbush (2026-10-25)
+
+**B1873bb-fight**:
+- s13 targets by hits-to-kill: (health + shield) / attack_damage(me, u), gem carriers still first.
+- a6 casts self shield/heal in a fight only below 70% health.
+
+**Results:**
+- Sim: 40/80 vs bossbush.
+- Real vs the v33 build, 12 games on b9 fight-loss maps: 6-6, kills 108 vs 105. Swirl, elkring and lanes replay as exact mirrors when sides swap, so the edits rarely change a decision.
+
+Neutral, not a pass. B1873's targeting and cast timing are not where its fights are lost.
+
+Related: in b9 losses we hold 189 vs 201 gold at r250 and 407 vs 277 at r500 (team totals). About 90% of the opponents' 1,283-gold shop lead by r500 is earnings, not unspent gold.
