@@ -120,3 +120,5 @@ So all four Z-19 runs are screened. The cull comparison stands as screened-vs-sc
 Z-19d (min-mu) screened with its own games from seq 2 and used a scripted driver for seq 146-224; it read the no-games
 message at 12:13 and switched to hand-written, unscreened replies from seq 225. It is a mixed run: screened to about
 b225, unscreened after.
+Z-19d finished at 476 births (7808ab26); in-arena top Z467 43.3. Screened for seq 1-224, feedback-only for seq 225-462.
+All four Z-19 runs are done; their final populations are being scored once each.
