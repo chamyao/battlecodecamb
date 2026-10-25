@@ -2,6 +2,29 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 04:50 UTC: panel milestones
+
+The A panel now has 15 opponents (adds B318, B1145 and A61188), so A scores are out of 1200 and are not
+comparable with the earlier /1040 numbers.
+
+- A-8 (session writer) vs A-8c (API writer), same start (arenaA-6), best / top-3 mean:
+
+  | run | m13 | m14 |
+  | --- | --- | --- |
+  | A-8 | 1003 (A81303) / 991.7 at b1324 | queued |
+  | A-8c | 930 / 917.3 at b1332 | 958 / 941.3 at b1442 |
+
+  The session writer leads by about 70 at m13. One pair, no replicate yet.
+- Z-15 (batched Opus via API): 290 births, $9.30 in about 45 min. That is about 2x Z-8x's births per hour,
+  at the same $/birth. m1 at b118: 83 (Z-8x: 130 at the same point).
+- Z-16 (Opus-written splits): 270 births, $1.32. m1 at b104: 93 (Z-11r: 83 at b113).
+- Z-1x: about 250 since m9 (256 at b923; 245 at b1108). Flat.
+- Z-10 relay: 85 / 96 / 107 at b301. Z-5 had 246 at b325, so the relay is far behind. That points to the
+  continuous context (or the feedback history it carries) being most of Z-5's edge. The in-arena jump
+  in leg 7 (Z350 at 37.5) is not on the panel yet.
+- gatekeeper-16 (vs v28): no passes. The closest is A8C1270 at 43/80, but it loses more than 3 wins to
+  farmer, exploit-353 and tune-v20-L1.
+
 ## 2026-10-25 04:45 UTC
 
 - Relay Z-10 leg 7 done: births 301 -> 350 in ~22 min including setup, sha cc901b0. 43 requests answered,
