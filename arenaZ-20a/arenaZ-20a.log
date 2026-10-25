@@ -285,3 +285,13 @@
 [12:14:24] [Z] birth Z171 (mutate session) of ['Z131'] species S28; 24 genomes $0.00
 [12:14:32] [Z] birth Z172 (mutate session) of ['Z151'] species S41; 24 genomes $0.00
 [12:15:25] [Z] birth Z173 (mutate session) of ['Z132'] species S46; 24 genomes $0.00
+[12:16:25] [Z] birth Z174 (mutate session) of ['Z165'] species S52; 24 genomes $0.00
+[12:22:06] [Z] new species S56 founded by Z175
+[12:22:06] [Z] birth Z175 (llm_cross session) of ['Z158', 'Z155'] species S56; 24 genomes $0.00
+[12:22:56] [Z] birth Z176 (mutate session) of ['Z145'] species S50; 24 genomes $0.00
+[12:23:39] [Z] new species S57 founded by Z177
+[12:23:39] [Z] birth Z177 (llm_cross session) of ['Z121', 'Z124'] species S57; 24 genomes $0.00
+[12:23:59] [Z] birth Z178 (tune ) of ['Z174'] species S52; 24 genomes $0.00
+[12:24:19] [Z] birth Z179 (mutate session) of ['Z166'] species S42; 24 genomes $0.00
+[12:25:28] [Z] summary: births 180 deaths 157 games 124264 $0.00; top [('Z177', 41.11, 0.83, 160, 'S57'), ('Z175', 40.61, 0.81, 224, 'S56'), ('Z179', 40.34, 0.86, 120, 'S42')]; top vs anchors {'Z177': None, 'Z175': None, 'Z179': None}
+[12:25:28] [Z] birth Z180 (mutate session) of ['Z168'] species S54; 24 genomes $0.00
