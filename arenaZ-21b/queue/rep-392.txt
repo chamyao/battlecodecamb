@@ -1,0 +1,17 @@
+```python
+@gene("Z134a", "worth of a purchase: the starter item first; then strength shards: Jungle (less camp damage) until its emblem is done, then Monster (more camp damage), finishing an emblem already started")
+def jungle_shop(i: Num) -> Num:
+    if i == 6:
+        return 100
+    if item_strength(i) <= 0 or item_cost(i) > 30:
+        return 0
+    v = 90 + item_strength(i) * 0.1
+    n = items_owned(i)
+    if item_passive(i) == P_JUNGLE and n < 5:
+        v += 6
+    if item_passive(i) == P_MONSTER:
+        v += 3
+    if n > 0 and n < 5:
+        v += 2
+    return v
+```

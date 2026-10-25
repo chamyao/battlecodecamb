@@ -1,0 +1,24 @@
+```python
+@gene('Z17a', 'after round 1000 living golem groups join the goals; recompute the walk field only when the walk goals change; skip while channeling or dead', parents=['s4'])
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = walk_goals()
+    if round() > 1000 and not banking():
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                if size(group_tiles(g) & type_spawns(GOLEM)) > 0:
+                    gs = gs | group_tiles(g)
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene("Z80a", "keep hunting camps while the bag is small: bank once carrying 14+ gems, when below half health, or near the end")
+def banking() -> Bool:
+    if gems() <= 0:
+        return False
+    if gems() >= 14 or me().health_frac < 0.5:
+        return True
+    return round() > 1900
+```
