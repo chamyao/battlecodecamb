@@ -1,0 +1,5 @@
+```python
+@gene("new", "skip listing option kinds the policy never uses (wards, locks), saving fuel", parents=["s1"])
+def consider(kind: Num) -> Bool:
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK
+```

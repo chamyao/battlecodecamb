@@ -1,0 +1,38 @@
+```python
+@gene('s1', 'value of doing this option now; default draft, abilities, Treasure then Jungle health then Bruiser strength, hunts until the bag is worth banking, recalls earlier with a bag, avoids starting camp fights when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if items_owned(19) == 0:
+            return 100 if o.item == 18 else 0
+        if items_owned(29) == 0:
+            return 100 if o.item == 28 else 0
+        return 100 if o.item == 36 else 0
+    if o.kind == RECALL:
+        hf = me().health_frac
+        return 90 if hf < 0.35 or (gems() >= 15 and hf < 0.5) else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if is_awake(o.unit):
+            return 60
+        return 60 if not banking() and me().health_frac > 0.4 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z39c', 'bank time: carry gems to an altar once the bag holds 15, or 5 when an altar is close, or any gems near the end', parents=['s2'])
+def banking() -> Bool:
+    g = gems()
+    if g >= 15 or (g >= 8 and me().health_frac < 0.5) or (g > 0 and round() > 1850):
+        return True
+    if g >= 5:
+        a = nearest(altars() - locked_altars(), me().pos)
+        return valid(a) and dist(a, me().pos) <= 6
+    return False
+```

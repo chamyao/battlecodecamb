@@ -1,0 +1,5 @@
+```python
+@gene('Z117a', 'how many enemy champions and awake camps are within 4 tiles (camp attack reach) of a tile', parents=['Z9a'])
+def threat_at(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= 4 for u in enemies()) + count(dist(u.pos, t) <= 4 and is_awake(u) for u in camps())
+```

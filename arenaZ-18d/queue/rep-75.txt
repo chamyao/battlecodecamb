@@ -1,0 +1,9 @@
+```python
+@gene("new", "skip listing wards and locks, and abilities when no fight target is within 5 tiles and I am not in danger (ground casts list ~80 tiles each pass)", parents=["s1"])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK:
+        return False
+    if kind == CAST:
+        return me().health_frac < 0.35 or size(fight_tiles() & near(me().pos, 5)) > 0
+    return True
+```

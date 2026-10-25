@@ -1,0 +1,16 @@
+```python
+@gene('Z41b', 'bank time: carry gems to an altar once the bag holds 20 (10 when hurt), or any gems near the end', parents=['s2'])
+def banking() -> Bool:
+    g = gems()
+    return g >= 20 or (g >= 10 and me().health_frac < 0.5) or (g > 0 and round() > 1850)
+
+@gene("new", "skip listing wards and locks, shop items when broke, and abilities when no fight target is within 6 tiles and I am not in danger (saves listing fuel)", parents=["s1"])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK:
+        return False
+    if kind == BUY:
+        return gold() >= 30
+    if kind == CAST:
+        return me().health_frac < 0.35 or size(fight_tiles() & near(me().pos, 6)) > 0
+    return True
+```
