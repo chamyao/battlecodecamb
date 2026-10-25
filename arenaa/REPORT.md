@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 00:05 UTC: Arena Z becomes the testbed (Cham)
+
+- Why: from the starter, progress is large and fast (46 -> 104/880 in 400 births), and Z trains only on
+  itself (starter + its own frozen champions), so the held-out panel measures pure generalisation.
+- Cost framing (Cham): Claude API credits come with the subscription; the real cost is EC2 hours. Judge
+  setups per CPU-hour / per million games; spend API to save CPU. Run until the Claude credits run out.
+- Design: every change = treatment vs control from the starter at equal budget, judged on the 11-opponent
+  graded panel; replicates to measure run-to-run variance. Winners are later checked from v23 (Arena A).
+- Queued: arenaZ-2 (replicate of Z-1, new RNG stream), arenaZ-3 (Z-1 + distinct games/bot-seeded anchors).
+- Cloud-session compute test running: 2 worker sessions panel arenaA-5's final population (shards).
+
 ## 2026-10-24 23:55 UTC
 
 - promptexp-1 tail children on the 13-opponent panel (1,040 games): 11 of 13 keep their gain. Best: A1 T1
