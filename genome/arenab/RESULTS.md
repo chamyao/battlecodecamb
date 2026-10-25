@@ -228,3 +228,11 @@ respawning and falls back to gold groups. A contest/fight question, not the buy 
 ## Oct 25 07:50: v32 = B1873 live (bundle 52a3fb56)
 b8 stuck-round rise: boss_battle carriers frozen by the altar-blocking monolith (rmab case; B1873 has the exemption),
 broken_curve one spell, corridors pre-existing. Batch 9 (paired with b8) at 08:13 watches boss_battle, gold_rush, contest.
+
+## Oct 25 ~08:30: tune-B constants (found on v31) ported to v32 = B1873
+| variant | sim /80 vs v32 | real /80 vs v32 |
+|---|---|---|
+| bush0 + dash35k | 34 | 41 (capped turns 465 vs 438) |
+| bush0 + gg4 | 43 | 44 |
+| bush0 | 38 | 39 |
+On v31 the pairs were 50/80 in sim; most of that does not carry over to B1873. bush0+gg4 kept as cand/B1873-bush0-gg4 (small rider).
