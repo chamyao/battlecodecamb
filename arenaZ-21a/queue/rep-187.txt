@@ -1,0 +1,10 @@
+```python
+@gene('Z71b', 'distance field for retreating: to our spawn, or to a healthy ally within 10 who is farther from the enemies than me', parents=['s1'])
+def retreat_field() -> Field:
+    acc = my_spawn()
+    for a in allies():
+        if a.health_frac > 0.6 and dist(a.pos, me().pos) <= 10 and dist(a.pos, me().pos) >= 2:
+            if not any(dist(u.pos, a.pos) <= 3 for u in enemies()):
+                acc = acc | near(a.pos, 1)
+    return field(acc)
+```

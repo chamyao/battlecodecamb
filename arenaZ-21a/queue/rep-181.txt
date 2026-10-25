@@ -1,0 +1,16 @@
+```python
+@gene('Z185b', 'an ally fight announced in the last 5 rounds within 16 tiles, worth joining when I am above half health and carry few gems', parents=['s4'])
+def rally_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 5 or me().health_frac < 0.5:
+        return acc
+    age = round() - 256 * floor(round() / 256) - read_shared(2)
+    if age < 0:
+        age += 256
+    if age > 5:
+        return acc
+    t = tile(read_shared(0), read_shared(1))
+    if valid(t) and dist(t, me().pos) <= 16 and dist(t, me().pos) > 1:
+        acc = near(t, 1)
+    return acc
+```

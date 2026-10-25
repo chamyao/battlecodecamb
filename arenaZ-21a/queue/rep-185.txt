@@ -1,0 +1,72 @@
+```python
+@gene('s1', 'value of doing this option now: draft Ryth, Vesper Vale, Vendetta, Tavi, Varg; casts, fight back, focus the weakest target and gem carriers, recall to shop when rich and idle; when low or outnumbered while hurt, recall only where it is safe, else walk away first')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    low = me().health_frac < 0.35 or (me().health_frac < 0.7 and outnumbered())
+    if o.kind == RECALL:
+        if low:
+            return 90 if safe() else 0
+        return 51 if shop_trip() else 0
+    if o.kind == MOVE:
+        if low and not safe():
+            return 75 if at(retreat_field(), me().pos) - at(retreat_field(), o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    if o.kind == CAST:
+        if exists(o.unit) and o.unit.is_champion:
+            return cast_value(o) + min(unit_gems(o.unit), 50) / 10
+        return cast_value(o)
+    if o.kind == ATTACK:
+        w = 1 - o.unit.health_frac
+        if o.unit.is_champion:
+            return 80 + 5 * w + min(unit_gems(o.unit), 50) / 10
+        if gems() == 0:
+            return 60 + 1.5 * w
+        return 58 + 1.5 * w if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 51
+    return 0
+
+@gene("new", "the enemy champions within 5 outnumber me and my allies within 5 by two or more", parents=["s1"])
+def outnumbered() -> Bool:
+    foes = count(dist(u.pos, me().pos) <= 5 for u in enemies())
+    if foes < 2:
+        return False
+    return foes >= 3 + count(dist(a.pos, me().pos) <= 5 for a in allies())
+
+@gene("new", "after my actions: announce the tile I just attacked and the round, so allies can join the fight", parents=["s4"])
+def after() -> None:
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        if valid(t):
+            write_shared(0, t.x)
+            write_shared(1, t.y)
+            write_shared(2, round() - 256 * floor(round() / 256))
+
+@gene("new", "an ally fight announced in the last 3 rounds within 12 tiles, worth joining when I am healthy and empty-handed", parents=["s4"])
+def rally_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0 or me().health_frac < 0.6:
+        return acc
+    age = round() - 256 * floor(round() / 256) - read_shared(2)
+    if age < 0:
+        age += 256
+    if age > 3:
+        return acc
+    t = tile(read_shared(0), read_shared(1))
+    if valid(t) and dist(t, me().pos) <= 12 and dist(t, me().pos) > 1:
+        acc = near(t, 1)
+    return acc
+
+@gene("new", "distance field to the announced ally fight", parents=["s4"])
+def rally_field() -> Field:
+    return field(rally_tiles())
+
+@gene("s4", "how much closer a step brings me to a fight an ally just announced nearby, else to the goals")
+def progress(t: Tile) -> Num:
+    if size(rally_tiles()) > 0:
+        return at(rally_field(), me().pos) - at(rally_field(), t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

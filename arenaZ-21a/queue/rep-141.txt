@@ -1,0 +1,14 @@
+```python
+@gene("new", "badly hurt enemy champions within 6 worth chasing while I am healthy", parents=["Z18a"])
+def prey_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if me().health_frac > 0.5:
+        for u in enemies():
+            if u.health_frac < 0.35 and dist(u.pos, me().pos) <= 6:
+                acc = acc | near(u.pos, 1)
+    return acc
+
+@gene('Z18a', 'once per turn: the distance field to the goals plus badly hurt enemy champions nearby', parents=['s3'])
+def update() -> None:
+    GF = field(goals() | prey_tiles())
+```

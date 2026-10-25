@@ -1,0 +1,32 @@
+```python
+@gene("new", "after my actions: announce the tile I just attacked and the round, so allies can join the fight", parents=["s3"])
+def after() -> None:
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        if valid(t):
+            write_shared(0, t.x)
+            write_shared(1, t.y)
+            write_shared(2, round() - 256 * floor(round() / 256))
+
+@gene("new", "an ally fight announced in the last 3 rounds within 12 tiles, worth joining when I am healthy and empty-handed", parents=["s3"])
+def rally_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0 or me().health_frac < 0.6:
+        return acc
+    age = round() - 256 * floor(round() / 256) - read_shared(2)
+    if age < 0:
+        age += 256
+    if age > 3:
+        return acc
+    t = tile(read_shared(0), read_shared(1))
+    if valid(t) and dist(t, me().pos) <= 12 and dist(t, me().pos) > 1:
+        acc = near(t, 1)
+    return acc
+
+@gene('s3', 'distance field to a fight an ally just announced nearby, else to the goals computed once per turn in update')
+def goal_field() -> Field:
+    r = rally_tiles()
+    if size(r) > 0:
+        return field(r)
+    return GF
+```

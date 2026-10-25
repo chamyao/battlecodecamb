@@ -1,0 +1,27 @@
+```python
+@gene("new", "visible enemy champions worth hunting: badly hurt ones within 6 while I am healthy, or all within 8 when my visible allies (me included) outnumber them", parents=["s3"])
+def hunt_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if me().health_frac < 0.5:
+        return acc
+    foes = count(dist(u.pos, me().pos) <= 8 for u in enemies())
+    if foes == 0:
+        return acc
+    friends = 1 + count(dist(a.pos, me().pos) <= 8 for a in allies())
+    for u in enemies():
+        if dist(u.pos, me().pos) <= 8:
+            if friends > foes and me().health_frac >= 0.6:
+                acc = acc | near(u.pos, 1)
+            elif u.health_frac < 0.35 and dist(u.pos, me().pos) <= 6:
+                acc = acc | near(u.pos, 1)
+    return acc
+
+@gene('s3', 'distance field to the goals plus enemy champions worth hunting, or home when hurt or rich with spawn close, empty-handed and not in a fight')
+def goal_field() -> Field:
+    if gems() == 0 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        if me().health_frac < 0.5:
+            return field(my_spawn())
+        if gold() >= 150 and dist(nearest(my_spawn(), me().pos), me().pos) <= 12:
+            return field(my_spawn())
+    return field(open_goals() | hunt_tiles())
+```
