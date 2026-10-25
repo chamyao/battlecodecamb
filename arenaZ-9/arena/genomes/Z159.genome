@@ -1,0 +1,115 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_F: Field = None
+HEALING: Bool = False
+
+@gene('s1', 'value of doing this option now: draft top picks, cast abilities, heal on spawn, rank moves by progress', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 5
+        if o.champ == HEART_OF_RUIN:
+            return 4
+        if o.champ == MARCELLA:
+            return 3
+        if o.champ == VENDETTA:
+            return 2
+        if o.champ == RYTH:
+            return 1.5
+        return 0.4428
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 98
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        if me().health_frac < 0.9 and me().pos in my_spawn():
+            return 0
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home to heal when hurt (hysteresis) or outnumbered, an altar with gems, else cleared-awaiting-capture camp groups, else living non-monolith camp groups', parents=['s2'])
+def goals() -> Tiles:
+    hf = me().health_frac
+    if HEALING or hf < 0.35:
+        return my_spawn()
+    threat = sum(1 for u in enemies() if dist(u.pos, me().pos) <= 6)
+    if hf < 0.5 and threat >= 2:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.6334)
+        if size(acc) > 0:
+            return acc
+    cap = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            cap = cap | group_tiles(g)
+    if size(cap) > 0:
+        return cap
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            t0 = best(gt, lambda t: 0)
+            if not (valid(t0) and spawn_type(t0) == MONOLITH):
+                acc = acc | gt
+    return acc
+
+@gene('s3', 'distance field to the goals (cached once per turn in update)', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_F
+
+@gene('s4', 'how much closer a step brings me to the goals, clamped, with a bonus for stepping onto a goal; 0 when invalid or cut off', parents=['s4'])
+def progress(t: Tile) -> Num:
+    if not valid(t):
+        return 0
+    f = goal_field()
+    d0 = at(f, me().pos)
+    if d0 > 100000000:
+        return 0
+    d1 = at(f, t)
+    bonus = 3 if d1 < 1 else 0
+    return max(-4, min(4, d0 - d1)) + bonus
+
+@gene('Z213a', 'once per turn: heal hysteresis (retreat below 0.5, resume above 0.95) and goal distance field routing around walls and holes', parents=['Z75a', 'Z34a'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < 0.5:
+        HEALING = True
+    elif hf > 0.95:
+        HEALING = False
+    GOAL_F = field_avoid(goals(), walls() | holes(), walls() & holes())
+
+@gene('Z213b', 'value of casting: heal/shield scale with low health (Parent B thresholds 80/65), damage/cc favour wounded enemy champions, dash only when progress is 3+ tiles (Parent B rule, cheaper than the 2-tile term)', parents=['Z130a', 'Z141a', 'Z197a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_SHIELD or k == AB_HEAL:
+        h = me().health_frac
+        if h < 0.5:
+            return 80
+        return 65 if h < 0.7 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + (1 - o.unit.health_frac) * 30
+            if o.unit.is_camp and gems() == 0:
+                return 58
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            p = progress(o.tile)
+            if p >= 3:
+                return 30 + 7 * min(p, 8)
+        return 0
+    return 0

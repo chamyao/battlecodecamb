@@ -1,0 +1,123 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_F: Field = None
+
+@gene('s1', 'value of doing this option now: draft top picks, cast abilities, heal on spawn, rank moves by progress', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 5
+        if o.champ == HEART_OF_RUIN:
+            return 4
+        if o.champ == MARCELLA:
+            return 3
+        if o.champ == VENDETTA:
+            return 2
+        if o.champ == RYTH:
+            return 1.5
+        return 0.4428
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 98
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        if me().health_frac < 0.9 and me().pos in my_spawn():
+            return 0
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when hurt, when carrying gems and hurt, or outnumbered; an altar with gems; else a cleared group awaiting capture; else a living camp group', parents=['s2'])
+def goals() -> Tiles:
+    hf = me().health_frac
+    if hf < 0.35:
+        return my_spawn()
+    if hf < 0.5 and gems() > 0:
+        return my_spawn()
+    threat = sum(1 for u in enemies() if dist(u.pos, me().pos) <= 6)
+    if hf < 0.5 and threat >= 2:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.6334)
+        if size(acc) > 0:
+            return acc
+    cap = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            cap = cap | group_tiles(g)
+    if size(cap) > 0:
+        return cap
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_respawning(g) == False:
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals (cached once per turn)', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_F
+
+@gene('s4', 'how much closer a step brings me to the goals, with a bonus for stepping onto a goal tile; unreachable steps are rejected', parents=['s4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    d1 = at(f, t)
+    if d1 >= 1000000:
+        return -10
+    d0 = at(f, me().pos)
+    if d0 >= 1000000:
+        return 5
+    bonus = 2 if d1 < 1 else 0
+    return d0 - d1 + bonus
+
+@gene('Z150a', 'value of casting: heal scales with low health, shield only when threatened, damage/cc on enemy champions favour wounded targets, camps when no gems or already awake, dash scaled by real progress', parents=['Z141a', 'Z130a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_HEAL:
+        if hf < 0.5:
+            return 75
+        return 70 if hf < 0.7 else 0
+    if k == AB_SHIELD:
+        if hf < 0.85:
+            if threatened():
+                return 78 if hf < 0.5 else 72
+            return 0
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + (1 - o.unit.health_frac) * 20
+            if o.unit.is_camp:
+                if gems() == 0:
+                    return 56
+                if is_awake(o.unit):
+                    return 52
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            p = progress(o.tile)
+            return 40 + min(p, 6) * 2 if p > 2 else 0
+        return 0
+    return 0
+
+@gene('Z209a', 'an enemy champion or awake camp is within 4 tiles of me', parents=['Z150a'])
+def threatened() -> Bool:
+    mp = me().pos
+    if any(dist(u.pos, mp) <= 4 for u in enemies()):
+        return True
+    return any(dist(u.pos, mp) <= 3 and is_awake(u) for u in camps())
+
+@gene('Z34a', 'compute the goal distance field once per turn, routing around walls and holes', parents=['Z34a'])
+def update() -> None:
+    GOAL_F = field_avoid(goals(), walls() | holes(), walls() & holes())

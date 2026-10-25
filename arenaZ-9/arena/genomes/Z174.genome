@@ -1,0 +1,120 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_F: Field = None
+HEALING: Bool = False
+
+@gene('s1', 'value of doing this option now: ranked draft, buy, recall when low, attacks, tribute, casts, progress-ranked moves', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 5
+        if o.champ == HEART_OF_RUIN:
+            return 4
+        if o.champ == MARCELLA:
+            return 3
+        if o.champ == VENDETTA:
+            return 2
+        if o.champ == RYTH:
+            return 1.5
+        return 0.4428
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 98
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        if me().health_frac < 0.9 and me().pos in my_spawn():
+            return 0
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when healing (hysteresis) or badly hurt, an altar with gems, else a cleared group awaiting capture, else a living non-monolith camp group', parents=['s2'])
+def goals() -> Tiles:
+    hf = me().health_frac
+    if HEALING or hf < 0.35:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.6334)
+        if size(acc) > 0:
+            return acc
+    cap = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            cap = cap | group_tiles(g)
+    if size(cap) > 0:
+        return cap
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            t0 = best(gt, lambda t: 0)
+            if not (valid(t0) and spawn_type(t0) == MONOLITH):
+                acc = acc | gt
+    return acc
+
+@gene('s3', 'distance field to the goals (cached once per turn in update)', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_F
+
+@gene('s4', 'how much closer a step brings me to the goals, bonus for stepping onto a goal, danger penalty when hurt; 0 for invalid, unreachable or non-progress tiles', parents=['s4'])
+def progress(t: Tile) -> Num:
+    if not valid(t):
+        return 0
+    f = goal_field()
+    d0 = at(f, me().pos)
+    d1 = at(f, t)
+    if d1 >= 1000000:
+        return 0
+    raw = d0 - d1
+    if raw <= 0 and d1 >= 1:
+        return 0
+    bonus = 3 if d1 < 1 else 0
+    pen = 0
+    if me().health_frac < 0.5:
+        pen = 0.3 * sum(u.strength for u in enemies() if dist(u.pos, t) <= 3)
+    v = raw + bonus - pen
+    if v < 0.01:
+        return 0.01 if (raw + bonus) > 0 else 0
+    return v
+
+@gene('Z253a', 'once per turn: heal hysteresis (retreat below 0.5, resume above 0.95) and the goal distance field routing around walls and holes', parents=['s3', 'Z34a', 'Z75a'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < 0.5:
+        HEALING = True
+    elif hf > 0.95:
+        HEALING = False
+    GOAL_F = field_avoid(goals(), walls() | holes(), walls() & holes())
+
+@gene('Z253b', 'value of casting: heal/shield when hurt, damage/cc favouring wounded enemy champions and camps when no gems, dash scaled by progress', parents=['s1', 'Z141a', 'Z130a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_SHIELD or k == AB_HEAL:
+        if me().health_frac < 0.5:
+            return 75
+        return 70 if me().health_frac < 0.7 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + (1 - o.unit.health_frac) * 20
+            if o.unit.is_camp and gems() == 0:
+                return 58
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            p = progress(o.tile)
+            if p >= 2:
+                return 25 * min(p, 3)
+        return 0
+    return 0
