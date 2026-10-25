@@ -1,0 +1,89 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene('s1', 'value of doing this option now, with ability casts, dashes, safe recall ~40%, no camp fights when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    m = me()
+    hurt = m.health_frac < 0.4
+    if o.kind == RECALL:
+        if hurt and count(dist(u.pos, m.pos) <= 3 for u in enemies()) == 0:
+            return 90
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (1 - o.unit.health_frac)
+        if hurt:
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit):
+                if o.unit.is_champion and o.unit.is_enemy:
+                    return 78
+                if o.unit.is_camp and gems() == 0 and not hurt:
+                    return 62
+            return 0
+        if k == AB_SHIELD:
+            return 65 if count(dist(u.pos, m.pos) <= 4 for u in enemies()) > 0 else 0
+        if k == AB_HEAL:
+            return 65 if m.health_frac < 0.6 else 0
+        if k == AB_DASH:
+            if valid(o.tile) and progress(o.tile) > 1:
+                return 55
+            return 0
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 45 + 3 * p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: spawn when hurt, an altar with gems, a cleared group to capture, else a living non-monolith camp group')
+def goals() -> Tiles:
+    if me().health_frac < 0.4:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    rew = near(tile(-5, -5), 0)
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    safe = acc - type_spawns(MONOLITH)
+    if size(safe) > 0:
+        return safe
+    return acc
+
+@gene('s3', 'distance field to the goals, spawn if there are none')
+def goal_field() -> Field:
+    g = goals()
+    if size(g) == 0:
+        return field(my_spawn())
+    return field(g)
+
+@gene('s4', 'how much closer a step brings me to the goals (cached field)')
+def progress(t: Tile) -> Num:
+    d1 = at(GF, t)
+    if d1 >= 1000000:
+        return 0
+    return at(GF, me().pos) - d1
+
+@gene('Z41a', 'compute the goal distance field once per turn', parents=['s4'])
+def update() -> None:
+    if alive():
+        GF = goal_field()

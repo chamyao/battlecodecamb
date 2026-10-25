@@ -1,0 +1,85 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HEALING: Bool = False
+
+@gene('s1', 'value of doing this option now; heals, casts abilities, avoids bad duels')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    hf = me().health_frac
+    if o.kind == RECALL:
+        return 90 if hf < 0.35 and not (me().pos in my_spawn()) else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 75 if hf < 0.6 else 0
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+                return 78
+            if exists(o.unit) and o.unit.is_camp and gems() == 0 and not HEALING:
+                return 58
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if hf > 0.3 or o.unit.health_frac < 0.3:
+                return 80 + 10 * (1 - o.unit.health_frac)
+            return 0
+        return 60 if gems() == 0 and not HEALING else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if HEALING and me().pos in my_spawn():
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when hurt, altar with gems, capturable group, else camps (no golems early, no monoliths)')
+def goals() -> Tiles:
+    empty = near(tile(-5, -5), 0)
+    if HEALING:
+        return my_spawn()
+    if gems() > 0:
+        acc = empty
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    rew = empty
+    acc = empty
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    safe = acc - type_spawns(MONOLITH)
+    if round() < 600:
+        easy = safe - type_spawns(GOLEM)
+        if size(easy) > 0:
+            return easy
+    if size(safe) > 0:
+        return safe
+    return acc
+
+@gene('s3', 'distance field to the goals (cached in update)')
+def goal_field() -> Field:
+    return GF
+
+@gene('s4', 'how much closer a step brings me to the goals')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('Z9a', 'track healing state and compute the goal field once per turn', parents=['s1', 's2', 's3', 's4'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < 0.35:
+        HEALING = True
+    if hf > 0.9:
+        HEALING = False
+    GF = field(goals())
