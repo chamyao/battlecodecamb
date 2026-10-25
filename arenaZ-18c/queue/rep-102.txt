@@ -1,0 +1,17 @@
+```python
+@gene("Z4b", "value of casting an ability: damage and control on enemies or camps, heal or shield when hurt; tuned", parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL or k == AB_SHIELD:
+        return 85 if me().health_frac < 0.6 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy:
+            return 65 if o.unit.is_champion else 65
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        if any(dist(u.pos, me().pos) <= me().attack_range for u in enemies()):
+            return 75
+        return 75 if gems() < 5 and any(dist(u.pos, me().pos) <= me().attack_range for u in camps()) else 0
+    return 0
+```

@@ -1,0 +1,75 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now: cast abilities, dash toward goals, never recall (walk home to heal instead), treasure then bruiser shards; tuned')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        if items_owned(19) == 0:
+            return 100 + o.count if o.item == 18 else 0
+        return 100 + o.count if o.item == 40 else 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return 40 if progress(o.tile) > 1 else 0
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 71
+        return 60 if gems() < 5 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s3', 'distance field to the goals (heal below 40 percent, hunt gem carriers)')
+def goal_field() -> Field:
+    return field(goals_v2())
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z96a', 'where to walk: home below 40 percent health when empty-handed, an altar with gems, else a living camp group or a nearby enemy champion carrying 10+ gems', parents=['s3', 's4'])
+def goals_v2() -> Tiles:
+    if gems() == 0 and me().health_frac < 0.4:
+        return my_spawn()
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    for e in enemies():
+        if e.is_champion and unit_gems(e) >= 10 and dist(e.pos, me().pos) <= 6:
+            acc = acc | near(e.pos, 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z4a', 'draft preference: Ren, then Tavi, then Marcella, else the first offered', parents=['s1'])
+def pick_value(c: Num) -> Num:
+    if c == REN:
+        return 10
+    if c == TAVI:
+        return 9
+    if c == MARCELLA:
+        return 8
+    return 1
+
+@gene('Z4b', 'value of casting an ability: damage and control on enemies or camps, heal or shield when hurt; tuned', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL or k == AB_SHIELD:
+        return 85 if me().health_frac < 0.904 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy:
+            return 82 if o.unit.is_champion else 65
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        if any(dist(u.pos, me().pos) <= me().attack_range for u in enemies()):
+            return 75
+        return 75 if gems() < 5 and any(dist(u.pos, me().pos) <= me().attack_range for u in camps()) else 0
+    return 0
