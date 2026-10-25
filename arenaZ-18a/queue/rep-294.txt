@@ -1,0 +1,22 @@
+```python
+@gene('Z223h', 'option kinds worth listing this pass: skip kinds never used, casts with no slot ready, shopping off spawn, tributes without gems')
+def consider(k: Num) -> Bool:
+    if k == PICK or k == MOVE or k == ATTACK:
+        return True
+    if k == CAST:
+        r0 = slot_ready(0)
+        r1 = slot_ready(1)
+        if not r0 and not r1:
+            return False
+        if count_units(enemies()) > 0 or any(dist(c.pos, me().pos) <= 5 for c in camps()):
+            return True
+        return (r0 and slot_kind(0) == AB_DASH) or (r1 and slot_kind(1) == AB_DASH)
+    if k == BUY:
+        return can_shop()
+    if k == TRIBUTE:
+        return gems() > 0
+    if k == RECALL:
+        return not (me().pos in my_spawn())
+    return False
+
+```

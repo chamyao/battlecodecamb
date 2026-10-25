@@ -1,0 +1,17 @@
+```python
+@gene('Z176f', 'while retreating: step or dash home first, shield or heal, otherwise hit only what is in reach')
+def retreat_value(o: Option) -> Num:
+    if o.kind == MOVE:
+        return 95 if raw_gain(o.tile) > 0 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DASH:
+            return 96 if raw_gain(o.tile) >= 2 else 0
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 97 if o.unit == me() else 0
+        return cast_v2(o) / 2
+    if o.kind == ATTACK and o.unit.is_champion and o.unit.health_frac < 0.25:
+        return 90
+    return 40
+
+```

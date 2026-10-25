@@ -1,0 +1,9 @@
+```python
+@gene('Z138b', 'how much closer a step onto t brings me on the walking field (no danger penalty)', parents=['s1'])
+def raw_gain(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if any(dist(u.pos, t) <= 1 and u.health > me().health for u in enemies()):
+        return gain - 1
+    return gain
+
+```

@@ -1,0 +1,54 @@
+```python
+@gene('Z121a', 'start of turn: dead camp spawns, cached goal sets (rebuilt when bag or group state changes), damage and retreat flags, then a walking goal by walk distance (re-picked every 8 rounds) and a field to it around units')
+def update() -> None:
+    if not HOMED:
+        BIGS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        HOMED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = -1 - size(locked_altars())
+    if gems() == 0:
+        k = 0
+        p = 1
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                k += p * (2 if group_reward(g) else 1)
+            p *= 3
+    force = k != GSKEY
+    if force:
+        GSKEY = k
+        if gems() > 0:
+            ALT = near(tile(-5, -5), 0)
+            for a in altars() - locked_altars():
+                ALT = ALT | near(a, 1)
+        else:
+            LIVEG = near(tile(-5, -5), 0)
+            REWG = LIVEG
+            for g in range(num_groups()):
+                if not group_respawning(g):
+                    gt = group_tiles(g)
+                    if group_reward(g):
+                        REWG = REWG | gt
+                    elif size(gt & BIGS) == 0:
+                        LIVEG = LIVEG | gt
+    HIT = me().health < LASTHP - 0.5
+    LASTHP = me().health
+    RETREAT = me().health_frac < 0.32 and (HIT or under_threat())
+    here = me().pos
+    unseen = camp_spawns() - vision() - DEAD
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | unseen) - near(here, 0)
+    tgt = my_spawn() if RETREAT else goals()
+    if here in tgt:
+        GOAL = here
+    elif force or not valid(GOAL) or not (GOAL in tgt) or GOAL == here or round() >= GTURN:
+        cand = tgt - (blk - live - unseen)
+        GOAL = walk_nearest(cand, here, blk - cand)
+        GTURN = round() + 6
+    gt2 = near(GOAL, 0)
+    WF = field_avoid(gt2, blk - gt2, near(here, 0))
+
+```

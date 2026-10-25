@@ -1,0 +1,68 @@
+```python
+@gene('Z167a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag')
+def update() -> None:
+    if not MAPPED:
+        BIGS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        MAPPED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key()
+    force = k != GKEY
+    if force:
+        GKEY = k
+        if gems() > 0:
+            ALT = near(tile(-5, -5), 0)
+            for a in altars() - locked_altars():
+                ALT = ALT | near(a, 1)
+        else:
+            LIVEG = near(tile(-5, -5), 0)
+            REWG = LIVEG
+            for gi in range(num_groups()):
+                if not group_respawning(gi):
+                    gt = group_tiles(gi)
+                    if group_reward(gi):
+                        REWG = REWG | gt
+                    elif size(gt & BIGS) == 0:
+                        LIVEG = LIVEG | gt
+    HIT = me().health < LASTHP - 0.5
+    LASTHP = me().health
+    RETREAT = me().health_frac < 0.3 and (HIT or under_threat())
+    here = me().pos
+    unseen = camp_spawns() - vision() - DEAD
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | unseen) - near(here, 0)
+    tgt = my_spawn() if RETREAT else goals()
+    if here in tgt:
+        GOAL = here
+    elif force or not valid(GOAL) or not (GOAL in tgt) or GOAL == here or round() >= GTURN:
+        cand = tgt - (blk - live - unseen)
+        GOAL = walk_nearest(cand, here, blk - cand)
+        GTURN = round() + 8
+    g = near(GOAL, 0)
+    WF = field_avoid(g, blk - g, near(here, 0))
+
+
+@gene('Z167h', 'option kinds worth listing this pass: skip kinds never used, casts with no slot ready, shopping off spawn, tributes without gems')
+def consider(k: Num) -> Bool:
+    if k == PICK or k == MOVE or k == ATTACK:
+        return True
+    if k == CAST:
+        r0 = slot_ready(0)
+        r1 = slot_ready(1)
+        if not r0 and not r1:
+            return False
+        if count_units(enemies()) > 0 or any(dist(c.pos, me().pos) <= 5 for c in camps()):
+            return True
+        return (r0 and slot_kind(0) == AB_DASH) or (r1 and slot_kind(1) == AB_DASH)
+    if k == BUY:
+        return can_shop()
+    if k == TRIBUTE:
+        return gems() > 0
+    if k == RECALL:
+        return not (me().pos in my_spawn())
+    return False
+
+```
