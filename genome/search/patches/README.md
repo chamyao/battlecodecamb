@@ -7,5 +7,7 @@
   system prompt (arenaZ-6).
 - mix-55-30-15.patch: operator mix 55/30/15 (arenaZ-9).
 - split-genes.patch: --split-every N / --split-lines L, in-place gene splitting checked by the twin fingerprint (arenaZ-11).
+- cull-minmu.patch: --cull {legacy,min-mu} (default legacy = unchanged). min-mu: when no species is above --min-species,
+  the lowest-rated eligible genome dies, instead of (in practice) the parent of a same-species newborn (arenaZ-17).
 - arenaZ5-queue.patch: --llm-queue DIR / --queue-timeout / --max-births, every Claude call through queuellm.py (arenaZ-5,
   M2 session mutator; needs queuellm.py and queuewait.py copied in). setup_z5.sh builds such a checkout at runtime 648bafd.
