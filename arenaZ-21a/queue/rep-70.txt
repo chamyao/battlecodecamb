@@ -1,0 +1,36 @@
+```python
+@gene('s1', 'value of doing this option now: casts, fight back against awake camps; recall to heal (below half health when empty-handed, below 35 percent always) only where it will not be cancelled')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        hf = me().health_frac
+        if hf < 0.35 or (hf < 0.5 and gems() == 0):
+            return 90 if safe() else 0
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if gems() == 0:
+            return 60
+        return 58 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "no awake camp can reach me next turn and no enemy champion within 5: a recall here will not be cancelled", parents=["s1"])
+def safe() -> Bool:
+    if any(dist(u.pos, me().pos) <= 5 for u in enemies()):
+        return False
+    return not any(is_awake(c) and dist(c.pos, me().pos) <= c.attack_range + 1 for c in camps())
+
+@gene('s3', 'distance field to the goals')
+def goal_field() -> Field:
+    return field(goals())
+```

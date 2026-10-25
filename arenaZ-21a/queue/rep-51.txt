@@ -1,0 +1,25 @@
+```python
+@gene("new", "camp groups worth walking to: every living group except all-wolf groups (4 gems for 1350 health each), unless only wolves are left", parents=["Z47a"])
+def value_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    wolves = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if all(spawn_type(t) == WOLF for t in ts):
+                wolves = wolves | ts
+            else:
+                acc = acc | ts
+    if size(acc) == 0:
+        return wolves
+    return acc
+
+@gene('Z47a', 'once per turn: the distance field to the goals (skipping wolf-only groups), or home to heal when hurt, empty-handed and not in a fight', parents=['s3'])
+def update() -> None:
+    if gems() == 0 and me().health_frac < 0.5 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        GF = field(my_spawn())
+    elif gems() > 0:
+        GF = field(goals())
+    else:
+        GF = field(value_goals())
+```

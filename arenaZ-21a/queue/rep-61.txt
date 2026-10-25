@@ -1,0 +1,10 @@
+```python
+@gene('s3', 'distance field to the goals (computed once per turn in update), or home when hurt or rich, empty-handed and not in a fight')
+def goal_field() -> Field:
+    if gems() == 0 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        if me().health_frac < 0.5:
+            return field(my_spawn())
+        if gold() >= 150 and dist(nearest(my_spawn(), me().pos), me().pos) <= 12:
+            return field(my_spawn())
+    return GF
+```

@@ -1,0 +1,38 @@
+```python
+@gene('Z4c', 'value of casting an ability now: burst the weakest champion or camp we fight, dash onto clusters, shield in a fight', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 85 + 3 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and (is_awake(o.unit) or gems() == 0):
+                return 64 + (1 - o.unit.health_frac)
+            return 0
+        if valid(o.tile):
+            h = hits_at(o.tile)
+            return 64 + h if h > 0 else 0
+        return 0
+    if k == AB_SHIELD:
+        return 66 if hits_at(me().pos) > 0 or count(dist(u.pos, me().pos) <= 3 for u in enemies()) > 0 else 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        r = me().attack_range
+        if any(dist(u.pos, me().pos) <= r for u in enemies()):
+            return 62
+        return 62 if any(dist(c.pos, me().pos) <= r and (is_awake(c) or gems() == 0) for c in camps()) else 0
+    if k == AB_HEAL:
+        return 70 if exists(o.unit) and o.unit.health_frac < 0.6 else 0
+    if k == AB_DASH:
+        if not valid(o.tile):
+            return 0
+        if me().type == HEART_OF_RUIN and hits_at(o.tile) > 0:
+            return 67
+        return 52 if progress(o.tile) >= 2 else 0
+    return 0
+
+@gene('Z4b', 'number of enemy champions and camps we fight (awake, or any when carrying nothing) within radius one of a tile', parents=['s1'])
+def hits_at(t: Tile) -> Num:
+    return count(dist(u.pos, t) <= 1 for u in enemies()) + count(dist(c.pos, t) <= 1 and (is_awake(c) or gems() == 0) for c in camps())
+```

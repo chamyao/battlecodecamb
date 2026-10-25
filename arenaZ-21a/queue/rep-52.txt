@@ -1,0 +1,19 @@
+```python
+@gene("new", "living gem-cluster groups within 12 tiles: 7 gems for 120 health, the best value on the map", parents=["s3"])
+def near_gem_clusters() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if group_gems(g) > 0 and group_gold(g) == 0 and dist(nearest(ts, me().pos), me().pos) <= 12:
+                acc = acc | ts
+    return acc
+
+@gene("s3", "distance field to the goals, preferring a nearby gem cluster when carrying nothing")
+def goal_field() -> Field:
+    if gems() == 0:
+        gc = near_gem_clusters()
+        if size(gc) > 0:
+            return field(gc)
+    return field(goals())
+```

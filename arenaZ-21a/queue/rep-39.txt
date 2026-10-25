@@ -1,0 +1,15 @@
+```python
+@gene("new", "walk home to heal: below 55 percent health, carrying nothing and not in a fight", parents=["s4"])
+def go_home() -> Bool:
+    return gems() == 0 and me().health_frac < 0.55 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps())
+
+@gene("new", "distance field home", parents=["s4"])
+def home_field() -> Field:
+    return field(my_spawn())
+
+@gene("s4", "how much closer a step brings me to the goals, or home when hurt and empty-handed")
+def progress(t: Tile) -> Num:
+    if go_home():
+        return at(home_field(), me().pos) - at(home_field(), t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

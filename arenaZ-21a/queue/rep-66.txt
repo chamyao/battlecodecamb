@@ -1,0 +1,9 @@
+```python
+@gene('Z60a', 'walk home to heal: hurt and carrying nothing, or badly hurt even with gems, and not in a camp fight', parents=['s4'])
+def go_home() -> Bool:
+    if any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        return False
+    if me().health_frac < 0.25:
+        return True
+    return gems() == 0 and me().health_frac < 0.5
+```
