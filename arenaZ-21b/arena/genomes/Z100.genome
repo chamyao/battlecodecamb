@@ -1,0 +1,146 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+GK: Num = -1
+
+@gene('s1', 'value of doing this option now; draft Marcella, Vendetta, Ryth; keep fighting camps until banking; flee then recall when hurt; recall to shop once 200 gold is saved; dash; chase weak enemy champions')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return duel_order(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if in_fight():
+            return 0
+        if me().health_frac < 0.35:
+            return 90
+        if gems() == 0 and gold() >= 200 and not can_shop() and at(GF, me().pos) >= 3:
+            return 52 if me().health_frac < 0.85 or gold() >= 400 else 0
+        return 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return dash_value(o.tile)
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 10
+        if not banking():
+            return 60
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35 and in_fight():
+            g = threat_dist(o.tile) - threat_dist(me().pos)
+            return 95 + g if g > 0 else 0
+        if me().health_frac > 0.6:
+            w = best(enemies(), lambda u: 0 - u.health_frac)
+            if exists(w) and w.health_frac < 0.35 and dist(w.pos, me().pos) <= 5:
+                return 70 if dist(o.tile, w.pos) < dist(me().pos, w.pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s4', 'how much closer a step brings me to the goals (field cached until the goals change)')
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z17a', 'recompute the walk field only when the walk goals change; skip while channeling or dead', parents=['s4'])
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = walk_goals()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene('Z80a', 'keep hunting camps while the bag is small: bank once carrying 12+ gems, when below half health, or near the end', parents=['s1'])
+def banking() -> Bool:
+    if gems() <= 0:
+        return False
+    if gems() >= 12 or me().health_frac < 0.5:
+        return True
+    return round() > 1900
+
+@gene('Z80b', 'where to walk: free altars while carrying gems, plus living camp groups unless banking', parents=['s2'])
+def walk_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if banking():
+            return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z17b', 'skip listing option kinds this policy never takes, and shopping away from spawn', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == BUY:
+        return can_shop()
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
+
+@gene('Z7a', 'worth of casting an ability: damage and stuns on champions and fought camps, shields and heals when in a fight', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 65
+        return 0
+    if k == AB_AOE:
+        if not valid(o.tile):
+            return 0
+        r = slot_radius(o.slot)
+        n = count(dist(u.pos, o.tile) <= r for u in enemies())
+        c = count(dist(u.pos, o.tile) <= r and (gems() == 0 or is_awake(u)) for u in camps())
+        if n + c == 0:
+            return 0
+        return 64 + n * 3 + c
+    if k == AB_SHIELD:
+        return 75 if in_fight() else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and o.unit.health_frac < 0.6:
+            return 85
+        return 0
+    if k == AB_RESET:
+        return 58 if not can_attack() and in_fight() else 0
+    return 0
+
+@gene('Z46a', 'worth of a dash: escape when hurt in a fight, else cover two tiles toward the goals', parents=['s1'])
+def dash_value(t: Tile) -> Num:
+    if not valid(t):
+        return 0
+    if in_fight():
+        if me().health_frac < 0.4 and threat_dist(t) - threat_dist(me().pos) >= 2:
+            return 96
+        return 0
+    return 51 if progress(t) >= 2 else 0
+
+@gene('Z7b', 'an enemy champion or an awake camp is close to me', parents=['s1'])
+def in_fight() -> Bool:
+    p = me().pos
+    if any(dist(u.pos, p) <= 4 for u in enemies()):
+        return True
+    return any(is_awake(u) and dist(u.pos, p) <= 5 for u in camps())
+
+@gene('Z112a', 'draft order: Marcella, Vendetta, Ryth, then the default order', parents=['s1'])
+def duel_order(c: Num) -> Num:
+    if c == MARCELLA:
+        return 5
+    if c == VENDETTA:
+        return 4
+    if c == RYTH:
+        return 3
+    return 1
+
+@gene('Z27a', 'distance from a tile to the nearest awake camp or visible enemy champion', parents=['Z7b'])
+def threat_dist(t: Tile) -> Num:
+    a = min((dist(u.pos, t) for u in camps() if is_awake(u)), default=99)
+    b = min((dist(u.pos, t) for u in enemies()), default=99)
+    return min(a, b)

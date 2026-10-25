@@ -1,0 +1,66 @@
+```python
+@gene("Z17b", "skip listing option kinds this policy never takes, shopping away from spawn, and casts while both ability slots are cooling down")
+def consider(kind: Num) -> Bool:
+    if kind == BUY:
+        return can_shop()
+    if kind == CAST:
+        return slot_ready(0) or slot_ready(1)
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
+
+@gene("new", "positions of visible enemy champions (once per pass)", parents=["Z7a"])
+def enemy_spots() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        acc = acc | near(u.pos, 0)
+    return acc
+
+@gene("new", "positions of camps worth hitting now: any when my bag is empty, else only awake ones (once per pass)", parents=["Z7a"])
+def camp_spots() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in camps():
+        if gems() == 0 or is_awake(u):
+            acc = acc | near(u.pos, 0)
+    return acc
+
+@gene("Z7a", "worth of casting: stun enemy tributes first, damage and stuns on champions and fought camps, cheap area-hit scoring from per-pass target spots, shields in fights, heals; resets only with a target in reach")
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            if k == AB_CC and is_tributing(o.unit):
+                return 97
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 65
+        return 0
+    if k == AB_AOE:
+        if not valid(o.tile):
+            return 0
+        es = enemy_spots()
+        cs = camp_spots()
+        if size(es) + size(cs) == 0:
+            return 0
+        r = slot_radius(o.slot)
+        n = count(dist(t, o.tile) <= r for t in es)
+        c = count(dist(t, o.tile) <= r for t in cs)
+        if n + c == 0:
+            return 0
+        return 64 + n * 3 + c
+    if k == AB_SHIELD:
+        return 75 if in_fight() else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and o.unit.health_frac < 0.6:
+            return 85
+        return 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        p = me().pos
+        rng = me().attack_range
+        if any(dist(u.pos, p) <= rng for u in enemies()):
+            return 62
+        return 58 if any(dist(u.pos, p) <= rng and (gems() == 0 or is_awake(u)) for u in camps()) else 0
+    return 0
+```

@@ -1,0 +1,171 @@
+```python
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+GK: Num = -1
+
+@gene('s1', 'value of doing this option now; draft Marcella first; keep fighting camps until banking; never wake a sleeping golem or monolith; flee then recall when hurt; recall to shop when safe and idle; dash; chase weak enemy champions')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 3 if o.champ == MARCELLA else 1
+    if o.kind == BUY:
+        return strength_more(o.item)
+    if o.kind == RECALL:
+        if threat_dist(me().pos) <= 5:
+            return 0
+        if me().health_frac < 0.35:
+            return 90
+        if gems() == 0 and gold() >= 150 and not can_shop() and at(GF, me().pos) >= 3:
+            return 52 if me().health_frac < 0.85 or gold() >= 300 else 0
+        return 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return dash_value(o.tile)
+        if exists(o.unit) and o.unit.is_camp and not fightable(o.unit):
+            return 0
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 10
+        if not fightable(o.unit):
+            return 0
+        if not banking():
+            return 60
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35:
+            here = threat_dist(me().pos)
+            if here <= 5:
+                g = threat_dist(o.tile) - here
+                return 95 + g if g > 0 else 0
+        if me().health_frac > 0.6:
+            w = best(enemies(), lambda u: 0 - u.health_frac)
+            if exists(w) and w.health_frac < 0.4 and dist(w.pos, me().pos) <= 5:
+                return 70 if dist(o.tile, w.pos) < dist(me().pos, w.pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s4', 'how much closer a step brings me to the goals (field cached per turn)')
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z11a', 'recompute the walk field only when the walk goals change; skip while channeling or dead', parents=['s3'])
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = walk_goals()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene('Z88a', 'keep hunting camps while the bag is small: bank once carrying 12+ gems, when below half health, or near the end', parents=['s1'])
+def banking() -> Bool:
+    if gems() <= 0:
+        return False
+    if gems() >= 12 or me().health_frac < 0.5:
+        return True
+    return round() > 1900
+
+@gene('Z88b', 'where to walk: free altars while carrying gems, plus living camp groups (no monolith or golem spawns) unless banking', parents=['Z11a'])
+def walk_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if banking():
+            return acc
+    camps_t = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            camps_t = camps_t | group_tiles(g)
+    rest = camps_t - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    if size(rest) > 0:
+        return acc | rest
+    return acc | camps_t
+
+@gene('Z11b', 'skip listing option kinds this policy never takes', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == CAST:
+        return slot_ready(0) or slot_ready(1)
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
+
+@gene('Z11c', 'worth of casting: damage and stuns on enemy champions and fought camps, area hits, shields and resets in fights, heals', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 65
+        return 0
+    if k == AB_AOE:
+        if not valid(o.tile):
+            return 0
+        es = enemy_spots()
+        cs = camp_spots()
+        if size(es) + size(cs) == 0:
+            return 0
+        r = slot_radius(o.slot)
+        n = count(dist(t, o.tile) <= r for t in es)
+        c = count(dist(t, o.tile) <= r for t in cs)
+        return 64 + n * 3 + c if n + c > 0 else 0
+    if k == AB_SHIELD:
+        return 75 if me().health_frac < 0.95 else 0
+    if k == AB_HEAL:
+        return 85 if exists(o.unit) and o.unit.health_frac < 0.6 else 0
+    if k == AB_RESET:
+        return 58 if not can_attack() and me().health_frac < 0.999 else 0
+    return 0
+
+@gene('Z26a', 'distance from a tile to the nearest awake camp or visible enemy champion', parents=['s1'])
+def threat_dist(t: Tile) -> Num:
+    a = min((dist(u.pos, t) for u in camps() if is_awake(u)), default=99)
+    b = min((dist(u.pos, t) for u in enemies()), default=99)
+    return min(a, b)
+
+@gene('Z49a', 'a camp worth hitting: anything already awake, or a sleeping one that is not a golem or monolith', parents=['s1'])
+def fightable(u: Unit) -> Bool:
+    if is_awake(u):
+        return True
+    return not (u.type == GOLEM or u.type == MONOLITH)
+
+@gene('Z49b', 'worth of a dash: escape when hurt near threats, else cover two tiles toward the goals', parents=['s1'])
+def dash_value(t: Tile) -> Num:
+    if not valid(t):
+        return 0
+    here = threat_dist(me().pos)
+    if here <= 5:
+        if me().health_frac < 0.35 and threat_dist(t) - here >= 2:
+            return 96
+        return 0
+    return 51 if progress(t) >= 2 else 0
+
+@gene('Z118a', 'worth of a purchase: the starter item first; with gold left over, the strongest strength shard', parents=['s1'])
+def strength_more(i: Num) -> Num:
+    if i == 6:
+        return 100
+    if item_strength(i) > 0 and item_cost(i) <= 30:
+        return 90 + item_strength(i) * 0.1
+    return 0
+
+@gene("new", "positions of visible enemy champions (once per pass)", parents=['Z7a'])
+def enemy_spots() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        acc = acc | near(u.pos, 0)
+    return acc
+
+@gene("new", "positions of camps worth hitting now: any when my bag is empty, else only awake ones (once per pass)", parents=['Z7a'])
+def camp_spots() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in camps():
+        if gems() == 0 or is_awake(u):
+            acc = acc | near(u.pos, 0)
+    return acc
+```
