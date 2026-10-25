@@ -240,3 +240,8 @@ On v31 the pairs were 50/80 in sim; most of that does not carry over to B1873. b
 ## Oct 25 ~08:55: Arena B leg 7 done (2000 births); no genome beats v32 in real
 Real /80 vs v32 = B1873, 0 crashes: B1889 (champ38, top anchor 50.4) 36, B1999 39, B1996 38, B1968 32.
 v31 and v32c anchors held at 48.3 / 48.0. Arena tops cluster near v32; leg 8 goes on with elk_arena contest as the target.
+
+## Oct 25 08:25: band batch 9 (v32 = B1873), paired with b8
+31-19 (b8 27-23). Gems +87 +- 39, captured +73 +- 34, stuck champion-rounds 31.5 -> 4.0. gold_rush 1-0, contest 1-1,
+boss_battle 0-1 (unfrozen, 14 monolith deaths), elk_arena vs NotSoLonely won 936-720. Losses: gold by r250 776 vs 1373.
+Record progression on the b1 plan: v22 15-35, v28 18-32, v29 20-30, v30 21-29, v31 27-23, v32 31-19.
