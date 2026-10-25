@@ -1,0 +1,9 @@
+```python
+@gene('a11', 'next shard to buy: treasure strength until its emblem, then jungle strength until its emblem (30% less camp damage, and faster camp clears), then bruiser strength')
+def next_shard() -> Num:
+    if items_owned(19) == 0:
+        return 18
+    if items_owned(25) == 0:
+        return 24
+    return 36
+```
