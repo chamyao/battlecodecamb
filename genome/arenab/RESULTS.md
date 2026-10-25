@@ -63,6 +63,7 @@ Gatekeeper (arena, 212a505, bot seeds): 47/80 vs B318 built at 212a505; anchors 
 | b2 20:47 | v25 B318 | 18-32 (36%) | paired vs b1: gems +105 ± 49, lost on death -63, stuck spells 61 -> 4 |
 | b3 21:28 | v26 B792 | 17-33 (34%) | paired vs b2: all within noise (deaths +1.5 ± 1.1) |
 | b4 ~02:00 Oct 25 | v27 A61188 (Arena A) | 13-37 (26%) | paired vs b3: 4 flips to wins, 8 to losses (p ~0.4); worse vs early bankers (GLM5.3 3-2 -> 0-5); sim: rushbank 50/80 vs B792 59 |
+| b5 ~03:50 Oct 25 | v28 a61188-mono | 18-32 (36%) | paired vs b4: 5 flips to wins, 0 to losses (p ~0.03); monolith deaths 1.86 -> 0.58, camp deaths -1.0, gems +39 ± 23 |
 
 B792's sim edge over B318 (47/80, bot seeds) did not show in band games. The sim selection signal
 (self-play + own past bots + stress anchors) predicts band results poorly (GENOME.md open point 4).
