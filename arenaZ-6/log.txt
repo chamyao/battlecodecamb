@@ -101,3 +101,73 @@ ladder block removed
 [01:17:18] [Z] summary: births 40 deaths 17 games 5728 $0.21; top [('Z15', 28.96, 0.83, 344, 'S8'), ('Z28', 28.65, 0.84, 144, 'S17'), ('Z26', 27.8, 0.82, 184, 'S15')]; top vs anchors {'Z15': 0.875, 'Z28': None, 'Z26': None}
 [01:17:18] [Z] birth Z40 (mutate claude-haiku-5-5) of ['Z31'] species S20; 24 genomes $0.21
 [01:17:20] [Z] birth Z41 (mutate claude-haiku-5-5) of ['Z38'] species S22; 24 genomes $0.21
+[01:17:36] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:17:38] [Z] birth Z42 (mutate claude-haiku-5-5) of ['Z15'] species S8; 24 genomes $0.24
+[01:17:40] [Z] new species S24 founded by Z43
+[01:17:40] [Z] birth Z43 (llm_cross claude-opus-5-5) of ['Z40', 'Z15'] species S24; 24 genomes $0.24
+[01:17:43] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:17:49] [Z] new species S25 founded by Z44
+[01:17:49] [Z] birth Z44 (tune ) of ['Z26'] species S25; 24 genomes $0.24
+[01:17:51] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 73: expected Bool, got Unit
+[01:17:56] [Z] new species S26 founded by Z45
+[01:17:56] [Z] birth Z45 (llm_cross claude-haiku-5-5) of ['Z13', 'Z10'] species S26; 24 genomes $0.24
+[01:18:03] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:18:08] [Z] new species S27 founded by Z46
+[01:18:08] [Z] birth Z46 (mutate claude-haiku-5-5) of ['Z42'] species S27; 24 genomes $0.25
+[01:18:10] [Z] birth Z47 (mutate claude-haiku-5-5) of ['Z26'] species S15; 24 genomes $0.25
+[01:18:11] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:18:24] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:18:29] [Z] new species S28 founded by Z48
+[01:18:29] [Z] birth Z48 (mutate claude-opus-5-5) of ['Z34'] species S28; 24 genomes $0.27
+[01:18:30] [Z] new species S29 founded by Z49
+[01:18:30] [Z] birth Z49 (llm_cross claude-haiku-5-5) of ['Z43', 'Z40'] species S29; 24 genomes $0.27
+[01:18:33] [Z] new species S30 founded by Z50
+[01:18:33] [Z] champion anchor champ1-Z28 (mu 28.8)
+[01:18:33] [Z] summary: births 50 deaths 27 games 7136 $0.27; top [('Z28', 28.79, 0.81, 224, 'S17'), ('Z43', 28.47, 0.83, 168, 'S24'), ('Z42', 27.99, 0.84, 144, 'S8')]; top vs anchors {'Z28': None, 'Z43': 1.0, 'Z42': None}
+[01:18:33] [Z] birth Z50 (mutate claude-haiku-5-5) of ['Z42'] species S30; 24 genomes $0.27
+[01:18:51] [Z] new species S31 founded by Z51
+[01:18:51] [Z] birth Z51 (tune ) of ['Z42'] species S31; 24 genomes $0.27
+[01:18:54] [Z] new species S32 founded by Z52
+[01:18:54] [Z] birth Z52 (mutate claude-haiku-5-5) of ['Z42'] species S32; 24 genomes $0.27
+[01:18:56] [Z] birth Z53 (llm_cross claude-haiku-5-5) of ['Z27', 'Z41'] species S22; 24 genomes $0.27
+[01:19:11] [Z] birth Z54 (tune ) of ['Z51'] species S31; 24 genomes $0.28
+[01:19:20] [Z] birth Z55 (llm_cross claude-haiku-5-5) of ['Z46', 'Z49'] species S29; 24 genomes $0.28
+[01:19:22] [Z] birth Z56 (llm_cross claude-haiku-5-5) of ['Z48', 'Z46'] species S28; 24 genomes $0.28
+[01:19:24] [Z] birth Z57 (tune ) of ['Z28'] species S17; 24 genomes $0.28
+[01:19:48] [Z] birth Z58 (mutate claude-haiku-5-5) of ['Z43'] species S24; 24 genomes $0.30
+[01:19:49] [Z] birth Z59 (mutate claude-haiku-5-5) of ['Z56'] species S28; 24 genomes $0.30
+[01:19:53] [Z] new species S33 founded by Z60
+[01:19:53] [Z] summary: births 60 deaths 37 games 8512 $0.30; top [('Z57', 28.65, 0.92, 88, 'S17'), ('Z58', 28.35, 1.14, 48, 'S24'), ('Z55', 27.84, 0.85, 120, 'S29')]; top vs anchors {'Z57': 0.625, 'Z58': None, 'Z55': None}
+[01:19:53] [Z] birth Z60 (mutate claude-opus-5-5) of ['Z37'] species S33; 24 genomes $0.30
+[01:20:13] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:20:17] [Z] new species S34 founded by Z61
+[01:20:17] [Z] birth Z61 (llm_cross claude-haiku-5-5) of ['Z39', 'Z27'] species S34; 24 genomes $0.31
+[01:20:19] [Z] new species S35 founded by Z62
+[01:20:19] [Z] birth Z62 (mutate claude-haiku-5-5) of ['Z58'] species S35; 24 genomes $0.31
+[01:20:25] [Z] birth Z63 (mutate claude-haiku-5-5) of ['Z25'] species S14; 24 genomes $0.31
+[01:20:40] [Z] birth Z64 (tune ) of ['Z42'] species S32; 24 genomes $0.31
+[01:20:41] [Z] birth Z65 (mutate claude-haiku-5-5) of ['Z42'] species S30; 24 genomes $0.31
+[01:20:42] [Z] birth Z66 (llm_cross claude-haiku-5-5) of ['Z58', 'Z37'] species S35; 24 genomes $0.31
+[01:21:03] [Z] birth Z67 (mutate claude-haiku-5-5) of ['Z40'] species S20; 24 genomes $0.31
+[01:21:04] [Z] birth Z68 (mutate claude-haiku-5-5) of ['Z40'] species S20; 24 genomes $0.31
+[01:21:04] [Z] new species S36 founded by Z69
+[01:21:04] [Z] birth Z69 (mutate claude-haiku-5-5) of ['Z64'] species S36; 24 genomes $0.31
+[01:21:25] [Z] new species S37 founded by Z70
+[01:21:25] [Z] summary: births 70 deaths 47 games 10112 $0.34; top [('Z57', 28.29, 0.81, 208, 'S17'), ('Z55', 28.29, 0.82, 216, 'S29'), ('Z42', 28.13, 0.81, 304, 'S8')]; top vs anchors {'Z57': 0.625, 'Z55': None, 'Z42': None}
+[01:21:25] [Z] birth Z70 (mutate claude-haiku-5-5) of ['Z10'] species S37; 24 genomes $0.34
+[01:21:29] [Z] new species S38 founded by Z71
+[01:21:29] [Z] birth Z71 (llm_cross claude-haiku-5-5) of ['Z11', 'Z64'] species S38; 24 genomes $0.34
+[01:21:31] [Z] new species S39 founded by Z72
+[01:21:31] [Z] birth Z72 (mutate claude-opus-5-5) of ['Z34'] species S39; 24 genomes $0.34
+[01:21:46] [Z] birth Z73 (tune ) of ['Z72'] species S39; 24 genomes $0.34
+[01:21:51] [Z] new species S40 founded by Z74
+[01:21:51] [Z] birth Z74 (mutate claude-haiku-5-5) of ['Z55'] species S40; 24 genomes $0.34
+[01:21:53] [Z] new species S41 founded by Z75
+[01:21:53] [Z] birth Z75 (mutate claude-haiku-5-5) of ['Z54'] species S41; 24 genomes $0.34
+[01:22:14] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:22:15] [Z] new species S42 founded by Z76
+[01:22:15] [Z] birth Z76 (mutate claude-haiku-5-5) of ['Z73'] species S42; 24 genomes $0.34
+[01:22:17] [Z] new species S43 founded by Z77
+[01:22:17] [Z] birth Z77 (llm_cross claude-haiku-5-5) of ['Z58', 'Z57'] species S43; 24 genomes $0.34
+[01:22:31] [Z] birth Z78 (mutate claude-haiku-5-5) of ['Z58'] species S35; 24 genomes $0.34
+[01:22:35] [Z] birth Z79 (mutate claude-haiku-5-5) of ['Z74'] species S40; 24 genomes $0.39
