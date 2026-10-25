@@ -1,0 +1,25 @@
+```python
+@gene("new", "home below 40 percent health when empty-handed; else where to walk: an altar with gems, else a living camp group, a nearby enemy champion carrying 10+ gems, or a nearly dead enemy champion when I am healthy", parents=["Z96a"])
+def goals_v3() -> Tiles:
+    if gems() == 0 and me().health_frac < 0.4:
+        return my_spawn()
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    for e in enemies():
+        if e.is_champion and e.health_frac < 0.3 and dist(e.pos, me().pos) <= 5 and me().health_frac > 0.6:
+            acc = acc | near(e.pos, 0)
+    for e in enemies():
+        if e.is_champion and unit_gems(e) >= 10 and dist(e.pos, me().pos) <= 6:
+            acc = acc | near(e.pos, 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals (heal below 40 percent, hunt gem carriers and nearly dead champions)")
+def goal_field() -> Field:
+    return field(goals_v3())
+```

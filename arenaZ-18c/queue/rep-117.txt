@@ -1,0 +1,7 @@
+```python
+@gene("Z113c", "how much closer a step brings me to the goals, or to my spawn below 35 percent health when carrying no gems")
+def progress(t: Tile) -> Num:
+    if gems() == 0 and me().health_frac < 0.35:
+        return at(home_field(), me().pos) - at(home_field(), t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

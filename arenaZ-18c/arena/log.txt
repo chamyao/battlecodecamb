@@ -189,3 +189,27 @@
 [08:19:56] [Z] new species S50 founded by Z97
 [08:19:56] [Z] birth Z97 (mutate session) of ['Z82'] species S50; 24 genomes $0.00
 [08:19:59] [Z] rejected mutate session: behavioural twin
+[08:20:29] [Z] new species S51 founded by Z98
+[08:20:29] [Z] birth Z98 (mutate session) of ['Z90'] species S51; 24 genomes $0.00
+[08:20:34] [Z] birth Z99 (mutate session) of ['Z89'] species S27; 24 genomes $0.00
+[08:20:40] [Z] new species S52 founded by Z100
+[08:20:40] [Z] champion anchor champ2-Z90 (mu 40.1)
+[08:20:40] [Z] summary: births 100 deaths 77 games 60480 $0.00; top [('Z90', 40.11, 0.81, 680, 'S43'), ('Z95', 39.09, 0.8, 400, 'S49'), ('Z98', 39.03, 0.95, 80, 'S51')]; top vs anchors {'Z90': None, 'Z95': 1.0, 'Z98': None}
+[08:20:40] [Z] birth Z100 (tune ) of ['Z98'] species S52; 24 genomes $0.00
+[08:24:42] [Z] birth Z101 (mutate session) of ['Z87'] species S37; 24 genomes $0.00
+[08:24:47] [Z] birth Z102 (mutate session) of ['Z95'] species S49; 24 genomes $0.00
+[08:24:58] [Z] rejected mutate session: behavioural twin
+[08:25:06] [Z] new species S53 founded by Z103
+[08:25:06] [Z] birth Z103 (mutate session) of ['Z95'] species S53; 24 genomes $0.00
+[08:25:11] [Z] birth Z104 (mutate session) of ['Z95'] species S49; 24 genomes $0.00
+[08:25:23] [Z] new species S54 founded by Z105
+[08:25:23] [Z] birth Z105 (llm_cross session) of ['Z91', 'Z94'] species S54; 24 genomes $0.00
+[08:25:31] [Z] birth Z106 (mutate session) of ['Z97'] species S50; 24 genomes $0.00
+[08:25:37] [Z] birth Z107 (mutate session) of ['Z91'] species S47; 24 genomes $0.00
+[08:25:51] [Z] rejected tune : behavioural twin
+[08:28:25] [Z] new species S55 founded by Z108
+[08:28:25] [Z] birth Z108 (mutate session) of ['Z90'] species S55; 24 genomes $0.00
+[08:28:35] [Z] rejected mutate session: behavioural twin
+[08:28:41] [Z] birth Z109 (mutate session) of ['Z98'] species S51; 24 genomes $0.00
+[08:28:54] [Z] summary: births 110 deaths 87 games 67488 $0.00; top [('Z90', 40.69, 0.81, 1200, 'S43'), ('Z109', 40.69, 0.94, 88, 'S51'), ('Z103', 40.01, 0.79, 360, 'S53')]; top vs anchors {'Z90': 0.875, 'Z109': None, 'Z103': None}
+[08:28:54] [Z] birth Z110 (tune ) of ['Z101'] species S37; 24 genomes $0.00
