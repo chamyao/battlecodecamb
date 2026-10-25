@@ -147,3 +147,6 @@ genome/candidates/v33-ahead4.genome, sha256 7bead1581516d949... (genome/arenab).
 - tune-B real cambc: 43 vs v33, 44 vs v32, 46 vs v31, 58 vs farmer, 68 vs rushbank. Solo identical to v33.
 - My real cambc vs v33, 40 maps x 2 sides: 44/80, 0 crashes. GO to intel as v36; validation b12 paired vs b10 and b11.
 - Live as ladder version 36 (2026-10-25T14:56:30Z, bundle sha256 614be6e6...). Validation: intel batch 12, paired vs b10 and b11.
+- Batch 12 (intel b12.md, bd7a24b): 31-19 vs b10's 32-18 (4 flipped to wins, 5 to losses), gems -42 +- 34; vs b11 28-22 -> 31-19.
+  ahead4 is record-neutral but costs ~40 gems/game in both b11 and b12; cash3 alone added losses on packs, the_farm
+  and lanes. Reverted to v33 (bundle 37e7be1a...).
