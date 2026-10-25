@@ -38,6 +38,7 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-25 | genome/search EC2 arenaA-8c (API-writer control for arenaA-8, resumed arenaA-6 at $7.80 -> $11.19, 1626 births total; Arena A reserve) | 401 | 3.39 | 62.6 |
 | 2026-10-25 | genome/search EC2 arenaZ-15 (arenaZ-8 with batched Opus edit mutations, 8 per call; --max-births 475; Arena A reserve) | 475 | 17.75 | 80.35 |
 | 2026-10-25 | genome/search EC2 arenaZ-16 (arenaZ-11r with Opus splits: births $3.00 + splits $3.58 outside the births budget; Arena A reserve) | 557 | 6.58 | 86.93 |
+| 2026-10-25 | genome/search EC2 arenaZ-1x (arenaZ-1 resumed to --budget 15, $3.07 -> $14.34; stopped at 1444 births, flat since ~900; Arena A reserve) | 969 | 11.27 | 98.2 |
 
 ## Ladder uploads (Cham, Oct 24)
 
