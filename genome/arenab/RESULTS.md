@@ -381,3 +381,8 @@ alone remains an untested band candidate.
 
 ## Oct 25 ~17:05: v35 = v33 re-upload; v36 = v33-ahead4 going up (genome lead real 44/80 vs v33)
 b12 paired with b10 (v33) and b11 (v34) separates cash3 from ahead4.
+
+## Oct 25 ~17:15: exploit-5 started (Cham: Claude Code queue writers only, no API runs)
+Relay writer, run.py genome/search d9fb73d8 --llm-queue, opponent v36 (v33-ahead4), seeds v36/B318/v29-ringgg, fitness wins,
+150 programs; top 8 real-screened; keepers (real >= 42/80 vs v36 and >= 10 kills, or deaths on us >= 1.5x mirror) become
+league anchors for search. Mirror x5-exploit/ on arenab/b14-relay.
