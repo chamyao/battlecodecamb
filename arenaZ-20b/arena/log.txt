@@ -813,3 +813,18 @@
 [15:26:26] [Z] birth Z470 (mutate session) of ['Z429'] species S94; 24 genomes $0.00
 [15:27:07] [Z] birth Z471 (mutate session) of ['Z421'] species S100; 24 genomes $0.00
 [15:27:48] [Z] birth Z472 (mutate session) of ['Z466'] species S117; 24 genomes $0.00
+[15:28:30] [Z] rejected mutate session: behavioural twin
+[15:29:05] [Z] birth Z473 (mutate session) of ['Z415'] species S130; 24 genomes $0.00
+[15:29:45] [Z] birth Z474 (mutate session) of ['Z467'] species S108; 24 genomes $0.00
+[15:30:20] [Z] 475 births (--max-births 475): no more births
+[15:30:20] [Z] birth Z475 (mutate session) of ['Z464'] species S127; 24 genomes $0.00
+[15:31:05] [Z] birth Z476 (llm_cross session) of ['Z428', 'Z469'] species S130; 24 genomes $0.00
+[15:31:47] [Z] birth Z477 (mutate session) of ['Z428'] species S121; 24 genomes $0.00
+[15:32:22] [Z] rejected mutate session: behavioural twin
+[15:33:00] [Z] birth Z478 (mutate session) of ['Z469'] species S130; 24 genomes $0.00
+[15:33:41] [Z] birth Z479 (mutate session) of ['Z471'] species S100; 24 genomes $0.00
+[15:34:25] [Z] summary: births 480 deaths 457 games 209848 $0.00; top [('Z458', 44.03, 0.79, 576, 'S112'), ('Z474', 43.89, 0.79, 248, 'S108'), ('Z443', 43.76, 0.79, 880, 'S104')]; top vs anchors {'Z458': None, 'Z474': None, 'Z443': None}
+[15:34:25] [Z] birth Z480 (llm_cross session) of ['Z467', 'Z437'] species S113; 24 genomes $0.00
+[15:34:57] [Z] birth Z481 (mutate session) of ['Z456'] species S125; 24 genomes $0.00
+[15:37:31] [Z] summary: births 481 deaths 458 games 211792 $0.00; top [('Z460', 43.82, 0.79, 736, 'S124'), ('Z459', 43.78, 0.79, 672, 'S70'), ('Z463', 43.78, 0.79, 760, 'S126')]; top vs anchors {'Z460': None, 'Z459': 1.0, 'Z463': 1.0}
+[15:37:33] [Z] done: spent $0.00
