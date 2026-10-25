@@ -1,0 +1,133 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HEALING: Bool = False
+
+@gene('s1', 'value of doing this option now', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.3 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 113
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return min(40 + 5 * p, 100) if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems; else a cleared group awaiting capture; else a living camp group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals; retreat to spawn to heal when badly hurt, when carrying 10+ gems below 70%, or stay home while below 85% on spawn; heal before leaving', parents=['s3', 's3'])
+def goal_field() -> Field:
+    m = me()
+    hf = m.health_frac
+    home = my_spawn()
+    if HEALING or hf < 0.3:
+        return field(home)
+    if gems() >= 10 and hf < 0.7:
+        return field(home)
+    if hf < 0.85 and m.pos in home:
+        return field(home)
+    return field(goals())
+
+@gene('s4', 'progress toward goals; doubled while healing; gem scaling reaches 2.5x at 9 gems so heavy loads do not overwhelm fights', parents=['s4', 's4'])
+def progress(t: Tile) -> Num:
+    p = at(GF, me().pos) - at(GF, t)
+    if HEALING:
+        p = p * 2
+    else:
+        p = p * min(1 + gems() / 6, 2.5)
+    return p
+
+@gene('Z12a', 'once per turn: update heal hysteresis (start below 35%, stop above 90%), then compute the goal distance field (skip when dead)', parents=['s4', 's3'])
+def update() -> None:
+    if alive():
+        hf = me().health_frac
+        if hf < 0.35:
+            HEALING = True
+        if hf > 0.9:
+            HEALING = False
+        GF = goal_field()
+
+@gene('Z12b', 'draft preference: Vesper Vale first, then Heart of Ruin (sturdy, shield in fights)', parents=['s1', 'Z12b'])
+def pick_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 6
+    if c == HEART_OF_RUIN:
+        return 5
+    if c == MARCELLA:
+        return 4
+    if c == VENDETTA:
+        return 3
+    if c == RYTH:
+        return 2
+    return 1
+
+@gene('Z12c', 'value of casting an ability option; shield also vs awake camps, heal at 60% or earlier in fights, stun enemy champions (cancels their tribute) with bonus for finishing low enemies, damage on wounded champions, dash scaled by progress with gem and low-health bonuses', parents=['s1', 'Z12c'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    foes = count_units(enemies())
+    if k == AB_SHIELD:
+        if hf >= 0.7:
+            return 0
+        if foes > 0:
+            return 85
+        return 80 if any(is_awake(c) and dist(c.pos, me().pos) <= 3 for c in camps()) else 0
+    if k == AB_HEAL:
+        if hf < 0.6:
+            return 85
+        if hf < 0.8 and foes > 0:
+            return 65
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            p = progress(o.tile)
+            if p >= 2:
+                bonus = 0
+                if gems() > 0:
+                    bonus += 20
+                if hf < 0.5:
+                    bonus += 15
+                return min(90, 22 * p) + bonus
+        return 0
+    if k == AB_CC:
+        if exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+            return 95 + (15 if o.unit.health_frac < 0.35 else 0)
+        if exists(o.unit) and o.unit.is_camp:
+            return 58 if gems() == 0 else 0
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 70 + 20 * (1 - o.unit.health_frac) + (10 if o.unit.health_frac < 0.35 else 0)
+            if o.unit.is_camp:
+                return 58 if gems() == 0 else 0
+        return 0
+    return 0
