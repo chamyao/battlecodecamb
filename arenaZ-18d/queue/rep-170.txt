@@ -1,0 +1,6 @@
+```python
+@gene('Z56c', 'bank time: carry gems to an altar once the bag holds 15 (8 when hurt), or any gems in the last 250 rounds', parents=['s2'])
+def banking() -> Bool:
+    g = gems()
+    return g >= 15 or (g >= 8 and me().health_frac < 0.5) or (g > 0 and round() > 1750)
+```

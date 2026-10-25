@@ -1,0 +1,8 @@
+```python
+@gene('Z56a', 'once per turn: cache the distance field to the goals; when hurt with almost no gems and no fight in reach, walk home to heal and shop instead', parents=['s3'])
+def update() -> None:
+    if me().health_frac < 0.45 and gems() < 5 and not target_in_reach():
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+```

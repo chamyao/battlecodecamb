@@ -1,0 +1,8 @@
+```python
+@gene('Z41a', 'once per turn: cache the distance field to the goals; when below half health or rich (300 gold) with no gems and no fight in reach, walk home to heal and shop instead', parents=['s3'])
+def update() -> None:
+    if (me().health_frac < 0.5 or gold() >= 300) and gems() == 0 and not target_in_reach():
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+```
