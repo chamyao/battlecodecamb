@@ -1,0 +1,65 @@
+```python
+@gene('s1', 'value of doing this option now; draft Marcella first; shop the starter item, then strength shards with leftover gold; keep fighting camps until banking; flee then recall when hurt; recall to shop with a full purse; chase weak enemy champions')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return mrtv_order(o.champ)
+    if o.kind == BUY:
+        return jungle_shop(o.item)
+    if o.kind == RECALL:
+        if in_fight():
+            return 0
+        if me().health_frac < 0.4:
+            return 90
+        if gems() == 0 and gold() >= 150 and not can_shop() and at(GF, me().pos) >= 3:
+            return 52 if me().health_frac < 0.85 or gold() >= 300 else 0
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 10
+        if not banking():
+            return 60 + (1 - o.unit.health_frac) * 3
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.4 and in_fight():
+            g = threat_dist(o.tile) - threat_dist(me().pos)
+            return 95 + g if g > 0 else 0
+        if me().health_frac > 0.6:
+            w = best(enemies(), lambda u: 0 - u.health_frac)
+            if exists(w) and w.health_frac < 0.4 and dist(w.pos, me().pos) <= 5:
+                return 70 if dist(o.tile, w.pos) < dist(me().pos, w.pos) else 0
+        if me().health_frac > 0.7 and gems() < 10:
+            p = me().pos
+            e = best(enemies(), lambda u: 0 - dist(u.pos, p))
+            if exists(e) and dist(e.pos, p) <= 7 and dist(e.pos, p) > 1:
+                if any(dist(a.pos, e.pos) <= 4 and dist(a.pos, p) > 0 for a in allies()):
+                    return 65 if dist(o.tile, e.pos) < dist(p, e.pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("Z98b", "where to walk: free altars while carrying gems, plus living camp groups (monolith and golem spawns only as a last resort) unless banking; skip a cleared group an ally is already capturing")
+def walk_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if banking():
+            return acc
+    p = me().pos
+    camps_t = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            taken = False
+            if group_reward(g) and not (p in ts):
+                taken = any((a.pos in ts) and dist(a.pos, p) > 0 for a in allies())
+            if not taken:
+                camps_t = camps_t | ts
+    rest = camps_t - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    if size(rest) > 0:
+        return acc | rest
+    return acc | camps_t
+```

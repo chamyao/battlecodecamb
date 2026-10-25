@@ -1,0 +1,50 @@
+```python
+@gene('Z17a', 'once per turn: note the tiles next to area-spell targets; after round 1000 living golem groups join the goals; recompute the walk field only when the walk goals change; skip while channeling or dead', parents=['s4'])
+def update() -> None:
+    if channeling() or not alive():
+        return
+    hot = near(tile(-5, -5), 0)
+    if slot_ready(0) or slot_ready(1):
+        for u in enemies():
+            hot = hot | near(u.pos, 1)
+        for u in camps():
+            if gems() == 0 or is_awake(u):
+                hot = hot | near(u.pos, 1)
+    HOT = hot
+    gs = walk_goals()
+    if round() > 1000 and not banking():
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                if size(group_tiles(g) & type_spawns(GOLEM)) > 0:
+                    gs = gs | group_tiles(g)
+    rest = gs - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    if size(rest) > 0:
+        gs = rest
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+
+@gene("Z80b", "where to walk: free altars while carrying gems, plus living camp groups (monolith and golem spawns only as a last resort) unless banking; skip a cleared group an ally is already capturing")
+def walk_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if banking():
+            return acc
+    p = me().pos
+    camps_t = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            taken = False
+            if group_reward(g) and not (p in ts):
+                taken = any((a.pos in ts) and dist(a.pos, p) > 0 for a in allies())
+            if not taken:
+                camps_t = camps_t | ts
+    rest = camps_t - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    if size(rest) > 0:
+        return acc | rest
+    return acc | camps_t
+```
