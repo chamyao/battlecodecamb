@@ -139,3 +139,9 @@ Two constants: a5 ahead_on d <= 5 -> 4; r5 cash-out g < 5 -> 3.
 - Batch 11 (intel b11.md, 4639d9f): 28-22 vs b10's 32-18 on the same 50 matchups, 3 flipped to wins and 7 to losses
   (sign test p ~0.34). Gems -41, gems captured -56, gems lost on death +44. The earlier cash-out puts carriers on the
   road more often and they lose bags. Nothing favours v34, so it is reverted: v33 bundle 37e7be1a... re-uploaded.
+- Reverted: v33 re-submitted as ladder version 35 (2026-10-25T14:54:24Z, same bundle sha256 37e7be1a...).
+
+## v33-ahead4 (v33 + a5 ahead_on d <= 5 -> 4 only; v34 without cash3)
+
+genome/candidates/v33-ahead4.genome, sha256 7bead1581516d949... (genome/arenab). Splits v34's two edits.
+- tune-B real cambc: 43 vs v33, 44 vs v32, 46 vs v31, 58 vs farmer, 68 vs rushbank. Solo identical to v33.
