@@ -1,0 +1,32 @@
+```python
+GKEY: Num = -1000     # goal set the cached goal field was computed for
+GOALF: Field = None   # cached walking field to the goals
+HOMEF: Field = None   # walking field home (static)
+HOMED: Bool = False   # HOMEF computed
+
+@gene("Z90a", "start of turn: the walking field, home when badly hurt with a foe or awake camp near, else to the goals; both fields cached")
+def update() -> None:
+    if not HOMED:
+        HOMEF = field(my_spawn())
+        HOMED = True
+    k = goal_key()
+    if k != GKEY:
+        GOALF = field(goals())
+        GKEY = k
+    if me().health_frac < 0.35 and under_threat():
+        GF = HOMEF
+    else:
+        GF = GOALF
+
+@gene("new", "a number that changes whenever the goal set changes: bag state, locked altars, living groups", parents=["Z90a"])
+def goal_key() -> Num:
+    if gems() > 0:
+        return -1 - size(locked_altars())
+    acc = 0
+    p = 1
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc += p
+        p *= 2
+    return acc
+```

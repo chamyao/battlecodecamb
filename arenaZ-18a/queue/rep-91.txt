@@ -1,0 +1,21 @@
+```python
+GOALF: Field = None   # cached walking field to the goals
+HOMEF: Field = None   # walking field home (static)
+HOMED: Bool = False   # HOMEF computed
+
+@gene("Z98a", "start of turn: cached goal field (refreshed when the goal set changes); walk home instead when badly hurt with a foe or awake camp near")
+def update() -> None:
+    if not HOMED:
+        HOMEF = field(my_spawn())
+        HOMED = True
+    k = goal_key()
+    if k != GKEY:
+        GOALF = field(goals())
+        GKEY = k
+    p = me().pos
+    threat = any(dist(p, u.pos) <= 5 for u in enemies()) or any(is_awake(c) and dist(p, c.pos) <= c.attack_range + 1 for c in camps())
+    if me().health_frac < 0.35 and threat:
+        GF = HOMEF
+    else:
+        GF = GOALF
+```
