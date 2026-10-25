@@ -153,3 +153,28 @@ Same root cause as 5 and 5b: the camp goal is the nearest spawn, and gold-only g
 - The map has 22 gold, 8 gem, 4 elk, 4 wolf and 2 monolith camps, and two altars at (35,15) and (44,15).
 - Even under B792 (23:30 and 23:40) we died to camps 16-23 times per game there.
 - What the bot would need to observe: whether it can finish an elk group before the elks kill it (`camp_threat`, `group_dps` / `survive_turns`).
+
+## 8. Genome versions on the ladder: B318 (v25) and B792 (v26) against v24
+
+| ranked | games | record | win rate |
+|---|---|---|---|
+| v24 (v22's ZIP), 16:50-20:40 | 120 | 67-53 | 56% |
+| B318 (v25), 20:45-21:25 | 20 | 8-12 | 40% |
+| B792 (v26), 21:25-01:00 | 105 | 48-57 | 46% |
+
+B792 against v24 is −10 points, about 1.5 SE. They faced different opponents, but the same pool of peers.
+
+Per map (ranked, maps with 4+ games across both versions):
+- **v24 clearly better:** 00rushbait_v2 (3-0 vs 0-5), 00ambush (3-0 vs 0-2), 00eight (4-2 vs 0-2), 01starvation (1-1 vs 0-3), 00lost_world (1-1 vs 0-3), 00rows (4-0 vs 1-1).
+- **B792 better:** 01broken_curve (0-3 vs 2-0), 00interlock (1-2 vs 3-0), 01boss_battle (2-2 vs 3-0), 01gold_rush (0-3 vs 1-1), 01yellow_brick_road (0-1 vs 2-1).
+- **Lost by both:** 00expanse (0-4, 0-3), 00split (0-2, 0-2), 01shortcut (0-2, 0-3), 00contest (0-1, 0-4), 01elk_arena (1-3, 1-2).
+
+Per game, B792 against v24:
+- It banks earlier: first tribute around round 100 against v24's 189.
+- It dies less to camps: 3.6 against 4.6.
+- But its yield gap is larger: 12.9 against their 23.6 gems per capture, where v24 had 14.2 against 18.5.
+- Its fuel-out turns are 3.3 per game (B318's were 20).
+
+The maps that every version loses (expanse, split, shortcut, contest, elk_arena, lost_world) are all yield, banking or monolith maps from sections 3-7.
+
+Determinism: repeated identical groups involving B792 (00:04 and 00:06, against "Claude wrote everything") produced different games. In one of the five maps our own action diverged first. Paired comparisons with the genome versions carry run-to-run noise.
