@@ -1,0 +1,102 @@
+"""Tune-B harness: variants of the live genome by text edits, scored with genome_eval.
+
+Runtime: genome/v0 568cbf5 (built genome/build/genome_eval). Opponents: genome/tuneb/opp (stress genomes from
+genome/intel), policies compiled into genome/build/tuneb/*.pol.
+"""
+import glob, hashlib, json, os, re, subprocess, sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+EVAL = os.path.join(ROOT, 'genome', 'build', 'genome_eval')
+VAR = os.path.join(ROOT, 'genome', 'build', 'tuneb', 'var')
+POL = os.path.join(ROOT, 'genome', 'build', 'tuneb')
+MAPS = sorted(glob.glob(os.path.join(ROOT, 'maps', '*.map26a')))
+BASE = os.path.join(ROOT, 'genome', 'candidates', 'a61188-mono.genome')
+
+CHAMPS = ['RYTH', 'VESPER_VALE', 'VENDETTA', 'CASSI', 'STELLAR', 'PRISM', 'MARCELLA', 'WILLOW', 'REN', 'VARG',
+          'TAVI', 'HEART_OF_RUIN']
+
+ANCHORS = {
+    'farmer': 'genome/tuneb/opp/farmer.genome', 'deathball': 'genome/tuneb/opp/deathball.genome',
+    'rushbank': 'genome/tuneb/opp/rushbank.genome', 'hunter': 'genome/tuneb/opp/hunter.genome',
+    'hunter-carry': 'genome/tuneb/opp/hunter-carry.genome',
+    'L1c': 'tune-v20-L1c.pol', 'gconv1': 'style-gconv1.pol', 'v7': 'v7.pol', 'L1': 'tune-v20-L1.pol',
+    'rall2': 'rall2-ca4-lean-g.pol', 'metadraft': 'opp-tune5-metadraft.pol',
+    'B792': 'genome/candidates/B792.genome', 'A61188': 'genome/candidates/A61188.genome',
+}
+
+_so = {}
+
+
+def so_of(path):
+    if path not in _so:
+        out = subprocess.run([sys.executable, '-m', 'genome.build', path], cwd=ROOT, capture_output=True, text=True,
+                             check=True).stdout
+        _so[path] = 'genome:' + out.strip().splitlines()[-1]
+    return _so[path]
+
+
+def side(spec):
+    if spec in ANCHORS:
+        spec = ANCHORS[spec]
+    if spec.endswith('.pol'):
+        return os.path.join(POL, spec)
+    if spec.endswith('.genome'):
+        return so_of(spec if os.path.isabs(spec) else os.path.join(ROOT, spec))
+    return spec
+
+
+def base_text():
+    return open(BASE).read()
+
+
+def draft_gene(order, desc='tune-B draft'):
+    lines = ['@gene("d1", "draft preference (tune-B): %s, then anything")' % ', '.join(order),
+             'def pick_value(c: Num) -> Num:']
+    for i, c in enumerate(order):
+        lines += ['    if c == %s:' % c, '        return %d' % (len(order) + 1 - i)]
+    lines += ['    return 1', '']
+    return '\n'.join(lines)
+
+
+def with_draft(text, order):
+    m = re.search(r'@gene\("d1".*?\n    return 1\n', text, re.S)
+    assert m, 'draft gene not found'
+    return text[:m.start()] + draft_gene(order) + text[m.end():]
+
+
+def edit(text, pairs):
+    for old, new in pairs:
+        assert text.count(old) == 1, 'edit not unique: %r (%d)' % (old, text.count(old))
+        text = text.replace(old, new)
+    return text
+
+
+def save(text, tag=None):
+    os.makedirs(VAR, exist_ok=True)
+    h = hashlib.sha1(text.encode()).hexdigest()[:12]
+    p = os.path.join(VAR, '%s.genome' % h)
+    if not os.path.exists(p):
+        open(p, 'w').write(text)
+    return p
+
+
+def run(a, b, games=200, seed=1, bot_seeds=False, threads=4, maps=None):
+    maps = maps or MAPS
+    cmd = [EVAL, '--a', side(a), '--b', side(b), '--threads', str(threads)]
+    if bot_seeds:
+        cmd += ['--bot-seeds', '--games', str(2 * len(maps))]
+    else:
+        cmd += ['--games', str(games), '--seed', str(seed)]
+    out = subprocess.run(cmd + maps, capture_output=True, text=True, check=True).stdout
+    lines = [json.loads(l) for l in out.splitlines() if l.startswith('{')]
+    s = lines[-1]
+    r = s['results']
+    wins = s['win_rate'] * len(r)  # results: 1 = side a won
+    return dict(wins=wins, games=len(r), rate=wins / len(r), susp=s.get('a_suspensions'), crashes=s.get('crashes'),
+                gems=s.get('a_gems'), bgems=s.get('b_gems'), results=r)
+
+
+def precompile(paths, jobs=4):
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(jobs) as ex:
+        list(ex.map(so_of, paths))
