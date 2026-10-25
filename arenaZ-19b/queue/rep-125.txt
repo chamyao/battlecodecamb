@@ -1,0 +1,29 @@
+```python
+@gene('s1', 'value of doing this option now; drafts Willow, Marcella, Vesper Vale then Tavi, buys a bruiser strength emblem then bruiser health, casts, hunts gem carriers and recalling enemies, flees when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 10 if o.champ == WILLOW else (9 if o.champ == MARCELLA else (8 if o.champ == VESPER_VALE else (7 if o.champ == TAVI else 1)))
+    if o.kind == BUY:
+        return 100 if o.item == (40 if items_owned(37) > 0 else 36) else 0
+    hurt = me().health_frac < 0.3518
+    if o.kind == RECALL:
+        return 90 if hurt and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + min(unit_gems(o.unit), 50) / 10 + (8 if is_recalling(o.unit) else 0)
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if hurt:
+            now = threat_at(me().pos)
+            if now > 0:
+                nxt = threat_at(o.tile)
+                if nxt < now:
+                    return 96 - nxt
+                return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

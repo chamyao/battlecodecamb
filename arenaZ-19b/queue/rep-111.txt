@@ -1,0 +1,15 @@
+```python
+@gene('Z125a', 'gems and gold per turn a camp group is worth to me (walk counted twice plus kill time), 0 if fighting it alone would cost half my health', parents=['s2'])
+def group_value(g: Num, gt: Tiles) -> Num:
+    t0 = nearest(gt, me().pos)
+    d = dist(t0, me().pos)
+    k = spawn_type(t0)
+    n = size(gt)
+    ttk = camp_base_health(k) * n / max(me().strength, 1)
+    if group_reward(g):
+        ttk = 0
+    taken = camp_base_strength(k) * n * ttk / 2
+    if taken > me().health * 0.5:
+        return 0
+    return (group_gems(g) + group_gold(g) / 10 + 1) / (2 * d + ttk + 5)
+```
