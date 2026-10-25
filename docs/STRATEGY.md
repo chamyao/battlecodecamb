@@ -225,6 +225,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   27 = genome A61188 (genome line Arena A, genome/v0 0372259, genome sha256 9abfbc94..., bundle sha256
   8f44d04a...; submitted 01:54:54 UTC Oct 25 under Cham's "upload first, validate later" per the genome lead).
   Pre-upload: real cambc smoke vs B792 3/3, sim vs B792 49/80. Revert target: v26 (B792, f03df323).
+  A61188 ranked 30-20 after 50 (60%); first version to bank on 01shortcut (r~215) but 16-22 monolith deaths there.
+  28 = genome a61188-mono (A61188 + Arena B's farmable-camps edit for monolith deaths; genome/v0 568cbf5, genome
+  sha256 54e1275a..., bundle sha256 8a921761...; submitted 03:43:47 UTC Oct 25). Smoke vs A61188: great-wall 2-0
+  (monolith deaths ~halved), shortcut 1-1, 0 crashes. Revert target: v27 (A61188, 8f44d04a).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
