@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 04:45 UTC
+
+- Relay Z-10 leg 7 done: births 301 -> 350 in ~22 min including setup, sha cc901b0. 43 requests answered,
+  0 invalid (the session validated every reply locally). The in-arena top jumped to Z350 at 37.5, Z347 37.2
+  and Z349 37.0; the new champion anchor is champ7-Z347 at 36.0. All three leaders inherit one tune
+  child, Z343, which drops the below-35% recall score from 90 to 48 (below progress moves), so a hurt
+  champion keeps farming. This rating is relative to the arena's own anchors; the panel decides.
+- Leg 8 (350 -> 400) started: session_01BX1bFdzg3N4WjVKzkM5et3.
+
 ## 2026-10-25 04:25 UTC
 
 - Relay Z-10 leg 6 done: births 252 -> 301 in ~24 min, sha 821678f on arenaa/z10-relay. Mutations
