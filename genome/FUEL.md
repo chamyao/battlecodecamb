@@ -23,6 +23,7 @@ operations cheaper, so set-op prices were refitted and every real run was redone
 | B318 | 1.013 | 1.008 | 0.999 |
 | B792 | 1.001 | 1.003 | 0.990 |
 | A458 (arena A) | 1.021 | 1.020 | 1.006 |
+| A61188 (live as v27) | 1.023 | 1.026 | 1.008 |
 | B1145 (arena B #1) | 0.999 | 1.001 | 0.987 |
 | B1092 (arena B, other species) | 0.999 | 0.973 | 0.983 |
 | starter | 1.008 | 1.015 | 1.009 |
@@ -62,6 +63,26 @@ Tools: `tools/prof_pair.sh`, score variants (genomes that never act), `consider(
 for champion 0), and `GENOME_DEFS=GENOME_TURN_ORDER` in the bot. A cambc run needs its own bot folder
 per concurrent run. Rebuild `genome/build` and `genome/build-prof` after every runtime change:
 `genome_eval` refuses a genome compiled against another Ctx layout.
+
+## A61188 vs B792 at 1x: why the sim moved from 49 to 40 of 80 (Oct 25)
+
+80 real cambc games (A61188 vs B792 at default fuel, both sides on all 40 maps, bots from bc70ece):
+A61188 wins 48. Per game, the sim agrees with real on 51 games at f23aaa0 and on 54 at bc70ece. On the 21
+games that flip between the two, real sides with f23aaa0 on 9 and with bc70ece on 12. So bc70ece is the
+more faithful simulator, game by game.
+
+Its total (40) is further from real because its remaining errors lean one way: 17 games A61188 wins in
+real but loses in the sim, against 9 the other way. A61188 is over-charged relative to B792.
+- Whole game against v23: A61188 1.008-1.054 (00split 1.042, 00collision 1.054); B792 0.990-1.010.
+- Under f23aaa0 both were over by similar amounts (A61188 1.03-1.06, B792 1.02-1.06). Their errors
+  cancelled in the head to head, while each game was simulated less faithfully.
+- Per gene, A61188's excess over B792 is spread out. `reach_camp` is `best(camps(), ...)` with a lambda
+  that only calls `in_reach`, which the compiler inlines (~16 per camp less than charged). `walks` /
+  `here` / `shop_pending` are memo hits that A61188 makes 1.6x as often. These are compiler-inlining
+  effects (see the open gap on memo hits). A lower memo-hit price shifts every genome alike, so it does
+  not fix the relative bias.
+Tooling note: on 00collision and 01broken-curve the fuel file has 3 draft turns, not 5. Aligned at
+offset 2, the games are identical (correlation 0.994).
 
 ## TELEPORT, BUY_TP, SELL (Oct 25)
 
