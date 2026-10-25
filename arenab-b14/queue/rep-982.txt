@@ -1,0 +1,8 @@
+```python
+@gene("r14", "fight the first camp in reach (intel: farmable camps only; one reach_camp read); not with a 15+ bag while a threat is near (bank it first)", parents=["r14"])
+def r_camp() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not farmable(c):
+        return False
+    return not (gems() >= 15 and threat_near())
+```
