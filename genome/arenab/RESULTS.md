@@ -213,3 +213,8 @@ Top 3 relay genomes (all with the monolith fix) vs v31 = rh-mono-all, sim / real
 B1881 39 / 39, B1873 37 / 47, B1872 43 / 40. All 0 crashes.
 B1873 (B1850 + kill-shot fight outranks the pass-through bank: rule 165 + r_killshot): real 49/80 vs v30, 56/80 vs v29;
 solo vs idle 95,846 rounds / 362 deaths (v31 97,417 / 379). Sim undershoots it by 10/80. Sent as the v32 candidate.
+
+## Oct 25 07:36: B1873 full gate vs v31 (search)
+Sim h2h 37 (fails, real 47). Paired anchors: 0 blocks (lowest p 0.29). Solo-farm: total better (48,980 vs 49,654) but a
+per-map block on 01gold-rush +417 and 00contest +333 (my runs: contest side B 400 vs 600 gems, gold-rush 2000/1927 vs
+1581/1627 rounds; it has the rhm rule). Going up as v32 on real; watch gold-rush/contest in batch 9.
