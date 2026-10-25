@@ -2,6 +2,16 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 08:30 UTC: Z-18 contaminated, cancelled; Z-19 isolated restart
+
+- Z-18a m1 517 at b112 looked too good. Its writer had copied A61188's exact draft table (and shop items) from the
+  repo at Z15; 18b is contaminated too (34/40), 18c/18d barely or not. Cancelled; Z-19a-d restart with an
+  isolation rule (CULL.md). Z-5 and the relay show no such copy.
+- Lesson for the training setup: session writers can read the whole repo, so "from the starter" must be enforced
+  (instruction + fingerprint check, ideally a checkout without evolved genomes).
+- A-9 panel: m20 1026 (b2026), m21 1019 (b2187). Flat at ~1020 since b1777. v32 (B1873) is now live; nothing
+  passes vs it yet (solo-farm block).
+
 ## 2026-10-25 08:12 UTC
 
 - A-9 leg 2 at 2243 births. Z-18 births: a 134, b 215 (legacy); c 88, d 253 (min-mu). All four mirrors are pushing.

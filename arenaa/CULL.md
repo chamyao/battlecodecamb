@@ -77,3 +77,22 @@ Mechanism confirmed: min-mu stops culling the leaders and lets species grow, so 
 Strength: the decision rule is not met (min-mu 190 / 194 vs legacy 200 / 207 at ~400 births). Verdict: no
 measurable effect on panel strength at this length. Caveats: the runs were stopped early, and births after
 06:50 were tunes and gene-ID crosses only. Z-18 (session writers) is the second test.
+
+## Z-18 cancelled (contaminated), Z-19 restarted with isolation (08:30 UTC)
+
+Z-18a m1 was 517 at b112, far above anything earlier. The check: Z-18a's writer added A61188's exact draft table
+(pick_value Vendetta 6 / Vesper Vale 5 / Tavi 4 / Ryth 3 / Ren 2) at Z15, and its shop sequence uses A61188's items.
+The starter has neither. 34 of Z-18b's last 40 genomes carry the table; 18c has 0 and 18d has 3. The writers had
+read evolved genomes in the repo (genome/candidates etc.), so Z-18 does not measure training from the starter, and
+the contamination is uneven across arms. Cancelled.
+Z-5's Z392 and the relay's Z400 do not carry the table (their draft and shop genes are their own).
+
+arenaZ-19a-d: same design plus an explicit isolation rule (ideas only from the requests, feedback, GameRules,
+LANGUAGE; no other genomes, policies or runs). After the runs, check the genomes for A-line fingerprints.
+
+| run | cull | session |
+| --- | --- | --- |
+| Z-19a | legacy | session_013q8Ddw7WvTHC2oEBWtWPne |
+| Z-19b | legacy | session_01R9v74DAjVMtZPr6b1Yk49e |
+| Z-19c | min-mu | session_01KiAQyz3ExQJnqUuMh5hXuT |
+| Z-19d | min-mu | session_01LfY14SU47oxSPeSiE8zGZ6 |
