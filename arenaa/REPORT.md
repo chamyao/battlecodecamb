@@ -2,6 +2,16 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 06:15 UTC: arenaA-9 overnight
+
+- Strongest A line: arenaA-8 (Opus session writer + feedback, from arenaA-6). Panel 1006/1200 vs A-8c's
+  966; A81582 passed the gate vs v29.
+- arenaA-9 continues it overnight as a relay of ~400-birth session legs (each writer keeps a long
+  context; A-8 did 401 births in 2h03 in one session). State on arenaa/a9-relay, arenaA-9/arena. Same
+  flags as A-8 (legacy cull, so it is a clean continuation; switch to min-mu only if Z-17 says so). Leg 1
+  (1626 -> 2025): session_011vcVLjPXnSVBsiyD5jtCUG. Panel + gatekeeper on the branch were requested from the
+  search session. RELAY_DONE only at the end of the night.
+
 ## 2026-10-25 06:12 UTC: A81582 passes the gate
 
 - The genome lead reports that A81582 (arenaA-8, the session-writer run) passed the gate vs v29: 50/80 head to head,
