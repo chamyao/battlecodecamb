@@ -31,6 +31,7 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-25 | genome/search EC2 arenaZ-11 first start (stopped after 5 min; re-run as arenaZ-11r; Arena A reserve) | 32 | 0.20 | 32.99 |
 | 2026-10-25 | Arena B runs 24 + 27 (arenaB-12/13: +$3.06 over arena-arenaB-11, cap $11 total reached; Arena B budget) | 297 | (Arena B budget) | — |
 | 2026-10-25 | genome/search EC2 arenaZ-6 (arenaZ-1 without the ladder-observations block; Arena A reserve) | 523 | 3.10 | 36.09 |
+| 2026-10-25 | genome/search EC2 arenaZ-8x (arenaZ-8 resumed to --budget 20, every call on Opus; $20.08 total, 402 births; Arena A reserve) | 247 | 13.99 | 50.08 |
 
 ## Ladder uploads (Cham, Oct 24)
 
