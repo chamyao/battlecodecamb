@@ -1,0 +1,36 @@
+```python
+@gene('s1', 'value of doing this option now; drafts Willow, Marcella then Vesper Vale, buys a bruiser strength emblem then bruiser health, casts, hunts gem carriers, flees when hurt', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 10 if o.champ == WILLOW else (9 if o.champ == MARCELLA else (8 if o.champ == VESPER_VALE else 1))
+    if o.kind == BUY:
+        return 100 if o.item == (40 if items_owned(37) > 0 else 36) else 0
+    hurt = me().health_frac < 0.35
+    if o.kind == RECALL:
+        return 90 if hurt and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 5 + min(unit_gems(o.unit), 50) / 10
+        return 60 + (1 - o.unit.health_frac) * 5 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if hurt:
+            now = threat_at(me().pos)
+            if now > 0:
+                nxt = threat_at(o.tile)
+                if nxt < now:
+                    return 96 - nxt
+                return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals, or to my spawn when hurt or rich in gold with an empty bag")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.45 or (gems() == 0 and gold() >= 150):
+        home = field(my_spawn())
+        return at(home, me().pos) - at(home, t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

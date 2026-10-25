@@ -1,0 +1,10 @@
+```python
+@gene("Z6a", "true when the bag should be taken to an altar: 15 gems, low health or the end of the game")
+def banking() -> Bool:
+    g = gems()
+    if g >= 15:
+        return True
+    if g > 0 and (me().health_frac < 0.5 or round() > 1850):
+        return True
+    return False
+```
