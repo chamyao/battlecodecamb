@@ -4,13 +4,13 @@
 #   b14/src            arena-arenaB-13's final state (service run 27, remote/genome)
 #   arena_policies/    the genome anchors the state points to (hunter, hunter-carry, farmer, deathball, rushbank, B318,
 #                      exploit-353/357), where resume rebases them
-#   b14/A61188.genome  ladder v27 (new frozen anchor, weight 2)
+#   b14/A61188.genome, b14/a61188-mono.genome  ladder v27 and v28 (live since 03:43Z): new anchors, weight 2
 #   b14/seeds/         arenaA-6's top 5 by rating (ingested once each as newborns)
 #   bash setup_b14.sh DIR SHA
 set -e
 D=${1:?usage: setup_b14.sh DIR SHA}; SHA=${2:?genome/search sha}
 REPO=$(git rev-parse --show-toplevel)
-git -C "$REPO" fetch -q origin genome/search remote/genome genome/intel
+git -C "$REPO" fetch -q origin genome/search remote/genome genome/intel genome/v0
 git -C "$REPO" worktree add -q --detach "$D" "$SHA"
 cd "$D"
 cmake -S genome -B genome/build -DCMAKE_BUILD_TYPE=Release > build.log 2>&1
@@ -25,6 +25,7 @@ done
 git show f2304110:genome/candidates/B318.genome > arena_policies/B318.genome
 cp genome/search/anchors/exploit-353.genome genome/search/anchors/exploit-357.genome arena_policies/
 git show 0372259:genome/candidates/A61188.genome > b14/A61188.genome
+git show 568cbf5:genome/candidates/a61188-mono.genome > b14/a61188-mono.genome
 for g in A61200 A61203 A61180 A61206 A61191; do
   git show "origin/remote/genome:arenaA-6/arena/genomes/$g.genome" > "b14/seeds/$g.genome"
 done
