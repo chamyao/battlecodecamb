@@ -250,6 +250,11 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   33 = genome B1873-bossbush (v32 + no bush move bonus on the boss-battle altar layout; identical elsewhere;
   genome/v0 1842b9c, genome sha256 7ff741cb..., bundle sha256 37e7be1a...; submitted 08:36:16 UTC Oct 25).
   Real vs v32: boss-battle 2-0, other maps mirrored. Revert target: v32 (52a3fb56).
+  v33: band batch 32-18 (48/50 games identical to v32; its boss-battle gate fired on starvation instead);
+  ranked 78-67 by 13:30 UTC, drifting down; losses mostly economy, starvation 0-5, elk_arena 0-1008 x3.
+  34 = genome v33-cash3-ahead4 (v33 with cast-ahead range 5 -> 4, cash-out threshold 5 -> 3 gems; genome/v0
+  c9dddf3, genome sha256 6ca9e9e6..., bundle sha256 9842ac5c...; submitted 14:18:21 UTC Oct 25). Real vs v33
+  44/80 (three runs), 0 crashes, fewer capped turns. Revert target: v33 (37e7be1a).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
