@@ -1,0 +1,25 @@
+```python
+@gene('m11', "the camp walk's goal: the live non-big group worth most (gems plus a third of its gold, minus a gem per tile of distance), at its nearest spawn by walking; falling back to any non-big camp spawn, then any camp spawn", parents=['m11'])
+def camp_goal() -> Tile:
+    live = CAMP_BASE - respawning() - BIG_CAMPS
+    if size(live) > 0:
+        pick = live - live
+        bs = -INF
+        for g in range(num_groups()):
+            ts = group_tiles(g) & live
+            if size(ts) > 0:
+                v = group_gems(g) + group_gold(g) / 3 - dist(here(), nearest(ts, here()))
+                if v > bs:
+                    bs = v
+                    pick = ts
+        t = closest(pick)
+        if valid(t):
+            return t
+        t = closest(live)
+        if valid(t):
+            return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```

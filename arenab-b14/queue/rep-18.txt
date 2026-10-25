@@ -1,0 +1,6 @@
+```python
+@gene('a4', 'the enemy champion carrying the most gems, then nearest, lightly weighted by health; champions standing on their own spawn are skipped so they do not mask a reachable target', parents=['a4'])
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    return best(enemies(), lambda u: -1000 if u.pos in es else unit_gems(u) * 10 - dist(here(), u.pos) - 3 * u.health_frac)
+```

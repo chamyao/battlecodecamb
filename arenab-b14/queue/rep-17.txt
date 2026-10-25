@@ -1,0 +1,6 @@
+```python
+@gene("s6", "visible enemy champions within r tiles; ranged champions (attack range over 1) count from 2 tiles farther", parents=["s6"])
+def enemies_within(r: Num) -> Num:
+    h = here()
+    return count(dist(h, u.pos) <= r + (2 if u.attack_range > 1 else 0) for u in enemies())
+```

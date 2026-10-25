@@ -1,0 +1,11 @@
+```python
+@gene("m2", "an altar next to us that the enemy has not locked (a tribute at an enemy-locked altar only chips the lock); invalid if none, so the bank walk moves on to an open altar", parents=["m2"])
+def adj_altar() -> Tile:
+    s = altars() & near(here(), 1)
+    if size(s) == 0:
+        return tile(-1, -1)
+    for t in s:
+        if not lock_enemy(t):
+            return t
+    return tile(-1, -1)
+```

@@ -1,0 +1,6 @@
+```python
+@gene("m5", "standable tiles next to an altar: the ring minus altars, walls and holes (computed once)", parents=["m5"])
+def altar_ring() -> Tiles:
+    a = altars()
+    return ring(a, 1) - a - walls() - holes()
+```

@@ -1,0 +1,8 @@
+```python
+@gene('r15', 'monolith push: after round 1000 with 3+ allies, little team gold banked, not ahead of the enemy on tributed gems, and healthy', parents=['r15'])
+def r_mono() -> Bool:
+    if round() <= 1000:
+        return False
+    tg = team_gems()
+    return tg < 100 and tg <= enemy_gems() and count_units(allies()) >= 3 and not hurt_below(0.5)
+```

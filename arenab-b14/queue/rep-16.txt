@@ -1,0 +1,13 @@
+```python
+@gene('a12', 'dash this turn: retreat with fuel > 35k; other walks with GOAL over 2 away and fuel > 55k, but keep the dash for escape when hurt below 60% with an enemy champion near, unless carrying 10+ gems (dash to bank first)', parents=['a12'])
+def dash_gate() -> Bool:
+    if RULE == 3:
+        return fuel() > 35000
+    if not valid(GOAL):
+        return False
+    if dist(here(), GOAL) <= 2 or fuel() <= 55000:
+        return False
+    if gems() < 10 and hurt_below(0.6) and threat_near():
+        return False
+    return True
+```
