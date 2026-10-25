@@ -1,0 +1,19 @@
+```python
+@gene('A94141a', 'spawn tiles of cleared groups an ally already stands on or is nearer to than I am (its capture needs no second champion)', parents=['m11'])
+def held_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    h = here()
+    others = ally_tiles() - near(h, 0)
+    if size(others) == 0:
+        return acc
+    for g in range(num_groups()):
+        if group_reward(g):
+            gt = group_tiles(g)
+            if size(others & gt) > 0:
+                acc = acc | gt
+            else:
+                mine = min((dist(h, t) for t in gt), default=1000)
+                if any(min((dist(a, t) for t in gt), default=1000) < mine for a in others):
+                    acc = acc | gt
+    return acc
+```
