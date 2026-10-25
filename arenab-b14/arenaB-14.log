@@ -1000,3 +1000,22 @@
 [08:39:13] [B] birth B2037 (mutate session) of ['B2008'] species S10; 24 genomes $11.08
 [08:39:32] [B] rejected cross : solo-farm: 54586 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 498
 [08:39:34] [B] birth B2038 (tune ) of ['B2008'] species S10; 24 genomes $11.08
+[08:39:54] [B] birth B2039 (mutate session) of ['B2021'] species S4; 24 genomes $11.08
+[08:39:54] [B] summary: births 2040 deaths 2017 games 494352 $11.08; top [('B2008', 48.85, 0.83, 328, 'S10'), ('B2040', 48.85, 6.0, 0, 'S10'), ('B2018', 48.53, 0.83, 296, 'S6')]; top vs anchors {'B2008': 0.705, 'B2018': 0.681, 'B2031': 0.75}
+[08:39:54] [B] birth B2040 (tune ) of ['B2008'] species S10; 24 genomes $11.08
+[08:40:17] [B] rejected mutate session: behavioural twin
+[08:40:45] [B] rejected cross : behavioural twin
+[08:40:47] [B] birth B2041 (mutate session) of ['B2008'] species S10; 24 genomes $11.08
+[08:40:50] [B] birth B2042 (mutate session) of ['B1994'] species S3; 24 genomes $11.08
+[08:41:08] [B] birth B2043 (tune ) of ['B2030'] species S8; 24 genomes $11.08
+[08:41:22] [B] birth B2044 (cross ) of ['B2042', 'B2027'] species S3; 24 genomes $11.08
+[08:41:29] [B] birth B2045 (mutate session) of ['B2041'] species S10; 24 genomes $11.08
+[08:41:38] [B] birth B2046 (cross ) of ['B2027', 'B2042'] species S3; 24 genomes $11.08
+[08:41:57] [B] birth B2047 (tune ) of ['B2043'] species S8; 24 genomes $11.08
+[08:42:11] [B] birth B2048 (mutate session) of ['B2031'] species S6; 24 genomes $11.08
+[08:42:17] [B] birth B2049 (mutate session) of ['B2031'] species S10; 24 genomes $11.08
+[08:42:33] [B] champion anchor champ41-B2049 (mu 49.8)
+[08:42:33] [B] summary: births 2050 deaths 2027 games 496392 $11.08; top [('B2049', 49.77, 1.01, 88, 'S10'), ('B2041', 49.65, 0.94, 112, 'S10'), ('B2018', 48.7, 0.84, 376, 'S6')]; top vs anchors {'B2049': 0.812, 'B2041': 0.844, 'B2018': 0.637}
+[08:42:33] [B] birth B2050 (mutate session) of ['B2017'] species S7; 24 genomes $11.08
+[08:42:38] [B] rejected tune : behavioural twin
+[08:43:04] [B] birth B2051 (llm_cross session) of ['B2047', 'B2035'] species S11; 24 genomes $11.08
