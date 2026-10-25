@@ -1,0 +1,20 @@
+```python
+@gene('s3', 'distance field to the goals; home when hurt and empty-handed')
+def goal_field() -> Field:
+    if me().health_frac < 0.3 and gems() == 0:
+        return field(my_spawn())
+    return field(gem_first(goals()))
+
+@gene("new", "goal tiles narrowed to gem clusters when one is not much farther than the other goals", parents=["s3"])
+def gem_first(gt: Tiles) -> Tiles:
+    gem = gt & type_spawns(GEM_CLUSTER)
+    if size(gem) == 0:
+        return gt
+    rest = gt - type_spawns(GEM_CLUSTER)
+    if size(rest) == 0:
+        return gem
+    if dist(nearest(gem, me().pos), me().pos) <= dist(nearest(rest, me().pos), me().pos) + 8:
+        return gem
+    return gt
+
+```
