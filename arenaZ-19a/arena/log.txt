@@ -28,3 +28,29 @@
 [08:40:22] [Z] birth Z11 (mutate session) of ['Z4'] species S10; 12 genomes $0.00
 [08:40:41] [Z] new species S11 founded by Z12
 [08:40:41] [Z] birth Z12 (mutate session) of ['Z2'] species S11; 13 genomes $0.00
+[08:41:43] [Z] new species S12 founded by Z13
+[08:41:43] [Z] birth Z13 (llm_cross session) of ['Z6', 'Z5'] species S12; 14 genomes $0.00
+[08:42:04] [Z] new species S13 founded by Z14
+[08:42:04] [Z] birth Z14 (mutate session) of ['Z6'] species S13; 15 genomes $0.00
+[08:43:33] [Z] new species S14 founded by Z15
+[08:43:33] [Z] birth Z15 (mutate session) of ['Z7'] species S14; 16 genomes $0.00
+[08:43:44] [Z] birth Z16 (tune ) of ['seed'] species S0; 17 genomes $0.00
+[08:44:41] [Z] new species S15 founded by Z17
+[08:44:41] [Z] birth Z17 (mutate session) of ['Z5'] species S15; 18 genomes $0.00
+[08:44:42] [Z] new species S16 founded by Z18
+[08:44:42] [Z] birth Z18 (mutate session) of ['Z7'] species S16; 19 genomes $0.00
+[08:45:30] [Z] birth Z19 (mutate session) of ['Z5'] species S4; 20 genomes $0.00
+[08:45:52] [Z] new species S17 founded by Z20
+[08:45:52] [Z] summary: births 20 deaths 0 games 12104 $0.00; top [('Z17', 30.39, 0.85, 208, 'S15'), ('Z13', 29.66, 0.82, 384, 'S12'), ('Z19', 29.3, 0.94, 96, 'S4')]; top vs anchors {'Z17': None, 'Z13': 0.875, 'Z19': None}
+[08:45:52] [Z] birth Z20 (mutate session) of ['Z6'] species S17; 21 genomes $0.00
+[08:46:29] [Z] new species S18 founded by Z21
+[08:46:29] [Z] birth Z21 (mutate session) of ['Z7'] species S18; 22 genomes $0.00
+[08:46:41] [Z] rejected tune : behavioural twin
+[08:46:47] [Z] new species S19 founded by Z22
+[08:46:47] [Z] birth Z22 (tune ) of ['Z10'] species S19; 23 genomes $0.00
+[08:46:58] [Z] birth Z23 (tune ) of ['Z9'] species S8; 24 genomes $0.00
+[08:47:12] [Z] rejected tune : behavioural twin
+[08:47:59] [Z] birth Z24 (mutate session) of ['Z8'] species S7; 24 genomes $0.00
+[08:50:37] [Z] new species S20 founded by Z25
+[08:50:37] [Z] birth Z25 (llm_cross session) of ['Z5', 'Z13'] species S20; 24 genomes $0.00
+[08:50:49] [Z] rejected tune : behavioural twin

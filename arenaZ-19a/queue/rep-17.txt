@@ -1,0 +1,17 @@
+```python
+GF: Field = None
+GF_OK: Bool = False
+GF_BAG: Bool = False
+
+@gene("new", "end of turn: cache the distance field to the goals for the next turn", parents=["s3"])
+def after() -> None:
+    GF = field(goals())
+    GF_OK = True
+    GF_BAG = gems() > 0
+
+@gene("s3", "distance field to the goals: the cached one while the bag state is unchanged, else a fresh one")
+def goal_field() -> Field:
+    if GF_OK and GF_BAG == (gems() > 0):
+        return GF
+    return field(goals())
+```

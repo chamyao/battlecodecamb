@@ -1,0 +1,38 @@
+```python
+GF: Field = None
+GF_OK: Bool = False
+GF_BAG: Bool = False
+
+@gene("new", "end of turn: cache the distance field to the goals for the next turn", parents=["s3"])
+def after() -> None:
+    GF = field(goals())
+    GF_OK = True
+    GF_BAG = gems() > 0
+
+@gene("s3", "distance field to the goals: the cached one while the bag state is unchanged, else a fresh one")
+def goal_field() -> Field:
+    if GF_OK and GF_BAG == (gems() > 0):
+        return GF
+    return field(goals())
+
+@gene("new", "true if a group is too strong to take on now: monoliths always, golems before round 600", parents=["s2"])
+def too_strong(gt: Tiles) -> Bool:
+    if size(gt & MONO) > 0:
+        return True
+    return round() < 600 and size(gt & type_spawns(GOLEM)) > 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group that is not too strong yet")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if not too_strong(gt):
+                acc = acc | gt
+    return acc
+```

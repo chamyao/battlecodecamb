@@ -1,0 +1,23 @@
+```python
+MONO: Tiles = None
+MONO_DONE: Bool = False
+
+@gene("new", "goals without monolith groups: an altar with gems, else a living camp group we can beat", parents=["s2"])
+def safe_goals() -> Tiles:
+    if gems() > 0:
+        return goals()
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & MONO) == 0:
+                acc = acc | gt
+    return acc
+
+@gene("Z8a", "once per turn: remember monolith tiles (first turn), cache the distance field to the safe goals", parents=["s3"])
+def update() -> None:
+    if not MONO_DONE:
+        MONO = type_spawns(MONOLITH)
+        MONO_DONE = True
+    GF = field(safe_goals())
+```
