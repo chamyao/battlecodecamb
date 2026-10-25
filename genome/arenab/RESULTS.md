@@ -94,3 +94,5 @@ Uploaded as **v28** at 03:43:47Z Oct 25 (bundle 8a921761..., genome/v0 568cbf5 g
 
 Real cambc --release vs the v28 build (both at genome/v0 ca5180b): **45/80**, 0 crashes; capped normal turns 342 vs 382.
 Sim bot seeds (intel): 52/80 vs v28; anchors -4 metadraft/farmer/lockall, +16 A61188, +7 rushbank/hunter-carry, others within ±3.
+
+Uploaded as **v29** at 05:11:34Z Oct 25 (bundle 61743fda..., genome/v0 97194bf genome/candidates/v28-emblem.genome). Validation: intel batch 6.
