@@ -39,13 +39,14 @@ class Result:
 
 class Scorer:
     def __init__(self, opponents, screen_games=40, confirm_games=120, screen_seed=0, confirm_seed=1,
-                 threads=2, maps=None, timeout=900, fuel_mult=1.0, bot_seeds=False, fitness="score"):
+                 threads=2, maps=None, timeout=900, fuel_mult=1.0, bot_seeds=False, fitness="score", kill_weight=0.1):
         self.screen_games, self.confirm_games = screen_games, confirm_games
         self.screen_seed, self.confirm_seed = screen_seed, confirm_seed
         self.threads, self.maps, self.timeout = threads, maps or MAPS, timeout
         self.bot_seeds = bot_seeds  # policies seeded per instance as deployed (then every game is fixed by map and side)
         self.fuel_mult = fuel_mult  # scales every bot's per-turn fuel (both sides); 1.0 = the real game
-        self.fitness = fitness  # "score": win rate + gem-margin bonus; "wins": win rate only; "fight": win rate + 0.1 x our kills per game
+        self.fitness = fitness  # "score": win rate + gem-margin bonus; "wins": win rate only; "fight": win rate + kill_weight x our kills per game
+        self.kill_weight = kill_weight
         self.lock = threading.Lock()
         self.cache = {}
         self.tmp = Path(tempfile.mkdtemp(prefix="gsearch-"))
@@ -108,7 +109,7 @@ class Scorer:
                 outcomes.append((stats.pop("results", None), stats["a_gems"], stats["b_gems"]))
                 res.per_opponent[name] = stats
                 fit = (stats["win_rate"] if self.fitness == "wins"
-                       else stats["win_rate"] + 0.1 * stats["kills"][0] if self.fitness == "fight"
+                       else stats["win_rate"] + self.kill_weight * stats["kills"][0] if self.fitness == "fight"
                        else score_of(stats))
                 res.score += w * fit / sum(self.weights)
         except subprocess.TimeoutExpired:

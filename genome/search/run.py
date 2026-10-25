@@ -69,7 +69,8 @@ def main(argv=None):
                     help="policies seeded as deployed: every game is fixed by map and side, so screen and confirm "
                          "both play the 2 x maps distinct games (set --screen-games/--confirm-games to 80)")
     ap.add_argument("--fitness", choices=["score", "wins", "fight"], default="score",
-                    help="score: win rate + gem-margin bonus; wins: win rate only; fight: win rate + 0.1 x our kills per game")
+                    help="score: win rate + gem-margin bonus; wins: win rate only; fight: win rate + --kill-weight x our kills per game")
+    ap.add_argument("--kill-weight", type=float, default=0.1, help="--fitness fight: weight of our kills per game")
     args = ap.parse_args(argv)
 
     out = Path(args.out) if args.out else ROOT / "runs" / args.run
@@ -78,7 +79,7 @@ def main(argv=None):
     db.load()
     kind = args.arm
     scorer = Scorer(args.opponents.split(","), args.screen_games, args.confirm_games, threads=args.eval_threads,
-                    bot_seeds=args.bot_seeds, fitness=args.fitness,
+                    bot_seeds=args.bot_seeds, fitness=args.fitness, kill_weight=args.kill_weight,
                     **({"confirm_seed": 0} if args.bot_seeds else {}))  # same games: confirm reuses the screen
     claude = None if args.no_llm else Claude(args.budget, opus_every=args.opus_every)
     spent0 = sum(p.metrics.get("cost", 0.0) for p in db.all)
