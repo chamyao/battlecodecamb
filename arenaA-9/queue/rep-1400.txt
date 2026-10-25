@@ -1,0 +1,11 @@
+```python
+@gene('w10', 'GOAL can be walked to: not terrain and not held by an enemy champion unless it is over 3 away, or we walk to a camp with an empty bag and good health (contest it: the default rule hits champions in reach)', parents=['w10'])
+def walk_open() -> Bool:
+    if not valid(GOAL) or GOAL == here():
+        return False
+    if GOAL in TERRAIN:
+        return False
+    if dist(here(), GOAL) > 3 or not (GOAL in enemy_tiles()):
+        return True
+    return RULE == 20 and gems() == 0 and me().health_frac > 0.6
+```

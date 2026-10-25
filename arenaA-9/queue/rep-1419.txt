@@ -1,0 +1,13 @@
+```python
+@gene("m3", "an altar within lock reach (2), the one nearest the enemy spawn (denies them most); none while a healthy enemy champion is within 4")
+def lock_altar() -> Tile:
+    h = here()
+    if any(dist(h, u.pos) <= 4 and u.health_frac > 0.3 for u in enemies()):
+        return tile(-1, -1)
+    s = altars() & near(h, 2)
+    open_s = s - locked_altars()
+    if size(open_s) == 0:
+        return first_tile(s)
+    es = enemy_spawn()
+    return best(open_s, lambda t: -dist(t, nearest(es, t)))
+```
