@@ -1,0 +1,13 @@
+```python
+
+
+@gene("new", "skip option kinds never used, shopping away from spawn, recall unless hurt, tribute without gems")
+def consider(kind: Num) -> Bool:
+    if kind == BUY:
+        return can_shop()
+    if kind == RECALL:
+        return HURT
+    if kind == TRIBUTE:
+        return gems() > 0
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+```
