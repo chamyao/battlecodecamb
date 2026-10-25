@@ -1,0 +1,11 @@
+```python
+@gene("Z136c", "how much closer a step brings me to the goals, or to my spawn below 40 percent health when carrying no gems; variant: steps next to enemy champions count less when carrying gems; tuned", parents=['s4'])
+def progress(t: Tile) -> Num:
+    if gems() == 0 and me().health_frac < 0.4:
+        return at(home_field(), me().pos) - at(home_field(), t)
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() > 0 and d > 0:
+        if any(dist(e.pos, t) <= 2 for e in enemies() if e.is_champion):
+            return d * 0.5377
+    return d
+```
