@@ -1,0 +1,24 @@
+```python
+@gene('s1', 'value of doing this option now: when hurt, walk home out of camp range and recall only when safe')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 18 else 0
+    hurt = me().health_frac < 0.35
+    if o.kind == RECALL:
+        return 90 if hurt and not threatened() and not any(dist(u.pos, me().pos) <= 4 for u in enemies()) else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 and not hurt else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        if hurt:
+            return 85 if home_step(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```
