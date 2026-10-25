@@ -1,0 +1,127 @@
+```python
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now: draft a ranged team, cast abilities, recall at a quarter health, recall when safe, retreat from threats when hurt, finish awake camps, wake new ones only when healthy, earlier recall and retreat, chase weak enemy champions, focus hurt and gem-carrying champions, later recall and retreat')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 10
+        if o.champ == STELLAR:
+            return 9
+        if o.champ == TAVI:
+            return 8
+        if o.champ == CASSI:
+            return 9
+        if o.champ == WILLOW:
+            return 6
+        return 1
+    if o.kind == BUY:
+        return 100 + item_strength(o.item) if item_cost(o.item) >= 30 and item_strength(o.item) > 0 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac) + (3 if unit_gems(o.unit) > 0 else 0)
+        return 60 if (gems() == 0 or is_awake(o.unit)) and (is_awake(o.unit) or me().health_frac > 0.3345) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if outnumbered() and dist(nearest(enemy_tiles(), o.tile), o.tile) > dist(nearest(enemy_tiles(), me().pos), me().pos):
+            return 90
+        if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+            return 95 if threat_at(o.tile) < threat_at(me().pos) else 0
+        if chase_gain(o.tile) > 0:
+            return 55
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else a living camp group that carries gems, gem clusters first when close, narrow gem margin')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    rest = acc - type_spawns(GOLD_CLUSTER)
+    gem = acc & type_spawns(GEM_CLUSTER)
+    if size(gem) > 0:
+        if dist(nearest(gem, me().pos), me().pos) <= dist(nearest(rest, me().pos), me().pos) + 4:
+            return gem
+    return rest
+
+@gene('s3', 'distance field to the goals, skipping golem and monolith camps; home when hurt and empty-handed')
+def goal_field() -> Field:
+    if me().health_frac < 0.4 and gems() == 0:
+        return field(my_spawn())
+    return field(goals() - type_spawns(MONOLITH) - type_spawns(GOLEM))
+
+@gene('s4', 'how much closer a step brings me to the goals; when hurt under fire, how much safer it is')
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+        return threat_at(me().pos) - threat_at(t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z10a', 'value of casting an ability: damage and stuns on fighting targets, shields and resets in fights, finish awake camps, heal earlier, dash toward goals or away from danger', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit) and (o.unit.is_champion or (o.unit.is_camp and (gems() == 0 or is_awake(o.unit)))):
+            return 85
+        return 0
+    if k == AB_AOE:
+        t = aoe_center()
+        return 84 if valid(t) and dist(o.tile, t) == 0 else 0
+    if k == AB_SHIELD:
+        threat = count(dist(u.pos, me().pos) <= 4 for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= 4 for u in camps())
+        return 83 if threat > 0 and me().health_frac < 0.9 else 0
+    if k == AB_RESET:
+        return 82 if (not can_attack()) and count(dist(u.pos, me().pos) <= me().attack_range for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= me().attack_range for u in camps()) > 0 else 0
+    if k == AB_DASH:
+        if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+            return 105 if threat_at(o.tile) < threat_at(me().pos) else 0
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_HEAL:
+        return 86 if exists(o.unit) and o.unit.health_frac < 0.75 else 0
+    return 0
+
+@gene('Z58a', 'how many awake camps and enemy champions could hit a tile', parents=['s1'])
+def threat_at(t: Tile) -> Num:
+    return count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps()) + count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+@gene('Z312a', 'where to drop an area spell this pass: the enemy champion, else the awake camp, within reach', parents=['Z10a', 'Z58a'])
+def aoe_center() -> Tile:
+    e = best(enemies(), lambda u: count(dist(v.pos, u.pos) <= 1 for v in enemies()) if dist(u.pos, me().pos) <= 4 else -1)
+    if exists(e) and dist(e.pos, me().pos) <= 4:
+        return e.pos
+    c = best(camps(), lambda u: count(dist(v.pos, u.pos) <= 1 and is_awake(v) for v in camps()) if is_awake(u) and dist(u.pos, me().pos) <= 4 else -1)
+    if exists(c) and is_awake(c) and dist(c.pos, me().pos) <= 4:
+        return c.pos
+    return tile(-5, -5)
+
+@gene('Z127a', 'how much closer a step brings me to the weakest visible enemy champion when it is hurt and I am healthy, longer reach', parents=['s1'])
+def chase_gain(t: Tile) -> Num:
+    if me().health_frac < 0.5:
+        return 0
+    v = best(enemies(), lambda u: 0 - u.health_frac)
+    if not exists(v) or v.health_frac > 0.5 or dist(v.pos, me().pos) > 8:
+        return 0
+    return dist(v.pos, me().pos) - dist(v.pos, t)
+
+@gene('Z39a', 'which option kinds to list at all: skip wards, locks and cancels to save fuel', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+
+@gene("new", "more visible enemy champions near me than allies, and I am not healthy", parents=["s1"])
+def outnumbered() -> Bool:
+    ne = count(dist(u.pos, me().pos) <= 5 for u in enemies())
+    na = count(dist(u.pos, me().pos) <= 5 for u in allies())
+    return ne > na + 1 and me().health_frac < 0.7
+
+```
