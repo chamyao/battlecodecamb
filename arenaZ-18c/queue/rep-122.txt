@@ -1,0 +1,28 @@
+```python
+@gene("s1", "value of doing this option now: casts, attack reset, weakest camp monster first, never recall, bruiser health shards from the start")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 + o.count if o.item == 40 else 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return 40 if progress(o.tile) > 0 else 0
+        k = slot_kind(o.slot)
+        if k == AB_RESET:
+            if can_attack():
+                return 0
+            if any(dist(u.pos, me().pos) <= me().attack_range for u in enemies()):
+                return 75
+            return 75 if gems() < 5 and any(dist(u.pos, me().pos) <= me().attack_range for u in camps()) else 0
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 71
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() < 5 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```
