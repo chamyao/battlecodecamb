@@ -1,0 +1,20 @@
+```python
+@gene("new", "which option kinds to list: never wards; casts only with a slot ready and a foe or camp close", parents=["s1"])
+def consider(kind: Num) -> Bool:
+    if kind == WARD:
+        return False
+    if kind == CAST:
+        if not (slot_ready(0) or slot_ready(1)):
+            return False
+        return any(dist(u.pos, me().pos) <= 5 for u in enemies()) or any(dist(u.pos, me().pos) <= 5 for u in camps())
+    return True
+
+@gene("Z6a", "true when the bag should be taken to an altar: 20 gems, low health or the end of the game")
+def banking() -> Bool:
+    g = gems()
+    if g >= 20:
+        return True
+    if g > 0 and (me().health_frac < 0.5 or round() > 1850):
+        return True
+    return False
+```

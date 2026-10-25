@@ -1,0 +1,16 @@
+```python
+@gene("new", "start of turn: the healer acts after the fighters so it heals fresh damage", parents=["s1"])
+def update() -> None:
+    set_priority(1 if slot_kind(0) == AB_HEAL else 5)
+
+
+@gene("Z176a", "which option kinds to list: never wards or locks; casts only with a slot ready and a foe or camp close")
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK:
+        return False
+    if kind == CAST:
+        if not (slot_ready(0) or slot_ready(1)):
+            return False
+        return any(dist(u.pos, me().pos) <= 5 for u in enemies()) or any(dist(u.pos, me().pos) <= 5 for u in camps())
+    return True
+```

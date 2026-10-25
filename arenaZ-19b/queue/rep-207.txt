@@ -1,0 +1,14 @@
+```python
+@gene("Z6a", "true when the bag should be taken to an altar: 18 gems, low health or the end of the game")
+def banking() -> Bool:
+    g = gems()
+    if g >= 18:
+        return True
+    if g > 0 and (me().health_frac < 0.5 or round() > 1850):
+        return True
+    return False
+
+@gene("new", "start of turn: the healer acts after the fighters so it heals fresh damage", parents=["s1"])
+def update() -> None:
+    set_priority(1 if slot_kind(0) == AB_HEAL else 5)
+```

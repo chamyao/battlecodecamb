@@ -1,0 +1,12 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, or to my spawn when below half health")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.5:
+        home = field(my_spawn())
+        return at(home, me().pos) - at(home, t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene("new", "start of turn: the healer acts after the fighters so it heals fresh damage", parents=["s1"])
+def update() -> None:
+    set_priority(1 if slot_kind(0) == AB_HEAL else 5)
+```

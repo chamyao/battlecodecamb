@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, or to my spawn when below half health")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.5:
+        home = field(my_spawn())
+        return at(home, me().pos) - at(home, t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

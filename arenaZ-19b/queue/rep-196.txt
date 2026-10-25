@@ -1,0 +1,5 @@
+```python
+@gene("Z225a", "start of turn: the healer acts last and Tavi just before it, so damage and stuns land before heals")
+def update() -> None:
+    set_priority(1 if slot_kind(0) == AB_HEAL else (2 if me().type == TAVI else 5))
+```
