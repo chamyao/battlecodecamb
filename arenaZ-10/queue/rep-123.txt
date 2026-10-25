@@ -1,0 +1,9 @@
+```python
+@gene('Z23a', 'shop plan: treasure strength shards before round 500, then one jungle strength emblem (30% less camp damage, item 24 -> 25), then bruiser strength; biggest batch first')
+def buy_value(o: Option) -> Num:
+    if round() < 500:
+        return 100 + o.count if o.item == 18 else 0
+    if items_owned(25) == 0:
+        return 100 + o.count if o.item == 24 else 0
+    return 100 + o.count if o.item == 36 else 0
+```

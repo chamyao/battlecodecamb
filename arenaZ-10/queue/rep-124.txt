@@ -1,0 +1,9 @@
+```python
+@gene('Z127b', 'once per turn: cache the distance field to the goals not occupied by another ally')
+def update() -> None:
+    g = goals()
+    free = g - (ally_tiles() - near(me().pos, 0))
+    if size(free) == 0:
+        free = g
+    GF = field(free)
+```
