@@ -355,3 +355,14 @@ check, then become stress anchors. Genome lead: no upload for B2413; v33 stays.
 #144 40/80 (9.7 kills, 11.1 deaths/game), #74 43/80 (8.8 / 11.8). Sim fitness on this line saturates ~0.55-0.575.
 Patch dd60bcc1 and x4-exploit/ (3770bdcb) on arenab/b14-relay. With tune-B's real grid (35-44 around 40 over 70 variants),
 the evidence is that v33 is a local optimum for single edits; real-engine screening is now the only trustworthy filter.
+
+## Oct 25 ~16:20: tune-B real-screened grid on v33: two confirmed candidates
+tune-B ran real cambc on 70 v33 variants (35-44 around 40: best-of-70 noise), then a hold-out vs v32/v31/farmer/rushbank.
+Only the cast-ahead range edit (a5 ahead_on `d <= 5` -> `d <= 4`) is up against every real opponent.
+| bot | vs v33 | vs v32 | vs v31 | vs farmer | vs rushbank | capped | solo rounds / deaths |
+|---|---|---|---|---|---|---|---|
+| v33 | 40 | 40 | 44 | 50 | 66 | 411-450 | 95,846 / 362 |
+| v33-ahead4 | 43 (mine 43) | 44 | 46 (mine 46) | 58 | 68 | 389-394 | 95,846 / 362 |
+| v33-cash3-ahead4 (+ r5 `g < 3`) | 44 (mine 44) | 44 | 46 (mine 46) | 59 | 65 | 364-381 | 95,088 / 352 |
+Recommended v34: v33-cash3-ahead4 (cash_min has been >= 42 on every base tried: v29, v31, v33); fallback v33-ahead4.
+Sim favourites (thr_r2 8/9, kill185, fire_r 7) were 36-40 in real; thr_r2=6 and run_firedonly were noise that collapsed vs v31.
