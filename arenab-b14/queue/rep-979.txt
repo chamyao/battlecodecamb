@@ -1,0 +1,9 @@
+```python
+@gene("w5", "walking field to GOAL, searched out to my own tile; reuses the turn's BLOCK set (update computes it just before) instead of re-deriving blocked(); below half health tiles next to a visible enemy champion are walked around")
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    b = BLOCK - g
+    if me().health_frac < 0.5:
+        b = b | (ring(enemy_tiles(), 1) - g - near(here(), 0))
+    return field_avoid(g, b, near(here(), 0))
+```
