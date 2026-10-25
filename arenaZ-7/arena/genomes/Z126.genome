@@ -1,0 +1,97 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; also uses abilities (damage/cc/shield/heal/dash)', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit):
+                if o.unit.is_enemy and o.unit.is_champion:
+                    return 85
+                if o.unit.is_camp and gems() == 0:
+                    return 97
+            return 0
+        if k == AB_SHIELD:
+            return 85 if enemy_close() or me().health_frac < 0.6 else 0
+        if k == AB_HEAL:
+            return 88 if me().health_frac < 0.6 else 0
+        if k == AB_DASH:
+            if valid(o.tile) and me().health_frac > 0.4:
+                return 44 if progress(o.tile) > 1 else 0
+            return 0
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 98 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 43 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: altar with gems, else cleared-camp capture tiles, else living gem-bearing camp groups, then gold camps, then any living group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.8669)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals; retreats to spawn when badly hurt; routes around visible enemy champions when one is close; falls back to spawn when no goal exists', parents=['s3'])
+def goal_field() -> Field:
+    if me().health_frac < 0.35:
+        return field(my_spawn())
+    g = goals()
+    if size(g) > 0:
+        if enemy_close():
+            return field_avoid(g, enemy_champ_tiles(), near(me().pos, 8))
+        return field(g)
+    return field(my_spawn())
+
+@gene('s4', 'distance gained toward goals minus a penalty for steps near enemy champions (cached danger set)', parents=['s4'])
+def progress(t: Tile) -> Num:
+    gf = goal_field()
+    gain = at(gf, me().pos) - at(gf, t)
+    risk = count(dist(e, t) <= 2 for e in enemy_champ_tiles())
+    return gain - 1 * risk
+
+@gene('Z109a', 'tiles of visible enemy champions, computed once per pass', parents=['s4'])
+def enemy_champ_tiles() -> Tiles:
+    ts = near(me().pos, 0) - near(me().pos, 0)
+    for u in enemies():
+        if u.is_champion:
+            ts = ts | near(u.pos, 0)
+    return ts
+
+@gene('Z109b', 'true when an enemy champion is within 4 tiles of me', parents=['s4'])
+def enemy_close() -> Bool:
+    return any(dist(t, me().pos) <= 4 for t in enemy_champ_tiles())

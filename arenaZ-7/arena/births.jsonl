@@ -1,3 +1,148 @@
 {"arena": "Z", "t": 1792888737.6, "name": "seed", "birth": 0, "parents": [], "species": "S0", "mu": 25.0, "op": "seed"}
 {"arena": "Z", "t": 1792888741.1, "name": "Z1", "birth": 1, "parents": ["seed"], "species": "S0", "mu": 24.994115983428888, "op": "tune", "model": ""}
 {"arena": "Z", "t": 1792888746.2, "name": "Z2", "birth": 2, "parents": ["seed"], "species": "S0", "mu": 24.798176046652287, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888749.9, "name": "Z3", "birth": 3, "parents": ["seed"], "species": "S0", "mu": 25.061941605389553, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888755.3, "name": "Z4", "birth": 4, "parents": ["seed"], "species": "S0", "mu": 25.556007833913988, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888758.2, "name": "Z5", "birth": 5, "parents": ["Z4"], "species": "S0", "mu": 23.87344335049168, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792888767.3, "name": "Z6", "birth": 6, "parents": ["seed"], "species": "S0", "mu": 26.45189250521012, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888768.1, "name": "Z7", "birth": 7, "parents": ["Z1"], "species": "S1", "mu": 25.05798113878509, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888772.8, "name": "Z8", "birth": 8, "parents": ["Z3"], "species": "S2", "mu": 25.281918790200226, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792888781.7, "name": "Z9", "birth": 9, "parents": ["Z7"], "species": "S1", "mu": 26.374235191576638, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888784.6, "name": "Z10", "birth": 10, "parents": ["Z7"], "species": "S1", "mu": 26.309832668111625, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888792.8, "name": "Z11", "birth": 11, "parents": ["Z9"], "species": "S3", "mu": 25.338051312011338, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888796.5, "name": "Z12", "birth": 12, "parents": ["seed", "Z7"], "species": "S1", "mu": 26.552231041219148, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888803.6, "name": "Z13", "birth": 13, "parents": ["Z6"], "species": "S4", "mu": 25.108284467807245, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888810.2, "name": "Z14", "birth": 14, "parents": ["Z1"], "species": "S5", "mu": 25.418431532491855, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888816.6, "name": "Z15", "birth": 15, "parents": ["Z3"], "species": "S6", "mu": 26.169426162397137, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792888816.9, "name": "Z16", "birth": 16, "parents": ["Z7"], "species": "S1", "mu": 26.837750833536262, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888825.0, "name": "Z17", "birth": 17, "parents": ["Z10"], "species": "S7", "mu": 24.746531130633073, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792888833.1, "name": "Z18", "birth": 18, "parents": ["Z17"], "species": "S7", "mu": 25.323502026660663, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888843.9, "name": "Z19", "birth": 19, "parents": ["Z18"], "species": "S8", "mu": 23.73659364956866, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888849.9, "name": "Z20", "birth": 20, "parents": ["Z8", "Z7"], "species": "S9", "mu": 25.842642222927438, "op": "llm_cross", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792888855.3, "name": "Z21", "birth": 21, "parents": ["Z8"], "species": "S2", "mu": 24.854066053322757, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888856.4, "name": "Z22", "birth": 22, "parents": ["Z1", "Z3"], "species": "S1", "mu": 25.71688952624229, "op": "cross", "model": ""}
+{"arena": "Z", "t": 1792888867.6, "name": "Z23", "birth": 23, "parents": ["Z10"], "species": "S1", "mu": 25.14735715893059, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888890.2, "name": "Z24", "birth": 24, "parents": ["Z17"], "species": "S7", "mu": 24.38856167971592, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888892.5, "name": "Z25", "birth": 25, "parents": ["Z1"], "species": "S10", "mu": 26.603621689813867, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792888894.4, "name": "Z26", "birth": 26, "parents": ["Z17"], "species": "S7", "mu": 24.38856167971592, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888903.7, "name": "Z27", "birth": 27, "parents": ["Z1"], "species": "S0", "mu": 26.062767738913813, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792888909.4, "name": "Z28", "birth": 28, "parents": ["Z1"], "species": "S0", "mu": 25.955618672449635, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888913.2, "name": "Z29", "birth": 29, "parents": ["Z20"], "species": "S9", "mu": 26.85892633126323, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888929.9, "name": "Z30", "birth": 30, "parents": ["Z9"], "species": "S11", "mu": 25.655744732059546, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888933.8, "name": "Z31", "birth": 31, "parents": ["Z27"], "species": "S12", "mu": 25.997190489864188, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888945.4, "name": "Z32", "birth": 32, "parents": ["Z20"], "species": "S9", "mu": 25.85988059206655, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888946.9, "name": "Z33", "birth": 33, "parents": ["Z20"], "species": "S13", "mu": 25.85988059206655, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792888950.8, "name": "Z34", "birth": 34, "parents": ["Z17"], "species": "S7", "mu": 25.401082799216674, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888964.1, "name": "Z35", "birth": 35, "parents": ["Z27"], "species": "S14", "mu": 27.203820779298525, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792888964.5, "name": "Z36", "birth": 36, "parents": ["Z17"], "species": "S7", "mu": 25.081115120819494, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888979.8, "name": "Z37", "birth": 37, "parents": ["Z22"], "species": "S15", "mu": 26.07190189286527, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888985.4, "name": "Z38", "birth": 38, "parents": ["Z20"], "species": "S9", "mu": 26.11838355626805, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792888989.1, "name": "Z39", "birth": 39, "parents": ["Z36"], "species": "S16", "mu": 25.644160723811517, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888991.2, "name": "Z40", "birth": 40, "parents": ["Z20"], "species": "S9", "mu": 26.20289183255587, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792888995.8, "name": "Z41", "birth": 41, "parents": ["Z38"], "species": "S9", "mu": 28.142788938099347, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889000.7, "name": "Z42", "birth": 42, "parents": ["Z36"], "species": "S17", "mu": 25.333052198245678, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889011.7, "name": "Z43", "birth": 43, "parents": ["Z38"], "species": "S9", "mu": 28.328978483423857, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889014.0, "name": "Z44", "birth": 44, "parents": ["Z42", "Z41"], "species": "S18", "mu": 27.348592835695037, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889018.5, "name": "Z45", "birth": 45, "parents": ["Z38"], "species": "S9", "mu": 28.328978483423857, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889024.3, "name": "Z46", "birth": 46, "parents": ["Z25"], "species": "S10", "mu": 25.46496186859111, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889031.3, "name": "Z47", "birth": 47, "parents": ["Z39"], "species": "S16", "mu": 24.535625251359654, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889034.2, "name": "Z48", "birth": 48, "parents": ["Z44"], "species": "S18", "mu": 27.371575787421722, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889034.3, "name": "Z49", "birth": 49, "parents": ["Z17"], "species": "S19", "mu": 25.262206277130442, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889046.7, "name": "Z50", "birth": 50, "parents": ["Z44"], "species": "S18", "mu": 27.79729479807573, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889047.1, "name": "Z51", "birth": 51, "parents": ["Z45"], "species": "S9", "mu": 27.733386380237384, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889060.6, "name": "Z52", "birth": 52, "parents": ["Z27"], "species": "S20", "mu": 26.331363642653294, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889061.5, "name": "Z53", "birth": 53, "parents": ["Z7"], "species": "S1", "mu": 25.6630611373698, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889072.5, "name": "Z54", "birth": 54, "parents": ["Z30"], "species": "S21", "mu": 25.50343376064078, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889073.5, "name": "Z55", "birth": 55, "parents": ["Z1"], "species": "S0", "mu": 26.055220227856662, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889075.8, "name": "Z56", "birth": 56, "parents": ["Z1"], "species": "S1", "mu": 26.055220227856662, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889089.8, "name": "Z57", "birth": 57, "parents": ["Z8"], "species": "S2", "mu": 25.75768262129862, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889090.0, "name": "Z58", "birth": 58, "parents": ["Z31"], "species": "S12", "mu": 25.758114903335112, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889090.5, "name": "Z59", "birth": 59, "parents": ["Z8"], "species": "S2", "mu": 25.75768262129862, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889107.4, "name": "Z60", "birth": 60, "parents": ["Z30"], "species": "S11", "mu": 25.824706604755953, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889108.5, "name": "Z61", "birth": 61, "parents": ["Z42"], "species": "S17", "mu": 26.390690791137384, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889114.5, "name": "Z62", "birth": 62, "parents": ["Z49"], "species": "S19", "mu": 24.55831294001323, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889120.9, "name": "Z63", "birth": 63, "parents": ["Z35"], "species": "S14", "mu": 25.398255361428294, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889129.4, "name": "Z64", "birth": 64, "parents": ["Z44"], "species": "S18", "mu": 28.082956027899904, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889130.0, "name": "Z65", "birth": 65, "parents": ["Z61"], "species": "S22", "mu": 25.645887608544843, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889131.1, "name": "Z66", "birth": 66, "parents": ["Z42"], "species": "S17", "mu": 25.81220283219216, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889145.9, "name": "Z67", "birth": 67, "parents": ["Z54"], "species": "S21", "mu": 28.230674224936408, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889153.9, "name": "Z68", "birth": 68, "parents": ["Z37"], "species": "S23", "mu": 25.24196095553094, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889155.1, "name": "Z69", "birth": 69, "parents": ["Z41", "Z65"], "species": "S24", "mu": 27.258547638316692, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889158.0, "name": "Z70", "birth": 70, "parents": ["Z54"], "species": "S21", "mu": 27.807320466240835, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889173.5, "name": "Z71", "birth": 71, "parents": ["Z65"], "species": "S25", "mu": 27.806414322863162, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889183.4, "name": "Z72", "birth": 72, "parents": ["Z53"], "species": "S26", "mu": 24.641357224871893, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889185.7, "name": "Z73", "birth": 73, "parents": ["Z60"], "species": "S27", "mu": 26.214220912979204, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889198.2, "name": "Z74", "birth": 74, "parents": ["Z71"], "species": "S25", "mu": 29.547475687089598, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889201.0, "name": "Z75", "birth": 75, "parents": ["Z65", "Z71"], "species": "S22", "mu": 28.91480161493613, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889201.7, "name": "Z76", "birth": 76, "parents": ["Z47", "Z41"], "species": "S28", "mu": 25.748447697735713, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889217.5, "name": "Z77", "birth": 77, "parents": ["Z55"], "species": "S29", "mu": 26.883810847030137, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889221.7, "name": "Z78", "birth": 78, "parents": ["Z72"], "species": "S26", "mu": 27.227546032654267, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889229.5, "name": "Z79", "birth": 79, "parents": ["Z69"], "species": "S24", "mu": 28.710626063646256, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889233.0, "name": "Z80", "birth": 80, "parents": ["Z52"], "species": "S20", "mu": 25.341593085167176, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889234.1, "name": "Z81", "birth": 81, "parents": ["Z44"], "species": "S18", "mu": 26.60800235992229, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889243.4, "name": "Z82", "birth": 82, "parents": ["Z17"], "species": "S7", "mu": 26.25787867084206, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889244.8, "name": "Z83", "birth": 83, "parents": ["Z77"], "species": "S29", "mu": 24.681386930250913, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889254.2, "name": "Z84", "birth": 84, "parents": ["Z75"], "species": "S30", "mu": 30.152848776268097, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889258.7, "name": "Z85", "birth": 85, "parents": ["Z62"], "species": "S31", "mu": 25.403240630154766, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889269.6, "name": "Z86", "birth": 86, "parents": ["Z82"], "species": "S32", "mu": 25.666997817358563, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889277.4, "name": "Z87", "birth": 87, "parents": ["Z75", "Z41"], "species": "S33", "mu": 28.379604654591347, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889277.6, "name": "Z88", "birth": 88, "parents": ["Z82"], "species": "S34", "mu": 25.72682179416771, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889290.5, "name": "Z89", "birth": 89, "parents": ["Z55"], "species": "S35", "mu": 26.560972536223566, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889291.9, "name": "Z90", "birth": 90, "parents": ["Z82"], "species": "S36", "mu": 25.331063394297082, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889293.3, "name": "Z91", "birth": 91, "parents": ["Z74"], "species": "S37", "mu": 27.98004082162086, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889309.6, "name": "Z92", "birth": 92, "parents": ["Z75"], "species": "S38", "mu": 29.466308265209378, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889311.6, "name": "Z93", "birth": 93, "parents": ["Z84", "Z60"], "species": "S39", "mu": 27.50765375833857, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889315.2, "name": "Z94", "birth": 94, "parents": ["Z14"], "species": "S40", "mu": 25.945022753468027, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889327.5, "name": "Z95", "birth": 95, "parents": ["Z14"], "species": "S5", "mu": 25.89546146902306, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889328.5, "name": "Z96", "birth": 96, "parents": ["Z75"], "species": "S41", "mu": 29.75333148907659, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889342.4, "name": "Z97", "birth": 97, "parents": ["Z41"], "species": "S9", "mu": 27.13776490712091, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889345.9, "name": "Z98", "birth": 98, "parents": ["Z89"], "species": "S35", "mu": 28.241455611855017, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889353.0, "name": "Z99", "birth": 99, "parents": ["Z37"], "species": "S15", "mu": 26.916189364909393, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889353.8, "name": "Z100", "birth": 100, "parents": ["Z79"], "species": "S24", "mu": 29.564851134782195, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889360.0, "name": "Z101", "birth": 101, "parents": ["Z81"], "species": "S42", "mu": 26.855053521189785, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889367.2, "name": "Z102", "birth": 102, "parents": ["Z93"], "species": "S39", "mu": 30.13088490937562, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889367.3, "name": "Z103", "birth": 103, "parents": ["Z55"], "species": "S43", "mu": 26.367725993306294, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889367.5, "name": "Z104", "birth": 104, "parents": ["Z97"], "species": "S44", "mu": 27.450374134578716, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889385.2, "name": "Z105", "birth": 105, "parents": ["Z75"], "species": "S45", "mu": 30.067761965655265, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889385.3, "name": "Z106", "birth": 106, "parents": ["Z102"], "species": "S46", "mu": 29.639055278110458, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889392.5, "name": "Z107", "birth": 107, "parents": ["Z97"], "species": "S47", "mu": 28.049404797270412, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889401.1, "name": "Z108", "birth": 108, "parents": ["Z62", "Z84"], "species": "S48", "mu": 28.83897259214463, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889405.8, "name": "Z109", "birth": 109, "parents": ["Z84"], "species": "S30", "mu": 30.691953060922142, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889407.3, "name": "Z110", "birth": 110, "parents": ["Z74"], "species": "S49", "mu": 27.78586816217522, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889422.7, "name": "Z111", "birth": 111, "parents": ["Z102"], "species": "S50", "mu": 30.336157705143783, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889423.6, "name": "Z112", "birth": 112, "parents": ["Z110"], "species": "S49", "mu": 27.869646358802548, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889423.7, "name": "Z113", "birth": 113, "parents": ["Z91"], "species": "S37", "mu": 27.87660459412739, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889444.2, "name": "Z114", "birth": 114, "parents": ["Z81"], "species": "S18", "mu": 28.006355310709203, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889446.6, "name": "Z115", "birth": 115, "parents": ["Z76"], "species": "S51", "mu": 27.64414570777755, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889458.6, "name": "Z116", "birth": 116, "parents": ["Z108"], "species": "S48", "mu": 27.262415864024156, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889459.3, "name": "Z117", "birth": 117, "parents": ["Z74"], "species": "S52", "mu": 27.497498048771796, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889472.8, "name": "Z118", "birth": 118, "parents": ["Z100"], "species": "S24", "mu": 31.445357920547192, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889476.6, "name": "Z119", "birth": 119, "parents": ["Z102"], "species": "S50", "mu": 29.828291625394456, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889484.9, "name": "Z120", "birth": 120, "parents": ["Z111"], "species": "S50", "mu": 28.20990559141382, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889485.9, "name": "Z121", "birth": 121, "parents": ["Z102"], "species": "S39", "mu": 30.164419809099567, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889506.7, "name": "Z122", "birth": 122, "parents": ["Z98", "Z109"], "species": "S53", "mu": 30.11725660654764, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889509.3, "name": "Z123", "birth": 123, "parents": ["Z113"], "species": "S54", "mu": 28.390592629741583, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889509.5, "name": "Z124", "birth": 124, "parents": ["Z118", "Z112"], "species": "S55", "mu": 28.786629658543905, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889523.6, "name": "Z125", "birth": 125, "parents": ["Z98"], "species": "S56", "mu": 30.43735825230843, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889523.9, "name": "Z126", "birth": 126, "parents": ["Z75"], "species": "S22", "mu": 29.02310877549766, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889525.9, "name": "Z127", "birth": 127, "parents": ["Z120"], "species": "S57", "mu": 28.70691270290952, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889539.4, "name": "Z128", "birth": 128, "parents": ["Z105"], "species": "S45", "mu": 28.94804931849723, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889541.7, "name": "Z129", "birth": 129, "parents": ["Z122"], "species": "S53", "mu": 28.970970308544683, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889547.3, "name": "Z130", "birth": 130, "parents": ["Z124", "Z127"], "species": "S58", "mu": 30.72517281900476, "op": "llm_cross", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889549.3, "name": "Z131", "birth": 131, "parents": ["Z116"], "species": "S59", "mu": 28.01460832821244, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889561.9, "name": "Z132", "birth": 132, "parents": ["Z127"], "species": "S60", "mu": 30.949138426016315, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889562.5, "name": "Z133", "birth": 133, "parents": ["Z125"], "species": "S56", "mu": 28.85971022426704, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889568.8, "name": "Z134", "birth": 134, "parents": ["Z129", "Z109"], "species": "S61", "mu": 30.169588810354234, "op": "llm_cross", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889577.4, "name": "Z135", "birth": 135, "parents": ["Z126"], "species": "S62", "mu": 29.06191080639945, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889580.1, "name": "Z136", "birth": 136, "parents": ["Z121"], "species": "S63", "mu": 30.24326248681882, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889588.9, "name": "Z137", "birth": 137, "parents": ["Z121"], "species": "S64", "mu": 30.434817321991076, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889591.2, "name": "Z138", "birth": 138, "parents": ["Z126"], "species": "S65", "mu": 28.612032563470454, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889595.3, "name": "Z139", "birth": 139, "parents": ["Z121"], "species": "S50", "mu": 30.434817321991076, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889606.5, "name": "Z140", "birth": 140, "parents": ["Z132"], "species": "S66", "mu": 31.887352553383355, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889610.8, "name": "Z141", "birth": 141, "parents": ["Z132"], "species": "S60", "mu": 31.887352553383355, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889613.6, "name": "Z142", "birth": 142, "parents": ["Z140"], "species": "S67", "mu": 31.29480392416538, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792889613.8, "name": "Z143", "birth": 143, "parents": ["Z136"], "species": "S63", "mu": 30.529031490511485, "op": "mutate", "model": "claude-opus-5-5"}
+{"arena": "Z", "t": 1792889627.0, "name": "Z144", "birth": 144, "parents": ["Z118"], "species": "S24", "mu": 29.04222478015838, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889627.6, "name": "Z145", "birth": 145, "parents": ["Z121"], "species": "S39", "mu": 30.124845005206353, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889630.5, "name": "Z146", "birth": 146, "parents": ["Z124"], "species": "S55", "mu": 29.77487318123156, "op": "mutate", "model": "claude-haiku-5-5"}
+{"arena": "Z", "t": 1792889645.9, "name": "Z147", "birth": 147, "parents": ["Z130"], "species": "S58", "mu": 31.143980888565547, "op": "mutate", "model": "claude-haiku-5-5"}

@@ -1,0 +1,95 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+RETREAT: Bool = False
+
+@gene("s1", "value of doing this option now", parents=["s1"])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 160
+        return 98 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 43 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z38a', 'where to walk: altar with gems, else cleared-camp capture tiles, else living camp group with loot, else any living camp group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.8669)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) + group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z124a', 'early game with no gems: living gem camps as the heading', parents=['s3'])
+def early_gem_camps() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals (cached per turn in update)', parents=['s3'])
+def goal_field() -> Field:
+    return GF
+
+@gene('s4', 'distance gained toward goals minus a danger penalty (radius 3) for steps near enemy champions, scaled by their health and our state; enemies read once per pass', parents=['s4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    gain = at(f, me().pos) - at(f, t)
+    w = danger_weight()
+    risk = sum(w * (0.5 + 0.5 * u.health_frac) for u in seen_units() if u.is_champion and u.is_enemy and dist(u.pos, t) <= 3)
+    return gain - risk
+
+@gene('Z180a', 'visible units, read once per loop pass instead of once per scored option', parents=['s4'])
+def seen_units() -> Units:
+    return enemies()
+
+@gene('Z180b', 'per-pass weight of enemy-champion danger: higher when hurt or carrying gems', parents=['s4'])
+def danger_weight() -> Num:
+    w = 2
+    if me().health_frac < 0.5:
+        w += 2
+    w += min(gems() / 50, 2)
+    return w
+
+@gene('Z12a', 'per-turn goal field; walk home when badly hurt or when no goals exist, resume goals once healed; early gem-camp heading', parents=['Z12a'])
+def update() -> None:
+    if alive():
+        h = me().health_frac
+        if h < 0.35:
+            RETREAT = True
+        elif h > 0.9:
+            RETREAT = False
+        g = goals()
+        if RETREAT or size(g) == 0:
+            GF = field(my_spawn())
+        elif gems() == 0 and round() < 300 and size(early_gem_camps()) > 0:
+            GF = field(early_gem_camps())
+        else:
+            GF = field(g)

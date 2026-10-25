@@ -1,0 +1,106 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 160
+        return 98 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p <= 0:
+            return 0
+        if gems() > 0:
+            return 60
+        return 43
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else valuable camp groups (cleared-for-capture first), else any living group')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+        elif not group_respawning(g) and group_gems(g) + group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals, routing around enemy champion tiles')
+def goal_field() -> Field:
+    return field_avoid(goals(), enemy_tiles(), near(tile(-5, -5), 0))
+
+@gene('s4', 'how much closer a step brings me to the goals (field read once)')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('Z147a', 'draft preference: top ladder champions first', parents=['s1', 's3', 's4'])
+def pick_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 6
+    if c == HEART_OF_RUIN:
+        return 5
+    if c == MARCELLA:
+        return 4
+    if c == VENDETTA:
+        return 3
+    if c == RYTH:
+        return 2
+    return 1
+
+@gene('Z147b', 'value of casting an ability now: heal/shield hurt allies or in fights, damage champions/camps, dash toward goals, ground AoE on enemies', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    u = o.unit
+    if k == AB_DASH:
+        if valid(o.tile):
+            if progress(o.tile) >= 2:
+                return 55 if gems() > 0 else 45
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        if exists(u):
+            if u.is_enemy:
+                return 0
+            if u.health_frac < 0.7:
+                return 120
+            if me().health_frac < 0.9 and count(dist(e.pos, me().pos) <= 4 for e in enemies()) > 0:
+                return 110
+            return 0
+        if me().health_frac < 0.7:
+            return 115
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(u):
+            if u.is_enemy and u.is_champion:
+                return 150
+            if u.is_camp and gems() == 0:
+                return 95
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(e.pos, o.tile) <= r for e in enemies())
+            if n > 0:
+                return 140 + 5 * n
+    return 0

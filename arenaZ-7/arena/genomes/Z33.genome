@@ -1,0 +1,73 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 160
+        return 98 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 43 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z38a', 'where to walk: home when hurt or rich, altar with enough gems, else cleared camps, else loot camps, else any camp, else altar', parents=['s2'])
+def goals() -> Tiles:
+    m = me()
+    if m.health_frac < 0.35:
+        return my_spawn()
+    if gems() == 0 and gold() >= 150:
+        return my_spawn()
+    if gems() >= 15 or (gems() > 0 and round() > 1850):
+        acc = altar_tiles()
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) + group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    if gems() > 0:
+        alt = altar_tiles()
+        if size(alt) > 0:
+            return alt
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals (cached per turn in update)')
+def goal_field() -> Field:
+    return GF
+
+@gene('s4', 'how much closer a step brings me to the goals')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('Z12a', 'compute the goal distance field once per turn instead of every loop pass', parents=['s3'])
+def update() -> None:
+    GF = field(goals())
+
+@gene('Z63a', 'free altar-adjacent tiles', parents=['Z38a'])
+def altar_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for a in altars() - locked_altars():
+        acc = acc | near(a, 1)
+    return acc
