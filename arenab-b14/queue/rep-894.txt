@@ -1,0 +1,12 @@
+```python
+@gene("a11", "next shard to buy: half treasure strength, half the rest jungle health, then power strength for the rest (strength wins fights and kill shots)")
+def next_shard() -> Num:
+    d = shards_done()
+    if d < shard_until(1):
+        return 18
+    if d < shard_until(2):
+        return 28
+    if d < shard_until(4):
+        return 6
+    return -1
+```
