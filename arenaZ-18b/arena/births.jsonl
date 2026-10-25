@@ -65,3 +65,15 @@
 {"arena": "Z", "t": 1792913073.5, "name": "Z64", "birth": 64, "parents": ["Z45"], "species": "S39", "mu": 34.03799499721103, "op": "mutate", "model": "session"}
 {"arena": "Z", "t": 1792913074.5, "name": "Z65", "birth": 65, "parents": ["Z56"], "species": "S40", "mu": 32.264189295893694, "op": "mutate", "model": "session"}
 {"arena": "Z", "t": 1792913075.5, "name": "Z66", "birth": 66, "parents": ["Z50"], "species": "S30", "mu": 34.1449202928097, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792913595.0, "name": "Z67", "birth": 67, "parents": ["Z64"], "species": "S39", "mu": 33.08929275871357, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792913609.1, "name": "Z68", "birth": 68, "parents": ["Z66"], "species": "S41", "mu": 34.18563306913839, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792913864.8, "name": "Z69", "birth": 69, "parents": ["Z62", "Z51"], "species": "S42", "mu": 34.1065166186937, "op": "llm_cross", "model": "session"}
+{"arena": "Z", "t": 1792913966.0, "name": "Z70", "birth": 70, "parents": ["Z40"], "species": "S43", "mu": 33.972236869536594, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792913969.8, "name": "Z71", "birth": 71, "parents": ["Z51", "Z40"], "species": "S44", "mu": 33.95516416837273, "op": "llm_cross", "model": "session"}
+{"arena": "Z", "t": 1792913992.5, "name": "Z72", "birth": 72, "parents": ["Z71"], "species": "S44", "mu": 34.41023033517705, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792914011.2, "name": "Z73", "birth": 73, "parents": ["Z70"], "species": "S43", "mu": 34.11658411294222, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792914032.3, "name": "Z74", "birth": 74, "parents": ["Z41", "Z51"], "species": "S45", "mu": 33.96777375636442, "op": "llm_cross", "model": "session"}
+{"arena": "Z", "t": 1792914032.7, "name": "Z75", "birth": 75, "parents": ["Z51", "Z66"], "species": "S46", "mu": 34.165462338097576, "op": "llm_cross", "model": "session"}
+{"arena": "Z", "t": 1792914038.0, "name": "Z76", "birth": 76, "parents": ["Z63"], "species": "S38", "mu": 33.28976806496367, "op": "tune", "model": ""}
+{"arena": "Z", "t": 1792914043.1, "name": "Z77", "birth": 77, "parents": ["Z45"], "species": "S47", "mu": 34.910154916252104, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792914043.7, "name": "Z78", "birth": 78, "parents": ["Z41"], "species": "S25", "mu": 33.61428869625979, "op": "mutate", "model": "session"}

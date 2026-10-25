@@ -1,0 +1,26 @@
+```python
+AF: Field = None
+HF: Field = None
+CF: Field = None
+INIT: Bool = False
+CT: Num = -99
+
+@gene("Z61a", "set the goal field each turn from cached fields: the static altar and home fields are built once, the camp field every 8 rounds")
+def update() -> None:
+    if not INIT:
+        acc = near(tile(-5, -5), 0)
+        for a in altars():
+            acc = acc | near(a, 1)
+        AF = field(acc)
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35:
+        GF = HF
+    elif gems() > 0:
+        GF = AF
+    else:
+        if round() - CT >= 8:
+            CF = field(goals())
+            CT = round()
+        GF = CF
+```

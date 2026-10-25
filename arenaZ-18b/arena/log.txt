@@ -129,3 +129,24 @@
 [07:24:34] [Z] new species S40 founded by Z65
 [07:24:34] [Z] birth Z65 (mutate session) of ['Z56'] species S40; 24 genomes $0.00
 [07:24:35] [Z] birth Z66 (mutate session) of ['Z50'] species S30; 24 genomes $0.00
+[07:33:15] [Z] birth Z67 (mutate session) of ['Z64'] species S39; 24 genomes $0.00
+[07:33:29] [Z] new species S41 founded by Z68
+[07:33:29] [Z] birth Z68 (mutate session) of ['Z66'] species S41; 24 genomes $0.00
+[07:37:44] [Z] new species S42 founded by Z69
+[07:37:44] [Z] birth Z69 (llm_cross session) of ['Z62', 'Z51'] species S42; 24 genomes $0.00
+[07:39:26] [Z] new species S43 founded by Z70
+[07:39:26] [Z] summary: births 70 deaths 47 games 18784 $0.00; top [('Z59', 34.8, 0.8, 720, 'S36'), ('Z45', 34.68, 0.8, 920, 'S21'), ('Z55', 34.62, 0.81, 800, 'S33')]; top vs anchors {'Z59': 1.0, 'Z45': 0.875, 'Z55': 0.917}
+[07:39:26] [Z] birth Z70 (mutate session) of ['Z40'] species S43; 24 genomes $0.00
+[07:39:29] [Z] new species S44 founded by Z71
+[07:39:29] [Z] birth Z71 (llm_cross session) of ['Z51', 'Z40'] species S44; 24 genomes $0.00
+[07:39:52] [Z] birth Z72 (tune ) of ['Z71'] species S44; 24 genomes $0.00
+[07:40:11] [Z] birth Z73 (tune ) of ['Z70'] species S43; 24 genomes $0.00
+[07:40:22] [Z] rejected mutate session: queue timeout
+[07:40:32] [Z] new species S45 founded by Z74
+[07:40:32] [Z] birth Z74 (llm_cross session) of ['Z41', 'Z51'] species S45; 24 genomes $0.00
+[07:40:32] [Z] new species S46 founded by Z75
+[07:40:32] [Z] birth Z75 (llm_cross session) of ['Z51', 'Z66'] species S46; 24 genomes $0.00
+[07:40:38] [Z] birth Z76 (tune ) of ['Z63'] species S38; 24 genomes $0.00
+[07:40:43] [Z] new species S47 founded by Z77
+[07:40:43] [Z] birth Z77 (mutate session) of ['Z45'] species S47; 24 genomes $0.00
+[07:40:43] [Z] birth Z78 (mutate session) of ['Z41'] species S25; 24 genomes $0.00

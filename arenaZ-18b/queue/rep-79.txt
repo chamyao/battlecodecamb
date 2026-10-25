@@ -1,0 +1,13 @@
+```python
+@gene("Z2a", "compute the goal distance field once per turn; when farming, leave out camp groups worth fewer than 10 gems")
+def update() -> None:
+    t = goals()
+    if gems() == 0 and me().health_frac >= 0.35:
+        poor = near(tile(-5, -5), 0)
+        for g in range(num_groups()):
+            if group_gems(g) < 10:
+                poor = poor | group_tiles(g)
+        if size(t - poor) > 0:
+            t = t - poor
+    GF = field(t)
+```
