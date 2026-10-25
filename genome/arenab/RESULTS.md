@@ -344,3 +344,8 @@ The v33 anchor ends at mu 49.39, above every arena genome (best 48.26). Real /80
   470 deaths (v33 95,846 / 362); capped turns 636 (v33 ~430). A marginal pass, non-transitive vs v31, slower solo, +50% compute.
 - B2443: 34.
 The suspension gate was never applied (my message arrived after the leg started); sim a_susp of the tops rose 7.6 -> 11.4.
+
+## Oct 25 ~14:15: exploit-4 approved on the session writer (no API spend)
+Relay writer patches run.py (--llm-queue) and score.py (--fitness exploit: wins/80 + 0.02 x kills) in its own worktree, seeds
+v33 + B318, opponent v33, 150 programs, mirror to arenab/x4-exploit. Keepers (>= 45/80 vs v33, >= 10 kills/game) get a real
+check, then become stress anchors. Genome lead: no upload for B2413; v33 stays.
