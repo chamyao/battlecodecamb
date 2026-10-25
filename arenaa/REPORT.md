@@ -9,7 +9,8 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - arenaA-9 continues it overnight as a relay of ~400-birth session legs (each writer keeps a long
   context; A-8 did 401 births in 2h03 in one session). State on arenaa/a9-relay, arenaA-9/arena. Same
   flags as A-8 (legacy cull, so it is a clean continuation; switch to min-mu only if Z-17 says so). Leg 1
-  (1626 -> 2025): session_011vcVLjPXnSVBsiyD5jtCUG. Panel + gatekeeper on the branch were requested from the
+  (1626 -> 2025): session_011vcVLjPXnSVBsiyD5jtCUG, with --births-in-flight 8 (default 3), so the session
+  writer works in batches of up to 8, as Z-15 batching did for the API writer. Panel + gatekeeper on the branch were requested from the
   search session. RELAY_DONE only at the end of the night.
 
 ## 2026-10-25 06:12 UTC: A81582 passes the gate
