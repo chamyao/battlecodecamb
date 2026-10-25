@@ -1,0 +1,67 @@
+```python
+@gene('s1', 'value of doing this option now; default draft, abilities, Treasure then Jungle health (less camp damage) then a Bruiser strength emblem, then a Durability health emblem, then more Bruiser, hunts until the bag is worth banking, recalls earlier with a bag, avoids starting camp fights when hurt, basic attacks focus the weakest target, carrying a bank-worthy bag it walks on instead of trading hits with a healthy champion')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if items_owned(19) == 0:
+            return 100 if o.item == 18 else 0
+        if items_owned(29) == 0:
+            return 100 if o.item == 28 else 0
+        if items_owned(37) == 0:
+            return 100 if o.item == 36 else 0
+        if items_owned(17) == 0:
+            return 100 if o.item == 16 else 0
+        return 100 if o.item == 36 else 0
+    if o.kind == RECALL:
+        hf = me().health_frac
+        return 58 if hf < 0.35 or (gems() >= 15 and hf < 0.5) else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if banking() and o.unit.health_frac > 0.3:
+                return 40
+            return 80 + 5 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 60 + 5 * (1 - o.unit.health_frac)
+        return 60 if not banking() and me().health_frac > 0.45 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 34 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z118d', 'value of casting an ability: damage and stuns focus the weakest fight target, area casts value every target hit, resets after an attack, shields when hurt, heals hurt allies, dashes toward goals or away from danger when low', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85 + 5 * (1 - o.unit.health_frac) + min(unit_gems(o.unit), 50) / 10
+            if o.unit.is_camp:
+                if is_awake(o.unit) or (not banking() and me().health_frac > 0.4):
+                    return 75 + 5 * (1 - o.unit.health_frac)
+                return 0
+            return 0
+        if valid(o.tile):
+            if o.tile in fight_tiles():
+                return 93 + size(near(o.tile, slot_radius(o.slot)) & fight_tiles())
+            return 0
+        return 0
+    if k == AB_RESET:
+        return 55 if not can_attack() and target_in_reach() else 0
+    if k == AB_SHIELD:
+        return 70 if me().health_frac < 0.85 and target_in_reach() else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy:
+            return 72 if o.unit.health_frac < 0.6 else 0
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            if me().health_frac < 0.35:
+                return 88 if threat_at(o.tile) < threat_at(me().pos) else 0
+            return 45 if progress(o.tile) >= 2 and threat_at(me().pos) == 0 else 0
+        return 0
+    return 0
+```
