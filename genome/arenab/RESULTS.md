@@ -331,3 +331,9 @@ stress-contest-hunt (cand/): v33 + after r850 on MONO_ONLY maps chase enemy carr
 vs v33 real: contest 1-1 by side (side A wins both, as in every v33-family pairing), 37/80 overall, 0 crashes.
 Neither stress bot reproduces the ladder pattern: between v33-family bots, contest is decided by side. Stopping here; the
 opponents beat us there on field fighting, the same per-champion strength gap as the early game.
+
+## Oct 25 ~13:30: starvation, "contest only with numbers"
+Intel (3 ranked starvation losses, 1-5 since v31): 36-52 deaths/game, mostly to champions, about half outnumbered, at the
+88-gem 4-elk group (35-41, 2-13) in waves (r95-116, r246-258, r480-650); we arrive 1-2 at a time, they hold it with 3-4.
+v33-numbers (i1 farmable: no hit on a 240+ group while visible enemies within 8 outnumber allies within 6): real 39/80 vs v33,
+38/80 vs v31, starvation 1-1 by side, capped turns 577 (group_threat scans). Rejected.
