@@ -380,3 +380,31 @@
 [12:14:03] [Z] birth Z208 (mutate session) of ['Z196'] species S56; 24 genomes $0.00
 [12:14:39] [Z] rejected mutate session: behavioural twin
 [12:15:19] [Z] birth Z209 (mutate session) of ['Z196'] species S56; 24 genomes $0.00
+[12:15:48] [Z] summary: births 210 deaths 187 games 102264 $0.00; top [('Z203', 43.48, 0.81, 280, 'S66'), ('Z209', 42.77, 0.98, 80, 'S56'), ('Z192', 42.11, 0.79, 632, 'S82')]; top vs anchors {'Z203': None, 'Z209': None, 'Z192': 1.0}
+[12:15:48] [Z] birth Z210 (mutate session) of ['Z176'] species S74; 24 genomes $0.00
+[12:16:30] [Z] birth Z211 (mutate session) of ['Z192'] species S82; 24 genomes $0.00
+[12:16:55] [Z] birth Z212 (mutate session) of ['Z202'] species S76; 24 genomes $0.00
+[12:17:24] [Z] new species S85 founded by Z213
+[12:17:24] [Z] birth Z213 (mutate session) of ['Z206'] species S85; 24 genomes $0.00
+[12:17:45] [Z] new species S86 founded by Z214
+[12:17:45] [Z] birth Z214 (tune ) of ['Z211'] species S86; 24 genomes $0.00
+[12:17:57] [Z] birth Z215 (mutate session) of ['Z207'] species S76; 24 genomes $0.00
+[12:18:28] [Z] birth Z216 (mutate session) of ['Z208'] species S74; 24 genomes $0.00
+[12:18:49] [Z] rejected tune : behavioural twin
+[12:19:15] [Z] new species S87 founded by Z217
+[12:19:15] [Z] birth Z217 (llm_cross session) of ['Z143', 'Z208'] species S87; 24 genomes $0.00
+[12:19:44] [Z] birth Z218 (mutate session) of ['Z209'] species S56; 24 genomes $0.00
+[12:20:32] [Z] rejected mutate session: behavioural twin
+[12:21:07] [Z] birth Z219 (mutate session) of ['Z203'] species S76; 24 genomes $0.00
+[12:21:38] [Z] new species S88 founded by Z220
+[12:21:38] [Z] summary: births 220 deaths 197 games 105192 $0.00; top [('Z213', 43.44, 0.82, 200, 'S85'), ('Z203', 43.3, 0.8, 464, 'S66'), ('Z219', 43.24, 0.89, 112, 'S76')]; top vs anchors {'Z213': 1.0, 'Z203': None, 'Z219': 1.0}
+[12:21:38] [Z] birth Z220 (mutate session) of ['Z209'] species S88; 24 genomes $0.00
+[12:21:57] [Z] rejected tune : behavioural twin
+[12:22:09] [Z] new species S89 founded by Z221
+[12:22:09] [Z] birth Z221 (mutate session) of ['Z205'] species S89; 24 genomes $0.00
+[12:22:47] [Z] birth Z222 (mutate session) of ['Z198'] species S83; 24 genomes $0.00
+[12:23:25] [Z] birth Z223 (mutate session) of ['Z205'] species S89; 24 genomes $0.00
+[12:24:20] [Z] birth Z224 (llm_cross session) of ['Z217', 'Z216'] species S87; 24 genomes $0.00
+[12:24:56] [Z] birth Z225 (mutate session) of ['Z217'] species S87; 24 genomes $0.00
+[12:25:35] [Z] new species S90 founded by Z226
+[12:25:35] [Z] birth Z226 (mutate session) of ['Z199'] species S90; 24 genomes $0.00
