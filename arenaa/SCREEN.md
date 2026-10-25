@@ -93,3 +93,5 @@ Z-21a (control) finished: 478 births in ~1h46m (11:05-12:51), mirror 4748376. In
 attests that it ran no games, traces or replays, built no game tools, opened no other genome or run, and wrote every
 reply by hand. A clean control. Its final population is to be scored once. For comparison, the screened Z-19 runs took
 3h09-4h19 for the same births.
+Z-21b (control) finished: 480 births in ~1h46m, mirror 5ae78119; in-arena top Z445 38.1. Its writer attests to no games
+and no other genomes. Both controls are clean. Final-population panels requested for all Z-18/19/20/21 runs.
