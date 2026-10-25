@@ -565,3 +565,17 @@ Target (Arena B lead): maps where v29 doesn't reach 1000 gems vs builtin:idle. T
 - Paired anchors vs its rows: B318 62 (65; 4 up / 7 down, p 0.55), L1c 63 (65), gconv1 68 (65), v7 78 (76), L1 64 (62), rall2 67 (64), metadraft 79 (79). Net +4, no significant drop.
 - Real cambc vs the A81582-ringheal build: 5-1, 0 crashes. Contest 2-0 (1000-200; 600-600 won on gold), pilgrimage 2-0, gold-rush 1-1.
 - Needs a genome/v0 build at or after fd778fc (gg6 reads group_gems).
+
+## rh-mono-all rows and its boss-battle regression (2026-10-25)
+
+**A81582-rh-mono-all** (Arena B lead; my copy sha256 f54246b1…) vs A81582-ringheal in the sim:
+- 42/80.
+- Anchors (ringheal's row in brackets): B318 62 (65), L1c 66 (65), gconv1 67 (65), v7 80 (76; p 0.12), L1 65 (62), rall2 70 (64; 7 up / 1 down, p 0.07), metadraft 78 (79). Net +9.
+- Solo vs idle: total rounds 49,606 → 48,708, monster deaths 6.53 → 4.74.
+- Boss-battle regressed: 1440 → 1974 rounds. Its only altar sits behind a monolith, and the mono gate stopped carriers from hitting it.
+
+**directed/A81582-rmab.genome**: rh-mono-all + i1, under which a carrier may hit a monolith-group camp standing on an altar-ring tile.
+- vs idle: only boss-battle changes, 1974 → 1423 rounds (893 → 1018 gems).
+- 40/80 vs rh-mono-all; only boss-battle's 2 games differ.
+- Anchors +2 (B318 63, L1c 67), the rest identical.
+- Real cambc vs the rh-mono-all build on boss-battle: 2-0, 0 crashes. 1016-775, then a 0-0 lock won on gold (4,674 vs 4,193).
