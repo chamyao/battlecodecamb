@@ -6,5 +6,6 @@
 - no-ladder-obs.patch: drops funsearch.catalog's "Observations from today's top-12 ladder games" block from the operator
   system prompt (arenaZ-6).
 - mix-55-30-15.patch: operator mix 55/30/15 (arenaZ-9).
+- split-genes.patch: --split-every N / --split-lines L, in-place gene splitting checked by the twin fingerprint (arenaZ-11).
 - arenaZ5-queue.patch: --llm-queue DIR / --queue-timeout / --max-births, every Claude call through queuellm.py (arenaZ-5,
   M2 session mutator; needs queuellm.py and queuewait.py copied in). setup_z5.sh builds such a checkout at runtime 648bafd.
