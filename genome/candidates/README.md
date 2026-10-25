@@ -107,7 +107,8 @@ needs a build at or after genome/v0 fd778fc.
 - Arena B lead, real cambc: 51/80 vs v30, 49/80 vs rh-mono, 62/80 vs v29, 0 crashes. Solo vs idle 97,417 rounds, 379 deaths
   (v30 99,212 / 522). Sim 42/80 vs v30.
 - My real cambc vs v30 (ringheal), 40 maps x 2 sides: 51/80, 0 crashes. v31 pick.
-- Live as ladder version 31 (2026-10-25T07:16:11Z, bundle sha256 e4932580...). Validation: intel batch 8, paired vs b7.
+- Live as ladder version 31 (2026-10-25T07:16:11Z, bundle sha256 e4932580...). Batch 8 vs b7 (v30): 27-23 vs 21-29, 6 flips to a win,
+  0 to a loss (p ~0.03), gems +39 +- 20; great_wall monolith deaths 35 -> 1, shortcut 12 -> 0.
 
 ## B1873 (Arena B relay leg 6; v32 candidate)
 
