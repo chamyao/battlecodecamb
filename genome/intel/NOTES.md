@@ -86,3 +86,7 @@ Paired with b9: 48 of 50 games have identical scores, boss_battle included (363-
 Paired with b10: 32-18 -> 28-22 (3 flips to a win, 7 to a loss, p ~0.34), gems -41 +- 35, gems lost on death +44. Negative trend vs v33; flagged to the leads (revert target v33). See batches/b11.md.
 
 Reverted: v33 (bundle 37e7be1a) was re-submitted as ladder version 35 at 2026-10-25T14:54:24Z on the genome lead's GO.
+
+## Batch 12 (2026-10-25, live v36 = v33-ahead4)
+
+vs b10: 32-18 -> 31-19 (4 flips to a win, 5 to a loss), gems -42 +- 34. vs b11: 28-22 -> 31-19 (3 / 0). The ahead4 change is record-neutral but costs gems; cash3 caused the extra b11 losses. See batches/b12.md.
