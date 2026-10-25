@@ -51,3 +51,56 @@
 [02:41:52] [Z] birth Z180 (mutate claude-opus-5-5) of ['Z150'] species S68; 24 genomes $7.28
 [02:41:58] [Z] new species S99 founded by Z181
 [02:41:58] [Z] birth Z181 (mutate claude-opus-5-5) of ['Z173'] species S99; 24 genomes $7.28
+[02:42:11] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[02:42:13] [Z] new species S100 founded by Z182
+[02:42:13] [Z] birth Z182 (mutate claude-opus-5-5) of ['Z82'] species S100; 24 genomes $7.39
+[02:42:18] [Z] rejected mutate claude-opus-5-5: GenomeError: cast_value line 165: generator variable c shadows a local
+[02:42:20] [Z] new species S101 founded by Z183
+[02:42:20] [Z] birth Z183 (tune ) of ['Z82'] species S101; 24 genomes $7.44
+[02:42:47] [Z] birth Z184 (mutate claude-opus-5-5) of ['Z168'] species S94; 24 genomes $7.61
+[02:42:57] [Z] new species S102 founded by Z185
+[02:42:57] [Z] birth Z185 (llm_cross claude-opus-5-5) of ['Z181', 'Z170'] species S102; 24 genomes $7.75
+[02:43:01] [Z] new species S103 founded by Z186
+[02:43:01] [Z] birth Z186 (llm_cross claude-opus-5-5) of ['Z166', 'Z127'] species S103; 24 genomes $7.75
+[02:43:06] [Z] birth Z187 (mutate claude-opus-5-5) of ['Z172'] species S86; 24 genomes $7.75
+[02:43:14] [Z] rejected mutate claude-opus-5-5: GenomeError: recall_value line 170: unknown name SHOP
+[02:43:23] [Z] birth Z188 (mutate claude-opus-5-5) of ['Z186'] species S103; 24 genomes $7.83
+[02:43:29] [Z] birth Z189 (mutate claude-opus-5-5) of ['Z166'] species S90; 24 genomes $7.83
+[02:43:53] [Z] new species S104 founded by Z190
+[02:43:53] [Z] summary: births 190 deaths 167 games 46584 $8.01; top [('Z189', 37.03, 0.94, 96, 'S90'), ('Z177', 36.32, 0.81, 296, 'S97'), ('Z181', 35.24, 0.8, 232, 'S99')]; top vs anchors {'Z189': 1.0, 'Z177': None, 'Z181': 0.875}
+[02:43:53] [Z] birth Z190 (mutate claude-opus-5-5) of ['Z187'] species S104; 24 genomes $8.01
+[02:43:55] [Z] new species S105 founded by Z191
+[02:43:55] [Z] birth Z191 (mutate claude-opus-5-5) of ['Z189'] species S105; 24 genomes $8.01
+[02:43:56] [Z] new species S106 founded by Z192
+[02:43:56] [Z] birth Z192 (llm_cross claude-opus-5-5) of ['Z137', 'Z186'] species S106; 24 genomes $8.01
+[02:44:23] [Z] birth Z193 (mutate claude-opus-5-5) of ['Z159'] species S89; 24 genomes $8.09
+[02:44:24] [Z] birth Z194 (mutate claude-opus-5-5) of ['Z127'] species S98; 24 genomes $8.09
+[02:44:38] [Z] new species S107 founded by Z195
+[02:44:38] [Z] birth Z195 (tune ) of ['Z189'] species S107; 24 genomes $8.20
+[02:44:42] [Z] new species S108 founded by Z196
+[02:44:42] [Z] birth Z196 (llm_cross claude-opus-5-5) of ['Z182', 'Z177'] species S108; 24 genomes $8.20
+[02:44:43] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 95: unknown name RSET
+[02:45:06] [Z] birth Z197 (mutate claude-opus-5-5) of ['Z82'] species S48; 24 genomes $8.28
+[02:45:19] [Z] rejected tune : behavioural twin
+[02:45:21] [Z] new species S109 founded by Z198
+[02:45:21] [Z] birth Z198 (llm_cross claude-opus-5-5) of ['Z195', 'Z194'] species S109; 24 genomes $8.51
+[02:45:23] [Z] new species S110 founded by Z199
+[02:45:24] [Z] birth Z199 (llm_cross claude-opus-5-5) of ['Z195', 'Z185'] species S110; 24 genomes $8.51
+[02:45:28] [Z] rejected tune : behavioural twin
+[02:45:49] [Z] new species S111 founded by Z200
+[02:45:49] [Z] champion anchor champ4-Z191 (mu 36.5)
+[02:45:49] [Z] summary: births 200 deaths 177 games 49344 $8.64; top [('Z191', 36.48, 0.8, 328, 'S105'), ('Z189', 36.09, 0.8, 280, 'S90'), ('Z195', 35.55, 0.81, 200, 'S107')]; top vs anchors {'Z191': None, 'Z189': 1.0, 'Z195': 0.875}
+[02:45:49] [Z] birth Z200 (mutate claude-opus-5-5) of ['Z184'] species S111; 24 genomes $8.64
+[02:45:50] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[02:45:58] [Z] new species S112 founded by Z201
+[02:45:58] [Z] birth Z201 (mutate claude-opus-5-5) of ['Z127'] species S112; 24 genomes $8.64
+[02:46:08] [Z] rejected tune : behavioural twin
+[02:46:15] [Z] birth Z202 (mutate claude-opus-5-5) of ['Z200'] species S111; 24 genomes $8.74
+[02:46:21] [Z] new species S113 founded by Z203
+[02:46:21] [Z] birth Z203 (mutate claude-opus-5-5) of ['Z199'] species S113; 24 genomes $8.74
+[02:46:26] [Z] birth Z204 (tune ) of ['Z201'] species S112; 24 genomes $8.74
+[02:46:44] [Z] birth Z205 (mutate claude-opus-5-5) of ['Z195'] species S107; 24 genomes $8.91
+[02:46:47] [Z] new species S114 founded by Z206
+[02:46:47] [Z] birth Z206 (llm_cross claude-opus-5-5) of ['Z188', 'Z201'] species S114; 24 genomes $8.91
+[02:46:49] [Z] birth Z207 (mutate claude-opus-5-5) of ['Z187'] species S86; 24 genomes $8.91
+[02:47:10] [Z] rejected mutate claude-opus-5-5: GenomeError: banking line 64: unknown name BROUND
