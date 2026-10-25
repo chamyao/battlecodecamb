@@ -1,0 +1,8 @@
+```python
+@gene('a5', 'cast-ahead applies: nearest enemy within 5 and not on its spawn, and not while I carry 10+ gems walking to bank with no enemy within 3 (keep the ability for the escape)')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    if not exists(f) or dist(here(), f.pos) > 5 or f.pos in enemy_spawn():
+        return False
+    return not ((RULE == 11 or RULE == 12) and gems() >= 10 and dist(here(), f.pos) > 3)
+```
