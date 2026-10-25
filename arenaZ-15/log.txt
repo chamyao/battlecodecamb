@@ -84,3 +84,88 @@
 [04:05:59] [Z] new species S27 founded by Z37
 [04:05:59] [Z] birth Z37 (llm_cross claude-opus-5-5) of ['Z28', 'Z23'] species S27; 24 genomes $0.80
 [04:05:59] [Z] rejected tune : behavioural twin
+[04:06:21] [Z] new species S28 founded by Z38
+[04:06:21] [Z] birth Z38 (llm_cross claude-opus-5-5) of ['Z37', 'Z16'] species S28; 24 genomes $0.85
+[04:06:28] [Z] birth Z39 (tune ) of ['Z35'] species S25; 24 genomes $0.85
+[04:06:45] [Z] rejected mutate claude-opus-5-5: GenomeError: goals line 57: unsupported statement Continue
+[04:06:45] [Z] rejected mutate claude-opus-5-5: GenomeError: goals line 46: unsupported statement Continue
+[04:06:53] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[04:06:53] [Z] new species S29 founded by Z40
+[04:06:53] [Z] summary: births 40 deaths 17 games 8928 $0.97; top [('Z36', 28.0, 0.83, 144, 'S26'), ('Z16', 27.78, 0.8, 456, 'S12'), ('Z32', 27.59, 0.8, 360, 'S23')]; top vs anchors {'Z36': None, 'Z16': 0.5, 'Z32': 0.75}
+[04:06:53] [Z] birth Z40 (mutate claude-opus-5-5) of ['Z23'] species S29; 24 genomes $0.97
+[04:06:53] [Z] birth Z41 (mutate claude-opus-5-5) of ['Z36'] species S26; 24 genomes $0.97
+[04:06:53] [Z] new species S30 founded by Z42
+[04:06:53] [Z] birth Z42 (mutate claude-opus-5-5) of ['Z21'] species S30; 24 genomes $0.97
+[04:06:53] [Z] new species S31 founded by Z43
+[04:06:53] [Z] birth Z43 (mutate claude-opus-5-5) of ['Z16'] species S31; 24 genomes $0.97
+[04:06:59] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[04:07:07] [Z] new species S32 founded by Z44
+[04:07:07] [Z] birth Z44 (mutate claude-opus-5-5) of ['Z32'] species S32; 24 genomes $1.04
+[04:07:07] [Z] birth Z45 (mutate claude-opus-5-5) of ['Z16'] species S12; 24 genomes $1.04
+[04:07:20] [Z] new species S33 founded by Z46
+[04:07:20] [Z] birth Z46 (llm_cross claude-opus-5-5) of ['Z27', 'Z39'] species S33; 24 genomes $1.12
+[04:07:25] [Z] new species S34 founded by Z47
+[04:07:25] [Z] birth Z47 (llm_cross claude-opus-5-5) of ['Z31', 'Z17'] species S34; 24 genomes $1.17
+[04:07:27] [Z] new species S35 founded by Z48
+[04:07:27] [Z] birth Z48 (llm_cross claude-opus-5-5) of ['Z32', 'Z37'] species S35; 24 genomes $1.17
+[04:07:39] [Z] birth Z49 (mutate claude-opus-5-5) of ['Z16'] species S12; 24 genomes $1.27
+[04:07:39] [Z] new species S36 founded by Z50
+[04:07:39] [Z] champion anchor champ1-Z48 (mu 27.9)
+[04:07:39] [Z] summary: births 50 deaths 27 games 10144 $1.27; top [('Z48', 27.94, 0.93, 88, 'S35'), ('Z43', 27.88, 0.83, 136, 'S31'), ('Z49', 27.7, 6.0, 0, 'S12')]; top vs anchors {'Z48': 0.875, 'Z43': None, 'Z31': 0.562}
+[04:07:39] [Z] birth Z50 (mutate claude-opus-5-5) of ['Z42'] species S36; 24 genomes $1.27
+[04:07:40] [Z] birth Z51 (mutate claude-opus-5-5) of ['Z14'] species S10; 24 genomes $1.27
+[04:07:41] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[04:07:42] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[04:07:47] [Z] new species S37 founded by Z52
+[04:07:47] [Z] birth Z52 (llm_cross claude-opus-5-5) of ['Z47', 'Z28'] species S37; 24 genomes $1.27
+[04:07:59] [Z] birth Z53 (tune ) of ['Z31'] species S22; 24 genomes $1.33
+[04:08:03] [Z] new species S38 founded by Z54
+[04:08:03] [Z] birth Z54 (mutate claude-opus-5-5) of ['Z45'] species S38; 24 genomes $1.37
+[04:08:04] [Z] new species S39 founded by Z55
+[04:08:04] [Z] birth Z55 (mutate claude-opus-5-5) of ['Z33'] species S39; 24 genomes $1.37
+[04:08:10] [Z] new species S40 founded by Z56
+[04:08:10] [Z] birth Z56 (llm_cross claude-opus-5-5) of ['Z1', 'Z21'] species S40; 24 genomes $1.41
+[04:08:12] [Z] new species S41 founded by Z57
+[04:08:12] [Z] birth Z57 (llm_cross claude-opus-5-5) of ['Z37', 'Z43'] species S41; 24 genomes $1.41
+[04:08:13] [Z] new species S42 founded by Z58
+[04:08:13] [Z] birth Z58 (llm_cross claude-opus-5-5) of ['Z41', 'Z42'] species S42; 24 genomes $1.41
+[04:08:26] [Z] new species S43 founded by Z59
+[04:08:26] [Z] birth Z59 (tune ) of ['Z53'] species S43; 24 genomes $1.41
+[04:08:28] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 77: unknown name DANGER
+[04:08:36] [Z] summary: births 60 deaths 37 games 11432 $1.50; top [('Z32', 27.94, 0.8, 536, 'S23'), ('Z58', 27.54, 0.9, 104, 'S42'), ('Z48', 27.44, 0.86, 160, 'S35')]; top vs anchors {'Z32': 0.708, 'Z58': None, 'Z48': 0.875}
+[04:08:36] [Z] birth Z60 (mutate claude-opus-5-5) of ['Z31'] species S22; 24 genomes $1.50
+[04:08:39] [Z] new species S44 founded by Z61
+[04:08:39] [Z] birth Z61 (llm_cross claude-opus-5-5) of ['Z48', 'Z52'] species S44; 24 genomes $1.50
+[04:09:24] [Z] new species S45 founded by Z62
+[04:09:24] [Z] birth Z62 (mutate claude-opus-5-5) of ['Z42'] species S45; 24 genomes $1.64
+[04:09:25] [Z] new species S46 founded by Z63
+[04:09:25] [Z] birth Z63 (mutate claude-opus-5-5) of ['Z53'] species S46; 24 genomes $1.64
+[04:09:26] [Z] new species S47 founded by Z64
+[04:09:26] [Z] birth Z64 (mutate claude-opus-5-5) of ['Z53'] species S47; 24 genomes $1.64
+[04:09:26] [Z] new species S48 founded by Z65
+[04:09:26] [Z] birth Z65 (mutate claude-opus-5-5) of ['Z58'] species S48; 24 genomes $1.64
+[04:09:26] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[04:09:26] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[04:09:26] [Z] new species S49 founded by Z66
+[04:09:26] [Z] birth Z66 (mutate claude-opus-5-5) of ['Z49'] species S49; 24 genomes $1.64
+[04:09:28] [Z] birth Z67 (mutate claude-opus-5-5) of ['Z44'] species S32; 24 genomes $1.64
+[04:09:45] [Z] rejected tune : behavioural twin
+[04:09:59] [Z] new species S50 founded by Z68
+[04:09:59] [Z] birth Z68 (llm_cross claude-opus-5-5) of ['Z67', 'Z43'] species S50; 24 genomes $1.74
+[04:10:03] [Z] new species S51 founded by Z69
+[04:10:03] [Z] birth Z69 (llm_cross claude-opus-5-5) of ['Z65', 'Z32'] species S51; 24 genomes $1.74
+[04:10:39] [Z] new species S52 founded by Z70
+[04:10:39] [Z] summary: births 70 deaths 47 games 14504 $1.83; top [('Z68', 28.94, 0.8, 216, 'S50'), ('Z69', 28.15, 0.82, 152, 'S51'), ('Z61', 28.1, 0.81, 184, 'S44')]; top vs anchors {'Z68': 0.875, 'Z69': 0.875, 'Z61': None}
+[04:10:39] [Z] birth Z70 (mutate claude-opus-5-5) of ['Z47'] species S52; 24 genomes $1.83
+[04:10:42] [Z] new species S53 founded by Z71
+[04:10:42] [Z] birth Z71 (mutate claude-opus-5-5) of ['Z40'] species S53; 24 genomes $1.88
+[04:10:42] [Z] new species S54 founded by Z72
+[04:10:42] [Z] birth Z72 (mutate claude-opus-5-5) of ['Z65'] species S54; 24 genomes $1.88
+[04:10:43] [Z] birth Z73 (mutate claude-opus-5-5) of ['Z61'] species S44; 24 genomes $1.88
+[04:10:43] [Z] birth Z74 (mutate claude-opus-5-5) of ['Z63'] species S46; 24 genomes $1.88
+[04:10:44] [Z] birth Z75 (mutate claude-opus-5-5) of ['Z57'] species S41; 24 genomes $1.88
+[04:10:50] [Z] new species S55 founded by Z76
+[04:10:50] [Z] birth Z76 (mutate claude-opus-5-5) of ['Z64'] species S55; 24 genomes $1.88
+[04:10:52] [Z] new species S56 founded by Z77
+[04:10:52] [Z] birth Z77 (mutate claude-opus-5-5) of ['Z62'] species S56; 24 genomes $1.88
+[04:11:10] [Z] rejected tune : behavioural twin
