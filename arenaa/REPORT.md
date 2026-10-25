@@ -2,6 +2,18 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 03:45 UTC: what drives Z-5's edge (model vs feedback)
+
+- Z-8x (all Opus via API, no feedback) finished: 402 births, $20.08. Panel best 130 (b119), 190 (b207),
+  218 (b318), 207 (b393). Z-5 (Opus session + feedback + continuous context): 226 (b261), 246 (b325),
+  394 (b413). Haiku baselines: 104-130 at ~400.
+- Reading: Opus alone helps early and plateaus near Z-1's final level (~215); the feedback/continuous
+  context roughly doubles it by ~400 births. Z-8x is also slow per hour (~90 births/h).
+- Running: A-8 (Opus session + feedback from arenaA-6) vs A-8c (API control, EC2), same code 051b4954
+  (runtime ca5180b), panels incl. B1145/A61188 rows. Z-10 relay leg 5 (to 250). Z-15 (batched Opus API
+  mutations, 8 per call) specified. Strength/ladder work (monolith fix) moved to Arena B (Cham); B may
+  train on A's genomes and use Opus. CORRECTION earlier in this file: A61188 beat B1145 48/80, not the reverse.
+
 ## 2026-10-25 03:10 UTC: Z series status (best / mean top 3 of 880)
 
 - Z-5 final population: Z392 394, Z430 371, Z477 357, Z452 347, Z458 336 (top-5 mean 361); Z477 h2h:
