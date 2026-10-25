@@ -52,3 +52,12 @@ A61188 + a farmable() gene: camp attacks only on farmable camps (no hits on mono
 - Live as ladder version 28 (2026-10-25T03:43:47Z, bundle sha256 8a921761...).
 - Validation, intel batch 5 (the same 50 band matchups as batch 4): 18-32 vs v27's 13-37; 5 flips to a win, 0 to a loss
   (p ~0.03). Monolith deaths 1.86 -> 0.58 per game; gems submitted +39 +- 23 per game.
+
+## v28-emblem (Arena B directed edit of v28; candidate for v29, upload first)
+
+genome/candidates/v28-emblem.genome, sha256 781ad53eb6128223... (genome/intel 764a03b7 directed/v28-emblem.genome).
+v28 + Treasure shards concentrated on one carrier until its emblem completes (early-gold gap). Built on genome/v0 ca5180b.
+- Arena B lead: real cambc 45/80 vs the v28 build, 0 crashes; sim 52/80 vs v28; anchors A61188 +16, rushbank +7,
+  hunter-carry +7, rall2 +3, metadraft/farmer/lockall -4 each.
+- Smoke, real cambc vs v28: 00lanes, 01big-world, 01gold-rush 3/3 wins (close), 0 crashes.
+- Live as ladder version 29 (2026-10-25T05:11:34Z, bundle sha256 61743fda...). Validation: intel batch 6, paired vs b5.
