@@ -80,3 +80,28 @@
 [08:59:29] [Z] birth Z37 (mutate session) of ['Z27'] species S22; 24 genomes $0.00
 [09:00:10] [Z] new species S29 founded by Z38
 [09:00:10] [Z] birth Z38 (mutate session) of ['Z31'] species S29; 24 genomes $0.00
+[09:01:17] [Z] birth Z39 (mutate session) of ['Z30'] species S25; 24 genomes $0.00
+[09:01:29] [Z] rejected tune : behavioural twin
+[09:01:51] [Z] new species S30 founded by Z40
+[09:01:51] [Z] summary: births 40 deaths 17 games 22472 $0.00; top [('Z32', 32.05, 0.83, 440, 'S27'), ('Z38', 31.63, 0.84, 176, 'S29'), ('Z17', 31.37, 0.82, 1144, 'S15')]; top vs anchors {'Z32': 0.875, 'Z38': None, 'Z17': 0.562}
+[09:01:51] [Z] birth Z40 (mutate session) of ['Z30'] species S30; 24 genomes $0.00
+[09:03:13] [Z] birth Z41 (mutate session) of ['Z25'] species S20; 24 genomes $0.00
+[09:03:41] [Z] rejected mutate session: behavioural twin
+[09:04:05] [Z] birth Z42 (mutate session) of ['Z35'] species S20; 24 genomes $0.00
+[09:04:51] [Z] new species S31 founded by Z43
+[09:04:51] [Z] birth Z43 (mutate session) of ['Z17'] species S31; 24 genomes $0.00
+[09:05:23] [Z] rejected mutate session: behavioural twin
+[09:06:04] [Z] new species S32 founded by Z44
+[09:06:04] [Z] birth Z44 (mutate session) of ['Z31'] species S32; 24 genomes $0.00
+[09:06:21] [Z] birth Z45 (mutate session) of ['Z17'] species S21; 24 genomes $0.00
+[09:07:46] [Z] new species S33 founded by Z46
+[09:07:46] [Z] birth Z46 (llm_cross session) of ['Z17', 'Z40'] species S33; 24 genomes $0.00
+[09:09:23] [Z] new species S34 founded by Z47
+[09:09:23] [Z] birth Z47 (mutate session) of ['Z19'] species S34; 24 genomes $0.00
+[09:09:23] [Z] new species S35 founded by Z48
+[09:09:23] [Z] birth Z48 (mutate session) of ['Z39'] species S35; 24 genomes $0.00
+[09:09:23] [Z] birth Z49 (mutate session) of ['Z38'] species S29; 24 genomes $0.00
+[09:10:29] [Z] champion anchor champ1-Z48 (mu 33.3)
+[09:10:29] [Z] summary: births 50 deaths 27 games 27320 $0.00; top [('Z48', 33.3, 0.94, 88, 'S35'), ('Z32', 32.82, 0.82, 864, 'S27'), ('Z46', 31.86, 0.85, 136, 'S33')]; top vs anchors {'Z48': None, 'Z32': 0.938, 'Z46': 0.75}
+[09:10:29] [Z] birth Z50 (mutate session) of ['Z40'] species S30; 24 genomes $0.00
+[09:11:05] [Z] birth Z51 (mutate session) of ['Z43'] species S31; 24 genomes $0.00
