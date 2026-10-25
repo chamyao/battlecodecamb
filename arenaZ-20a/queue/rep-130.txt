@@ -1,0 +1,11 @@
+```python
+@gene('Z86e', 'once per turn: compute the goal distance field', parents=['s3'])
+def update() -> None:
+    GF = goal_field()
+    FOEHIT = near(tile(-5, -6), 0)
+    for u in enemies():
+        FOEHIT = FOEHIT | near(u.pos, 1)
+    CAMPHIT = near(tile(-5, -5), 0)
+    for c in camps():
+        CAMPHIT = CAMPHIT | near(c.pos, 0.7776)
+```
