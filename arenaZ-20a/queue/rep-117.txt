@@ -1,0 +1,8 @@
+```python
+@gene('Z105b', 'tiles where an area spell would hit a camp (once per pass)', parents=['Z66d'])
+def camp_hit() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for c in camps():
+        acc = acc | near(c.pos, 3)
+    return acc
+```
