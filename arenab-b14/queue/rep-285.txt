@@ -1,0 +1,14 @@
+```python
+@gene('a2', 'value of a cast option: dash on walks and cash-out retreats, cast-ahead, casts and resets of a fight; shield and heal casts also while retreating or running a threatened bank (protect the carrier), and on the camp walk or a capture hold when hurt below half with an awake camp or enemy able to hit us (no monster deaths from a woken group)', parents=['a2'])
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        return dash_value(o) if (RULE == 3 or RULE == 5 or RULE == 20 or walks()) else 0
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    if (RULE == 3 or RULE == 11) and (k == AB_SHIELD or k == AB_HEAL):
+        return max(ahead_value(o, k), strike_cast(o, k))
+    if (k == AB_SHIELD or k == AB_HEAL) and (RULE == 16 or RULE == 18 or RULE == 20) and hurt_below(0.5) and in_danger():
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+```

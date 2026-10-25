@@ -1,0 +1,8 @@
+```python
+@gene("r16", "standing on a camp spawn of a group that is not respawning and has no living camp in sight: hold so the capture timer runs (visible camps only, no group-reward reads: the real bot cannot see them)")
+def r_hold() -> Bool:
+    g = spawn_group(here())
+    if g < 0 or group_respawning(g):
+        return False
+    return not any(camp_group(c) == g for c in camps())
+```

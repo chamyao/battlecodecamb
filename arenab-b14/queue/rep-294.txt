@@ -1,0 +1,18 @@
+```python
+@gene('m12', 'bank walk: an open safe altar unless an enemy champion stands within 3 of it and another safe altar tile 4+ from every enemy is clear and at most 6 tiles farther, else any safe altar, else any altar')
+def bank_goal() -> Tile:
+    t1 = bank_t1()
+    if valid(t1):
+        foes = enemy_tiles()
+        if size(foes) > 0 and any(dist(u.pos, t1) <= 3 for u in enemies() if u.is_champion):
+            clear = SAFE_RING - ring(foes, 4) - taken()
+            if size(clear) > 0:
+                alt = closest(clear)
+                if valid(alt) and dist(alt, here()) <= dist(t1, here()) + 6:
+                    return alt
+        return t1
+    t2 = bank_t2()
+    if valid(t2):
+        return t2
+    return bank_t3()
+```

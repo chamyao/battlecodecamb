@@ -1,0 +1,8 @@
+```python
+@gene('a5', 'cast-ahead applies: nearest enemy within 5 (6 while it channels a tribute or recall, a cast cancels it) and not on its spawn')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    if not exists(f) or f.pos in enemy_spawn():
+        return False
+    return dist(here(), f.pos) <= (6 if is_tributing(f) or is_recalling(f) else 5)
+```

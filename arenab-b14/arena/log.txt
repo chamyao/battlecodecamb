@@ -3366,3 +3366,88 @@
 [06:09:42] [B] rejected mutate session: behavioural twin
 [06:10:20] [B] birth B1724 (llm_cross session) of ['B1721', 'B1722'] species S8; 24 genomes $11.08
 [06:10:37] [B] rejected tune : behavioural twin
+[06:10:43] [B] birth B1725 (mutate session) of ['B1723'] species S7; 24 genomes $11.08
+[06:10:44] [B] birth B1726 (mutate session) of ['B1722'] species S8; 24 genomes $11.08
+[06:11:13] [B] birth B1727 (mutate session) of ['B1711'] species S8; 24 genomes $11.08
+[06:11:28] [B] birth B1728 (mutate session) of ['B1705'] species S7; 24 genomes $11.08
+[06:11:29] [B] birth B1729 (mutate session) of ['B1709'] species S3; 24 genomes $11.08
+[06:11:47] [B] summary: births 1730 deaths 1707 games 391400 $11.08; top [('B1711', 47.75, 0.82, 328, 'S8'), ('B1719', 47.35, 0.82, 224, 'S7'), ('B1730', 47.0, 6.0, 0, 'S7')]; top vs anchors {'B1711': 0.679, 'B1719': 0.703, 'B1726': 0.5}
+[06:11:48] [B] birth B1730 (cross ) of ['B1719', 'B1705'] species S7; 24 genomes $11.08
+[06:11:51] [B] rejected mutate session: behavioural twin
+[06:12:27] [B] birth B1731 (mutate session) of ['B1726'] species S8; 24 genomes $11.08
+[06:12:27] [B] birth B1732 (mutate session) of ['B1728'] species S7; 24 genomes $11.08
+[06:12:32] [B] new species S9 founded by B1733
+[06:12:32] [B] birth B1733 (llm_cross session) of ['B1728', 'B1707'] species S9; 24 genomes $11.08
+[06:12:49] [B] rejected tune : behavioural twin
+[06:13:05] [B] birth B1734 (mutate session) of ['B1719'] species S7; 24 genomes $11.08
+[06:13:06] [B] rejected mutate session: behavioural twin
+[06:13:12] [B] birth B1735 (mutate session) of ['B1724'] species S8; 24 genomes $11.08
+[06:13:30] [B] birth B1736 (mutate session) of ['B1724'] species S8; 24 genomes $11.08
+[06:13:38] [B] birth B1737 (llm_cross session) of ['B1715', 'B1711'] species S8; 24 genomes $11.08
+[06:13:42] [B] birth B1738 (mutate session) of ['B1721'] species S7; 24 genomes $11.08
+[06:13:52] [B] birth B1739 (tune ) of ['B1711'] species S8; 24 genomes $11.08
+[06:14:06] [B] summary: births 1740 deaths 1717 games 393680 $11.08; top [('B1736', 48.14, 1.03, 80, 'S8'), ('B1739', 47.45, 0.94, 104, 'S8'), ('B1724', 47.34, 0.81, 216, 'S8')]; top vs anchors {'B1736': 0.75, 'B1739': 0.875, 'B1724': 0.75}
+[06:14:06] [B] birth B1740 (mutate session) of ['B1703'] species S7; 24 genomes $11.08
+[06:14:08] [B] birth B1741 (tune ) of ['B1732'] species S7; 24 genomes $11.08
+[06:14:22] [B] birth B1742 (llm_cross session) of ['B1733', 'B1703'] species S7; 24 genomes $11.08
+[06:14:26] [B] birth B1743 (tune ) of ['B1741'] species S7; 24 genomes $11.08
+[06:14:41] [B] birth B1744 (directed ) of ['B1703'] species S6; 24 genomes $11.08
+[06:14:41] [B] birth B1745 (directed ) of ['B1703'] species S6; 24 genomes $11.08
+[06:14:44] [B] birth B1746 (mutate session) of ['B1726'] species S8; 24 genomes $11.08
+[06:14:54] [B] rejected directed : behavioural twin
+[06:14:54] [B] rejected directed : behavioural twin
+[06:15:07] [B] birth B1747 (tune ) of ['B1746'] species S8; 24 genomes $11.08
+[06:15:58] [B] birth B1748 (mutate session) of ['B1744'] species S6; 24 genomes $11.08
+[06:15:58] [B] birth B1749 (mutate session) of ['B1646'] species S1; 24 genomes $11.08
+[06:16:08] [B] champion anchor champ35-B1736 (mu 47.7)
+[06:16:08] [B] summary: births 1750 deaths 1727 games 395560 $11.08; top [('B1736', 47.72, 0.88, 128, 'S8'), ('B1719', 47.33, 0.8, 408, 'S7'), ('B1724', 47.26, 0.8, 272, 'S8')]; top vs anchors {'B1736': 0.688, 'B1719': 0.667, 'B1724': 0.739}
+[06:16:08] [B] birth B1750 (mutate session) of ['B1724'] species S8; 24 genomes $11.08
+[06:16:18] [B] birth B1751 (tune ) of ['B1747'] species S8; 24 genomes $11.08
+[06:16:26] [B] birth B1752 (cross ) of ['B1739', 'B1736'] species S8; 24 genomes $11.08
+[06:16:27] [B] rejected mutate session: behavioural twin
+[06:16:43] [B] rejected tune : behavioural twin
+[06:16:50] [B] rejected mutate session: behavioural twin
+[06:17:03] [B] birth B1753 (mutate session) of ['B1709'] species S3; 24 genomes $11.08
+[06:17:22] [B] birth B1754 (tune ) of ['B1732'] species S7; 24 genomes $11.08
+[06:17:24] [B] rejected mutate session: behavioural twin
+[06:17:25] [B] birth B1755 (mutate session) of ['B1732'] species S7; 24 genomes $11.08
+[06:17:54] [B] birth B1756 (mutate session) of ['B1660'] species S4; 24 genomes $11.08
+[06:17:54] [B] birth B1757 (mutate session) of ['B1732'] species S7; 24 genomes $11.08
+[06:17:55] [B] birth B1758 (mutate session) of ['B1754'] species S7; 24 genomes $11.08
+[06:18:46] [B] birth B1759 (llm_cross session) of ['B1726', 'B1758'] species S8; 24 genomes $11.08
+[06:18:46] [B] summary: births 1760 deaths 1737 games 398024 $11.08; top [('B1732', 48.01, 0.81, 344, 'S7'), ('B1758', 47.05, 0.92, 104, 'S7'), ('B1715', 46.87, 0.81, 416, 'S7')]; top vs anchors {'B1732': 0.838, 'B1758': 0.75, 'B1715': 0.677}
+[06:18:46] [B] birth B1760 (mutate session) of ['B1749'] species S1; 24 genomes $11.08
+[06:18:46] [B] birth B1761 (mutate session) of ['B1750'] species S8; 24 genomes $11.08
+[06:19:09] [B] birth B1762 (cross ) of ['B1703', 'B1748'] species S6; 24 genomes $11.08
+[06:19:28] [B] birth B1763 (mutate session) of ['B1758'] species S7; 24 genomes $11.08
+[06:19:29] [B] birth B1764 (mutate session) of ['B1724'] species S8; 24 genomes $11.08
+[06:19:36] [B] birth B1765 (mutate session) of ['B1724'] species S8; 24 genomes $11.08
+[06:19:45] [B] birth B1766 (cross ) of ['B1729', 'B1753'] species S3; 24 genomes $11.08
+[06:20:11] [B] rejected mutate session: behavioural twin
+[06:20:12] [B] birth B1767 (mutate session) of ['B1729'] species S3; 24 genomes $11.08
+[06:20:19] [B] birth B1768 (mutate session) of ['B1763'] species S7; 24 genomes $11.08
+[06:20:36] [B] birth B1769 (mutate session) of ['B1763'] species S7; 24 genomes $11.08
+[06:20:43] [B] summary: births 1770 deaths 1747 games 399912 $11.08; top [('B1732', 47.56, 0.83, 432, 'S7'), ('B1763', 47.18, 0.91, 120, 'S7'), ('B1761', 47.04, 0.83, 168, 'S8')]; top vs anchors {'B1732': 0.833, 'B1763': 0.875, 'B1761': 0.65}
+[06:20:43] [B] birth B1770 (mutate session) of ['B1733'] species S9; 24 genomes $11.08
+[06:20:44] [B] birth B1771 (mutate session) of ['B1763'] species S7; 24 genomes $11.08
+[06:21:03] [B] rejected tune : behavioural twin
+[06:21:07] [B] birth B1772 (mutate session) of ['B1732'] species S7; 24 genomes $11.08
+[06:21:23] [B] rejected mutate session: behavioural twin
+[06:21:24] [B] birth B1773 (tune ) of ['B1758'] species S7; 24 genomes $11.08
+[06:21:37] [B] rejected mutate session: behavioural twin
+[06:21:43] [B] birth B1774 (mutate session) of ['B1715'] species S7; 24 genomes $11.08
+[06:21:58] [B] rejected tune : behavioural twin
+[06:22:04] [B] rejected mutate session: behavioural twin
+[06:22:31] [B] rejected mutate session: behavioural twin
+[06:22:32] [B] rejected mutate session: behavioural twin
+[06:22:37] [B] birth B1775 (mutate session) of ['B1724'] species S8; 24 genomes $11.08
+[06:22:44] [B] birth B1776 (cross ) of ['B1774', 'B1732'] species S7; 24 genomes $11.08
+[06:22:52] [B] birth B1777 (mutate session) of ['B1758'] species S7; 24 genomes $11.08
+[06:23:04] [B] birth B1778 (mutate session) of ['B1765'] species S8; 24 genomes $11.08
+[06:23:21] [B] birth B1779 (cross ) of ['B1703', 'B1762'] species S7; 24 genomes $11.08
+[06:23:26] [B] summary: births 1780 deaths 1757 games 402504 $11.08; top [('B1732', 48.22, 0.84, 496, 'S7'), ('B1765', 47.57, 0.8, 248, 'S8'), ('B1763', 47.27, 0.83, 232, 'S7')]; top vs anchors {'B1732': 0.852, 'B1765': 0.594, 'B1763': 0.875}
+[06:23:26] [B] 1780 births (--max-births 1780): no more births
+[06:23:26] [B] birth B1780 (mutate session) of ['B1776'] species S7; 24 genomes $11.08
+[06:23:32] [B] birth B1781 (mutate session) of ['B1777'] species S7; 24 genomes $11.08
+[06:25:02] [B] summary: births 1781 deaths 1758 games 404224 $11.08; top [('B1732', 47.52, 0.81, 568, 'S7'), ('B1765', 47.3, 0.8, 312, 'S8'), ('B1761', 47.25, 0.82, 352, 'S8')]; top vs anchors {'B1732': 0.853, 'B1765': 0.594, 'B1761': 0.648}
+[06:25:03] [B] done: spent $11.08

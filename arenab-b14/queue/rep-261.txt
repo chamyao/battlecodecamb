@@ -1,0 +1,46 @@
+```python
+CAMP_T: Tile = None
+
+@gene('B2670b', 'start of turn: block set once (blocked() reads it all turn), then the rule, its goal and target; shared-memory and priority writes; a retreating champion acts first next round, fighters before idle allies and the healthiest fighter first; a champion starting a tribute acts early (the channel starts before enemies step in), capture holders after fighters; the camp walk keeps its previous camp tile while that group lives and the tile stays free, unless the new goal is more than 3 tiles nearer', parents=['v2'])
+def update() -> None:
+    if not MAPPED:
+        ALTAR_RING = altar_ring()
+        SAFE_RING = safe_altar_ring()
+        MONO_GROUPS = mono_groups()
+        TERRAIN = walls() | holes() | altars() | enemy_spawn()
+        BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
+        SK0 = slot_kind(0)
+        SK1 = slot_kind(1)
+        MAPPED = True
+    BLOCK = blocked_now()
+    RULE = rule()
+    GOAL = rule_goal()
+    TGT = rule_target()
+    if RULE == 20:
+        if valid(CAMP_T) and valid(GOAL) and CAMP_T != GOAL and not (CAMP_T in respawning()) and not (CAMP_T in ally_tiles()) and not (CAMP_T in enemy_tiles()) and dist(here(), CAMP_T) <= dist(here(), GOAL) + 3:
+            GOAL = CAMP_T
+        CAMP_T = GOAL
+    else:
+        CAMP_T = tile(-1, -1)
+    OPEN = False
+    if walks() and valid(GOAL) and GOAL != here():
+        OPEN = walk_open()
+        FIELD = walk_field()
+    LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
+    if LOCK_BUY:
+        write_shared(7, read_shared(7) + 2)
+    SHOP_GOLD = gold() - (10 if LOCK_BUY else 0)
+    if RULE == 8:
+        write_shared(7, read_shared(7) + 1)
+    if RULE == 20:
+        set_priority(1 + rand(100))
+    elif RULE == 3:
+        set_priority(250)
+    elif RULE == 6 or RULE == 9 or RULE == 10 or RULE == 17:
+        set_priority(220)
+    elif RULE == 7:
+        set_priority(150 + floor(me().health_frac * 50))
+    elif RULE == 16:
+        set_priority(140)
+```

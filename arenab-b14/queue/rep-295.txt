@@ -1,0 +1,8 @@
+```python
+@gene('a10', "the team's lock is neither bought nor placed, I have none, it is past round 400 and I can pay with 60 gold to spare (early gold goes to treasure shards and the emblem; ladder locks show no effect on wins)")
+def wants_lock() -> Bool:
+    if round() < 400 or gold() < 70 or has_lock():
+        return False
+    v = read_shared(7)
+    return floor(v) - 4 * floor(v / 4) == 0
+```

@@ -1,0 +1,11 @@
+```python
+@gene("a16", "units of the next shard still to buy; the Treasure carrier without its emblem buys every Treasure shard it can pay for up to the emblem (5 matching shards, +20% gold) at once")
+def shard_left() -> Num:
+    if next_shard() == 18 and items_owned(19) == 0 and treas_carrier():
+        return max(1, min(5 - items_owned(18), floor(gold() / 30)))
+    d = shards_done()
+    for k in range(4):
+        if d < shard_until(k + 1):
+            return shard_until(k + 1) - d
+    return 0
+```
