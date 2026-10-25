@@ -68,3 +68,7 @@ Paired with b5 on b1 plan: 18-32 -> 20-30, gems +42 +- 38 (not significant). Tre
 ## Batch 7 (2026-10-25, live v30)
 
 Paired with b6: 20-30 -> 21-29, gems -12 +- 30. Stuck rounds 76 -> 13 (heal fix). Monolith deaths +1.7 and camp deaths +2.0 (A-8 lineage lacks the mono fix; rh-mono-all adds it). elk_arena is still no-bank vs a real opponent (gold-only captures). See batches/b7.md.
+
+## Batch 8 (2026-10-25, live v31)
+
+Paired with b7: 21-29 -> 27-23 (6 flips to a win, 0 to a loss), gems +39 +- 20. Mono works live (great_wall monolith deaths 35 -> 1). elk_arena vs NotSoLonely is still 0-gem: they hold the gem groups (respawning when we look). See batches/b8.md.
