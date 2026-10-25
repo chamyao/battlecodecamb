@@ -1,0 +1,44 @@
+```python
+@gene('s1', 'value of doing this option now: draft a ranged team, cast abilities, recall at a quarter health, recall when safe, retreat from threats when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 10
+        if o.champ == STELLAR:
+            return 9
+        if o.champ == TAVI:
+            return 8
+        if o.champ == CASSI:
+            return 7
+        if o.champ == WILLOW:
+            return 6
+        return 1
+    if o.kind == BUY:
+        return 100 + item_strength(o.item) if item_cost(o.item) >= 30 and item_strength(o.item) > 0 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 and me().health_frac >= 0.3 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+            return 95 if threat_at(o.tile) < threat_at(me().pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals; when hurt under fire, how much safer it is")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+        return threat_at(me().pos) - threat_at(t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene("new", "how many awake camps and enemy champions could hit a tile", parents=["s1"])
+def threat_at(t: Tile) -> Num:
+    return count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps()) + count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+```
