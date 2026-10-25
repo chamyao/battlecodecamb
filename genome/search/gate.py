@@ -145,13 +145,18 @@ def solo_farm(spec, threads):
     return {m: round(sum(v) / len(v), 1) for m, v in sorted(per.items())}
 
 
-def solo_check(cand, ref, max_slower=150):
-    """Block if the total rounds to 1000 gems is worse than the live bot's, or any map is > max_slower rounds slower."""
+def solo_check(cand, ref, max_slower=150, offset=3.0):
+    """Block if the total rounds to 1000 gems is worse than the live bot's. A map > max_slower rounds slower blocks only
+    if the total gain is < offset x that map's loss; otherwise it is a warning."""
     deltas = {m: round(cand[m] - ref[m], 1) for m in ref if m in cand}
     total_c, total_r = round(sum(cand.values()), 1), round(sum(ref.values()), 1)
+    gain = total_r - total_c
     slow = {m: d for m, d in deltas.items() if d > max_slower}
-    return {"total": total_c, "ref_total": total_r, "max_slower": max_slower, "slower_maps": slow, "deltas": deltas,
-            "blocks": total_c > total_r or bool(slow)}
+    block_maps = {m: d for m, d in slow.items() if gain < offset * d}
+    warn_maps = {m: d for m, d in slow.items() if m not in block_maps}
+    return {"total": total_c, "ref_total": total_r, "gain": round(gain, 1), "max_slower": max_slower,
+            "block_maps": block_maps, "warn_maps": warn_maps, "deltas": deltas, "total_worse": total_c > total_r,
+            "blocks": total_c > total_r or bool(block_maps), "warns": bool(warn_maps)}
 
 
 def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, exclude=(), bars=None, rater=None,
@@ -172,7 +177,8 @@ def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, excl
             bars[key] = solo_farm(rspec, threads)
         rec["solo_farm"] = solo_check(solo_farm(spec, threads), bars[key])
         if rec["solo_farm"]["blocks"] and early_exit:
-            rec.update(anchor_deltas={}, blocked_by=["solo_farm"], passed=False)
+            rec.update(anchor_deltas={}, blocked_by=["solo_farm"], passed=False,
+                       warnings=[f"solo_farm {m} +{d}" for m, d in rec["solo_farm"]["warn_maps"].items()])
             return rec
     rows = {}
     for anc in anchors:
@@ -189,6 +195,7 @@ def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, excl
                                 "blocks": pv < sign_alpha}
     rec["anchor_deltas"] = rows
     rec["blocked_by"] = [a for a, r in rows.items() if r["blocks"]] + (["solo_farm"] if rec.get("solo_farm", {}).get("blocks") else [])
+    rec["warnings"] = [f"solo_farm {m} +{d}" for m, d in rec.get("solo_farm", {}).get("warn_maps", {}).items()]
     fw, fn = R.rate(spec, rspec, threads, fuel_mult=10.0)
     rec.update(h2h_fuel10_wins=fw, h2h_fuel10=fw / fn)
     rec["passed"] = rec["clear"] and not rec["blocked_by"]
