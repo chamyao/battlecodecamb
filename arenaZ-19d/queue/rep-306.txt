@@ -1,0 +1,6 @@
+```python
+@gene('Z373a', 'how much farther a step takes me from the awake camps and enemies that can hit me, only enemies already in reach', parents=['s1'])
+def escape_gain(t: Tile) -> Num:
+    return sum(dist(u.pos, t) - dist(u.pos, me().pos) for u in camps() if is_awake(u) and dist(u.pos, me().pos) <= u.attack_range + 1) + sum(dist(u.pos, t) - dist(u.pos, me().pos) for u in enemies() if dist(u.pos, me().pos) <= u.attack_range + 1)
+
+```
