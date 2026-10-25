@@ -204,3 +204,6 @@ exploit-3 stopped at $9.15 when API credits ran out (06:50Z).
 ## Oct 25 07:15: band batch 7 (v30), paired with b6
 21-29 (b6 20-30). Stuck champion-rounds -63 +- 48 (heal fix live); monolith deaths +1.7 +- 0.8, camp deaths +2.0 +- 0.7
 (shortcut 0-2 at 12 monolith deaths/game, great_wall 35). elk_arena still no-bank vs real opponents. v31 = rh-mono-all next.
+
+## Oct 25 07:16: v31 = A81582-rh-mono-all live (bundle e4932580)
+Gem gate after 3 buys instead of 6, on v31: sim 39/80, real 39/80 vs v31 (0 crashes). Not better; keep 6 unless b8 shows side-A elk_arena losses.
