@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 08:40 UTC: A-9 leg 2 done
+
+- Leg 2: births 2026 -> 2430 in 71 min. 303 accepted, 94 twins (24%, down from 44%), 0 invalid. In-arena top
+  A92352 47.8 (A92428 48.5 over only 80 games). Panel flat at ~1020 since b1777 (m17 1023, m20 1026,
+  m21 1019): in-arena gains are not reaching the held-out panel, so it may be overfitting the pool / anchors.
+- Leg 3 (2430 -> 2830): session_01WfP3GtjhyTfUz5i7JyRDDa, told about the plateau and to favour robustness
+  (worst maps). If the panel is still flat at the end of leg 3, RELAY_DONE and stop A-9.
+
 ## 2026-10-25 08:30 UTC: Z-18 contaminated, cancelled; Z-19 isolated restart
 
 - Z-18a m1 517 at b112 looked too good. Its writer had copied A61188's exact draft table (and shop items) from the
