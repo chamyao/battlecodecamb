@@ -69,3 +69,12 @@ genome/candidates/A81582.genome, sha256 0b367e241df6... (remote/genome fbf8ced5 
   a61188-mono 44/52, p 0.128; A61188 48/55, p 0.162).
 - Real cambc smoke vs v29: 1-3 (won 00lanes; lost 01big-world, 00great-wall, 01boss-battle), 0 crashes.
 - Real cambc 3.0.5 --release vs v29, 40 maps x 2 sides: 52/80, 0 crashes either side. Upload after batch 6 validates v29.
+
+## A81582-ringgg (A81582 + Arena B's ring fix and weak-gem-groups-first; supersedes A81582 as the next upload)
+
+genome/candidates/A81582-ringgg.genome, sha256 aa5e6aa743675e10... (genome/arenab 5e3aeef2 cand/A81582-ringgg.genome).
+Needs the group gold/gems bot fix (genome/v0 fd778fc or later).
+- Arena B lead, real cambc (built at fd778fc): 49/80 vs v29, 0 crashes; capped normal turns 473 vs 307 (watch).
+  Solo vs a do-nothing bot, rounds to 1000 over 10 maps: 16,393 (A81582) -> 14,725.
+- Sim: 45/80 vs v29, 39/80 vs A81582; solo total vs idle 100,601 -> 96,568.
+- Smoke, real vs v29: 01elk-arena W 1014-84, 01broken-curve L 730-1001, 00great-wall W 1016-641; 0 crashes.
