@@ -1,0 +1,43 @@
+```python
+@gene('s1', 'value of doing this option now; casts abilities, treasure shards early then bruiser strength, recall at 35% (at once with 10+ gems; 50% when carrying 20+ gems under threat) or to spend banked gold, fights back against awake camps while carrying gems; when hurt with gems (below 50%, 70% with 20+), steps away from enemy champions within 4 toward the goals; finishing blows on enemy champions below 30% beat a low-health recall')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        if me().health_frac < 0.35:
+            return 90 if gems() >= 10 else 48
+        if gems() >= 20 and me().health_frac < 0.5 and threatened():
+            return 88
+        return 52 if shop_trip() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac) + (10 if o.unit.health_frac < 0.3 else 0)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        pr = progress(o.tile)
+        if gems() > 0 and me().health_frac < (0.7 if gems() >= 20 else 0.5) and pr >= 0:
+            p = me().pos
+            foes = count(u.is_champion and dist(u.pos, p) <= 4 for u in enemies())
+            if foes > 0 and all(dist(u.pos, o.tile) > dist(u.pos, p) for u in enemies() if u.is_champion and dist(u.pos, p) <= 4):
+                return 56
+        return 50 if pr > 0 else 0
+    return 0
+
+@gene('s4', 'how much closer a step brings me to the goals (field cached once per turn); hurt and carrying gems (below 50%, or below 70% with 20+ gems), a step into the attack reach of an enemy champion counts as no progress')
+def progress(t: Tile) -> Num:
+    d = at(GF, me().pos) - at(GF, t)
+    if d > 0 and gems() > 0 and me().health_frac < (0.7 if gems() >= 20 else 0.5):
+        if any(u.is_champion and dist(u.pos, t) <= max(u.attack_range, 1) for u in enemies()):
+            return 0
+    return d
+```
