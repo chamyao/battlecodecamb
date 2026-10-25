@@ -1,0 +1,23 @@
+```python
+@gene('a12', 'dash this turn: retreat with fuel > 40k; walking rules with GOAL over 2 away and fuel > 45k, but the camp walk only for goals over 6 away (keep the dash for fights and escapes)')
+def dash_gate() -> Bool:
+    if RULE == 3:
+        return fuel() > 40000
+    if RULE == 20 and valid(GOAL) and dist(here(), GOAL) <= 6:
+        return False
+    if walks() and valid(GOAL) and dist(here(), GOAL) > 2 and fuel() > 45000:
+        return True
+    return False
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked: our own visible lock does not block; 1000 if none)")
+def altar_eta() -> Num:
+    la = locked_altars()
+    bad = la - la
+    for t in la:
+        if not (lock_hits(t) > 0 and not lock_enemy(t)):
+            bad = bad | near(t, 0)
+    h = here()
+    d = min((max(0, dist(h, a) - 1) for a in altars() - bad), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```

@@ -1,0 +1,10 @@
+```python
+@gene("r11", "bag ready: 15+, or 10+ with an altar 3 turns away or a threat near, or late, or hurt (cheap checks first)", parents=['r11'])
+def bag_ready() -> Bool:
+    g = gems()
+    if g >= 15 or round() > 1500:
+        return True
+    if g >= 10 and (altar_eta() <= 3 or threat_near()):
+        return True
+    return hurt_below(0.3)
+```

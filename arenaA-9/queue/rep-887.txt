@@ -1,0 +1,8 @@
+```python
+@gene("s14", "the first visible camp in reach (my tile and range read once)")
+def reach_camp() -> Unit:
+    m = me()
+    h = m.pos
+    r = m.attack_range
+    return best(camps(), lambda c: 1 if dist(h, c.pos) <= r else 0)
+```

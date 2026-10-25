@@ -1,0 +1,5 @@
+```python
+@gene('s8', 'under fire: an enemy champion within 6 or in danger (the cheap count first)')
+def under_fire() -> Bool:
+    return enemies_within(6) > 0 or in_danger()
+```

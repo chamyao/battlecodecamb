@@ -1,0 +1,6 @@
+```python
+@gene("r16", "standing on a cleared camp spawn: hold so the capture timer runs, unless an enemy champion is within 3")
+def r_hold() -> Bool:
+    g = spawn_group(here())
+    return g >= 0 and group_reward(g) and enemies_within(3) == 0
+```

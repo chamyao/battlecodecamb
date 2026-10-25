@@ -1,0 +1,35 @@
+```python
+@gene("v1", "value of doing this option now; casts are not held back by a pending purchase (they spend no gold)")
+def score(o: Option) -> Num:
+    k = o.kind
+    if k == PICK:
+        return pick_value(o.champ)
+    if k == BUY or k == BUY_LOCK:
+        return shop_value(o)
+    if k == CAST:
+        return cast_value(o)
+    if shop_pending():
+        return 0
+    return act_value(o)
+@gene('a9', "shopping on spawn: the team's altar lock, then shards in the policy's split; cheap checks first")
+def shop_value(o: Option) -> Num:
+    if RULE < 2 or not at_spawn():
+        return 0
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY else 0
+    if o.item != next_shard() or o.count > shard_left():
+        return 0
+    return 190 + o.count / 100
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked: our own visible lock does not block; 1000 if none)")
+def altar_eta() -> Num:
+    la = locked_altars()
+    bad = la - la
+    for t in la:
+        if not (lock_hits(t) > 0 and not lock_enemy(t)):
+            bad = bad | near(t, 0)
+    h = here()
+    d = min((max(0, dist(h, a) - 1) for a in altars() - bad), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```

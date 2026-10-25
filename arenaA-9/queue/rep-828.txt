@@ -1,0 +1,10 @@
+```python
+@gene("m4", "every tile within r of a tile of s (empty sets returned at once)")
+def ring(s: Tiles, r: Num) -> Tiles:
+    acc = s - s
+    if size(s) == 0:
+        return acc
+    for t in s:
+        acc = acc | near(t, r)
+    return acc
+```
