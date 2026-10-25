@@ -265,3 +265,11 @@ Real /80 vs v32, 0 crashes:
 | Treasure -> Power-STR -> Bruiser (shoppow) | 27 | - |
 | shopdurfirst + bossbush | 42 (boss_battle 1-1) | 36 |
 Durability-first is non-transitive (-9 vs v31); rejected. Power is clearly worse. Shop order is not a cheap win; leave a11.
+
+## Oct 25 ~10:00: v33 = B1873-bossbush live (08:36); starvation/contest monolith deaths
+Solo vs idle (v33): starvation 38/34 deaths per side (elk group 2: 4 elks, strength 240, 88 gems, per intel GAPS), contest
+11/12 (monolith-only gems; MONO_ONLY sends us at the monoliths after r800, by design).
+intel's v29-run (r3 also runs when awake camps would deal 2.5x my health; i19 camp_incoming) ported to v33: solo rounds
+95,846 -> 96,629, deaths 362 -> 352, starvation 38 -> 32, but reverse-spiral, starfish A, boss-battle B and big-world are
+worse. Rejected. Starvation is a group-wake/cohesion problem (one champion wakes the 4-elk group); it goes with intel's
+early buddy-walk. Contest monolith deaths are the price of its only gems.
