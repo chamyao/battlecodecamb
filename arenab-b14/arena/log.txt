@@ -4121,3 +4121,9 @@
 [09:15:43] [B] summary: births 2140 deaths 2117 games 523624 $11.08; top [('B2137', 48.69, 0.91, 120, 'S10'), ('B2130', 48.15, 0.84, 168, 'S6'), ('B2117', 47.82, 0.8, 376, 'S6')]; top vs anchors {'B2137': 0.792, 'B2130': 0.875, 'B2117': 0.725}
 [09:15:43] [B] birth B2140 (tune ) of ['B2136'] species S9; 24 genomes $11.08
 [09:16:02] [B] birth B2141 (mutate session) of ['B2050'] species S9; 24 genomes $11.08
+[09:16:10] [B] birth B2142 (mutate session) of ['B2136'] species S9; 24 genomes $11.08
+[09:16:21] [B] rejected mutate session: behavioural twin
+[09:16:35] [B] rejected tune : behavioural twin
+[09:16:48] [B] birth B2143 (mutate session) of ['B2130'] species S6; 24 genomes $11.08
+[09:16:55] [B] birth B2144 (mutate session) of ['B2136'] species S9; 24 genomes $11.08
+[09:17:09] [B] birth B2145 (mutate session) of ['B2142'] species S9; 24 genomes $11.08
