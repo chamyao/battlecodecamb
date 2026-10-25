@@ -2,6 +2,19 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 02:50 UTC
+
+- Z-5 finished: 477 births in ~2 h (one container restart, resumed). Final in-arena top Z477 41.93, Z458
+  41.60, Z392 41.47 (starter 25). Replies: 424 accepted, 65 twins, 3 invalid. Its own lessons from the
+  feedback: shard build order (treasure -> durability -> monster -> power; durability first +1.5), recall
+  ever later (0.35 -> 0.05), ally beacons on casts and on nearby enemy champions, walk home only below 30%
+  with no gems, escape dash. Final panel + head-to-heads vs Z-1/Z-1x requested.
+- Z-10 relay: legs 1-2 done (102 births, ~35 min, ~$3.5-4.6 of Claude Code usage per leg); leg 3 running.
+  Hand-off gotchas fixed in the leg template: remove the restored queue/DONE; answer re-issued in-flight
+  requests; reset to the remote tip before committing.
+- A61188 = ladder v27; real cambc vs B792 (v26): 47/80, 0 crashes. Gatekeeper vs v27: 14 gates, none pass
+  (A-6 genomes 35-42/80, Arena B 30-38/80).
+
 ## 2026-10-25 02:25 UTC: Z series panel table (best / mean top 3 of 880; starter 46)
 
 | run | change | ~b100 | ~b200 | ~b300 | ~b400-450 | ~b500+ |
