@@ -60,6 +60,20 @@ for champion 0), and `GENOME_DEFS=GENOME_TURN_ORDER` in the bot. A cambc run nee
 per concurrent run. Rebuild `genome/build` and `genome/build-prof` after every runtime change:
 `genome_eval` refuses a genome compiled against another Ctx layout.
 
+## BREAK: attacking enemy altar locks (Oct 25)
+
+The loop did not list a basic attack on a visible enemy altar lock, though it is legal (5 clear a lock;
+a tribute at that altar hits it too). It is now option kind BREAK (12). Checks and prices:
+- `examples/breaker.genome` (the seed, plus BREAK listed and scored 1000) against the interpreted v23 on
+  01broken-curve. The bot and the sim take identical actions over all 2790 play turns, including 5
+  BREAKs on one lock (r309-313), after which the lock is gone in both.
+- Listing (consider() variants that list only BREAK, against only PICK): the altar scan costs 83 + 16
+  per altar in the bot. The lock list is read only when an altar is within attack range (lock_at's
+  price). Per option listed: 97, as ATTACK.
+Against builtin:starter, 80 games, against 8296d5d4: identical at 100x for all five. At 1x seed, B318
+and B792 (consider() genomes) are identical; starter 38 -> 39 and v23 79 -> 78, since genomes without
+consider() now pay the scan, a real cost in the bot too.
+
 ## Calibration (Oct 24, cambc 3.0.5)
 
 `examples/calib.genome` runs one probe gene per primitive per turn (in rotation). Built with
