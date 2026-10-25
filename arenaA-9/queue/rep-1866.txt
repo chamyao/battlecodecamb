@@ -1,0 +1,10 @@
+```python
+@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem) if it belongs to my group or is within 4 (do not wander to another group)")
+def r_live() -> Bool:
+    c = live_camp()
+    if not exists(c) or c.pos in BIG_CAMPS:
+        return False
+    if camp_group(c) != spawn_group(here()) and dist(here(), c.pos) > 4:
+        return False
+    return dist(camp_goal(), here()) == 0
+```

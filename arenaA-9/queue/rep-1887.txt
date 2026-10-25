@@ -1,0 +1,9 @@
+```python
+@gene("s11", "turns to stand on a safe altar tile no enemy lock blocks (the bank walk's targets; 1000 if none)")
+def altar_eta() -> Num:
+    h = here()
+    d = min((dist(h, t) for t in SAFE_RING - ring(locked_altars(), 1)), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```

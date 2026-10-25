@@ -1,0 +1,16 @@
+```python
+@gene('A94141a', 'spawn tiles of cleared groups an ally that is not recalling already stands on (its capture needs no second champion; a recalling holder is leaving)', parents=['m11'])
+def held_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    h = here()
+    others = camp_spawns() - camp_spawns()
+    for a in allies():
+        if a.pos != h and not is_recalling(a):
+            others = others | near(a.pos, 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            gt = group_tiles(g)
+            if size(others & gt) > 0:
+                acc = acc | gt
+    return acc
+```

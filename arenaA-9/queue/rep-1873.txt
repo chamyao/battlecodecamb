@@ -1,0 +1,8 @@
+```python
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked; 1000 if none); unpadded, altars are usually in the open")
+def altar_eta() -> Num:
+    d = min((max(0, dist(here(), a) - 1) for a in altars() - locked_altars()), default=-1)
+    if d < 0:
+        return 1000
+    return -floor(-d / max(1, me().move_speed))
+```

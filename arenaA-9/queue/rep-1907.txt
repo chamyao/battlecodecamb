@@ -1,0 +1,25 @@
+```python
+@gene('c1', "where this turn's rule walks; retreat goes to a healthy ally within 5 when one is nearer than our spawn (regroup), else home; banking under threat also prefers the safe, unlocked altar")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        home = closest(my_spawn())
+        h = here()
+        a = best(allies(), lambda u: -dist(h, u.pos) if u.pos != h and u.health_frac > 0.6 and dist(h, u.pos) <= 5 else -INF)
+        if exists(a) and a.pos != h and a.health_frac > 0.6 and dist(h, a.pos) <= 5 and dist(h, a.pos) + 2 < dist(h, home):
+            t = closest(near(a.pos, 1) - near(a.pos, 0))
+            if valid(t):
+                return t
+        return home
+    if r == 11 or r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+```

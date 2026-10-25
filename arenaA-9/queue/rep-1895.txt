@@ -1,0 +1,15 @@
+```python
+@gene("m13", "tile next to a safe altar that no enemy lock blocks: the nearest by walking, but a tile on our side (nearer our spawn) wins over one at most 3 steps nearer")
+def bank_t1() -> Tile:
+    s = SAFE_RING - ring(locked_altars(), 1)
+    t = closest(s)
+    if not valid(t):
+        return t
+    h = here()
+    ms = my_spawn()
+    cand = s - taken()
+    alt = best(cand, lambda q: -dist(h, q) - 0.5 * dist(q, nearest(ms, q)) if dist(h, q) <= dist(h, t) + 3 else -INF)
+    if valid(alt) and dist(h, alt) <= dist(h, t) + 3:
+        return alt
+    return t
+```
