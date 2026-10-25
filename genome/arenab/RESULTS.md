@@ -133,3 +133,13 @@ Real cambc --release, all built at genome/v0 fd778fc (has the group_gems fix):
   elk-arena 1978 -> 1268, pilgrimage 1680 -> 1307, yellow-brick-road 969 -> 702, gold-rush 1359 -> 1432,
   starfish 1083 -> 1220, starvation 1650 -> 1864, stampede 1674 = 1674, contest/shortcut 2000 both.
   Sum over the 10 maps 16,393 -> 14,725.
+
+**A81582-ringgg withdrawn:** in real cambc it loses pilgrimage, gold-rush and broken-curve 0-2 each vs v29. Gem-first starves
+gold vs a real opponent (intel: pilgrimage gold 4,583 vs 14,258, gold-rush 3,474 vs 23,151).
+
+## A81582-ringheal = A81582 + intel's two solo-farming bug fixes (no gem-groups)
+- ring: altar rings exclude small-camp spawn tiles (bank walks no longer target a tile a living camp blocks);
+- heal: r2 ignores enemies standing on their own spawn (hurt carriers next to an enemy spawn otherwise never heal).
+Sim, bot seeds: vs idle total rounds 100,601 -> 99,212, games short of 1000 10 -> 5; vs v29 46/80, vs A81582 40/80.
+Real cambc --release (genome/v0 fd778fc builds): **A81582-ringheal vs v29: 55/80**, 0 crashes (capped normal turns 450 vs 301);
+plain A81582 vs v29: 50/80 on the same builds.
