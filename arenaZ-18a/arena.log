@@ -262,3 +262,42 @@
 [08:09:57] [Z] birth Z133 (mutate session) of ['Z119'] species S76; 24 genomes $0.00
 [08:10:23] [Z] rejected tune : behavioural twin
 [08:10:27] [Z] birth Z134 (tune ) of ['Z130'] species S80; 24 genomes $0.00
+[08:10:33] [Z] birth Z135 (tune ) of ['Z129'] species S73; 24 genomes $0.00
+[08:11:56] [Z] new species S83 founded by Z136
+[08:11:56] [Z] birth Z136 (mutate session) of ['Z112'] species S83; 24 genomes $0.00
+[08:11:59] [Z] new species S84 founded by Z137
+[08:11:59] [Z] birth Z137 (mutate session) of ['Z120'] species S84; 24 genomes $0.00
+[08:12:02] [Z] new species S85 founded by Z138
+[08:12:02] [Z] birth Z138 (llm_cross session) of ['Z120', 'Z132'] species S85; 24 genomes $0.00
+[08:12:05] [Z] new species S86 founded by Z139
+[08:12:05] [Z] birth Z139 (llm_cross session) of ['Z130', 'Z126'] species S86; 24 genomes $0.00
+[08:12:16] [Z] rejected mutate session: behavioural twin
+[08:12:19] [Z] summary: births 140 deaths 117 games 59584 $0.00; top [('Z139', 47.32, 1.64, 24, 'S86'), ('Z138', 46.64, 1.07, 72, 'S85'), ('Z131', 46.05, 0.81, 216, 'S81')]; top vs anchors {'Z138': None, 'Z131': 1.0, 'Z125': 1.0}
+[08:12:19] [Z] birth Z140 (mutate session) of ['Z132'] species S82; 24 genomes $0.00
+[08:13:10] [Z] birth Z141 (mutate session) of ['Z133'] species S76; 24 genomes $0.00
+[08:13:13] [Z] birth Z142 (mutate session) of ['Z117'] species S62; 24 genomes $0.00
+[08:14:52] [Z] birth Z143 (mutate session) of ['Z138'] species S85; 24 genomes $0.00
+[08:14:53] [Z] new species S87 founded by Z144
+[08:14:53] [Z] birth Z144 (llm_cross session) of ['Z131', 'Z135'] species S87; 24 genomes $0.00
+[08:14:54] [Z] new species S88 founded by Z145
+[08:14:54] [Z] birth Z145 (mutate session) of ['Z140'] species S88; 24 genomes $0.00
+[08:14:55] [Z] new species S89 founded by Z146
+[08:14:55] [Z] birth Z146 (llm_cross session) of ['Z135', 'Z141'] species S89; 24 genomes $0.00
+[08:15:06] [Z] birth Z147 (mutate session) of ['Z125'] species S78; 24 genomes $0.00
+[08:15:26] [Z] rejected mutate session: behavioural twin
+[08:15:28] [Z] new species S90 founded by Z148
+[08:15:28] [Z] birth Z148 (mutate session) of ['Z123'] species S90; 24 genomes $0.00
+[08:15:33] [Z] new species S91 founded by Z149
+[08:15:33] [Z] birth Z149 (mutate session) of ['Z125'] species S91; 24 genomes $0.00
+[08:18:13] [Z] rejected mutate session: behavioural twin
+[08:18:19] [Z] rejected mutate session: behavioural twin
+[08:18:21] [Z] rejected mutate session: behavioural twin
+[08:18:26] [Z] champion anchor champ3-Z139 (mu 46.8)
+[08:18:26] [Z] summary: births 150 deaths 127 games 65008 $0.00; top [('Z139', 46.81, 0.8, 504, 'S86'), ('Z146', 46.75, 0.8, 312, 'S89'), ('Z131', 46.72, 0.81, 608, 'S81')]; top vs anchors {'Z139': 1.0, 'Z146': 1.0, 'Z131': 1.0}
+[08:18:26] [Z] birth Z150 (mutate session) of ['Z144'] species S87; 24 genomes $0.00
+[08:18:29] [Z] birth Z151 (tune ) of ['Z134'] species S80; 24 genomes $0.00
+[08:18:32] [Z] rejected mutate session: behavioural twin
+[08:18:34] [Z] birth Z152 (mutate session) of ['Z126'] species S79; 24 genomes $0.00
+[08:18:36] [Z] birth Z153 (mutate session) of ['Z134'] species S80; 24 genomes $0.00
+[08:18:47] [Z] birth Z154 (mutate session) of ['Z112'] species S74; 24 genomes $0.00
+[08:19:01] [Z] birth Z155 (tune ) of ['Z120'] species S77; 24 genomes $0.00

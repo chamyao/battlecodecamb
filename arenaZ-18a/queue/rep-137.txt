@@ -1,0 +1,18 @@
+```python
+@gene('Z92a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag (earlier with a bag of 10+)')
+def update() -> None:
+    if not HOMED:
+        HF = field(my_spawn())
+        HOMED = True
+    k = goal_key()
+    if k != GKEY:
+        GF = field(goals())
+        GKEY = k
+    RETREAT = (me().health_frac < 0.35 or (me().health_frac < 0.5 and gems() >= 10)) and under_threat()
+    if me().pos == LAST and not at_home():
+        STUCK += 1
+    else:
+        STUCK = 0
+    LAST = me().pos
+
+```

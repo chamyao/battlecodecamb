@@ -1,0 +1,32 @@
+```python
+HIT: Bool = False     # this turn: I lost health since last turn
+LASTHP: Num = 0       # my health at the start of last turn
+
+@gene('Z121a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag')
+def update() -> None:
+    if not HOMED:
+        HF = field(my_spawn())
+        HOMED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key()
+    if k != GKEY:
+        GS = goals()
+        GF = field(GS)
+        GKEY = k
+    HIT = me().health < LASTHP - 0.5
+    LASTHP = me().health
+    RETREAT = me().health_frac < 0.35 and (HIT or under_threat())
+    WF = HF if RETREAT else GF
+    here = me().pos
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | camp_tiles() | (camp_spawns() - vision() - DEAD)) - near(here, 0)
+    mine = at(WF, here)
+    if mine > 0 and mine < 100000 and not any(at(WF, t) < mine for t in near(here, 1) - blk):
+        tgt = my_spawn() if RETREAT else GS
+        WF = field_avoid(tgt, blk - tgt, near(here, 0))
+
+```

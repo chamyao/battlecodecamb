@@ -1,0 +1,9 @@
+```python
+@gene('s4', 'how much closer a step brings me to the goals, minus a penalty for stepping next to enemy champions when below 0.6 health')
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.6 and any(dist(u.pos, t) <= u.attack_range + 1 for u in enemies()):
+        return gain - 2
+    return gain
+
+```
