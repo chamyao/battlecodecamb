@@ -3007,3 +3007,31 @@
 [05:59:36] [A9] fixed anchors: style-gconv1 37.58, v7 28.93, tune-v20-L1 37.58, rall2-ca4-lean-g 37.24, opp-tune5-metadraft 31.28, champ1-A9 38.38, champ2-A23 37.53, champ3-A143 38.12, champ4-A196 39.62, champ5-A215 38.93, champ6-A295 37.58, champ7-A318 39.25, champ8-A293 38.70, champ9-A408 39.58, champ10-A497 40.69, champ11-A549 40.60, champ12-A591 40.96, champ13-A626 41.09, champ14-A689 41.25, champ15-A6743 42.07, champ16-A6763 41.93, champ18-A6857 41.92, champ19-A6903 42.07, champ20-A6957 41.83, champ21-A61034 42.85, champ22-A61099 43.57, champ23-A61118 43.23, champ24-A61180 43.99, champ25-A81240 44.36, champ26-A81288 45.93, champ27-A81333 46.19, champ28-A81332 46.81, champ29-A81444 46.14, champ30-A81450 46.30, champ31-A81522 46.66, champ32-A81589 46.51
 [05:59:54] [A9] rejected cross : FileNotFoundError: [Errno 2] No such file or directory: '/root/a8w/policies/candidates/style-gconv1.
 [06:00:27] [A9] birth A91627 (cross ) of ['A81619', 'A81603'] species S2; 24 genomes $7.80
+[06:00:32] [A9] birth A91628 (cross ) of ['A81550', 'A81614'] species S1; 24 genomes $7.80
+[06:01:50] [A9] birth A91629 (tune ) of ['A81550'] species S2; 24 genomes $7.80
+[06:02:05] [A9] summary: births 1630 deaths 1607 games 400448 $7.80; top [('A91628', 47.05, 1.01, 88, 'S1'), ('A81622', 47.03, 0.87, 192, 'S2'), ('A81604', 46.84, 0.8, 336, 'S1')]; top vs anchors {'A91628': 0.875, 'A81622': 0.875, 'A81604': 1.0}
+[06:02:05] [A9] birth A91630 (mutate session) of ['A81500'] species S2; 24 genomes $7.80
+[06:02:38] [A9] birth A91631 (mutate session) of ['A81604'] species S1; 24 genomes $7.80
+[06:02:50] [A9] birth A91632 (cross ) of ['A91631', 'A81614'] species S1; 24 genomes $7.80
+[06:02:57] [A9] birth A91633 (mutate session) of ['A81603'] species S2; 24 genomes $7.80
+[06:03:36] [A9] rejected cross : behavioural twin
+[06:03:50] [A9] birth A91634 (mutate session) of ['A81619'] species S2; 24 genomes $7.80
+[06:04:12] [A9] rejected mutate session: behavioural twin
+[06:04:17] [A9] birth A91635 (mutate session) of ['A81622'] species S2; 24 genomes $7.80
+[06:04:21] [A9] birth A91636 (tune ) of ['A81623'] species S1; 24 genomes $7.80
+[06:04:33] [A9] rejected mutate session: behavioural twin
+[06:04:38] [A9] birth A91637 (tune ) of ['A91636'] species S1; 24 genomes $7.80
+[06:04:38] [A9] birth A91638 (tune ) of ['A81616'] species S2; 24 genomes $7.80
+[06:04:42] [A9] birth A91639 (cross ) of ['A81604', 'A81623'] species S1; 24 genomes $7.80
+[06:04:58] [A9] rejected tune : behavioural twin
+[06:04:58] [A9] summary: births 1640 deaths 1617 games 401824 $7.80; top [('A91639', 47.58, 1.02, 80, 'S1'), ('A81604', 47.19, 0.84, 384, 'S1'), ('A81622', 47.15, 0.82, 248, 'S2')]; top vs anchors {'A91639': None, 'A81604': 1.0, 'A81622': 0.875}
+[06:04:58] [A9] birth A91640 (cross ) of ['A81613', 'A81619'] species S2; 24 genomes $7.80
+[06:05:10] [A9] birth A91641 (cross ) of ['A91636', 'A91632'] species S1; 24 genomes $7.80
+[06:05:18] [A9] rejected cross : behavioural twin
+[06:05:18] [A9] birth A91642 (llm_cross session) of ['A81625', 'A81604'] species S2; 24 genomes $7.80
+[06:05:25] [A9] rejected cross : behavioural twin
+[06:06:15] [A9] birth A91643 (mutate session) of ['A81622'] species S2; 24 genomes $7.80
+[06:06:19] [A9] birth A91644 (mutate session) of ['A81613'] species S2; 24 genomes $7.80
+[06:06:49] [A9] birth A91645 (mutate session) of ['A81603'] species S2; 24 genomes $7.80
+[06:06:53] [A9] rejected mutate session: behavioural twin
+[06:08:54] [A9] birth A91646 (mutate session) of ['A81623'] species S1; 24 genomes $7.80
