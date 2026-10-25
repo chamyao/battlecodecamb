@@ -72,3 +72,7 @@ Paired with b6: 20-30 -> 21-29, gems -12 +- 30. Stuck rounds 76 -> 13 (heal fix)
 ## Batch 8 (2026-10-25, live v31)
 
 Paired with b7: 21-29 -> 27-23 (6 flips to a win, 0 to a loss), gems +39 +- 20. Mono works live (great_wall monolith deaths 35 -> 1). elk_arena vs NotSoLonely is still 0-gem: they hold the gem groups (respawning when we look). See batches/b8.md.
+
+## Batch 9 (2026-10-25, live v32 = B1873)
+
+Paired with b8: 27-23 -> 31-19, gems +87 +- 39, stuck 31.5 -> 4.0. elk_arena vs NotSoLonely won 936-720 (b8 lost 18-1008). boss_battle still lost but no longer frozen. See batches/b9.md.
