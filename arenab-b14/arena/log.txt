@@ -4093,3 +4093,15 @@
 [09:10:16] [B] birth B2122 (mutate session) of ['B2119'] species S7; 24 genomes $11.08
 [09:10:16] [B] rejected mutate session: behavioural twin
 [09:10:23] [B] rejected mutate session: behavioural twin
+[09:10:55] [B] birth B2123 (mutate session) of ['B2093'] species S11; 24 genomes $11.08
+[09:10:57] [B] rejected mutate session: behavioural twin
+[09:11:05] [B] rejected mutate session: behavioural twin
+[09:11:22] [B] birth B2124 (cross ) of ['B2123', 'B2114'] species S11; 24 genomes $11.08
+[09:11:35] [B] birth B2125 (mutate session) of ['B2114'] species S11; 24 genomes $11.08
+[09:11:43] [B] birth B2126 (mutate session) of ['B2115'] species S11; 24 genomes $11.08
+[09:11:56] [B] birth B2127 (mutate session) of ['B2095'] species S11; 24 genomes $11.08
+[09:12:19] [B] birth B2128 (mutate session) of ['B2121'] species S9; 24 genomes $11.08
+[09:12:28] [B] birth B2129 (mutate session) of ['B2123'] species S11; 24 genomes $11.08
+[09:12:29] [B] rejected tune : solo-farm: 156462 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 59
+[09:12:36] [B] summary: births 2130 deaths 2107 games 520856 $11.08; top [('B2117', 48.89, 0.83, 280, 'S6'), ('B2130', 48.37, 6.0, 0, 'S6'), ('B2122', 48.23, 0.87, 128, 'S7')]; top vs anchors {'B2117': 0.786, 'B2122': 0.5, 'B2050': 0.583}
+[09:12:36] [B] birth B2130 (cross ) of ['B2117', 'B2116'] species S6; 24 genomes $11.08
