@@ -1,0 +1,249 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_F: Field = None
+RETREAT: Bool = False
+HOME_F: Field = None
+HOME_SET: Bool = False
+E_MIN: Num = 99
+CAMP_NEAR: Bool = False
+LAST_G: Tiles = None
+GOAL_OK: Bool = False
+CARRY_F: Field = None
+CARRY_SET: Bool = False
+CHASE_ON: Bool = False
+CHASE_T: Tile = None
+
+@gene('Z567a', 'value of doing this option now; recall via recall_value (low health or safe far retreat); attacks on enemy champions more valuable as they weaken (extra when nearly dead); retreat moves more urgent, more so when my health is low', parents=['s1', 's1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return recall_value()
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            v = 80 + 40 * (1 - o.unit.health_frac)
+            if o.unit.health_frac < 0.25:
+                v += 30
+            return v
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if RETREAT:
+            urgency = 55
+            if me().health_frac < 0.5:
+                urgency += 15
+            return urgency + 6 * p if p > 0 else 0
+        base = 45
+        return base + 6 * p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems; else cleared groups awaiting capture, else a living camp group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'cached per-turn field: goals normally, my spawn while retreating (no per-pass engine calls)', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_F
+
+@gene('Z567b', 'progress toward goals (clamped) minus danger from enemy champions and monsters near the step; healthy non-carriers also avoid stepping next to awake monsters; carriers avoid stepping 3 tiles from champions', parents=['Z371a', 's4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    m = me()
+    d = at(f, m.pos) - at(f, t)
+    if d > 2:
+        d = 2
+    if d < -2:
+        d = -2
+    danger = 0
+    mon = 0
+    far = 0
+    for u in enemies():
+        du = dist(u.pos, t)
+        if du <= 2:
+            if u.is_champion:
+                danger += 1
+            else:
+                mon += 1
+        elif du == 3 and u.is_champion:
+            far += 1
+    if m.health_frac < 0.5:
+        danger += mon
+    if RETREAT:
+        return d * 3 - danger * 2
+    if gems() > 0:
+        return d * 3 - danger * 4 - far * 2
+    if m.health_frac > 0.6:
+        return d * 2 - danger * 2 - mon * 0.5
+    return d - danger * 3
+
+@gene('Z26a', 'value of casting: hit champions (scaled up as they weaken, extra when nearly dead) and camps (also while carrying a few gems), protect allies and self when hurt near enemies or awake camps, dash toward goals when healthy or home when retreating', parents=['s1', 'Z26a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                bonus = 25 if o.unit.health_frac < 0.3 else 0
+                return 114 + 10 * (1 - o.unit.health_frac) + bonus
+            if o.unit.is_camp and gems() < 10:
+                return 65
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            ne = count(dist(u.pos, o.tile) <= r for u in enemies())
+            if ne > 0:
+                return 110 + ne
+            if gems() < 10:
+                nc = count(dist(u.pos, o.tile) <= r for u in camps())
+                if nc > 0:
+                    return 60 + nc
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        return protect_cast_value(o)
+    if k == AB_DASH:
+        return dash_cast_value(o)
+    return 0
+
+@gene('X230a', 'value of a shield/heal cast: hurt allies (more near enemies), or self when hurt near enemies or awake camps', parents=['Z26a'])
+def protect_cast_value(o: Option) -> Num:
+    if exists(o.unit) and not o.unit.is_enemy and o.unit.pos != me().pos:
+        if o.unit.health_frac < 0.6:
+            if any(dist(u.pos, o.unit.pos) <= 4 for u in enemies()):
+                return 87
+        if o.unit.health_frac < 0.5:
+            return 85
+        return 0
+    if me().health_frac < 0.7:
+        if any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+            return 88
+        if me().health_frac < 0.6:
+            if any(is_awake(c) and dist(c.pos, me().pos) <= 2 for c in camps()):
+                return 75
+    return 0
+
+@gene('X200a', 'value of a dash cast: escape toward spawn when retreating (any progress); when a chase is on, dash next to the weak enemy champion; else toward goals when healthy and no enemies within 4, capped progress', parents=['Z26a'])
+def dash_cast_value(o: Option) -> Num:
+    if not valid(o.tile):
+        return 0
+    if RETREAT:
+        p = progress(o.tile)
+        if p >= 1:
+            return 90 + 5 * min(p, 8)
+        return 0
+    if CHASE_ON:
+        d0 = dist(me().pos, CHASE_T)
+        d1 = dist(o.tile, CHASE_T)
+        if d1 <= max(me().attack_range, 1) and d1 < d0:
+            return 85
+    if me().health_frac > 0.45:
+        if not any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+            p = progress(o.tile)
+            if p >= 2:
+                return 40 + 4 * min(p, 8)
+    return 0
+
+@gene('Z545a', 'recall value from per-turn cached threat: very low health (only when recall is unlikely to be cancelled, or as last resort when nothing is adjacent), carrying 10+ gems at half health with no enemies close, or retreating far from spawn with no enemies or awake camps close', parents=['s1'])
+def recall_value() -> Num:
+    h = me().health_frac
+    if h < 0.35:
+        if E_MIN > 4 and not CAMP_NEAR:
+            return 120
+        if E_MIN > 2 and at(goal_field(), me().pos) > 15:
+            return 90
+    if gems() >= 10 and h < 0.5:
+        if E_MIN > 5 and not CAMP_NEAR:
+            return 110
+    if RETREAT:
+        if E_MIN > 7 and not CAMP_NEAR:
+            if at(goal_field(), me().pos) > 12:
+                return 100
+    return 0
+
+@gene('Z567c', 'once per turn: retreat with hysteresis; home below a gem-scaled threshold, when outnumbered, swarmed, or carrying 10+ gems near an enemy champion; resume at 77%+; retreating carriers with 5+ gems aim at cached spawn/altar field, else cached spawn field; goal field rebuilt only when the goal set changes; caches nearest-enemy distance, awake-camp proximity and a weak enemy champion to chase; nothing computed while dead', parents=['Z21a', 'Z388a', 'Z567c'])
+def update() -> None:
+    if alive():
+        h = me().health_frac
+        p = me().pos
+        carry = unit_gems(me())
+        es = enemies()
+        E_MIN = nearest_enemy_dist(es, p)
+        CHASE_ON = False
+        if retreat_trigger(h, p, carry, es):
+            RETREAT = True
+        elif h > 0.771:
+            RETREAT = False
+        if RETREAT or h < 0.5:
+            CAMP_NEAR = awake_camp_near(p)
+        else:
+            CAMP_NEAR = False
+        if RETREAT:
+            GOAL_OK = False
+            if carry >= 5:
+                if not CARRY_SET:
+                    CARRY_F = field(my_spawn() | altars())
+                    CARRY_SET = True
+                GOAL_F = CARRY_F
+            else:
+                if not HOME_SET:
+                    HOME_F = field(my_spawn())
+                    HOME_SET = True
+                GOAL_F = HOME_F
+        else:
+            g = goals()
+            if goal_set_changed(g):
+                GOAL_F = field(g)
+                LAST_G = g
+                GOAL_OK = True
+            if h > 0.6 and count(dist(u.pos, p) <= 6 for u in es) <= 2:
+                tgt = best(es, lambda u: (100 - 100 * u.health_frac - dist(u.pos, p)) if (u.is_champion and u.health_frac < 0.35 and dist(u.pos, p) <= 6) else -1000)
+                if exists(tgt):
+                    if tgt.is_champion and tgt.health_frac < 0.35 and dist(tgt.pos, p) <= 6:
+                        CHASE_ON = True
+                        CHASE_T = tgt.pos
+    else:
+        RETREAT = False
+        E_MIN = 99
+        CAMP_NEAR = False
+        GOAL_OK = False
+        CHASE_ON = False
+
+@gene('X510a', 'distance from a tile to the nearest of the given enemies (99 if none)', parents=['Z567c'])
+def nearest_enemy_dist(es: Units, p: Tile) -> Num:
+    return min((dist(u.pos, p) for u in es), default=99)
+
+@gene('X510b', 'whether the cached goal field is stale: no valid cache or the goal set differs from the last one', parents=['Z567c'])
+def goal_set_changed(g: Tiles) -> Bool:
+    return not (GOAL_OK and size(g - LAST_G) == 0 and size(LAST_G - g) == 0)
+
+@gene('X490a', 'whether to start retreating: below gem-scaled health threshold, outnumbered, swarmed, or carrying 10+ gems near an enemy champion', parents=['Z567c'])
+def retreat_trigger(h: Num, p: Tile, carry: Num, es: Units) -> Bool:
+    low = 0.5305 + 0.2 * min(carry / 20, 1)
+    near_e = count(dist(u.pos, p) <= 6 for u in es)
+    near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
+    swarmed = near_e >= 3 and h < 0.7
+    threatened = carry >= 10 and any(u.is_champion and dist(u.pos, p) <= 4 for u in es)
+    return h < low or (h < 0.7 and near_e >= near_a) or (h < 0.75 and near_e > near_a + 1) or swarmed or threatened
+
+@gene('X490b', 'whether an awake camp is within 5 tiles of a tile', parents=['Z567c'])
+def awake_camp_near(p: Tile) -> Bool:
+    return any(is_awake(c) and dist(c.pos, p) <= 5 for c in camps())

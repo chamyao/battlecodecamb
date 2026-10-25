@@ -904,3 +904,32 @@
 [05:14:25] [Z] new species S241 founded by Z461
 [05:14:25] [Z] birth Z461 (mutate claude-opus-5-5) of ['Z450'] species S241; 24 genomes $17.18
 [05:14:28] [Z] birth Z462 (mutate claude-opus-5-5) of ['Z451'] species S239; 24 genomes $17.18
+[05:14:43] [Z] rejected tune : behavioural twin
+[05:14:45] [Z] birth Z463 (tune ) of ['Z458'] species S239; 24 genomes $17.18
+[05:14:47] [Z] birth Z464 (tune ) of ['Z444'] species S234; 24 genomes $17.18
+[05:15:09] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[05:15:57] [Z] new species S242 founded by Z465
+[05:15:57] [Z] birth Z465 (mutate claude-opus-5-5) of ['Z464'] species S242; 24 genomes $17.36
+[05:16:17] [Z] new species S243 founded by Z466
+[05:16:17] [Z] birth Z466 (mutate claude-opus-5-5) of ['Z431'] species S243; 24 genomes $17.59
+[05:16:19] [Z] new species S244 founded by Z467
+[05:16:19] [Z] birth Z467 (mutate claude-opus-5-5) of ['Z441'] species S244; 24 genomes $17.59
+[05:16:19] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[05:16:21] [Z] new species S245 founded by Z468
+[05:16:21] [Z] birth Z468 (mutate claude-opus-5-5) of ['Z456'] species S245; 24 genomes $17.59
+[05:16:22] [Z] birth Z469 (mutate claude-opus-5-5) of ['Z444'] species S234; 24 genomes $17.59
+[05:16:24] [Z] new species S246 founded by Z470
+[05:16:24] [Z] summary: births 470 deaths 447 games 114488 $17.59; top [('Z432', 38.01, 0.79, 904, 'S217'), ('Z465', 37.69, 0.84, 144, 'S242'), ('Z430', 36.96, 0.79, 984, 'S233')]; top vs anchors {'Z432': None, 'Z465': 1.0, 'Z430': None}
+[05:16:24] [Z] birth Z470 (mutate claude-opus-5-5) of ['Z440'] species S246; 24 genomes $17.59
+[05:16:26] [Z] new species S247 founded by Z471
+[05:16:26] [Z] birth Z471 (mutate claude-opus-5-5) of ['Z441'] species S247; 24 genomes $17.59
+[05:16:37] [Z] new species S248 founded by Z472
+[05:16:37] [Z] birth Z472 (mutate claude-opus-5-5) of ['Z431'] species S248; 24 genomes $17.63
+[05:17:34] [Z] rejected mutate claude-opus-5-5: GenomeError: score line 34: unknown name THREAT
+[05:17:41] [Z] birth Z473 (mutate claude-opus-5-5) of ['Z430'] species S233; 24 genomes $17.75
+[05:17:43] [Z] new species S249 founded by Z474
+[05:17:43] [Z] birth Z474 (mutate claude-opus-5-5) of ['Z459'] species S249; 24 genomes $17.75
+[05:17:44] [Z] 475 births (--max-births 475): no more births
+[05:17:44] [Z] birth Z475 (tune ) of ['Z456'] species S223; 24 genomes $17.75
+[05:18:25] [Z] summary: births 475 deaths 452 games 118848 $17.75; top [('Z470', 37.24, 0.81, 416, 'S246'), ('Z413', 37.13, 0.81, 1680, 'S227'), ('Z450', 37.11, 0.79, 744, 'S236')]; top vs anchors {'Z470': None, 'Z413': 1.0, 'Z450': None}
+[05:18:27] [Z] done: spent $17.75

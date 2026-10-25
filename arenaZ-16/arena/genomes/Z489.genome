@@ -178,19 +178,14 @@ def update() -> None:
         h = me().health_frac
         p = me().pos
         carry = unit_gems(me())
-        low = 0.5305 + 0.2 * min(carry / 20, 1)
         es = enemies()
-        E_MIN = min((dist(u.pos, p) for u in es), default=99)
-        near_e = count(dist(u.pos, p) <= 6 for u in es)
-        near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
-        swarmed = near_e >= 3 and h < 0.7
-        threatened = carry >= 10 and any(u.is_champion and dist(u.pos, p) <= 4 for u in es)
-        if h < low or (h < 0.7 and near_e >= near_a) or (h < 0.75 and near_e > near_a + 1) or swarmed or threatened:
+        E_MIN = nearest_enemy_dist(es, p)
+        if retreat_trigger(h, p, carry, es):
             RETREAT = True
         elif h > 0.771:
             RETREAT = False
         if RETREAT or h < 0.5:
-            CAMP_NEAR = any(is_awake(c) and dist(c.pos, p) <= 5 for c in camps())
+            CAMP_NEAR = awake_camp_near(p)
         else:
             CAMP_NEAR = False
         if RETREAT:
@@ -207,7 +202,7 @@ def update() -> None:
                 GOAL_F = HOME_F
         else:
             g = goals()
-            if not (GOAL_OK and size(g - LAST_G) == 0 and size(LAST_G - g) == 0):
+            if goal_set_changed(g):
                 GOAL_F = field(g)
                 LAST_G = g
                 GOAL_OK = True
@@ -216,3 +211,24 @@ def update() -> None:
         E_MIN = 99
         CAMP_NEAR = False
         GOAL_OK = False
+
+@gene('X510a', 'distance from a tile to the nearest of the given enemies (99 if none)', parents=['Z567c'])
+def nearest_enemy_dist(es: Units, p: Tile) -> Num:
+    return min((dist(u.pos, p) for u in es), default=99)
+
+@gene('X510b', 'whether the cached goal field is stale: no valid cache or the goal set differs from the last one', parents=['Z567c'])
+def goal_set_changed(g: Tiles) -> Bool:
+    return not (GOAL_OK and size(g - LAST_G) == 0 and size(LAST_G - g) == 0)
+
+@gene('X490a', 'whether to start retreating: below gem-scaled health threshold, outnumbered, swarmed, or carrying 10+ gems near an enemy champion', parents=['Z567c'])
+def retreat_trigger(h: Num, p: Tile, carry: Num, es: Units) -> Bool:
+    low = 0.5305 + 0.2 * min(carry / 20, 1)
+    near_e = count(dist(u.pos, p) <= 6 for u in es)
+    near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
+    swarmed = near_e >= 3 and h < 0.7
+    threatened = carry >= 10 and any(u.is_champion and dist(u.pos, p) <= 4 for u in es)
+    return h < low or (h < 0.7 and near_e >= near_a) or (h < 0.75 and near_e > near_a + 1) or swarmed or threatened
+
+@gene('X490b', 'whether an awake camp is within 5 tiles of a tile', parents=['Z567c'])
+def awake_camp_near(p: Tile) -> Bool:
+    return any(is_awake(c) and dist(c.pos, p) <= 5 for c in camps())
