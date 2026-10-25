@@ -491,3 +491,47 @@ Target (Arena B lead): v29 vs builtin:idle, 80 games with bot seeds. It wins 80/
   - Contest vs idle: 200 → 600 gems.
   - 41/80 vs v29; paired anchors the same as v29-run within a game or two.
 - Group gates that stop lone wakes (v29-lanch family) cut deaths to 2.6–2.8 a game (starvation 33 → 0) but stall farming where a strong group is the main gem source. See rejected/README.md.
+
+## Solo farming vs idle: two general bugs (v29, 2026-10-25)
+
+Target (Arena B lead): maps where v29 doesn't reach 1000 gems vs builtin:idle. They are about 34% of the band loss cost.
+- Seeds matter here: passing a map N times gives N seeds.
+- Broken-curve fails on side A in every seed (0 gems); rushbait mostly fails on side B.
+- Traced with a debug build that prints each champion's rule and goal (scratch only, not committed).
+
+**Bug 1: bank goal on a camp tile.**
+- ALTAR_RING / SAFE_RING include camp spawn tiles.
+- On broken-curve side A, the bank walk (rule 12) goes for (19,22), an altar-ring tile that a live gold cluster occupies. From r122 to r2000 the 3 champions stand beside it with 16 gems each, and every move scores 0.
+- Fix: drop small-camp spawn tiles from both rings at mapping time; keep monolith/golem tiles. Boss-battle's only reachable ring tile is the monolith's own; dropping it took boss-battle to 0.
+
+**Bug 2: a hurt champion next to an enemy spawn never heals.**
+- r2 (heal on spawn) is off while any enemy is in reach.
+- On rushbait and reverse-spiral the spawns are adjacent, and enemies standing on theirs are always in reach.
+- So a hurt carrier loops forever: recall (r5 cash-out) → arrive → leave in the same turn without healing (healing happens at turn end) → still hurt → recall again.
+- Fix: r2 ignores enemies standing on their own spawn (we can't fight them there; r7 already excludes them).
+
+**directed/v29-ringheal.genome** (sha256 7b71d08a…) = v29 + both fixes.
+- vs idle, only five maps change:
+  - broken-curve 309 → 1004 gems (r1164)
+  - shortcut 586 → 1028 (r1560)
+  - reverse-spiral 78 → 1020 (r1855)
+  - rushbait 9 → 1018 (r1602)
+  - expanse +107 rounds
+- Total rounds 53,218 → 51,541.
+- 42/80 vs v29.
+- Paired vs v29's rows: B318 56 (53), L1c 55 (54), gconv1 63 (62), v7 77 (77), L1 61 (60), rall2 62 (63), metadraft 74 (72). No drops.
+- Real cambc vs the v29 build, both sides: 7-1, 0 crashes. Broken-curve 1-1, shortcut 2-0, reverse-spiral 2-0, rushbait 2-0.
+
+**directed/v29-ringhm.genome** = ringheal + monoliths kept on maps where only monoliths pay gems.
+- Contest 200 → 800 vs idle.
+- 42/80 vs v29; anchors net +1 (B318 51, rall2 61).
+- Not preferred over ringheal.
+
+**Rejected: gem-groups-first (v29-gg; v29-ringgg with a strength cut at 300).**
+- vs idle it's excellent: elk-arena, gold-rush, broken-curve and shortcut all reach 1000; total rounds 49,909. A cut under 300 avoids stampede's 6-elk herd. Paired anchors +24 in the sim.
+- But it skips gold-only groups, so it starves gold vs a real opponent (pilgrimage 4,583 vs 14,258 gold; gold-rush 3,474 vs 23,151). It loses those fights: real smoke 0-2 on both maps.
+- Its earlier cambc smoke was also void, because of the bot bug below.
+
+**Bot bug (fixed in bb4c439):**
+- bot/src/bot_api.cpp dropped the per-group gold, gems and respawn words of sdk_map_camp_layout, so group_gems / group_gold read 0 in cambc.
+- v29 doesn't use them; gem-groups genes do.
