@@ -2,6 +2,19 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 01:45 UTC
+
+- Z-5 (Claude Code session mutator with feedback, M2): birth 254/475 at 01:39 (~70 min; ~2.5x slower per
+  birth than API runs; one container restart, resumed from checkpoint). In-arena champion ratings (common
+  frozen starter anchor at 25) at ~birth 240-250: Z-5 39.0 vs Z-1 36.1, Z-2 35.4, Z-3 34.6, Z-7 33.6,
+  Z-4 31.6; Z-5 ahead at every champion so far. Not yet panel-measured: its mirror pushes only the log
+  (gitignored arena files); fix re-requested. Z-8 (all Opus, no feedback) separates feedback from model.
+- Cloud-session reliability: short shards (~8 min) finish cleanly; long-lived containers get recycled
+  (Z-5 once; the search session every 15-20 min). Use sessions for short resumable shards; long arenas on
+  EC2/service, or with checkpoint + frequent mirror.
+- Queued/started: Z-8 (all Opus, --budget 20), Z-9 (mix 55/30/15) on EC2; arenaA-6 final-population
+  panel on 2 cloud workers.
+
 ## 2026-10-25 01:35 UTC: first controlled verdicts (one replicate per arm)
 
 - Evaluation change (arenaA-5 distinct games + bot-seeded anchors vs control arenaA-6, same +$3.53 from
