@@ -1,0 +1,7 @@
+```python
+@gene("s3", "distance field to the goals; variant: flee home when nearly dead with gems and an enemy champion close")
+def goal_field() -> Field:
+    if gems() > 0 and me().health_frac < 0.25 and any(e.is_champion and dist(e.pos, me().pos) <= 4 for e in enemies()):
+        return field(my_spawn())
+    return field(goals())
+```

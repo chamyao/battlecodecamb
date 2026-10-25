@@ -1,0 +1,19 @@
+```python
+@gene("s2", "where to walk: home to heal when hurt and empty-handed, an altar with gems, else a living camp group; tuned; variant: heal below 36 percent")
+def goals() -> Tiles:
+    if gems() == 0 and me().health_frac < 0.36:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for e in enemies():
+        if e.is_champion and unit_gems(e) >= 10 and dist(e.pos, me().pos) <= 6:
+            acc = acc | near(e.pos, 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+```
