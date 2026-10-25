@@ -786,3 +786,30 @@
 [15:16:49] [Z] birth Z457 (tune ) of ['Z429'] species S116; 24 genomes $0.00
 [15:17:04] [Z] birth Z458 (mutate session) of ['Z436'] species S112; 24 genomes $0.00
 [15:17:44] [Z] rejected mutate session: behavioural twin
+[15:18:47] [Z] rejected llm_cross session: behavioural twin
+[15:19:25] [Z] birth Z459 (mutate session) of ['Z446'] species S70; 24 genomes $0.00
+[15:19:44] [Z] summary: births 460 deaths 437 games 201912 $0.00; top [('Z429', 44.4, 0.79, 904, 'S94'), ('Z458', 44.12, 0.84, 128, 'S112'), ('Z460', 43.79, 6.0, 0, 'S124')]; top vs anchors {'Z429': 1.0, 'Z458': None, 'Z443': None}
+[15:19:44] [Z] birth Z460 (tune ) of ['Z455'] species S124; 24 genomes $0.00
+[15:19:58] [Z] birth Z461 (mutate session) of ['Z451'] species S114; 24 genomes $0.00
+[15:20:37] [Z] birth Z462 (mutate session) of ['Z449'] species S119; 24 genomes $0.00
+[15:20:58] [Z] new species S126 founded by Z463
+[15:20:58] [Z] birth Z463 (tune ) of ['Z432'] species S126; 24 genomes $0.00
+[15:21:18] [Z] new species S127 founded by Z464
+[15:21:18] [Z] birth Z464 (tune ) of ['Z421'] species S127; 24 genomes $0.00
+[15:21:22] [Z] rejected mutate session: behavioural twin
+[15:21:40] [Z] new species S128 founded by Z465
+[15:21:40] [Z] birth Z465 (tune ) of ['Z464'] species S128; 24 genomes $0.00
+[15:22:24] [Z] birth Z466 (llm_cross session) of ['Z450', 'Z402'] species S117; 24 genomes $0.00
+[15:23:17] [Z] birth Z467 (llm_cross session) of ['Z455', 'Z429'] species S108; 24 genomes $0.00
+[15:23:38] [Z] rejected tune : behavioural twin
+[15:23:51] [Z] new species S129 founded by Z468
+[15:23:51] [Z] birth Z468 (tune ) of ['Z346'] species S129; 24 genomes $0.00
+[15:23:59] [Z] rejected llm_cross session: behavioural twin
+[15:24:31] [Z] new species S130 founded by Z469
+[15:24:31] [Z] birth Z469 (mutate session) of ['Z415'] species S130; 24 genomes $0.00
+[15:25:07] [Z] rejected mutate session: behavioural twin
+[15:25:42] [Z] rejected mutate session: behavioural twin
+[15:26:26] [Z] summary: births 470 deaths 447 games 205456 $0.00; top [('Z459', 44.24, 0.83, 288, 'S70'), ('Z469', 44.21, 0.81, 160, 'S130'), ('Z467', 44.19, 0.8, 208, 'S108')]; top vs anchors {'Z459': 1.0, 'Z469': None, 'Z467': None}
+[15:26:26] [Z] birth Z470 (mutate session) of ['Z429'] species S94; 24 genomes $0.00
+[15:27:07] [Z] birth Z471 (mutate session) of ['Z421'] species S100; 24 genomes $0.00
+[15:27:48] [Z] birth Z472 (mutate session) of ['Z466'] species S117; 24 genomes $0.00
