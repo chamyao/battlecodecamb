@@ -1,0 +1,9 @@
+```python
+@gene("s9", "turns to cover d tiles at speed s, padded 20% for detours around terrain and units beyond 3 tiles (short gaps are crossed straight)")
+def eta(d: Num, s: Num) -> Num:
+    if d <= 0:
+        return 0
+    if d <= 3:
+        return -floor(-d / max(1, s))
+    return -floor(-(d * 6 / 5) / max(1, s))
+```

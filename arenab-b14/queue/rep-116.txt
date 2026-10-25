@@ -1,0 +1,8 @@
+```python
+@gene('s8', 'under fire: in danger, or an enemy champion within 6 that is not nearly dead (below 25% health a lone foe out of its range is prey, not a threat)')
+def under_fire() -> Bool:
+    if in_danger():
+        return True
+    h = here()
+    return any(dist(h, u.pos) <= 6 and u.health_frac >= 0.25 for u in enemies())
+```

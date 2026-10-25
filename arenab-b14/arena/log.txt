@@ -3117,3 +3117,26 @@
 [04:48:42] [B] summary: births 1560 deaths 1537 games 353312 $11.08; top [('B1543', 46.67, 0.8, 264, 'S6'), ('B1519', 46.61, 0.79, 488, 'S6'), ('B1480', 46.56, 0.82, 760, 'S6')]; top vs anchors {'B1543': 0.708, 'B1519': 0.75, 'B1480': 0.63}
 [04:48:42] [B] birth B1560 (mutate session) of ['B1480'] species S6; 24 genomes $11.08
 [04:48:52] [B] birth B1561 (tune ) of ['B1531'] species S6; 24 genomes $11.08
+[04:49:02] [B] birth B1562 (mutate session) of ['B1526'] species S6; 24 genomes $11.08
+[04:49:24] [B] birth B1563 (mutate session) of ['B1492'] species S3; 24 genomes $11.08
+[04:49:24] [B] birth B1564 (mutate session) of ['B1531'] species S6; 24 genomes $11.08
+[04:49:25] [B] birth B1565 (cross ) of ['B1559', 'B1543'] species S6; 24 genomes $11.08
+[04:50:06] [B] birth B1566 (mutate session) of ['B1519'] species S6; 24 genomes $11.08
+[04:50:07] [B] birth B1567 (mutate session) of ['B1543'] species S6; 24 genomes $11.08
+[04:50:08] [B] birth B1568 (mutate session) of ['B1549'] species S6; 24 genomes $11.08
+[04:50:29] [B] rejected mutate session: GenomeError: rule line 152: unknown function kill_shot
+[04:50:31] [B] birth B1569 (tune ) of ['B1563'] species S3; 24 genomes $11.08
+[04:50:43] [B] summary: births 1570 deaths 1547 games 354904 $11.08; top [('B1560', 48.05, 0.88, 136, 'S6'), ('B1565', 46.96, 0.91, 104, 'S6'), ('B1480', 46.87, 0.81, 792, 'S6')]; top vs anchors {'B1560': 0.75, 'B1565': 0.844, 'B1480': 0.63}
+[04:50:43] [B] birth B1570 (mutate session) of ['B1564'] species S6; 24 genomes $11.08
+[04:50:43] [B] rejected tune : behavioural twin
+[04:51:02] [B] birth B1571 (mutate session) of ['B1565'] species S6; 24 genomes $11.08
+[04:51:03] [B] birth B1572 (tune ) of ['B1565'] species S6; 24 genomes $11.08
+[04:51:13] [B] birth B1573 (mutate session) of ['B1565'] species S6; 24 genomes $11.08
+[04:51:35] [B] rejected mutate session: behavioural twin
+[04:51:37] [B] birth B1574 (mutate session) of ['B1565'] species S6; 24 genomes $11.08
+[04:51:44] [B] 1575 births (--max-births 1575): no more births
+[04:51:44] [B] birth B1575 (mutate session) of ['B1573'] species S6; 24 genomes $11.08
+[04:51:56] [B] birth B1576 (cross ) of ['B1560', 'B1565'] species S6; 24 genomes $11.08
+[04:51:57] [B] birth B1577 (mutate session) of ['B1563'] species S3; 24 genomes $11.08
+[04:53:40] [B] summary: births 1577 deaths 1554 games 357496 $11.08; top [('B1543', 47.34, 0.8, 408, 'S6'), ('B1480', 46.68, 0.81, 928, 'S6'), ('B1560', 46.64, 0.8, 256, 'S6')]; top vs anchors {'B1543': 0.75, 'B1480': 0.629, 'B1560': 0.542}
+[04:53:42] [B] done: spent $11.08

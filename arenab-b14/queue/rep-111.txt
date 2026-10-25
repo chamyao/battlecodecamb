@@ -1,0 +1,10 @@
+```python
+@gene("r11", "bag ready: 15+, or 10+ with an altar 3 turns away or a threat near, or 5+ while 2+ enemy champions are in sight (a raid pack hunts carriers), or late, or hurt", parents=['r11'])
+def bag_ready() -> Bool:
+    g = gems()
+    if g >= 15 or round() > 1500 or hurt_below(0.3):
+        return True
+    if g >= 10 and (altar_eta() <= 3 or threat_near()):
+        return True
+    return g >= 5 and count_units(enemies()) >= 2
+```
