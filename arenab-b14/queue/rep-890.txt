@@ -1,0 +1,9 @@
+```python
+@gene('r13', 'every altar-adjacent tile is a camp spawn and the camp in reach stands on the nearest one, or is already hurt below 60%: fight the blocker')
+def bank_blocked() -> Bool:
+    if valid(bank_t1()) or valid(bank_t2()):
+        return False
+    t3 = bank_t3()
+    c = reach_camp()
+    return t3 in camp_spawns() and exists(c) and in_reach(c) and (c.pos == t3 or c.health_frac < 0.6)
+```
