@@ -433,3 +433,34 @@ Families:
   than one map, and it is partly reproducible in the sim: shortcut and elk-arena idle and bank late there.
 - **Fights** (elkring, corners, eight, starvation, gemfight): about 21.6, the band's fight and economy edge.
 - **Yield** (contest, reverse_spiral, expanse): monolith-only gems, spawn duels.
+
+## B318 anchor: where the v28 line loses, and why (2026-10-25)
+
+The question: B318 is the anchor that keeps blocking candidates (v29-stall -5, B1573 -10, Arena A genomes). Is that a real weakness, or a quirk?
+
+**Method.** `--bot-seeds` /80 vs genome/candidates/B318.genome for three genomes: v28 (a61188-mono), v28-emblem (now live v29) and v29-stall. Per-game rows were tabulated by map.
+
+**Overall.** v28 53/80, v28-emblem 53/80, v29-stall 48/80. B318 is not a strong opponent for this line. The drops come from chaos, not from one mechanism:
+- v28 → v28-emblem: 79/80 games diverge; 12 flip up, 12 flip down; net 0.
+- v28-emblem → v29-stall: 31 games diverge; 4 flip up, 9 flip down; net -5. That spread is a sign-test p ≈ 0.27, two-sided. The lost games are spread over 9 maps, with no map losing more than 1 game.
+
+**Maps the whole line loses (≤1 of 6 across the three genomes):**
+
+| map | v28 / emblem / stall | why |
+|---|---|---|
+| 01boss-battle | 1 / 0 / 0 of 2 | Sim-only lock: both sides tribute 0 for 2000 rounds (monolith beside the altar, 14 camp deaths each, no hits after ~r800), so the gold tiebreak decides it. v28 does the same vs v7. Never seen on the ladder: b1–b5 boss_battle games all ended with gems submitted (we lose there to monolith deaths instead). Down-weight. |
+| 00packs | 1 / 0 / 0 | Close economy losses (829–892 vs 1013–1022): captures 55–56 vs 58–61. |
+| 00reverse-spiral | 1 / 0 / 0 | Pace: captures 51–63 vs 72–76, with few kills either way. |
+| 01the-farm, 01starvation, 00monolith, 01elk-arena | 2 of 6 | the-farm and starvation are capture gaps (fewer captures, not lost fights); monolith and elk-arena are mixed. |
+
+**Mechanism.** The v28 line's losses to B318 are on captures, not fights:
+- Mean capture difference in losses: -4 (v28), -14 (emblem), -8 (stall).
+- Mean kill difference in losses: -2 to -5.
+- Gems lost to champions are about even.
+
+This is the same pace gap as the 5-worst-archetype "farmer" rows above, so it isn't a separate weakness.
+
+**Recommendation.**
+- Treat B318 as a noisy pace check, not a blocker.
+- Gate an anchor drop on a paired sign test over the games that diverge (e.g. block at p < 0.1), instead of a flat >3/80.
+- Exclude 01boss-battle from the B318 row, or score its 0–0 lock as a draw, since the lock doesn't occur on the ladder.
