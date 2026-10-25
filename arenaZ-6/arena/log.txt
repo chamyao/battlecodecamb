@@ -1030,3 +1030,27 @@
 [02:31:05] [Z] birth Z513 (mutate claude-haiku-5-5) of ['Z493'] species S245; 24 genomes $2.94
 [02:31:17] [Z] new species S253 founded by Z514
 [02:31:17] [Z] birth Z514 (tune ) of ['Z495'] species S253; 24 genomes $2.94
+[02:31:32] [Z] birth Z515 (mutate claude-haiku-5-5) of ['Z434'] species S222; 24 genomes $2.94
+[02:31:39] [Z] new species S254 founded by Z516
+[02:31:39] [Z] birth Z516 (llm_cross claude-haiku-5-5) of ['Z507', 'Z467'] species S254; 24 genomes $2.94
+[02:31:41] [Z] birth Z517 (mutate claude-haiku-5-5) of ['Z507'] species S254; 24 genomes $2.94
+[02:32:03] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:32:09] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:32:09] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:32:16] [Z] new species S255 founded by Z518
+[02:32:16] [Z] birth Z518 (tune ) of ['Z502'] species S255; 24 genomes $2.95
+[02:32:26] [Z] birth Z519 (mutate claude-haiku-5-5) of ['Z502'] species S249; 24 genomes $2.95
+[02:32:28] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:32:34] [Z] summary: births 520 deaths 497 games 81000 $2.95; top [('Z434', 35.29, 0.8, 864, 'S214'), ('Z496', 35.18, 0.79, 296, 'S246'), ('Z513', 34.96, 0.85, 120, 'S245')]; top vs anchors {'Z434': 0.688, 'Z496': None, 'Z513': 1.0}
+[02:32:34] [Z] birth Z520 (mutate claude-haiku-5-5) of ['Z495'] species S253; 24 genomes $2.95
+[02:32:42] [Z] rejected mutate claude-haiku-5-5: EditError: no change
+[02:32:48] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:32:59] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[02:33:08] [Z] new species S256 founded by Z521
+[02:33:08] [Z] birth Z521 (mutate claude-haiku-5-5) of ['Z500'] species S256; 24 genomes $3.10
+[02:33:10] [Z] new species S257 founded by Z522
+[02:33:10] [Z] birth Z522 (llm_cross claude-opus-5-5) of ['Z504', 'Z495'] species S257; 24 genomes $3.10
+[02:33:12] [Z] birth Z523 (tune ) of ['Z496'] species S246; 24 genomes $3.10
+[02:33:20] [Z] spent $3.10 of $3.00: no more births
+[02:34:30] [Z] summary: births 523 deaths 500 games 83176 $3.10; top [('Z467', 35.45, 0.79, 656, 'S234'), ('Z507', 35.21, 0.79, 336, 'S250'), ('Z513', 35.19, 0.8, 272, 'S245')]; top vs anchors {'Z467': 0.75, 'Z507': 0.5, 'Z513': 1.0}
+[02:34:32] [Z] done: spent $3.10
