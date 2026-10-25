@@ -1,0 +1,18 @@
+```python
+@gene('Z127b', 'once per turn: cache the distance field to the goals not occupied by another ally; while carrying 10+ gems, path around tiles next to visible enemy champions', parents=['s4'])
+def update() -> None:
+    g = goals()
+    free = g - (ally_tiles() - near(me().pos, 0))
+    if size(free) == 0:
+        free = g
+    danger = near(tile(-5, -5), 0)
+    if gems() >= 10:
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 1)
+    danger = danger - near(me().pos, 0)
+    if size(danger) == 0:
+        GF = field(free)
+    else:
+        GF = field_avoid(free, walls() | danger, near(tile(-5, -5), 0))
+```
