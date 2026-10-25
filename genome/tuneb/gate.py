@@ -5,6 +5,7 @@ import json, sys
 sys.path.insert(0, '.')
 from genome.tuneb import tb
 R = [json.loads(l) for l in open(sys.argv[1])]
+BAR = float(sys.argv[2]) if len(sys.argv) > 2 else 43  # 41 for the A8 family (sim undershoots real by 5-8/80)
 base = [r for r in R if r['tag'] == 'base'][0]
 for r in R:
     if r is base:
@@ -19,7 +20,7 @@ for r in R:
         if dn > up and p < 0.1:
             blocks.append(k)
     band = all(r[k] >= base[k] for k in ('farmer', 'rushbank'))
-    ok = r['live'] >= 43 and not blocks and band
+    ok = r['live'] >= BAR and not blocks and band
     print('%s: live %.0f/80, susp %.2f (base %.2f), farmer %.0f (%.0f), rushbank %.0f (%.0f), blocks %s -> %s' % (
         r['tag'], r['live'], r['susp'], base['susp'], r['farmer'], base['farmer'], r['rushbank'], base['rushbank'],
         blocks or '-', 'PASS' if ok else 'fail'))
