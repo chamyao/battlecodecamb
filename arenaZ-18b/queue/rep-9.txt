@@ -1,0 +1,6 @@
+```python
+@gene("Z2a", "compute the goal distance field once per turn, skipping turns where I cannot walk anyway")
+def update() -> None:
+    if alive() and not channeling():
+        GF = field(goals())
+```

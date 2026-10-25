@@ -1,0 +1,8 @@
+```python
+@gene("Z2a", "compute the goal distance field once per turn; with gems, route around tiles held by enemies")
+def update() -> None:
+    if gems() > 0:
+        GF = field_avoid(goals(), walls() | enemy_tiles(), near(tile(-5, -5), 0))
+    else:
+        GF = field(goals())
+```

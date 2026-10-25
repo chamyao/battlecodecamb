@@ -1,0 +1,9 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, minus danger near strong enemy champions when weak or carrying gems")
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() == 0 and me().health_frac > 0.6:
+        return gain
+    threat = sum(u.health_frac for u in enemies() if u.is_champion and dist(u.pos, t) <= 3)
+    return gain - 0.7 * threat
+```

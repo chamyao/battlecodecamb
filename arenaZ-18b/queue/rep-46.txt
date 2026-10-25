@@ -1,0 +1,13 @@
+```python
+
+@gene("s4", "how much closer a step brings me to the goals, or to my spawn when hurt; with gems, avoid enemy champions")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.35:
+        h = field(my_spawn())
+        return at(h, me().pos) - at(h, t)
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() == 0:
+        return gain
+    threat = count(dist(u.pos, t) <= 2 for u in enemies() if u.is_champion)
+    return gain - 0.6 * threat
+```

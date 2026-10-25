@@ -1,0 +1,5 @@
+```python
+@gene("Z6a", "compute the goal distance field once per turn, leaving out monolith and golem camps")
+def update() -> None:
+    GF = field(goals() - type_spawns(MONOLITH) - type_spawns(GOLEM))
+```

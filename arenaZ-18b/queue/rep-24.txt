@@ -1,0 +1,8 @@
+```python
+@gene("Z8a", "compute the goal distance field once per turn; when hurt with enemies in sight, the goal is my spawn")
+def update() -> None:
+    if me().health_frac < 0.4 and count_units(enemies()) > 0:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+```

@@ -1,0 +1,19 @@
+```python
+GF: Field = None
+
+@gene("new", "compute the goal distance field once per turn", parents=["s3"])
+def update() -> None:
+    GF = field(goals())
+
+@gene("s3", "distance field to the goals (cached per turn)")
+def goal_field() -> Field:
+    return GF
+
+@gene("s4", "how much closer a step brings me to the goals, minus danger from strong enemies when carrying gems")
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() == 0:
+        return gain
+    threat = count(dist(u.pos, t) <= 2 for u in enemies() if u.is_champion)
+    return gain - 0.6 * threat
+```

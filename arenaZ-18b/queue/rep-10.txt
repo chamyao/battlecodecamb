@@ -1,0 +1,6 @@
+```python
+@gene("Z2a", "compute the goal distance field once per turn, stopping the search once it reaches my neighbourhood")
+def update() -> None:
+    if alive() and not channeling():
+        GF = field_avoid(goals(), walls(), near(me().pos, 1))
+```

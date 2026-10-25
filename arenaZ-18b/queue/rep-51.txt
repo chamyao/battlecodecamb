@@ -1,0 +1,9 @@
+```python
+@gene("Z2a", "compute the goal field once per turn; after round 1000, healthy and empty-handed with 2+ allies close, go for a monolith together")
+def update() -> None:
+    if round() > 1000 and gems() == 0 and me().health_frac > 0.7 and size(type_spawns(MONOLITH)) > 0:
+        if count(dist(a.pos, me().pos) <= 5 for a in allies()) >= 3:
+            GF = field(type_spawns(MONOLITH))
+            return
+    GF = field(goals())
+```

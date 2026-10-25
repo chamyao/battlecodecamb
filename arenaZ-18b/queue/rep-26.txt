@@ -1,0 +1,11 @@
+```python
+GF: Field = None
+
+@gene("s3", "distance field to the goals, ignoring monolith and golem camps (cached per turn)")
+def goal_field() -> Field:
+    return GF
+
+@gene("new", "compute the goal field once per turn, leaving out monolith and golem camps that are too strong to farm", parents=["s3"])
+def update() -> None:
+    GF = field(goals() - type_spawns(MONOLITH) - type_spawns(GOLEM))
+```
