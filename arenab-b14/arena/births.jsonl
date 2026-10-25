@@ -1951,3 +1951,13 @@
 {"arena": "B", "t": 1792915155.1, "name": "B1950", "birth": 1950, "parents": ["B1886"], "species": "S7", "mu": 47.795091051294, "op": "mutate", "model": "session"}
 {"arena": "B", "t": 1792915173.1, "name": "B1951", "birth": 1951, "parents": ["B1935"], "species": "S10", "mu": 49.46720474923912, "op": "mutate", "model": "session"}
 {"arena": "B", "t": 1792915200.8, "name": "B1952", "birth": 1952, "parents": ["B1904"], "species": "S10", "mu": 49.1513978108127, "op": "tune", "model": ""}
+{"arena": "B", "t": 1792915224.0, "name": "B1953", "birth": 1953, "parents": ["B1935"], "species": "S10", "mu": 49.82956845881159, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792915225.8, "name": "B1954", "birth": 1954, "parents": ["B1904", "B1910"], "species": "S6", "mu": 49.06287549934925, "op": "cross", "model": ""}
+{"arena": "B", "t": 1792915254.3, "name": "B1955", "birth": 1955, "parents": ["B1910"], "species": "S6", "mu": 49.02145318745807, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792915256.5, "name": "B1956", "birth": 1956, "parents": ["B1953"], "species": "S10", "mu": 49.56246461616363, "op": "tune", "model": ""}
+{"arena": "B", "t": 1792915295.7, "name": "B1957", "birth": 1957, "parents": ["B1878"], "species": "S8", "mu": 46.5428490384984, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792915296.0, "name": "B1958", "birth": 1958, "parents": ["B1955"], "species": "S6", "mu": 47.66925927653668, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792915297.9, "name": "B1959", "birth": 1959, "parents": ["B1910"], "species": "S10", "mu": 48.698933851804824, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792915348.8, "name": "B1960", "birth": 1960, "parents": ["B1413"], "species": "S2", "mu": 44.12026016008809, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792915383.9, "name": "B1961", "birth": 1961, "parents": ["B1935"], "species": "S10", "mu": 49.63642394221185, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792915396.5, "name": "B1962", "birth": 1962, "parents": ["B1950", "B1942"], "species": "S9", "mu": 47.293489265515014, "op": "llm_cross", "model": "session"}

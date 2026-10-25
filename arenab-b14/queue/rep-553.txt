@@ -1,0 +1,14 @@
+```python
+@gene("v1", "value of doing this option now (pending purchases checked only for non-shop options, cheapest test first)")
+def score(o: Option) -> Num:
+    k = o.kind
+    if k == PICK:
+        return pick_value(o.champ)
+    if k == BUY or k == BUY_LOCK:
+        return shop_value(o)
+    if can_shop() and shop_pending():
+        return 0
+    if k == CAST:
+        return cast_value(o)
+    return act_value(o)
+```

@@ -3785,3 +3785,19 @@
 [07:59:51] [B] rejected mutate session: behavioural twin
 [08:00:00] [B] birth B1952 (tune ) of ['B1904'] species S10; 24 genomes $11.08
 [08:00:03] [B] rejected mutate session: behavioural twin
+[08:00:24] [B] birth B1953 (mutate session) of ['B1935'] species S10; 24 genomes $11.08
+[08:00:25] [B] birth B1954 (cross ) of ['B1904', 'B1910'] species S6; 24 genomes $11.08
+[08:00:54] [B] birth B1955 (mutate session) of ['B1910'] species S6; 24 genomes $11.08
+[08:00:56] [B] birth B1956 (tune ) of ['B1953'] species S10; 24 genomes $11.08
+[08:00:56] [B] rejected tune : behavioural twin
+[08:01:35] [B] birth B1957 (mutate session) of ['B1878'] species S8; 24 genomes $11.08
+[08:01:36] [B] birth B1958 (mutate session) of ['B1955'] species S6; 24 genomes $11.08
+[08:01:37] [B] birth B1959 (mutate session) of ['B1910'] species S10; 24 genomes $11.08
+[08:02:04] [B] rejected tune : behavioural twin
+[08:02:28] [B] summary: births 1960 deaths 1937 games 469384 $11.08; top [('B1935', 50.05, 0.84, 328, 'S10'), ('B1959', 48.69, 0.94, 96, 'S10'), ('B1957', 48.56, 0.97, 112, 'S8')]; top vs anchors {'B1935': 0.875, 'B1959': 1.0, 'B1957': 0.833}
+[08:02:28] [B] birth B1960 (mutate session) of ['B1413'] species S2; 24 genomes $11.08
+[08:02:29] [B] rejected mutate session: behavioural twin
+[08:02:36] [B] rejected mutate session: behavioural twin
+[08:03:03] [B] birth B1961 (mutate session) of ['B1935'] species S10; 24 genomes $11.08
+[08:03:16] [B] birth B1962 (llm_cross session) of ['B1950', 'B1942'] species S9; 24 genomes $11.08
+[08:03:27] [B] rejected tune : behavioural twin
