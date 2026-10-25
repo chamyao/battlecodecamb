@@ -171,3 +171,22 @@
 [09:51:00] [Z] champion anchor champ2-Z92 (mu 35.8)
 [09:51:00] [Z] summary: births 100 deaths 77 games 59176 $0.00; top [('Z92', 35.82, 0.8, 232, 'S42'), ('Z95', 35.75, 0.8, 232, 'S32'), ('Z97', 35.71, 0.79, 288, 'S48')]; top vs anchors {'Z92': 0.5, 'Z95': 0.625, 'Z97': 1.0}
 [09:51:00] [Z] birth Z100 (tune ) of ['Z94'] species S42; 24 genomes $0.00
+[09:55:57] [Z] birth Z101 (mutate session) of ['Z95'] species S32; 24 genomes $0.00
+[09:56:01] [Z] birth Z102 (mutate session) of ['Z97'] species S48; 24 genomes $0.00
+[09:56:01] [Z] birth Z103 (mutate session) of ['Z96'] species S47; 24 genomes $0.00
+[09:56:02] [Z] birth Z104 (mutate session) of ['Z84'] species S46; 24 genomes $0.00
+[09:56:02] [Z] birth Z105 (mutate session) of ['Z89'] species S47; 24 genomes $0.00
+[09:56:05] [Z] new species S49 founded by Z106
+[09:56:05] [Z] birth Z106 (mutate session) of ['Z80'] species S49; 24 genomes $0.00
+[09:56:50] [Z] birth Z107 (cross ) of ['Z88', 'Z101'] species S32; 24 genomes $0.00
+[09:56:54] [Z] birth Z108 (cross ) of ['Z103', 'Z105'] species S47; 24 genomes $0.00
+[09:57:16] [Z] rejected tune : behavioural twin
+[09:59:32] [Z] new species S50 founded by Z109
+[09:59:32] [Z] birth Z109 (mutate session) of ['Z95'] species S50; 24 genomes $0.00
+[09:59:36] [Z] new species S51 founded by Z110
+[09:59:36] [Z] summary: births 110 deaths 87 games 65080 $0.00; top [('Z102', 37.37, 0.8, 224, 'S48'), ('Z99', 36.79, 0.8, 496, 'S40'), ('Z105', 36.2, 0.8, 200, 'S47')]; top vs anchors {'Z102': None, 'Z99': 0.688, 'Z105': None}
+[09:59:36] [Z] birth Z110 (mutate session) of ['Z97'] species S51; 24 genomes $0.00
+[09:59:50] [Z] new species S52 founded by Z111
+[09:59:50] [Z] birth Z111 (tune ) of ['Z100'] species S52; 24 genomes $0.00
+[10:00:02] [Z] birth Z112 (tune ) of ['Z89'] species S47; 24 genomes $0.00
+[10:00:16] [Z] birth Z113 (tune ) of ['Z74'] species S47; 24 genomes $0.00

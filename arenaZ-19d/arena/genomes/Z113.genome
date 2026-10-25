@@ -1,0 +1,96 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now: draft a ranged team, cast abilities, recall at a quarter health, recall when safe, retreat from threats when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 10
+        if o.champ == STELLAR:
+            return 9
+        if o.champ == TAVI:
+            return 8
+        if o.champ == CASSI:
+            return 7
+        if o.champ == WILLOW:
+            return 6
+        return 1
+    if o.kind == BUY:
+        return 100 + item_strength(o.item) if item_cost(o.item) >= 30 and item_strength(o.item) > 0 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 and me().health_frac >= 0.3 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+            return 95 if threat_at(o.tile) < threat_at(me().pos) else 0
+        return 61 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else a living camp group that carries gems')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc - type_spawns(GOLD_CLUSTER)
+
+@gene('s3', 'distance field to the goals, skipping golem and monolith camps, gem clusters first when close; home when hurt and empty-handed')
+def goal_field() -> Field:
+    if me().health_frac < 0.4 and gems() == 0:
+        return field(my_spawn())
+    return field(gem_first(goals() - type_spawns(MONOLITH) - type_spawns(GOLEM)))
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z10a', 'value of casting an ability: damage and stuns on fighting targets, shields and resets in fights, finish awake camps, heal earlier', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit) and (o.unit.is_champion or (o.unit.is_camp and (gems() == 0 or is_awake(o.unit)))):
+            return 85
+        return 0
+    if k == AB_AOE:
+        hits = count(dist(u.pos, o.tile) <= 1 for u in enemies()) + count(dist(u.pos, o.tile) <= 0.8524 and is_awake(u) for u in camps())
+        return 84 if hits > 0 else 0
+    if k == AB_SHIELD:
+        threat = count(dist(u.pos, me().pos) <= 4 for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= 4 for u in camps())
+        return 83 if threat > 0 and me().health_frac < 0.9 else 0
+    if k == AB_RESET:
+        return 82 if (not can_attack()) and count(dist(u.pos, me().pos) <= me().attack_range for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= me().attack_range for u in camps()) > 0 else 0
+    if k == AB_HEAL:
+        return 86 if exists(o.unit) and o.unit.health_frac < 0.75 else 0
+    return 0
+
+@gene('Z58a', 'how many awake camps and enemy champions could hit a tile', parents=['s1'])
+def threat_at(t: Tile) -> Num:
+    return count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps()) + count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+
+@gene('Z76a', 'goal tiles narrowed to gem clusters when one is not much farther than the other goals, with a wider margin', parents=['s3'])
+def gem_first(gt: Tiles) -> Tiles:
+    gem = gt & type_spawns(GEM_CLUSTER)
+    if size(gem) == 0:
+        return gt
+    rest = gt - type_spawns(GEM_CLUSTER)
+    if size(rest) == 0:
+        return gem
+    if dist(nearest(gem, me().pos), me().pos) <= dist(nearest(rest, me().pos), me().pos) + 18:
+        return gem
+    return gt
+
+@gene('Z39a', 'which option kinds to list at all: skip wards, locks and cancels to save fuel', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
