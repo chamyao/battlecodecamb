@@ -1,0 +1,9 @@
+```python
+@gene('B2926a', 'the in-reach enemy champion the fight targets dies this round: our basic attack plus the basic attacks of allies already in range of it cover its health plus shield', parents=['r7'])
+def r_killshot() -> Bool:
+    f = fight_foe()
+    if not exists(f):
+        return False
+    d = attack_damage(me(), f) + sum(attack_damage(a, f) for a in allies() if a.pos != here() and dist(a.pos, f.pos) <= a.attack_range)
+    return d >= f.health + shield(f)
+```
