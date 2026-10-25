@@ -1,0 +1,6 @@
+```python
+@gene("Z26a", "compute the goal distance field once per turn, skipped while channeling a tribute or recall", parents=["s3"])
+def update() -> None:
+    if not channeling():
+        GOALF = field(goals())
+```

@@ -1,0 +1,13 @@
+```python
+@gene("Z4b", "value of casting an ability: damage and control on enemies, dash toward goals when far", parents=["s1"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL or k == AB_SHIELD:
+        return 85 if me().health_frac < 0.6 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy:
+            return 82 if o.unit.is_champion else 65
+    if k == AB_DASH:
+        return 40 if progress(o.tile) > 2 else 0
+    return 0
+```

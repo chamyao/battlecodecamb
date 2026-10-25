@@ -1,0 +1,57 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('Z40a', 'value of doing this option now: cast abilities, never recall (walk home to heal instead), treasure then bruiser shards', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if items_owned(19) == 0:
+            return 100 + o.count if o.item == 18 else 0
+        return 100 + o.count if o.item == 36 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() < 5 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: home to heal when hurt and carrying few gems, an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() < 5 and me().health_frac < 0.5:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene("Z4b", "value of casting an ability: damage and control on enemies, shield when hurt, dash toward goals", parents=["s1"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL or k == AB_SHIELD:
+        return 85 if me().health_frac < 0.6 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy:
+            return 82 if o.unit.is_champion else 65
+    if k == AB_DASH:
+        return 40 if progress(o.tile) > 1 else 0
+    return 0
