@@ -1,0 +1,20 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else a living camp group without monoliths or golems")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    if not HURT:
+        tgt = best(enemies(), lambda e: unit_gems(e) - dist(e.pos, me().pos) if e.is_champion and unit_gems(e) >= 20 and dist(e.pos, me().pos) <= 8 else -999)
+        if exists(tgt) and unit_gems(tgt) >= 20 and dist(tgt.pos, me().pos) <= 8:
+            return near(tgt.pos, 1) - near(tgt.pos, 0)
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & BAD) == 0:
+                acc = acc | gt
+    return acc
+```
