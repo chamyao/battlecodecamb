@@ -1,0 +1,9 @@
+```python
+@gene('a5', 'cast-ahead applies: the chosen enemy is off its spawn and within 5, or within 7 when below 30% health (finish it) or channelling a tribute or recall (a cast cancels it)')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    if not exists(f) or f.pos in enemy_spawn():
+        return False
+    d = dist(here(), f.pos)
+    return d <= 5 or (d <= 7 and (f.health_frac < 0.3 or is_tributing(f) or is_recalling(f)))
+```
