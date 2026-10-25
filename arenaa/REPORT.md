@@ -2,6 +2,23 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 11:30 UTC: panel milestones
+
+| run | treatment | m1 | m2 | m3 | m4 |
+| --- | --- | --- | --- | --- | --- |
+| Z-19a | screened, legacy | 246 (b110) | 330 (b229) | | |
+| Z-19b | screened, legacy | 267 (b122) | 409 (b283) | | 516 (b416) |
+| Z-19c | screened, min-mu | 341 (b116) | 465 (b282) | 472 (b341) | |
+| Z-19d | screened, min-mu | 202 (b100) | queued | | |
+| Z-20a | screening explicit, legacy | 365 (b112) | | | |
+| Z-20b | screening explicit, legacy | 367 (b110) | | | |
+| Z-21a/b | no own games (control) | not yet | | | |
+
+- Z-20's m1 (365/367 at ~110 births) is the highest of any series, and both arms agree. The explicit screening
+  instruction from the start seems to help over screening that a writer discovers on its own. All clean on the
+  exact-table check.
+- A-9 m30 1047 (b3042); m28 was 1060. B-14 m24 1085.
+
 ## 2026-10-25 11:17 UTC
 
 - Births: Z-19a 332, 19c 405, 19d 199; Z-20a 127, 20b 128; Z-21a 31, 21b 24; A-9 leg 4 at 3150.
