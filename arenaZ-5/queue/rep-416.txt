@@ -1,0 +1,11 @@
+```python
+@gene('s3', 'distance field to the goals: to my spawn when nearly dead without gems, around visible enemy champions while hurt (also on the way home)')
+def goal_field() -> Field:
+    hf = me().health_frac
+    dest = my_spawn() if hf < 0.25 and gems() == 0 else goals()
+    if hf < 0.5:
+        danger = enemy_zone()
+        if size(danger) > 0:
+            return field_avoid(dest, danger, near(tile(-5, -5), 0))
+    return field(dest)
+```
