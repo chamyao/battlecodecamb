@@ -1,0 +1,102 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+PF: Field = None
+
+@gene('s1', 'value of doing this option now; casts abilities, shop plan, recall at 38% or to spend banked gold, fights back against awake camps while carrying gems')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        if me().health_frac < 0.38:
+            return 90
+        return 52 if shop_trip() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'how much closer a step brings me to the goals (field cached once per turn)')
+def progress(t: Tile) -> Num:
+    return at(PF, me().pos) - at(PF, t)
+
+@gene('Z23a', 'shop plan: treasure strength shards before round 500, then bruiser strength; biggest affordable batch first', parents=['s1'])
+def buy_value(o: Option) -> Num:
+    if round() < 500:
+        return 100 + o.count if o.item == 18 else 0
+    return 100 + o.count if o.item == 36 else 0
+
+@gene('Z121a', 'once per turn: cache the goal field for progress', parents=['s4'])
+def update() -> None:
+    PF = goal_field()
+
+@gene('Z93a', 'value of casting: damage/cc on enemies (more for gem carriers, area casts by number hit) or camps (awake ones even with gems), heal below 70%, shield in fights (champions or awake camps), dash toward goals (with gems, or above 37% health)', parents=['Z11a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL:
+        return 85 if me().health_frac < 0.7 else 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.7 or any(u.is_champion and dist(u.pos, me().pos) <= 4 for u in enemies()):
+            return 78
+        if any(is_awake(u) and dist(u.pos, me().pos) <= 3 for u in camps()):
+            return 78
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and progress(o.tile) >= 2 and (gems() > 0 or me().health_frac > 0.3737):
+            return 55
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 83 if unit_gems(o.unit) > 0 else 82
+            if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+                return 62
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(u.pos, o.tile) <= r for u in enemies())
+            if n > 0:
+                return 80 + min(n, 3)
+            if any(dist(u.pos, o.tile) <= r and (gems() == 0 or is_awake(u)) for u in camps()):
+                return 61
+        return 0
+    return 0
+
+@gene('Z53a', 'worth recalling to shop: 150+ gold banked, no gems carried, nothing hostile near, not already home', parents=['s1'])
+def shop_trip() -> Bool:
+    if gold() < 150 or gems() > 0 or can_shop():
+        return False
+    p = me().pos
+    if any(dist(u.pos, p) <= 6 for u in enemies()):
+        return False
+    return not any(is_awake(u) and dist(u.pos, p) <= 4 for u in camps())

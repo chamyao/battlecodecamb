@@ -1,0 +1,38 @@
+```python
+@gene('s1', 'value of doing this option now; casts abilities, shop plan, recall at 38% (55% carrying 30+ gems near an enemy champion) or to spend banked gold, fights back against awake camps while carrying gems')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        if me().health_frac < 0.38:
+            return 90
+        if gems() >= 30 and me().health_frac < 0.55 and any(u.is_champion and dist(u.pos, me().pos) <= 5 for u in enemies()):
+            return 88
+        return 52 if shop_trip() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z53a', 'worth recalling to shop: 150+ gold banked, no gems carried, nothing hostile near, not already home, not in the last 150 rounds', parents=['s1'])
+def shop_trip() -> Bool:
+    if gold() < 150 or gems() > 0 or can_shop() or round() > 1850:
+        return False
+    p = me().pos
+    if any(dist(u.pos, p) <= 6 for u in enemies()):
+        return False
+    return not any(is_awake(u) and dist(u.pos, p) <= 4 for u in camps())
+```
