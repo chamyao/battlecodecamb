@@ -126,3 +126,4 @@ genome/candidates/B1873-bossbush.genome, sha256 7ff741cbb0826666... (genome/aren
 bonus is skipped when some altar-ring tile is a monolith-group spawn (ALTAR_MONO, set once in v2).
 - Arena B lead, real cambc vs v32: 40/80 = 01boss-battle 2-0 + 1-1 on each other map (identical play), 0 crashes.
 - My check, real vs v32: 01boss-battle 2-0; 00lanes and 01big-world mirror v32 exactly (same rounds, side wins).
+- Live as ladder version 33 (2026-10-25T08:36:16Z, bundle sha256 37e7be1a...). Validation: intel batch 10, paired vs b9.
