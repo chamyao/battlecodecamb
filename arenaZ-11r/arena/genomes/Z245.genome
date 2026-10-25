@@ -1,0 +1,95 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_FIELD: Field = None
+
+@gene('s1', 'value of doing this option now; also uses abilities on fights, camps, shields and dashes')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.2287 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 126
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else a gem-bearing living camp group, else any living camp group')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.655)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals (cached per turn)')
+def goal_field() -> Field:
+    return GOAL_FIELD
+
+@gene('s4', 'progress toward goals minus a penalty per enemy within 2 tiles of the step (0 if unreachable)')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    a = at(f, me().pos)
+    b = at(f, t)
+    if b >= 1000000:
+        return 0
+    threat = count(dist(u.pos, t) <= 1 for u in enemies())
+    return a - b - threat
+
+@gene('Z64a', 'value of casting an ability: damage on champions (not when nearly dead, since death drops gems), crowd control on champions scaled by their low health, camp damage when no gems, earlier shield when enemies near, earlier heal, dash only for real progress toward goals', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_enemy and o.unit.is_champion:
+                if me().health_frac < 0.3:
+                    return 0
+                if k == AB_CC:
+                    return 66 + 34 * (1 - o.unit.health_frac)
+                v = 60 + 40 * (1 - o.unit.health_frac)
+                if o.unit.health_frac < 0.35:
+                    v += 25
+                return v
+            if o.unit.is_camp:
+                return 62 if gems() == 0 else 0
+        return 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.95 and any(dist(u.pos, me().pos) <= 6 for u in enemies()):
+            return 72 + 25 * (1 - me().health_frac)
+        return 0
+    if k == AB_HEAL:
+        if me().health_frac < 0.6:
+            return 55 + 37 * (1 - me().health_frac)
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            p = progress(o.tile)
+            if p >= 3:
+                return 25 + 12 * min(p, 4)
+        return 0
+    return 0
+
+@gene('Z5a', 'per-turn cache of the distance field to the goals', parents=['s3'])
+def update() -> None:
+    GOAL_FIELD = field(goals())

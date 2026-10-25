@@ -1,0 +1,147 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+LOW: Bool = False
+HF: Field = None
+HSET: Bool = False
+GK: Num = -1
+GR: Num = -100
+ENEAR: Bool = False
+
+@gene('s1', 'value of doing this option now; recall follows the LOW retreat state; when retreating, only stop to hit enemy champions that are nearly dead')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return recall_value()
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if LOW and o.unit.health_frac > 0.3:
+                return 40
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 49 + p if p > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the given goal tiles')
+def goal_field(g: Tiles) -> Field:
+    return field(g)
+
+@gene('s4', 'how much closer a step brings me to the goals, or home when retreating (cached fields); 0 when either end is unreachable')
+def progress(t: Tile) -> Num:
+    f = HF if LOW else GF
+    a = at(f, me().pos)
+    b = at(f, t)
+    if a >= 100000000 or b >= 100000000:
+        return 0
+    return a - b
+
+@gene('Z4a', 'retreat home earlier (40%, or 50% with many gems) with hysteresis; home field cached once; goal field recomputed only when the goal set changes or every 15 rounds; enemy-champion-nearby flag computed once per turn (saves fuel)', parents=['s4'])
+def update() -> None:
+    hf = me().health_frac
+    mp = me().pos
+    ENEAR = any(u.is_champion and dist(u.pos, mp) <= 4 for u in enemies())
+    if LOW:
+        if hf > 0.9:
+            LOW = False
+    else:
+        lim = 0.4
+        if gems() >= 40:
+            lim = 0.5
+        if hf < lim and not channeling():
+            LOW = True
+    if LOW:
+        if not HSET:
+            HF = field(my_spawn())
+            HSET = True
+        GK = -1
+    else:
+        g = goals()
+        key = goal_key(g)
+        if key != GK or round() - GR >= 15:
+            GF = goal_field(g)
+            GK = key
+            GR = round()
+
+@gene('Z145a', 'cheap signature of a goal tile set, to detect when the goals changed', parents=['s3'])
+def goal_key(g: Tiles) -> Num:
+    return size(g) * 1000003 + sum(t.x * 131 + t.y * 7 for t in g)
+
+@gene('Z4b', 'value of casting an ability option; finish low enemy champions first, CC to escape when retreating, focus damaged camps, shield in close fights (cached enemy flag), heal the lowest target, dash toward goals or home, dash onto weak enemies when healthy', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    m = me()
+    hf = m.health_frac
+    mp = m.pos
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                if o.unit.health_frac < 0.4:
+                    return 85 + 5 * (1 - o.unit.health_frac)
+                if k == AB_CC and is_tributing(o.unit):
+                    return 90
+                if k == AB_CC and LOW:
+                    return 88
+                return 75 + 5 * (1 - o.unit.health_frac)
+            if o.unit.is_camp:
+                bonus = 4 * (1 - o.unit.health_frac)
+                if gems() == 0:
+                    return 55 + bonus
+                if is_awake(o.unit) and dist(o.unit.pos, mp) <= 2:
+                    return 55 + bonus
+        return 0
+    if k == AB_SHIELD:
+        if hf < 0.9:
+            if ENEAR:
+                return 72
+            if hf < 0.7 and any(is_awake(c) and dist(c.pos, mp) <= 2 for c in camps()):
+                return 72
+        return 0
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy:
+            return 72 + 5 * (1 - o.unit.health_frac) if o.unit.health_frac < 0.6 else 0
+        return 72 if hf < 0.6 else 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            p = progress(o.tile)
+            if LOW:
+                return 50 + p if p >= 2 else 0
+            if hf > 0.6:
+                if any(u.is_champion and u.health_frac < 0.35 and dist(u.pos, o.tile) <= 1 for u in enemies()):
+                    return 70
+            if hf > 0.5:
+                return 42 + p if p >= 2 else 0
+        return 0
+    return 0
+
+@gene('Z50a', 'recall when retreating and no enemy champion close enough to interrupt it (uses per-turn cached flag)', parents=['s1'])
+def recall_value() -> Num:
+    if not LOW:
+        return 0
+    if at(HF, me().pos) <= 6:
+        return 0
+    if ENEAR:
+        return 0
+    return 90
