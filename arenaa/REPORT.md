@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 15:55 UTC: Z-5 continued by its original writer
+
+- Per Cham: continue Z-5 rather than start fresh. Its writer session (session_01LXULJygQbjZz8b3EXxV3nT) was unarchived
+  with its context (~695k tokens), so the same writer and memory carry on from 477 -> 875 births, same flags, mirror
+  arenaa/z5-mirror. Rules: its original working method (it reports whether that included its own games), isolation
+  from other genomes and runs. The panel is re-attached from m5. Measures how long the best unscreened, continuous-memory
+  writer keeps climbing.
+
 ## 2026-10-25 15:40 UTC: best Z bots vs the A line (head to head, 80 games, ca5180b)
 
 | opponent | Z462 (18b) | Z400 (18b) | Z407 (19b) |
