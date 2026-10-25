@@ -381,3 +381,17 @@ Rejected. Like the early retreat, pulling a champion off its own fight to regrou
 Neutral, not a pass. B1873's targeting and cast timing are not where its fights are lost.
 
 Related: in b9 losses we hold 189 vs 201 gold at r250 and 407 vs 277 at r500 (team totals). About 90% of the opponents' 1,283-gold shop lead by r500 is earnings, not unspent gold.
+
+## Spread the team on the camp walk (2026-10-25)
+
+**Finding (b9, before r250):** we bring 1.81 champions per capture in losses (1.63 in wins), while opponents bring 1.1. We cycle the nearest 2-5 groups, and opponents also rotate into central groups (packs and shortcut 28-30 gems; stampede 80-gold groups).
+
+**B1873bb-spread**: the camp walk skips camps within 3 of an ally of lower type id (the lower id keeps its group).
+
+**Results:**
+- vs idle: total rounds +364, monster deaths 4.53 → 6.09.
+- Real vs the v33 build, 10 games: **3-7**.
+  - packs 0-2, elkring 0-2 (about half the gold)
+  - stampede 1-1, shortcut 1-1, lanes 1-1
+
+Rejected. Doubling up evidently protects us: a lone champion on a group is weaker against the opponent. Again it points to fights, not routing.
