@@ -1,0 +1,13 @@
+```python
+@gene("Z197e", "shop value: Jungle health emblem, Power strength emblem, Durability health emblem, then Power strength")
+def buy_jungle(item: Num, n: Num) -> Num:
+    if item == 28 and items_owned(29) == 0:
+        return 100 + n
+    if item == 6 and items_owned(7) == 0:
+        return 98 + n
+    if item == 16 and items_owned(17) == 0:
+        return 97 + n
+    if item == 6:
+        return 95 + n
+    return 0
+```

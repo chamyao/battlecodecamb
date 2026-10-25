@@ -376,3 +376,47 @@
 [10:41:24] [Z] summary: births 200 deaths 177 games 79224 $0.00; top [('Z195', 39.53, 1.0, 72, 'S106'), ('Z180', 38.57, 0.79, 352, 'S89'), ('Z165', 38.51, 0.79, 672, 'S87')]; top vs anchors {'Z195': None, 'Z180': 0.875, 'Z165': 0.917}
 [10:41:24] [Z] birth Z200 (mutate session) of ['Z186'] species S100; 24 genomes $0.00
 [10:41:25] [Z] birth Z201 (mutate session) of ['Z189'] species S103; 24 genomes $0.00
+[10:43:25] [Z] new species S109 founded by Z202
+[10:43:25] [Z] birth Z202 (mutate session) of ['Z163'] species S109; 24 genomes $0.00
+[10:43:29] [Z] new species S110 founded by Z203
+[10:43:29] [Z] birth Z203 (llm_cross session) of ['Z188', 'Z163'] species S110; 24 genomes $0.00
+[10:43:34] [Z] new species S111 founded by Z204
+[10:43:34] [Z] birth Z204 (llm_cross session) of ['Z163', 'Z141'] species S111; 24 genomes $0.00
+[10:43:36] [Z] new species S112 founded by Z205
+[10:43:36] [Z] birth Z205 (mutate session) of ['Z141'] species S112; 24 genomes $0.00
+[10:43:36] [Z] rejected mutate session: behavioural twin
+[10:43:37] [Z] rejected mutate session: behavioural twin
+[10:43:41] [Z] birth Z206 (mutate session) of ['Z201'] species S103; 24 genomes $0.00
+[10:43:42] [Z] birth Z207 (mutate session) of ['Z188'] species S102; 24 genomes $0.00
+[10:44:21] [Z] birth Z208 (tune ) of ['Z180'] species S89; 24 genomes $0.00
+[10:44:38] [Z] birth Z209 (mutate session) of ['Z180'] species S102; 24 genomes $0.00
+[10:44:42] [Z] summary: births 210 deaths 187 games 81280 $0.00; top [('Z209', 38.81, 6.0, 0, 'S102'), ('Z206', 38.8, 0.86, 112, 'S103'), ('Z163', 38.65, 0.8, 928, 'S86')]; top vs anchors {'Z206': None, 'Z163': None, 'Z193': None}
+[10:44:42] [Z] birth Z210 (mutate session) of ['Z205'] species S112; 24 genomes $0.00
+[10:44:44] [Z] birth Z211 (mutate session) of ['Z163'] species S86; 24 genomes $0.00
+[10:44:44] [Z] rejected mutate session: behavioural twin
+[10:44:52] [Z] birth Z212 (mutate session) of ['Z193'] species S92; 24 genomes $0.00
+[10:45:26] [Z] new species S113 founded by Z213
+[10:45:26] [Z] birth Z213 (llm_cross session) of ['Z180', 'Z178'] species S113; 24 genomes $0.00
+[10:45:27] [Z] birth Z214 (mutate session) of ['Z178'] species S95; 24 genomes $0.00
+[10:45:30] [Z] birth Z215 (mutate session) of ['Z208'] species S102; 24 genomes $0.00
+[10:47:39] [Z] birth Z216 (mutate session) of ['Z165'] species S104; 24 genomes $0.00
+[10:47:42] [Z] birth Z217 (mutate session) of ['Z170'] species S84; 24 genomes $0.00
+[10:47:48] [Z] birth Z218 (mutate session) of ['Z149'] species S95; 24 genomes $0.00
+[10:47:53] [Z] new species S114 founded by Z219
+[10:47:53] [Z] birth Z219 (llm_cross session) of ['Z149', 'Z209'] species S114; 24 genomes $0.00
+[10:47:54] [Z] summary: births 220 deaths 197 games 83144 $0.00; top [('Z216', 39.49, 1.58, 24, 'S104'), ('Z208', 38.98, 0.8, 192, 'S89'), ('Z199', 38.65, 0.8, 304, 'S108')]; top vs anchors {'Z208': None, 'Z199': 1.0, 'Z213': None}
+[10:47:54] [Z] birth Z220 (mutate session) of ['Z165'] species S104; 24 genomes $0.00
+[10:47:55] [Z] birth Z221 (mutate session) of ['Z199'] species S108; 24 genomes $0.00
+[10:47:57] [Z] birth Z222 (mutate session) of ['Z165'] species S104; 24 genomes $0.00
+[10:47:57] [Z] rejected mutate session: behavioural twin
+[10:48:59] [Z] birth Z223 (tune ) of ['Z222'] species S104; 24 genomes $0.00
+[10:50:51] [Z] birth Z224 (mutate session) of ['Z216'] species S104; 24 genomes $0.00
+[10:50:53] [Z] birth Z225 (mutate session) of ['Z213'] species S113; 24 genomes $0.00
+[10:50:55] [Z] rejected mutate session: behavioural twin
+[10:50:57] [Z] birth Z226 (mutate session) of ['Z195'] species S106; 24 genomes $0.00
+[10:50:59] [Z] new species S115 founded by Z227
+[10:50:59] [Z] birth Z227 (llm_cross session) of ['Z215', 'Z219'] species S115; 24 genomes $0.00
+[10:51:02] [Z] new species S116 founded by Z228
+[10:51:02] [Z] birth Z228 (llm_cross session) of ['Z213', 'Z222'] species S116; 24 genomes $0.00
+[10:51:02] [Z] rejected llm_cross session: behavioural twin
+[10:51:04] [Z] birth Z229 (mutate session) of ['Z216'] species S104; 24 genomes $0.00
