@@ -22,6 +22,8 @@ Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against t
 | B792 | 0.972 | 0.962 | 0.960 |
 | A458 (arena A) | 0.988 | 0.974 | 0.971 |
 | A61188 (live as v27) | 0.989 | 0.974 | 0.972 |
+| a61188-mono (v28) | 0.989 | 0.971 | 0.972 |
+| v28-emblem (v29) | 0.991 | 0.968 | 0.973 |
 | B1145 (arena B #1) | 0.971 | 0.961 | 0.959 |
 | B1092 (arena B, other species) | 0.973 | 0.938 | 0.957 |
 | starter | 1.026 | 1.032 | 1.025 |
