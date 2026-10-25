@@ -2,6 +2,12 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 15:11 UTC
+
+- Policy (Cham via the genome lead, genome/v0 c168b57a): no more API credits. All Arena A runs with LLM mutation use
+  the file queue (--llm-queue) answered by Claude Code session writers; no runs on FUNSEARCH_API_KEY or --budget. All
+  current runs (A-9, Z-20) already comply.
+
 ## 2026-10-25 13:21 UTC
 
 - Controls done: Z-21a 371, Z-21b 335 (final populations, /880, 1.7 h each). Screened finals: 18b 610, 19a 346,
