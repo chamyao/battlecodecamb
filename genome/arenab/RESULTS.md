@@ -218,3 +218,9 @@ solo vs idle 95,846 rounds / 362 deaths (v31 97,417 / 379). Sim undershoots it b
 Sim h2h 37 (fails, real 47). Paired anchors: 0 blocks (lowest p 0.29). Solo-farm: total better (48,980 vs 49,654) but a
 per-map block on 01gold-rush +417 and 00contest +333 (my runs: contest side B 400 vs 600 gems, gold-rush 2000/1927 vs
 1581/1627 rounds; it has the rhm rule). Going up as v32 on real; watch gold-rush/contest in batch 9.
+
+## Oct 25 07:49: band batch 8 (v31 = rh-mono-all), paired with b7
+27-23 (b7 21-29): 6 flips to a win, 0 to a loss, p ~0.03. Gems +39 +- 20, gems captured +45 +- 21; monolith deaths -0.8,
+camp deaths -0.8; great_wall monolith deaths 35 -> 1. Stuck champion-rounds up 12.7 -> 31.5 (to check).
+elk_arena vs NotSoLonely still 18-1008: gg6 armed, but their team farms the gem groups from r37, so m11 finds them
+respawning and falls back to gold groups. A contest/fight question, not the buy gate. First winning band batch.
