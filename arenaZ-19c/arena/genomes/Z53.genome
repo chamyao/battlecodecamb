@@ -1,0 +1,111 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene('s1', 'value of doing this option now; drafts strong champions and uses abilities')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o.champ)
+    if o.kind == BUY:
+        return 100 if (o.item == 18 and items_owned(19) == 0) or (o.item == 36 and items_owned(19) > 0) else 0
+    low = me().health_frac < 0.35
+    if o.kind == RECALL:
+        if low and threat_gap(me().pos) > 4:
+            return 90
+        return 45 if gold() >= 300 and threat_gap(me().pos) > 4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if low and threat_gap(me().pos) <= 4:
+            return 86 if threat_gap(o.tile) > threat_gap(me().pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals, computed once per turn in update')
+def goal_field() -> Field:
+    return GF
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z10a', 'once per turn: cache the distance field to the goals', parents=['s3'])
+def update() -> None:
+    GF = field(goals())
+
+@gene('Z10b', 'draft preference for each champion', parents=['s1'])
+def draft_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 10
+    if c == VENDETTA:
+        return 9
+    if c == RYTH:
+        return 8
+    if c == MARCELLA:
+        return 7
+    if c == HEART_OF_RUIN:
+        return 6
+    if c == VARG:
+        return 5
+    if c == TAVI:
+        return 4
+    return 1
+
+@gene('Z10c', 'value of casting an ability: damage and stuns on fights, area hits on clusters, resets only with a target in reach, shields and heals when hurt', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        return 55 if not can_attack() and fighting_r(me().attack_range) else 0
+    if k == AB_SHIELD:
+        return 75 if fighting_r(4) else 0
+    if k == AB_HEAL:
+        if exists(o.unit):
+            return 85 if o.unit.health_frac < 0.6 else 0
+        return 0
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 82
+            if o.unit.is_camp and gems() == 0:
+                return 65
+        return 0
+    if k == AB_AOE:
+        if not fighting_r(5):
+            return 0
+        r = max(1, slot_radius(o.slot))
+        n = 2 * count(dist(u.pos, o.tile) <= r for u in enemies()) + count(is_awake(c) and dist(c.pos, o.tile) <= r for c in camps())
+        return 60 + 5 * n if n > 0 else 0
+    if k == AB_DASH:
+        return 52 if progress(o.tile) >= 2 else 0
+    return 0
+
+@gene('Z20a', 'an enemy champion or awake camp is within r tiles', parents=['Z10c'])
+def fighting_r(r: Num) -> Bool:
+    p = me().pos
+    if any(dist(u.pos, p) <= r for u in enemies()):
+        return True
+    return any(is_awake(c) and dist(c.pos, p) <= r for c in camps())
+
+@gene('Z68a', 'distance from tile t to the nearest enemy champion or awake camp (99 if none seen)', parents=['s1'])
+def threat_gap(t: Tile) -> Num:
+    return min(min((dist(u.pos, t) for u in enemies()), default=99), min((dist(c.pos, t) for c in camps() if is_awake(c)), default=99))

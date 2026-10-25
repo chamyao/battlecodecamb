@@ -1,0 +1,11 @@
+```python
+GSIG: Num = -1
+
+@gene('Z28a', 'once per turn: cache the distance field to the goals', parents=['s3'])
+def update() -> None:
+    g = goals()
+    sig = size(g) + 10000 * size(g & near(me().pos, 0))
+    if sig != GSIG or round() % 25 == 0:
+        GF = field(g)
+        GSIG = sig
+```
