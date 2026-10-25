@@ -1,0 +1,11 @@
+```python
+@gene('Z169a', 'distance field over walkable terrain, searched only as far as my position: to my spawn when nearly dead without gems, else to the goals; while hurt the path also avoids tiles near visible enemy champions', parents=['s3'])
+def walk_field() -> Field:
+    blocked = walls() | holes() | altars() | enemy_spawn()
+    hf = me().health_frac
+    if hf < 0.5:
+        blocked = blocked | enemy_zone()
+    if hf < 0.3 and gems() == 0:
+        return field_avoid(my_spawn(), blocked, near(me().pos, 1))
+    return field_avoid(goals(), blocked, near(me().pos, 1))
+```

@@ -1,0 +1,28 @@
+```python
+@gene('Z113a', 'after acting: announce my fight (an enemy champion, or an awake camp) with tile, round and kind in shared bytes 0-3 so allies can join', parents=['Z86a'])
+def after() -> None:
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        if valid(t):
+            champ = t in enemy_tiles()
+            if champ or gems() == 0:
+                write_shared(0, t.x + 1)
+                write_shared(1, t.y + 1)
+                write_shared(2, round() % 250 + 1)
+                write_shared(3, 1 if champ else 2)
+
+@gene('Z113b', 'tile of a fresh ally fight beacon: an enemy champion fight within 12 tiles, or a camp fight within 7 (invalid if none)', parents=['Z86a'])
+def rally_tile() -> Tile:
+    stamp = read_shared(2)
+    if stamp == 0:
+        return tile(-5, -5)
+    age = (round() % 250 + 1 - stamp + 250) % 250
+    if age > 2:
+        return tile(-5, -5)
+    t = tile(read_shared(0) - 1, read_shared(1) - 1)
+    d = dist(t, me().pos)
+    reach = 12 if read_shared(3) == 1 else 7
+    if d <= 1 or d > reach:
+        return tile(-5, -5)
+    return t
+```

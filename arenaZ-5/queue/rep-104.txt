@@ -1,0 +1,12 @@
+```python
+@gene('Z74a', 'tiles within 2 of a visible enemy champion or next to an awake monster, except around me', parents=['s3'])
+def enemy_zone() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        if u.is_champion:
+            acc = acc | near(u.pos, 2)
+    for u in camps():
+        if is_awake(u):
+            acc = acc | near(u.pos, 1)
+    return acc - near(me().pos, 1)
+```

@@ -1,0 +1,11 @@
+```python
+@gene('Z47a', 'skip listing option kinds the score never takes (wards, locks, cancels), casts while both slots cool down, shopping off spawn and tributes without gems', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == CAST:
+        return slot_ready(0) or slot_ready(1)
+    if kind == BUY:
+        return can_shop()
+    if kind == TRIBUTE:
+        return gems() > 0
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+```

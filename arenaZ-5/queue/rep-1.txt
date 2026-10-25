@@ -1,0 +1,43 @@
+```python
+GOAL_FIELD: Field = None
+
+@gene("new", "once per turn: the distance field to this turn's goals", parents=["s3"])
+def update() -> None:
+    GOAL_FIELD = field(goals())
+
+@gene("new", "true if a camp group is a monolith or golem (too strong to farm)", parents=["s2"])
+def hard_group(g: Num) -> Bool:
+    for t in group_tiles(g):
+        k = spawn_type(t)
+        if k == MONOLITH or k == GOLEM:
+            return True
+    return False
+
+@gene("s2", "where to walk: an altar with gems, else a living, farmable camp group or a cleared one to capture")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+        elif not group_respawning(g) and not hard_group(g):
+            acc = acc | group_tiles(g)
+    if size(acc) == 0:
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals (cached once per turn)")
+def goal_field() -> Field:
+    return GOAL_FIELD
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```

@@ -1,0 +1,41 @@
+```python
+@gene('Z18a', 'value of casting: heal the most hurt target ahead of damage, shield when hurt, damage/cc on enemy champions or camps we fight, dash toward goals', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy and not o.unit.is_camp:
+            return 88 if o.unit.health_frac < 0.6 else 0
+        return 88 if hf < 0.6 else 0
+    if k == AB_SHIELD:
+        return 86 if hf < 0.75 and count_units(enemies()) > 0 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and not exists(o.unit):
+            return 38 if progress(o.tile) >= 2 else 0
+        return 0
+    if not exists(o.unit):
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 62
+    return 0
+
+@gene('Z73a', 'distance field to the goals, or to my spawn when nearly dead without gems; below 40% health the path avoids tiles near visible enemy champions', parents=['s3'])
+def safe_field() -> Field:
+    hf = me().health_frac
+    home = hf < 0.3 and gems() == 0
+    dest = my_spawn() if home else goals()
+    if hf < 0.4:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        if size(danger) > 0:
+            return field_avoid(dest, danger | walls() | holes() | altars() | enemy_spawn(), near(tile(-5, -5), 0))
+    if home:
+        return field(dest)
+    return goal_field()
+```

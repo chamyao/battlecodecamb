@@ -1,0 +1,22 @@
+```python
+@gene('Z113a', 'after acting: announce my fight (an enemy champion, or an awake camp), or call for help when hurt next to an enemy champion, with tile, round and kind in shared bytes 0-3', parents=['Z86a'])
+def after() -> None:
+    here = me().pos
+    if me().health_frac < 0.5:
+        for u in enemies():
+            if u.is_champion and dist(u.pos, here) <= 3:
+                write_shared(0, u.pos.x + 1)
+                write_shared(1, u.pos.y + 1)
+                write_shared(2, round() % 250 + 1)
+                write_shared(3, 1)
+                return
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        if valid(t):
+            champ = t in enemy_tiles()
+            if champ or gems() == 0:
+                write_shared(0, t.x + 1)
+                write_shared(1, t.y + 1)
+                write_shared(2, round() % 250 + 1)
+                write_shared(3, 1 if champ else 2)
+```

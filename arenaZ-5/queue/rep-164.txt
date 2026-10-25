@@ -1,0 +1,5 @@
+```python
+@gene('Z73a', 'distance field to the goals (no detours around enemies: fight on until the recall)', parents=['s3'])
+def safe_field() -> Field:
+    return goal_field()
+```

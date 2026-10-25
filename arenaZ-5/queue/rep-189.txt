@@ -1,0 +1,26 @@
+```python
+@gene('Z135b', 'value of casts cast_value ignores: crowd-control an enemy champion next to a badly hurt ally, an attack reset after attacking with a target in range, a ground AoE that hits an enemy champion or an awake camp pack', parents=['Z18a'])
+def extra_cast(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        here = me().pos
+        reach = me().attack_range
+        if any(dist(u.pos, here) <= reach for u in enemies()):
+            return 83
+        if gems() == 0 and any(dist(u.pos, here) <= reach for u in camps()):
+            return 63
+        return 0
+    if k == AB_CC and exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+        if any(a.health_frac < 0.4 and dist(a.pos, o.unit.pos) <= 3 for a in allies()):
+            return 90
+    if (k == AB_AOE or k == AB_DAMAGE or k == AB_CC) and not exists(o.unit) and valid(o.tile):
+        r = slot_radius(o.slot)
+        if any(u.is_champion and dist(u.pos, o.tile) <= r for u in enemies()):
+            return 84
+        if k == AB_AOE and gems() == 0:
+            if count(dist(u.pos, o.tile) <= r and is_awake(u) for u in camps()) >= 2:
+                return 63
+    return 0
+```

@@ -1,0 +1,33 @@
+```python
+@gene('s2', 'where to walk: a safe altar (or a cleared camp) with gems; else cleared camps first, then living non-monolith camps (no golems before round 600)')
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if gems() > 0:
+        return acc | safe_altars()
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    acc = acc - type_spawns(MONOLITH)
+    if round() < 600:
+        acc = acc - type_spawns(GOLEM)
+    return acc
+
+@gene('new', 'tiles beside unlocked altars with no visible enemy champion within 3 tiles (all unlocked altars if none is safe)', parents=['s2'])
+def safe_altars() -> Tiles:
+    safe = near(tile(-5, -5), 0)
+    every = near(tile(-5, -5), 0)
+    foes = enemies()
+    for a in altars() - locked_altars():
+        ring = near(a, 1)
+        every = every | ring
+        if not any(u.is_champion and dist(u.pos, a) <= 3 for u in foes):
+            safe = safe | ring
+    if size(safe) > 0:
+        return safe
+    return every
+```

@@ -1,0 +1,6 @@
+```python
+@gene('Z73a', 'distance field to the goals over walkable terrain, searched only as far as my position (no detours around enemies: fight on until the recall)', parents=['s3'])
+def safe_field() -> Field:
+    blocked = walls() | holes() | altars() | enemy_spawn()
+    return field_avoid(goals(), blocked, near(me().pos, 1))
+```

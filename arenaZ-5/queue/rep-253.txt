@@ -1,0 +1,45 @@
+```python
+@gene('Z73a', 'distance field to an ally fight I can join (healthy, no gems), else to the goals or to my spawn when nearly dead without gems; below 40% health the path avoids tiles near visible enemy champions', parents=['s3'])
+def safe_field() -> Field:
+    hf = me().health_frac
+    if hf > 0.4 and gems() == 0:
+        rally = rally_tile()
+        if valid(rally):
+            return field(near(rally, 1))
+    home = hf < 0.3 and gems() == 0
+    dest = my_spawn() if home else goals()
+    if hf < 0.4:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        if size(danger) > 0:
+            return field_avoid(dest, danger | walls() | holes() | altars() | enemy_spawn(), near(tile(-5, -5), 0))
+    if home:
+        return field(dest)
+    return goal_field()
+
+@gene('new', 'after acting: announce a fight with an enemy champion (tile + round) in shared bytes 0-2 so allies can join', parents=['Z73a'])
+def after() -> None:
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        if valid(t) and t in enemy_tiles():
+            write_shared(0, t.x + 1)
+            write_shared(1, t.y + 1)
+            write_shared(2, round() % 250 + 1)
+
+@gene('new', 'tile of a fresh ally fight beacon (3 rounds) within 18 tiles (invalid if none)', parents=['Z73a'])
+def rally_tile() -> Tile:
+    stamp = read_shared(2)
+    if stamp == 0:
+        return tile(-5, -5)
+    age = (round() % 250 + 1 - stamp + 250) % 250
+    if age > 3:
+        return tile(-5, -5)
+    t = tile(read_shared(0) - 1, read_shared(1) - 1)
+    d = dist(t, me().pos)
+    if d <= 1 or d > 18:
+        return tile(-5, -5)
+    return t
+```

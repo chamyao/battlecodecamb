@@ -1,0 +1,19 @@
+```python
+@gene('s4', 'how much closer a step brings me to the goals, or to my spawn when nearly dead without gems')
+def progress(t: Tile) -> Num:
+    f = route_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('new', 'distance field I follow: to my spawn when nearly dead without gems (around visible enemy champions), else the safe goal field', parents=['s4'])
+def route_field() -> Field:
+    if me().health_frac < 0.3 and gems() == 0:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        if size(danger) > 0:
+            return field_avoid(my_spawn(), danger, near(tile(-5, -5), 0))
+        return field(my_spawn())
+    return safe_field()
+```

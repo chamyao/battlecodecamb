@@ -1,0 +1,33 @@
+```python
+@gene('s2', 'where to walk: an altar (or a cleared gem camp) with gems, else a living, farmable camp group or a cleared one to capture')
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        for g in range(num_groups()):
+            if group_reward(g) and group_gems(g) > 0:
+                acc = acc | group_tiles(g)
+        return acc
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+        elif not group_respawning(g) and not hard_group(g):
+            acc = acc | group_tiles(g)
+    if size(acc) == 0:
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z2b', 'true if a camp group is too strong to farm now: monoliths always, golems before round 600', parents=['s2'])
+def hard_group(g: Num) -> Bool:
+    early = round() < 600
+    for t in group_tiles(g):
+        k = spawn_type(t)
+        if k == MONOLITH:
+            return True
+        if k == GOLEM and early:
+            return True
+    return False
+```

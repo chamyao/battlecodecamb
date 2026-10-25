@@ -1,0 +1,46 @@
+```python
+@gene('Z18a', 'value of casting: damage/cc on enemy champions or camps we fight, heal the most hurt target, shield when hurt or an enemy champion is close, dash toward goals', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy and not o.unit.is_camp:
+            return 88 if o.unit.health_frac < 0.6 else 0
+        return 88 if hf < 0.6 else 0
+    if k == AB_SHIELD:
+        if count_units(enemies()) == 0:
+            return 0
+        if hf < 0.75:
+            return 86
+        here = me().pos
+        return 84 if any(u.is_champion and dist(u.pos, here) <= 2 for u in enemies()) else 0
+    if k == AB_DASH:
+        if valid(o.tile) and not exists(o.unit):
+            return 38 if progress(o.tile) >= 2 else 0
+        return 0
+    if not exists(o.unit):
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 62
+    return 0
+
+@gene('s4', 'how much closer a step brings me to the goals (by a path that avoids enemy champions while hurt)')
+def progress(t: Tile) -> Num:
+    f = safe_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('new', 'distance field to the goals; while hurt the path avoids tiles near visible enemy champions', parents=['s3'])
+def safe_field() -> Field:
+    if me().health_frac < 0.5:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        if size(danger) > 0:
+            return field_avoid(goals(), danger, near(tile(-5, -5), 0))
+    return goal_field()
+```

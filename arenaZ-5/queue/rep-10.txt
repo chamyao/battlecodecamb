@@ -1,0 +1,12 @@
+```python
+@gene('s2', 'where to walk: an altar with gems, home to shop with spare gold, else a gem-bearing camp group')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    if gold() >= 60:
+        return my_spawn()
+    return camp_goals()
+```

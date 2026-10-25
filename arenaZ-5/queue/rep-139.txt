@@ -1,0 +1,13 @@
+```python
+@gene('s4', 'how much closer a step brings me to the goals (walkable terrain only; while hurt, around enemy champions)')
+def progress(t: Tile) -> Num:
+    f = walk_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('new', 'distance field to the goals over walkable terrain, searched only as far as my position; while hurt the path also avoids tiles near visible enemy champions', parents=['s3'])
+def walk_field() -> Field:
+    blocked = walls() | holes() | altars() | enemy_spawn()
+    if me().health_frac < 0.5:
+        blocked = blocked | enemy_zone()
+    return field_avoid(goals(), blocked, near(me().pos, 1))
+```

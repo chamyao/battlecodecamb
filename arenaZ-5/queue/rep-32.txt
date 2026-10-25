@@ -1,0 +1,16 @@
+```python
+@gene('Z27a', 'tiles of visible enemy champions worth chasing: carrying gems and weaker than me, or nearly dead and close', parents=['s2'])
+def prey_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    hf = me().health_frac
+    if hf <= 0.5:
+        return acc
+    here = me().pos
+    for u in enemies():
+        if u.is_champion:
+            if unit_gems(u) >= 5 and u.health_frac < hf:
+                acc = acc | near(u.pos, 0)
+            elif u.health_frac < 0.3 and dist(u.pos, here) <= 4:
+                acc = acc | near(u.pos, 0)
+    return acc
+```

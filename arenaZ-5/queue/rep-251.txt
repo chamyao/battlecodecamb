@@ -1,0 +1,47 @@
+```python
+@gene('Z135a', 'value of doing this option now: casts (incl. attack resets and ground AoE), eager fight-back on awake camps, focus the weakest champion, treasure-then-power build, recall at 10% or to shop with a full purse', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 18 and items_owned(19) == 0:
+            return 100
+        return 95 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.1:
+            return 90
+        if gems() == 0 and gold() >= 150 and count_units(enemies()) == 0:
+            return 75
+        return 0
+    if o.kind == CAST:
+        extra = extra_cast(o)
+        if extra > 0:
+            return extra
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 8 * (1 - o.unit.health_frac)
+        return 79 if gems() == 0 or is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z217a', 'distance field to the goals, or to my spawn when nearly dead without gems; below 50% health the path avoids tiles near visible enemy champions', parents=['Z73a'])
+def safe_field() -> Field:
+    hf = me().health_frac
+    home = hf < 0.3 and gems() == 0
+    dest = my_spawn() if home else goals()
+    if hf < 0.5:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        if size(danger) > 0:
+            return field_avoid(dest, danger | walls() | holes() | altars() | enemy_spawn(), near(tile(-5, -5), 0))
+    if home:
+        return field(dest)
+    return goal_field()
+```

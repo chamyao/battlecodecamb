@@ -1,0 +1,20 @@
+```python
+@gene('Z18a', 'value of casting: stun tributing enemies, damage/cc on enemy champions (weakest first) or camps we fight, heal/shield when hurt', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_HEAL:
+        return 88 if hf < 0.6 else 0
+    if k == AB_SHIELD:
+        return 86 if hf < 0.75 and count_units(enemies()) > 0 else 0
+    if not exists(o.unit):
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if o.unit.is_champion and o.unit.is_enemy:
+            if k == AB_CC and is_tributing(o.unit):
+                return 96
+            return 85 + 4 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 62
+    return 0
+```

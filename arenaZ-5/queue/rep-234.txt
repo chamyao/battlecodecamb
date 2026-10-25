@@ -1,0 +1,36 @@
+```python
+@gene('new', 'after acting: announce a fight with an enemy champion (tile + round) in shared bytes 0-2 so allies can join', parents=['s4'])
+def after() -> None:
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+        if valid(t) and t in enemy_tiles():
+            write_shared(0, t.x + 1)
+            write_shared(1, t.y + 1)
+            write_shared(2, round() % 250 + 1)
+
+@gene('new', 'tile of a fresh ally fight beacon (3 rounds) within 18 tiles that I should join: not when hurt or carrying gems (invalid if none)', parents=['s4'])
+def rally_tile() -> Tile:
+    stamp = read_shared(2)
+    if stamp == 0 or gems() > 0 or me().health_frac <= 0.4:
+        return tile(-5, -5)
+    age = (round() % 250 + 1 - stamp + 250) % 250
+    if age > 3:
+        return tile(-5, -5)
+    t = tile(read_shared(0) - 1, read_shared(1) - 1)
+    d = dist(t, me().pos)
+    if d <= 1 or d > 18:
+        return tile(-5, -5)
+    return t
+
+@gene('new', 'distance field to the ally fight I am joining', parents=['s4'])
+def rally_field() -> Field:
+    return field(near(rally_tile(), 1))
+
+@gene('s4', 'how much closer a step brings me to an ally fight to join, else to the goals (by a path that avoids enemy champions while hurt)')
+def progress(t: Tile) -> Num:
+    if valid(rally_tile()):
+        f = rally_field()
+        return at(f, me().pos) - at(f, t)
+    f = safe_field()
+    return at(f, me().pos) - at(f, t)
+```

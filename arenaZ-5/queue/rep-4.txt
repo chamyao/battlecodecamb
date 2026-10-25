@@ -1,0 +1,33 @@
+```python
+@gene('s2', 'where to walk: an altar (or a cleared camp to grab) with gems, else a gem-bearing camp group')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        for g in range(num_groups()):
+            if group_reward(g) and group_gems(g) > 0:
+                acc = acc | group_tiles(g)
+        return acc
+    return camp_goals()
+
+@gene('Z4a', 'camp groups worth walking to: cleared/gem groups first, never monolith/golem before round 1200', parents=['s2'])
+def camp_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    rest = near(tile(-5, -5), 0)
+    late = round() > 1200
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            hard = False
+            for t in group_tiles(g):
+                k = spawn_type(t)
+                if k == MONOLITH or k == GOLEM:
+                    hard = True
+            if group_reward(g) or (not hard and group_gems(g) > 0):
+                acc = acc | group_tiles(g)
+            elif not hard or late:
+                rest = rest | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    return rest
+```

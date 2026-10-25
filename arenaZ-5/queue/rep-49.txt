@@ -1,0 +1,24 @@
+```python
+@gene('s4', 'how much closer a step brings me to the goals; when badly hurt with an enemy champion close, how much farther from it')
+def progress(t: Tile) -> Num:
+    here = me().pos
+    if me().health_frac < 0.35:
+        foe = threat_tile()
+        if valid(foe):
+            return dist(t, foe) - dist(here, foe)
+    f = goal_field()
+    return at(f, here) - at(f, t)
+
+@gene('new', 'position of the nearest visible enemy champion within 4 tiles (invalid if none)', parents=['s4'])
+def threat_tile() -> Tile:
+    here = me().pos
+    foe = tile(-5, -5)
+    best_d = 5
+    for u in enemies():
+        if u.is_champion:
+            d = dist(u.pos, here)
+            if d < best_d:
+                best_d = d
+                foe = u.pos
+    return foe
+```

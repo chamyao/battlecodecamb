@@ -1,0 +1,7 @@
+```python
+@gene("s3", "distance field to the goals, or to my spawn when nearly dead")
+def goal_field() -> Field:
+    if me().health_frac < 0.3:
+        return field(my_spawn())
+    return field(goals())
+```

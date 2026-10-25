@@ -1,0 +1,32 @@
+```python
+@gene('Z47b', 'where to walk: altar (or a cleared camp) with gems; else cleared camps, prey (weak gem carriers, nearly dead enemies close by), then living non-monolith camps (no golems before round 400)', parents=['s2'])
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.9669)
+        return acc
+    if size(acc) > 0:
+        return acc
+    hf = me().health_frac
+    if hf > 0.5:
+        here = me().pos
+        for u in enemies():
+            if u.is_champion:
+                if unit_gems(u) >= 4 and u.health_frac < hf:
+                    acc = acc | near(u.pos, 0)
+                elif u.health_frac < 0.3 and dist(u.pos, here) <= 4:
+                    acc = acc | near(u.pos, 0)
+        if size(acc) > 0:
+            return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    acc = acc - type_spawns(MONOLITH)
+    if round() < 400:
+        acc = acc - type_spawns(GOLEM)
+    return acc
+```

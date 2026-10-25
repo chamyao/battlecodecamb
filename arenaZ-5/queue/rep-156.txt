@@ -1,0 +1,10 @@
+```python
+@gene('Z74a', 'tiles within 2 of a visible enemy champion at least as healthy as me, except around me', parents=['s3'])
+def enemy_zone() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    hf = me().health_frac
+    for u in enemies():
+        if u.is_champion and u.health_frac >= hf:
+            acc = acc | near(u.pos, 2)
+    return acc - near(me().pos, 1)
+```

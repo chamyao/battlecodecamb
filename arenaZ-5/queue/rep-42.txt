@@ -1,0 +1,21 @@
+```python
+GOAL_FIELD: Field = None
+
+@gene('new', 'once per turn while alive: the distance field to this turn goals', parents=['s3'])
+def update() -> None:
+    if alive() and not channeling():
+        GOAL_FIELD = field(goals())
+
+@gene('new', 'skip listing option kinds the score never takes (wards, locks, cancels)', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+
+@gene("s3", "distance field to the goals, cached once per turn")
+def goal_field() -> Field:
+    return GOAL_FIELD
+
+@gene('s4', 'how much closer a step brings me to the goals')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```

@@ -1,0 +1,52 @@
+```python
+@gene('s1', 'value of doing this option now: casts (incl. attack resets and ground AoE), eager fight-back on awake camps, treasure-then-power build, recall to shop with a full purse (buying first)')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 18 and items_owned(19) == 0:
+            return 100
+        return 95 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.35:
+            return 90
+        if gems() == 0 and gold() >= 150 and count_units(enemies()) == 0:
+            return 75
+        return 0
+    if o.kind == CAST:
+        extra = extra_cast(o)
+        if extra > 0:
+            return extra
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 79 if gems() == 0 or is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z125a', 'value of casts cast_value ignores: an attack reset after attacking with a target in range, a ground AoE that hits an enemy champion or an awake camp pack', parents=['s1'])
+def extra_cast(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        here = me().pos
+        reach = me().attack_range
+        if any(dist(u.pos, here) <= reach for u in enemies()):
+            return 83
+        if gems() == 0 and any(dist(u.pos, here) <= reach for u in camps()):
+            return 63
+        return 0
+    if (k == AB_AOE or k == AB_DAMAGE or k == AB_CC) and not exists(o.unit) and valid(o.tile):
+        r = slot_radius(o.slot)
+        if any(u.is_champion and dist(u.pos, o.tile) <= r for u in enemies()):
+            return 84
+        if k == AB_AOE and gems() == 0:
+            if count(dist(u.pos, o.tile) <= r and is_awake(u) for u in camps()) >= 2:
+                return 63
+    return 0
+```

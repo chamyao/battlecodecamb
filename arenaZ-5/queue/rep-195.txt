@@ -1,0 +1,22 @@
+```python
+LAST_HF: Num = 1
+
+@gene('Z229a', 'after acting: announce a fight with an enemy champion (tile + round) in shared bytes 0-2 so allies can join, also when an enemy champion close by is hurting me', parents=['Z47b'])
+def after() -> None:
+    hf = me().health_frac
+    here = me().pos
+    t = tile(-5, -5)
+    if acted(ATTACK):
+        a = acted_tile(ATTACK)
+        if valid(a) and a in enemy_tiles():
+            t = a
+    if not valid(t) and hf < LAST_HF - 0.04:
+        for u in enemies():
+            if u.is_champion and dist(u.pos, here) <= 4:
+                t = u.pos
+    if valid(t):
+        write_shared(0, t.x + 1)
+        write_shared(1, t.y + 1)
+        write_shared(2, round() % 250 + 1)
+    LAST_HF = hf
+```

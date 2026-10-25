@@ -1,0 +1,21 @@
+```python
+@gene('Z73a', 'distance field to the goals; while hurt the path avoids tiles near visible enemy champions (terrain still blocks)', parents=['s3'])
+def safe_field() -> Field:
+    if me().health_frac < 0.5:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        if size(danger) > 0:
+            return field_avoid(goals(), danger | terrain(), near(me().pos, 1))
+    return goal_field()
+
+@gene('new', 'tiles nobody can walk through: walls, holes, altars and the enemy spawn', parents=['Z73a'])
+def terrain() -> Tiles:
+    return walls() | holes() | altars() | enemy_spawn()
+
+@gene('s3', 'distance field to the goals, searched only as far as my position')
+def goal_field() -> Field:
+    return field_avoid(goals(), terrain(), near(me().pos, 1))
+```

@@ -1,0 +1,73 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+BANK: Num = 15
+
+@gene('Z29a', 'value of doing this option now: casts, fight-back on awake camps, treasure-then-power build, farm camps until the gem bag is full', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 18 and items_owned(19) == 0:
+            return 100
+        return 95 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() < BANK or is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z29b', 'where to walk: an altar once the gem bag is full (or late, or nothing to farm); else cleared camps first, then living non-monolith camps (no golems before round 600)', parents=['s2'])
+def goals() -> Tiles:
+    free = near(tile(-5, -5), 0)
+    live = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            free = free | group_tiles(g)
+        elif not group_respawning(g):
+            live = live | group_tiles(g)
+    live = live - type_spawns(MONOLITH)
+    if round() < 600:
+        live = live - type_spawns(GOLEM)
+    if gems() > 0 and (gems() >= BANK or round() > 1850 or size(free | live) == 0):
+        acc = free
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    if size(free) > 0:
+        return free
+    return live
+
+@gene('s3', 'distance field to the goals')
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'how much closer a step brings me to the goals')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('Z29c', 'value of casting: damage/cc on enemy champions or camps we fight, heal/shield when hurt', parents=['Z18a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_HEAL:
+        return 88 if hf < 0.6 else 0
+    if k == AB_SHIELD:
+        return 86 if hf < 0.75 and count_units(enemies()) > 0 else 0
+    if not exists(o.unit):
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and (gems() < BANK or is_awake(o.unit)):
+            return 62
+    return 0

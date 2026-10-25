@@ -1,0 +1,5 @@
+```python
+@gene('Z273c', 'distance field to within 2 tiles of the ally fight I am joining', parents=['s4'])
+def rally_field() -> Field:
+    return field(near(rally_tile(), 2))
+```

@@ -1,0 +1,13 @@
+```python
+@gene('Z73a', 'distance field to the goals over walkable terrain, searched only as far as my position; while hurt the path also avoids tiles near visible enemy champions', parents=['s3'])
+def safe_field() -> Field:
+    blocked = walls() | holes() | altars() | enemy_spawn()
+    if me().health_frac < 0.5:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, 2)
+        danger = danger - near(me().pos, 1)
+        blocked = blocked | danger
+    return field_avoid(goals(), blocked, near(me().pos, 1))
+```
