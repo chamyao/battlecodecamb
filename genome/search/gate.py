@@ -19,6 +19,7 @@ passing genomes in <out>/candidates/. Stops when every arena's job has an rc fil
 """
 import argparse
 import json
+import math
 import os
 import urllib.request
 import subprocess
@@ -96,6 +97,59 @@ class LocalRater:
     def rate(self, a, b, threads, fuel_mult=1.0):
         return rate(a, b, threads, fuel_mult)
 
+    def games(self, a, b, threads):
+        """{(map, side of a): 1 if a won else 0} over the 80 distinct games (deterministic by map and side)."""
+        from .score import EVAL
+        maps = sorted(MAPS)
+        out = subprocess.run([str(EVAL), "--a", a, "--b", b, "--games", str(2 * len(maps)), "--threads", str(threads),
+                              "--seed", str(SEED), "--bot-seeds", "--details", *maps],
+                             capture_output=True, text=True, timeout=3600)
+        if out.returncode != 0:
+            raise RuntimeError(f"genome_eval exit {out.returncode}: {out.stderr[-300:]}")
+        g = {}
+        for line in out.stdout.splitlines():
+            d = json.loads(line) if line.strip().startswith("{") else {}
+            if "a_side" in d:
+                g[(Path(d["map"]).stem, d["a_side"])] = int(d["winner"] == (1 if d["a_side"] == "B" else 0))
+        return g
+
+
+def sign_p(drops, gains):
+    """One-sided paired sign test: P(at least `drops` drops among the diverging games | no real difference)."""
+    n = drops + gains
+    return sum(math.comb(n, k) for k in range(drops, n + 1)) / 2 ** n if n else 1.0
+
+
+def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, exclude=(), bars=None, rater=None):
+    """The paired rule: head-to-head vs the live bot >= min_wins over all 80 games; an anchor blocks only if a one-sided
+    sign test on the diverging games (same map and side, candidate vs ref) gives p < sign_alpha for a drop. Maps in
+    `exclude` are left out of the anchor rows only. Needs a rater with per-game results (local)."""
+    R = rater or LocalRater()
+    spec, rspec = R.side(text, "genome"), R.side(ref)
+    w, n = R.rate(spec, rspec, threads)
+    rec = {"h2h_wins": w, "h2h_games": n, "h2h": w / n, "clear": w >= min_wins, "rule": "paired sign test",
+           "sign_alpha": sign_alpha, "anchor_rows_exclude": list(exclude)}
+    bars = {} if bars is None else bars
+    rows = {}
+    for anc in anchors:
+        key = f"{Path(ref).name}|{Path(anc).name}|games"
+        if key not in bars:
+            bars[key] = R.games(rspec, R.side(anc), threads)
+        rg, cg = bars[key], R.games(spec, R.side(anc), threads)
+        ks = [k for k in cg if k in rg and k[0] not in exclude]
+        drops = sum(1 for k in ks if rg[k] and not cg[k])
+        gains = sum(1 for k in ks if cg[k] and not rg[k])
+        pv = sign_p(drops, gains)
+        rows[Path(anc).stem] = {"wins": sum(cg[k] for k in ks), "ref_wins": sum(rg[k] for k in ks), "games": len(ks),
+                                "diverging": drops + gains, "drops": drops, "gains": gains, "p": round(pv, 4),
+                                "blocks": pv < sign_alpha}
+    rec["anchor_deltas"] = rows
+    rec["blocked_by"] = [a for a, r in rows.items() if r["blocks"]]
+    fw, fn = R.rate(spec, rspec, threads, fuel_mult=10.0)
+    rec.update(h2h_fuel10_wins=fw, h2h_fuel10=fw / fn)
+    rec["passed"] = rec["clear"] and not rec["blocked_by"]
+    return rec
+
 
 def gate(text, ref, anchors, threads=5, min_wins=43, regress=0.03, bars=None, log=print, rater=None):
     """Gate one genome (source text). bars: cache {key: (wins, games)} of the reference's own anchor rates."""
@@ -140,6 +194,11 @@ def main():
                                                       "N head-to-head wins are not re-gated vs the new --ref")
     ap.add_argument("--arena-engine", default="", help="play the gate's matches on the arena service at this engine "
                                                       "(commit sha or ref) instead of locally")
+    ap.add_argument("--sign-alpha", type=float, default=0.0,
+                    help="> 0: the paired rule (an anchor blocks only if a one-sided sign test on the diverging games "
+                         "gives p < this); plays locally, since it needs per-game results")
+    ap.add_argument("--exclude-anchor-maps", default="01boss-battle",
+                    help="with --sign-alpha: maps left out of the anchor rows (kept in the head-to-head)")
     ap.add_argument("--max-hours", type=float, default=12)
     ap.add_argument("--fresh", action="store_true",
                     help="ignore earlier gatekeepers' gates (a new runtime: every genome is gated again)")
@@ -246,7 +305,7 @@ def main():
                     and m["games"] >= args.min_games]
             for m in sorted(live, key=lambda m: -m["mu"])[:args.top]:
                 # one key per genome across a chain of resumed jobs, per reference bot
-                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/80"
+                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/80" + ("/paired" if args.sign_alpha > 0 else "")
                 if key in seen:
                     continue
                 seen.add(key)
@@ -259,8 +318,12 @@ def main():
                     continue
                 log(f"gate {key} (mu {m['mu']:.2f}, {m['games']} games)")
                 try:
-                    rec = gate(text, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log,
-                               rater=ArenaRater(args.arena_engine) if args.arena_engine else None)
+                    if args.sign_alpha > 0:
+                        rec = gate_paired(text, args.ref, anchors, args.threads, args.min_wins, args.sign_alpha,
+                                          tuple(filter(None, args.exclude_anchor_maps.split(","))), bars=bars)
+                    else:
+                        rec = gate(text, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log,
+                                   rater=ArenaRater(args.arena_engine) if args.arena_engine else None)
                 except Exception as e:
                     log(f"{key}: {type(e).__name__}: {e}")
                     continue
