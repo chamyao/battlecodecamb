@@ -1,0 +1,25 @@
+--- a/genome/search/arena.py
++++ b/genome/search/arena.py
+@@ -373,8 +373,12 @@
+                 op = "mutate"
+         if op == "mutate":
+             two = 1.0 if r.random() < 0.25 else 0.0
+-            child = operators.mutate(ptext, self.claude, r, prefix, self._stats_line(parent), two,
+-                                     notes_fn=self.intel_notes)
++            if self.a.a1_mutate:  # arenaZ-4: promptexp-1's A1 link operator (genome/search a1op.py) for every mutation
++                from . import a1op
++                child = a1op.mutate(ptext, self.claude, r, prefix)
++            else:
++                child = operators.mutate(ptext, self.claude, r, prefix, self._stats_line(parent), two,
++                                         notes_fn=self.intel_notes)
+         return self.check(child, parents, seq)
+ 
+     def _stats_line(self, m):
+@@ -644,6 +648,7 @@
+     ap.add_argument("--summary-every", type=int, default=10)
+     ap.add_argument("--max-hours", type=float, default=48)
+     ap.add_argument("--tail-matches", type=int, default=200, help="matches played after the budget runs out")
++    ap.add_argument("--a1-mutate", action="store_true", help="mutations use the A1 link operator (a1op.py)")
+     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
+                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
+     ap.add_argument("--anchor-sigma", type=float, default=1.0)

@@ -1,0 +1,20 @@
+--- a/genome/search/arena.py
++++ b/genome/search/arena.py
+@@ -120,7 +120,8 @@
+             for m in self.anchors():
+                 m["sigma"] = args.anchor_sigma
+             self.log("fixed anchors: " + ", ".join(f"{m['name']} {m['mu']:.2f}" for m in self.anchors()))
+-        self.rng = random.Random(self.s["births"] * 7919 + self.s["matches"] + 1)
++        # arenaZ-2: --rng-salt shifts the arena's own random stream (parent picks, operator draws, match pairing)
++        self.rng = random.Random(self.s["births"] * 7919 + self.s["matches"] + 1 + 1_000_003 * args.rng_salt)
+         self.gaps, self.gaps_t = [], 0.0
+ 
+     # ---- logging
+@@ -644,6 +645,7 @@
+     ap.add_argument("--summary-every", type=int, default=10)
+     ap.add_argument("--max-hours", type=float, default=48)
+     ap.add_argument("--tail-matches", type=int, default=200, help="matches played after the budget runs out")
++    ap.add_argument("--rng-salt", type=int, default=0, help="shifts the arena's random stream (0 = as before)")
+     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
+                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
+     ap.add_argument("--anchor-sigma", type=float, default=1.0)

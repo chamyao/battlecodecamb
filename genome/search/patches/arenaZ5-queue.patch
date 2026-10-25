@@ -1,0 +1,109 @@
+--- a/genome/search/arena.py
++++ b/genome/search/arena.py
+@@ -93,7 +93,12 @@
+             (self.out / d).mkdir(parents=True, exist_ok=True)
+         self.lock = threading.RLock()
+         self.sc = Scorer([], threads=1)
+-        self.claude = Claude(args.budget, opus_every=args.opus_every)
++        if args.llm_queue:  # arenaZ-5 (M2): every Claude call goes to a file queue answered by a Claude Code session
++            from .queuellm import QueueClaude
++            self.claude = QueueClaude(args.llm_queue, args.queue_timeout, self.queue_feedback)
++            self.q_reported, self.q_alive = set(), set()
++        else:
++            self.claude = Claude(args.budget, opus_every=args.opus_every)
+         self.claude.spent = sum(r.get("cost", 0.0) for r in self._read("children"))
+         self.maps = sorted(MAPS)
+         self.specs = {}
+@@ -358,6 +363,17 @@
+             ptext = (self.out / parent["path"]).read_text()
+             prefix = f"{self.a.tag}{seq}"
+         parents = [parent["name"]]
++        if self.a.llm_queue:
++            from .queuellm import QueueTimeout
++            self.claude.context(op, [parent["name"]] + ([partner["name"]] if partner else []), seq)
++            try:
++                return self._propose_ops(op, ptext, parent, partner, parents, prefix, r, seq)
++            except QueueTimeout as e:
++                return self.check(operators.Child(None, op, "queue timeout", {"detail": str(e)}, "session"),
++                                  parents, seq)
++        return self._propose_ops(op, ptext, parent, partner, parents, prefix, r, seq)
++
++    def _propose_ops(self, op, ptext, parent, partner, parents, prefix, r, seq):
+         if op == "tune":
+             child = operators.tune(ptext, r)
+         elif op == "cross":
+@@ -377,6 +393,35 @@
+                                      notes_fn=self.intel_notes)
+         return self.check(child, parents, seq)
+ 
++    def queue_feedback(self):
++        """M2 feedback for the next queued request: outcomes of earlier queued children not yet reported, the
++        current ratings of the live ones, those that died since the last request, and the top 5."""
++        with self.lock:
++            fb = {"outcomes": []}
++            for r in self._read("children"):
++                if r.get("model") != "session" or r["seq"] in self.q_reported:
++                    continue
++                self.q_reported.add(r["seq"])
++                q = [x.get("queue_seq") for x in (r.get("log") or {}).get("llm", []) if isinstance(x, dict)] \
++                    if isinstance((r.get("log") or {}).get("llm"), list) else \
++                    [((r.get("log") or {}).get("llm") or {}).get("queue_seq")]
++                out = "accepted" if r.get("accepted") else "twin" if r.get("twin_of") else "invalid"
++                fb["outcomes"].append({"child_seq": r["seq"], "request": q[0] if q else None, "op": r["op"],
++                                       "outcome": out, **({"name": r["name"]} if r.get("accepted") else {}),
++                                       **({"twin_of": r["twin_of"]} if r.get("twin_of") else {}),
++                                       **({"error": (r.get("error") or "")[:160]} if out == "invalid" else {})})
++                if r.get("accepted"):
++                    self.q_alive.add(r["name"])
++            mem = self.s["members"]
++            alive = {n for n in self.q_alive if mem.get(n, {}).get("alive", True) and n in mem}
++            fb["died"] = sorted(self.q_alive - alive)
++            self.q_alive = alive
++            fb["rated"] = [[n, round(mem[n]["mu"], 2), round(mem[n]["sigma"], 2), mem[n]["games"]] for n in sorted(alive)]
++            fb["top5"] = [[m["name"], round(m["mu"], 2), m["games"]] for m in
++                          sorted(self.genomes(), key=lambda m: -m["mu"])[:5]]
++            fb["births"] = self.s["births"]
++            return fb
++
+     def _stats_line(self, m):
+         return f"rating {m['mu']:.1f} ± {m['sigma']:.1f} over {m['games']} games in the arena"
+ 
+@@ -556,7 +601,8 @@
+                 with self.lock:
+                     want_birth = (births_open and len(births) < a.births_in_flight
+                                   and len(self.s["newborn_queue"]) <= a.threads
+-                                  and (len(self.genomes()) < a.capacity or self.s["since_birth"] >= a.random_matches))
++                                  and (len(self.genomes()) < a.capacity or self.s["since_birth"] >= a.random_matches)
++                                  and not (a.max_births and self.s["births"] >= a.max_births))
+                 if want_birth:
+                     seq += 1
+                     births[bpool.submit(self.propose, seq)] = seq
+@@ -593,6 +639,9 @@
+                             self.log(f"birth error: {type(e).__name__}: {e}")
+                             continue
+                         m = self.accept(rec, source)
++                        if a.max_births and self.s["births"] >= a.max_births and births_open:
++                            births_open = False
++                            self.log(f"{self.s['births']} births (--max-births {a.max_births}): no more births")
+                         if m:
+                             self.log(f"birth {m['name']} ({rec['op']} {rec['model'] or ''}) of {rec['parents']} "
+                                      f"species {m['species']}; {len(self.genomes())} genomes ${self.claude.spent:.2f}")
+@@ -605,6 +654,8 @@
+             self.summary()
+             self.save()
+         self.log(f"done: spent ${self.claude.spent:.2f}")
++        if self.a.llm_queue:
++            (Path(self.a.llm_queue) / "DONE").write_text(time.strftime("%Y-%m-%d %H:%M:%S"))
+ 
+ 
+ def main(argv=None):
+@@ -644,6 +695,9 @@
+     ap.add_argument("--summary-every", type=int, default=10)
+     ap.add_argument("--max-hours", type=float, default=48)
+     ap.add_argument("--tail-matches", type=int, default=200, help="matches played after the budget runs out")
++    ap.add_argument("--llm-queue", default="", help="file-queue LLM backend directory (genome/search queuellm.py)")
++    ap.add_argument("--queue-timeout", type=float, default=900, help="seconds a queued request waits for its reply")
++    ap.add_argument("--max-births", type=int, default=0, help="stop births after this many (0: budget only)")
+     ap.add_argument("--fixed-anchors", action="store_true", default=FIXED_DEFAULT,
+                     help="anchors keep fixed ratings (frozen at their current mu on resume)")
+     ap.add_argument("--anchor-sigma", type=float, default=1.0)
