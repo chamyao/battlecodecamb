@@ -1,0 +1,11 @@
+```python
+@gene("Z360b", "how much closer a step brings me to the goals; variant: when hurt, steps next to awake monsters count less (any step)")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() > 0 and d > 0:
+        if any(dist(e.pos, t) <= 2 for e in enemies() if e.is_champion):
+            return d * 0.5
+    if me().health_frac < 0.5 and d > 0 and any(is_awake(c) and dist(c.pos, t) <= 1 for c in camps()):
+        return d * 0.5
+    return d
+```

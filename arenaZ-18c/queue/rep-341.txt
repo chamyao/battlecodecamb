@@ -1,0 +1,7 @@
+```python
+@gene("s3", "distance field to the goals (heal below 40 percent, hunt gem carriers); variant: flee home when carrying 10+ gems below 40 percent with an enemy champion within 5")
+def goal_field() -> Field:
+    if gems() >= 10 and me().health_frac < 0.4 and any(e.is_champion and dist(e.pos, me().pos) <= 5 for e in enemies()):
+        return field(my_spawn())
+    return field(goals_v2())
+```

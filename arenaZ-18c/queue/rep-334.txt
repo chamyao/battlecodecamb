@@ -1,0 +1,23 @@
+```python
+@gene("s1", "value of doing this option now: cast abilities, dash toward goals, never recall (walk home to heal instead), treasure then bruiser shards; tuned; variant: bruiser health from the start")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        if items_owned(37) == 0:
+            return 100 + o.count if o.item == 40 else 0
+        return 100 + o.count if o.item == 40 else 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return 40 if progress(o.tile) > 0 else 0
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 71 + 6 * (1 - o.unit.health_frac)
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() < 5 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```
