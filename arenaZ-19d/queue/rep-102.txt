@@ -1,0 +1,20 @@
+```python
+@gene('s2', 'where to walk: a free altar once the bag holds 10 gems, else a living camp group other than golems and monoliths, gem clusters first when close, bank early when hurt, narrow gem margin')
+def goals() -> Tiles:
+    if gems() >= 10 or (gems() > 0 and (round() > 1900 or me().health_frac < 0.4)):
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    rest = acc - type_spawns(MONOLITH) - type_spawns(GOLEM)
+    gem = acc & type_spawns(GEM_CLUSTER)
+    if size(gem) > 0:
+        if dist(nearest(gem, me().pos), me().pos) <= dist(nearest(rest, me().pos), me().pos) + 4:
+            return gem
+    return rest
+
+```
