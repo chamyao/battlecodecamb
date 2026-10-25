@@ -2,6 +2,30 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 05:10 UTC: A-8c done; Z-15 / Z-16 m2
+
+- A-8 (session writer) vs A-8c (API writer), panel /1200, best (top-3 mean):
+
+  | milestone | A-8 | A-8c |
+  | --- | --- | --- |
+  | m13 | 1003 (991.7) at b1324 | 930 (917.3) at b1332 |
+  | m14 | 1010 (988.7) at b1401 | 958 (941.3) at b1442 |
+  | m15 | running | 966 (948.3) at b1509 |
+  | m16 | | 933 (partial) at b1600 |
+
+  A-8c finished at 1626 births (+$3.39). The session writer is ahead by about 45-70 at matched births,
+  and A-8c's peak (966) is below A-8's m13. This is one pair; it agrees with Z-5 vs Z-8x.
+- Z-15 (batched Opus via API): m2 176 at b290 (Z-8x: 190 at b207, 218 at b318). Slightly worse per birth,
+  but 459 births/h against ~180 typical for Z-8x. Batching buys speed, not quality per birth.
+- Z-16 (Opus splits): m2 114 at b270 (Z-11r: 83 at b219); inside the API-baseline spread so far.
+  Splits at b423: 40 attempted, 12 accepted; all 40 first tries failed the twin check, so every
+  accepted split passed on the retry. All 12 split cast_value. Split cost $2.91 of Opus on top of the $3 for
+  births. Genes per live genome: median 8 / max 9, against Z-1's 6 / 7 at the same birth count. Splitting
+  grows structure; whether that buys strength is not visible yet.
+- Z-1x: 257 at m12 (b1206). Flat around 250.
+- gatekeeper-16 (v28): no passes from any arenaA run. A-8c's best is 47/80 but drops vs B318, hunter,
+  deathball and v7. gatekeeper-17 now gates A-8 (arenaa/a8-mirror) and the Arena B relay.
+
 ## 2026-10-25 05:05 UTC
 
 - Relay Z-10 leg 8 done: births 350 -> 401 in ~25 min including setup, sha 22af5eb. The in-arena top
