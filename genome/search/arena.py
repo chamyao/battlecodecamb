@@ -830,8 +830,12 @@ def main(argv=None):
 
 
 def _rebase(path):
-    """An absolute path from another checkout -> the same repository-relative path in this one."""
+    """An absolute path from another checkout -> the same repository-relative path in this one: the path itself if it
+    still exists, else the longest trailing part of it that exists under this checkout, else the guess below."""
     parts = Path(path).parts
+    for cand in [Path(path)] + [ROOT.joinpath(*parts[k:]) for k in range(1, len(parts))]:
+        if cand.exists():
+            return str(cand)
     # the repository-relative part starts at the first known top directory (arena_policies/ holds anchors a run was
     # given inline); a bare file name only if none is found
     tops = ("arena_policies", "policies", "genome")
