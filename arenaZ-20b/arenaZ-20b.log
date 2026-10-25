@@ -670,3 +670,25 @@
 [14:24:54] [Z] birth Z392 (mutate session) of ['Z387'] species S113; 24 genomes $0.00
 [14:25:33] [Z] birth Z393 (mutate session) of ['Z359'] species S85; 24 genomes $0.00
 [14:26:22] [Z] birth Z394 (llm_cross session) of ['Z359', 'Z378'] species S104; 24 genomes $0.00
+[14:27:24] [Z] birth Z395 (llm_cross session) of ['Z385', 'Z370'] species S108; 24 genomes $0.00
+[14:28:02] [Z] rejected mutate session: behavioural twin
+[14:28:33] [Z] birth Z396 (mutate session) of ['Z388'] species S76; 24 genomes $0.00
+[14:29:07] [Z] rejected mutate session: behavioural twin
+[14:29:37] [Z] birth Z397 (mutate session) of ['Z388'] species S76; 24 genomes $0.00
+[14:30:35] [Z] rejected llm_cross session: behavioural twin
+[14:31:24] [Z] new species S115 founded by Z398
+[14:31:24] [Z] birth Z398 (mutate session) of ['Z374'] species S115; 24 genomes $0.00
+[14:31:47] [Z] rejected mutate session: behavioural twin
+[14:32:32] [Z] new species S116 founded by Z399
+[14:32:32] [Z] birth Z399 (llm_cross session) of ['Z385', 'Z388'] species S116; 24 genomes $0.00
+[14:33:14] [Z] champion anchor champ8-Z395 (mu 44.2)
+[14:33:14] [Z] summary: births 400 deaths 377 games 176984 $0.00; top [('Z395', 44.15, 0.8, 256, 'S108'), ('Z370', 43.71, 0.79, 816, 'S100'), ('Z385', 43.41, 0.79, 704, 'S94')]; top vs anchors {'Z395': 1.0, 'Z370': 0.938, 'Z385': 1.0}
+[14:33:14] [Z] birth Z400 (mutate session) of ['Z388'] species S116; 24 genomes $0.00
+[14:33:54] [Z] birth Z401 (llm_cross session) of ['Z362', 'Z370'] species S112; 24 genomes $0.00
+[14:34:14] [Z] new species S117 founded by Z402
+[14:34:14] [Z] birth Z402 (tune ) of ['Z371'] species S117; 24 genomes $0.00
+[14:34:32] [Z] rejected mutate session: behavioural twin
+[14:35:09] [Z] birth Z403 (mutate session) of ['Z390'] species S66; 24 genomes $0.00
+[14:35:47] [Z] birth Z404 (mutate session) of ['Z394'] species S104; 24 genomes $0.00
+[14:36:25] [Z] rejected mutate session: behavioural twin
+[14:36:55] [Z] birth Z405 (mutate session) of ['Z370'] species S100; 24 genomes $0.00
