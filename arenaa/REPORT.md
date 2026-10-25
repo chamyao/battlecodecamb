@@ -8,8 +8,11 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Z-18b finished (477 births) with its writer screening children by its own 80-game head-to-heads, which is an
   uncontrolled extra. Z-19 writers were told not to run their own games, so the arms stay comparable.
   Writer-side screening is a candidate experiment.
-- Possible sim issue (from Z-18b): 00road-of-riches and 01shortcut end 0-0 for every bot (no TRIBUTE option);
-  sent to the search session to check.
+- The 0-0 maps (00road-of-riches, 01shortcut) are a gap in runtime 648bafd, which has no BREAK option to unlock a
+  locked altar; ca5180b plays them normally. The tiebreak is side-fixed, so each pair gets exactly 2 of 4 games:
+  a constant +22/880 for every Z genome and opponent, zero variance. Z-vs-Z comparisons are unaffected; absolute Z
+  panel numbers include the fixed 22. One more reason the next series should move to ca5180b.
+- Z-18b's final population (477 births, writer screened with its own games) will be scored once for reference.
 
 ## 2026-10-25 08:40 UTC: A-9 leg 2 done
 
