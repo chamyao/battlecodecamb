@@ -96,4 +96,4 @@ genome/candidates/A81582-ringheal-mono.genome, sha256 9a566695b7b06184... (genom
 The A-8/A-9 lineage never got intel's farmable-camps fix; solo on great-wall v30 loses 38-45 champions per game, v29 11-12.
 - Arena B lead, real cambc: 45/80 vs v30 (ringheal), 57/80 vs v29, 0 crashes. Solo vs idle, all 80 games: deaths 356 (v30 522),
   rounds 98,956 (v30 99,212). Sim: 40/80 vs v30, 50/80 vs v29.
-- My real 80 vs v30: running.
+- My real cambc vs v30 (ringheal), 40 maps x 2 sides: 45/80, 0 crashes; wins both sides on 00great-wall and 01shortcut. v31 candidate.
