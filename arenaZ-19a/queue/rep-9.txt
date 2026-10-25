@@ -1,0 +1,18 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: cache the distance field to the goals", parents=["s3"])
+def update() -> None:
+    GF = field(goals())
+
+@gene("s3", "distance field to the goals (cached once per turn in update)")
+def goal_field() -> Field:
+    return GF
+
+@gene("s4", "how much closer a step brings me to the goals; hurt champions avoid stepping next to enemy champions")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.5 and any(dist(u.pos, t) <= 2 for u in enemies()):
+        return d - 1
+    return d
+```

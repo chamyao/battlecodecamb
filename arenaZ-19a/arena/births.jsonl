@@ -1,1 +1,13 @@
 {"arena": "Z", "t": 1792917031.1, "name": "seed", "birth": 0, "parents": [], "species": "S0", "mu": 25.0, "op": "seed"}
+{"arena": "Z", "t": 1792917214.8, "name": "Z1", "birth": 1, "parents": ["seed"], "species": "S1", "mu": 25.006535205236993, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917223.3, "name": "Z2", "birth": 2, "parents": ["seed"], "species": "S2", "mu": 24.682000582989563, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917232.2, "name": "Z3", "birth": 3, "parents": ["seed"], "species": "S0", "mu": 25.44261636203475, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917243.8, "name": "Z4", "birth": 4, "parents": ["seed"], "species": "S3", "mu": 25.36086165745054, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917284.0, "name": "Z5", "birth": 5, "parents": ["seed"], "species": "S4", "mu": 25.445545774566632, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917414.1, "name": "Z6", "birth": 6, "parents": ["seed"], "species": "S5", "mu": 25.056872772718634, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917435.2, "name": "Z7", "birth": 7, "parents": ["seed"], "species": "S6", "mu": 24.903672593015255, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917454.8, "name": "Z8", "birth": 8, "parents": ["seed"], "species": "S7", "mu": 25.42720307667417, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917520.3, "name": "Z9", "birth": 9, "parents": ["Z2"], "species": "S8", "mu": 23.285222576055506, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917597.5, "name": "Z10", "birth": 10, "parents": ["seed"], "species": "S9", "mu": 24.656887954719227, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917622.9, "name": "Z11", "birth": 11, "parents": ["Z4"], "species": "S10", "mu": 24.56286502866469, "op": "mutate", "model": "session"}
+{"arena": "Z", "t": 1792917641.8, "name": "Z12", "birth": 12, "parents": ["Z2"], "species": "S11", "mu": 23.706708405902464, "op": "mutate", "model": "session"}
