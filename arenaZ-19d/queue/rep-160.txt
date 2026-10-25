@@ -1,0 +1,11 @@
+```python
+@gene('Z77a', 'how much closer a step brings me to the weakest visible enemy champion when it is hurt and I am healthy, chase sooner', parents=['s1'])
+def chase_gain(t: Tile) -> Num:
+    if me().health_frac < 0.5:
+        return 0
+    v = best(enemies(), lambda u: 0 - u.health_frac)
+    if not exists(v) or v.health_frac > 0.6 or dist(v.pos, me().pos) > 6:
+        return 0
+    return dist(v.pos, me().pos) - dist(v.pos, t)
+
+```
