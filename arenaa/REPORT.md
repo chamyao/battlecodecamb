@@ -15,7 +15,7 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   Finding from the relay: the draft picks one champion every game, so ability branches for other
   champions never run; many heal/shield/cast edits are twins for that reason.
 - New calibrated runtime genome/v0 ca5180b (sim = real on 3 matchups); next series pins genome/search e3ac822a.
-  B1145 (Arena B) beats A61188 (v27) 48/80 in both sim and real.
+  CORRECTION: B1145 (Arena B's #1) vs A61188 (v27): B1145 won 32/80, A61188 won 48/80 (60%), sim and real alike. A61188 is the stronger bot.
 
 ## 2026-10-25 02:50 UTC
 
