@@ -2,6 +2,20 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 01:35 UTC: first controlled verdicts (one replicate per arm)
+
+- Evaluation change (arenaA-5 distinct games + bot-seeded anchors vs control arenaA-6, same +$3.53 from
+  arenaA-3): panel top 3 at m11 A-6 826/812/806 vs A-5 801/761/761; m12 A-6 855/850/846 vs A-5
+  802/793/790. The control is ~+50 ahead: the evaluation change looks neutral to harmful. A-5's gain over
+  arenaA-3 came from more births, not the change. (n = 1 per arm; A-6's last milestones still playing.)
+- A1 operator for every mutation (arenaZ-4) vs replicate baseline arenaZ-2 (880 games): m2 50/47/44 vs
+  99/89/89; m3 53/46 vs 91/87/79; Z-2 m4 126/107/99. Z-4 at about half the baseline: worse, consistent
+  with promptexp-1. (Z-1 m2 53-65, so Z-4 sits at the bottom of the baseline range.)
+- Ended: arenaA-6 ($7.80 total), Z-2 ($3.11), Z-4 ($3.00). Running: Z-3 (480 births), Z-6 (120), Z-7
+  (430, service). Z-5 mirror only pushed the log (gitignore); fix requested.
+- Next: arenaZ-8 = Z-1 with Opus for every Claude call (API credits are free per Cham); one EC2 slot
+  offered to Arena B.
+
 ## 2026-10-25 00:55 UTC
 
 - promptexp-1 corrected (T4/T5 prune bug fixed, 14 cells re-generated): A1 valid 78 -> 89, but 7 of the 11
