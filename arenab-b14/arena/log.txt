@@ -4177,3 +4177,6 @@
 [09:30:50] [B] summary: births 2170 deaths 2147 games 533344 $11.08; top [('B2153', 48.96, 0.84, 280, 'S6'), ('B2143', 48.25, 0.86, 536, 'S6'), ('B2160', 48.16, 0.82, 288, 'S10')]; top vs anchors {'B2153': 0.875, 'B2143': 0.727, 'B2160': 0.844}
 [09:30:50] [B] birth B2170 (mutate session) of ['B2163'] species S9; 24 genomes $11.08
 [09:31:11] [B] birth B2171 (mutate session) of ['B2165'] species S10; 24 genomes $11.08
+[09:31:59] [B] birth B2172 (mutate session) of ['B2153'] species S6; 24 genomes $11.08
+[09:32:07] [B] birth B2173 (mutate session) of ['B2160'] species S10; 24 genomes $11.08
+[09:32:19] [B] birth B2174 (llm_cross session) of ['B2143', 'B2171'] species S10; 24 genomes $11.08
