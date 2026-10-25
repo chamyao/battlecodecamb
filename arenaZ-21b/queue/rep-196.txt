@@ -1,0 +1,8 @@
+```python
+@gene("Z205b", "a dash to this tile lands next to an enemy champion below half health I am not yet next to, while I am above half health")
+def engage_dash(t: Tile) -> Bool:
+    if not valid(t) or me().health_frac <= 0.5:
+        return False
+    p = me().pos
+    return any(u.health_frac < 0.5 and dist(u.pos, t) <= 1 and dist(u.pos, p) > 1 for u in enemies())
+```

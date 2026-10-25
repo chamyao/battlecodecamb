@@ -1,0 +1,13 @@
+```python
+@gene("Z46a", "worth of a dash: escape when hurt in a fight; when nearly full keep dashing two tiles toward the goals even near a fight")
+def dash_value(t: Tile) -> Num:
+    if not valid(t):
+        return 0
+    if in_fight():
+        if me().health_frac < 0.4:
+            return 96 if threat_dist(t) - threat_dist(me().pos) >= 2 else 0
+        if me().health_frac > 0.75 and progress(t) >= 2:
+            return 51
+        return 0
+    return 51 if progress(t) >= 2 else 0
+```

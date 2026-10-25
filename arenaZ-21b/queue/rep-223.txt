@@ -1,0 +1,49 @@
+```python
+@gene('Z7a', 'worth of casting: stun enemy tributes first; resets only with a target in reach; damage and stuns on champions and fought camps, shields and resets in fights, heals; dashes to travel or to escape when hurt', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            if k == AB_CC and is_tributing(o.unit):
+                return 97
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            if k == AB_CC and is_awake(o.unit) and me().health_frac < 0.7:
+                return 72
+            return 65
+        return 0
+    if k == AB_AOE:
+        if not valid(o.tile):
+            return 0
+        r = slot_radius(o.slot)
+        n = count(dist(u.pos, o.tile) <= r for u in enemies())
+        c = count(dist(u.pos, o.tile) <= r and (gems() == 0 or is_awake(u)) for u in camps())
+        if n + c == 0:
+            return 0
+        return 64 + n * 3 + c
+    if k == AB_SHIELD:
+        return 75 if in_fight() else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and o.unit.health_frac < 0.6:
+            return 85
+        return 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        p = me().pos
+        rng = me().attack_range
+        if any(dist(u.pos, p) <= rng for u in enemies()):
+            return 62
+        return 58 if any(dist(u.pos, p) <= rng and (gems() == 0 or is_awake(u)) for u in camps()) else 0
+    if k == AB_DASH:
+        if not valid(o.tile):
+            return 0
+        if in_fight():
+            if me().health_frac < 0.4 and threat_dist(o.tile) - threat_dist(me().pos) >= 2:
+                return 96
+            return 0
+        return 51 if progress(o.tile) >= 2 else 0
+    return 0
+```

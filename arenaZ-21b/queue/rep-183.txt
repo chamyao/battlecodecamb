@@ -1,0 +1,65 @@
+```python
+@gene("new", "this champion's shared-memory slot for its camp claim", parents=["Z17a"])
+def claim_slot() -> Num:
+    return me().type - floor(me().type / 8) * 8
+
+@gene("new", "another ally has claimed camp group g in shared memory", parents=["Z17a"])
+def claimed_by_other(g: Num) -> Bool:
+    s = claim_slot()
+    return any(j != s and read_shared(j) == g + 1 for j in range(8))
+
+@gene("new", "the nearest living camp group (monolith and golem spawns excluded) that no ally has claimed, else the nearest one at all (-1 if none)", parents=["Z17a"])
+def pick_group() -> Num:
+    p = me().pos
+    bd = INF
+    bg = -1
+    ad = INF
+    ag = -1
+    for h in range(num_groups()):
+        if not group_respawning(h):
+            ts = group_tiles(h) - type_spawns(MONOLITH) - type_spawns(GOLEM)
+            if size(ts) > 0:
+                d = dist(nearest(ts, p), p)
+                if d < ad:
+                    ad = d
+                    ag = h
+                if d < bd and not claimed_by_other(h):
+                    bd = d
+                    bg = h
+    return bg if bg >= 0 else ag
+
+@gene("Z17a", "once per turn: note the tiles next to area-spell targets; claim a camp group no ally has claimed (shared memory) and walk to it, with altars when carrying; release the claim when dead or recalling; recompute the walk field only when the goals change")
+def update() -> None:
+    s = claim_slot()
+    if not alive() or is_recalling(me()):
+        write_shared(s, 0)
+    if channeling() or not alive():
+        return
+    hot = near(tile(-5, -5), 0)
+    if slot_ready(0) or slot_ready(1):
+        for u in enemies():
+            hot = hot | near(u.pos, 1)
+        for u in camps():
+            if gems() == 0 or is_awake(u):
+                hot = hot | near(u.pos, 1)
+    HOT = hot
+    if gems() > 0 and banking():
+        write_shared(s, 0)
+        gs = walk_goals()
+    else:
+        g = read_shared(s) - 1
+        if g < 0 or g >= num_groups() or group_respawning(g):
+            g = pick_group()
+            write_shared(s, g + 1)
+        if g < 0:
+            gs = walk_goals()
+        else:
+            gs = group_tiles(g)
+            if gems() > 0:
+                for a in altars() - locked_altars():
+                    gs = gs | near(a, 1)
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+```

@@ -1,0 +1,13 @@
+```python
+@gene("Z190b", "draft order: Marcella, then Cassi and Issac (two bodies for one pick), Ryth, Tavi, then the default order")
+def mrtv_order(c: Num) -> Num:
+    if c == MARCELLA:
+        return 5
+    if c == CASSI or c == ISSAC:
+        return 4
+    if c == RYTH:
+        return 3
+    if c == TAVI:
+        return 2
+    return 1
+```

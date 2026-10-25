@@ -1,0 +1,17 @@
+```python
+@gene("Z17a", "recompute the walk field only when the walk goals change; after round 1000 living golem groups join the camp goals; skip while channeling or dead")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = walk_goals()
+    if round() > 1000 and not banking():
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                gl = group_tiles(g) & type_spawns(GOLEM)
+                if size(gl) > 0:
+                    gs = gs | group_tiles(g)
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+```
