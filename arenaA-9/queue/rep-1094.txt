@@ -1,0 +1,5 @@
+```python
+@gene("a16", "units of the next shard still to buy: everything SHOP_GOLD still pays for, in one purchase (fewer passes)")
+def shard_left() -> Num:
+    return max(0, shard_until(4) - shards_done())
+```

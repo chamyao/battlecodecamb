@@ -1,0 +1,21 @@
+```python
+@gene('r13', 'every altar-adjacent tile is a camp spawn and the camp in reach stands on the nearest one: fight the blocker (cheap camp check first)')
+def bank_blocked() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not in_reach(c) or not (c.pos in camp_spawns()):
+        return False
+    return not valid(bank_t1()) and not valid(bank_t2()) and c.pos == bank_t3()
+
+@gene("c2", "the altar or unit tile this turn's rule acts on (reads the turn's rule keep)")
+def rule_target() -> Tile:
+    r = RULE
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+```

@@ -1,0 +1,7 @@
+```python
+@gene('a4', 'cast-ahead target: enemies off their spawn and within 7 (the cast-ahead range), carrying the most gems, then nearest, with a stronger pull toward wounded ones (finishable)')
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    h = here()
+    return best(enemies(), lambda u: -INF if (u.pos in es or dist(h, u.pos) > 7) else unit_gems(u) * 10 - dist(h, u.pos) - 25 * u.health_frac)
+```
