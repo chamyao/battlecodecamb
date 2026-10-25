@@ -1,0 +1,152 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HEALING: Bool = False
+THREAT: Bool = False
+SEEN: Bool = False
+ONSP: Bool = False
+DZ: Tiles = None
+OUTNUM: Bool = False
+
+@gene('Z218a', 'value of doing this option now; heals on spawn (cached), casts on enemy champions first, shield/heal in fights, camp-ability use, dashes toward goals, focuses gem carriers (less eagerly when outnumbered and hurt), fights back awake camps even with gems; tribute above fights when no threat; recalls when healing or very low and no enemy champion close', parents=['Z183a', 's1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    hf = me().health_frac
+    if o.kind == RECALL:
+        if (HEALING or hf < 0.35) and not THREAT and not ONSP:
+            return 90
+        return 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 75 if hf < 0.95 or SEEN else 0
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit) and o.unit.is_champion and o.unit.is_enemy:
+                return 78
+            if exists(o.unit) and o.unit.is_camp and not HEALING:
+                if gems() == 0 or is_awake(o.unit):
+                    return 58
+        if k == AB_DASH:
+            if valid(o.tile) and not (HEALING and ONSP):
+                if progress(o.tile) >= 2:
+                    return 55
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if o.unit.health_frac < 0.3 or (hf > 0.3 and not (OUTNUM and hf < 0.6)):
+                return 80 + 15 * (1.6177 - o.unit.health_frac) + min(unit_gems(o.unit), 50) / 10
+            return 0
+        if HEALING:
+            return 0
+        if gems() == 0 or (o.unit.is_camp and is_awake(o.unit)):
+            return 60 + 5 * (1 - o.unit.health_frac)
+        return 0
+    if o.kind == TRIBUTE:
+        return 70 if THREAT else 97
+    if o.kind == MOVE:
+        if (HEALING or hf < 0.9) and ONSP:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when hurt, altar first when carrying many gems or late in the game, capturable group, altar with gems, else living camps holding gems first (no golems early, no monoliths)')
+def goals() -> Tiles:
+    empty = near(tile(-5, -5), 0)
+    if HEALING:
+        return my_spawn()
+    alt = empty
+    g0 = gems()
+    if g0 > 0:
+        for a in altars() - locked_altars():
+            alt = alt | near(a, 1)
+    if size(alt) > 0:
+        if g0 >= 40 or round() > 1750:
+            return alt
+    rew = empty
+    acc = empty
+    gacc = empty
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+            if group_gems(g) > 0:
+                gacc = gacc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    if size(alt) > 0:
+        return alt
+    safe = acc - type_spawns(MONOLITH)
+    gsafe = gacc - type_spawns(MONOLITH)
+    if round() < 600:
+        easy = safe - type_spawns(GOLEM)
+        geasy = gsafe - type_spawns(GOLEM)
+        if size(geasy) > 0:
+            return geasy
+        if size(easy) > 0:
+            return easy
+    if size(gsafe) > 0:
+        return gsafe
+    if size(safe) > 0:
+        return safe
+    return acc
+
+@gene('Z299a', 'how much closer a step brings me to the goals (per-turn field keep); steps into the per-turn danger set (beside seen enemies while carrying gems) do not count', parents=['Z218b', 's4'])
+def progress(t: Tile) -> Num:
+    d = at(GF, me().pos) - at(GF, t)
+    if d > 0 and t in DZ:
+        return 0
+    return d
+
+@gene('Z299b', 'track healing (enter at ~40%, earlier with gems, or below 60% when outnumbered nearby); skip while dead; cache seen enemies, threat, outnumbered, on-spawn and the danger set once per turn; healing field avoids enemies and is skipped on spawn; else goal field once per turn', parents=['Z9a', 'Z8a', 'Z281a'])
+def update() -> None:
+    if alive():
+        hf = me().health_frac
+        thr = 0.39 + min(gems(), 50) / 300
+        mp = me().pos
+        ONSP = mp in my_spawn()
+        et = enemy_tiles()
+        SEEN = size(et) > 0
+        THREAT = False
+        OUTNUM = False
+        empty = near(tile(-5, -5), 0)
+        dz = empty
+        if SEEN:
+            nen = count(u.is_champion and dist(u.pos, mp) <= 5 for u in enemies())
+            THREAT = any(u.is_champion and dist(u.pos, mp) <= 4 for u in enemies())
+            if nen >= 2:
+                nal = count(dist(a.pos, mp) <= 6 and a.is_champion for a in allies())
+                OUTNUM = nen > nal + 1
+            if not HEALING and gems() >= 20:
+                for e in et:
+                    dz = dz | near(e, 1)
+        if OUTNUM and hf < 0.6:
+            thr = max(thr, 0.3162)
+        if hf < thr:
+            HEALING = True
+        if hf > 0.9:
+            HEALING = False
+        DZ = dz
+        if HEALING:
+            if not ONSP:
+                GF = field_avoid(my_spawn(), et, empty)
+        else:
+            GF = field(goals())
+
+@gene('Z148a', 'skip listing option kinds the policy never uses (wards, locks) or cannot score now (recall when not needed or threatened, tribute without gems, buy off shop) to save fuel', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    if kind == RECALL:
+        if ONSP or THREAT:
+            return False
+        return HEALING or me().health_frac < 0.35
+    if kind == TRIBUTE:
+        return gems() > 0
+    if kind == BUY:
+        return can_shop()
+    return True
