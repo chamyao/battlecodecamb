@@ -1,0 +1,21 @@
+```python
+@gene('w9', 'the dash landing tile closest to GOAL by walking, ties broken by fewest enemy champions within 3 of it (weighted 15 each, 25 when retreating or carrying 10+ gems) and awake camps able to hit it (weighted 12 each), invalid if none', parents=['w9'])
+def dash_spot() -> Tile:
+    if not valid(GOAL) or GOAL == here():
+        return tile(-1, -1)
+    mine = at(FIELD, here())
+    bk = INF
+    s = tile(-1, -1)
+    ev = enemies()
+    cv = camps()
+    w = 25 if (RULE == 3 or gems() >= 10) else 15
+    for t in near(here(), 2):
+        d = at(FIELD, t)
+        if d < mine and t != here() and not (t in BLOCK):
+            if dash_path_ok(t):
+                k = d * 10 + w * sum(1 for e in ev if dist(e.pos, t) <= 3) + 12 * sum(1 for c in cv if c.attack_range > 0 and dist(c.pos, t) <= c.attack_range and is_awake(c))
+                if k < bk:
+                    bk = k
+                    s = t
+    return s
+```

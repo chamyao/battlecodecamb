@@ -1,0 +1,12 @@
+```python
+@gene("s11", "turns to stand on a safe altar tile (out of monolith reach) we can tribute at (not next to an enemy-locked altar; 1000 if none), else next to any open altar")
+def altar_eta() -> Num:
+    h = here()
+    s = SAFE_RING - ring(locked_altars(), 1)
+    d = min((dist(h, t) for t in s), default=-1)
+    if d < 0:
+        d = min((max(0, dist(h, a) - 1) for a in altars() - locked_altars()), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```
