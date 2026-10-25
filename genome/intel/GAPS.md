@@ -579,3 +579,19 @@ Target (Arena B lead): maps where v29 doesn't reach 1000 gems vs builtin:idle. T
 - 40/80 vs rh-mono-all; only boss-battle's 2 games differ.
 - Anchors +2 (B318 63, L1c 67), the rest identical.
 - Real cambc vs the rh-mono-all build on boss-battle: 2-0, 0 crashes. 1016-775, then a 0-0 lock won on gold (4,674 vs 4,193).
+
+## b9 losses (v32 = B1873): ranked causes (2026-10-25)
+
+All figures are before r250 and per game, us / them, over the 19 losses unless noted.
+
+1. **Early deaths to champions.**
+   - Kill gold 290 vs 30 (about 2.9 kills on us). In wins it is 91 vs 23.
+   - Tagged "fights" in 11 of 19 losses.
+   - Sim, B1873 vs stress/hunter: early deaths 1.89 in losses vs 0.52 in wins. Tool: genome/intel/tools/early.py.
+2. **Early capture pace.**
+   - Our captures: 8.9 in losses vs 13.9 in wins. Opponent: 12.4 vs 9.5.
+   - Only 0.8 of our captures per loss are in their half (3.5 in wins).
+   - Gold per capture: 68 vs their 127. Capture gold: 741 vs 1,064.
+   - No sign of contesting: they make 2.2 captures per game in our half.
+3. **Shop conversion.** By r500 they spend 2,878 vs our 1,595, on Power and Durability shards (we buy neither).
+4. **Single maps:** starvation, boss_battle, contest, shortcut.
