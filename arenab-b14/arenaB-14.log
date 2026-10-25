@@ -52,3 +52,12 @@
 [04:17:42] [B] birth B1486 (mutate session) of ['B1479'] species S6; 24 genomes $11.08
 [04:18:00] [B] birth B1487 (cross ) of ['B1479', 'B1472'] species S6; 24 genomes $11.08
 [04:18:36] [B] birth B1488 (llm_cross session) of ['B1479', 'B1469'] species S6; 24 genomes $11.08
+[04:18:50] [B] birth B1489 (mutate session) of ['B1455'] species S6; 24 genomes $11.08
+[04:19:09] [B] summary: births 1490 deaths 1467 games 338672 $11.08; top [('B1487', 46.73, 0.85, 136, 'S6'), ('B1490', 46.73, 6.0, 0, 'S6'), ('B1488', 46.51, 0.92, 96, 'S6')]; top vs anchors {'B1487': 0.575, 'B1488': 0.875, 'B1489': 0.825}
+[04:19:09] [B] birth B1490 (mutate session) of ['B1487'] species S6; 24 genomes $11.08
+[04:19:10] [B] rejected mutate session: behavioural twin
+[04:19:17] [B] birth B1491 (mutate session) of ['B1478'] species S6; 24 genomes $11.08
+[04:19:38] [B] rejected tune : behavioural twin
+[04:19:43] [B] rejected mutate session: behavioural twin
+[04:19:44] [B] birth B1492 (mutate session) of ['B1485'] species S3; 24 genomes $11.08
+[04:20:05] [B] birth B1493 (mutate session) of ['B1478'] species S6; 24 genomes $11.08

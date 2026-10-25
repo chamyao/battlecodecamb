@@ -1,0 +1,7 @@
+```python
+@gene("r4", "recall: below 30% health, or below 40% while carrying 10+ gems (keep the carry alive), and not on spawn", parents=["r4"])
+def r_recall() -> Bool:
+    if at_spawn():
+        return False
+    return hurt_below(0.4) if gems() >= 10 else hurt_below(0.3)
+```

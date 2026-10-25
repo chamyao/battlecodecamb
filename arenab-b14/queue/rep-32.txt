@@ -1,0 +1,26 @@
+```python
+@gene("c1", "where this turn's rule walks; the camp walk with no live camp goal waits at the nearest respawning group, else beside a safe altar, instead of idling", parents=["c1"])
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        g = camp_goal()
+        if valid(g):
+            return g
+        w = closest(respawning() - BIG_CAMPS - MONO_GROUPS)
+        if valid(w):
+            return w
+        return closest(SAFE_RING)
+    return tile(-1, -1)
+```

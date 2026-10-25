@@ -1,0 +1,8 @@
+```python
+@gene("r3", "retreat on foot: under fire and below 30% health, or below 55% while carrying 15+ gems (do not feed the enemy a carry)", parents=["r3"])
+def r_run() -> Bool:
+    if at_spawn():
+        return False
+    lim = 0.55 if gems() >= 15 else 0.3
+    return hurt_below(lim) and under_fire()
+```

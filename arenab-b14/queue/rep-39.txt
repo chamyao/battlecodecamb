@@ -1,0 +1,35 @@
+```python
+@gene('a0', "value of a move, attack, tribute, recall, lock or ward option under this turn's rule; a basic attack that kills an enemy champion comes first (except while recalling); default rule hits enemy champions in reach, weaker and gem-carrying ones first; camp-walk attacks only on farmable camps", parents=["a0"])
+def act_value(o: Option) -> Num:
+    k = o.kind
+    r = RULE
+    if k == MOVE:
+        return move_value(o) if walks() else 0
+    if k == ATTACK:
+        u = o.unit
+        foe = u.is_enemy and u.is_champion
+        if foe and r != 4 and r != 5 and kill_shot(u):
+            return 190
+        if r == 7 or r == 14:
+            return 178 if u.pos == TGT else 0
+        if r == 13:
+            return 150 if u.pos == TGT else 0
+        if r == 20:
+            if foe:
+                return 120 + 10 * (1 - u.health_frac) + min(unit_gems(u), 20) / 4
+            return 90 if u.is_camp and farmable(u) and u.pos == reach_camp().pos else 0
+        return 0
+    if k == TRIBUTE:
+        return 150 if (r == 6 or r == 9 or r == 10 or r == 17) and o.tile == TGT else 0
+    if k == RECALL:
+        return 150 if r == 4 or r == 5 else 0
+    if k == LOCK:
+        return 150 if r == 8 and o.tile == TGT else 0
+    if k == WARD:
+        return 130 if r == 20 and o.tile == here() and here() in bushes() and count_units(enemies()) == 0 else 0
+    return 0
+
+@gene("new", "a basic attack now kills this enemy champion (exact damage against health plus shield)", parents=["a0"])
+def kill_shot(u: Unit) -> Bool:
+    return u.is_enemy and u.is_champion and in_reach(u) and attack_damage(me(), u) >= u.health + shield(u)
+```
