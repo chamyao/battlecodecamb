@@ -1,0 +1,26 @@
+```python
+GOALF: Field = None
+
+@gene("s2", "where to walk: home to heal when hurt and empty-handed, an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    if gems() == 0 and me().health_frac < 0.55:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals, computed once per turn in update")
+def goal_field() -> Field:
+    return GOALF
+
+@gene("new", "compute the goal distance field once per turn instead of every pass", parents=["s3"])
+def update() -> None:
+    GOALF = field(goals())
+```
