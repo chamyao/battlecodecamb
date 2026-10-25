@@ -1,0 +1,7 @@
+```python
+@gene('s10', 'fewest turns until a visible enemy champion could hit us (1000 if none); a 1-tile margin, plus 3 tiles for enemies below 25% health who tend to retreat; recalling enemies and enemies on their own spawn are ignored')
+def threat_eta() -> Num:
+    h = here()
+    es = enemy_spawn()
+    return min((eta(max(0, dist(h, u.pos) - u.attack_range - 1 + (3 if u.health_frac < 0.25 else 0)), u.move_speed) for u in enemies() if not is_recalling(u) and not (u.pos in es)), default=1000)
+```
