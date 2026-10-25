@@ -2280,3 +2280,26 @@
 [01:11:10] [A6] summary: births 1225 deaths 1202 games 298464 $7.80; top [('A61200', 44.27, 0.83, 480, 'S1'), ('A61203', 44.16, 0.82, 592, 'S1'), ('A61180', 43.97, 0.79, 816, 'S1')]; top vs anchors {'A61200': 0.958, 'A61203': 0.893, 'A61180': 0.833}
 [01:11:11] [A6] done: spent $7.80
 [03:44:47] [A8C] resumed: 24 genomes, 1225 births, 37308 matches, spent $7.80
+[03:47:29] [A8C] re-fingerprinted 24 genomes on this runtime
+[03:47:29] [A8C] fixed anchors: style-gconv1 37.58, v7 28.93, tune-v20-L1 37.58, rall2-ca4-lean-g 37.24, opp-tune5-metadraft 31.28, champ1-A9 38.38, champ2-A23 37.53, champ3-A143 38.12, champ4-A196 39.62, champ5-A215 38.93, champ6-A295 37.58, champ7-A318 39.25, champ8-A293 38.70, champ9-A408 39.58, champ10-A497 40.69, champ11-A549 40.60, champ12-A591 40.96, champ13-A626 41.09, champ14-A689 41.25, champ15-A6743 42.07, champ16-A6763 41.93, champ18-A6857 41.92, champ19-A6903 42.07, champ20-A6957 41.83, champ21-A61034 42.85, champ22-A61099 43.57, champ23-A61118 43.23, champ24-A61180 43.99
+[03:47:41] [A8C] rejected tune : behavioural twin
+[03:47:41] [A8C] birth A8C1226 (cross ) of ['A61200', 'A61206'] species S1; 24 genomes $7.80
+[03:47:48] [A8C] birth A8C1227 (mutate claude-haiku-5-5) of ['A61200'] species S1; 24 genomes $7.80
+[03:48:14] [A8C] birth A8C1228 (tune ) of ['A61214'] species S1; 24 genomes $7.80
+[03:48:19] [A8C] birth A8C1229 (mutate claude-haiku-5-5) of ['A61209'] species S1; 24 genomes $7.80
+[03:48:23] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:48:34] [A8C] rejected tune : behavioural twin
+[03:48:39] [A8C] summary: births 1230 deaths 1207 games 299056 $7.81; top [('A61200', 44.27, 0.83, 480, 'S1'), ('A61214', 43.9, 0.79, 328, 'S1'), ('A8C1226', 43.9, 0.9, 96, 'S1')]; top vs anchors {'A61200': 0.958, 'A61214': 0.75, 'A8C1226': 0.75}
+[03:48:39] [A8C] birth A8C1230 (cross ) of ['A61209', 'A61200'] species S1; 24 genomes $7.81
+[03:48:39] [A8C] birth A8C1231 (tune ) of ['A61191'] species S1; 24 genomes $7.81
+[03:48:51] [A8C] birth A8C1232 (mutate claude-haiku-5-5) of ['A61214'] species S1; 24 genomes $7.81
+[03:49:08] [A8C] rejected tune : behavioural twin
+[03:49:13] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:49:13] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:49:19] [A8C] birth A8C1233 (mutate claude-haiku-5-5) of ['A61213'] species S1; 24 genomes $7.81
+[03:49:20] [A8C] birth A8C1234 (tune ) of ['A61158'] species S1; 24 genomes $7.81
+[03:49:20] [A8C] birth A8C1235 (tune ) of ['A61200'] species S1; 24 genomes $7.81
+[03:49:34] [A8C] rejected mutate claude-haiku-5-5: behavioural twin
+[03:49:38] [A8C] birth A8C1236 (mutate claude-haiku-5-5) of ['A61191'] species S1; 24 genomes $7.81
+[03:49:47] [A8C] birth A8C1237 (cross ) of ['A61213', 'A61173'] species S1; 24 genomes $7.81
+[03:50:00] [A8C] birth A8C1238 (mutate claude-haiku-5-5) of ['A61173'] species S1; 24 genomes $7.81
