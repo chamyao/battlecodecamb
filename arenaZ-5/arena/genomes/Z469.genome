@@ -1,0 +1,178 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('Z256a', 'value of doing this option now: casts, eager fight-back on awake camps, focus the weakest (or gem-richest) champion, durability-then-treasure-then-health-durability-then-monster-then-power build, recall at 5% or to shop from 120 gold', parents=['Z174a', 'Z202a'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 18 and items_owned(19) == 0:
+            return 100
+        if o.item == 12 and items_owned(13) == 0:
+            return 101
+        if o.item == 16 and items_owned(17) == 0:
+            return 98
+        if o.item == 4 and items_owned(5) == 0:
+            return 96
+        return 95 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.05:
+            return 90
+        if gems() == 0 and gold() >= 120 and count_units(enemies()) == 0:
+            return 75
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 8 * (1 - o.unit.health_frac) + min(unit_gems(o.unit), 4)
+        return 79 if gems() == 0 or is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z86a', 'where to walk: altar (or a cleared camp) with gems; else cleared camps, an ally fight to join (unless badly hurt), prey, then living non-monolith camps (no golems before round 600)', parents=['s2'])
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    if size(acc) > 0:
+        return acc
+    hf = me().health_frac
+    if hf > 0.4:
+        rally = rally_tile()
+        if valid(rally):
+            return near(rally, 1)
+    if hf > 0.5:
+        here = me().pos
+        for u in enemies():
+            if u.is_champion:
+                if unit_gems(u) >= 5 and u.health_frac < hf:
+                    acc = acc | near(u.pos, 0)
+                elif u.health_frac < 0.3 and dist(u.pos, here) <= 4:
+                    acc = acc | near(u.pos, 0)
+        if size(acc) > 0:
+            return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    acc = acc - type_spawns(MONOLITH)
+    if round() < 600:
+        acc = acc - type_spawns(GOLEM)
+    return acc
+
+@gene('s3', 'distance field to the goals: to my spawn when nearly dead without gems, around visible enemy champions while hurt (also on the way home)')
+def goal_field() -> Field:
+    hf = me().health_frac
+    dest = my_spawn() if hf < 0.3 and gems() == 0 else goals()
+    if hf < 0.5:
+        danger = enemy_zone()
+        if size(danger) > 0:
+            return field_avoid(dest, danger, near(tile(-5, -5), 0))
+    return field(dest)
+
+@gene('Z113a', 'after acting: announce a fight with an enemy champion (attack or cast tile + round, or my own tile when one is on me) in shared bytes 0-2 so allies can join', parents=['Z86a'])
+def after() -> None:
+    t = tile(-5, -5)
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+    if not (valid(t) and t in enemy_tiles()) and acted(CAST):
+        t = acted_tile(CAST)
+    if not (valid(t) and t in enemy_tiles()):
+        here = me().pos
+        if any(u.is_champion and dist(u.pos, here) <= 2 for u in enemies()):
+            write_shared(0, here.x + 1)
+            write_shared(1, here.y + 1)
+            write_shared(2, round() % 250 + 1)
+        return
+    write_shared(0, t.x + 1)
+    write_shared(1, t.y + 1)
+    write_shared(2, round() % 250 + 1)
+
+@gene('Z113b', 'tile of a fresh ally fight beacon (5 rounds) within 24 tiles (invalid if none)', parents=['Z86a'])
+def rally_tile() -> Tile:
+    stamp = read_shared(2)
+    if stamp == 0:
+        return tile(-5, -5)
+    age = (round() % 250 + 1 - stamp + 250) % 250
+    if age > 5:
+        return tile(-5, -5)
+    t = tile(read_shared(0) - 1, read_shared(1) - 1)
+    d = dist(t, me().pos)
+    if d <= 1 or d > 24 - 3 * age:
+        return tile(-5, -5)
+    return t
+
+@gene('Z74a', 'tiles within 2 of a visible enemy champion, except around me', parents=['s3'])
+def enemy_zone() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        if u.is_champion:
+            acc = acc | near(u.pos, 3)
+    return acc - near(me().pos, 1)
+
+@gene('s4', 'how much closer a step brings me to the goals')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('Z78a', 'skip listing option kinds the score never takes (wards, locks, cancels), casts while both slots cool down, shopping off spawn and tributes without gems', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    if kind == CAST:
+        return slot_ready(0) or slot_ready(1)
+    if kind == BUY:
+        return can_shop()
+    if kind == TRIBUTE:
+        return gems() > 0
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+
+@gene('Z256b', 'value of casting: stun tributing enemies, attack resets, ground AoE on enemy champions or awake camp packs, damage/cc on enemy champions or camps we fight, heal the most hurt target, shield when hurt, dash toward goals (urgently when fleeing hurt)', parents=['Z18a', 'Z202b'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hf = me().health_frac
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy and not o.unit.is_camp:
+            return 88 if o.unit.health_frac < 0.6 else 0
+        return 88 if hf < 0.6 else 0
+    if k == AB_SHIELD:
+        return 86 if hf < 0.9 and count_units(enemies()) > 0 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and not exists(o.unit):
+            if hf < 0.3 and gems() == 0 and count_units(enemies()) > 0:
+                return 80 if progress(o.tile) >= 2 else 0
+            return 38 if progress(o.tile) >= 2 else 0
+        return 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        here = me().pos
+        reach = me().attack_range
+        if any(dist(u.pos, here) <= reach for u in enemies()):
+            return 83
+        if gems() == 0 and any(dist(u.pos, here) <= reach for u in camps()):
+            return 63
+        return 0
+    if not exists(o.unit):
+        if (k == AB_AOE or k == AB_DAMAGE or k == AB_CC) and valid(o.tile):
+            r = slot_radius(o.slot)
+            if any(u.is_champion and dist(u.pos, o.tile) <= r for u in enemies()):
+                return 84
+            if k == AB_AOE and gems() == 0:
+                if count(dist(u.pos, o.tile) <= r and is_awake(u) for u in camps()) >= 2:
+                    return 63
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if o.unit.is_champion and o.unit.is_enemy:
+            if k == AB_CC and is_tributing(o.unit):
+                return 96
+            return 85
+        if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 72
+    return 0
