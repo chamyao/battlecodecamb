@@ -506,3 +506,27 @@
 [13:05:21] [Z] birth Z284 (tune ) of ['Z214'] species S86; 24 genomes $0.00
 [13:05:35] [Z] rejected mutate session: behavioural twin
 [13:05:48] [Z] rejected tune : behavioural twin
+[13:06:32] [Z] rejected mutate session: behavioural twin
+[13:07:31] [Z] new species S99 founded by Z285
+[13:07:31] [Z] birth Z285 (llm_cross session) of ['Z200', 'Z273'] species S99; 24 genomes $0.00
+[13:08:16] [Z] new species S100 founded by Z286
+[13:08:16] [Z] birth Z286 (mutate session) of ['Z268'] species S100; 24 genomes $0.00
+[13:08:45] [Z] birth Z287 (mutate session) of ['Z242'] species S62; 24 genomes $0.00
+[13:09:07] [Z] birth Z288 (tune ) of ['Z285'] species S99; 24 genomes $0.00
+[13:09:24] [Z] birth Z289 (mutate session) of ['Z214'] species S86; 24 genomes $0.00
+[13:10:07] [Z] rejected mutate session: behavioural twin
+[13:10:45] [Z] new species S101 founded by Z290
+[13:10:45] [Z] summary: births 290 deaths 267 games 130952 $0.00; top [('Z290', 43.45, 6.0, 0, 'S101'), ('Z286', 43.43, 0.84, 136, 'S100'), ('Z268', 43.31, 0.81, 496, 'S87')]; top vs anchors {'Z286': 1.0, 'Z268': None, 'Z274': None}
+[13:10:45] [Z] birth Z290 (mutate session) of ['Z284'] species S101; 24 genomes $0.00
+[13:11:08] [Z] birth Z291 (mutate session) of ['Z284'] species S101; 24 genomes $0.00
+[13:11:43] [Z] birth Z292 (mutate session) of ['Z256'] species S76; 24 genomes $0.00
+[13:12:02] [Z] rejected tune : behavioural twin
+[13:12:13] [Z] birth Z293 (mutate session) of ['Z273'] species S99; 24 genomes $0.00
+[13:12:52] [Z] birth Z294 (mutate session) of ['Z242'] species S89; 24 genomes $0.00
+[13:13:40] [Z] rejected llm_cross session: behavioural twin
+[13:13:53] [Z] rejected tune : behavioural twin
+[13:14:17] [Z] birth Z295 (mutate session) of ['Z200'] species S79; 24 genomes $0.00
+[13:14:59] [Z] birth Z296 (llm_cross session) of ['Z252', 'Z280'] species S85; 24 genomes $0.00
+[13:15:42] [Z] rejected llm_cross session: behavioural twin
+[13:15:54] [Z] rejected tune : behavioural twin
+[13:16:10] [Z] birth Z297 (mutate session) of ['Z273'] species S99; 24 genomes $0.00
