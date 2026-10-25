@@ -1,0 +1,7 @@
+```python
+@gene('Z23a', 'shop plan: treasure strength shards before round 400, then bruiser strength (earlier fighting power for the mid game); the largest bundle the gold allows', parents=['s1'])
+def buy_value(o: Option) -> Num:
+    if round() < 400:
+        return 100 + o.count if o.item == 18 else 0
+    return 100 + o.count if o.item == 36 else 0
+```
