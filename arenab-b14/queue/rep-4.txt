@@ -1,0 +1,11 @@
+```python
+@gene("a3", "cast-ahead: damage or stun (slot kind k) on a close enemy champion before it reaches us; while retreating on foot, a stun on the chaser too", parents=["a3"])
+def ahead_value(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD or k == AB_HEAL or k == AB_RESET:
+        return 0
+    if RULE < 6 and not (RULE == 3 and k == AB_CC):
+        return 0
+    if o.tile != ahead_foe().pos or not ahead_on():
+        return 0
+    return 180 - o.slot
+```

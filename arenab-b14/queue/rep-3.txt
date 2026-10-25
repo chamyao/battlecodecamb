@@ -1,0 +1,8 @@
+```python
+@gene("r6", "pass-through bank: gems, an altar next to us, nothing able to hit us, and no enemy champion able to reach us before the tribute channel ends", parents=["r6"])
+def r_pass() -> Bool:
+    g = gems()
+    if g <= 0 or not valid(adj_altar()) or foe_in_reach():
+        return False
+    return threat_eta() > floor((g + 9) / 10)
+```
