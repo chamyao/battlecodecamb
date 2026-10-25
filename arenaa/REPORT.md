@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 06:10 UTC: cull fix, arenaZ-17 launched
+
+- Fix: genome/search e837b50e, `--cull min-mu` (default legacy unchanged) + patches/cull-minmu.patch for
+  7e40b6f, with a unit test. Design arenaa/CULL.md.
+- Runs (Z-15 setup, batched Opus API): Z-17a legacy salt 1 (control replicate), Z-17b min-mu salt 0, Z-17c
+  min-mu salt 1; Z-15 is the salt-0 control. Handed to the search session for EC2.
+
 ## 2026-10-25 05:55 UTC
 
 - Haiku dropped as a writer (Cham OK'd stopping unpromising runs). Z-1x stopped at 1444 births, $14.34. Best
