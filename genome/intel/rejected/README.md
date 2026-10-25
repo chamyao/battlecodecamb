@@ -125,3 +125,13 @@ The bar: >= 38/80 vs B792, no anchor drop > 3, and a fight-metric gain vs stress
 
 None qualifies, since each drops an anchor by 5-8. All three lose more gems to hunter-carry than B792 (the
 retreats are caught, and group-up walks carriers around). Same pattern as cashout: in the sim, disengaging costs more than it saves.
+
+## On v28 (a61188-mono), runtime genome/v0 ca5180b, --bot-seeds /80
+
+- v28-firstbank (r11: bank 8+ while the team has banked nothing): 27/80 vs v28; vs rushbank 54 (v28 53). v28 is
+  not weak vs the rush banker in the sim (53/80), so the noobers loss is not a first-bank gap the sim shows.
+- 01shortcut: in the sim v28 wins every game there, but banks only 257-585 gems and still has 8-10 camp deaths;
+  the sim opponents are as stuck. Both altars sit in pockets reachable only through gem clusters cardinally connected
+  to the monolith. The mono edit forbids hitting those, and hitting them wakes the monolith. Real band teams bank
+  there 10-25 times a game. A "hit the altar blocker" variant (r13 with a non-monolith blocker) gains little (385 vs
+  362 gems vs B792), and the rule's TGT still comes from reach_camp, so a clean fix needs c2/a0 edits too. Not pursued yet.
