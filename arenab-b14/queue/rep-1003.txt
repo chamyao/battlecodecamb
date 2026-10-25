@@ -1,0 +1,9 @@
+```python
+@gene('r18', 'standing on a spawn tile of a group whose nearest visible camp still lives: walk to that living camp (not monolith or golem); visible camps only, no camp-walk recomputation (my tile read once)')
+def r_live() -> Bool:
+    g = spawn_group(me().pos)
+    if g < 0:
+        return False
+    c = live_camp()
+    return exists(c) and camp_group(c) == g and not (c.pos in BIG_CAMPS)
+```

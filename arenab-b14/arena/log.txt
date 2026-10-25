@@ -4457,3 +4457,17 @@
 [10:33:36] [B] birth B2318 (mutate session) of ['B2316'] species S10; 24 genomes $11.08
 [10:34:03] [B] birth B2319 (mutate session) of ['B2302'] species S9; 24 genomes $11.08
 [10:34:32] [B] rejected mutate session: behavioural twin
+[10:34:40] [B] summary: births 2320 deaths 2297 games 581640 $11.08; top [('B2308', 48.67, 0.82, 256, 'S10'), ('B2195', 47.43, 0.8, 1944, 'S8'), ('B2318', 47.38, 0.83, 152, 'S10')]; top vs anchors {'B2308': 0.675, 'B2195': 0.647, 'B2318': 0.708}
+[10:34:40] [B] birth B2320 (mutate session) of ['B2313'] species S9; 24 genomes $11.08
+[10:34:53] [B] birth B2321 (llm_cross session) of ['B2283', 'B2195'] species S9; 24 genomes $11.08
+[10:35:07] [B] birth B2322 (tune ) of ['B2319'] species S9; 24 genomes $11.08
+[10:35:23] [B] birth B2323 (mutate session) of ['B2317'] species S11; 24 genomes $11.08
+[10:35:33] [B] anchor v33-B1873-bossbush frozen at mu 49.39 after 200 games
+[10:35:36] [B] birth B2324 (tune ) of ['B2322'] species S9; 24 genomes $11.08
+[10:35:37] [B] birth B2325 (mutate session) of ['B2315'] species S10; 24 genomes $11.08
+[10:35:52] [B] birth B2326 (mutate session) of ['B2195'] species S11; 24 genomes $11.08
+[10:36:09] [B] rejected tune : behavioural twin
+[10:36:11] [B] rejected tune : behavioural twin
+[10:36:23] [B] rejected tune : behavioural twin
+[10:36:32] [B] rejected tune : behavioural twin
+[10:36:44] [B] birth B2327 (llm_cross session) of ['B2283', 'B2195'] species S9; 24 genomes $11.08
