@@ -119,3 +119,10 @@ ring/heal and gg6; new: a kill-shot fight outranks the pass-through bank (rule 1
 - My real cambc vs v31, 40 maps x 2 sides: 47/80, 0 crashes. Carries the rmab boss-battle exemption (relay auto-ingest).
 - Live as ladder version 32 (2026-10-25T07:50:23Z, bundle sha256 52a3fb56...). Batch 9 vs b8 (v31): 31-19 vs 27-23 (6 up, 2 down),
   gems +87 +- 39; stuck champion-rounds 31.5 -> 4.0; elk_arena vs NotSoLonely W 936-720 (was L 18-1008); boss_battle still 0-1.
+
+## B1873-bossbush (v32 + no bush move bonus on the boss-battle layout; v33)
+
+genome/candidates/B1873-bossbush.genome, sha256 7ff741cbb0826666... (genome/arenab a52d986d). One edit: the a8 bush move
+bonus is skipped when some altar-ring tile is a monolith-group spawn (ALTAR_MONO, set once in v2).
+- Arena B lead, real cambc vs v32: 40/80 = 01boss-battle 2-0 + 1-1 on each other map (identical play), 0 crashes.
+- My check, real vs v32: 01boss-battle 2-0; 00lanes and 01big-world mirror v32 exactly (same rounds, side wins).
