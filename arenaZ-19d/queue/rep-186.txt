@@ -1,0 +1,8 @@
+```python
+@gene('s3', 'distance field to the goals; home when hurt and empty-handed')
+def goal_field() -> Field:
+    if me().health_frac < 0.35 and gems() == 0:
+        return field(my_spawn())
+    return field(goals())
+
+```
