@@ -295,3 +295,26 @@
 [11:34:11] [Z] rejected tune : behavioural twin
 [11:34:25] [Z] rejected mutate session: behavioural twin
 [11:35:09] [Z] birth Z151 (mutate session) of ['Z131'] species S67; 24 genomes $0.00
+[11:35:41] [Z] rejected mutate session: behavioural twin
+[11:36:16] [Z] birth Z152 (mutate session) of ['Z146'] species S69; 24 genomes $0.00
+[11:36:38] [Z] new species S73 founded by Z153
+[11:36:38] [Z] birth Z153 (tune ) of ['Z123'] species S73; 24 genomes $0.00
+[11:36:49] [Z] new species S74 founded by Z154
+[11:36:49] [Z] birth Z154 (mutate session) of ['Z137'] species S74; 24 genomes $0.00
+[11:37:38] [Z] birth Z155 (mutate session) of ['Z137'] species S56; 24 genomes $0.00
+[11:38:15] [Z] birth Z156 (mutate session) of ['Z148'] species S62; 24 genomes $0.00
+[11:38:56] [Z] birth Z157 (mutate session) of ['Z129'] species S65; 24 genomes $0.00
+[11:39:33] [Z] birth Z158 (mutate session) of ['Z149'] species S56; 24 genomes $0.00
+[11:40:31] [Z] birth Z159 (llm_cross session) of ['Z148', 'Z133'] species S62; 24 genomes $0.00
+[11:40:58] [Z] summary: births 160 deaths 137 games 83800 $0.00; top [('Z154', 41.79, 0.81, 208, 'S74'), ('Z160', 41.6, 6.0, 0, 'S62'), ('Z143', 41.25, 0.79, 368, 'S64')]; top vs anchors {'Z154': 1.0, 'Z143': 1.0, 'Z158': None}
+[11:40:58] [Z] birth Z160 (mutate session) of ['Z148'] species S62; 24 genomes $0.00
+[11:41:37] [Z] birth Z161 (mutate session) of ['Z148'] species S62; 24 genomes $0.00
+[11:42:28] [Z] birth Z162 (mutate session) of ['Z150'] species S66; 24 genomes $0.00
+[11:43:11] [Z] birth Z163 (mutate session) of ['Z114'] species S60; 24 genomes $0.00
+[11:44:06] [Z] new species S75 founded by Z164
+[11:44:06] [Z] birth Z164 (llm_cross session) of ['Z152', 'Z123'] species S75; 24 genomes $0.00
+[11:44:26] [Z] new species S76 founded by Z165
+[11:44:26] [Z] birth Z165 (tune ) of ['Z162'] species S76; 24 genomes $0.00
+[11:44:50] [Z] new species S77 founded by Z166
+[11:44:50] [Z] birth Z166 (mutate session) of ['Z133'] species S77; 24 genomes $0.00
+[11:45:22] [Z] birth Z167 (mutate session) of ['Z154'] species S74; 24 genomes $0.00
