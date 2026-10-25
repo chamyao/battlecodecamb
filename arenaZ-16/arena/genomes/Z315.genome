@@ -1,0 +1,154 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_F: Field = None
+RETREAT: Bool = False
+
+@gene('s1', 'value of doing this option now; also casts damage/cc on targets and shield/heal when hurt in a fight, recalls a bit earlier; attacks on enemy champions get more valuable as they weaken (finish kills)', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 115 if me().health_frac < 0.3 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 30 * (1 - o.unit.health_frac)
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        base = 55 if RETREAT else 45
+        return base + 6 * p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems; else cleared groups awaiting capture; else living gem-bearing camp groups; else any living camp group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'cached per-turn field: goals normally, my spawn while retreating (no per-pass engine calls)', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_F
+
+@gene('Z371a', 'progress toward goals minus danger from enemy champions and nearby monsters near the step; one enemy scan per call; monsters near the step always cost a little, danger weighs more when hurt or carrying gems; carriers also avoid stepping 3 tiles from champions', parents=['s4'])
+def progress(t: Tile) -> Num:
+    es = enemies()
+    gf = goal_field()
+    d = at(gf, me().pos) - at(gf, t)
+    danger = 0
+    mon = 0
+    far = 0
+    for u in es:
+        du = dist(u.pos, t)
+        if u.is_champion:
+            if du <= 2:
+                danger += 1
+            if du == 3:
+                far += 1
+        elif du <= 2:
+            mon += 1
+    if me().health_frac < 0.5:
+        danger += mon
+    if RETREAT:
+        return d * 3 - danger * 2 - mon
+    if gems() > 0:
+        return d * 3 - danger * 4 - far * 2 - mon
+    if me().health_frac > 0.6:
+        return d * 2 - danger * 2 - mon
+    return d - danger * 3 - mon
+
+@gene('Z26a', 'value of casting: hit champions (scaled up as they weaken) and camps, protect allies and self when hurt near enemies or awake camps, dash toward goals when healthy (capped, not while enemies are close)', parents=['s1', 'Z26a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 112 + 9 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and gems() == 0:
+                return 65
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            ne = count(dist(u.pos, o.tile) <= r for u in enemies())
+            if ne > 0:
+                return 110 + ne
+            if gems() == 0:
+                nc = count(dist(u.pos, o.tile) <= r for u in camps())
+                if nc > 0:
+                    return 60 + nc
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        return protect_cast_value(o)
+    if k == AB_DASH:
+        return dash_cast_value(o)
+    return 0
+
+@gene('X230a', 'value of a shield/heal cast: hurt allies (more near enemies), or self when hurt near enemies or awake camps', parents=['Z26a'])
+def protect_cast_value(o: Option) -> Num:
+    if exists(o.unit) and not o.unit.is_enemy and o.unit.pos != me().pos:
+        if o.unit.health_frac < 0.6:
+            if any(dist(u.pos, o.unit.pos) <= 4 for u in enemies()):
+                return 87
+        if o.unit.health_frac < 0.5:
+            return 85
+        return 0
+    if me().health_frac < 0.7:
+        if any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+            return 88
+        if me().health_frac < 0.55:
+            if any(is_awake(c) and dist(c.pos, me().pos) <= 2 for c in camps()):
+                return 75
+    return 0
+
+@gene('X200a', 'value of a dash cast: toward goals when healthy and no enemies close, capped progress', parents=['Z26a'])
+def dash_cast_value(o: Option) -> Num:
+    if valid(o.tile) and me().health_frac > 0.45:
+        if not any(dist(u.pos, me().pos) <= 5 for u in enemies()):
+            p = progress(o.tile)
+            if p >= 2:
+                return 40 + 5 * min(p, 8)
+    return 0
+
+@gene('Z388a', 'once per turn: retreat with hysteresis; home below a threshold that rises with carried gems (53% empty to ~73% at 20+ gems), below 70% when swarmed by 3+ enemies within 6, or below 75% when outnumbered; resume above 90%; then cache the matching distance field', parents=['Z21a', 'Z388a'])
+def update() -> None:
+    if alive():
+        h = me().health_frac
+        p = me().pos
+        carry = unit_gems(me())
+        low = 0.5305 + 0.2 * min(carry / 20, 1)
+        near_e = sum(1 for u in enemies() if dist(u.pos, p) <= 6)
+        near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
+        swarmed = near_e >= 3
+        if h < low or (swarmed and h < 0.7) or (h < 0.75 and near_e > near_a + 1):
+            RETREAT = True
+        elif h > 0.9:
+            RETREAT = False
+    else:
+        RETREAT = False
+    if RETREAT:
+        GOAL_F = field(my_spawn())
+    else:
+        GOAL_F = field(goals())
