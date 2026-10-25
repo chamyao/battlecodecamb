@@ -1,0 +1,35 @@
+```python
+@gene("Z300d", "set the goal field from cached fields: home field built once, altar field and the camp field (groups worth 10+ gems) every 5 rounds or once reached")
+def update() -> None:
+    if not INIT:
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35:
+        GF = HF
+    elif gems() > 0:
+        if round() - AT >= 8:
+            AF = field(goals())
+            AT = round()
+        GF = AF
+    else:
+        if round() - CT >= 5 or at(CF, me().pos) <= 0:
+            t = goals()
+            poor = near(tile(-5, -5), 0)
+            for g in range(num_groups()):
+                if group_gems(g) < 10:
+                    poor = poor | group_tiles(g)
+            if size(t - poor) > 0:
+                t = t - poor
+            CF = field(t)
+            CT = round()
+        GF = CF
+
+@gene("s4", "how much closer a step brings me to the goals, or to an enemy champion within 7 tiles carrying 6 or more gems when above half health")
+def progress(t: Tile) -> Num:
+    if me().health_frac > 0.5:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 6 and dist(prey.pos, me().pos) <= 7:
+            return dist(prey.pos, me().pos) - dist(prey.pos, t)
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```
