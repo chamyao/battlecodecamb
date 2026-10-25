@@ -1,0 +1,148 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+RETREAT: Bool = False
+ECT: Tiles = None
+
+@gene('Z596a', 'value of doing this option now; uses abilities (damage/cc/shield/heal/dash); champion attacks first unless a ranged champion is retreating hurt from a healthy enemy; recall only when no threat can interrupt it; camp nukes valued higher when not carrying gems; move value blended from both parents', parents=['Z573a', 's1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.38:
+            return 90 if not enemy_close() else 30
+        return 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit):
+                if o.unit.is_enemy and o.unit.is_champion:
+                    return 113
+                if o.unit.is_camp and gems() == 0:
+                    return 97
+            return 0
+        if k == AB_SHIELD:
+            return 84 if enemy_close() or me().health_frac < 0.6 else 0
+        if k == AB_HEAL:
+            return 88 if me().health_frac < 0.45 else 0
+        if k == AB_DASH:
+            if valid(o.tile):
+                if me().health_frac > 0.42:
+                    return 44 if progress(o.tile) > 0.8266 else 0
+                if RETREAT and enemy_close():
+                    return 80 if progress(o.tile) > 1.5 else 0
+            return 0
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if RETREAT and me().attack_range > 1 and o.unit.health_frac > 0.3 and me().health_frac < 0.3:
+                return 0
+            return 160
+        return 98 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 48 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: altar with gems (wider reach), else cleared-camp capture tiles, else living gem-bearing camp groups, then gold camps, then any living group", parents=["s2", "Z38a"])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1.6082)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "cached per-turn distance field to the goals; if my tile is unreachable from the goals (reads INF), fall back to a field toward my spawn", parents=["s3"])
+def goal_field() -> Field:
+    if at(GF, me().pos) >= INF:
+        return field(my_spawn())
+    return GF
+
+@gene('Z573b', 'distance gained toward goals minus a continuous health-scaled threat penalty (B-style 2+4*(1-hf), halved when empty-handed, extra when carrying gems and hurt), softened by nearby allies (floor 0.6), extra when a threat is close and I am below half health, doubled when retreating', parents=['s4', 'Z573b'])
+def progress(t: Tile) -> Num:
+    gf = goal_field()
+    gain = at(gf, me().pos) - at(gf, t)
+    if not (t in enemy_champ_tiles()):
+        return gain
+    hf = me().health_frac
+    a = count(dist(u.pos, t) <= 3 for u in allies())
+    risk = max(1 - 0.4 * (a - 1), 0.6)
+    penalty = 2 + 4 * (1 - hf)
+    if gems() == 0:
+        penalty = penalty * 0.5
+    else:
+        penalty += gems() / 10
+    if gems() > 0 and hf <= 0.7:
+        penalty += 2
+    if enemy_close() and hf < 0.5:
+        penalty += 3
+    if RETREAT:
+        penalty *= 2
+    return gain - penalty * risk
+
+@gene('Z109a', 'threat zone minus ally-occupied tiles: an ally standing on a tile blocks that step, so it carries no route risk; the rest is the per-turn cached threat zone from update', parents=['s4', 'Z109a'])
+def enemy_champ_tiles() -> Tiles:
+    return ECT - ally_tiles()
+
+@gene("Z109b", "true when a threatening enemy champion (health above 10%, not recalling) could reach within 7 + its range of me next turn", parents=["Z109b"])
+def enemy_close() -> Bool:
+    p = me().pos
+    return any(u.is_champion and u.health_frac > 0.1 and dist(u.pos, p) <= 7 + u.attack_range and not is_recalling(u) for u in enemies())
+
+@gene('Z573c', 'per-turn threat cache; goal field: healthy champions route through threat (progress still penalises threatened steps), hurt ones avoid threat and non-goal camps; walk home with hysteresis when hurt or carrying gems while hurt, or no goals; resume once healed', parents=['Z12a', 'Z573c'])
+def update() -> None:
+    if alive():
+        ECT = compute_threat()
+        h = me().health_frac
+        if h < 0.4 or (gems() >= 10 and h < 0.6) or (gems() > 0 and h < 0.45):
+            RETREAT = True
+        elif h > 0.85:
+            RETREAT = False
+        stop = near(tile(-5, -5), 0)
+        g = goals()
+        if RETREAT or h < 0.3 or size(g) == 0:
+            danger = walls() | holes() | ECT
+            GF = field_avoid(my_spawn(), danger, stop)
+        elif h > 0.7:
+            GF = field_avoid(g, walls() | holes() | (camp_tiles() - g), stop)
+        else:
+            danger = walls() | holes() | ECT
+            GF = field_avoid(g, danger | (camp_tiles() - g), stop)
+
+@gene('Z596b', 'compute the enemy champion threat zone once per turn: non-recalling enemy champions above 10% health threaten move speed plus attack range plus 2 (dash reach); weak or low-health (below 30%) ones only their attack range; my own tile excluded', parents=['Z455a', 'Z109a'])
+def compute_threat() -> Tiles:
+    m = me()
+    ts = near(m.pos, 0) - near(m.pos, 0)
+    for u in enemies():
+        if u.is_champion and u.health_frac > 0.1 and not is_recalling(u):
+            weak = u.health < m.health * 0.4 and u.strength <= m.strength
+            if weak or u.health_frac <= 0.3:
+                ts = ts | near(u.pos, u.attack_range)
+            else:
+                ts = ts | near(u.pos, u.attack_range + u.move_speed + 2)
+    return ts - near(m.pos, 0)

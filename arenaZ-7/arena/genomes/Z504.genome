@@ -1,0 +1,171 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+RETREAT: Bool = False
+ECT: Tiles = None
+
+@gene('s1', 'value of doing this option now; uses abilities (damage/cc/shield/heal/dash); champion attacks first; never wakes a sleeping monolith alone', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 0.7529
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.4 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit):
+                if o.unit.is_enemy and o.unit.is_champion:
+                    return 91
+                if o.unit.is_camp and gems() == 0:
+                    return 0 if bad_camp(o.unit) else 97
+            return 0
+        if k == AB_SHIELD:
+            return 84 if enemy_close() or me().health_frac < 0.6 else 0
+        if k == AB_HEAL:
+            return 88 if me().health_frac < 0.45 else 0
+        if k == AB_DASH:
+            if valid(o.tile) and me().health_frac > 0.4595:
+                return 44 if progress(o.tile) > 1 else 0
+            return 0
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 160
+        if gems() == 0:
+            return 0 if bad_camp(o.unit) else 98
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 43 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: altar with gems, else cleared-camp capture tiles, else living non-monolith gem camps, then gold camps, then any non-monolith living group, then anything', parents=['s2', 'Z38a'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    mono = type_spawns(MONOLITH)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            gt = group_tiles(g)
+            if size(gt & mono) == 0:
+                acc = acc | gt
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gold(g) > 0:
+            gt = group_tiles(g)
+            if size(gt & mono) == 0:
+                acc = acc | gt
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & mono) == 0:
+                acc = acc | gt
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'cached per-turn goal field; if my tile is unreachable from the goals (reads INF), fall back to a field toward my spawn', parents=['s3'])
+def goal_field() -> Field:
+    if at(GF, me().pos) >= INF:
+        return field(my_spawn())
+    return GF
+
+@gene('s4', 'distance gained toward goals minus a continuous health-scaled threat penalty, doubled when retreating, extra when carrying gems and hurt, extra when a threat is close and I am below half health', parents=['s4', 'Z109a'])
+def progress(t: Tile) -> Num:
+    gf = goal_field()
+    gain = at(gf, me().pos) - at(gf, t)
+    risk = 1 if t in enemy_champ_tiles() else 0
+    hf = me().health_frac
+    penalty = 2 + 4 * (1 - hf)
+    if gems() == 0:
+        penalty = penalty * 0.5
+    if gems() > 0 and hf <= 0.7:
+        penalty += 2
+    if enemy_close() and hf < 0.5:
+        penalty += 3
+    if RETREAT:
+        penalty *= 2
+    return gain - penalty * risk
+
+@gene("Z109a", "threat zone: cached per turn by update (enemies do not move during my turn), so progress/enemy_close pay no engine calls per pass", parents=["s4", "Z109a"])
+def enemy_champ_tiles() -> Tiles:
+    return ECT
+
+@gene("Z109b", "true when a threatening enemy champion (health above 10%, not recalling) could reach within 7 + its range of me next turn", parents=["Z109b"])
+def enemy_close() -> Bool:
+    p = me().pos
+    return any(u.is_champion and u.health_frac > 0.1 and dist(u.pos, p) <= 7 + u.attack_range and not is_recalling(u) for u in enemies())
+
+@gene('Z12a', 'per-turn threat zone cache, goal field routed with field_avoid that always avoids threatened tiles; walk home with hysteresis when badly hurt or carrying gems while hurt, or when no goals exist; resume goals once healed', parents=['s3', 's2', 'Z12a'])
+def update() -> None:
+    if alive():
+        ECT = compute_threat()
+        h = me().health_frac
+        if h < 0.35 or (gems() >= 10 and h < 0.5) or (gems() > 0 and h < 0.4):
+            RETREAT = True
+        elif h > 0.75:
+            RETREAT = False
+        danger = walls() | holes() | ECT
+        stop = near(tile(-5, -5), 0)
+        g = goals()
+        if RETREAT or size(g) == 0:
+            GF = field_avoid(my_spawn(), danger, stop)
+        else:
+            GF = field_avoid(g, danger, stop)
+
+@gene('Z676b', 'true when attacking this sleeping camp is unsafe: a sleeping monolith, a sleeping camp inside the enemy threat zone, or a sleeping group whose estimated fight damage would leave me too hurt (allies nearby share the load)', parents=['s1'])
+def bad_camp(u: Unit) -> Bool:
+    if not u.is_camp:
+        return False
+    if is_awake(u):
+        return False
+    if spawn_type(camp_spawn(u)) == MONOLITH:
+        return True
+    if u.pos in ECT:
+        return True
+    return camp_too_costly(u)
+
+@gene('Z791a', "estimate whether fighting this sleeping camp's whole group would cost more health than I can safely spend, counting nearby allies as helpers", parents=['Z676b'])
+def camp_too_costly(u: Unit) -> Bool:
+    g = camp_group(u)
+    hp = 0
+    st = 0
+    for c in camps():
+        if camp_group(c) == g:
+            hp += c.health
+            st += c.strength
+    helpers = 1 + count(dist(a.pos, me().pos) <= 4 for a in allies() if a.is_champion and a.health_frac > 0.4)
+    turns = hp / max(me().strength * helpers, 1)
+    taken = st * turns / helpers
+    return taken > me().health * 0.7
+
+@gene("Z455a", "compute the enemy champion threat zone once per turn: tiles a visible, non-recalling enemy champion that is not clearly weaker than me can reach and hit next turn", parents=["Z109a", "Z109b"])
+def compute_threat() -> Tiles:
+    m = me()
+    ts = near(m.pos, 0) - near(m.pos, 0)
+    for u in enemies():
+        if u.is_champion and u.health_frac > 0.1 and not is_recalling(u):
+            weak = u.health < m.health * 0.4 and u.strength <= m.strength
+            if not weak:
+                ts = ts | near(u.pos, u.attack_range + 1)
+    return ts
