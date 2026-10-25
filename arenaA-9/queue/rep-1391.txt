@@ -1,0 +1,9 @@
+```python
+@gene("m13", "nearest tile next to a safe altar that no enemy lock blocks (our own visible lock does not block our tribute)")
+def bank_t1() -> Tile:
+    bad = locked_altars()
+    for t in locked_altars():
+        if visible(t) and not lock_enemy(t):
+            bad = bad - near(t, 0)
+    return closest(SAFE_RING - ring(bad, 1))
+```

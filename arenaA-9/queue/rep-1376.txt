@@ -1,0 +1,17 @@
+```python
+@gene('a8', 'a step downhill on the walking field to GOAL; among equal steps prefer tiles farther from enemies (more so when carrying gems or hurt), next to allies, and in bushes')
+def move_value(o: Option) -> Num:
+    g = step_gain(o.tile)
+    if g <= 0:
+        return 0
+    v = 100 + g
+    ft = foe_tiles()
+    if size(ft) > 0:
+        w = 1 + gems() / 10 + (1 if me().health_frac < 0.5 else 0)
+        v -= 0.3 * w * count(dist(t, o.tile) <= 2 for t in ft)
+        v -= 0.1 * w * count(dist(t, o.tile) <= 3 for t in ft)
+        v += 0.04 * size(ally_tiles() & near(o.tile, 1))
+        if o.tile in bushes():
+            v += 0.05
+    return v
+```
