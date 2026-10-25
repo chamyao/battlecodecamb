@@ -1,0 +1,7 @@
+```python
+@gene("w5", "walking field to GOAL; my own tile is never a wall, searched out to my tile")
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    me_t = near(here(), 0)
+    return field_avoid(g, blocked() - g - me_t, me_t)
+```
