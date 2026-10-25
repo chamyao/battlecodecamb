@@ -238,14 +238,17 @@ def type_check(t, parent_src, child_src, a_id, b_id):
     _, _, csrc = edit.segments(child_src)
     pid = {g.id: g for g in pg.genes.values()}
     cid = {g.id: g for g in cg.genes.values()}
-    if a_id not in cid or b_id not in cid:
-        return "the link's genes must stay in the program"
-    A, B = cid[a_id], cid[b_id]
     a0, b0 = pid[a_id].name, pid[b_id].name
+    # T4/T5 keep B "for its other callers": with none, A no longer calling B leaves B unused and pruning removes it
+    b_alone = not any(b0 in g.calls for g in pg.genes.values() if g.id != a_id)
+    if a_id not in cid or (b_id not in cid and not (t in ("T4", "T5") and b_alone)):
+        return "the link's genes must stay in the program"
+    A = cid[a_id]
+    bname = cid[b_id].name if b_id in cid else b0
     new = [g for i, g in cid.items() if i not in pid]
     a_changed = edit.body_canon(psrc[a_id]) != edit.body_canon(csrc[a_id])
-    b_changed = edit.body_canon(psrc[b_id]) != edit.body_canon(csrc[b_id])
-    calls_ab = B.name in A.calls
+    b_changed = b_id in cid and edit.body_canon(psrc[b_id]) != edit.body_canon(csrc[b_id])
+    calls_ab = bname in A.calls
     if t == "T1":
         if new:
             return f"T1 creates no new gene; this reply creates {', '.join(g.name for g in new)}"
@@ -260,12 +263,12 @@ def type_check(t, parent_src, child_src, a_id, b_id):
     if t == "T2":
         if calls_ab:
             return f"{a0} must call the new gene N instead of calling {b0} directly"
-        if not any(n.name in A.calls and B.name in n.calls for n in new):
+        if not any(n.name in A.calls and bname in n.calls for n in new):
             return f"{a0} must call a new gene N that calls {b0}"
         return None
     if t == "T3":
         before = (_names_called(psrc[a_id], None) | _names_called(psrc[b_id], None))
-        used = [n for n in new if n.name in A.calls or n.name in B.calls]
+        used = [n for n in new if n.name in A.calls or n.name in cid[b_id].calls]
         if not used:
             return f"the new gene N must be called by {a0} or {b0}"
         if not any(_names_called(csrc[n.id], None) - before for n in used):
@@ -275,7 +278,7 @@ def type_check(t, parent_src, child_src, a_id, b_id):
     if t == "T4":
         if calls_ab:
             return f"{a0} must stop calling {b0}"
-        if not any(n.name in A.calls and B.name not in n.calls for n in new):
+        if not any(n.name in A.calls and bname not in n.calls for n in new):
             return f"{a0} must call a new gene N that does not call {b0}"
         return None
     if t == "T5":
