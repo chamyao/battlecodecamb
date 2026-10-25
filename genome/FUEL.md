@@ -10,6 +10,56 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
+## State of calibration (Oct 25, genome/fuel 3e4b4591)
+
+Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against the interpreted v23
+(`~/ws/bots/v23interp`), sim at 1000x against `gconv1.pol` with `--bot-seeds`.
+
+| genome | 00ambush | 00lanes | 01big-world |
+|---|---|---|---|
+| seed | 1.019 | 1.022 | 1.005 |
+| B318 | 1.017 | 1.014 | 1.004 |
+| B792 | 1.005 | 1.009 | 0.995 |
+| A458 (arena A) | 1.024 | 1.026 | 1.010 |
+| B1145 (arena B #1) | 1.004 | 1.008 | 0.993 |
+| B1092 (arena B, other species) | 1.004 | 0.979 | 0.988 |
+| starter | 1.013 | 1.023 | 1.015 |
+| idle (no consider()) | 0.998 | 0.982 | 0.995 |
+| calib5 (probe genome) | 0.976 | 0.975 | |
+| v23 | 1.102 | 1.123 | 1.099 |
+
+Open gaps:
+- v23 is over by 9-12%. Its per-option score path calls memoised genes (`here`, `walks`,
+  `shop_pending`) that the compiler inlines. Such a hit costs ~30 in the bot against 73 charged, while
+  the seed family's memo hits, called from large genes, are slightly under. A fix needs memo-hit cost
+  per call site (inlined or not) from each genome's wasm; parked by the genome lead.
+- A gene framed only through inlined callees keeps its old pricing (18 such genes in seed).
+- `walk_nearest` prices follow the policy bot's history-dependent search mirror; probes in isolation
+  read 1.1-1.5x, in genomes it is in line.
+- Later passes are priced 0: a free fit wants them negative, so complex genomes' second passes are
+  priced high somewhere else (memo misses, most likely).
+
+Protocol for a new primitive (each step is in a section below):
+1. Add it to `lang.PRIMS` and the runtime, and put it in `lang.UNCALIBRATED`; the search cannot use
+   it until it is priced.
+2. Write a probe genome (`examples/calib5..8.genome` pattern: `update()` runs one probe per turn in
+   rotation, plus an empty probe). Run `tools/prof_pair.sh` with `BIG_FUEL=1 OPP_BOT=v23interp
+   OPP_SIM=/tmp/.../gconv1.pol` on 00ambush, 01big-world, 00lanes, 00packs, and compare steady
+   per-call self fuel net of the empty probe, real against sim. For a cached record, probe a fetch
+   and a fetch + hit.
+3. Set the `extra()` prices until every probe is within ~0.95-1.05. Check whether its inlined bot code
+   needs a frame (compile it alone with the bot's flags and look for the stack-pointer write); if so,
+   add it to `lang.FRAMED_PRIMS`.
+4. Remove it from `UNCALIBRATED`. Check that starter, seed, v23, B318 and B792 are identical
+   (results and fuel, 80 games against builtin:starter, 1x and 100x) against the previous head.
+5. For a pricing change (not a new primitive): report whole-game ratios before and after for the
+   genomes above, plus 1x result changes and B792 vs B318 at 1x.
+Tools: `tools/prof_pair.sh`, score variants (genomes that never act), `consider()` variants,
+`GENOME_TURN_CALLS=1` per-turn lines (`@@TC r c passes opts ops extra spent`, then per-gene calls
+for champion 0), and `GENOME_DEFS=GENOME_TURN_ORDER` in the bot. A cambc run needs its own bot folder
+per concurrent run. Rebuild `genome/build` and `genome/build-prof` after every runtime change:
+`genome_eval` refuses a genome compiled against another Ctx layout.
+
 ## Calibration (Oct 24, cambc 3.0.5)
 
 `examples/calib.genome` runs one probe gene per primitive per turn (in rotation). Built with
