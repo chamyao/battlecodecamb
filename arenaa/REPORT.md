@@ -2,6 +2,10 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 09:13 UTC
+
+- Births: Z-19a 51, 19b 122, 19c 27, 19d 59; Z-20a/b setting up; A-9 leg 3 at 2552.
+
 ## 2026-10-25 09:10 UTC: Z-18b is not overfitting
 
 - On new game instances Z462/Z400 score 585/602 (vs 610 fixed); on 6 never-used opponents 180-186/480, vs Z-5's
