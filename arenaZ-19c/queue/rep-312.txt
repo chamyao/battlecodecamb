@@ -1,0 +1,21 @@
+```python
+@gene('s2', 'where to walk: an altar once carrying 8+ gems, else a living camp group that is not a monolith')
+def goals() -> Tiles:
+    if gems() >= 8 or (gems() > 0 and me().health_frac < 0.5):
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if spawn_type(nearest(ts, me().pos)) != MONOLITH:
+                acc = acc | ts
+    if size(acc) == 0:
+        for g in range(num_groups()):
+            ts = group_tiles(g)
+            if spawn_type(nearest(ts, me().pos)) != MONOLITH:
+                acc = acc | ts
+    return acc
+```
