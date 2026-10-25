@@ -543,3 +543,17 @@ Target (Arena B lead): maps where v29 doesn't reach 1000 gems vs builtin:idle. T
 - 39/80 vs A81582-ringheal; only contest's two games differ, the other 78 are near mirrors.
 - Paired anchors: B318 63 (65; 0 up / 2 down), L1c 67 (65), gconv1 66 (65), the rest unchanged.
 - Real cambc vs the A81582-ringheal build: 2-0, 0 crashes. 1000-200, then 600-600 won on the gold tiebreak (17,645 vs 15,431).
+
+## Gem-first after the first buys (A81582-gg6, 2026-10-25)
+
+**directed/A81582-gg6.genome**: A81582-ringheal + weak gem groups first (gem-paying, design strength under 300), but only after the champion has bought 6 times. A buy is a gold drop of 30+ between its turns. Before that it keeps v29's nearest-first order, which includes the gold-only groups near spawn. It reads group_gems, so it needs a bot built from genome/v0 at or after fd778fc.
+- vs idle: total rounds 49,606 → 48,640.
+  - Faster: great-wall 1862 → 1340, elk-arena 1885 → 1702 (864 → 1008 gems), yellow-brick-road 986 → 882, swirl, islands. Shortcut 644 → 746 gems.
+  - Worst map: starfish +87 rounds. Monster deaths 6.53 → 6.04.
+- 44/80 vs A81582-ringheal.
+- Paired anchors vs its rows: B318 64 (65), L1c 62 (65; 4 up / 7 down, p 0.55), gconv1 67 (65), v7 78 (76), L1 63 (62), rall2 67 (64), metadraft 79 (79). Net +3, no significant drop.
+- Real cambc vs the A81582-ringheal build: 4-2, 0 crashes.
+  - pilgrimage 2-0 (1012-435, 1018-815); plain gem-first lost it 0-2
+  - gold-rush 1-1
+  - elk-arena 1-1 (1008-36, 708-804)
+- A81582-gg3 (after 3 buys): 47,756 rounds vs idle, but starfish +158; 42/80 vs ringheal. No real smoke.
