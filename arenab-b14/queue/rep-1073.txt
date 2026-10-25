@@ -1,0 +1,7 @@
+```python
+@gene("m6", "tiles next to an altar out of monolith reach (5) and golem reach (3), or only out of monolith reach when that leaves none")
+def safe_altar_ring() -> Tiles:
+    a = altars() - ring(type_spawns(MONOLITH), 5)
+    b = a - ring(type_spawns(GOLEM), 3)
+    return ring(b if size(b) > 0 else a, 1)
+```

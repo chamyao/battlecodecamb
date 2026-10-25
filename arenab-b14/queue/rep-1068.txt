@@ -1,0 +1,5 @@
+```python
+@gene("r10", "bank now: carrying gems and the bag is ready, or next to an altar with 3+ gems (a passing altar is banked)")
+def bank_on() -> Bool:
+    return gems() > 0 and (bag_ready() or (gems() >= 3 and valid(adj_altar())))
+```

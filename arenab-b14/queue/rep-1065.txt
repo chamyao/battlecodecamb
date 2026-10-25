@@ -1,0 +1,7 @@
+```python
+@gene("m5", "tiles next to an altar, leaving out camp spawn tiles when any other remain (a camp respawning on the bank tile breaks the tribute)")
+def altar_ring() -> Tiles:
+    r = ring(altars(), 1)
+    free = r - camp_spawns()
+    return free if size(free) > 0 else r
+```

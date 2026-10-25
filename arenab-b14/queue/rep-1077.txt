@@ -1,0 +1,9 @@
+```python
+@gene('w10', 'GOAL can be walked to: not terrain, not held by an enemy champion, and not a tile an ally is channelling a tribute or recall on (it will not move off; allies otherwise move, so an ally on GOAL does not block the walk)', parents=['w10'])
+def walk_open() -> Bool:
+    if not valid(GOAL) or GOAL == here():
+        return False
+    if GOAL in TERRAIN or GOAL in enemy_tiles():
+        return False
+    return not any(a.pos == GOAL and (is_tributing(a) or is_recalling(a)) for a in allies())
+```

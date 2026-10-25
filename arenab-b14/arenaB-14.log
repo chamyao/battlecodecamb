@@ -1607,3 +1607,41 @@
 [10:51:12] [B] birth B2370 (mutate session) of ['B2354'] species S11; 24 genomes $11.08
 [10:51:23] [B] rejected mutate session: behavioural twin
 [10:51:34] [B] rejected mutate session: behavioural twin
+[10:51:55] [B] birth B2371 (mutate session) of ['B2370'] species S11; 24 genomes $11.08
+[10:52:03] [B] birth B2372 (mutate session) of ['B2368'] species S10; 24 genomes $11.08
+[10:52:38] [B] birth B2373 (mutate session) of ['B2353'] species S3; 24 genomes $11.08
+[10:52:39] [B] birth B2374 (mutate session) of ['B2224'] species S3; 24 genomes $11.08
+[10:52:49] [B] birth B2375 (mutate session) of ['B2350'] species S9; 24 genomes $11.08
+[10:53:09] [B] rejected tune : behavioural twin
+[10:53:28] [B] birth B2376 (mutate session) of ['B2354'] species S11; 24 genomes $11.08
+[10:53:34] [B] birth B2377 (mutate session) of ['B2350'] species S9; 24 genomes $11.08
+[10:53:35] [B] rejected tune : behavioural twin
+[10:54:02] [B] birth B2378 (tune ) of ['B2335'] species S6; 24 genomes $11.08
+[10:54:06] [B] birth B2379 (mutate session) of ['B2335'] species S6; 24 genomes $11.08
+[10:54:19] [B] summary: births 2380 deaths 2357 games 597520 $11.08; top [('B2379', 49.19, 1.06, 80, 'S6'), ('B2378', 48.51, 1.0, 80, 'S6'), ('B2375', 48.03, 0.91, 96, 'S9')]; top vs anchors {'B2379': 0.719, 'B2378': 0.688, 'B2375': 0.792}
+[10:54:19] [B] birth B2380 (mutate session) of ['B2375'] species S9; 24 genomes $11.08
+[10:54:26] [B] rejected cross : behavioural twin
+[10:54:33] [B] birth B2381 (tune ) of ['B2032'] species S1; 24 genomes $11.08
+[10:54:57] [B] rejected mutate session: behavioural twin
+[10:55:09] [B] birth B2382 (mutate session) of ['B2354'] species S8; 24 genomes $11.08
+[10:55:19] [B] birth B2383 (mutate session) of ['B2379'] species S10; 24 genomes $11.08
+[10:55:22] [B] birth B2384 (cross ) of ['B2379', 'B2378'] species S6; 24 genomes $11.08
+[10:55:53] [B] birth B2385 (tune ) of ['B2375'] species S9; 24 genomes $11.08
+[10:55:56] [B] birth B2386 (mutate session) of ['B2354'] species S11; 24 genomes $11.08
+[10:56:01] [B] birth B2387 (mutate session) of ['B2384'] species S10; 24 genomes $11.08
+[10:56:31] [B] birth B2388 (tune ) of ['B2365'] species S7; 24 genomes $11.08
+[10:56:42] [B] birth B2389 (mutate session) of ['B2374'] species S3; 24 genomes $11.08
+[10:56:54] [B] rejected llm_cross session: solo-farm: 54254 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 524
+[10:57:13] [B] summary: births 2390 deaths 2367 games 599744 $11.08; top [('B2384', 48.39, 0.88, 120, 'S6'), ('B2379', 48.01, 0.86, 168, 'S6'), ('B2382', 47.42, 0.85, 160, 'S8')]; top vs anchors {'B2384': 0.667, 'B2379': 0.625, 'B2382': 0.583}
+[10:57:13] [B] birth B2390 (mutate session) of ['B2375'] species S9; 24 genomes $11.08
+[10:57:21] [B] birth B2391 (mutate session) of ['B2386'] species S11; 24 genomes $11.08
+[10:57:24] [B] birth B2392 (cross ) of ['B2176', 'B2388'] species S7; 24 genomes $11.08
+[10:57:40] [B] birth B2393 (cross ) of ['B2386', 'B2371'] species S11; 24 genomes $11.08
+[10:58:03] [B] rejected mutate session: behavioural twin
+[10:58:05] [B] birth B2394 (mutate session) of ['B2392'] species S9; 24 genomes $11.08
+[10:58:20] [B] birth B2395 (mutate session) of ['B2176'] species S9; 24 genomes $11.08
+[10:58:36] [B] birth B2396 (mutate session) of ['B2176'] species S9; 24 genomes $11.08
+[10:58:47] [B] birth B2397 (mutate session) of ['B2393'] species S11; 24 genomes $11.08
+[10:59:02] [B] birth B2398 (mutate session) of ['B2393'] species S11; 24 genomes $11.08
+[10:59:16] [B] rejected tune : behavioural twin
+[10:59:18] [B] birth B2399 (mutate session) of ['B2362'] species S10; 24 genomes $11.08
