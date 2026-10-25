@@ -1295,3 +1295,19 @@
 [03:34:02] [Z] birth Z621 (mutate claude-haiku-5-5) of ['Z570'] species S291; 24 genomes $2.97
 [03:34:04] [Z] new species S311 founded by Z622
 [03:34:04] [Z] birth Z622 (llm_cross claude-haiku-5-5) of ['Z597', 'Z565'] species S311; 24 genomes $2.97
+[03:34:09] [Z] new species S312 founded by Z623
+[03:34:09] [Z] birth Z623 (tune ) of ['Z597'] species S312; 24 genomes $2.97
+[03:34:20] [Z] new species S313 founded by Z624
+[03:34:20] [Z] birth Z624 (mutate claude-haiku-5-5) of ['Z594'] species S313; 24 genomes $2.97
+[03:34:20] [Z] split Z503.cast_value: discarded (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", "not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's"]) $0.0027
+[03:34:20] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:34:31] [Z] birth Z625 (tune ) of ['Z597'] species S296; 24 genomes $2.97
+[03:34:33] [Z] new species S314 founded by Z626
+[03:34:33] [Z] birth Z626 (tune ) of ['Z601'] species S314; 24 genomes $2.97
+[03:34:37] [Z] spent $3.02 of $3.00: no more births
+[03:34:43] [Z] new species S315 founded by Z627
+[03:34:43] [Z] birth Z627 (mutate claude-opus-5-5) of ['Z601'] species S315; 24 genomes $3.02
+[03:34:45] [Z] new species S316 founded by Z628
+[03:34:45] [Z] birth Z628 (tune ) of ['Z625'] species S316; 24 genomes $3.02
+[03:35:38] [Z] summary: births 628 deaths 605 games 110568 $3.02; top [('Z623', 39.3, 0.8, 216, 'S312'), ('Z610', 38.79, 0.8, 368, 'S258'), ('Z601', 38.65, 0.79, 360, 'S298')]; top vs anchors {'Z623': None, 'Z610': None, 'Z601': 0.625}
+[03:35:39] [Z] done: spent $3.02
