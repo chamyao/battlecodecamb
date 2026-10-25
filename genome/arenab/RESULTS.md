@@ -158,3 +158,14 @@ farmable camps, i1). graft.py `mono` onto v30 = A81582-ringheal-mono:
 - great-wall solo 1313/1267 rounds, 16/13 deaths; all 80 solo: rounds 98956 (v30 99212, v29 106435), deaths 356 (v30 522).
 - sim h2h /80: 40 vs v30, 50 vs v29.
 - real cambc: 45/80 vs v30 (0 crashes), 57/80 vs v29 -> PASS. Next upload after v30.
+
+## Oct 25 ~07:20: v30 + mono + intel rhm (contest) + intel gg6 (gem-first after 6 buys)
+All on A81582-ringheal-mono (cand/). Real cambc /80, 0 crashes everywhere:
+| cand | vs rh-mono | vs v30 (ringheal) | vs v29 | sim h2h vs v30 | solo rounds / deaths |
+|---|---|---|---|---|---|
+| rh-mono-rhm | 44 | 48 | - | 40 | 98867 / 364 |
+| rh-mono-gg6 | 45 | 46 | - | 42 | 97569 / 371 |
+| rh-mono-all (both) | 49 | 51 | 62 | 42 | 97417 / 379 |
+(v30 solo: 99212 / 522.) The gg6 and rhm diffs overlap in context, so rh-mono-all was built by applying
+rhm's three edits (MONO_ONLY global, its v2 line, r15) to rh-mono-gg6. gg6 needs group_gems: build at or
+after genome/v0 fd778fc. Recommended next upload: A81582-rh-mono-all.
