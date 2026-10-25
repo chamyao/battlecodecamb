@@ -1,0 +1,9 @@
+```python
+@gene('a5', 'cast-ahead applies: nearest enemy within 5 and not on its spawn, or a tributing one within 7 (a hit or stun cancels its tribute)')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    if not exists(f) or f.pos in enemy_spawn():
+        return False
+    d = dist(here(), f.pos)
+    return d <= 5 or (d <= 7 and is_tributing(f))
+```

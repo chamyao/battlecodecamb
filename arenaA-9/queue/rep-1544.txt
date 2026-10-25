@@ -1,0 +1,22 @@
+```python
+@gene('a13', 'a purchase is still due this turn (other options wait, unscored); cheap checks first, gold read once')
+def shop_pending() -> Bool:
+    if RULE < 2:
+        return False
+    g = gold()
+    if g < 10 or not can_shop() or not at_spawn():
+        return False
+    return (LOCK_BUY and not has_lock()) or (g >= 30 and next_shard() >= 0)
+
+@gene('r8', "place the team's altar lock: holder with an empty bag next to an altar, lock not yet placed, before round 1200, and no healthy enemy champion within 4 (do not spend the turn under threat)")
+def r_lock() -> Bool:
+    if gems() > 0 or not has_lock() or round() >= 1200:
+        return False
+    v = read_shared(7)
+    if v - 2 * floor(v / 2) != 0 or fuel() <= 60000:
+        return False
+    h = here()
+    if any(dist(h, u.pos) <= 4 and u.health_frac > 0.3 for u in enemies()):
+        return False
+    return valid(lock_altar())
+```

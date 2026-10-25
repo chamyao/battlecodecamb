@@ -1,0 +1,7 @@
+```python
+@gene("r4", "recall: below 30% health, unless carrying gems next to an altar with nothing able to hit us (bank first: a tribute is quicker than the recall)")
+def r_recall() -> Bool:
+    if at_spawn() or not hurt_below(0.3):
+        return False
+    return not (gems() > 0 and valid(adj_altar()) and not foe_in_reach())
+```

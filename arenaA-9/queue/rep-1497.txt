@@ -1,0 +1,15 @@
+```python
+@gene("r6", "pass-through bank: gems, an altar next to us and nothing able to hit us, or a one-turn tribute (10 or fewer gems) while above 60% health")
+def r_pass() -> Bool:
+    if gems() <= 0 or not valid(adj_altar()):
+        return False
+    if gems() <= 10 and me().health_frac > 0.6:
+        return True
+    return not foe_in_reach()
+@gene("m3", "an altar within lock reach (2), none while a healthy enemy champion is within 4 (do not spend the turn under threat)")
+def lock_altar() -> Tile:
+    h = here()
+    if any(dist(h, u.pos) <= 4 and u.health_frac > 0.3 for u in enemies()):
+        return tile(-1, -1)
+    return first_tile(altars() & near(h, 2))
+```

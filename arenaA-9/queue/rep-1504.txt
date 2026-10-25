@@ -1,0 +1,23 @@
+```python
+@gene('a9', "shopping on spawn: the team's altar lock, then the next shard of the build")
+def shop_value(o: Option) -> Num:
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and RULE >= 2 and at_spawn() else 0
+    if o.item != next_shard():
+        return 0
+    if o.count > shard_left() or RULE < 2 or not at_spawn():
+        return 0
+    return 190 + o.count / 100
+
+@gene('a11', 'next shard to buy: treasure strength, jungle health, durability health (10% less damage), home strength (3-turn recall), each until its emblem, then bruiser strength')
+def next_shard() -> Num:
+    if items_owned(19) == 0:
+        return 18
+    if items_owned(29) == 0:
+        return 28
+    if items_owned(17) == 0:
+        return 16
+    if items_owned(31) == 0:
+        return 30
+    return 36
+```
