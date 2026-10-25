@@ -392,3 +392,37 @@
 [08:40:29] [Z] birth Z210 (mutate session) of ['Z181'] species S92; 24 genomes $0.00
 [08:40:30] [Z] rejected mutate session: behavioural twin
 [08:40:32] [Z] birth Z211 (mutate session) of ['Z202'] species S87; 24 genomes $0.00
+[08:40:43] [Z] birth Z212 (mutate session) of ['Z139'] species S86; 24 genomes $0.00
+[08:40:45] [Z] birth Z213 (mutate session) of ['Z156'] species S80; 24 genomes $0.00
+[08:41:15] [Z] new species S101 founded by Z214
+[08:41:15] [Z] birth Z214 (mutate session) of ['Z194'] species S101; 24 genomes $0.00
+[08:41:23] [Z] new species S102 founded by Z215
+[08:41:23] [Z] birth Z215 (tune ) of ['Z204'] species S102; 24 genomes $0.00
+[08:41:47] [Z] rejected tune : behavioural twin
+[08:43:30] [Z] birth Z216 (mutate session) of ['Z210'] species S92; 24 genomes $0.00
+[08:43:32] [Z] new species S103 founded by Z217
+[08:43:32] [Z] birth Z217 (llm_cross session) of ['Z207', 'Z204'] species S103; 24 genomes $0.00
+[08:43:34] [Z] birth Z218 (mutate session) of ['Z207'] species S98; 24 genomes $0.00
+[08:43:35] [Z] birth Z219 (mutate session) of ['Z192'] species S85; 24 genomes $0.00
+[08:43:36] [Z] rejected mutate session: behavioural twin
+[08:43:54] [Z] rejected mutate session: behavioural twin
+[08:44:01] [Z] summary: births 220 deaths 197 games 85224 $0.00; top [('Z218', 50.15, 1.05, 80, 'S98'), ('Z216', 49.58, 1.06, 72, 'S92'), ('Z217', 49.12, 1.07, 72, 'S103')]; top vs anchors {'Z218': None, 'Z216': 1.0, 'Z217': None}
+[08:44:01] [Z] birth Z220 (mutate session) of ['Z192'] species S85; 24 genomes $0.00
+[08:44:02] [Z] birth Z221 (mutate session) of ['Z208'] species S92; 24 genomes $0.00
+[08:44:07] [Z] rejected tune : behavioural twin
+[08:44:08] [Z] rejected tune : behavioural twin
+[08:44:09] [Z] birth Z222 (tune ) of ['Z216'] species S92; 24 genomes $0.00
+[08:47:34] [Z] new species S104 founded by Z223
+[08:47:34] [Z] birth Z223 (llm_cross session) of ['Z195', 'Z211'] species S104; 24 genomes $0.00
+[08:47:35] [Z] new species S105 founded by Z224
+[08:47:35] [Z] birth Z224 (mutate session) of ['Z216'] species S105; 24 genomes $0.00
+[08:47:36] [Z] birth Z225 (mutate session) of ['Z212'] species S86; 24 genomes $0.00
+[08:47:38] [Z] new species S106 founded by Z226
+[08:47:38] [Z] birth Z226 (mutate session) of ['Z221'] species S106; 24 genomes $0.00
+[08:47:39] [Z] birth Z227 (mutate session) of ['Z174'] species S84; 24 genomes $0.00
+[08:47:41] [Z] rejected mutate session: behavioural twin
+[08:47:53] [Z] birth Z228 (mutate session) of ['Z218'] species S98; 24 genomes $0.00
+[08:47:55] [Z] birth Z229 (mutate session) of ['Z218'] species S98; 24 genomes $0.00
+[08:50:36] [Z] rejected mutate session: behavioural twin
+[08:50:41] [Z] rejected mutate session: behavioural twin
+[08:50:45] [Z] rejected mutate session: behavioural twin
