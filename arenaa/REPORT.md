@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 11:00 UTC
+
+- Z-19b (screened from seq 11 although meant as a control; the no-games message reached it after the run ended):
+  m4 **516/880 at b416** (top-3 509). With Z-18b 610 at b477 and Z-18c 384 at b331, all three screened, clean writers
+  are above the best unscreened run (Z-5 394). The exact-table check is clean on all Z-19 panel genomes.
+- Messages to sessions arrive up to ~1h45m late, so mid-run instructions are unreliable. Rules must be in the
+  starting prompt (and enforced by the environment where possible).
+- Z-20a/b past 100 births; Z-19a/c/d panels lag (match queue full). B-14 m23 1090/1280.
+
 ## 2026-10-25 10:27 UTC: Z-19 m1/m2
 
 - Z-19 (isolated, no screening): m1 19a 246, 19b 267 (legacy); 19c 341, 19d 202 (min-mu). 19b m2 **409 at b283**,
