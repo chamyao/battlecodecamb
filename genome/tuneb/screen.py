@@ -27,5 +27,4 @@ tb.precompile([p for _, p in todo])
 with open(out, 'a') as f:
     for v, p in todo:
         r = tb.run(p, opp, games=games, seed=seed, bot_seeds=bs)
-        r.pop('results')
         f.write(json.dumps(dict(tag=v['tag'], path=p, **r)) + '\n'); f.flush()
