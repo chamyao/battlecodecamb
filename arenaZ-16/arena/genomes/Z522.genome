@@ -166,9 +166,8 @@ def update() -> None:
         p = m.pos
         carry = unit_gems(m)
         low = 0.5305 + 0.2 * min(carry / 20, 1)
-        e_pow = sum(u.strength * (0.3 + u.health_frac) for u in enemies() if dist(u.pos, p) <= 6)
-        e_pow += sum(0.5 * u.strength for u in camps() if dist(u.pos, p) <= 3 and is_awake(u))
-        a_pow = m.strength * (0.3 + h) + sum(u.strength * (0.3 + u.health_frac) for u in allies() if dist(u.pos, p) <= 6 and dist(u.pos, p) > 0)
+        e_pow = enemy_power_near(p)
+        a_pow = ally_power_near(m, h, p)
         if h < low or (h < 0.7 and e_pow > 0 and e_pow >= a_pow):
             RETREAT = True
         elif h > 0.85:
@@ -180,14 +179,28 @@ def update() -> None:
             GOAL_F = HOME_F
             GOAL_OK = False
         else:
-            refresh = not GOAL_OK
-            if not refresh:
-                here = at(GOAL_F, p)
-                if here <= 1 or here >= 1000000 or round() % 2 == 0:
-                    refresh = True
-            if refresh:
+            if goal_refresh_needed(p):
                 GOAL_F = field(goals())
                 GOAL_OK = True
     else:
         RETREAT = False
         GOAL_OK = False
+
+@gene('X530a', 'nearby enemy power within 6 plus half strength of awake camps within 3 of a tile', parents=['Z21a'])
+def enemy_power_near(p: Tile) -> Num:
+    e_pow = sum(u.strength * (0.3 + u.health_frac) for u in enemies() if dist(u.pos, p) <= 6)
+    e_pow += sum(0.5 * u.strength for u in camps() if dist(u.pos, p) <= 3 and is_awake(u))
+    return e_pow
+
+@gene('X530b', "our side's power: my strength scaled by health plus allies within 6 (excluding my tile)", parents=['Z21a'])
+def ally_power_near(m: Unit, h: Num, p: Tile) -> Num:
+    return m.strength * (0.3 + h) + sum(u.strength * (0.3 + u.health_frac) for u in allies() if dist(u.pos, p) <= 6 and dist(u.pos, p) > 0)
+
+@gene('X530c', 'whether the cached goals field needs recomputing this turn', parents=['Z21a'])
+def goal_refresh_needed(p: Tile) -> Bool:
+    refresh = not GOAL_OK
+    if not refresh:
+        here = at(GOAL_F, p)
+        if here <= 1 or here >= 1000000 or round() % 2 == 0:
+            refresh = True
+    return refresh
