@@ -2309,3 +2309,8 @@
 {"arena": "B", "t": 1792924168.6, "name": "B2308", "birth": 2308, "parents": ["B2210"], "species": "S10", "mu": 47.46595121018309, "op": "mutate", "model": "session"}
 {"arena": "B", "t": 1792924169.7, "name": "B2309", "birth": 2309, "parents": ["B2180"], "species": "S10", "mu": 47.381773452995425, "op": "mutate", "model": "session"}
 {"arena": "B", "t": 1792924215.9, "name": "B2310", "birth": 2310, "parents": ["B2302"], "species": "S9", "mu": 47.619434538518405, "op": "tune", "model": ""}
+{"arena": "B", "t": 1792924250.4, "name": "B2311", "birth": 2311, "parents": ["B2308"], "species": "S10", "mu": 48.89440842712529, "op": "mutate", "model": "session"}
+{"arena": "B", "t": 1792924251.5, "name": "B2312", "birth": 2312, "parents": ["B2307"], "species": "S6", "mu": 46.511273725873444, "op": "tune", "model": ""}
+{"arena": "B", "t": 1792924283.0, "name": "B2313", "birth": 2313, "parents": ["B2176", "B2303"], "species": "S9", "mu": 46.71468887315538, "op": "llm_cross", "model": "session"}
+{"arena": "B", "t": 1792924315.1, "name": "B2314", "birth": 2314, "parents": ["B2197"], "species": "S11", "mu": 45.836897734136905, "op": "tune", "model": ""}
+{"arena": "B", "t": 1792924338.2, "name": "B2315", "birth": 2315, "parents": ["B2312", "B2210"], "species": "S6", "mu": 47.27104764274081, "op": "cross", "model": ""}

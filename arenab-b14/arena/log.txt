@@ -4440,3 +4440,12 @@
 [10:30:15] [B] summary: births 2310 deaths 2287 games 578032 $11.08; top [('B2308', 49.07, 0.94, 96, 'S10'), ('B2302', 47.62, 0.83, 224, 'S9'), ('B2310', 47.62, 6.0, 0, 'S9')]; top vs anchors {'B2308': 0.625, 'B2302': 0.609, 'B2210': 0.64}
 [10:30:16] [B] birth B2310 (tune ) of ['B2302'] species S9; 24 genomes $11.08
 [10:30:28] [B] rejected mutate session: behavioural twin
+[10:30:50] [B] birth B2311 (mutate session) of ['B2308'] species S10; 24 genomes $11.08
+[10:30:51] [B] birth B2312 (tune ) of ['B2307'] species S6; 24 genomes $11.08
+[10:31:23] [B] birth B2313 (llm_cross session) of ['B2176', 'B2303'] species S9; 24 genomes $11.08
+[10:31:26] [B] rejected llm_cross session: behavioural twin
+[10:31:33] [B] rejected mutate session: behavioural twin
+[10:31:55] [B] birth B2314 (tune ) of ['B2197'] species S11; 24 genomes $11.08
+[10:31:58] [B] rejected tune : behavioural twin
+[10:31:59] [B] rejected mutate session: behavioural twin
+[10:32:18] [B] birth B2315 (cross ) of ['B2312', 'B2210'] species S6; 24 genomes $11.08

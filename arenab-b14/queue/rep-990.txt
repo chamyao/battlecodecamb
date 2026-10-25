@@ -1,0 +1,5 @@
+```python
+@gene("m5", "tiles next to an altar we can stand on: excluding the altars themselves, walls and holes")
+def altar_ring() -> Tiles:
+    return ring(altars(), 1) - altars() - walls() - holes()
+```
