@@ -89,3 +89,8 @@ Uploaded as **v28** at 03:43:47Z Oct 25 (bundle 8a921761..., genome/v0 568cbf5 g
 | B1543 | 2 | 42 | — |
 | B1526 | 2 | 41 | — |
 | B1573 | 2 | **44** | FAIL: B318 43/53, hunter 56/65; others level or up (A61188 44/41, exploit-353 54/50) |
+
+## v28-emblem (intel; Treasure shards on one carrier until its emblem, then v28's plan)
+
+Real cambc --release vs the v28 build (both at genome/v0 ca5180b): **45/80**, 0 crashes; capped normal turns 342 vs 382.
+Sim bot seeds (intel): 52/80 vs v28; anchors -4 metadraft/farmer/lockall, +16 A61188, +7 rushbank/hunter-carry, others within ±3.
