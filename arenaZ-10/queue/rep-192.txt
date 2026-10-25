@@ -1,0 +1,34 @@
+```python
+@gene('s1', 'value of doing this option now; casts abilities, treasure shards early then bruiser strength, recall at 35% (50% when carrying 20+ gems in a fight) or to spend banked gold, focuses enemy champions carrying the most gems, fights back against awake camps while carrying gems')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        if me().health_frac < 0.35:
+            return 90
+        if gems() >= 20 and me().health_frac < 0.5 and in_fight():
+            return 88
+        return 52 if shop_trip() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac) + min(unit_gems(o.unit), 30) / 10
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z23a', 'shop plan: treasure strength shards before round 450, then bruiser strength; biggest batch first', parents=['s1'])
+def buy_value(o: Option) -> Num:
+    want = 18 if round() < 450 else 36
+    return 100 + o.count if o.item == want else 0
+```
