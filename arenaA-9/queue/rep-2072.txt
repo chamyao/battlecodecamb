@@ -1,0 +1,11 @@
+```python
+@gene('w7', 'a dash may land on p: a free middle tile next to both ends, not an unseen bush (it may hide an enemy), that no visible enemy champion is adjacent to (any such free middle when retreating), unless p is adjacent to me', parents=['w7'])
+def dash_path_ok(p: Tile) -> Bool:
+    if dist(here(), p) <= 1:
+        return True
+    hb = bushes() - vision()
+    if RULE == 3:
+        return any(dist(q, p) <= 1 and not (q in BLOCK) and not (q in hb) for q in dash_mids())
+    ev = enemies()
+    return any(dist(q, p) <= 1 and not (q in BLOCK) and not (q in hb) and not any(dist(e.pos, q) <= 1 for e in ev) for q in dash_mids())
+```
