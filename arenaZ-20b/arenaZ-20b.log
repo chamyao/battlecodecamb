@@ -456,3 +456,29 @@
 [12:44:59] [Z] birth Z254 (mutate session) of ['Z246'] species S93; 24 genomes $0.00
 [12:45:46] [Z] rejected mutate session: behavioural twin
 [12:46:00] [Z] birth Z255 (tune ) of ['Z247'] species S94; 24 genomes $0.00
+[12:46:21] [Z] rejected tune : behavioural twin
+[12:46:25] [Z] rejected mutate session: behavioural twin
+[12:47:01] [Z] birth Z256 (mutate session) of ['Z241'] species S66; 24 genomes $0.00
+[12:47:37] [Z] birth Z257 (mutate session) of ['Z245'] species S85; 24 genomes $0.00
+[12:48:36] [Z] birth Z258 (llm_cross session) of ['Z245', 'Z226'] species S94; 24 genomes $0.00
+[12:48:59] [Z] birth Z259 (tune ) of ['Z257'] species S85; 24 genomes $0.00
+[12:49:10] [Z] new species S95 founded by Z260
+[12:49:10] [Z] summary: births 260 deaths 237 games 119672 $0.00; top [('Z251', 43.39, 0.85, 264, 'S87'), ('Z237', 43.09, 0.82, 528, 'S89'), ('Z252', 43.04, 0.79, 240, 'S76')]; top vs anchors {'Z251': 1.0, 'Z237': 0.958, 'Z252': None}
+[12:49:10] [Z] birth Z260 (mutate session) of ['Z200'] species S95; 24 genomes $0.00
+[12:49:44] [Z] birth Z261 (mutate session) of ['Z237'] species S89; 24 genomes $0.00
+[12:50:04] [Z] birth Z262 (tune ) of ['Z226'] species S90; 24 genomes $0.00
+[12:50:16] [Z] rejected mutate session: behavioural twin
+[12:50:59] [Z] rejected mutate session: behavioural twin
+[12:51:13] [Z] birth Z263 (tune ) of ['Z262'] species S90; 24 genomes $0.00
+[12:51:37] [Z] birth Z264 (mutate session) of ['Z226'] species S90; 24 genomes $0.00
+[12:51:37] [Z] birth Z265 (tune ) of ['Z261'] species S89; 24 genomes $0.00
+[12:52:17] [Z] rejected mutate session: behavioural twin
+[12:52:53] [Z] birth Z266 (mutate session) of ['Z182'] species S77; 24 genomes $0.00
+[12:53:49] [Z] birth Z267 (mutate session) of ['Z253'] species S88; 24 genomes $0.00
+[12:54:10] [Z] rejected tune : behavioural twin
+[12:54:26] [Z] birth Z268 (mutate session) of ['Z251'] species S87; 24 genomes $0.00
+[12:54:55] [Z] birth Z269 (mutate session) of ['Z211'] species S82; 24 genomes $0.00
+[12:55:16] [Z] rejected tune : behavioural twin
+[12:55:23] [Z] summary: births 270 deaths 247 games 122816 $0.00; top [('Z264', 43.34, 0.81, 184, 'S90'), ('Z258', 42.72, 0.79, 264, 'S94'), ('Z254', 42.66, 0.79, 528, 'S93')]; top vs anchors {'Z264': None, 'Z258': None, 'Z254': 1.0}
+[12:55:23] [Z] birth Z270 (mutate session) of ['Z248'] species S70; 24 genomes $0.00
+[12:55:59] [Z] birth Z271 (mutate session) of ['Z254'] species S93; 24 genomes $0.00
