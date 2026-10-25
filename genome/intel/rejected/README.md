@@ -271,3 +271,26 @@ lockall 65 (64), **B318 48 (53)**, B792 47 (49), seed 59 (59), v28 51 (52). B318
 673-1020 L / 1010-66 W; elk-arena 1044-324 W / 504-792 L. That is **3-3**, with +138 gems per game.
 
 Not a pass: it banks more on these maps but does not win more, and one anchor drops by 5.
+
+## Monster deaths vs idle (2026-10-25): group gates
+
+Target from the Arena B lead: v29 vs builtin:idle (80 games, bot seeds) wins 80/80 but dies 4.25 times a game to monsters. Starvation (33) and starfish (15.5) are the worst maps.
+
+**Trace.**
+- Starvation: every death is to elk group 2 (4 elks, strength 240, 9,600 HP, 88 gems).
+- Starfish: deaths are to elk group 15 (6 elks, 360).
+- Champions wake the group one or two at a time, often by hitting its gem or gold clusters.
+- Each lone champion then takes 240 damage a turn and can't walk out of range-4 coverage in time (1,140 HP to 0 in 5 rounds).
+
+**Columns.** vs idle: monster deaths per game and gems short of 1000 (summed over 80 games). The paired/anchor columns compare against v29.
+
+| child | change | deaths | short | notes |
+|---|---|---|---|---|
+| v29 (base) | | 4.25 | 8,766 | |
+| v29-groupup | strong sleeping groups need 3 (4 at 360+) of us within 4 | 3.96 | 11,733 | stalls: starfish 674, great-wall 572, stampede 560 gems |
+| v29-lanch (first version) | strong groups need the fight check (our summed damage × health ≥ theirs); weaker groups first | 2.56 | 11,094 | stampede 0 gems: its only gem group is a 6-elk herd that never passes the check |
+| v29-lanchA/C/D | gem-first goal order; count fallback; no gate where no weaker gem group exists | — | — | the count fallback brings deaths back (stampede 23); gem-first order feeds early (stampede 33.5) |
+| v29-lanchE(2/4) | weaker first + the fight check, both off on maps with no weaker gem group | 2.8 | 9,334 | 41/80 vs v29; anchors net +1. Pilgrimage 858 and elk-arena 504 gems (v29: 1,036 / 792). First build had 31 suspensions a game (per-camp group scans), fixed with a static STRONG set |
+| v29-runlanch | lanchE + v29-run | 2.6 | — | 44/80 vs v29, but paired: B318 -6 (5 up / 11 down), L1 -6 (4 / 10) |
+
+Not a pass. The gate removes most monster deaths on starvation and starfish (33 → 0, 15.5 → 0.5). But no version keeps v29's gems on maps where a strong group is the main gem source (stampede, pilgrimage, elk-arena). v29-run (directed/) is the narrow alternative that passes.

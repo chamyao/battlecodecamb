@@ -464,3 +464,30 @@ This is the same pace gap as the 5-worst-archetype "farmer" rows above, so it is
 - Treat B318 as a noisy pace check, not a blocker.
 - Gate an anchor drop on a paired sign test over the games that diverge (e.g. block at p < 0.1), instead of a flat >3/80.
 - Exclude 01boss-battle from the B318 row, or score its 0–0 lock as a draw, since the lock doesn't occur on the ladder.
+
+## Monster deaths and solo farming vs idle (v29, 2026-10-25)
+
+Target (Arena B lead): v29 vs builtin:idle, 80 games with bot seeds. It wins 80/80 but dies 4.25 times a game to monsters, and some maps don't reach 1000 gems.
+
+**Why we die** (traced with GAME_EVENTS plus a local, uncommitted champion-damage event):
+- Starvation: all 33 deaths are to elk group 2 (4 elks, strength 240, 88 gems).
+- Starfish: deaths are to elk group 15 (6 elks, 360).
+- Champions wake these groups one or two at a time. Often the trigger is hitting the group's own gem or gold clusters at its centre, which wakes the elks too.
+- The camp walk (m11) has no strength check, and r_run fires only below 30% health. A lone champion inside the cluster takes 240 a turn and needs 3+ turns to get out of range 4.
+
+**Why some maps don't reach 1000 alone:**
+- Reverse-spiral is supply-capped, not broken: 839 gems captured, from 7-gem clusters plus an elk group (g9, 44) and wolves (g0, 22) that we start taking only at r688 and r774.
+- Contest's only gem sources are its two monoliths (200 each). r15 allows monoliths only while `team_gems() == 0`, so after the first one we never take another: 200 gems in 2000 rounds.
+- Boss-battle and shortcut are not traced yet.
+
+**Children:**
+- **directed/v29-run.genome** (sha256 97cdc776…): r3 also runs when health < 2.5 × the basic-attack damage of the awake camps in range (new gene i19).
+  - vs idle: deaths 4.25 → 3.84, gems unchanged (8,769 short vs 8,766).
+  - 42/80 vs v29.
+  - Paired vs v29's own rows: B318 51 (53; 8 up / 10 down), L1c 61 (54; 12 / 5), gconv1 61 (62), v7 79 (77), L1 61 (60), rall2 68 (63; 8 / 3), metadraft 75 (72).
+  - No anchor drop is significant; pooled over the anchors it's 45 up / 30 down.
+  - Real cambc smoke vs the v29 build: 3-2 (starfish 1004-106 W, lanes W, big-world W, starvation L, great-wall L), 0 crashes.
+- **directed/v29-runmono.genome**: v29-run plus r15, which also allows monoliths after the first tribute on maps where only monolith groups pay gems (MONO_ONLY, computed at round 3).
+  - Contest vs idle: 200 → 600 gems.
+  - 41/80 vs v29; paired anchors the same as v29-run within a game or two.
+- Group gates that stop lone wakes (v29-lanch family) cut deaths to 2.6–2.8 a game (starvation 33 → 0) but stall farming where a strong group is the main gem source. See rejected/README.md.
