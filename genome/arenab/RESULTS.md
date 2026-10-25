@@ -115,3 +115,8 @@ group_reward return 0 (bot_api.cpp builds groups from sdk_map_camp_layout withou
 So v29-gg plays identically to v29 in real cambc (vs a do-nothing bot: same rounds, same final 1008 gems / 2 kills /
 19238 gold on elk-arena; real h2h 39/80 mirrored). Every gem-reward-weighted genome so far was sim-only. The fuel session
 has the fix; re-test v29-gg in real after it lands.
+
+After the fix (genome/fuel 0b1c4281, both bots rebuilt there), real cambc --release:
+- vs a do-nothing cambc bot: elk-arena 1796 -> 1272 rounds, gold-rush 2000 -> 1460, yellow-brick-road 1522 -> 867;
+  broken-curve, stampede, shortcut still 2000 for both.
+- v29-gg vs v29 head to head: 39/80, 0 crashes; capped normal turns 292 vs 350.
