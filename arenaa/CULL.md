@@ -110,3 +110,5 @@ state.json and matches.jsonl only), so it matches the Z-19 protocol. Its final p
 point (labelled; it is not one of the four Z-19 arms).
 Z-18a also ran to 477 births despite the stop (afb50dd). It stays void: it copied the A-line table, screened with its
 own games including against seeds/v23 (an evolved policy), and auto-answered with a script from about request 245.
+Z-19c (min-mu, screened from seq 9 to ~355, scripted from ~seq 199) finished at 475 births (0697f7f); in-arena top
+Z417 43.1. Panel final pending.
