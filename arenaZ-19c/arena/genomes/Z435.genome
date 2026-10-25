@@ -1,0 +1,173 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+GSIG: Num = -1
+TH: Tiles = None
+
+@gene('s1', 'value of doing this option now; drafts strong champions, uses abilities, backs off from threats before recalling when low')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == next_shard() else 0
+    low = me().health_frac < (0.2339 if me().attack_range > 1 else 0.25)
+    if o.kind == RECALL:
+        if low and threat_gap(me().pos) > 4:
+            return 90
+        return 45 if gold() >= 450 and threat_gap(me().pos) > 4 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 95 if o.unit.health_frac < 0.25 else 80
+        if gems() >= 8:
+            return 0
+        return 61 if is_awake(o.unit) else 60
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if low and threat_gap(me().pos) <= 4:
+            return 86 if threat_gap(o.tile) > threat_gap(me().pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z338a', 'distance from tile t to the nearest enemy champion or awake camp (99 if none seen)', parents=['s1'])
+def threat_gap(t: Tile) -> Num:
+    d = 99
+    if size(TH) > 0:
+        d = dist(t, nearest(TH, t))
+    e = enemy_tiles()
+    if size(e) > 0:
+        d = min(d, dist(t, nearest(e, t)) - 1)
+    return d
+
+@gene('Z338b', 'once per turn: cache the goal field and the tiles of enemy champions and awake camps', parents=['s3'])
+def update() -> None:
+    g = goals()
+    sig = size(g) + 10000 * size(g & near(me().pos, 0))
+    if sig != GSIG or round() % 25 == 0:
+        GF = field(g)
+        GSIG = sig
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        acc = acc | near(u.pos, 0)
+    for c in camps():
+        if is_awake(c):
+            acc = acc | near(c.pos, 0)
+    TH = acc
+
+@gene('s2', 'where to walk: an altar once carrying 8+ gems, else a living camp group that is not a monolith')
+def goals() -> Tiles:
+    if gems() >= 8 or (gems() > 0 and me().health_frac < 0.5):
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if spawn_type(nearest(ts, me().pos)) != MONOLITH:
+                acc = acc | ts
+    if size(acc) == 0:
+        for g in range(num_groups()):
+            ts = group_tiles(g)
+            if spawn_type(nearest(ts, me().pos)) != MONOLITH:
+                acc = acc | ts
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return GF
+
+@gene('s4', 'how much closer a step brings me to the goals')
+def progress(t: Tile) -> Num:
+    base = at(goal_field(), me().pos) - at(goal_field(), t)
+    if base > 0 and any(not is_awake(c) and c.type == GOLEM and dist(c.pos, t) <= 1 for c in camps()):
+        return base - 0.5
+    return base
+
+@gene('Z6a', 'draft preference for each champion', parents=['s1'])
+def draft_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 8
+    if c == VENDETTA:
+        return 9
+    if c == RYTH:
+        return 8
+    if c == WILLOW:
+        return 7
+    if c == TAVI:
+        return 6
+    if c == MARCELLA:
+        return 5
+    if c == HEART_OF_RUIN:
+        return 4
+    if c == VARG:
+        return 3
+    return 1
+
+@gene('Z6b', 'value of casting an ability: damage and stuns on fights, area hits on clusters, resets only with a target in reach, shields and heals when hurt', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        return 55 if not can_attack() and fighting(me().attack_range) else 0
+    if k == AB_SHIELD:
+        return 75 if fighting(4) else 0
+    if k == AB_HEAL:
+        if exists(o.unit):
+            return 85 if o.unit.health_frac < 0.75 else 0
+        return 0
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 82
+            if o.unit.is_camp and gems() < 8:
+                return 112
+        return 0
+    if k == AB_AOE:
+        if not (o.tile in TH):
+            return 0
+        r = max(1, slot_radius(o.slot))
+        n = count(dist(x, o.tile) <= r for x in TH) + count(dist(u.pos, o.tile) <= r for u in enemies())
+        return 60 + 5 * n if n > 0 else 0
+    if k == AB_DASH:
+        if me().health_frac < 0.35 and threat_gap(me().pos) <= 4:
+            return 88 if threat_gap(o.tile) >= threat_gap(me().pos) + 2 else 0
+        if gems() < 8 and me().health_frac >= 0.35 and any(dist(x, o.tile) <= 1 for x in TH):
+            return 58
+        return 52 if progress(o.tile) >= 2 else 0
+    return 0
+
+@gene('Z6c', 'an enemy champion or awake camp is within r tiles', parents=['s1'])
+def fighting(r: Num) -> Bool:
+    if threat_gap(me().pos) <= r:
+        return True
+    return r <= 3 and gems() < 8 and any(dist(c.pos, me().pos) <= r for c in camps())
+
+@gene('Z338c', 'which option kinds are worth listing: skip wards, locks and cancels', parents=['s1'])
+def consider(kind: Num) -> Bool:
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+
+@gene('Z338d', 'which stat line this champion shops: 0 strength, 2 focus, 4 health', parents=['s1'])
+def shop_stat() -> Num:
+    t = me().type
+    if t == MARCELLA:
+        return 2
+    if t == RYTH:
+        return 4
+    if t == HEART_OF_RUIN:
+        return 2
+    return 0
+
+@gene('Z338e', "the shard to buy next: Treasure, then Jungle, then Bruiser, in this champion's stat", parents=['s1'])
+def next_shard() -> Num:
+    s = shop_stat()
+    if items_owned(19 + s) == 0:
+        return 18 + s
+    if items_owned(25 + s) == 0 and me().attack_range <= 1:
+        return 24 + s
+    if items_owned(13 + s) == 0 and me().attack_range > 1:
+        return 12 + s
+    return 36 + s

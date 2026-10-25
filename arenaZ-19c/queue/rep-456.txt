@@ -1,0 +1,7 @@
+```python
+@gene('Z6c', 'an enemy champion or awake camp is within r tiles', parents=['s1'])
+def fighting(r: Num) -> Bool:
+    if threat_gap(me().pos) <= r:
+        return True
+    return r <= 3 and gems() < 8 and any(dist(c.pos, me().pos) <= r and c.type != MONOLITH for c in camps())
+```
