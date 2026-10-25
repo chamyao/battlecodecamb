@@ -1,0 +1,7 @@
+```python
+@gene("Z29a", "a camp is worth hitting: it is awake already, or no other awake camp is within 4 of me")
+def camp_ok(u: Unit) -> Bool:
+    if is_awake(u):
+        return True
+    return not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps())
+```

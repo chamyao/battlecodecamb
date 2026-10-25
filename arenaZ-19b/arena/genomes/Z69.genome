@@ -1,0 +1,90 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; drafts Willow then Marcella, buys bruiser strength, casts, hunts gem carriers, flees when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 10 if o.champ == WILLOW else (9 if o.champ == MARCELLA else 1)
+    if o.kind == BUY:
+        return 100 if o.item == 36 else 0
+    hurt = me().health_frac < 0.35
+    if o.kind == RECALL:
+        return 90 if hurt and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + min(unit_gems(o.unit), 50) / 10
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if hurt:
+            now = threat_at(me().pos)
+            if now > 0:
+                nxt = threat_at(o.tile)
+                if nxt < now:
+                    return 96 - nxt
+                return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: home when badly hurt, an altar with gems, else a living camp group')
+def goals() -> Tiles:
+    if me().health_frac < 0.45 and not channeling():
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+@gene('Z4a', 'value of casting an ability option: hit champions and camps we fight, shield or heal when hurt', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if not exists(o.unit):
+            return 0
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 85
+        if o.unit.is_camp and gems() == 0:
+            return 65
+        return 0
+    if k == AB_AOE:
+        n = count(dist(u.pos, o.tile) <= 1 for u in enemies())
+        c = count(dist(u.pos, o.tile) <= 1 for u in camps())
+        if n > 0:
+            return 84
+        if c > 0 and gems() == 0:
+            return 64
+        return 0
+    if k == AB_SHIELD:
+        near_enemy = count(dist(u.pos, me().pos) <= 3 for u in enemies())
+        near_camp = count(is_awake(u) and dist(u.pos, me().pos) <= 4 for u in camps())
+        return 75 if near_enemy + near_camp > 0 and me().health_frac < 0.9 else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and o.unit.health_frac < 0.6:
+            return 86
+        return 0
+    if k == AB_RESET:
+        return 55 if not can_attack() else 0
+    return 0
+
+@gene('Z31a', 'how many awake camps and enemy champions can hit a tile', parents=['s1'])
+def threat_at(t: Tile) -> Num:
+    c = count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps())
+    e = count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+    return c + e
