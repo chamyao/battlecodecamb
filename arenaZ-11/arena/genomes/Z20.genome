@@ -1,0 +1,75 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_F: Field = None
+
+@gene('s1', 'value of doing this option now; moves scale with progress toward goals, capped below tribute/champion attacks', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.2516 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p > 0:
+            return min(40 + 20 * p, 65)
+        return 0
+    return 0
+
+@gene('s2', 'where to walk: home when badly hurt (42%), an altar with gems, else cleared or living non-monolith camp groups', parents=['s2'])
+def goals() -> Tiles:
+    if me().health_frac < 0.42:
+        return my_spawn()
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    reward = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt) > 0:
+                if group_reward(g):
+                    reward = reward | gt
+                elif spawn_type(nearest(gt, me().pos)) != MONOLITH:
+                    acc = acc | gt
+    if size(reward) > 0:
+        return reward
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals, cached once per turn in update()', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_F
+
+@gene('s4', 'how much closer a step brings me to the goals, minus danger from enemy champions (heavier when hurt or carrying gems, since death drops gems)', parents=['s4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    p = at(f, me().pos) - at(f, t)
+    danger = sum(1 for u in enemies() if u.is_champion and dist(u.pos, t) <= 2)
+    w = 1
+    if me().health_frac < 0.5:
+        w = 3
+    if gems() > 0:
+        w += 1
+    p -= w * danger
+    return p
+
+@gene('Z27a', 'per-turn cache of the distance field to the goals', parents=['s3'])
+def update() -> None:
+    GOAL_F = field(goals())
