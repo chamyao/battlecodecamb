@@ -358,6 +358,10 @@ class Arena:
                     ag = x["anchor_games"].setdefault(y["name"], [0, 0])
                     ag[0] += wins
                     ag[1] += n
+                if x["kind"] == "genome" and y["kind"] == "anchor":  # every anchor, for the session's feedback
+                    va = x.setdefault("vs_anchors", {}).setdefault(y["name"], [0, 0])
+                    va[0] += wins
+                    va[1] += n
                 if x["kind"] == "genome":
                     self.s["species"][x["species"]]["games"] += n
             for row in st.get("per_game", []):  # per member: wins by map, deaths not caused by champions
@@ -462,16 +466,17 @@ class Arena:
     @staticmethod
     def _member_brief(m):
         """Compact per-member results for the session's feedback: rating, worst 3 maps by win rate (>= 2 games),
-        and deaths per game not caused by enemy champions."""
+        deaths per game not caused by enemy champions, and wins/games vs each anchor so far ({anchor: [wins, games]})."""
         out = [m["name"], round(m["mu"], 2), round(m["sigma"], 2), m["games"]]
         ms = [(w / n, mp, w, n) for mp, (w, n) in m.get("map_stats", {}).items() if n >= 2]
         worst = [[mp, w, n] for _, mp, w, n in sorted(ms)[:3]]
         nc = m.get("nc_deaths", [0, 0])
-        return out + [worst, round(nc[0] / nc[1], 2) if nc[1] else None]
+        return out + [worst, round(nc[0] / nc[1], 2) if nc[1] else None, dict(sorted(m.get("vs_anchors", {}).items()))]
 
     def queue_feedback(self):
         """Feedback for the next queued request: outcomes of earlier queued children not yet reported; for every live
-        queued child [name, mu, sigma, games, worst 3 maps [map, wins, games], non-champion deaths per game]; the
+        queued child [name, mu, sigma, games, worst 3 maps [map, wins, games], non-champion deaths per game,
+        {anchor: [wins, games]}]; the
         queued children that died since the last request; the top 5 (same fields)."""
         with self.lock:
             fb = {"outcomes": []}
@@ -592,6 +597,13 @@ class Arena:
 
     # ---- intel (arena B)
     def refresh_intel(self):
+        new = []
+        for path in filter(None, self.a.ingest.split(",")):  # --ingest files: once each, as directed newborns
+            if f"file:{path}" not in self.s["intel_seen"]:
+                self.s["intel_seen"].append(f"file:{path}")
+                new.append((path, Path(path).read_text()))
+        if new:
+            return new
         if not self.a.intel_branch or time.time() - self.gaps_t < self.a.intel_every:
             return []
         self.gaps_t = time.time()
@@ -603,7 +615,6 @@ class Arena:
             self.gaps = [l.strip() for l in g.stdout.splitlines() if l.strip() and not l.startswith("#")]
         ls = subprocess.run(["git", "-C", str(ROOT), "ls-tree", "--name-only", f"origin/{br}", "genome/intel/directed/"],
                             capture_output=True, text=True)
-        new = []
         for path in ls.stdout.split():
             if path.endswith(".genome") and path not in self.s["intel_seen"]:
                 self.s["intel_seen"].append(path)
@@ -795,6 +806,7 @@ def main(argv=None):
     ap.add_argument("--no-bot-seeds", dest="bot_seeds", action="store_false",
                     help="policy anchors seeded per game instead of as deployed")
     ap.add_argument("--intel-branch", default="")
+    ap.add_argument("--ingest", default="", help="comma-separated genome files, each ingested once as a directed newborn")
     ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
     ap.add_argument("--resume-from", default="", help="an earlier arena output directory (e.g. the last pushed "
                                                       "remote/genome copy of a died job): copied into --out to resume")
