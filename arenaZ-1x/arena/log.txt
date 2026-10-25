@@ -3276,3 +3276,50 @@
 [05:29:55] [Z] birth Z1387 (mutate claude-haiku-5-5) of ['Z1370'] species S676; 24 genomes $13.12
 [05:29:55] [Z] rejected tune : behavioural twin
 [05:30:03] [Z] birth Z1388 (mutate claude-haiku-5-5) of ['Z1264'] species S657; 24 genomes $13.12
+[05:30:26] [Z] new species S699 founded by Z1389
+[05:30:26] [Z] birth Z1389 (mutate claude-haiku-5-5) of ['Z1388'] species S699; 24 genomes $13.13
+[05:30:26] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:30:44] [Z] new species S700 founded by Z1390
+[05:30:44] [Z] summary: births 1390 deaths 1367 games 340336 $13.13; top [('Z1381', 44.02, 0.84, 232, 'S688'), ('Z1387', 43.71, 0.89, 104, 'S676'), ('Z1313', 43.6, 0.79, 1168, 'S646')]; top vs anchors {'Z1381': None, 'Z1387': None, 'Z1313': 1.0}
+[05:30:44] [Z] birth Z1390 (tune ) of ['Z1367'] species S700; 24 genomes $13.13
+[05:30:53] [Z] birth Z1391 (mutate claude-haiku-5-5) of ['Z1264'] species S657; 24 genomes $13.34
+[05:31:07] [Z] new species S701 founded by Z1392
+[05:31:07] [Z] birth Z1392 (llm_cross claude-opus-5-5) of ['Z1313', 'Z1379'] species S701; 24 genomes $13.34
+[05:31:16] [Z] birth Z1393 (tune ) of ['Z1365'] species S689; 24 genomes $13.34
+[05:31:34] [Z] new species S702 founded by Z1394
+[05:31:34] [Z] birth Z1394 (llm_cross claude-haiku-5-5) of ['Z1382', 'Z1387'] species S702; 24 genomes $13.35
+[05:31:34] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:31:42] [Z] new species S703 founded by Z1395
+[05:31:42] [Z] birth Z1395 (mutate claude-haiku-5-5) of ['Z1387'] species S703; 24 genomes $13.35
+[05:31:59] [Z] new species S704 founded by Z1396
+[05:31:59] [Z] birth Z1396 (tune ) of ['Z1385'] species S704; 24 genomes $13.35
+[05:32:12] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:32:22] [Z] new species S705 founded by Z1397
+[05:32:22] [Z] birth Z1397 (llm_cross claude-haiku-5-5) of ['Z1383', 'Z1394'] species S705; 24 genomes $13.36
+[05:32:31] [Z] new species S706 founded by Z1398
+[05:32:31] [Z] birth Z1398 (llm_cross claude-haiku-5-5) of ['Z1394', 'Z1389'] species S706; 24 genomes $13.36
+[05:32:47] [Z] birth Z1399 (mutate claude-opus-5-5) of ['Z1396'] species S704; 24 genomes $13.43
+[05:32:47] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 299: gene altar_tiles redefined or shadows a builtin
+[05:32:56] [Z] champion anchor champ28-Z1382 (mu 43.7)
+[05:32:56] [Z] summary: births 1400 deaths 1377 games 342000 $13.43; top [('Z1382', 43.66, 0.81, 264, 'S696'), ('Z1257', 43.53, 0.79, 1624, 'S639'), ('Z1400', 43.47, 6.0, 0, 'S691')]; top vs anchors {'Z1382': 0.75, 'Z1257': 0.938, 'Z1394': None}
+[05:32:56] [Z] birth Z1400 (mutate claude-haiku-5-5) of ['Z1374'] species S691; 24 genomes $13.43
+[05:33:14] [Z] birth Z1401 (tune ) of ['Z1398'] species S706; 24 genomes $13.43
+[05:33:14] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:33:14] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:33:37] [Z] birth Z1402 (mutate claude-haiku-5-5) of ['Z1387'] species S676; 24 genomes $13.43
+[05:33:45] [Z] birth Z1403 (mutate claude-haiku-5-5) of ['Z1264'] species S657; 24 genomes $13.44
+[05:33:55] [Z] new species S707 founded by Z1404
+[05:33:55] [Z] birth Z1404 (llm_cross claude-haiku-5-5) of ['Z1394', 'Z1383'] species S707; 24 genomes $13.44
+[05:34:12] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:34:26] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:34:27] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[05:34:48] [Z] birth Z1405 (mutate claude-haiku-5-5) of ['Z1400'] species S691; 24 genomes $13.64
+[05:34:48] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:35:02] [Z] new species S708 founded by Z1406
+[05:35:02] [Z] birth Z1406 (llm_cross claude-opus-5-5) of ['Z1370', 'Z1397'] species S708; 24 genomes $13.64
+[05:35:04] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:35:25] [Z] new species S709 founded by Z1407
+[05:35:25] [Z] birth Z1407 (mutate claude-haiku-5-5) of ['Z1370'] species S709; 24 genomes $13.65
+[05:35:25] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:35:34] [Z] new species S710 founded by Z1408
+[05:35:34] [Z] birth Z1408 (llm_cross claude-haiku-5-5) of ['Z1404', 'Z1334'] species S710; 24 genomes $13.65
