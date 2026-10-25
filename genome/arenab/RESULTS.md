@@ -195,3 +195,8 @@ Safe to ride along with the v31 upload.
 Genome lead real 51/80 vs v30 (same as ours). Search full gate vs v30: sim h2h 42 (bar 43), solo-farm pass, paired anchors
 no blocks (v29 55 vs 44, v28 56 vs 46, A61188 59 vs 49). rmab held for its own version after batch 8.
 Intel: gold-rush +216 is mono (centre monolith group of ~24 gold clusters in its range); accepted trade-off.
+
+## Oct 25 ~07:20: "B1782" gate pass vs v30 = intel A81582-gg6 (directed insert in leg 6)
+B1782 sha 80890c76 is byte-identical to genome/intel/directed/A81582-gg6; B1783 = gg3. Relay top B1796 (gg6 lineage),
+real /80 vs rh-mono-all: 37 raw, 41 with mono (sim 34, 37). Not forwarded. Leg 6 asked to insert rh-mono-all and rmab.
+exploit-3 stopped at $9.15 when API credits ran out (06:50Z).
