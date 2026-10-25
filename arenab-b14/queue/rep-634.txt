@@ -1,0 +1,14 @@
+```python
+@gene('a2', 'value of a cast option: dash on retreat, altar walk and camp walk; a self-heal whenever below 60% health; cast-ahead, casts and resets of a fight; a self-shield or self-heal on the camp walk or a capture hold when below half health and in danger (no solo deaths to a woken group)')
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        return dash_value(o) if RULE == 3 or RULE == 11 or RULE == 20 else 0
+    if k == AB_HEAL and o.unit == me() and me().health_frac < 0.6:
+        return 172 - o.slot
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    if (k == AB_SHIELD or k == AB_HEAL) and (RULE == 16 or RULE == 20) and hurt_below(0.5) and in_danger():
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+```

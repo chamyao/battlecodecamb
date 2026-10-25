@@ -950,3 +950,36 @@
 [08:28:11] [B] rejected mutate session: behavioural twin
 [08:28:48] [B] rejected mutate session: behavioural twin
 [08:28:49] [B] birth B2005 (mutate session) of ['B2001'] species S10; 24 genomes $11.08
+[08:29:04] [B] birth B2006 (mutate session) of ['B1963'] species S11; 24 genomes $11.08
+[08:29:40] [B] birth B2007 (mutate session) of ['B2003'] species S10; 24 genomes $11.08
+[08:29:40] [B] rejected mutate session: behavioural twin
+[08:30:03] [B] birth B2008 (llm_cross session) of ['B1986', 'B2004'] species S10; 24 genomes $11.08
+[08:30:25] [B] birth B2009 (mutate session) of ['B1968'] species S6; 24 genomes $11.08
+[08:30:27] [B] summary: births 2010 deaths 1987 games 486928 $11.08; top [('B2005', 49.67, 0.88, 152, 'S10'), ('B1986', 48.97, 0.83, 584, 'S6'), ('B2009', 48.66, 6.0, 0, 'S6')]; top vs anchors {'B2005': 0.875, 'B1986': 0.75, 'B2008': 0.5}
+[08:30:27] [B] birth B2010 (mutate session) of ['B1963'] species S11; 24 genomes $11.08
+[08:31:05] [B] birth B2011 (mutate session) of ['B2006'] species S11; 24 genomes $11.08
+[08:31:06] [B] birth B2012 (tune ) of ['B1964'] species S9; 24 genomes $11.08
+[08:31:16] [B] birth B2013 (mutate session) of ['B1963'] species S11; 24 genomes $11.08
+[08:31:46] [B] birth B2014 (cross ) of ['B1986', 'B2009'] species S6; 24 genomes $11.08
+[08:31:57] [B] birth B2015 (mutate session) of ['B1986'] species S6; 24 genomes $11.08
+[08:32:11] [B] birth B2016 (llm_cross session) of ['B1998', 'B1963'] species S11; 24 genomes $11.08
+[08:32:29] [B] birth B2017 (mutate session) of ['B1950'] species S7; 24 genomes $11.08
+[08:32:38] [B] birth B2018 (mutate session) of ['B2009'] species S6; 24 genomes $11.08
+[08:32:57] [B] rejected tune : solo-farm: 63170 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 610
+[08:33:00] [B] birth B2019 (mutate session) of ['B1994'] species S3; 24 genomes $11.08
+[08:33:20] [B] rejected mutate session: behavioural twin
+[08:33:28] [B] rejected mutate session: behavioural twin
+[08:33:40] [B] summary: births 2020 deaths 1997 games 489304 $11.08; top [('B2008', 49.77, 0.87, 168, 'S10'), ('B2009', 49.71, 0.86, 216, 'S6'), ('B2018', 48.54, 0.93, 112, 'S6')]; top vs anchors {'B2008': 0.65, 'B2009': 0.812, 'B2018': 0.75}
+[08:33:40] [B] birth B2020 (mutate session) of ['B1964'] species S7; 24 genomes $11.08
+[08:33:52] [B] rejected tune : behavioural twin
+[08:33:53] [B] birth B2021 (mutate session) of ['B1993'] species S4; 24 genomes $11.08
+[08:34:17] [B] rejected mutate session: behavioural twin
+[08:34:36] [B] birth B2022 (mutate session) of ['B1963'] species S11; 24 genomes $11.08
+[08:34:38] [B] rejected mutate session: behavioural twin
+[08:34:50] [B] birth B2023 (mutate session) of ['B2016'] species S11; 24 genomes $11.08
+[08:35:10] [B] birth B2024 (tune ) of ['B1995'] species S4; 24 genomes $11.08
+[08:35:11] [B] birth B2025 (mutate session) of ['B2022'] species S11; 24 genomes $11.08
+[08:35:17] [B] rejected tune : solo-farm: 152034 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 52
+[08:35:39] [B] rejected cross : solo-farm: 52754 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 498
+[08:35:46] [B] rejected mutate session: behavioural twin
+[08:36:10] [B] birth B2026 (cross ) of ['B2021', 'B2024'] species S4; 24 genomes $11.08
