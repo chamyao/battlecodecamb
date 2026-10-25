@@ -1,0 +1,33 @@
+```python
+@gene('a0', "value of a move, attack, tribute, recall, lock or ward option under this turn's rule; default rule also hits enemy champions in reach, the one this hit kills first, then the most wounded (kill bounty); camp-walk attacks only on farmable camps", parents=["a0"])
+def act_value(o: Option) -> Num:
+    k = o.kind
+    r = RULE
+    if k == MOVE:
+        return move_value(o) if walks() else 0
+    if k == ATTACK:
+        if r == 7 or r == 14:
+            return 178 if o.unit.pos == TGT else 0
+        if r == 13:
+            return 150 if o.unit.pos == TGT else 0
+        if r == 20:
+            u = o.unit
+            if u.is_enemy and u.is_champion:
+                kill = 25 if attack_damage(me(), u) >= u.health + shield(u) else 0
+                return 120 + kill + 10 * (1 - u.health_frac)
+            return 90 if u.is_camp and farmable(u) and u.pos == reach_camp().pos else 0
+        return 0
+    if k == TRIBUTE:
+        return 150 if (r == 6 or r == 9 or r == 10 or r == 17) and o.tile == TGT else 0
+    if k == RECALL:
+        return 150 if r == 4 or r == 5 else 0
+    if k == LOCK:
+        return 150 if r == 8 and o.tile == TGT else 0
+    if k == WARD:
+        return 130 if r == 20 and o.tile == here() and here() in bushes() and count_units(enemies()) == 0 else 0
+    return 0
+
+@gene("s14", "the camp in reach to hit: farmable first, then one our next hit kills, then the lowest health (finish camps to clear groups sooner and stop their damage)", parents=["s14"])
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: (1000 if farmable(c) else 0) + (300 if in_reach(c) and attack_damage(me(), c) >= c.health else 0) - c.health / 10 if in_reach(c) else -INF)
+```

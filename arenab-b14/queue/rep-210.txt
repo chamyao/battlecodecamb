@@ -1,0 +1,26 @@
+```python
+@gene('m11', "the camp walk's goal: nearest live spawn of a weak group (only gem/gold clusters, plus wolves before round 600: cheap gems and gold per hit) unless a live non-big spawn is more than 6 tiles nearer; else nearest non-big spawn of a live group, falling back to any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    live = CAMP_BASE - respawning() - BIG_CAMPS
+    t = closest(live)
+    weak = weak_spawns(20 if round() < 600 else 0) & live
+    if size(weak) > 0:
+        w = closest(weak)
+        if valid(w) and (not valid(t) or dist(here(), w) <= dist(here(), t) + 6):
+            return w
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+
+@gene("new", "spawn tiles of camp groups whose every member has design strength at most lim (0: clusters only, 20: wolves too)", parents=["m11"])
+def weak_spawns(lim: Num) -> Tiles:
+    acc = CAMP_BASE - CAMP_BASE
+    for g in range(num_groups()):
+        ts = group_tiles(g)
+        if all(camp_base_strength(spawn_type(s)) <= lim for s in ts):
+            acc = acc | ts
+    return acc
+```

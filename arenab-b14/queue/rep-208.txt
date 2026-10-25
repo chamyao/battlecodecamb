@@ -1,0 +1,26 @@
+```python
+@gene('r5', 'recall with 5+ gems when hurt (threshold rises with carried gems) and nothing near, unless a safe bank tile is within 6 turns (walking there banks sooner than the round trip home)')
+def r_cashout() -> Bool:
+    if at_spawn():
+        return False
+    g = gems()
+    if g < 5:
+        return False
+    f = min(0.8, 0.55 + g / 100)
+    if not hurt_below(f):
+        return False
+    if under_fire():
+        return False
+    return altar_eta() > 6
+
+@gene("s11", "turns to stand on a bank tile: next to a safe altar (out of monolith reach) that no enemy lock blocks, else next to any open altar (1000 if none)")
+def altar_eta() -> Num:
+    h = here()
+    open_safe = SAFE_RING - ring(locked_altars(), 1)
+    d = min((dist(h, t) for t in open_safe), default=-1)
+    if d < 0:
+        d = min((max(0, dist(h, a) - 1) for a in altars() - locked_altars()), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```
