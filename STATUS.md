@@ -5,21 +5,17 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-25 02:31 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 23.78 24.26 23.97 on 16 threads.
+Updated 2026-10-25 02:36 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 18.93 21.65 23.06 on 16 threads.
 Disk: 11G used of 38G.
 
 ## python3 processes
 ```
-645645 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-6/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-6/starter.genome --budget 3 --threads 5 --fixed-anchors --gate-every 100000000
 693122 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-9/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-9/starter.genome --budget 6 --threads 5 --fixed-anchors --gate-every 100000000
 715799 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-1x/arena --resume-from /root/bc/genome/out/arenaZ-1x/../arenaZ-1/arena --tag Z --seed genome/examples/starter.genome --budget 15 --threads 5 --fixed-anchors --gate-every 100000000
 748564 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-11r/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-11r/starter.genome --budget 3 --threads 5 --fixed-anchors --gate-every 100000000 --split-every 10 --split-lines 30
 ```
 ## tick.log (last 40 lines)
 ```
-[00:20:14] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[00:25:24] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[00:30:35] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [00:35:46] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [00:40:57] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [00:46:08] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -57,4 +53,7 @@ Terminated
 [02:21:04] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [02:26:16] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [02:31:27] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[02:36:45] genome: started job arenaZ-8x at 7e40b6f9582dc78a054cc969f81077bf58ea5294
+[02:36:45] genome: job arenaZ-6 exited rc=0
+[02:36:54] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
