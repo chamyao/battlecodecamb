@@ -6,6 +6,8 @@ from genome.tuneb import tb
 spec, out, games, seed = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
 bs = '--bot-seeds' in sys.argv
 opp = sys.argv[sys.argv.index('--opp') + 1] if '--opp' in sys.argv else tb.BASE
+# --text-base FILE: apply the edits to FILE instead of tb.BASE (the opponent stays tb.BASE): a grid around a centre
+text_base = open(sys.argv[sys.argv.index('--text-base') + 1]).read() if '--text-base' in sys.argv else None
 done = set()
 try:
     done = {json.loads(l)['tag'] for l in open(out)}
@@ -15,7 +17,7 @@ todo = []
 for v in json.load(open(spec)):
     if v['tag'] in done:
         continue
-    t = tb.base_text()
+    t = text_base or tb.base_text()
     if v.get('order'):
         t = tb.with_draft(t, v['order'])
     if v.get('edits'):

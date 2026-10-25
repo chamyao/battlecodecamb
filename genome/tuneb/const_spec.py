@@ -76,10 +76,20 @@ RH = [
 ]
 
 
+# B1873 (v32) centred on bush0 + gg4: knobs at their new values, and B1873's own constants
+B32 = [
+    ('run_hp', 'return not at_spawn() and hurt_below({}) and (under_fire() or threat_near())', 0.3, [0.2, 0.25, 0.35, 0.4]),
+    ('mv_bush', '        v += {}\n', 0, [0.02, 0.05, 0.1]),
+    ('gg_buys', 'if BUYS >= {} and size(GEM_BASE) > 0:', 4, [2, 3, 5, 6]),
+    ('wake_hp', 'if not is_awake(c) and hurt_below({}) and group_threat', 0.5, [0.3, 0.4, 0.6, 0.7]),
+    ('wake_thr', 'hurt_below(0.5) and group_threat(camp_spawn(c)) >= {}', 240, [160, 200, 300, 360]),
+]
+
+
 def knobs(text):
     """KNOBS with the RH overrides, keeping only knobs whose snippet occurs exactly once in text."""
     by = {k[0]: k for k in KNOBS}
-    for k in RH:
+    for k in RH + B32:
         if text.count(k[1].format(fmt(k[2]))) == 1:
             by[k[0]] = k
     return [k for k in by.values() if text.count(k[1].format(fmt(k[2]))) == 1]
