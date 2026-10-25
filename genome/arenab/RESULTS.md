@@ -386,3 +386,8 @@ b12 paired with b10 (v33) and b11 (v34) separates cash3 from ahead4.
 Relay writer, run.py genome/search d9fb73d8 --llm-queue, opponent v36 (v33-ahead4), seeds v36/B318/v29-ringgg, fitness wins,
 150 programs; top 8 real-screened; keepers (real >= 42/80 vs v36 and >= 10 kills, or deaths on us >= 1.5x mirror) become
 league anchors for search. Mirror x5-exploit/ on arenab/b14-relay.
+
+## Oct 25 ~17:30: band batch 12 (v36 = v33-ahead4)
+ahead4 alone vs v33 (b10): 31-19 vs 32-18 (4 up / 5 down), gems -42 +- 34: neutral on record, worse on gems. cash3 accounts
+for the rest of b11's drop. Recommended revert to v33. Both constants were 44/80 in local real vs v33: local real edges of
++3-4/80 vs our own lineage do not transfer to the band. tune-B bar raised to >= +6/80 plus the full hold-out.
