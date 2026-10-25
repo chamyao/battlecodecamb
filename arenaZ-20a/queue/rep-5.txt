@@ -1,0 +1,35 @@
+```python
+@gene("s1", "value of doing this option now: when hurt, walk home out of camp range and recall only when safe")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    hurt = me().health_frac < 0.3
+    if o.kind == RECALL:
+        return 90 if hurt and not threatened() else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 and not hurt else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if hurt:
+            return 85 if home_step(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "an awake camp could hit me here", parents=["s1"])
+def threatened() -> Bool:
+    return any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())
+
+@gene("new", "distance field to my spawn", parents=["s4"])
+def home_field() -> Field:
+    return field(my_spawn())
+
+@gene("new", "how much closer a step brings me to my spawn", parents=["s4"])
+def home_step(t: Tile) -> Num:
+    return at(home_field(), me().pos) - at(home_field(), t)
+
+```

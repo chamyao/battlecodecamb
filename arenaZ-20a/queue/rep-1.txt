@@ -1,0 +1,23 @@
+```python
+@gene("s2", "where to walk: an altar with gems, else a living camp group that is not a monolith (under 100 gems)")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            if group_gems(g) < 100:
+                acc = acc | group_tiles(g)
+    return acc
+
+@gene("s4", "how much closer a step brings me to the goals; while carrying gems never step next to an enemy champion")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() > 0 and d > 0:
+        if any(dist(u.pos, t) <= 1 for u in enemies() if u.is_champion):
+            return 0
+    return d
+```
