@@ -1,0 +1,101 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; also uses abilities (damage/cc/shield/heal/dash)', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit):
+                if o.unit.is_enemy and o.unit.is_champion:
+                    return 85
+                if o.unit.is_camp and gems() == 0:
+                    return 89
+            return 0
+        if k == AB_SHIELD:
+            return 81 if enemy_close() or me().health_frac < 0.6 else 0
+        if k == AB_HEAL:
+            return 88 if me().health_frac < 0.3908 else 0
+        if k == AB_DASH:
+            if valid(o.tile) and me().health_frac > 0.4:
+                return 44 if progress(o.tile) > 0.8266 else 0
+            return 0
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 160
+        return 98 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 52 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: altar with gems, else cleared-camp capture tiles, else living gem-bearing camp groups, then gold camps, then any living group', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1.6082)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to goals routed around walls, holes, visible enemy champions and non-goal camps; retreats to spawn only when below 40% health', parents=['s3', 's3'])
+def goal_field() -> Field:
+    base = walls() | holes()
+    threat = enemy_champ_tiles()
+    if me().health_frac < 0.4:
+        return field_avoid(my_spawn(), base | threat, near(me().pos, 0))
+    g = goals()
+    if size(g) > 0:
+        return field_avoid(g, base | threat | (camp_tiles() - g), near(me().pos, 0))
+    return field_avoid(my_spawn(), base | threat, near(me().pos, 0))
+
+@gene('s4', 'distance gained toward goals minus a health-scaled penalty for steps inside the enemy champion threat zone', parents=['s4'])
+def progress(t: Tile) -> Num:
+    gf = goal_field()
+    gain = at(gf, me().pos) - at(gf, t)
+    risk = 1 if t in enemy_champ_tiles() else 0
+    penalty = 2 + 6 * (1 - me().health_frac)
+    return gain - penalty * risk
+
+@gene('Z109a', 'threat zone: tiles a visible enemy champion can hit next turn; healthy (above 30%) champions use move speed + attack range, weakened ones only attack range; computed once per pass', parents=['s4'])
+def enemy_champ_tiles() -> Tiles:
+    ts = near(me().pos, 0) - near(me().pos, 0)
+    for u in enemies():
+        if u.is_champion:
+            if u.health_frac > 0.3:
+                ts = ts | near(u.pos, u.attack_range + u.move_speed)
+            else:
+                ts = ts | near(u.pos, u.attack_range)
+    return ts - near(me().pos, 0)
+
+@gene('Z109b', 'true when an enemy champion is within 4 tiles of me', parents=['s4'])
+def enemy_close() -> Bool:
+    return any(dist(t, me().pos) <= 4 for t in enemy_champ_tiles())
