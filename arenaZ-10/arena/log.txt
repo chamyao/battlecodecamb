@@ -399,3 +399,29 @@
 [03:20:48] [Z] birth Z201 (mutate session) of ['Z181'] species S118; 24 genomes $0.00
 [03:24:27] [Z] summary: births 201 deaths 178 games 36960 $0.00; top [('Z161', 34.31, 0.79, 408, 'S96'), ('Z191', 34.0, 0.79, 312, 'S88'), ('Z160', 33.87, 0.79, 472, 'S97')]; top vs anchors {'Z161': 0.812, 'Z191': 0.875, 'Z160': 1.0}
 [03:24:29] [Z] done: spent $0.00
+[03:38:47] [Z] resumed: 24 genomes, 201 births, 4620 matches, spent $0.00
+[03:38:47] [Z] fixed anchors: starter-anchor 25.00, champ1-Z45 30.05, champ2-Z92 32.04, champ3-Z137 34.11, champ4-Z191 33.83
+[03:39:24] [Z] birth Z202 (tune ) of ['Z150'] species S80; 24 genomes $0.00
+[03:40:36] [Z] birth Z203 (mutate session) of ['Z156'] species S100; 24 genomes $0.00
+[03:41:01] [Z] new species S119 founded by Z204
+[03:41:01] [Z] birth Z204 (llm_cross session) of ['Z191', 'Z160'] species S119; 24 genomes $0.00
+[03:41:25] [Z] new species S120 founded by Z205
+[03:41:25] [Z] birth Z205 (llm_cross session) of ['Z171', 'Z181'] species S120; 24 genomes $0.00
+[03:41:52] [Z] birth Z206 (mutate session) of ['Z171'] species S107; 24 genomes $0.00
+[03:41:54] [Z] birth Z207 (mutate session) of ['Z161'] species S96; 24 genomes $0.00
+[03:42:06] [Z] new species S121 founded by Z208
+[03:42:06] [Z] birth Z208 (mutate session) of ['Z198'] species S121; 24 genomes $0.00
+[03:42:22] [Z] rejected tune : behavioural twin
+[03:42:41] [Z] birth Z209 (mutate session) of ['Z181'] species S101; 24 genomes $0.00
+[03:42:42] [Z] summary: births 210 deaths 187 games 38768 $0.00; top [('Z208', 35.14, 0.99, 72, 'S121'), ('Z191', 34.19, 0.79, 416, 'S88'), ('Z210', 33.9, 6.0, 0, 'S107')]; top vs anchors {'Z208': None, 'Z191': 0.875, 'Z196': 0.75}
+[03:42:42] [Z] birth Z210 (mutate session) of ['Z206'] species S107; 24 genomes $0.00
+[03:43:03] [Z] new species S122 founded by Z211
+[03:43:03] [Z] birth Z211 (llm_cross session) of ['Z148', 'Z201'] species S122; 24 genomes $0.00
+[03:43:19] [Z] new species S123 founded by Z212
+[03:43:19] [Z] birth Z212 (llm_cross session) of ['Z208', 'Z209'] species S123; 24 genomes $0.00
+[03:43:23] [Z] new species S124 founded by Z213
+[03:43:23] [Z] birth Z213 (mutate session) of ['Z179'] species S124; 24 genomes $0.00
+[03:43:33] [Z] new species S125 founded by Z214
+[03:43:33] [Z] birth Z214 (mutate session) of ['Z160'] species S125; 24 genomes $0.00
+[03:43:52] [Z] rejected tune : behavioural twin
+[03:44:00] [Z] birth Z215 (mutate session) of ['Z191'] species S88; 24 genomes $0.00

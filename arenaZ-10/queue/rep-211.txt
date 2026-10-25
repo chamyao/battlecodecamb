@@ -1,0 +1,20 @@
+```python
+@gene('Z180b', 'once per turn: cache the distance field to the goals not occupied by or next to another ally (spread allies over camps; altars only exclude occupied tiles)', parents=['s4'])
+def update() -> None:
+    GF = goal_field()
+
+@gene("s3", "distance field to the goals, skipping goal tiles another ally holds (and, without gems, tiles next to one)")
+def goal_field() -> Field:
+    g = goals()
+    others = ally_tiles() - near(me().pos, 0)
+    taken = others
+    if gems() == 0:
+        for a in others:
+            taken = taken | near(a, 1)
+    free = g - taken
+    if size(free) == 0:
+        free = g - others
+    if size(free) == 0:
+        free = g
+    return field(free)
+```

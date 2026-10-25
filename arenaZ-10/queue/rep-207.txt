@@ -1,0 +1,14 @@
+```python
+@gene('Z53a', 'worth recalling to shop: 60+ gold before round 300, 90+ before round 600 (treasure shards compound), else 120+; no gems carried, not home, nothing hostile near, not about to reach a camp (finish it first), not in the last 150 rounds', parents=['s1'])
+def shop_trip() -> Bool:
+    r = round()
+    need = 60 if r < 300 else (90 if r < 600 else 120)
+    if gold() < need or gems() > 0 or can_shop() or r > 1850:
+        return False
+    p = me().pos
+    if any(dist(u.pos, p) <= 6 for u in enemies()):
+        return False
+    if any(is_awake(u) and dist(u.pos, p) <= 4 for u in camps()):
+        return False
+    return at(goal_field(), p) > 3
+```
