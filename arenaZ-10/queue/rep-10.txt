@@ -1,0 +1,32 @@
+```python
+@gene('Z11a', 'value of casting an ability: damage/cc on enemies or camps, heal when hurt, shield in fights, dash toward goals', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL:
+        return 85 if me().health_frac < 0.6 else 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.7 or any(u.is_champion and dist(u.pos, me().pos) <= 4 for u in enemies()):
+            return 78
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and gems() == 0 and me().health_frac > 0.5 and progress(o.tile) >= 2:
+            return 55
+        if valid(o.tile) and gems() > 0 and progress(o.tile) >= 2:
+            return 55
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 82
+            if o.unit.is_camp and gems() == 0:
+                return 62
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            if any(dist(u.pos, o.tile) <= r for u in enemies()):
+                return 81
+            if gems() == 0 and any(dist(u.pos, o.tile) <= r for u in camps()):
+                return 61
+        return 0
+    return 0
+```

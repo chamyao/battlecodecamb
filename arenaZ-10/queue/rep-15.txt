@@ -1,0 +1,12 @@
+```python
+@gene('s3', 'distance field to walk on: home when hurt with an enemy champion close, else the cached goal field')
+def goal_field() -> Field:
+    if me().health_frac < 0.4 and any(u.is_champion and dist(u.pos, me().pos) <= 5 for u in enemies()):
+        return field(my_spawn())
+    return GF
+
+@gene('s4', 'how much closer a step brings me to where I am walking')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```

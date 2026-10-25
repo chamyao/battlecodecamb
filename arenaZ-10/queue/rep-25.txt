@@ -1,0 +1,20 @@
+```python
+@gene("s2", "where to walk: a nearby cleared group to capture first, an altar with gems, else a living camp group")
+def goals() -> Tiles:
+    ready = near(tile(-5, -5), 0)
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            acc = acc | ts
+            if group_reward(g) and dist(nearest(ts, me().pos), me().pos) <= 5:
+                ready = ready | ts
+    if size(ready) > 0:
+        return ready
+    if gems() > 0:
+        alt = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            alt = alt | near(a, 1)
+        return alt
+    return acc
+```

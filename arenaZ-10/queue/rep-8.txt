@@ -1,0 +1,44 @@
+```python
+@gene("s1", "value of doing this option now; also casts abilities (damage on targets, heal/shield when hurt)")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "value of casting an ability option: damage/cc on enemies or camps, heal and shield when hurt", parents=["s1"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL:
+        return 85 if me().health_frac < 0.6 else 0
+    if k == AB_SHIELD:
+        return 78 if me().health_frac < 0.7 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 82
+            if o.unit.is_camp and gems() == 0:
+                return 62
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            if any(dist(u.pos, o.tile) <= r for u in enemies()):
+                return 81
+            if gems() == 0 and any(dist(u.pos, o.tile) <= r for u in camps()):
+                return 61
+        return 0
+    return 0
+```

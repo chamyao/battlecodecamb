@@ -1,0 +1,20 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: cache the distance field to the goals not already occupied by an ally", parents=["s3"])
+def update() -> None:
+    g = goals()
+    free = g - (ally_tiles() - near(me().pos, 0))
+    if size(free) == 0:
+        free = g
+    GF = field(free)
+
+@gene("s3", "distance field to the goals (cached once per turn in update)")
+def goal_field() -> Field:
+    return GF
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```
