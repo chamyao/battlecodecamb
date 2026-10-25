@@ -1,0 +1,5 @@
+```python
+@gene("Z200i", "joining ally fights is off: walking straight at a far focus tile gets stuck behind walls")
+def assist_on() -> Bool:
+    return False
+```

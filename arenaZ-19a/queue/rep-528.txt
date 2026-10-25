@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; with a bag of 15+ keep two tiles away from enemy champions")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() >= 15 and any(dist(u.pos, t) <= 2 for u in enemies()):
+        return d - 1.5
+    return d
+```
