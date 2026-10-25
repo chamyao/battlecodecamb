@@ -1,0 +1,21 @@
+```python
+@gene('Z105a', 'once per turn: cache the distance field to the goals not occupied by another ally; with gems, route around awake camps and enemy champions')
+def update() -> None:
+    g = goals()
+    free = g - (ally_tiles() - near(me().pos, 0))
+    if size(free) == 0:
+        free = g
+    if gems() > 0:
+        avoid = near(tile(-5, -5), 0)
+        for u in camps():
+            if is_awake(u):
+                avoid = avoid | near(u.pos, 1)
+        for u in enemies():
+            if u.is_champion:
+                avoid = avoid | near(u.pos, 2)
+        avoid = avoid - free - near(me().pos, 0)
+        if size(avoid) > 0:
+            GF = field_avoid(free, walls() | avoid, near(tile(-5, -5), 0))
+            return
+    GF = field(free)
+```
