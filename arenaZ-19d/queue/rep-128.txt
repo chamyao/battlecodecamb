@@ -1,0 +1,42 @@
+```python
+@gene('s1', 'value of doing this option now: draft a ranged team, cast abilities, farm camps until 10 gems, recall late, strength shards, recall when safe, retreat from threats when hurt, chase weak enemy champions, focus hurt and gem-carrying champions')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 10
+        if o.champ == STELLAR:
+            return 9
+        if o.champ == TAVI:
+            return 8
+        if o.champ == CASSI:
+            return 7
+        if o.champ == WILLOW:
+            return 6
+        return 1
+    if o.kind == BUY:
+        return 100 + item_strength(o.item) if item_cost(o.item) >= 30 and item_strength(o.item) > 0 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 and threat_at(me().pos) == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac) + (3 if unit_gems(o.unit) > 0 else 0)
+        return 60 if gems() < 10 and me().health_frac >= 0.3 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+            return 95 if threat_at(o.tile) < threat_at(me().pos) else 0
+        if chase_gain(o.tile) > 0:
+            return 65
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s3", "distance field to the goals, home when hurt and empty-handed")
+def goal_field() -> Field:
+    if me().health_frac < 0.35 and gems() == 0:
+        return field(my_spawn())
+    return field(goals())
+
+```
