@@ -1,0 +1,10 @@
+```python
+@gene("Z6a", 'once per turn: retreat state and the goal field', parents=['s3'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < LOW:
+        HURT = True
+    if hf > 0.76 or not alive():
+        HURT = False
+    GF = field(goals())
+```
