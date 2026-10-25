@@ -2642,3 +2642,54 @@
 [04:11:04] [Z] rejected mutate claude-haiku-5-5: behavioural twin
 [04:11:11] [Z] rejected tune : behavioural twin
 [04:11:14] [Z] rejected tune : behavioural twin
+[04:11:35] [Z] new species S586 founded by Z1088
+[04:11:35] [Z] birth Z1088 (mutate claude-haiku-5-5) of ['Z1049'] species S586; 24 genomes $10.17
+[04:11:49] [Z] new species S587 founded by Z1089
+[04:11:49] [Z] birth Z1089 (llm_cross claude-haiku-5-5) of ['Z1064', 'Z1086'] species S587; 24 genomes $10.32
+[04:11:49] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:11:55] [Z] new species S588 founded by Z1090
+[04:11:55] [Z] summary: births 1090 deaths 1067 games 271832 $10.31; top [('Z1088', 42.83, 0.99, 80, 'S586'), ('Z1031', 42.64, 0.8, 816, 'S554'), ('Z1061', 42.63, 0.8, 352, 'S539')]; top vs anchors {'Z1088': None, 'Z1031': None, 'Z1061': None}
+[04:11:55] [Z] birth Z1090 (llm_cross claude-opus-5-5) of ['Z1086', 'Z1064'] species S588; 24 genomes $10.32
+[04:12:03] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 242: gene altar_tiles redefined or shadows a builtin
+[04:12:16] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:12:22] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:12:28] [Z] rejected tune : behavioural twin
+[04:12:29] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[04:12:39] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:12:55] [Z] new species S589 founded by Z1091
+[04:12:55] [Z] birth Z1091 (mutate claude-haiku-5-5) of ['Z1031'] species S589; 24 genomes $10.38
+[04:13:01] [Z] new species S590 founded by Z1092
+[04:13:01] [Z] birth Z1092 (mutate claude-opus-5-5) of ['Z1031'] species S590; 24 genomes $10.38
+[04:13:06] [Z] birth Z1093 (mutate claude-haiku-5-5) of ['Z975'] species S527; 24 genomes $10.38
+[04:13:27] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:13:39] [Z] birth Z1094 (mutate claude-haiku-5-5) of ['Z1066'] species S576; 24 genomes $10.38
+[04:13:44] [Z] birth Z1095 (mutate claude-haiku-5-5) of ['Z1064'] species S577; 24 genomes $10.38
+[04:13:51] [Z] new species S591 founded by Z1096
+[04:13:51] [Z] birth Z1096 (llm_cross claude-haiku-5-5) of ['Z1049', 'Z1065'] species S591; 24 genomes $10.38
+[04:14:17] [Z] new species S592 founded by Z1097
+[04:14:17] [Z] birth Z1097 (tune ) of ['Z1086'] species S592; 24 genomes $10.38
+[04:14:17] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:14:17] [Z] rejected tune : behavioural twin
+[04:14:28] [Z] rejected tune : behavioural twin
+[04:14:42] [Z] birth Z1098 (mutate claude-haiku-5-5) of ['Z1082'] species S583; 24 genomes $10.39
+[04:14:42] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:14:56] [Z] new species S593 founded by Z1099
+[04:14:56] [Z] birth Z1099 (llm_cross claude-haiku-5-5) of ['Z1057', 'Z1031'] species S593; 24 genomes $10.39
+[04:15:07] [Z] champion anchor champ22-Z1094 (mu 42.7)
+[04:15:07] [Z] summary: births 1100 deaths 1077 games 274560 $10.43; top [('Z1094', 42.71, 0.85, 128, 'S576'), ('Z1057', 42.53, 0.79, 552, 'S548'), ('Z1098', 42.17, 0.9, 104, 'S583')]; top vs anchors {'Z1094': None, 'Z1057': 1.0, 'Z1098': 1.0}
+[04:15:07] [Z] birth Z1100 (mutate claude-haiku-5-5) of ['Z1096'] species S591; 24 genomes $10.43
+[04:15:13] [Z] new species S594 founded by Z1101
+[04:15:13] [Z] birth Z1101 (mutate claude-opus-5-5) of ['Z1071'] species S594; 24 genomes $10.43
+[04:15:20] [Z] birth Z1102 (mutate claude-haiku-5-5) of ['Z1090'] species S588; 24 genomes $10.43
+[04:15:48] [Z] new species S595 founded by Z1103
+[04:15:48] [Z] birth Z1103 (mutate claude-haiku-5-5) of ['Z1065'] species S595; 24 genomes $10.44
+[04:15:48] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:15:59] [Z] birth Z1104 (llm_cross claude-haiku-5-5) of ['Z1071', 'Z1061'] species S581; 24 genomes $10.44
+[04:16:05] [Z] new species S596 founded by Z1105
+[04:16:05] [Z] birth Z1105 (tune ) of ['Z999'] species S596; 24 genomes $10.44
+[04:16:05] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:16:20] [Z] rejected tune : behavioural twin
+[04:16:32] [Z] birth Z1106 (mutate claude-haiku-5-5) of ['Z1099'] species S593; 24 genomes $10.44
+[04:16:38] [Z] birth Z1107 (mutate claude-haiku-5-5) of ['Z1098'] species S583; 24 genomes $10.44
+[04:16:45] [Z] new species S597 founded by Z1108
+[04:16:45] [Z] birth Z1108 (mutate claude-haiku-5-5) of ['Z1094'] species S597; 24 genomes $10.44

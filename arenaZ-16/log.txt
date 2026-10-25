@@ -191,3 +191,72 @@
 [04:11:31] [Z] rejected mutate claude-haiku-5-5: behavioural twin
 [04:11:34] [Z] new species S35 founded by Z76
 [04:11:34] [Z] birth Z76 (mutate claude-haiku-5-5) of ['Z59'] species S35; 24 genomes $0.36
+[04:11:41] [Z] birth Z77 (tune ) of ['Z73'] species S20; 24 genomes $0.36
+[04:11:41] [Z] birth Z78 (mutate claude-haiku-5-5) of ['Z71'] species S33; 24 genomes $0.36
+[04:11:52] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:12:02] [Z] birth Z79 (mutate claude-haiku-5-5) of ['Z60'] species S29; 24 genomes $0.36
+[04:12:02] [Z] new species S36 founded by Z80
+[04:12:02] [Z] summary: births 80 deaths 57 games 14360 $0.36; top [('Z68', 32.18, 0.82, 208, 'S31'), ('Z63', 31.67, 0.83, 264, 'S25'), ('Z78', 31.64, 0.98, 80, 'S33')]; top vs anchors {'Z68': 0.875, 'Z63': None, 'Z78': None}
+[04:12:02] [Z] birth Z80 (mutate claude-haiku-5-5) of ['Z78'] species S36; 24 genomes $0.36
+[04:12:03] [Z] rejected tune : behavioural twin
+[04:12:23] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:12:26] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[04:12:39] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:12:40] [Z] split Z38.cast_value: discarded (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", "not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's"]) $0.0589
+[04:12:52] [Z] new species S37 founded by Z81
+[04:12:52] [Z] birth Z81 (mutate claude-opus-5-5) of ['Z63'] species S37; 24 genomes $0.41
+[04:12:57] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[04:12:59] [Z] new species S38 founded by Z82
+[04:12:59] [Z] birth Z82 (llm_cross claude-haiku-5-5) of ['Z63', 'Z38'] species S38; 24 genomes $0.41
+[04:13:11] [Z] birth Z83 (mutate claude-haiku-5-5) of ['Z81'] species S37; 24 genomes $0.41
+[04:13:12] [Z] birth Z84 (mutate claude-haiku-5-5) of ['Z72'] species S34; 24 genomes $0.41
+[04:13:23] [Z] new species S39 founded by Z85
+[04:13:23] [Z] birth Z85 (llm_cross claude-haiku-5-5) of ['Z76', 'Z68'] species S39; 24 genomes $0.41
+[04:13:30] [Z] rejected tune : behavioural twin
+[04:13:39] [Z] new species S40 founded by Z86
+[04:13:39] [Z] birth Z86 (llm_cross claude-haiku-5-5) of ['Z82', 'Z56'] species S40; 24 genomes $0.42
+[04:13:41] [Z] new species S41 founded by Z87
+[04:13:41] [Z] birth Z87 (mutate claude-haiku-5-5) of ['Z59'] species S41; 24 genomes $0.42
+[04:13:42] [Z] birth Z88 (mutate claude-haiku-5-5) of ['Z78'] species S33; 24 genomes $0.42
+[04:14:02] [Z] new species S42 founded by Z89
+[04:14:02] [Z] birth Z89 (mutate claude-haiku-5-5) of ['Z56'] species S42; 24 genomes $0.42
+[04:14:05] [Z] new species S43 founded by Z90
+[04:14:05] [Z] summary: births 90 deaths 67 games 16632 $0.48; top [('Z82', 32.31, 0.85, 160, 'S38'), ('Z68', 32.03, 0.82, 336, 'S31'), ('Z63', 31.99, 0.81, 392, 'S25')]; top vs anchors {'Z82': 1.0, 'Z68': 0.875, 'Z63': None}
+[04:14:05] [Z] birth Z90 (llm_cross claude-haiku-5-5) of ['Z70', 'Z57'] species S43; 24 genomes $0.48
+[04:14:17] [Z] new species S44 founded by Z91
+[04:14:17] [Z] birth Z91 (llm_cross claude-opus-5-5) of ['Z70', 'Z85'] species S44; 24 genomes $0.48
+[04:14:27] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:14:32] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 104: gene update redefined or shadows a builtin
+[04:14:34] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:14:43] [Z] split Z89.cast_value: applied (["not a behavioural twin: per-game outcomes on the fingerprint games differ from the parent's", 'ok']) $0.0628
+[04:14:47] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 101: gene healing redefined or shadows a builtin
+[04:14:48] [Z] birth Z92 (mutate claude-haiku-5-5) of ['Z90'] species S43; 24 genomes $0.48
+[04:14:53] [Z] new species S45 founded by Z93
+[04:14:53] [Z] birth Z93 (llm_cross claude-haiku-5-5) of ['Z86', 'Z68'] species S45; 24 genomes $0.48
+[04:15:02] [Z] birth Z94 (mutate claude-haiku-5-5) of ['Z82'] species S38; 24 genomes $0.50
+[04:15:07] [Z] birth Z95 (mutate claude-opus-5-5) of ['Z82'] species S38; 24 genomes $0.50
+[04:15:10] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:15:22] [Z] rejected tune : behavioural twin
+[04:15:25] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:15:28] [Z] new species S46 founded by Z96
+[04:15:28] [Z] birth Z96 (mutate claude-haiku-5-5) of ['Z70'] species S46; 24 genomes $0.50
+[04:15:29] [Z] rejected mutate claude-haiku-5-5: GenomeError: goal_field line 50: expected Bool, got Num
+[04:15:38] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 54: cannot assign to near
+[04:15:39] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:15:49] [Z] birth Z97 (mutate claude-haiku-5-5) of ['Z86'] species S40; 24 genomes $0.51
+[04:15:55] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[04:15:57] [Z] birth Z98 (mutate claude-haiku-5-5) of ['Z91'] species S44; 24 genomes $0.51
+[04:16:01] [Z] rejected tune : behavioural twin
+[04:16:17] [Z] new species S47 founded by Z99
+[04:16:17] [Z] birth Z99 (mutate claude-haiku-5-5) of ['Z97'] species S47; 24 genomes $0.53
+[04:16:18] [Z] new species S48 founded by Z100
+[04:16:18] [Z] champion anchor champ2-Z97 (mu 32.1)
+[04:16:18] [Z] summary: births 100 deaths 77 games 18792 $0.54; top [('Z97', 32.1, 0.92, 96, 'S40'), ('Z99', 32.1, 6.0, 0, 'S47'), ('Z100', 32.1, 6.0, 0, 'S48')]; top vs anchors {'Z97': 1.0, 'Z95': None, 'Z93': 1.0}
+[04:16:18] [Z] birth Z100 (mutate claude-opus-5-5) of ['Z97'] species S48; 24 genomes $0.53
+[04:16:24] [Z] new species S49 founded by Z101
+[04:16:24] [Z] birth Z101 (llm_cross claude-haiku-5-5) of ['Z85', 'Z69'] species S49; 24 genomes $0.53
+[04:16:35] [Z] birth Z102 (mutate claude-haiku-5-5) of ['Z97'] species S47; 24 genomes $0.54
+[04:16:45] [Z] new species S50 founded by Z103
+[04:16:45] [Z] birth Z103 (mutate claude-haiku-5-5) of ['Z59'] species S50; 24 genomes $0.54
+[04:16:48] [Z] new species S51 founded by Z104
+[04:16:48] [Z] birth Z104 (mutate claude-haiku-5-5) of ['Z64'] species S51; 24 genomes $0.54
