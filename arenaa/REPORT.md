@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 05:50 UTC: A-8 done
+
+- A-8 (session writer + feedback, from arenaA-6) finished: 1626 births (+401) in 2h03, $0. Mirror
+  arenaa/a8-mirror 1eac94c. 504 requests: 264 accepted, 215 twins (43%), 0 invalid. In-arena top A81622
+  47.0; champion anchors climbed from 44.4 to ~46.8 (arenaA-6 population was 43-44). Panel: 1006 at m15
+  vs A-8c's final peak 966; the last milestone follows.
+- Training finding from the writer: most twins come from links that cannot change behaviour in the
+  fingerprint games (here, at_spawn, lock genes, blocked). Excluding such links from the link draw (as
+  PROMPT_EXP's A1 did) would save about 40% of session time. That is a candidate change for a later run.
+- The writer also reports that small crosses adding 1-3 proven genes beat crosses stacking every winner.
+
 ## 2026-10-25 05:45 UTC: relay done; cull bug found (affects every run)
 
 - Relay Z-10 finished: 476 births, sha b692581. RELAY_DONE pushed (3b33b304), so the panel can finish. In-arena
