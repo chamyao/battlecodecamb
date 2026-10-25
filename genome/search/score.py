@@ -45,7 +45,7 @@ class Scorer:
         self.threads, self.maps, self.timeout = threads, maps or MAPS, timeout
         self.bot_seeds = bot_seeds  # policies seeded per instance as deployed (then every game is fixed by map and side)
         self.fuel_mult = fuel_mult  # scales every bot's per-turn fuel (both sides); 1.0 = the real game
-        self.fitness = fitness  # "score": win rate + gem-margin bonus; "wins": win rate only
+        self.fitness = fitness  # "score": win rate + gem-margin bonus; "wins": win rate only; "exploit": + kills
         self.lock = threading.Lock()
         self.cache = {}
         self.tmp = Path(tempfile.mkdtemp(prefix="gsearch-"))
@@ -107,7 +107,10 @@ class Scorer:
                     return Result(error=stats["error"])
                 outcomes.append((stats.pop("results", None), stats["a_gems"], stats["b_gems"]))
                 res.per_opponent[name] = stats
-                fit = stats["win_rate"] if self.fitness == "wins" else score_of(stats)
+                if self.fitness == "exploit":  # beat this opponent and kill its champions (stress anchors)
+                    fit = stats["win_rate"] + 0.02 * stats["kills"][0]
+                else:
+                    fit = stats["win_rate"] if self.fitness == "wins" else score_of(stats)
                 res.score += w * fit / sum(self.weights)
         except subprocess.TimeoutExpired:
             return Result(error="evaluation timed out")

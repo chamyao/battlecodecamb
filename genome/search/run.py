@@ -68,8 +68,12 @@ def main(argv=None):
     ap.add_argument("--bot-seeds", action="store_true",
                     help="policies seeded as deployed: every game is fixed by map and side, so screen and confirm "
                          "both play the 2 x maps distinct games (set --screen-games/--confirm-games to 80)")
-    ap.add_argument("--fitness", choices=["score", "wins"], default="score",
-                    help="score: win rate + gem-margin bonus; wins: win rate only")
+    ap.add_argument("--fitness", choices=["score", "wins", "exploit"], default="score",
+                    help="score: win rate + gem-margin bonus; wins: win rate only; exploit: win rate + 0.02 x "
+                         "enemy champions killed per game")
+    ap.add_argument("--llm-queue", default="", help="file-queue LLM backend directory (queuellm.py): a Claude Code "
+                    "session answers each request; no API spend")
+    ap.add_argument("--queue-timeout", type=float, default=900, help="seconds a queued request waits for its reply")
     args = ap.parse_args(argv)
 
     out = Path(args.out) if args.out else ROOT / "runs" / args.run
@@ -80,7 +84,13 @@ def main(argv=None):
     scorer = Scorer(args.opponents.split(","), args.screen_games, args.confirm_games, threads=args.eval_threads,
                     bot_seeds=args.bot_seeds, fitness=args.fitness,
                     **({"confirm_seed": 0} if args.bot_seeds else {}))  # same games: confirm reuses the screen
-    claude = None if args.no_llm else Claude(args.budget, opus_every=args.opus_every)
+    if args.no_llm:
+        claude = None
+    elif args.llm_queue:
+        from .queuellm import QueueClaude
+        claude = QueueClaude(args.llm_queue, args.queue_timeout)
+    else:
+        claude = Claude(args.budget, opus_every=args.opus_every)
     spent0 = sum(p.metrics.get("cost", 0.0) for p in db.all)
     if claude:
         claude.spent = spent0
@@ -142,6 +152,10 @@ def main(argv=None):
             return c, [best]
         if kind == "genome":
             prefix = f"c{n}"
+            if hasattr(claude, "context"):  # queue backend: requests carry the op and parent program ids
+                cross = len(parents) == 2 and parents[0].text != parents[1].text and u < args.tune_rate + args.cross_rate
+                claude.context("cross" if cross else "mutate",
+                               [str(p.id) for p in ((parents[1], parents[0]) if cross else (best,))], n)
             if len(parents) == 2 and parents[0].text != parents[1].text and (
                     args.no_llm or u < args.tune_rate + args.cross_rate):
                 a, b = parents[1], parents[0]
