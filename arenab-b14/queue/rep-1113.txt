@@ -1,0 +1,7 @@
+```python
+@gene('a4', 'the nearest visible enemy champion off its own spawn, preferring the weaker one at similar range and a gem carrier (its bag drops on a kill)')
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    h = here()
+    return best(enemies(), lambda u: -1000 if u.pos in es else min(10, unit_gems(u)) - dist(h, u.pos) - 2 * u.health_frac)
+```

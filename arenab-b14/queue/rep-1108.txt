@@ -1,0 +1,5 @@
+```python
+@gene('s14', 'the visible camp in reach to hit: one our next hit kills first, then awake ones, then the lowest health; sleeping monoliths last')
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: (1000 if in_reach(c) else 0) + (300 if attack_damage(me(), c) >= c.health else 0) + (100 if is_awake(c) else 0) - (500 if c.type == MONOLITH and not is_awake(c) else 0) - c.health_frac * 50)
+```
