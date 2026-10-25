@@ -2,6 +2,12 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 09:10 UTC: Z-18b is not overfitting
+
+- On new game instances Z462/Z400 score 585/602 (vs 610 fixed); on 6 never-used opponents 180-186/480, vs Z-5's
+  Z392 82, Z-18d 45, Z-15 25. The screened writer's gain holds and widens off-panel. Table in SCREEN.md. Z-20a/b
+  (2 screened replicates) are running.
+
 ## 2026-10-25 09:05 UTC: writer-side screening is the biggest Z signal; Z-20 launched
 
 - Final-population panels (477 births): Z-18b (writer screened children with its own 80-game genome_eval

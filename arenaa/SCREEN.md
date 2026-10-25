@@ -28,3 +28,20 @@ screens.jsonl). Controls: arenaZ-19a/b (same setup; no own games allowed).
 - Primary: panel best and top-3 mean (11 opponents, /880) per 100-birth milestone and at the end; Z-20a/b vs Z-19a/b.
 - Cost: wall time per birth, screens and games per birth, and how often the screen changed the writer's choice.
 - Decision: adopt screening if both screened arms end above both controls on panel best.
+
+## Overfit check on Z-18b (search session, 09:08 UTC)
+
+A map-held-out panel is impossible (only 40 maps). Two held-out variants on 648bafd instead: (a) the same 11 opponents
+with new game instances (bot seeds off, policy seeds 11 and 12); (b) 6 opponents no Z panel or screen ever used
+(/480).
+
+| genome | fixed panel /880 | new instances (mean) | held-out opponents /480 |
+| --- | --- | --- | --- |
+| Z462 (18b, screened) | 610 | 585 | 186 |
+| Z400 (18b, screened) | 610 | 602 | 180 |
+| Z392 (Z-5) | 394 | 350 | 82 |
+| Z446 (18d, clean) | 301 | 297.5 | 45 |
+| Z403 (Z-15, API) | 207 | 206.5 | 25 |
+
+No sign of overfitting. The screened genomes lose less on new instances than Z-5's, and lead by more on unseen
+opponents (2.2-2.5x Z-5). The ranking holds across all three measures. n = 1 run; Z-20 is the replicate test.
