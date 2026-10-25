@@ -22,6 +22,9 @@ Budget: $50 approved by Cham (Oct 24 2026), more likely later. Independent of th
 | 2026-10-24 | Arena B +$3 (cap $11) and the exploiter test $2 (Cham, via the Arena B lead, ~23:30 UTC) | — | — | |
 | 2026-10-25 | genome/search exploit-1 (arena run 21: exploiters vs B792, 8 seeds, wins/80; exploiter budget) | 504 | 2.03 | 7.51 |
 | 2026-10-25 | genome/search EC2 arenaA-5 (arenaA-3 + distinct games / bot seeds, births 738-1311; Arena A reserve) | 574 | 3.53 | 11.04 |
+| 2026-10-25 | genome/search EC2 arenaA-6 (control arm: arenaA-3 resumed unpatched, +$3.50; Arena A reserve) | — | 3.53 | 14.57 |
+| 2026-10-25 | genome/search EC2 arenaZ-2 (arenaZ-1 replicate, --rng-salt 1; Arena A reserve) | — | 3.11 | 17.68 |
+| 2026-10-25 | genome/search EC2 arenaZ-4 (arenaZ-1 + A1 link operator; Arena A reserve) | — | 3.00 | 20.68 |
 
 ## Ladder uploads (Cham, Oct 24)
 
