@@ -1,0 +1,11 @@
+```python
+@gene("r6", "pass-through bank: gems and an altar next to us, and the channel (ceil(gems/10) turns) ends before any visible enemy could hit us, or nothing is in my reach and no enemy is within a turn")
+def r_pass() -> Bool:
+    g = gems()
+    if g <= 0 or not valid(adj_altar()):
+        return False
+    t = threat_eta()
+    if -floor(-g / 10) <= t:
+        return True
+    return t >= 2 and not foe_in_reach()
+```

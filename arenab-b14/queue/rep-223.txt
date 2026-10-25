@@ -1,0 +1,8 @@
+```python
+@gene("r18", "standing on a spawn of a live, uncleared group with a visible living camp of that group (not monolith or golem): walk to the living camp to finish the group (cheap: no camp-goal search)")
+def r_live() -> Bool:
+    g = spawn_group(here())
+    if g < 0 or group_reward(g) or group_respawning(g):
+        return False
+    return any(camp_group(c) == g and not (c.pos in BIG_CAMPS) for c in camps())
+```

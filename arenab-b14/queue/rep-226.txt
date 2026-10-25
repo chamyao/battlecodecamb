@@ -1,0 +1,18 @@
+```python
+@gene("r16", "standing on a cleared camp group's tile: hold so the capture timer runs, unless the capture is contested (an enemy champion within 3: the timer cannot finish) or an ally with a lower type id already holds the same group (one holder takes the whole reward; extra allies only split it)")
+def r_hold() -> Bool:
+    p = here()
+    g = spawn_group(p)
+    if g < 0 or not group_reward(g):
+        g = -1
+        for k in range(num_groups()):
+            if g < 0 and group_reward(k) and p in group_tiles(k):
+                g = k
+    if g < 0:
+        return False
+    if any(dist(p, u.pos) <= 3 for u in enemies()):
+        return False
+    ts = group_tiles(g)
+    t = me().type
+    return not any(a.pos != p and a.pos in ts and a.type < t for a in allies())
+```

@@ -1,0 +1,7 @@
+```python
+@gene("s6", "visible enemy champions within r tiles that can still threaten us: recalling enemies (leaving) and those standing on their own spawn are ignored")
+def enemies_within(r: Num) -> Num:
+    h = here()
+    es = enemy_spawn()
+    return count(dist(h, u.pos) <= r and not is_recalling(u) and not (u.pos in es) for u in enemies())
+```

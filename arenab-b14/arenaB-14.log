@@ -346,3 +346,26 @@
 [05:44:50] [B] birth B1676 (cross ) of ['B1663', 'B1614'] species S6; 24 genomes $11.08
 [05:45:06] [B] rejected mutate session: behavioural twin
 [05:45:07] [B] birth B1677 (mutate session) of ['B1614'] species S6; 24 genomes $11.08
+[05:45:25] [B] birth B1678 (cross ) of ['B1675', 'B1663'] species S6; 24 genomes $11.08
+[05:45:35] [B] birth B1679 (mutate session) of ['B1644'] species S6; 24 genomes $11.08
+[05:45:53] [B] summary: births 1680 deaths 1657 games 378456 $11.08; top [('B1663', 47.4, 0.84, 200, 'S6'), ('B1614', 47.3, 0.79, 528, 'S6'), ('B1678', 47.23, 0.95, 88, 'S6')]; top vs anchors {'B1663': 0.75, 'B1614': 0.625, 'B1678': 0.75}
+[05:45:53] [B] birth B1680 (mutate session) of ['B1657'] species S6; 24 genomes $11.08
+[05:46:17] [B] birth B1681 (tune ) of ['B1675'] species S6; 24 genomes $11.08
+[05:46:19] [B] rejected mutate session: behavioural twin
+[05:46:21] [B] birth B1682 (mutate session) of ['B1666'] species S6; 24 genomes $11.08
+[05:46:37] [B] rejected tune : behavioural twin
+[05:47:03] [B] birth B1683 (mutate session) of ['B1663'] species S7; 24 genomes $11.08
+[05:47:06] [B] birth B1684 (mutate session) of ['B1037'] species S1; 24 genomes $11.08
+[05:47:20] [B] birth B1685 (mutate session) of ['B1679'] species S6; 24 genomes $11.08
+[05:47:48] [B] birth B1686 (mutate session) of ['B1678'] species S6; 24 genomes $11.08
+[05:47:49] [B] rejected mutate session: behavioural twin
+[05:48:01] [B] birth B1687 (mutate session) of ['B1675'] species S6; 24 genomes $11.08
+[05:48:09] [B] birth B1688 (cross ) of ['B1678', 'B1675'] species S6; 24 genomes $11.08
+[05:48:10] [B] birth B1689 (cross ) of ['B1661', 'B1683'] species S7; 24 genomes $11.08
+[05:48:32] [B] summary: births 1690 deaths 1667 games 380568 $11.08; top [('B1675', 48.06, 0.82, 208, 'S6'), ('B1666', 47.07, 0.8, 264, 'S6'), ('B1679', 47.06, 0.82, 176, 'S6')]; top vs anchors {'B1675': 0.661, 'B1666': 0.792, 'B1679': 0.917}
+[05:48:32] [B] birth B1690 (cross ) of ['B1679', 'B1678'] species S6; 24 genomes $11.08
+[05:48:41] [B] birth B1691 (mutate session) of ['B1577'] species S3; 24 genomes $11.08
+[05:48:59] [B] birth B1692 (mutate session) of ['B1678'] species S7; 24 genomes $11.08
+[05:49:00] [B] rejected cross : behavioural twin
+[05:49:10] [B] birth B1693 (mutate session) of ['B1675'] species S6; 24 genomes $11.08
+[05:49:27] [B] rejected tune : behavioural twin

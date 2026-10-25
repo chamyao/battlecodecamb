@@ -1,0 +1,41 @@
+```python
+@gene("c1", "where this turn's rule walks; threatened banks and pre-group banks prefer a safe altar (out of monolith reach) that no enemy lock blocks, unless an open altar is more than 3 tiles nearer")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11 or r == 18:
+        lk = ring(locked_altars(), 1)
+        a = closest(SAFE_RING - lk)
+        b = closest(ALTAR_RING - lk)
+        if valid(a) and (not valid(b) or dist(here(), a) <= dist(here(), b) + 3):
+            return a
+        if valid(b):
+            return b
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+
+@gene('m12', 'bank walk: the kept bank tile while it stays open (no second search); else open safe altar unless a safe altar is much nearer; else any safe altar, else any altar', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    if valid(a) and valid(BANK_T) and a == BANK_T:
+        return a
+    b = bank_t2()
+    if valid(a) and valid(b):
+        if dist(here(), b) + 4 < dist(here(), a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```
