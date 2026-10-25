@@ -1,0 +1,62 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: cache the distance field to the goals not occupied by another ally", parents=["s3"])
+def update() -> None:
+    g = goals()
+    free = g - (ally_tiles() - near(me().pos, 0))
+    if size(free) == 0:
+        free = g
+    GF = field(free)
+
+@gene("s3", "distance field to the goals (cached once per turn in update)")
+def goal_field() -> Field:
+    return GF
+
+@gene("s4", "how much closer a step brings me to the goals (one field lookup)")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+
+@gene('Z11a', 'value of casting: damage/cc on enemies (gem carriers first, area casts by number hit) or camps (awake ones even with gems), heal when hurt, shield whenever fighting, dash toward goals, or dash home when below 35% in a fight')
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL:
+        return 85 if me().health_frac < 0.7 else 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.7 or in_fight():
+            return 78
+        return 0
+    if k == AB_DASH:
+        if not valid(o.tile):
+            return 0
+        if me().health_frac < 0.35 and in_fight():
+            home = field(my_spawn())
+            return 92 if at(home, me().pos) - at(home, o.tile) >= 2 else 0
+        if progress(o.tile) >= 2 and (gems() > 0 or me().health_frac > 0.5):
+            return 55
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 83 if unit_gems(o.unit) > 0 else 82
+            if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+                return 62
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(u.pos, o.tile) <= r for u in enemies())
+            if n > 0:
+                return 80 + min(n, 3)
+            if any(dist(u.pos, o.tile) <= r and (gems() == 0 or is_awake(u)) for u in camps()):
+                return 61
+        return 0
+    return 0
+
+@gene('Z35a', 'am I in a fight: an enemy champion within its attack range + 3, or an awake camp within 3')
+def in_fight() -> Bool:
+    p = me().pos
+    if any(u.is_champion and dist(u.pos, p) <= max(u.attack_range, 1) + 3 for u in enemies()):
+        return True
+    return any(is_awake(u) and dist(u.pos, p) <= 3 for u in camps())
+```
