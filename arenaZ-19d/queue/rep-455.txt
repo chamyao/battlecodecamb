@@ -1,0 +1,14 @@
+```python
+@gene('Z312a', 'where to drop an area spell this pass: the enemy champion, else the awake camp, within reach, a camp cluster of two or more beats a lone enemy', parents=['Z10a', 'Z58a'])
+def aoe_center() -> Tile:
+    c = best(camps(), lambda u: count(dist(v.pos, u.pos) <= 1 and is_awake(v) for v in camps()) if is_awake(u) and dist(u.pos, me().pos) <= 4 else -1)
+    nc = count(dist(v.pos, c.pos) <= 1 and is_awake(v) for v in camps()) if exists(c) else 0
+    e = best(enemies(), lambda u: count(dist(v.pos, u.pos) <= 1 for v in enemies()) if dist(u.pos, me().pos) <= 4 else -1)
+    ne = count(dist(v.pos, e.pos) <= 1 for v in enemies()) if exists(e) else 0
+    if exists(e) and dist(e.pos, me().pos) <= 4 and (ne >= nc or nc < 2):
+        return e.pos
+    if exists(c) and is_awake(c) and dist(c.pos, me().pos) <= 4:
+        return c.pos
+    return tile(-5, -5)
+
+```

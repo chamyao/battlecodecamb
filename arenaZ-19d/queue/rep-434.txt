@@ -1,0 +1,33 @@
+```python
+@gene('Z10a', 'value of casting an ability: damage and stuns on fighting targets, shields and resets in fights, finish awake camps, heal earlier, dash toward goals or away from danger', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_champion:
+            return 88
+        if exists(o.unit) and o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+            return 85 + 3 * (1 - o.unit.health_frac)
+        return 0
+    if k == AB_AOE:
+        hits = count(dist(u.pos, o.tile) <= 1 for u in enemies()) + count(dist(u.pos, o.tile) <= 1 and is_awake(u) for u in camps())
+        return 84 if hits > 0 else 0
+    if k == AB_SHIELD:
+        threat = count(dist(u.pos, me().pos) <= 4 for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= 4 for u in camps())
+        return 83 if threat > 0 and me().health_frac < 0.9 else 0
+    if k == AB_RESET:
+        return 82 if (not can_attack()) and count(dist(u.pos, me().pos) <= me().attack_range for u in enemies()) + count(is_awake(u) and dist(u.pos, me().pos) <= me().attack_range for u in camps()) > 0 else 0
+    if k == AB_DASH:
+        if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+            return 105 if threat_at(o.tile) < threat_at(me().pos) else 0
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_HEAL:
+        return 91 if exists(o.unit) and o.unit.health_frac < 0.9243 else 0
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals; when hurt under fire, how much safer it is")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+        return threat_at(me().pos) - threat_at(t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+```
