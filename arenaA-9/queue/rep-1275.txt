@@ -1,0 +1,8 @@
+```python
+@gene('s7', 'in danger: an awake camp can hit me, an enemy champion is within its range + 1, or a gem carrier is within 3')
+def in_danger() -> Bool:
+    p = here()
+    if any(c.attack_range > 0 and dist(p, camp_spawn(c)) <= c.attack_range + 2 and dist(p, c.pos) <= c.attack_range and is_awake(c) for c in camps()):
+        return True
+    return any(dist(p, u.pos) <= u.attack_range + 1 or (unit_gems(u) > 0 and dist(p, u.pos) <= 3) for u in enemies())
+```

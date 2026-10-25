@@ -1,0 +1,6 @@
+```python
+@gene("r3", "retreat on foot: below 30% health (35% carrying 10+ gems) and under fire")
+def r_run() -> Bool:
+    f = 0.35 if gems() >= 10 else 0.3
+    return not at_spawn() and hurt_below(f) and under_fire()
+```
