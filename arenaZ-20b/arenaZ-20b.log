@@ -482,3 +482,27 @@
 [12:55:23] [Z] summary: births 270 deaths 247 games 122816 $0.00; top [('Z264', 43.34, 0.81, 184, 'S90'), ('Z258', 42.72, 0.79, 264, 'S94'), ('Z254', 42.66, 0.79, 528, 'S93')]; top vs anchors {'Z264': None, 'Z258': None, 'Z254': 1.0}
 [12:55:23] [Z] birth Z270 (mutate session) of ['Z248'] species S70; 24 genomes $0.00
 [12:55:59] [Z] birth Z271 (mutate session) of ['Z254'] species S93; 24 genomes $0.00
+[12:56:40] [Z] birth Z272 (mutate session) of ['Z265'] species S89; 24 genomes $0.00
+[12:57:21] [Z] rejected mutate session: behavioural twin
+[12:57:57] [Z] birth Z273 (mutate session) of ['Z242'] species S89; 24 genomes $0.00
+[12:58:57] [Z] rejected llm_cross session: behavioural twin
+[12:59:08] [Z] rejected tune : behavioural twin
+[12:59:20] [Z] rejected tune : behavioural twin
+[12:59:37] [Z] new species S96 founded by Z274
+[12:59:37] [Z] birth Z274 (mutate session) of ['Z252'] species S96; 24 genomes $0.00
+[13:00:14] [Z] birth Z275 (mutate session) of ['Z264'] species S90; 24 genomes $0.00
+[13:00:50] [Z] new species S97 founded by Z276
+[13:00:50] [Z] birth Z276 (mutate session) of ['Z265'] species S97; 24 genomes $0.00
+[13:01:49] [Z] birth Z277 (llm_cross session) of ['Z265', 'Z258'] species S94; 24 genomes $0.00
+[13:02:22] [Z] birth Z278 (mutate session) of ['Z267'] species S88; 24 genomes $0.00
+[13:02:51] [Z] birth Z279 (mutate session) of ['Z143'] species S78; 24 genomes $0.00
+[13:03:24] [Z] summary: births 280 deaths 257 games 127184 $0.00; top [('Z277', 43.22, 0.83, 152, 'S94'), ('Z253', 42.89, 0.79, 792, 'S74'), ('Z252', 42.83, 0.8, 752, 'S76')]; top vs anchors {'Z277': 1.0, 'Z253': 0.917, 'Z252': None}
+[13:03:24] [Z] birth Z280 (mutate session) of ['Z264'] species S90; 24 genomes $0.00
+[13:03:59] [Z] birth Z281 (mutate session) of ['Z258'] species S94; 24 genomes $0.00
+[13:04:19] [Z] new species S98 founded by Z282
+[13:04:19] [Z] birth Z282 (tune ) of ['Z222'] species S98; 24 genomes $0.00
+[13:04:32] [Z] birth Z283 (mutate session) of ['Z270'] species S70; 24 genomes $0.00
+[13:05:08] [Z] rejected mutate session: behavioural twin
+[13:05:21] [Z] birth Z284 (tune ) of ['Z214'] species S86; 24 genomes $0.00
+[13:05:35] [Z] rejected mutate session: behavioural twin
+[13:05:48] [Z] rejected tune : behavioural twin
