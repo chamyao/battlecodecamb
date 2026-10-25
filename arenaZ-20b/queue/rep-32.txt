@@ -1,0 +1,43 @@
+```python
+@gene("s1", 'value of doing this option now')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if HURT and not FIGHT else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if (o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit):
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 95
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+@gene("Z18a", 'value of casting an ability: damage on fights, heal and shield when hurt, dash toward goals', parents=['Z9a', 's1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 85
+            if o.unit.is_camp and gems() == 0 and not ((o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit)):
+                return 65
+        return 0
+    if k == AB_HEAL:
+        return 75 if me().health_frac < 0.7 else 0
+    if k == AB_SHIELD:
+        return 75 if me().health_frac < 0.8 and FIGHT else 0
+    if k == AB_RESET:
+        return 62 if not can_attack() else 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            return 55 if progress(o.tile) > 0 else 0
+    return 0
+```
