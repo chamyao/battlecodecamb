@@ -2329,3 +2329,56 @@
 [03:53:15] [A8] birth A81252 (mutate session) of ['A81240'] species S1; 24 genomes $7.80
 [03:53:35] [A8] birth A81253 (tune ) of ['A81240'] species S1; 24 genomes $7.80
 [03:53:35] [A8] birth A81254 (mutate session) of ['A81242'] species S1; 24 genomes $7.80
+[03:53:52] [A8] birth A81255 (mutate session) of ['A81240'] species S1; 24 genomes $7.80
+[03:53:57] [A8] rejected cross : behavioural twin
+[03:54:12] [A8] birth A81256 (mutate session) of ['A61224'] species S1; 24 genomes $7.80
+[03:54:14] [A8] birth A81257 (cross ) of ['A81240', 'A81232'] species S1; 24 genomes $7.80
+[03:54:27] [A8] birth A81258 (mutate session) of ['A61224'] species S1; 24 genomes $7.80
+[03:54:34] [A8] rejected tune : behavioural twin
+[03:54:43] [A8] rejected mutate session: behavioural twin
+[03:54:47] [A8] rejected tune : behavioural twin
+[03:55:00] [A8] birth A81259 (cross ) of ['A81256', 'A81242'] species S1; 24 genomes $7.80
+[03:55:03] [A8] summary: births 1260 deaths 1237 games 307128 $7.80; top [('A81232', 44.51, 0.8, 408, 'S1'), ('A81257', 43.9, 0.87, 120, 'S1'), ('A81242', 43.88, 0.81, 192, 'S1')]; top vs anchors {'A81232': 1.0, 'A81257': 0.875, 'A81242': None}
+[03:55:03] [A8] birth A81260 (tune ) of ['A81244'] species S1; 24 genomes $7.80
+[03:55:06] [A8] birth A81261 (llm_cross session) of ['A81256', 'A61128'] species S1; 24 genomes $7.80
+[03:56:11] [A8] rejected mutate session: behavioural twin
+[03:56:18] [A8] birth A81262 (mutate session) of ['A81240'] species S1; 24 genomes $7.80
+[03:56:33] [A8] birth A81263 (mutate session) of ['A81232'] species S1; 24 genomes $7.80
+[03:56:54] [A8] birth A81264 (mutate session) of ['A61213'] species S1; 24 genomes $7.80
+[03:57:00] [A8] rejected mutate session: behavioural twin
+[03:57:12] [A8] birth A81265 (tune ) of ['A81241'] species S1; 24 genomes $7.80
+[03:57:19] [A8] birth A81266 (mutate session) of ['A81257'] species S1; 24 genomes $7.80
+[03:57:35] [A8] rejected mutate session: behavioural twin
+[03:57:54] [A8] rejected mutate session: behavioural twin
+[03:57:59] [A8] rejected mutate session: behavioural twin
+[03:58:18] [A8] rejected mutate session: behavioural twin
+[03:58:25] [A8] birth A81267 (mutate session) of ['A81249'] species S1; 24 genomes $7.80
+[03:58:32] [A8] rejected tune : behavioural twin
+[03:58:39] [A8] birth A81268 (mutate session) of ['A81235'] species S1; 24 genomes $7.80
+[03:58:57] [A8] birth A81269 (mutate session) of ['A61213'] species S1; 24 genomes $7.80
+[03:59:04] [A8] summary: births 1270 deaths 1247 games 310864 $7.80; top [('A81262', 45.29, 0.86, 200, 'S1'), ('A81232', 44.5, 0.82, 592, 'S1'), ('A81270', 44.5, 6.0, 0, 'S1')]; top vs anchors {'A81262': 0.958, 'A81232': 0.9, 'A61224': 0.825}
+[03:59:04] [A8] birth A81270 (mutate session) of ['A81232'] species S1; 24 genomes $7.80
+[03:59:18] [A8] birth A81271 (cross ) of ['A61224', 'A81232'] species S1; 24 genomes $7.80
+[03:59:19] [A8] birth A81272 (mutate session) of ['A81241'] species S1; 24 genomes $7.80
+[03:59:24] [A8] rejected tune : behavioural twin
+[03:59:38] [A8] birth A81273 (cross ) of ['A81262', 'A81232'] species S1; 24 genomes $7.80
+[03:59:41] [A8] birth A81274 (cross ) of ['A81271', 'A81232'] species S1; 24 genomes $7.80
+[03:59:51] [A8] birth A81275 (mutate session) of ['A81271'] species S1; 24 genomes $7.80
+[04:00:00] [A8] birth A81276 (cross ) of ['A81232', 'A81256'] species S1; 24 genomes $7.80
+[04:00:13] [A8] birth A81277 (mutate session) of ['A81273'] species S1; 24 genomes $7.80
+[04:00:29] [A8] birth A81278 (mutate session) of ['A81263'] species S1; 24 genomes $7.80
+[04:00:34] [A8] rejected mutate session: behavioural twin
+[04:00:52] [A8] rejected mutate session: behavioural twin
+[04:01:16] [A8] rejected mutate session: behavioural twin
+[04:01:22] [A8] rejected mutate session: behavioural twin
+[04:01:30] [A8] rejected tune : behavioural twin
+[04:01:38] [A8] rejected mutate session: behavioural twin
+[04:01:54] [A8] birth A81279 (cross ) of ['A81276', 'A81267'] species S1; 24 genomes $7.80
+[04:01:56] [A8] summary: births 1280 deaths 1257 games 313256 $7.80; top [('A81273', 45.18, 0.81, 216, 'S1'), ('A81262', 44.8, 0.8, 336, 'S1'), ('A81261', 44.57, 0.79, 408, 'S1')]; top vs anchors {'A81273': 0.75, 'A81262': 0.958, 'A81261': 0.833}
+[04:01:56] [A8] birth A81280 (mutate session) of ['A81241'] species S1; 24 genomes $7.80
+[04:02:00] [A8] birth A81281 (mutate session) of ['A61224'] species S1; 24 genomes $7.80
+[04:02:22] [A8] birth A81282 (cross ) of ['A81273', 'A81256'] species S1; 24 genomes $7.80
+[04:02:27] [A8] birth A81283 (mutate session) of ['A81264'] species S1; 24 genomes $7.80
+[04:02:50] [A8] birth A81284 (mutate session) of ['A81273'] species S1; 24 genomes $7.80
+[04:03:20] [A8] birth A81285 (mutate session) of ['A81277'] species S1; 24 genomes $7.80
+[04:03:37] [A8] birth A81286 (mutate session) of ['A81273'] species S1; 24 genomes $7.80

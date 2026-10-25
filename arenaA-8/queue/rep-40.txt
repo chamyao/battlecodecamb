@@ -1,0 +1,20 @@
+```python
+@gene('m11', "the camp walk's goal: the live non-big group with the best gems-for-distance (straight line, 4 tiles per gem), walked to its nearest spawn; falling back to any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    cand = CAMP_BASE - respawning() - BIG_CAMPS
+    if size(cand) > 0:
+        h = here()
+        bt = best(cand, lambda t: group_gems(spawn_group(t)) / 4 - dist(h, t))
+        g = spawn_group(bt)
+        if g >= 0:
+            t = closest(group_tiles(g) & cand)
+            if valid(t):
+                return t
+        t = closest(cand)
+        if valid(t):
+            return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```
