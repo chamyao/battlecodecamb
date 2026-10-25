@@ -1,0 +1,10 @@
+```python
+@gene('r10', 'bank now: carrying gems and the bag is ready, or next to an altar with 3+ gems (any gems when no enemy is in sight: the tribute is short and safe)', parents=['r10'])
+def bank_on() -> Bool:
+    g = gems()
+    if g <= 0:
+        return False
+    if bag_ready():
+        return True
+    return valid(adj_altar()) and (g >= 3 or count_units(enemies()) == 0)
+```

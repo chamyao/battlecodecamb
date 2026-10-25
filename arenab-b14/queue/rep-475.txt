@@ -1,0 +1,11 @@
+```python
+@gene('r13', 'every altar-adjacent tile is a camp spawn and the camp in reach stands on or next to the nearest one: fight the blocker (each set read once)')
+def bank_blocked() -> Bool:
+    if valid(bank_t1()) or valid(bank_t2()):
+        return False
+    bt = bank_t3()
+    if not (bt in camp_spawns()):
+        return False
+    c = reach_camp()
+    return exists(c) and in_reach(c) and dist(c.pos, bt) <= 1
+```

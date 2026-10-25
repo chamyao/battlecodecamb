@@ -735,3 +735,27 @@
 [07:39:19] [B] rejected tune : behavioural twin
 [07:39:32] [B] birth B1895 (mutate session) of ['B1894'] species S10; 24 genomes $11.08
 [07:39:34] [B] birth B1896 (mutate session) of ['B1862'] species S6; 24 genomes $11.08
+[07:39:54] [B] rejected mutate session: behavioural twin
+[07:40:05] [B] rejected tune : behavioural twin
+[07:40:06] [B] birth B1897 (mutate session) of ['B1862'] species S6; 24 genomes $11.08
+[07:40:25] [B] rejected mutate session: behavioural twin
+[07:40:45] [B] rejected mutate session: behavioural twin
+[07:40:51] [B] rejected mutate session: behavioural twin
+[07:41:04] [B] birth B1898 (mutate session) of ['B1896'] species S6; 24 genomes $11.08
+[07:41:11] [B] birth B1899 (cross ) of ['B1881', 'B1889'] species S10; 24 genomes $11.08
+[07:41:13] [B] champion anchor champ38-B1889 (mu 50.4)
+[07:41:13] [B] summary: births 1900 deaths 1877 games 451448 $11.08; top [('B1889', 50.4, 0.84, 208, 'S10'), ('B1881', 50.07, 0.84, 344, 'S10'), ('B1897', 49.98, 1.01, 104, 'S6')]; top vs anchors {'B1889': 0.75, 'B1881': 0.818, 'B1897': 0.938}
+[07:41:13] [B] birth B1900 (tune ) of ['B1896'] species S6; 24 genomes $11.08
+[07:41:35] [B] rejected mutate session: solo-farm: 55630 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 522
+[07:41:58] [B] rejected mutate session: behavioural twin
+[07:41:58] [B] rejected mutate session: behavioural twin
+[07:42:11] [B] rejected mutate session: behavioural twin
+[07:42:20] [B] rejected tune : behavioural twin
+[07:42:28] [B] birth B1901 (mutate session) of ['B1899'] species S10; 24 genomes $11.08
+[07:42:43] [B] rejected mutate session: solo-farm: 62806 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 608
+[07:42:57] [B] rejected mutate session: behavioural twin
+[07:43:05] [B] birth B1902 (mutate session) of ['B1900'] species S6; 24 genomes $11.08
+[07:43:06] [B] rejected mutate session: behavioural twin
+[07:43:29] [B] birth B1903 (mutate session) of ['B1900'] species S6; 24 genomes $11.08
+[07:43:50] [B] birth B1904 (mutate session) of ['B1900'] species S6; 24 genomes $11.08
+[07:43:51] [B] birth B1905 (mutate session) of ['B1896'] species S6; 24 genomes $11.08
