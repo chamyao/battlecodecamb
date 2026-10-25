@@ -197,3 +197,34 @@ cannot fix this; it is gap 2 (fights) again.
 - So boss_battle's monolith deaths are opponent-caused, and there is no cheap fix.
 
 **(3) 01shortcut**: see v28-shortcut above (lost 0-2 in the real smoke).
+
+## Fight study (`fight_study.py`): real b4/b5 engagements after r500 near rich groups, vs v28 in local cambc
+
+Real, b4 + b5 (851 engagements):
+
+| engagement result | n | champions us / them | HP at the first hit | item points | casts per champion | focus fire | we hit first |
+|---|---|---|---|---|---|---|---|
+| fights we lost | 327 | 2.2 / 2.4 | 3,964 / 5,008 | **55 / 128** | 2.6 / 2.9 | 72% / 72% | 48% |
+| even | 441 | 1.7 / 1.5 | 3,483 / 2,705 | 54 / 59 | 2.0 / 1.7 | 77% / 68% | 62% |
+| fights we won | 83 | 2.5 / 2.7 | **6,508 / 4,189** | 120 / 122 | **3.9 / 2.3** | 63% / 61% | 70% |
+
+Sim (v28 vs farmer and hunter in local cambc, 10 games, engagements after r300) shows the same pattern, weaker: in
+fights we lose they have 77 item points to our 50.
+
+**Reading.** The band does not out-play us in fights:
+- Focus fire is equal (72% / 72%).
+- Retreat rates are equal (about 0.1 per engagement).
+- Casts and hits in the first 3 rounds are close.
+
+Fights are decided by the item and HP lead brought into them: 2.3x their item points in the fights we lose, and our
+HP lead plus more casts in the fights we win. So the band's edge is economic (more gold → items), which then wins fights.
+
+**Rules tried (all rejected):**
+- v28-power08 / 08r / 06r: fight and cast-ahead only with local power (health × strength within 5) at least 0.8 or 0.6
+  of theirs, optionally retreating at 1.5x theirs. Results: 33, 32 and 34 of 80 vs v28. Against hunter: 51, 61 and 61
+  (v28: 65). Our deaths vs hunter fall to 4.2-4.3 with the retreat (v28: 5.2), but we lose more.
+- picky-hunter (stress): a hunter that fights only with a 1.3x or 1.0x power lead. v28 wins 71 and 65 against it
+  (plain hunter: 65), so it is weaker.
+
+No fight rule closes the gap. The lever is the item lead itself, which comes from the economy gap (kill bounties
+plus gem-group captures).
