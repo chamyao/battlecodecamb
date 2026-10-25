@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 05:55 UTC
+
+- Haiku dropped as a writer (Cham OK'd stopping unpromising runs). Z-1x stopped at 1444 births, $14.34. Best
+  257 (b1206); curve since m6: 228 231 234 256 253 245 257 255. Z-14 (Haiku session) cancelled.
+- Shared memory: A genomes use 1 byte (byte 7: lock bought/placed flags, so only one champion buys the
+  altar lock); Z genomes use none (0 of the last 60 relay genomes). Vision is not shared, so ally
+  coordination is unexplored. That is a candidate seeded experiment after the cull fix.
+- Still running: A-8 panel, Z-10 relay panel, Z-15/Z-16 last milestones, gatekeeper-19.
+
 ## 2026-10-25 05:50 UTC: A-8 done
 
 - A-8 (session writer + feedback, from arenaA-6) finished: 1626 births (+401) in 2h03, $0. Mirror
