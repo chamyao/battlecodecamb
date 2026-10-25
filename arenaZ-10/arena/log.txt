@@ -715,3 +715,20 @@
 [04:51:06] [Z] summary: births 370 deaths 347 games 67240 $0.00; top [('Z359', 36.83, 0.82, 184, 'S185'), ('Z369', 36.79, 0.95, 80, 'S186'), ('Z355', 36.49, 0.81, 208, 'S184')]; top vs anchors {'Z359': None, 'Z369': None, 'Z355': 0.75}
 [04:51:06] [Z] birth Z370 (mutate session) of ['Z366'] species S174; 24 genomes $0.00
 [04:51:26] [Z] birth Z371 (mutate session) of ['Z355'] species S184; 24 genomes $0.00
+[04:51:47] [Z] birth Z372 (mutate session) of ['Z336'] species S184; 24 genomes $0.00
+[04:51:51] [Z] birth Z373 (mutate session) of ['Z354'] species S165; 24 genomes $0.00
+[04:52:21] [Z] new species S189 founded by Z374
+[04:52:21] [Z] birth Z374 (mutate session) of ['Z371'] species S189; 24 genomes $0.00
+[04:52:40] [Z] birth Z375 (mutate session) of ['Z317'] species S133; 24 genomes $0.00
+[04:52:41] [Z] birth Z376 (mutate session) of ['Z367'] species S188; 24 genomes $0.00
+[04:53:05] [Z] birth Z377 (mutate session) of ['Z359'] species S185; 24 genomes $0.00
+[04:53:25] [Z] birth Z378 (mutate session) of ['Z357'] species S188; 24 genomes $0.00
+[04:53:29] [Z] birth Z379 (llm_cross session) of ['Z374', 'Z370'] species S189; 24 genomes $0.00
+[04:53:41] [Z] summary: births 380 deaths 357 games 68640 $0.00; top [('Z379', 37.71, 1.19, 48, 'S189'), ('Z369', 37.0, 0.82, 160, 'S186'), ('Z377', 36.93, 0.91, 96, 'S185')]; top vs anchors {'Z379': None, 'Z369': None, 'Z377': None}
+[04:53:41] [Z] birth Z380 (mutate session) of ['Z332'] species S177; 24 genomes $0.00
+[04:54:15] [Z] birth Z381 (mutate session) of ['Z372'] species S184; 24 genomes $0.00
+[04:54:18] [Z] new species S190 founded by Z382
+[04:54:18] [Z] birth Z382 (mutate session) of ['Z378'] species S190; 24 genomes $0.00
+[04:54:30] [Z] birth Z383 (mutate session) of ['Z369'] species S186; 24 genomes $0.00
+[04:55:10] [Z] new species S191 founded by Z384
+[04:55:10] [Z] birth Z384 (llm_cross session) of ['Z351', 'Z370'] species S191; 24 genomes $0.00
