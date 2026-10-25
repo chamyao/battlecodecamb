@@ -1,0 +1,120 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+RETREAT: Bool = False
+LASTR: Num = 0
+LASTG: Num = 0
+FRESH: Bool = False
+D0: Num = 0
+
+@gene('s1', 'value of doing this option now, with ability casts and dashes toward goals')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.35 and count(dist(u.pos, me().pos) <= 3 for u in enemies()) == 0:
+            return 90
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (1 - o.unit.health_frac)
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit):
+                if o.unit.is_champion and o.unit.is_enemy:
+                    return 78
+                if o.unit.is_camp and gems() == 0:
+                    return 62
+            return 0
+        if k == AB_SHIELD:
+            return 65 if count(dist(u.pos, me().pos) <= 4 for u in enemies()) > 0 else 0
+        if k == AB_HEAL:
+            return 65 if me().health_frac < 0.6 else 0
+        if k == AB_DASH:
+            if valid(o.tile) and progress(o.tile) > 1:
+                return 55
+            return 0
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an unlocked altar with gems (any altar if all locked), else a living camp group')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) == 0:
+            for a in altars():
+                acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to spawn while retreating, else a cleared group to capture (while carrying few gems), else the goals without monoliths, spawn if none')
+def goal_field(hurt: Bool) -> Field:
+    if hurt:
+        return field(my_spawn())
+    if gems() < 30:
+        rew = near(tile(-5, -5), 0)
+        for g in range(num_groups()):
+            if group_reward(g):
+                rew = rew | group_tiles(g)
+        if size(rew) > 0:
+            return field(rew)
+    gl = goals()
+    safe = gl - type_spawns(MONOLITH)
+    if size(safe) > 0:
+        return field(safe)
+    if size(gl) > 0:
+        return field(gl)
+    return field(my_spawn())
+
+@gene('s4', 'how much closer a step brings me to the goals (cached field and own distance from update, unreachable-safe on both ends)')
+def progress(t: Tile) -> Num:
+    if D0 >= 1000000:
+        return 0
+    d1 = at(GF, t)
+    if d1 >= 1000000:
+        return 0
+    return D0 - d1
+
+@gene('Z34a', 'goal distance field with retreat hysteresis (below 40%, 55% with 30+ gems, stay until 90%); refreshed only on retreat change, gem change or every 2 rounds to save fuel; caches own distance once per turn; skipped while dead', parents=['s1', 's3', 's4'])
+def update() -> None:
+    if not alive():
+        RETREAT = False
+        FRESH = False
+        return
+    hf = me().health_frac
+    was = RETREAT
+    thr = 0.55 if gems() >= 30 else 0.4
+    if hf < thr:
+        RETREAT = True
+    elif hf > 0.9:
+        RETREAT = False
+    changed = (RETREAT and not was) or (was and not RETREAT)
+    if changed or not FRESH or gems() != LASTG or round() - LASTR >= 2:
+        GF = goal_field(RETREAT)
+        LASTR = round()
+        LASTG = gems()
+        FRESH = True
+    D0 = at(GF, me().pos)
+    if D0 >= 1000000:
+        GF = goal_field(RETREAT)
+        LASTR = round()
+        D0 = at(GF, me().pos)
+
+@gene('Z34b', 'skip option kinds we never use to save fuel', parents=['s1', 's3', 's4'])
+def consider(kind: Num) -> Bool:
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
