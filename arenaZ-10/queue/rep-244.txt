@@ -1,0 +1,36 @@
+```python
+@gene('Z11a', 'value of casting: damage/cc on enemies (gem carriers first, area casts by number hit) or camps, heal below 65% (75% with 20+ gems), shield in any fight (champions or awake camps), dash toward goals or away home when low (below 45% with 20+ gems) and threatened', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL:
+        return 85 if me().health_frac < (0.75 if gems() >= 20 else 0.65) else 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.7 or threatened() or any(is_awake(u) and dist(u.pos, me().pos) <= 3 for u in camps()):
+            return 78
+        return 0
+    if k == AB_DASH:
+        if not valid(o.tile):
+            return 0
+        if me().health_frac < (0.45 if gems() >= 20 else 0.35) and threatened():
+            home = field(my_spawn())
+            return 92 if at(home, me().pos) - at(home, o.tile) >= 2 else 0
+        if progress(o.tile) >= 2 and (gems() > 0 or me().health_frac > 0.5):
+            return 55
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 83 if unit_gems(o.unit) > 0 else 82
+            if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+                return 62
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(u.pos, o.tile) <= r for u in enemies())
+            if n > 0:
+                return 80 + min(n, 3)
+            if any(dist(u.pos, o.tile) <= r and (gems() == 0 or is_awake(u)) for u in camps()):
+                return 61
+        return 0
+    return 0
+```

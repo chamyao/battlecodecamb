@@ -1,0 +1,20 @@
+```python
+@gene('Z157a', 'once per turn: cache the distance field to the goals not occupied by another ally; hurt and carrying gems, route around the reach of visible enemy champions (plain field if that cuts me off)', parents=['s3'])
+def update() -> None:
+    g = goals()
+    p = me().pos
+    free = g - (ally_tiles() - near(p, 0))
+    if size(free) == 0:
+        free = g
+    GF = field(free)
+    if gems() > 0 and me().health_frac < 0.6:
+        danger = near(tile(-5, -5), 0)
+        for u in enemies():
+            if u.is_champion:
+                danger = danger | near(u.pos, max(u.attack_range, 1) + 1)
+        danger = danger - near(p, 1)
+        if size(danger) > 0:
+            safe = field_avoid(free, danger, near(tile(-5, -5), 0))
+            if at(safe, p) < 100000:
+                GF = safe
+```

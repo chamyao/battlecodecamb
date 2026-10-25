@@ -1,0 +1,31 @@
+```python
+GF: Field = None
+
+@gene("s4", "how much closer a step brings me to the goals (field cached once per turn); hurt and carrying gems, a step into the attack reach of an enemy champion counts as no progress")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    d = at(f, me().pos) - at(f, t)
+    if d > 0 and gems() > 0 and me().health_frac < 0.5:
+        if any(u.is_champion and dist(u.pos, t) <= max(u.attack_range, 1) for u in enemies()):
+            return 0
+    return d
+
+@gene("s3", "distance field to the goals (cached once per turn in update)")
+def goal_field() -> Field:
+    return GF
+
+@gene("new", "once per turn: cache the distance field to the goals not occupied by or next to another ally (spread allies over camps; altars only exclude occupied tiles)", parents=["s3"])
+def update() -> None:
+    g = goals()
+    others = ally_tiles() - near(me().pos, 0)
+    taken = others
+    if gems() == 0:
+        for a in others:
+            taken = taken | near(a, 1)
+    free = g - taken
+    if size(free) == 0:
+        free = g - others
+    if size(free) == 0:
+        free = g
+    GF = field(free)
+```
