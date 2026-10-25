@@ -1,0 +1,57 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('Z106a', 'merged score: recall off-spawn at low health, focus weak champions and camps, tribute, threat-aware moves', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        hf = me().health_frac
+        if hf < 0.35 and not (me().pos in my_spawn()):
+            return 90
+        if hf < 0.4 and not (me().pos in my_spawn()):
+            return 70
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        return 0
+    if o.kind == TRIBUTE:
+        return 94
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return min(55, 50 + p * 0.1) if p > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: altars when carrying gems, cleared groups awaiting capture first, else living camp groups")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.8728)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'goal-distance gain of a step, minus threat from nearby enemies', parents=['s4'])
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    threat = sum(u.strength * u.health_frac for u in enemies() if dist(u.pos, t) <= 3)
+    return gain * 10 - threat

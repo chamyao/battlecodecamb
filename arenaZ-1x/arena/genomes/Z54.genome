@@ -1,0 +1,60 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+DANGER: Tiles = None
+
+@gene("s1", "value of doing this option now; moves scale with goal progress, capped below attacks", parents=["s1"])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 65
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return min(55, p) if p > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group", parents=["s2"])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.9866)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals (cached once per turn in update)", parents=["s3"])
+def goal_field() -> Field:
+    return GF
+
+@gene("s4", "goal-distance gain of a step, minus threat from nearby enemies and danger tiles", parents=["s4"])
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    threat = sum(u.strength * u.health_frac for u in enemies() if dist(u.pos, t) <= 3)
+    penalty = 0
+    if t in DANGER:
+        penalty = 2.5
+    return gain * 10 - threat - penalty
+
+@gene('Z103a', 'once per turn: cache the goal distance field and tiles threatened by hurt-state enemy champions', parents=['Z92a'])
+def update() -> None:
+    GF = field(goals())
+    d = DANGER - DANGER
+    if me().health_frac < 0.5:
+        for u in enemies():
+            if u.is_champion:
+                d = d | near(u.pos, u.attack_range + 1)
+    DANGER = d

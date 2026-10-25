@@ -1,0 +1,163 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HEAL: Bool = False
+SPF: Field
+HAVE_SPF: Bool = False
+NEAR: Bool = False
+
+@gene('Z331a', 'value of doing this option now: pick strong champs, use abilities, focus weak targets, recall only when no enemy champion is close (recall is cancelled by damage), fight back awake monsters while carrying gems, tribute eagerly, move weighted by goal progress', parents=['Z297a', 'Z331a'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == VESPER_VALE:
+            return 6
+        if o.champ == HEART_OF_RUIN:
+            return 7
+        if o.champ == MARCELLA:
+            return 4
+        if o.champ == VENDETTA:
+            return 3
+        if o.champ == RYTH:
+            return 2
+        return 1
+    if o.kind == BUY:
+        return 109 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if NEAR:
+            return 0
+        if me().pos in my_spawn():
+            return 0
+        if me().health_frac < 0.4:
+            return 90
+        if HEAL:
+            home = nearest(my_spawn(), me().pos)
+            if valid(home) and dist(home, me().pos) > 6:
+                return 88
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 15 * (1 - o.unit.health_frac)
+        if HEAL:
+            return 0
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.health_frac < 1 and dist(o.unit.pos, me().pos) <= 1:
+            return 40 + 10 * (1 - o.unit.health_frac)
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        base = 50 if HEAL else 35
+        return base + 2 * p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems (camps if no altar is reachable), else a living or cleared camp group')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals, or the cached spawn field while healing', parents=['s3'])
+def goal_field(heal: Bool, spf: Field) -> Field:
+    if heal:
+        return spf
+    return field(goals())
+
+@gene('Z331b', 'how much closer a step brings me to the goals (cached field); 0 when unreachable; when hurt, avoid stepping near enemy champions (and monsters when moderately hurt), and carriers avoid enemy champions below 80%; weighted by carried gems, doubled while healing', parents=['Z297b', 'Z331b'])
+def progress(t: Tile) -> Num:
+    a = at(GF, me().pos)
+    b = at(GF, t)
+    if a > 1000 or b > 1000:
+        return 0
+    hp = me().health_frac
+    carrying = gems() > 0
+    if hp < 0.5 or (carrying and hp < 0.8):
+        if any(dist(u.pos, t) <= 3 for u in enemies() if u.is_champion):
+            return 0
+    if hp < 0.7 and not HEAL:
+        if any(dist(u.pos, t) <= 2 for u in enemies() if not u.is_champion):
+            return 0
+    p = a - b
+    if HEAL:
+        p = p * 2
+    if carrying and not HEAL:
+        p = p * (2 + gems() / 10)
+    return p
+
+@gene('Z331c', 'cache the goal distance field and an enemy-champion-near flag once per turn; retreat home to heal when hurt (35%, 50% with gems, 60% near an enemy champion within 6, 75% when holding 150+ gold to shop); resume above 90%', parents=['Z297a', 'Z26a', 'Z331c'])
+def update() -> None:
+    hf = me().health_frac
+    lim = 0.35
+    if gems() > 0:
+        lim = 0.5
+    if gold() >= 150 and gems() == 0:
+        lim = 0.75
+    close = 99
+    for u in enemies():
+        if u.is_champion:
+            close = min(close, dist(u.pos, me().pos))
+    NEAR = close <= 4
+    if hf < 0.6 and close <= 6:
+        HEAL = True
+    if hf < lim:
+        HEAL = True
+    if hf > 0.9:
+        HEAL = False
+    if HEAL and not HAVE_SPF:
+        SPF = field(my_spawn())
+        HAVE_SPF = True
+    GF = goal_field(HEAL, SPF)
+
+@gene('Z365a', 'value of casting an ability: damage/cc on targets (stronger on hurt enemy champions and close ones), heal scales with missing health and starts earlier, shield when hurt (harder when enemies are close or gems are carried), no camp fights while healing, dash toward goals when healthy (capped, refused if an enemy champion is within 4 of the landing tile) or healing, dash home when healing and far', parents=['Z331a', 'Z26b', 'Z363b', 'Z365a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                close = 10 if dist(o.unit.pos, me().pos) <= 3 else 0
+                return 85 + 15 * (1 - o.unit.health_frac) + close
+            if o.unit.is_camp and gems() == 0 and not HEAL:
+                return 65
+        return 0
+    if k == AB_HEAL:
+        if me().health_frac < 0.6:
+            return 55 + 35 * (1 - me().health_frac)
+        return 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.8:
+            if any(dist(u.pos, me().pos) <= 5 for u in enemies()):
+                return 80
+            if gems() > 0 and any(dist(u.pos, me().pos) <= 8 for u in enemies()):
+                return 78
+            return 72
+        return 0
+    if k == AB_DASH:
+        if not valid(o.tile):
+            return 0
+        p = progress(o.tile)
+        if p <= 0:
+            return 0
+        if HEAL:
+            return 60 + 3 * p
+        if me().health_frac > 0.35:
+            if any(dist(u.pos, o.tile) <= 4 for u in enemies() if u.is_champion):
+                return 0
+            if gems() > 0:
+                return min(50 + 3 * p, 62)
+            return min(40 + 3 * p, 62)
+        return 0
+    return 0
