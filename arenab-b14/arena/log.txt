@@ -4471,3 +4471,13 @@
 [10:36:23] [B] rejected tune : behavioural twin
 [10:36:32] [B] rejected tune : behavioural twin
 [10:36:44] [B] birth B2327 (llm_cross session) of ['B2283', 'B2195'] species S9; 24 genomes $11.08
+[10:36:59] [B] rejected mutate session: behavioural twin
+[10:37:07] [B] birth B2328 (mutate session) of ['B2325'] species S10; 24 genomes $11.08
+[10:37:38] [B] birth B2329 (mutate session) of ['B2283'] species S9; 24 genomes $11.08
+[10:37:39] [B] summary: births 2330 deaths 2307 games 583928 $11.08; top [('B2328', 47.78, 1.02, 80, 'S10'), ('B2315', 47.73, 0.81, 216, 'S6'), ('B2197', 47.41, 0.79, 1696, 'S8')]; top vs anchors {'B2328': 0.938, 'B2315': 0.719, 'B2197': 0.647}
+[10:37:39] [B] birth B2330 (mutate session) of ['B2325'] species S10; 24 genomes $11.08
+[10:37:45] [B] rejected mutate session: behavioural twin
+[10:38:05] [B] birth B2331 (cross ) of ['B2320', 'B2329'] species S9; 24 genomes $11.08
+[10:38:35] [B] rejected tune : behavioural twin
+[10:38:38] [B] birth B2332 (mutate session) of ['B2320'] species S9; 24 genomes $11.08
+[10:38:42] [B] rejected mutate session: behavioural twin
