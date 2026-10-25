@@ -1,0 +1,17 @@
+```python
+@gene('Z147b', 'once per turn: cache the goal field and the tiles of enemy champions and awake camps', parents=['s3'])
+def update() -> None:
+    g = goals()
+    sig = size(g) + 10000 * size(g & near(me().pos, 0))
+    if sig != GSIG or round() % 25 == 0:
+        GF = field(g)
+        GSIG = sig
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        acc = acc | near(u.pos, 0)
+    for c in camps():
+        if is_awake(c):
+            acc = acc | near(c.pos, 0)
+    TH = acc
+    set_priority(1 if me().health_frac < 0.35 else 0)
+```
