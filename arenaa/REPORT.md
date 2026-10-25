@@ -2,6 +2,28 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 02:25 UTC: Z series panel table (best / mean top 3 of 880; starter 46)
+
+| run | change | ~b100 | ~b200 | ~b300 | ~b400-450 | ~b500+ |
+| --- | --- | --- | --- | --- | --- | --- |
+| Z-1 | baseline | 45/40 | 65/58 | 93/76 | 104/83 | 215/196 (475) |
+| Z-2 | replicate | 79/70 | 99/92 | 91/86 | 126/111 | 145/136 (537) |
+| Z-7 | replicate | 110/105 (155) | 116/107 | 130/122 (442) | | 126/121 (514) |
+| Z-3 | distinct games | 69/60 | 72/69 | 101/76 | 96/93 (485) | 125/105 (527) |
+| Z-4 | A1 typed prompt | 49/47 | 50/47 | 56/50 | | |
+| Z-6 | no ladder notes | 70/58 | 65/63 | 71/65 | 75/73 | |
+| Z-8 | all Opus (API) | 130/118 (119) | | | | |
+| Z-9 | mix 55/30/15 | 57/46 (133) | 58/52 | | | |
+| **Z-5** | **Claude Code session mutator, continuous context + feedback** | | 226/217 (261) | 246/237 (325) | **394/359 (413)** | |
+
+- Z-5 is ~3x the baselines at matched births (394 vs 104-130 at ~410-440). Strongest result in the project.
+  Z-8 (all Opus, no feedback, API) is also high early (130 at b119): part of Z-5's edge may be the model.
+  Z-8x (Opus to ~475 births) and Z-10 (session-written, memory reset every 50 births) separate model,
+  feedback and continuous context.
+- Z-6 (ladder notes removed) is below every baseline: the ladder hints help Z.
+- Z-4 flat (A1 operator), Z-9 low so far (more crossover), Z-3 within/below the baseline range.
+- Costs: Z-5 is ~2.5x slower per birth and the session uses far more Claude Code usage per birth than the API.
+
 ## 2026-10-25 01:56 UTC: first Arena A genome on the ladder
 
 - Workflow change (Cham): upload first, validate later (variety on the real ladder).
