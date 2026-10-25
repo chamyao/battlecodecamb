@@ -1,0 +1,10 @@
+```python
+@gene("a7", "a dash onto the landing tile that brings us closest to GOAL (slot 0 first); the camp walk keeps its dash for goals over 6 away")
+def dash_value(o: Option) -> Num:
+    if not dash_gate():
+        return 0
+    if RULE == 20 and dist(here(), GOAL) <= 6:
+        return 0
+    s = dash_spot()
+    return 140 - o.slot if valid(s) and o.tile == s else 0
+```

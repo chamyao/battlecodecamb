@@ -1,0 +1,19 @@
+```python
+@gene('r5', 'recall with 5+ gems when hurt (threshold rises faster with carried gems: 0.67 at 10, 0.83 at 20) and nothing near, unless an altar is close enough to bank first; cheapest checks first')
+def r_cashout() -> Bool:
+    g = gems()
+    if g < 5:
+        return False
+    f = min(0.85, 0.5 + g / 60)
+    if not hurt_below(f) or at_spawn():
+        return False
+    if under_fire():
+        return False
+    return altar_eta() > 4
+@gene('s5', 'a visible enemy champion can hit me now or after one step (move + attack); nearly dead ones count only if they carry gems (my unit read once)')
+def foe_in_reach() -> Bool:
+    m = me()
+    h = m.pos
+    r = m.attack_range
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if u.health_frac > 0.2 or unit_gems(u) > 0)
+```

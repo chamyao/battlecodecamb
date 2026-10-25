@@ -1,0 +1,5 @@
+```python
+@gene("m3", "an altar within lock reach (2), only one out of monolith reach (5): the lock is held for an altar we can bank at safely")
+def lock_altar() -> Tile:
+    return first_tile(altars() & near(here(), 2) - ring(type_spawns(MONOLITH), 5))
+```

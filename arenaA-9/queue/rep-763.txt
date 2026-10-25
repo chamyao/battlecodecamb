@@ -1,0 +1,8 @@
+```python
+@gene('m1', 'first tile of a set, preferring altars not enemy-locked (row-major), invalid if empty (empty sets answered without engine reads)')
+def first_tile(s: Tiles) -> Tile:
+    if size(s) == 0:
+        return tile(-1, -1)
+    open_s = s - locked_altars()
+    return best(open_s, lambda t: 0) if size(open_s) > 0 else best(s, lambda t: 0)
+```
