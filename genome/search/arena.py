@@ -467,15 +467,16 @@ class Arena:
                                      notes_fn=self.intel_notes, variant=self.a.mutate_prompt)
         return self.check(child, parents, seq)
 
-    @staticmethod
-    def _member_brief(m):
+    def _member_brief(self, m):
         """Compact per-member results for the session's feedback: rating, worst 3 maps by win rate (>= 2 games),
-        deaths per game not caused by enemy champions, and wins/games vs each anchor so far ({anchor: [wins, games]})."""
+        deaths per game not caused by enemy champions, wins/games vs each anchor so far ({anchor: [wins, games]}), and the
+        solo-farm total (rounds to 1000 gems vs builtin:idle over the 40 maps; None unless --solo-filter is on)."""
         out = [m["name"], round(m["mu"], 2), round(m["sigma"], 2), m["games"]]
         ms = [(w / n, mp, w, n) for mp, (w, n) in m.get("map_stats", {}).items() if n >= 2]
         worst = [[mp, w, n] for _, mp, w, n in sorted(ms)[:3]]
         nc = m.get("nc_deaths", [0, 0])
-        return out + [worst, round(nc[0] / nc[1], 2) if nc[1] else None, dict(sorted(m.get("vs_anchors", {}).items()))]
+        return out + [worst, round(nc[0] / nc[1], 2) if nc[1] else None, dict(sorted(m.get("vs_anchors", {}).items())),
+                      self.s.get("solo", {}).get(m["name"])]
 
     def queue_feedback(self):
         """Feedback for the next queued request: outcomes of earlier queued children not yet reported; for every live
@@ -494,7 +495,8 @@ class Arena:
                 fb["outcomes"].append({"child_seq": r["seq"], "request": q, "op": r["op"], "outcome": out,
                                        **({"name": r["name"]} if r.get("accepted") else {}),
                                        **({"twin_of": r["twin_of"]} if r.get("twin_of") else {}),
-                                       **({"error": (r.get("error") or "")[:160]} if out == "invalid" else {})})
+                                       **({"error": (r.get("error") or "")[:160]} if out == "invalid" else {}),
+                                       **({"solo": r["solo"]} if r.get("solo") else {})})
                 if r.get("accepted"):
                     self.q_alive.add(r["name"])
             mem = self.s["members"]
@@ -521,7 +523,37 @@ class Arena:
             rec["error"] = f"{type(e).__name__}: {str(e)[:300]}"
             return rec, None
         rec["fingerprint"] = fp
+        if self.a.solo_filter is not None:  # solo farming vs builtin:idle, against the (best) parent's
+            total, deaths = self.solo(child.source)
+            ptot = [self.solo_of(p) for p in parents]
+            ptot = min((t for t in ptot if t is not None), default=None)
+            rec["solo"] = {"total": total, "deaths": deaths, "parent_total": ptot}
+            if self.a.solo_filter > 0 and ptot and total > ptot * (1 + self.a.solo_filter / 100):
+                rec["error"] = (f"solo-farm: {total:.0f} rounds to 1000 gems vs idle (40 maps x 2), more than "
+                                f"{self.a.solo_filter:g}% worse than the parent's {ptot:.0f}")
         return rec, child.source
+
+    def solo(self, source):
+        """(total rounds to 1000 gems vs builtin:idle over the 40 maps (gate.solo_farm), deaths per game)."""
+        from . import gate as G
+        per, deaths = G.solo_farm(G.spec_of(source, "genome"), 1, with_deaths=True)
+        return round(sum(per.values()), 1), deaths
+
+    def solo_of(self, name):
+        """A member's solo total, computed once (lazily for members born before the filter)."""
+        with self.lock:
+            cache = self.s.setdefault("solo", {})
+            m = self.s["members"].get(name)
+            if name in cache or m is None or m["kind"] != "genome":
+                return cache.get(name)
+            path = self.out / m["path"]
+        try:
+            total = self.solo(path.read_text())[0]
+        except Exception:
+            return None
+        with self.lock:
+            cache[name] = total
+        return total
 
     def accept(self, rec, source):
         with self.lock:
@@ -536,6 +568,8 @@ class Arena:
             name = f"{self.a.tag}{self.s['births']}"
             m = self._add_genome(source, name, rec["parents"], {"op": rec["op"], "model": rec["model"]},
                                  fingerprint=rec["fingerprint"])
+            if rec.get("solo"):
+                self.s.setdefault("solo", {})[name] = rec["solo"]["total"]
             self._write("children", {**rec, "accepted": True, "name": name, "species": m["species"],
                                      "fingerprint": None})
             others = [x["name"] for x in self.players() if x["name"] != name]
@@ -814,6 +848,10 @@ def main(argv=None):
     ap.add_argument("--no-bot-seeds", dest="bot_seeds", action="store_false",
                     help="policy anchors seeded per game instead of as deployed")
     ap.add_argument("--intel-branch", default="")
+    ap.add_argument("--solo-filter", type=float, default=None,
+                    help="solo farming vs builtin:idle per child (rounds to 1000 gems, 80 games; in children.jsonl and "
+                         "the session feedback); > 0: reject a child more than this %% worse than its best parent; "
+                         "0: log only")
     ap.add_argument("--ingest", default="", help="comma-separated genome files, each ingested once as a directed newborn")
     ap.add_argument("--intel-every", type=float, default=600, help="seconds between intel fetches")
     ap.add_argument("--resume-from", default="", help="an earlier arena output directory (e.g. the last pushed "

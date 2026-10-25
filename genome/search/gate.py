@@ -123,7 +123,7 @@ def sign_p(drops, gains):
 SOLO_CAP = 4000
 
 
-def solo_farm(spec, threads):
+def solo_farm(spec, threads, with_deaths=False):
     """Rounds to 1000 gems per map vs builtin:idle (the 80 distinct games, bot seeds), the mean of the two sides. A game
     that ends at round 2000 short of 1000 gems counts 2000 + (1000 - gems) / (gems / 2000), i.e. extrapolated at its own
     average rate, capped at SOLO_CAP (also for 0 gems)."""
@@ -134,15 +134,17 @@ def solo_farm(spec, threads):
                          capture_output=True, text=True, timeout=3600)
     if out.returncode != 0:
         raise RuntimeError(f"genome_eval exit {out.returncode}: {out.stderr[-300:]}")
-    per = {}
+    per, deaths = {}, []
     for line in out.stdout.splitlines():
         d = json.loads(line) if line.strip().startswith("{") else {}
         if "a_side" not in d:
             continue
         g = d["gems"][1 if d["a_side"] == "B" else 0]
+        deaths.append(d["deaths"][1 if d["a_side"] == "B" else 0])  # vs idle: camps, monoliths, ...
         r = d["rounds"] if g >= 1000 else min(SOLO_CAP, 2000 + (1000 - g) * 2000 / g) if g > 0 else SOLO_CAP
         per.setdefault(Path(d["map"]).stem, []).append(r)
-    return {m: round(sum(v) / len(v), 1) for m, v in sorted(per.items())}
+    per = {m: round(sum(v) / len(v), 1) for m, v in sorted(per.items())}
+    return (per, round(sum(deaths) / max(1, len(deaths)), 2)) if with_deaths else per
 
 
 def solo_check(cand, ref, max_slower=150, offset=3.0):
