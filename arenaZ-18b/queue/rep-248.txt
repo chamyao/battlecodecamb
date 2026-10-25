@@ -1,0 +1,19 @@
+```python
+@gene('Z158c', 'set the goal field (staying on spawn to heal up to 75 percent) from cached fields: the static home field built once, the altar field every 8 rounds and the camp field every 5 or once reached', parents=['s3'])
+def update() -> None:
+    if not INIT:
+        HF = field(my_spawn())
+        INIT = True
+    if me().health_frac < 0.35 or (me().health_frac < 0.75 and me().pos in my_spawn()):
+        GF = HF
+    elif gems() > 0:
+        if round() - AT >= 8:
+            AF = field(goals())
+            AT = round()
+        GF = AF
+    else:
+        if round() - CT >= 5 or at(CF, me().pos) <= 0:
+            CF = field(goals())
+            CT = round()
+        GF = CF
+```

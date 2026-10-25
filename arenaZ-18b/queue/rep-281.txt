@@ -1,0 +1,12 @@
+```python
+@gene("Z238b", "value of an attack reset: worth it once my basic attack is spent and any enemy champion or camp is still in reach")
+def reset_value() -> Num:
+    if can_attack():
+        return 0
+    reach = me().attack_range
+    if any(dist(u.pos, me().pos) <= reach for u in enemies() if u.is_champion):
+        return 90
+    if any(dist(c.pos, me().pos) <= reach for c in camps()):
+        return 62
+    return 0
+```

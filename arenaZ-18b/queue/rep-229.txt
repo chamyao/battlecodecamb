@@ -1,0 +1,45 @@
+```python
+@gene('s1', 'value of doing this option now: draft Vesper Vale, Stellar, Prism, Ren, Tavi; jungle strength then bruiser health shards; attack resets, spells and dashes; focus weak or gem-rich champions and weak camps; recall when out of reach or to shop when rich and safe; walk home when hurt with enemies near')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return (10 if o.champ == VESPER_VALE else (9 if o.champ == STELLAR else (8 if o.champ == PRISM else (7 if o.champ == REN else (6 if o.champ == TAVI else 1)))))
+    if o.kind == BUY:
+        return 100 + o.count if o.item == (28 if items_owned(29) == 0 else 36) else 0
+    if o.kind == RECALL:
+        return 54 if me().health_frac < 0.35 or (gold() >= 150 and count_units(enemies()) == 0 and gems() == 0) else 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_RESET:
+            return reset_value()
+        return spell_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + min(unit_gems(o.unit), 50) / 5 + 6 * (1 - o.unit.health_frac)
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35 and count_units(enemies()) > 0:
+            return 95 if progress(o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("Z238b", "value of an attack reset: worth it once my basic attack is spent and an enemy champion, an awake camp, or (when farming) any camp is still in reach")
+def reset_value() -> Num:
+    if can_attack():
+        return 0
+    reach = me().attack_range
+    if any(dist(u.pos, me().pos) <= reach for u in enemies() if u.is_champion):
+        return 90
+    if any(dist(c.pos, me().pos) <= reach and (gems() == 0 or is_awake(c)) for c in camps()):
+        return 62
+    return 0
+
+@gene("s4", "how much closer a step brings me to the goals, or to an enemy champion within 7 tiles carrying 6 or more gems when above half health")
+def progress(t: Tile) -> Num:
+    if me().health_frac > 0.5:
+        prey = best(enemies(), lambda u: unit_gems(u) - 2 * dist(u.pos, me().pos) if u.is_champion else -99)
+        if exists(prey) and prey.is_champion and unit_gems(prey) >= 6 and dist(prey.pos, me().pos) <= 7:
+            return dist(prey.pos, me().pos) - dist(prey.pos, t)
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```
