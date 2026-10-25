@@ -1,0 +1,29 @@
+```python
+@gene('c1', "where this turn's rule walks (reads the rule update() just chose instead of re-running rule(); altar walks prefer camp-free altar-adjacent tiles; bank walk keeps its goal while still valid; the mono walk skips spawns an enemy champion stands on when another is open)", parents=["c1"])
+def rule_goal() -> Tile:
+    r = RULE
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        free = ALTAR_RING - camp_block()
+        if size(free) > 0:
+            return closest(free)
+        return closest(ALTAR_RING)
+    if r == 12:
+        if valid(GOAL) and GOAL in altar_ring() and not (GOAL in taken()):
+            return GOAL
+        return bank_goal()
+    if r == 15:
+        open_s = camp_spawns() - respawning() - type_spawns(GOLEM)
+        t = closest(open_s - enemy_tiles())
+        if valid(t):
+            return t
+        return closest(open_s)
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+```
