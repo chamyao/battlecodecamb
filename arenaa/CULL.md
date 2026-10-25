@@ -105,3 +105,6 @@ keeps it out of the cull comparison. Z-19 writers were told (08:55) not to run t
 is their only signal. Writer-side screening is a candidate experiment of its own.
 Z-18b also reports that 00road-of-riches and 01shortcut end 0-0 for every bot (no TRIBUTE option ever appears);
 this was sent to the search session to check against the real engine.
+Z-18d (min-mu) also ran to 477 births. Its writer read no evolved genomes and ran no games of its own (feedback,
+state.json and matches.jsonl only), so it matches the Z-19 protocol. Its final panel is an extra min-mu data
+point (labelled; it is not one of the four Z-19 arms).
