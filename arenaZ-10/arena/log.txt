@@ -287,3 +287,25 @@
 [02:46:39] [Z] birth Z140 (llm_cross session) of ['Z137', 'Z123'] species S91; 24 genomes $0.00
 [02:46:58] [Z] new species S92 founded by Z141
 [02:46:58] [Z] birth Z141 (llm_cross session) of ['Z137', 'Z136'] species S92; 24 genomes $0.00
+[02:47:09] [Z] new species S93 founded by Z142
+[02:47:09] [Z] birth Z142 (mutate session) of ['Z114'] species S93; 24 genomes $0.00
+[02:47:30] [Z] birth Z143 (mutate session) of ['Z140'] species S91; 24 genomes $0.00
+[02:48:01] [Z] birth Z144 (mutate session) of ['Z141'] species S92; 24 genomes $0.00
+[02:48:05] [Z] new species S94 founded by Z145
+[02:48:05] [Z] birth Z145 (llm_cross session) of ['Z119', 'Z137'] species S94; 24 genomes $0.00
+[02:48:27] [Z] birth Z146 (mutate session) of ['Z136'] species S85; 24 genomes $0.00
+[02:48:46] [Z] new species S95 founded by Z147
+[02:48:46] [Z] birth Z147 (mutate session) of ['Z136'] species S95; 24 genomes $0.00
+[02:48:46] [Z] rejected tune : behavioural twin
+[02:48:48] [Z] birth Z148 (mutate session) of ['Z125'] species S82; 24 genomes $0.00
+[02:49:10] [Z] birth Z149 (tune ) of ['Z144'] species S92; 24 genomes $0.00
+[02:49:23] [Z] champion anchor champ3-Z137 (mu 34.1)
+[02:49:23] [Z] summary: births 150 deaths 127 games 27192 $0.00; top [('Z137', 34.11, 0.83, 168, 'S88'), ('Z146', 33.73, 0.94, 88, 'S85'), ('Z135', 33.18, 0.8, 248, 'S81')]; top vs anchors {'Z137': 0.875, 'Z146': 1.0, 'Z135': None}
+[02:49:23] [Z] 150 births (--max-births 150): no more births
+[02:49:23] [Z] birth Z150 (mutate session) of ['Z112'] species S72; 24 genomes $0.00
+[02:49:27] [Z] new species S96 founded by Z151
+[02:49:27] [Z] birth Z151 (mutate session) of ['Z118'] species S96; 24 genomes $0.00
+[02:49:37] [Z] new species S97 founded by Z152
+[02:49:37] [Z] birth Z152 (mutate session) of ['Z92'] species S97; 24 genomes $0.00
+[02:51:59] [Z] summary: births 152 deaths 129 games 28936 $0.00; top [('Z152', 34.71, 0.81, 192, 'S97'), ('Z135', 33.57, 0.79, 408, 'S81'), ('Z146', 33.54, 0.8, 224, 'S85')]; top vs anchors {'Z152': None, 'Z135': None, 'Z146': 1.0}
+[02:51:59] [Z] done: spent $0.00
