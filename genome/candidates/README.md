@@ -89,7 +89,8 @@ enemies on their own spawn, so hurt carriers next to an enemy spawn can heal. Re
 - Arena B lead, real cambc at fd778fc: 55/80 vs v29, 0 crashes (plain A81582: 50/80 on the same builds); capped turns 450 vs 301.
 - Sim: 46/80 vs v29, 40/80 vs A81582; solo vs idle: games short of 1000 halved (10 -> 5).
 - My smoke, real vs v29 (side A, hard maps): 3 losses. My full real cambc vs v29, 40 maps x 2 sides: 57/80, 0 crashes. Next upload.
-- Live as ladder version 30 (2026-10-25T06:39:47Z, bundle sha256 90450da2...). Validation: intel batch 7, paired vs b6.
+- Live as ladder version 30 (2026-10-25T06:39:47Z, bundle sha256 90450da2...). Batch 7 vs b6 (v29): 21-29 vs 20-30, neutral;
+  monolith deaths 2.28 vs 0.58 per game (lineage lacks the monolith fix); ranked 10-5 at 15 games.
 
 ## A81582-ringheal-mono (v30 + v28's monolith fix via graft.py mono; candidate for after v30)
 
@@ -105,4 +106,15 @@ genome/candidates/A81582-rh-mono-all.genome, sha256 f54246b181c6caa1... (genome/
 needs a build at or after genome/v0 fd778fc.
 - Arena B lead, real cambc: 51/80 vs v30, 49/80 vs rh-mono, 62/80 vs v29, 0 crashes. Solo vs idle 97,417 rounds, 379 deaths
   (v30 99,212 / 522). Sim 42/80 vs v30.
-- My real 80 vs v30: running.
+- My real cambc vs v30 (ringheal), 40 maps x 2 sides: 51/80, 0 crashes. v31 pick.
+- Live as ladder version 31 (2026-10-25T07:16:11Z, bundle sha256 e4932580...). Batch 8 vs b7 (v30): 27-23 vs 21-29, 6 flips to a win,
+  0 to a loss (p ~0.03), gems +39 +- 20; great_wall monolith deaths 35 -> 1, shortcut 12 -> 0.
+
+## B1873 (Arena B relay leg 6; v32 candidate)
+
+genome/candidates/B1873.genome, sha256 20a329ce544e9707... (genome/arenab 42275ee7). B-line with the monolith fix,
+ring/heal and gg6; new: a kill-shot fight outranks the pass-through bank (rule 165 + r_killshot).
+- Arena B lead, real cambc: 47/80 vs v31, 49/80 vs v30, 56/80 vs v29, 0 crashes. Solo vs idle 95,846 rounds, 362 deaths
+  (v31 97,417 / 379). Sim 37/80 vs v31.
+- My real cambc vs v31, 40 maps x 2 sides: 47/80, 0 crashes. Carries the rmab boss-battle exemption (relay auto-ingest).
+- Live as ladder version 32 (2026-10-25T07:50:23Z, bundle sha256 52a3fb56...). Validation: intel batch 9, paired vs b8.
