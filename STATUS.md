@@ -5,27 +5,14 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-10-25 07:10 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 18.75 18.68 18.48 on 16 threads.
+Updated 2026-10-25 07:16 UTC. Instance up since 2026-10-24 06:21:47 (UTC); load: 10.49 16.52 17.79 on 16 threads.
 Disk: 14G used of 38G.
 
 ## python3 processes
 ```
-1155288 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-17a/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-17a/starter.genome --budget 20 --opus-every 1 --threads 5 --fixed-anchors --gate-every 100000000 --batch-mutate 8 --batch-wait 20 --bir
-1155811 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-17b/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-17b/starter.genome --budget 20 --opus-every 1 --threads 5 --fixed-anchors --gate-every 100000000 --batch-mutate 8 --batch-wait 20 --bir
-1156768 python3 -m genome.search.arena --out /root/bc/genome/out/arenaZ-17c/arena --tag Z --seed genome/examples/starter.genome --anchors /root/bc/genome/out/arenaZ-17c/starter.genome --budget 20 --opus-every 1 --threads 5 --fixed-anchors --gate-every 100000000 --batch-mutate 8 --batch-wait 20 --bir
 ```
 ## tick.log (last 40 lines)
 ```
-[04:32:48] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[04:38:06] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[04:43:23] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[04:48:26] genome: job arenaA-8c exited rc=0
-[04:48:40] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[04:53:53] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[04:59:07] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[05:04:21] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[05:09:35] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[05:14:49] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [05:19:52] genome: job arenaZ-15 exited rc=0
 [05:20:03] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [05:25:05] genome: job arenaZ-16 exited rc=0
@@ -56,4 +43,14 @@ Terminated
 [06:59:53] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [07:05:08] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [07:10:22] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+Terminated
+[07:15:35] genome: stopped job arenaZ-17a (by arenaZ-17a.stop)
+Terminated
+[07:15:45] genome: stopped job arenaZ-17b (by arenaZ-17b.stop)
+Terminated
+[07:15:55] genome: stopped job arenaZ-17c (by arenaZ-17c.stop)
+[07:15:55] genome: job arenaZ-17a exited rc=stopped
+[07:15:55] genome: job arenaZ-17b exited rc=stopped
+[07:15:55] genome: job arenaZ-17c exited rc=stopped
+[07:16:06] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
