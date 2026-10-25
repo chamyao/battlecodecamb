@@ -53,3 +53,8 @@ In function ‘constexpr void std::__final_insertion_sort(_RandomAccessIterator,
 /root/bc/genome/w/arenaZ-16/interp/src/policy.cpp:591:7: warning: ‘interp::{anonymous}::Value interp::{anonymous}::set_of(const cbs::Bitboard&)’ defined but not used [-Wunused-function]
   591 | Value set_of(const Bitboard& b)
       |       ^~~~~~
+[ 86%] Linking CXX static library libinterp.a
+[ 86%] Built target interp
+[ 93%] Building CXX object CMakeFiles/genome_eval.dir/tools/genome_eval.cpp.o
+[100%] Linking CXX executable genome_eval
+[100%] Built target genome_eval
