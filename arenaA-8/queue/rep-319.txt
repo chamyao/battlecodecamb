@@ -1,0 +1,5 @@
+```python
+@gene("w3", "tiles I cannot step onto: terrain, altars, enemy spawn, units, unseen camp spawns")
+def blocked() -> Tiles:
+    return (TERRAIN | ally_tiles() | enemy_tiles() | camp_block()) - near(me().pos, 0)
+```

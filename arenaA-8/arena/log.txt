@@ -2692,3 +2692,66 @@
 [04:54:09] [A8] rejected mutate session: behavioural twin
 [04:54:16] [A8] rejected tune : behavioural twin
 [04:54:26] [A8] birth A81464 (cross ) of ['A81434', 'A81454'] species S2; 24 genomes $7.80
+[04:54:39] [A8] birth A81465 (mutate session) of ['A81436'] species S1; 24 genomes $7.80
+[04:54:49] [A8] rejected cross : behavioural twin
+[04:55:02] [A8] birth A81466 (mutate session) of ['A81453'] species S2; 24 genomes $7.80
+[04:55:08] [A8] birth A81467 (mutate session) of ['A81377'] species S2; 24 genomes $7.80
+[04:55:13] [A8] birth A81468 (cross ) of ['A81414', 'A81453'] species S1; 24 genomes $7.80
+[04:55:15] [A8] rejected mutate session: behavioural twin
+[04:55:35] [A8] birth A81469 (tune ) of ['A81466'] species S2; 24 genomes $7.80
+[04:55:42] [A8] summary: births 1470 deaths 1447 games 359704 $7.80; top [('A81466', 46.85, 0.92, 96, 'S2'), ('A81456', 46.2, 0.84, 176, 'S2'), ('A81469', 46.18, 1.14, 56, 'S2')]; top vs anchors {'A81466': None, 'A81456': None, 'A81469': None}
+[04:55:42] [A8] birth A81470 (mutate session) of ['A81427'] species S2; 24 genomes $7.80
+[04:55:47] [A8] birth A81471 (mutate session) of ['A81451'] species S2; 24 genomes $7.80
+[04:56:05] [A8] birth A81472 (mutate session) of ['A81456'] species S2; 24 genomes $7.80
+[04:56:07] [A8] birth A81473 (cross ) of ['A81456', 'A81454'] species S2; 24 genomes $7.80
+[04:56:20] [A8] birth A81474 (mutate session) of ['A81444'] species S2; 24 genomes $7.80
+[04:56:34] [A8] birth A81475 (llm_cross session) of ['A81464', 'A81455'] species S2; 24 genomes $7.80
+[04:56:39] [A8] birth A81476 (mutate session) of ['A81470'] species S2; 24 genomes $7.80
+[04:56:46] [A8] rejected mutate session: behavioural twin
+[04:57:06] [A8] birth A81477 (mutate session) of ['A81464'] species S2; 24 genomes $7.80
+[04:57:13] [A8] rejected mutate session: behavioural twin
+[04:57:30] [A8] birth A81478 (tune ) of ['A81472'] species S2; 24 genomes $7.80
+[04:57:30] [A8] birth A81479 (mutate session) of ['A81454'] species S2; 24 genomes $7.80
+[04:57:44] [A8] rejected mutate session: behavioural twin
+[04:58:00] [A8] rejected mutate session: behavioural twin
+[04:58:08] [A8] summary: births 1480 deaths 1457 games 361760 $7.80; top [('A81476', 46.89, 0.97, 88, 'S2'), ('A81472', 46.54, 0.84, 168, 'S2'), ('A81451', 46.42, 0.81, 392, 'S2')]; top vs anchors {'A81476': None, 'A81472': 1.0, 'A81451': 1.0}
+[04:58:08] [A8] birth A81480 (mutate session) of ['A81466'] species S2; 24 genomes $7.80
+[04:58:18] [A8] birth A81481 (cross ) of ['A81466', 'A81472'] species S2; 24 genomes $7.80
+[04:58:21] [A8] birth A81482 (mutate session) of ['A81466'] species S2; 24 genomes $7.80
+[04:58:39] [A8] birth A81483 (mutate session) of ['A81476'] species S2; 24 genomes $7.80
+[04:58:54] [A8] rejected mutate session: behavioural twin
+[04:59:02] [A8] rejected mutate session: behavioural twin
+[04:59:19] [A8] rejected tune : behavioural twin
+[04:59:21] [A8] birth A81484 (mutate session) of ['A81477'] species S2; 24 genomes $7.80
+[04:59:26] [A8] rejected mutate session: behavioural twin
+[04:59:40] [A8] rejected mutate session: behavioural twin
+[04:59:56] [A8] rejected mutate session: behavioural twin
+[05:00:02] [A8] rejected mutate session: behavioural twin
+[05:00:25] [A8] birth A81485 (mutate session) of ['A81482'] species S2; 24 genomes $7.80
+[05:00:32] [A8] birth A81486 (mutate session) of ['A81473'] species S2; 24 genomes $7.80
+[05:00:43] [A8] rejected mutate session: behavioural twin
+[05:00:58] [A8] rejected mutate session: behavioural twin
+[05:01:00] [A8] birth A81487 (mutate session) of ['A81450'] species S1; 24 genomes $7.80
+[05:01:11] [A8] birth A81488 (mutate session) of ['A81464'] species S2; 24 genomes $7.80
+[05:01:27] [A8] rejected mutate session: behavioural twin
+[05:01:33] [A8] birth A81489 (mutate session) of ['A81464'] species S2; 24 genomes $7.80
+[05:01:48] [A8] rejected mutate session: behavioural twin
+[05:01:54] [A8] rejected mutate session: behavioural twin
+[05:02:10] [A8] rejected mutate session: behavioural twin
+[05:02:15] [A8] rejected mutate session: behavioural twin
+[05:02:30] [A8] rejected mutate session: behavioural twin
+[05:02:36] [A8] rejected mutate session: behavioural twin
+[05:02:53] [A8] summary: births 1490 deaths 1467 games 365912 $7.80; top [('A81451', 46.19, 0.85, 648, 'S2'), ('A81473', 46.19, 0.82, 408, 'S2'), ('A81486', 46.13, 0.84, 176, 'S2')]; top vs anchors {'A81451': 1.0, 'A81473': 0.917, 'A81486': 0.875}
+[05:02:53] [A8] birth A81490 (mutate session) of ['A81478'] species S2; 24 genomes $7.80
+[05:02:58] [A8] birth A81491 (llm_cross session) of ['A81454', 'A81487'] species S1; 24 genomes $7.80
+[05:03:16] [A8] birth A81492 (mutate session) of ['A81474'] species S2; 24 genomes $7.80
+[05:03:18] [A8] birth A81493 (cross ) of ['A81486', 'A81444'] species S2; 24 genomes $7.80
+[05:03:30] [A8] birth A81494 (mutate session) of ['A81482'] species S2; 24 genomes $7.80
+[05:03:38] [A8] rejected mutate session: behavioural twin
+[05:03:45] [A8] rejected mutate session: behavioural twin
+[05:03:53] [A8] birth A81495 (cross ) of ['A81485', 'A81486'] species S2; 24 genomes $7.80
+[05:03:57] [A8] rejected mutate session: behavioural twin
+[05:04:11] [A8] birth A81496 (mutate session) of ['A81481'] species S2; 24 genomes $7.80
+[05:04:28] [A8] birth A81497 (mutate session) of ['A81454'] species S2; 24 genomes $7.80
+[05:04:32] [A8] birth A81498 (tune ) of ['A81494'] species S2; 24 genomes $7.80
+[05:04:33] [A8] birth A81499 (llm_cross session) of ['A81494', 'A81450'] species S1; 24 genomes $7.80
