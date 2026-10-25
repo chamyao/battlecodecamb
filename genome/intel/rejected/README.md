@@ -314,3 +314,20 @@ Note: allies() lists visible allies only, so "all alive" has to come from a team
 | rdv5w | whole team, or after 30 rounds of waiting | 5.83 | 49,338 | worst map +68. 38/80 vs ringheal; anchors net -6 (none significant). Real 2-2: starfish 2-0, starvation 0-2 (144 gems and 40 deaths as B: enemy champions pick off the waiting team) |
 
 Not a pass. Waiting at a strong group costs tempo and exposes the team against real opponents. The solo gain doesn't carry over.
+
+## Early retreat on B1873 (2026-10-25)
+
+**B1873-early**: i25, a rule at priority 162 (below the kill-shot at 165). Before r300, off spawn, it fires when an enemy champion off its own spawn can hit me now or after one step and I am alone or outnumbered (allies within 4). It walks home under rule 3.
+
+**Sim:**
+- vs stress/hunter: early deaths fall (1.89 → 1.33 in losses, 0.52 → 0.35 in wins), but the record is unchanged at 71/80.
+- 39/80 vs B1873.
+- Anchors net -1 (B318 61 vs 66).
+- vs idle: two maps move, big-world +60 and starvation -176 rounds (fuel/timing).
+
+**Real cambc vs the v32 build, 12 games: 4-8.**
+- swirl 0-2 (35 and 41 deaths vs 13 and 7)
+- monolith 0-2
+- elkring 1-1, corners 1-1, lanes 1-1, eight 1-1
+
+Rejected. Walking home alone when outnumbered gets the champion caught, and costs the team its fights.
