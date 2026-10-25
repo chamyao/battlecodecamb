@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 15:17 UTC: A-9 stopped (plateau); Z-20 ahead of controls
+
+- A-9 panel m28-m36: 1060, 1047, 1068 | 1061, 1054, 1069, 1059 (screening on from b3240). Flat: 1044-1069 since b2552
+  (~1100 births), and leg 5's screening did not move it. RELAY_DONE pushed (c59aae2e); the final population is being
+  scored. Best A-9 genome on the panel: A93536 / A93208 (1069 / 1068).
+- Z-20 (screened from the start): 20a m2 499 (b211), 20b m3 504 (b323). Both are already above the controls' finals
+  (371 / 335) at fewer births. Both sessions are running (not stalled).
+
 ## 2026-10-25 15:11 UTC
 
 - Policy (Cham via the genome lead, genome/v0 c168b57a): no more API credits. All Arena A runs with LLM mutation use
