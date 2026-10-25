@@ -2,6 +2,10 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 08:12 UTC
+
+- A-9 leg 2 at 2243 births. Z-18 births: a 134, b 215 (legacy); c 88, d 253 (min-mu). All four mirrors are pushing.
+
 ## 2026-10-25 07:25 UTC: A-9 leg 1 done
 
 - Leg 1: births 1626 -> 2026 in 82 min (A-8: 401 in 2h03), restarted at 1652 with --births-in-flight 8. 263 accepted,
