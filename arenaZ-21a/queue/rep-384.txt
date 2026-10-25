@@ -1,0 +1,11 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, or to spawn when fleeing (a sideways step that gets away from every enemy within 5 also counts a little)")
+def progress(t: Tile) -> Num:
+    if fleeing():
+        d = at(flee_field(), me().pos) - at(flee_field(), t)
+        if d == 0 and any(dist(u.pos, me().pos) <= 5 for u in enemies()):
+            if not any(dist(u.pos, me().pos) <= 5 and dist(u.pos, t) <= dist(u.pos, me().pos) for u in enemies()):
+                return 0.5
+        return d
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+```

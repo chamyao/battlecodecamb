@@ -1,0 +1,29 @@
+```python
+@gene('s1', 'value of doing this option now: draft Ryth, Vesper Vale, Vendetta, Varg, Tavi; casts, fight back, focus the weakest target and gem carriers, recall to shop when rich and idle (not during a capture); when low or outnumbered while hurt, recall only where it is safe, else walk away first')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    low = me().health_frac < 0.35 or (me().health_frac < 0.7 and outnumbered())
+    if o.kind == RECALL:
+        if low:
+            return 90 if safe() else 0
+        return 55 if shop_trip() and not capturing() else 0
+    if o.kind == MOVE:
+        if low and not safe():
+            return 75 if at(retreat_field(), me().pos) - at(retreat_field(), o.tile) > 0 else 0
+        return 50 if progress(o.tile) > 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        w = 1 - o.unit.health_frac
+        if o.unit.is_champion:
+            return 80 + 5 * w + min(unit_gems(o.unit), 50) / 10
+        if gems() == 0:
+            return 60 + 1.5 * w
+        return 58 + 1.5 * w if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    return 0
+```

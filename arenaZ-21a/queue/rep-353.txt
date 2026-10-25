@@ -1,0 +1,26 @@
+```python
+@gene('Z43a', 'where to walk: an altar with gems, else any living camp group; a cleared group waiting for capture only if I am the closest visible ally; plus enemy gem carriers (15 or more) within 8 when I am healthy and we are not outnumbered', parents=['s3'])
+def open_goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if group_reward(g):
+                d = dist(nearest(ts, me().pos), me().pos)
+                if not any(dist(nearest(ts, a.pos), a.pos) < d for a in allies()):
+                    acc = acc | ts
+            else:
+                acc = acc | ts
+    if me().health_frac >= 0.6:
+        foes = count(dist(u.pos, me().pos) <= 8 for u in enemies())
+        friends = 1 + count(dist(a.pos, me().pos) <= 8 for a in allies())
+        if foes > 0 and friends >= foes:
+            for u in enemies():
+                if unit_gems(u) >= 15 and dist(u.pos, me().pos) <= 8:
+                    acc = acc | near(u.pos, 1)
+    return acc
+```

@@ -1,0 +1,9 @@
+```python
+@gene('Z112b', 'distance field for fleeing: to our spawn, or also to a free altar when carrying 10 or more gems (a tribute banks them before they can be stolen)', parents=['s1'])
+def flee_field() -> Field:
+    acc = my_spawn()
+    if gems() >= 10:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+    return field(acc)
+```
