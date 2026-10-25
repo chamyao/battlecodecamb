@@ -2,6 +2,25 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 05:45 UTC: relay done; cull bug found (affects every run)
+
+- Relay Z-10 finished: 476 births, sha b692581. RELAY_DONE pushed (3b33b304), so the panel can finish. In-arena
+  top: Z469 / Z471 at 37.85. Panel comparison with Z-5 to follow.
+- **Cull bug** (found by leg 10, checked in genome/search arena.py cull(); the same line has been there since
+  7e40b6f, so every A and Z run so far is affected):
+  `pool = strict or [species with > 1 member] or ok`. With 24 members in about 24 species, the strict pool
+  (species with more than min_species = 2 members) is almost always empty. A newborn joins its parent's
+  species, making that the only species with 2 members; the newborn has fewer than min_games games, so
+  the parent is the only candidate and dies whatever its rating.
+  - Relay deaths: 442 of 453 used the relaxed rule. 152 of 453 were the parent of the newest birth in the
+    same species. In the second half the median victim had mu 34.7 while the top was about 37; 53 victims
+    had mu >= 36 and 14 had mu >= 37 (Z410 37.5, Z427 37.6, Z449, the leaders at the time).
+  - Effect: selection is mostly "a child that founds no new species replaces its parent" rather than "the
+    worst dies". This may explain the compressed ratings and the plateaus (Z-1x flat at ~250).
+  - Not changed: the arena code is fixed per run. Proposal for Cham: a controlled pair on Z with the
+    candidate fix (when the strict pool is empty, cull the lowest mu among all ok members; species
+    protection only via min_species) vs the current rule, same everything else, with a replicate.
+
 ## 2026-10-25 05:35 UTC: Z-15 and Z-16 done
 
 - Z-15 (batched Opus via API) done at 475 births, $17.75. Panel best 176 (b290), 185 (b320), 207 (b405);
