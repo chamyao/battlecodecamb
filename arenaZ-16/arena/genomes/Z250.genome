@@ -1,0 +1,120 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_F: Field = None
+
+@gene('s1', 'value of doing this option now; also casts damage/cc on targets and shield/heal when hurt in a fight, recalls a bit earlier', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 45 + 6 * p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems; else cleared groups awaiting capture, else a living non-monolith camp group (monolith only late)', parents=['s2'])
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    mono = type_spawns(MONOLITH)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | (group_tiles(g) - mono)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'cached per-turn distance field (retreat or goals), computed in update', parents=['s3'])
+def goal_field() -> Field:
+    return GOAL_F
+
+@gene('s4', 'how much closer a step brings me to the goals, doubled when healthy; zero if either tile is unreachable', parents=['s4'])
+def progress(t: Tile) -> Num:
+    a = at(goal_field(), me().pos)
+    b = at(goal_field(), t)
+    if a > 100000 or b > 100000:
+        return 0
+    d = a - b
+    if me().health_frac > 0.6:
+        return d * 2
+    return d
+
+@gene('Z26a', 'value of casting: hit champions (scaled up as they weaken) and camps, protect allies and self when hurt near enemies or awake camps, dash toward goals when healthy (capped, not while enemies are close)', parents=['s1', 'Z26a'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 110 + 10 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and gems() == 0:
+                return 65
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            ne = count(dist(u.pos, o.tile) <= r for u in enemies())
+            if ne > 0:
+                return 110 + ne
+            if gems() == 0:
+                nc = count(dist(u.pos, o.tile) <= r for u in camps())
+                if nc > 0:
+                    return 60 + nc
+        return 0
+    if k == AB_SHIELD or k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy and o.unit.pos != me().pos:
+            if o.unit.health_frac < 0.6:
+                if any(dist(u.pos, o.unit.pos) <= 4 for u in enemies()):
+                    return 87
+            if o.unit.health_frac < 0.5:
+                return 85
+            return 0
+        if me().health_frac < 0.7:
+            if any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+                return 88
+            if me().health_frac < 0.55:
+                if any(is_awake(c) and dist(c.pos, me().pos) <= 2 for c in camps()):
+                    return 75
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and me().health_frac > 0.5:
+            if not any(dist(u.pos, me().pos) <= 7 for u in enemies()):
+                p = progress(o.tile)
+                if p >= 3:
+                    return 40 + 5 * min(p, 8)
+        return 0
+    return 0
+
+@gene('Z21a', 'once per turn: pick the retreat field (spawn) when hurt, else the goal field', parents=['s3'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < 0.35 or (gems() > 0 and hf < 0.5):
+        GOAL_F = field(my_spawn())
+    else:
+        g = goals()
+        if size(g) > 0:
+            GOAL_F = field(g)
+        else:
+            GOAL_F = field(my_spawn())
