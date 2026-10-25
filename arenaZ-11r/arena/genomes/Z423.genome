@@ -1,0 +1,138 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GOAL_FIELD: Field = None
+HEALING: Bool = False
+
+@gene('s1', 'value of doing this option now; focus-fires wounded champions, finishes low camps, uses abilities on fights, camps, shields and dashes')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.2287 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 15 * (1 - o.unit.health_frac) + (5 if unit_gems(o.unit) > 0 else 0)
+        return 60 + 5 * (1.0865 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 37
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else a cleared group awaiting capture with gems/gold, else a gem-bearing living camp group, else any living camp group')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.655)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g) and group_gems(g) + group_gold(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) > 0:
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals (cached per turn); falls back to a field over camp tiles when my position cannot reach the goals')
+def goal_field() -> Field:
+    if at(GOAL_FIELD, me().pos) >= 1000000:
+        return field(camp_tiles())
+    return GOAL_FIELD
+
+@gene('s4', 'progress toward goals minus a threat penalty for enemies near the step (adjacent 1, two tiles 0.5; ranged enemies also threaten at three tiles 0.5), heavier when hurt, healing or carrying gems; champions weigh more; slight pull toward badly wounded enemies when healthy (0 if unreachable)')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    b = at(f, t)
+    if b >= 1000000:
+        return 0
+    a = at(f, me().pos)
+    hf = me().health_frac
+    w = 1
+    if hf < 0.5:
+        w = 2
+    if HEALING or gems() > 0:
+        w = 3
+    threat = 0
+    for u in enemies():
+        d = dist(u.pos, t)
+        if d <= 2 or (u.attack_range >= 3 and d <= 3):
+            near_w = 1 if d <= 1 else 0.5
+            if u.is_champion:
+                near_w = near_w * 1.5
+            if u.health_frac < 0.3 and hf > 0.6 and not HEALING:
+                threat -= 0.5 * near_w
+            else:
+                threat += near_w
+    return a - b - w * threat
+
+@gene('Z64a', 'value of casting an ability: damage scaled by target wounds on champions (finisher bonus, gem-carrier bonus, interrupt bonus on tributing/recalling targets), camp damage when no gems, shield when enemies or awake camps near, heal when hurt (urgent in combat), dash scaled by progress (bonus with gems, not when low)', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_enemy and o.unit.is_champion:
+                if is_tributing(o.unit) or is_recalling(o.unit):
+                    return 95
+                if o.unit.health_frac < 0.3:
+                    return 90
+                carry = 8 if unit_gems(o.unit) > 0 else 0
+                return 60 + carry + 12 * (1.0236 - o.unit.health_frac)
+            if o.unit.is_camp:
+                return 62 if gems() == 0 else 0
+        return 0
+    if k == AB_SHIELD:
+        hf = me().health_frac
+        if hf < 0.9:
+            mp = me().pos
+            if any(dist(u.pos, mp) <= 5 for u in enemies()):
+                return 70 + 20 * (1 - hf)
+            if hf < 0.75 and any(is_awake(c) and dist(c.pos, mp) <= 2 for c in camps()):
+                return 65 + 20 * (1 - hf)
+        return 0
+    if k == AB_HEAL:
+        hf = me().health_frac
+        if hf < 0.6:
+            mp = me().pos
+            if any(dist(u.pos, mp) <= 5 for u in enemies()):
+                return 85
+            return 72
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and me().health_frac > 0.3:
+            p = progress(o.tile)
+            if p >= 1:
+                bonus = 10 if gems() > 0 else 0
+                return 30 + 10 * min(p, 3) + bonus
+        return 0
+    return 0
+
+@gene('Z5a', 'per-turn cache of the goal field; walks home to heal when low (hysteresis 40%->95%), skips work when dead', parents=['s3'])
+def update() -> None:
+    if not alive():
+        HEALING = False
+        return
+    hf = me().health_frac
+    if hf < 0.4:
+        HEALING = True
+    elif hf > 0.95:
+        HEALING = False
+    if HEALING:
+        GOAL_FIELD = field(my_spawn())
+    else:
+        GOAL_FIELD = field(goals())

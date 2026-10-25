@@ -258,3 +258,47 @@
 [03:02:42] [Z] birth Z290 (mutate claude-opus-5-5) of ['Z257'] species S140; 24 genomes $13.53
 [03:02:44] [Z] new species S150 founded by Z291
 [03:02:44] [Z] birth Z291 (llm_cross claude-opus-5-5) of ['Z264', 'Z284'] species S150; 24 genomes $13.53
+[03:02:51] [Z] new species S151 founded by Z292
+[03:02:51] [Z] birth Z292 (mutate claude-opus-5-5) of ['Z280'] species S151; 24 genomes $13.53
+[03:03:15] [Z] new species S152 founded by Z293
+[03:03:15] [Z] birth Z293 (mutate claude-opus-5-5) of ['Z257'] species S152; 24 genomes $13.63
+[03:03:18] [Z] birth Z294 (mutate claude-opus-5-5) of ['Z283'] species S146; 24 genomes $13.63
+[03:03:18] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[03:03:46] [Z] birth Z295 (mutate claude-opus-5-5) of ['Z288'] species S122; 24 genomes $13.74
+[03:03:47] [Z] birth Z296 (mutate claude-opus-5-5) of ['Z288'] species S122; 24 genomes $13.74
+[03:03:49] [Z] birth Z297 (mutate claude-opus-5-5) of ['Z275'] species S147; 24 genomes $13.74
+[03:04:10] [Z] birth Z298 (cross ) of ['Z296', 'Z295'] species S122; 24 genomes $13.74
+[03:04:24] [Z] new species S153 founded by Z299
+[03:04:24] [Z] birth Z299 (mutate claude-opus-5-5) of ['Z290'] species S153; 24 genomes $13.81
+[03:04:32] [Z] champion anchor champ6-Z225 (mu 36.4)
+[03:04:32] [Z] summary: births 300 deaths 277 games 73280 $13.94; top [('Z225', 36.37, 0.8, 944, 'S119'), ('Z285', 35.96, 0.8, 240, 'S134'), ('Z277', 35.88, 0.79, 392, 'S145')]; top vs anchors {'Z225': 1.0, 'Z285': 1.0, 'Z277': 0.875}
+[03:04:32] [Z] birth Z300 (mutate claude-opus-5-5) of ['Z271'] species S107; 24 genomes $13.94
+[03:04:39] [Z] new species S154 founded by Z301
+[03:04:39] [Z] birth Z301 (llm_cross claude-opus-5-5) of ['Z225', 'Z276'] species S154; 24 genomes $13.94
+[03:04:41] [Z] rejected tune : behavioural twin
+[03:04:52] [Z] birth Z302 (mutate claude-opus-5-5) of ['Z277'] species S145; 24 genomes $13.98
+[03:05:05] [Z] birth Z303 (mutate claude-opus-5-5) of ['Z301'] species S154; 24 genomes $14.01
+[03:05:16] [Z] new species S155 founded by Z304
+[03:05:16] [Z] birth Z304 (mutate claude-opus-5-5) of ['Z290'] species S155; 24 genomes $14.04
+[03:05:32] [Z] new species S156 founded by Z305
+[03:05:32] [Z] birth Z305 (llm_cross claude-opus-5-5) of ['Z280', 'Z285'] species S156; 24 genomes $14.24
+[03:05:36] [Z] birth Z306 (mutate claude-opus-5-5) of ['Z265'] species S133; 24 genomes $14.24
+[03:05:44] [Z] birth Z307 (tune ) of ['Z292'] species S151; 24 genomes $14.24
+[03:06:03] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[03:06:10] [Z] new species S157 founded by Z308
+[03:06:10] [Z] birth Z308 (llm_cross claude-opus-5-5) of ['Z265', 'Z299'] species S157; 24 genomes $14.47
+[03:06:14] [Z] birth Z309 (mutate claude-opus-5-5) of ['Z306'] species S133; 24 genomes $14.47
+[03:06:28] [Z] new species S158 founded by Z310
+[03:06:28] [Z] summary: births 310 deaths 287 games 75600 $14.51; top [('Z309', 37.51, 0.93, 88, 'S133'), ('Z299', 36.49, 0.82, 256, 'S153'), ('Z304', 36.4, 0.8, 200, 'S155')]; top vs anchors {'Z309': None, 'Z299': None, 'Z304': None}
+[03:06:28] [Z] birth Z310 (mutate claude-opus-5-5) of ['Z251'] species S158; 24 genomes $14.51
+[03:06:38] [Z] birth Z311 (mutate claude-opus-5-5) of ['Z304'] species S155; 24 genomes $14.54
+[03:06:53] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[03:06:59] [Z] new species S159 founded by Z312
+[03:06:59] [Z] birth Z312 (mutate claude-opus-5-5) of ['Z309'] species S159; 24 genomes $14.72
+[03:07:13] [Z] birth Z313 (mutate claude-opus-5-5) of ['Z307'] species S151; 24 genomes $14.86
+[03:07:21] [Z] new species S160 founded by Z314
+[03:07:21] [Z] birth Z314 (llm_cross claude-opus-5-5) of ['Z282', 'Z274'] species S160; 24 genomes $14.90
+[03:07:24] [Z] birth Z315 (mutate claude-opus-5-5) of ['Z308'] species S157; 24 genomes $14.90
+[03:07:43] [Z] birth Z316 (mutate claude-opus-5-5) of ['Z225'] species S125; 24 genomes $15.02
+[03:07:46] [Z] birth Z317 (mutate claude-opus-5-5) of ['Z309'] species S159; 24 genomes $15.02
+[03:07:53] [Z] birth Z318 (mutate claude-opus-5-5) of ['Z303'] species S154; 24 genomes $15.02
