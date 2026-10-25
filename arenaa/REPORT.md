@@ -2,6 +2,11 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 10:15 UTC
+
+- Births: Z-19a 136, 19b 372, 19c 168, 19d 123; Z-20a 73, 20b 74 (screening runs are slower per birth); A-9 leg 4 at
+  2857.
+
 ## 2026-10-25 10:00 UTC: A-9 leg 3 done; panel climbing, leg 4
 
 - Leg 3: births 2430 -> 2836 in 80 min; in-arena top A92831 48.8. Panel (/1200): m17 1023, m20 1026, m23 1026, m24 999,
