@@ -1,0 +1,7 @@
+```python
+@gene("Z73a", "no awake camp within its range plus 2 and no enemy champion within 5: a recall here will not be cancelled", parents=["s1"])
+def safe() -> Bool:
+    if any(dist(u.pos, me().pos) <= 5 for u in enemies()):
+        return False
+    return not any(is_awake(c) and dist(c.pos, me().pos) <= c.attack_range + 2 for c in camps())
+```

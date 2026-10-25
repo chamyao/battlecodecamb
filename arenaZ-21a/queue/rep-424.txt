@@ -1,0 +1,9 @@
+```python
+@gene('Z378a', 'below 40 percent health with an awake camp or enemy champion close: walk or dash home instead of fighting', parents=['s4'])
+def fleeing() -> Bool:
+    if me().health_frac >= 0.4:
+        return False
+    if any(dist(u.pos, me().pos) <= 4 for u in enemies()):
+        return True
+    return any(is_awake(c) and dist(c.pos, me().pos) <= c.attack_range + 1 for c in camps())
+```

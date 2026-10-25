@@ -1,0 +1,18 @@
+```python
+@gene('Z171a', 'visible enemy champions worth hunting: hurt ones (below 45 percent) within 7 while I am healthy, or all within 8 when we are at least as many and I am above 70 percent health', parents=['Z18a'])
+def hunt_tiles() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if me().health_frac < 0.5:
+        return acc
+    foes = count(dist(u.pos, me().pos) <= 8 for u in enemies())
+    if foes == 0:
+        return acc
+    friends = 1 + count(dist(a.pos, me().pos) <= 8 for a in allies())
+    for u in enemies():
+        if dist(u.pos, me().pos) <= 8:
+            if friends >= foes and me().health_frac >= 0.7:
+                acc = acc | near(u.pos, 1)
+            elif u.health_frac < 0.45 and dist(u.pos, me().pos) <= 7:
+                acc = acc | near(u.pos, 1)
+    return acc
+```
