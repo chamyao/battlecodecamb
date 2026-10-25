@@ -1,0 +1,42 @@
+```python
+FOES: Tiles = None
+
+CAMPT: Tiles = None
+
+DANGER: Bool = False
+
+GF: Field = None
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z16a', 'value of casting an ability now, from targets cached once per turn', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    hurt = me().health_frac < 0.35
+    if k == AB_DAMAGE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 82
+            return 65 if gems() == 0 and not hurt else 0
+        return 0
+    if k == AB_AOE:
+        if o.tile in FOES:
+            return 81
+        return 64 if gems() == 0 and not hurt and o.tile in CAMPT else 0
+    if k == AB_RESET:
+        return 75 if not can_attack() and (DANGER or size(FOES) > 0) else 0
+    if k == AB_SHIELD:
+        return 75 if DANGER or size(FOES) > 0 else 0
+    if k == AB_HEAL:
+        return 75 if exists(o.unit) and o.unit.health_frac < 0.7 else 0
+    return 0
+
+@gene("new", "once per turn: cache enemy and camp tiles and whether an awake camp threatens me", parents=["Z16a"])
+def update() -> None:
+    FOES = enemy_tiles()
+    CAMPT = camp_tiles()
+    DANGER = threatened()
+    GF = goal_field()
+```

@@ -1,0 +1,11 @@
+```python
+GF: Field = None
+
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene("new", "once per turn: compute the goal distance field", parents=["s3"])
+def update() -> None:
+    GF = goal_field()
+```
