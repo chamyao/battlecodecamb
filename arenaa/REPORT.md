@@ -2,6 +2,18 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 10:00 UTC: A-9 leg 3 done; panel climbing, leg 4
+
+- Leg 3: births 2430 -> 2836 in 80 min; in-arena top A92831 48.8. Panel (/1200): m17 1023, m20 1026, m23 1026, m24 999,
+  m25 1044, m26 1045, **m28 1060 (A92792, b2809)**; top-3 mean 1015 -> 1046. A slow climb (+35-40 over 1000
+  births, milestone noise +/-15-20), not a plateau.
+- Gate: no A-9 passes vs v32/v33 (best 38/80 and 41/80; all solo-farm-blocked because they lack the live bots'
+  ring/heal/mono fixes). Several A-9 genomes passed vs v29 earlier (A91634 55/80, A91678 54/80, A91651 51/80),
+  moot now.
+- Leg 4 (2836 -> 3236): session_01GC8PEa2spih1cDojyzb2gR; same protocol (no own games).
+- Z-18c (clean, screened, min-mu, stopped b331): 384. With Z-18b 610 and Z-18d (unscreened) 301, screening points
+  the same way twice. Z-20 vs Z-19 decides.
+
 ## 2026-10-25 09:13 UTC
 
 - Births: Z-19a 51, 19b 122, 19c 27, 19d 59; Z-20a/b setting up; A-9 leg 3 at 2552.
