@@ -1,0 +1,14 @@
+```python
+@gene('s2', 'where to walk: an altar with gems, else a living camp group')
+def goals() -> Tiles:
+    if gems() >= 8 or (gems() > 0 and round() > 1900):
+        acc = near(tile(-5, -5), 0)
+        for a in altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_gems(g) < 100:
+            acc = acc | group_tiles(g)
+    return acc
+```
