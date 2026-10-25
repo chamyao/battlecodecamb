@@ -1,0 +1,23 @@
+```python
+@gene("v1", "value of doing this option now; casts are not held back by a pending purchase (they spend no gold)")
+def score(o: Option) -> Num:
+    k = o.kind
+    if k == PICK:
+        return pick_value(o.champ)
+    if k == BUY or k == BUY_LOCK:
+        return shop_value(o)
+    if k == CAST:
+        return cast_value(o)
+    if shop_pending():
+        return 0
+    return act_value(o)
+
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked: our own lock does not block our tribute; 1000 if none)")
+def altar_eta() -> Num:
+    h = here()
+    la = locked_altars()
+    d = min((max(0, dist(h, a) - 1) for a in altars() if not (a in la and lock_enemy(a))), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```
