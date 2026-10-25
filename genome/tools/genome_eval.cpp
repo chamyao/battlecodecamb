@@ -7,6 +7,8 @@
 // --fuel-hash: with --details, record every game's per-turn fuel and add "fuel_hash" (FNV-1a over both teams' per-turn
 //              fuel, in play order), "turns" and "fuel" (total per team) to each game line (exactness checks).
 //              GENOME_TURN_FUEL_ALL=DIR also writes DIR/<game>.txt (both teams' per-turn fuel, one line each).
+// --checkpoints N: every N rounds print {"game", "cp": [[round, tributed A, tributed B, carried A, carried B,
+//                  gold earned A, gold earned B, kills A, kills B], ...]} for each game (teams A/B, not sides).
 // --block-hits: add "block_hits": {block: executions} summed over both sides and all games (counters are
 //               shared across threads without locking, so counts are approximate with --threads > 1).
 //        genome_eval --list-blocks
@@ -53,6 +55,10 @@ static Side load_side(const std::string& spec)
 		if (!h) throw std::runtime_error(std::string("dlopen: ") + dlerror());
 		s.genes = reinterpret_cast<genome::MakeGenes>(dlsym(h, "genome_make"));
 		if (!s.genes) throw std::runtime_error("no genome_make in " + spec);
+		// a genome compiled against another runtime layout would crash: rebuild genome_eval after runtime changes
+		if (auto sz = reinterpret_cast<unsigned long (*)()>(dlsym(h, "genome_ctx_size")); sz && sz() != sizeof(genome::Ctx))
+			throw std::runtime_error(spec + " was compiled against another runtime (Ctx " + std::to_string(sz()) + " bytes, this genome_eval " +
+									 std::to_string(sizeof(genome::Ctx)) + "): rebuild genome_eval");
 	}
 	else if (spec.rfind("builtin:", 0) != 0) s.prog = interp::load_program_file(spec);
 	return s;
@@ -65,7 +71,7 @@ int main(int argc, char** argv)
 	if (const char* tt = std::getenv("STATE_TRACE_TILES")) interp::state_trace_tiles = std::atoi(tt);
 	std::vector<std::string> maps;
 	std::string a_spec = "builtin:starter", b_spec = "builtin:starter";
-	int games = 10, threads = 1, max_rounds = 0;
+	int games = 10, threads = 1, max_rounds = 0, checkpoints = 0;
 	double fuel_mult = 1.0; // exploration: scale every bot's per-turn fuel budget
 	bool bot_seeds = false, details = false, fuel_hash = false;
 	const char* turn_fuel_all = std::getenv("GENOME_TURN_FUEL_ALL");
@@ -88,6 +94,7 @@ int main(int argc, char** argv)
 		else if (!std::strcmp(argv[i], "--bot-seeds")) bot_seeds = true;
 		else if (!std::strcmp(argv[i], "--details")) details = true;
 		else if (!std::strcmp(argv[i], "--fuel-hash")) fuel_hash = true;
+		else if (!std::strcmp(argv[i], "--checkpoints")) checkpoints = std::atoi(argv[++i]);
 		else if (!std::strcmp(argv[i], "--block-hits")) cbs::memo_stats().enabled = true;
 		else maps.push_back(argv[i]);
 	}
@@ -163,6 +170,19 @@ int main(int argc, char** argv)
 				opt.max_rounds = max_rounds;
 				opt.record_turn_fuel = (turn_fuel_out && g == 0) || fuel_hash || turn_fuel_all;
 				opt.fuel.per_turn = static_cast<std::int64_t>(static_cast<double>(opt.fuel.per_turn) * fuel_mult);
+				std::string cp;
+				if (checkpoints > 0)
+					opt.on_round = [&](const Game& gm) {
+						if (gm.round % checkpoints != 0 && !gm.over) return;
+						long long carried[2] = {};
+						for (const auto& c : gm.champs) carried[c.team] += c.gems;
+						char buf[256];
+						std::snprintf(buf, sizeof buf, "%s[%d, %u, %u, %lld, %lld, %lld, %lld, %d, %d]", cp.empty() ? "" : ", ", gm.round,
+									  gm.teams[0].submitted, gm.teams[1].submitted, carried[0], carried[1],
+									  static_cast<long long>(gm.teams[0].earned_gold_cents), static_cast<long long>(gm.teams[1].earned_gold_cents),
+									  gm.teams[0].kills, gm.teams[1].kills);
+						cp += buf;
+					};
 				Match match(loaded[(g / 2) % loaded.size()], swap ? *pb : *pa, swap ? *pa : *pb, opt);
 				const GameResult r = match.run();
 				const int at = swap ? 1 : 0;
@@ -203,6 +223,9 @@ int main(int argc, char** argv)
 					}
 				std::lock_guard<std::mutex> lk(mu);
 				per_game[g] = won;
+				if (checkpoints > 0)
+					std::printf("{\"game\": %d, \"map\": \"%s\", \"a_side\": \"%s\", \"winner\": %d, \"reason\": %d, \"rounds\": %d, \"cp\": [%s]}\n", g,
+								maps[(g / 2) % maps.size()].c_str(), swap ? "B" : "A", r.winner, r.reason, match.game.round, cp.c_str());
 				if (turn_fuel_out && g == 0)
 					if (FILE* f = std::fopen(turn_fuel_out, "w"))
 					{

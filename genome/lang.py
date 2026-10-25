@@ -15,6 +15,7 @@ Entry genes: score(o: Option) -> Num (required); update() -> None (optional; run
 turn, the only gene that may assign keep variables or call write_shared).
 """
 import ast
+import os
 import hashlib
 import json
 import re
@@ -32,7 +33,7 @@ DEFAULT = {"Num": "0.0", "Bool": "false", "Tile": "Tile{}", "Unit": "Unit{}", "U
 CONSTANTS = {
     # option kinds
     "PICK": 1, "MOVE": 2, "ATTACK": 3, "CAST": 4, "WARD": 5, "BUY": 6, "RECALL": 7, "TRIBUTE": 8, "CANCEL": 9,
-    "LOCK": 10, "BUY_LOCK": 11,
+    "LOCK": 10, "BUY_LOCK": 11, "BREAK": 12, "TELEPORT": 13, "BUY_TP": 14, "SELL": 15,
     # champion types (cbs::ChampionType); draft picks use the same numbers (Cassi & Issac = CASSI)
     "RYTH": 0, "VESPER_VALE": 1, "VENDETTA": 2, "CASSI": 3, "ISSAC": 4, "STELLAR": 5, "PRISM": 6, "MARCELLA": 7,
     "WILLOW": 8, "REN": 9, "VARG": 10, "TAVI": 11, "HEART_OF_RUIN": 12,
@@ -112,7 +113,44 @@ PRIMS = {
     "field": (("Tiles",), "Field", "X.field({0})"),
     "field_avoid": (("Tiles", "Tiles", "Tiles"), "Field", "X.field_avoid({0}, {1}, {2})"),
     "box_field": (("Tiles", "Tiles"), "Field", "X.box_field({0}, {1})"),
+    "dash_field": (("Tile", "Tiles"), "Field", "X.dash_field({0}, {1})"),
+    "wfield": (("Tiles", "Tiles", "Tiles", "Num"), "Field", "X.wfield({0}, {1}, {2}, {3})"),
+    "path_step": (("Tile", "Tile", "Tiles", "Num"), "Tile", "X.path_step({0}, {1}, {2}, {3})"),
+    "path_len": (("Tile", "Tile", "Tiles", "Num"), "Num", "X.path_len({0}, {1}, {2}, {3})"),
+    "territory": (("Tiles", "Tiles", "Tiles"), "Tiles", "X.territory({0}, {1}, {2})"),
+    "attack_damage": (("Unit", "Unit"), "Num", "X.attack_damage({0}, {1})"),
+    "cast_damage": (("Unit", "Num", "Unit"), "Num", "X.cast_damage({0}, {1}, {2})"),
+    "shield": (("Unit",), "Num", "X.shield({0})"),
     "at": (("Field", "Tile"), "Num", "X.field_at({0}, {1})"),
+    # raw unit reads (any visible unit; 0 when out of vision)
+    "cooldown": (("Unit", "Num"), "Num", "X.cooldown({0}, {1})"),
+    "ability_kind": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 0)"),
+    "ability_cooldown": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 1)"),
+    "ability_range": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 2)"),
+    "ability_radius": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 3)"),
+    "ability_targets": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 4)"),
+    "ability_modifier": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 5)"),
+    "ability_duration": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 6)"),
+    "ability_moveless": (("Unit", "Num"), "Num", "X.ability({0}, {1}, 7)"),
+    "item_count": (("Unit", "Num"), "Num", "X.item_count({0}, {1})"),
+    "unit_gold": (("Unit",), "Num", "X.unit_gold({0})"),
+    "buff_value": (("Unit", "Num"), "Num", "X.buff_value({0}, {1})"),
+    "buff_turns": (("Unit", "Num"), "Num", "X.buff_turns({0}, {1})"),
+    "channel_left": (("Unit",), "Num", "X.channel_left({0})"),
+    "group_cooldown": (("Num",), "Num", "X.group_cooldown({0})"),
+    "lock_hits": (("Tile",), "Num", "X.lock_hits({0})"),
+    "lock_enemy": (("Tile",), "Bool", "X.lock_enemy({0})"),
+    "ally_wards": ((), "Tiles", "X.ally_wards()"),
+    "enemy_wards": ((), "Tiles", "X.enemy_wards()"),
+    "ward_charges": ((), "Num", "X.ward_res(false)"),
+    "ward_cooldown": ((), "Num", "X.ward_res(true)"),
+    "my_ward": ((), "Tile", "X.my_ward()"),
+    "ward_sight": (("Tile",), "Tiles", "X.ward_sight({0})"),
+    "sight": (("Num", "Tile"), "Tiles", "X.sight({0}, {1})"),
+    "teleport_dest": (("Unit",), "Tile", "X.teleport_dest({0})"),
+    "teleport_left": (("Unit",), "Num", "X.teleport_left({0})"),
+    "priority": (("Unit",), "Num", "X.priority({0})"),
+    "can_sell": ((), "Bool", "X.can_sell()"),
     "walk_nearest": (("Tiles", "Tile", "Tiles"), "Tile", "X.walk_nearest({0}, {1}, {2})"),
     # abilities (my slots 0 and 1)
     "slot_kind": (("Num",), "Num", "X.slot_kind({0})"),
@@ -146,6 +184,29 @@ PRIMS = {
     "sqrt": (("Num",), "Num", "std::sqrt(std::max(0.0, {0}))"),
     "rand": (("Num",), "Num", "X.rand({0})"),
 }
+# Primitives whose simulator price is not yet calibrated against cambc (genome/FUEL.md): rejected unless
+# GENOME_UNCALIBRATED=1 (calibration probes), so the search cannot use them before they are priced.
+UNCALIBRATED = set()
+# calibrated Oct 24 (genome/FUEL.md): wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield;
+# the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
+# group_cooldown, lock_hits, lock_enemy; ally_wards, enemy_wards, ward_charges, ward_cooldown, my_ward,
+# ward_sight, sight, teleport_dest, teleport_left, priority, can_sell
+# Primitives whose inlined bot code takes a local's address, so a gene using one gets a shadow-stack frame
+# (prologue and epilogue on every call, ~12 fuel). Found by compiling each primitive alone with the bot's
+# flags (wasi-sdk -O3) and checking for the stack-pointer write (FUEL.md).
+FRAMED_PRIMS = {"alive", "ally_tiles", "altars", "at", "box_field", "bushes", "camp_spawns", "camp_tiles", "can_attack",
+                "can_move", "channel_left", "channeling", "dash_field", "enemy_gems", "enemy_spawn", "enemy_tiles", "field",
+                "field_avoid", "group_cooldown", "group_respawning", "group_reward", "group_tiles", "holes", "is_awake",
+                "locked_altars", "me", "my_spawn", "my_ward", "near", "nearest", "path_len", "path_step", "priority",
+                "read_shared", "round", "sight", "size", "spawn_group", "spawn_type", "team_gems", "territory",
+                "type_spawns", "unit_gems", "unit_gold", "visible", "vision", "walk_nearest", "walls", "ward_sight",
+                "wfield", "write_shared"}
+# A memoised gene's hit in the bot, by return type: the copy out (score variants that read a memoised gene on
+# every option, inlined or called; FUEL.md). Inlining moves it little (a Num hit is ~27 inlined, ~30 called).
+MEMO_HIT = {"Num": 30, "Bool": 30, "Tile": 44, "Unit": 57, "Tiles": 74, "Field": 74, "Units": 74}
+# More per hit from a caller with a shadow-stack frame (its call site spills around the call). Chosen on three
+# real head-to-heads, the third held out (FUEL.md).
+MEMO_FRAMED = 12
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
@@ -182,6 +243,7 @@ class Gene:
     keep_writes: set = field(default_factory=set)
     shared_reads: set = field(default_factory=set)   # constant offsets, or "*"
     shared_writes: set = field(default_factory=set)
+    framed: bool = False     # uses a FRAMED_PRIMS primitive (simulator charges the bot's frame)
 
 
 @dataclass
@@ -585,8 +647,13 @@ class Checker:
             if n in ("score", "update", "consider", "after", "reserve"):
                 self.err(e, f"entry gene {n} cannot be called")
             self.cur.calls.add(n)
-            return gene.ret, f"{n}(" + ", ".join(c for _, c, _ in args) + ")", ops + 1
+            call = f"{n}(" + ", ".join(c for _, c, _ in args) + ")"
+            if not gene.params and gene.ret != "None" and n not in MEMORY_GENES:
+                call = f"(MH_(@@MH {self.cur.name} {n}@@), {call})"  # the hit's price is set at its call site (to_cpp)
+            return gene.ret, call, ops + 1
         if n in PRIMS:
+            if n in UNCALIBRATED and not os.environ.get("GENOME_UNCALIBRATED"):
+                self.err(e, f"{n} is not calibrated yet (GENOME_UNCALIBRATED=1 for probes)")
             sig, ret, tpl = PRIMS[n]
             if list(sig) != [t for t, _, _ in args]:
                 self.err(e, f"{n} takes ({', '.join(sig)})")
@@ -599,7 +666,11 @@ class Checker:
             if n == "read_shared":
                 off = e.args[0]
                 self.cur.shared_reads.add(str(int(off.value)) if isinstance(off, ast.Constant) else "*")
-            return ret, tpl.format(*[c for _, c, _ in args]), ops + 1
+            code = tpl.format(*[c for _, c, _ in args])
+            if n in FRAMED_PRIMS:
+                self.cur.framed = True
+                code = f"(FU_, {code})"
+            return ret, code, ops + 1
         self.err(e, f"unknown function {n}")
 
     def comp(self, gen):
@@ -741,18 +812,23 @@ def to_cpp(genome):
         lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:
             # zero-argument genes are pure within a pass: computed once per pass, cached on this instance
-            # a hit costs ~73 fuel in the bot for a scalar, ~78 for a shared set or field (fitted per turn on identical games)
-            hit = 78 if g.ret in ("Tiles", "Field", "Units") else 73
-            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({hit}); return val_{n}; }}",
+            # a hit costs what its call site set (MH_): the copy out by return type, more from a framed caller
+            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX(X.memo_hit); return val_{n}; }}",
+                      *(["\tFRAME_GUARD;"] if g.framed else []),
                       f"\t{CPP[g.ret]} v = [&]() -> {CPP[g.ret]} {{"]
             lines += ["\t" + l for l in body]
             lines += ["\t}();", f"\tstamp_{n} = X.pass_id; val_{n} = v;", "\treturn v;"]
         else:
-            lines += body
+            lines += (["\tFRAME_GUARD;"] if g.framed else []) + body
         lines.append("}")
     lines += ["} // namespace genome_gen", "", "extern \"C\" genome::GenesBase* genome_make(genome::Ctx& X) "
-              "{ return new genome_gen::Genes(X); }", ""]
-    return "\n".join(lines)
+              "{ return new genome_gen::Genes(X); }",
+              "// the runtime layout this genome was compiled against (genome_eval refuses a mismatch)",
+              "extern \"C\" unsigned long genome_ctx_size() { return sizeof(genome::Ctx); }", ""]
+    def hit_price(m):
+        caller, callee = genome.genes[m.group(1)], genome.genes[m.group(2)]
+        return str(int(MEMO_HIT.get(callee.ret, MEMO_HIT["Tiles"]) + (MEMO_FRAMED if caller.framed else 0)))
+    return re.sub(r"@@MH (\w+) (\w+)@@", hit_price, "\n".join(lines))
 
 
 def _fl(et):

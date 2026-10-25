@@ -1,0 +1,96 @@
+"""Fuel calibration genome 3: guest pathfinding (wfield, path_step, path_len, territory). update() runs one probe
+per turn in rotation; inputs are computed outside the probes. Needs GENOME_UNCALIBRATED=1 until accepted."""
+
+@gene("c0", "score: wander (keeps the game moving)")
+def score(o: Option) -> Num:
+    if o.kind == MOVE:
+        return 1 + floor((o.tile.x * 7 + o.tile.y * 13 + round()) % 10)
+    return 0
+
+@gene("c1", "run one probe this turn (round mod #probes)")
+def update() -> None:
+    acc = 0
+    k = round()
+    slot = k % 12
+    t = me().pos
+    W = walls() | holes()
+    AL = altars()
+    CS = camp_spawns()
+    BU = bushes()
+    E = W - W
+    ME = near(t, 0)
+    c = nearest(CS, t)
+    a = nearest(AL, t)
+    if slot == 0:
+        acc += p_empty(k)
+    if slot == 1:
+        acc += p_wf_alt0(k, AL, W, BU, t)
+    if slot == 2:
+        acc += p_wf_alt3(k, AL, W, BU, t)
+    if slot == 3:
+        acc += p_wf_me2(k, ME, W, BU, t)
+    if slot == 4:
+        acc += p_wf_camps(k, CS, W, E, t)
+    if slot == 5:
+        acc += p_ps_camp(k, t, c, W)
+    if slot == 6:
+        acc += p_ps_alt(k, t, a, W)
+    if slot == 7:
+        acc += p_pl_alt(k, t, a, W)
+    if slot == 8:
+        acc += p_pl_short(k, t, a, W)
+    if slot == 9:
+        acc += p_pl_far(k, t, tile(width() - 1 - t.x, height() - 1 - t.y), W)
+    if slot == 10:
+        acc += p_terr_spawn(k, my_spawn(), enemy_spawn(), W)
+    if slot == 11:
+        acc += p_terr_me(k, ME, enemy_tiles(), W)
+    write_shared(7, acc)
+
+@gene("q0", "probe empty")
+def p_empty(k: Num) -> Num:
+    return k
+
+@gene("q1", "wfield to altars, bushes slow k=0")
+def p_wf_alt0(k: Num, g: Tiles, w: Tiles, s: Tiles, t: Tile) -> Num:
+    return at(wfield(g, w, s, 0), t) + k
+
+@gene("q2", "wfield to altars, bushes slow k=3")
+def p_wf_alt3(k: Num, g: Tiles, w: Tiles, s: Tiles, t: Tile) -> Num:
+    return at(wfield(g, w, s, 3), t) + k
+
+@gene("q3", "wfield from me, bushes slow k=2")
+def p_wf_me2(k: Num, g: Tiles, w: Tiles, s: Tiles, t: Tile) -> Num:
+    return at(wfield(g, w, s, 2), t) + k
+
+@gene("q4", "wfield to camp spawns, no slow")
+def p_wf_camps(k: Num, g: Tiles, w: Tiles, s: Tiles, t: Tile) -> Num:
+    return at(wfield(g, w, s, 0), t) + k
+
+@gene("q5", "path_step to the nearest camp spawn")
+def p_ps_camp(k: Num, f: Tile, to: Tile, w: Tiles) -> Num:
+    return path_step(f, to, w, 2000).x + k
+
+@gene("q6", "path_step to the nearest altar")
+def p_ps_alt(k: Num, f: Tile, to: Tile, w: Tiles) -> Num:
+    return path_step(f, to, w, 2000).x + k
+
+@gene("q7", "path_len to the nearest altar")
+def p_pl_alt(k: Num, f: Tile, to: Tile, w: Tiles) -> Num:
+    return path_len(f, to, w, 2000) + k
+
+@gene("q8", "path_len to the nearest altar, budget 20")
+def p_pl_short(k: Num, f: Tile, to: Tile, w: Tiles) -> Num:
+    return path_len(f, to, w, 20) + k
+
+@gene("q9", "path_len to the mirrored tile")
+def p_pl_far(k: Num, f: Tile, to: Tile, w: Tiles) -> Num:
+    return path_len(f, to, w, 5000) + k
+
+@gene("q10", "territory: my spawn vs the enemy spawn")
+def p_terr_spawn(k: Num, a: Tiles, b: Tiles, w: Tiles) -> Num:
+    return k if me().pos in territory(a, b, w) else 0
+
+@gene("q11", "territory: my tile vs the visible enemies")
+def p_terr_me(k: Num, a: Tiles, b: Tiles, w: Tiles) -> Num:
+    return k if me().pos in territory(a, b, w) else 0

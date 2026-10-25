@@ -122,6 +122,7 @@ GameResult Match::run()
 			game.end_turn(c);
 		}
 		game.end_round();
+		if (opt_.on_round) opt_.on_round(game);
 		if (!game.over && game.round >= max_rounds)
 		{
 			game.over = true;

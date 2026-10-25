@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 #include "cbs/api.h"
 #include "cbs/runner.h"
@@ -44,6 +45,11 @@
 
 namespace genome
 {
+#ifdef GENOME_BOT
+#define GENOME_TRACE_FILE stdout
+#else
+#define GENOME_TRACE_FILE stderr
+#endif
 #ifdef GENOME_PROF
 // Inclusive fuel and calls per gene (real fuel in the bot), printed every GENOME_PROF_GENES rounds.
 struct GeneStat
@@ -73,7 +79,15 @@ struct GeneScope
 		top = parent;
 	}
 };
+// (simulator: only team 0's champion 0 is profiled, as the bot's printed stats are champion 0's own)
+#ifdef GENOME_BOT
 #define GENE_PROF(i, nm) genome::gene_stats[i].name = nm; genome::GeneScope gene_scope_(genome::gene_stats[i], X.api, X.prof_top)
+#else
+#define GENE_PROF(i, nm) \
+	genome::gene_stats[i].name = nm; \
+	std::optional<genome::GeneScope> gene_scope_; \
+	if (X.api.team() == 0 && X.api.champ() == 0) gene_scope_.emplace(genome::gene_stats[i], X.api, X.prof_top)
+#endif
 // The first distance-field searches: expansions and the fuel of the search call alone (printed with @@GENE).
 struct FieldRec
 {
@@ -81,6 +95,14 @@ struct FieldRec
 	long long fuel;
 };
 inline FieldRec field_recs[400];
+// Guest primitives (wfield, path_*): fuel of each call with its own work counters (printed as @@PRIM).
+struct PrimRec
+{
+	int prim;
+	long long fuel, n[4];
+};
+inline PrimRec prim_recs[600];
+inline int n_prim_recs = 0;
 // First-turn checkpoints (fuel remaining): main start, map built, Api ready, genes made, then per phase
 // of the first play_turn; printed on the second turn with the per-gene totals of turn 1 (@@T1).
 inline std::int64_t t1_marks[16];
@@ -88,11 +110,17 @@ inline int n_t1_marks = 0;
 inline void t1_mark(std::int64_t f) { if (n_t1_marks < 16) t1_marks[n_t1_marks++] = f; }
 inline int n_field_recs = 0;
 #define FIELD_PROF_BEGIN const std::int64_t fp0_ = api.fuel_remaining()
+#define PRIM_PROF_BEGIN const std::int64_t pp0_ = api.fuel_remaining()
+#define PRIM_PROF_END(id) \
+	if (genome::n_prim_recs < 600 && api.team() == 0 && api.champ() == 0) \
+	genome::prim_recs[genome::n_prim_recs++] = { id, pp0_ - api.fuel_remaining(), { last_work.tiles, last_work.pops, last_work.relax, last_work.scans } }
 #define FIELD_PROF_END(n, st) \
 	if (genome::n_field_recs < 400) genome::field_recs[genome::n_field_recs++] = { static_cast<int>(n), (st) ? 1 : 0, fp0_ - api.fuel_remaining() }
 #else
 #define FIELD_PROF_BEGIN ((void)0)
 #define FIELD_PROF_END(n, st) ((void)0)
+#define PRIM_PROF_BEGIN ((void)0)
+#define PRIM_PROF_END(id) ((void)0)
 #define GENE_PROF(i, nm) ((void)0)
 #endif
 using cbs::Api;
@@ -132,14 +160,19 @@ struct Field
 	std::shared_ptr<std::uint16_t[]> d;
 	// box_field: only the 3 x 3 box around (bx, by) is stored (d[(dy + 1) * 3 + dx + 1]); reads elsewhere,
 	// or above the centre's own distance, are unreachable
-	int bx = -1, by = -1;
+	int bx = -1, by = -1, br = 1; // dash_field: the 5 x 5 box (br = 2), d[(dy + br) * (2 br + 1) + dx + br]
+	bool rm = false; // computed in guest code (wfield): padded row-major (W + 2) x (H + 2), bot and simulator
 };
 #ifdef GENOME_BOT
 constexpr int kBotFieldWords = 13 * 13 * 64; // the engine's largest chunked map (100 x 100)
 #endif
 enum OptionKind
 {
-	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK
+	PICK = 1, MOVE, ATTACK, CAST, WARD, BUY, RECALL, TRIBUTE, CANCEL, LOCK, BUY_LOCK,
+	BREAK, // a basic attack on an enemy altar lock
+	TELEPORT, // start a teleport crystal's channel to a tile within 3
+	BUY_TP, // buy a teleport crystal
+	SELL // sell an item (Tavi, on spawn)
 };
 // Small on purpose: copying costs ~1 fuel per byte in the bot. The target unit is an entry of the
 // pass's cached unit lists (Ctx::unit_of: usrc + ui); ukind/uh identify it across passes.
@@ -214,6 +247,33 @@ public:
 	std::uint64_t pass_id = 0;
 
 	long long ops = 0; // own operations counted by F(n) (profiling and calibration)
+#ifdef GENOME_PROF
+	mutable long long extra_sum = 0; // simulator: fuel charged by extra() (GENOME_TURN_CALLS lines)
+#endif
+	// Simulator only: a gene whose bot code needs a shadow-stack frame (it inlines a primitive with an
+	// address-taken local: lang.FRAMED_PRIMS) pays the frame (~12 fuel) on every call. The framed
+	// primitives' prices already carry one frame, so a call is charged it only when it ran none of them
+	// (e.g. a score gene using me() only on MOVE options still pays the frame on every option).
+	double memo_hit = 0; // simulator: the next memoised gene hit's price, set at its call site (MH_)
+	bool frame_open = false;
+	mutable double frame_acc = 0; // frame fuel not yet charged
+	static constexpr double FRAME_FUEL = 12;
+	void frame_used() { frame_open = false; }
+	// Runs in ~FrameGuard, so it must not charge: a charge can suspend the coroutine, which may then be
+	// cancelled by an exception, and a destructor may not throw. The fuel waits in frame_acc for the next
+	// charge (extra(), F(), loops), which bills its whole part.
+	void frame_close(bool saved)
+	{
+		if (frame_open) frame_acc += FRAME_FUEL;
+		frame_open = saved;
+	}
+	[[gnu::always_inline]] std::int64_t frame_take() const
+	{
+		if (frame_acc < 1) [[likely]] return 0;
+		const double whole = std::floor(frame_acc);
+		frame_acc -= whole;
+		return static_cast<std::int64_t>(whole);
+	}
 	void* prof_top = nullptr; // GENOME_PROF: the innermost open gene scope
 #ifdef GENOME_PROF
 	int turn_calls_buf[256] = {};
@@ -224,19 +284,23 @@ public:
 	void extra(double fuel) const
 	{
 #ifndef GENOME_BOT
-		if (fuel > 0) api.compute(static_cast<std::int64_t>(fuel));
+		const std::int64_t f = (fuel > 0 ? static_cast<std::int64_t>(fuel) : 0) + frame_take();
+		if (f > 0) api.compute(f);
+#ifdef GENOME_PROF
+		extra_sum += f;
+#endif
 #endif
 	}
 	double chunks() const { return ((m.W + 7) / 8) * ((m.H + 7) / 8); }
 	[[gnu::always_inline]] void charge_ops(long n)
 	{
 		ops += n;
-		api.compute(n * GENOME_OP_FUEL);
+		api.compute(n * GENOME_OP_FUEL + frame_take());
 	}
 	void charge_loop(long n)
 	{
 		ops += n;
-		api.compute(n * GENOME_OP_FUEL + GENOME_LOOP_FUEL);
+		api.compute(n * GENOME_OP_FUEL + GENOME_LOOP_FUEL + frame_take());
 	}
 
 	void new_pass()
@@ -510,7 +574,7 @@ public:
 	{
 		auto b = std::make_shared<Bitboard>();
 		if (in_bounds(t)) cbs::draw_chebyshev(*b, m.W, m.H, t.v(), static_cast<float>(std::max(0.0, r)));
-		extra(122 + 1.03 * chunks());
+		extra(202 + 1.06 * chunks()); // ~80 more than first fitted: each new set's allocation (calib8, FUEL.md)
 		return { b };
 	}
 	Tile nearest(const Tiles& s, Tile t)
@@ -523,7 +587,7 @@ public:
 			const int d = cbs::chebyshev({ x, y }, t.v());
 			if (d < bd || (d == bd && (y < best.y || (y == best.y && x < best.x)))) bd = d, best = { x, y };
 		});
-		extra(46 + 52.0 * s.b->count(m.H));
+		extra(66 + 52.0 * s.b->count(m.H) + 2.0 * chunks()); // + chunks: the bot's unordered walk visits every chunk (score variants, FUEL.md)
 		return best;
 	}
 	double size(const Tiles& s)
@@ -532,9 +596,9 @@ public:
 		return s.b ? s.b->count(m.H) : 0;
 	}
 	bool contains(const Tiles& s, Tile t) { return extra(66), s.b && in_bounds(t) && s.b->test(t.v()); }
-	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(76 + 3.1 * chunks()), combine(a, b, 0); }
-	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(76 + 3.1 * chunks()), combine(a, b, 1); }
-	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(77 + 4.0 * chunks()), combine(a, b, 2); }
+	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(178 + 1.88 * chunks()), combine(a, b, 0); } // calib8, after combine() copy-constructs (no zeroing)
+	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(178 + 1.88 * chunks()), combine(a, b, 1); }
+	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(166 + 2.9 * chunks()), combine(a, b, 2); }
 	// Row-major, as the simulator iterates. In the bot the host lists tiles chunk row by chunk row
 	// ((chunk row, chunk col, y, x)); a stable counting sort on y alone restores row-major order in
 	// linear time (the host bitboard's own for_each uses an insertion sort, quadratic per chunk row).
@@ -624,11 +688,339 @@ public:
 #endif
 	}
 	Field empty_field() { return {}; }
+
+	// ---- guest pathfinding: plain C++ run as wasm in the bot, the same code in the simulator. Each counts
+	// its own work; the simulator charges the bot's measured fuel per unit of it (genome/FUEL.md).
+	struct GuestWork
+	{
+		long long tiles = 0, pops = 0, relax = 0, scans = 0;
+	};
+	GuestWork last_work;
+	std::unique_ptr<std::int32_t[]> gnext_, gprev_, gaux_;
+	std::unique_ptr<std::uint32_t[]> gstamp_;
+	std::unique_ptr<std::uint16_t[]> gcost_;
+	std::uint32_t gen_ = 0;
+	void guest_scratch()
+	{
+		if (gnext_) return;
+		const std::size_t n = static_cast<std::size_t>(m.W) * m.H;
+		extra(5.0 * n); // once per instance: the scratch arrays (the stamps zeroed)
+		gnext_.reset(new std::int32_t[n]), gprev_.reset(new std::int32_t[n]), gaux_.reset(new std::int32_t[n]);
+		gcost_.reset(new std::uint16_t[n]), gstamp_.reset(new std::uint32_t[n]());
+	}
+	// Weighted walking field to `goals`: stepping onto a tile costs 1, or 1 + k on a `slow` tile (k
+	// clamped to 0..8); `walls` cannot be entered (goal tiles can). Dijkstra over a bucket queue (Dial:
+	// 10 circular buckets of doubly linked tiles, no heap). Distances above 65534 read unreachable.
+	Field wfield(const Tiles& goals, const Tiles& walls, const Tiles& slow, double k)
+	{
+		PRIM_PROF_BEGIN;
+		Field f = wfield_(goals, walls, slow, k);
+		PRIM_PROF_END(1);
+		return f;
+	}
+	Field wfield_(const Tiles& goals, const Tiles& walls, const Tiles& slow, double k)
+	{
+		last_work = {};
+		if (!goals.b) return empty_field();
+		const int W = m.W, H = m.H, P = W + 2; // padded rows: a border of blocked tiles, no bounds tests
+		const int NP = P * (H + 2);
+		const int kk = static_cast<int>(std::clamp(std::floor(k), 0.0, 8.0));
+		if (!wf_cost_) wf_cost_.reset(new std::uint8_t[NP]), wf_next_.reset(new std::int32_t[NP]), wf_prev_.reset(new std::int32_t[NP]);
+		std::uint8_t* cost = wf_cost_.get();
+		std::int32_t *nx = wf_next_.get(), *pv = wf_prev_.get();
+		std::shared_ptr<std::uint16_t[]> dd(new std::uint16_t[NP]);
+		std::uint16_t* d = dd.get();
+		std::fill(d, d + NP, cbs::kUnreachable);
+		std::fill(cost, cost + P, 0), std::fill(cost + NP - P, cost + NP, 0);
+		const Bitboard* wb = walls.b.get();
+		const Bitboard* sb = slow.b.get();
+		std::int32_t head[10];
+		for (int& h : head) h = -1;
+		long long queued = 0;
+		GuestWork wk;
+		// the cost of stepping onto each tile (0: blocked), and the goals at distance 0
+		for (int y = 0; y < H; ++y)
+		{
+			std::uint8_t* row = cost + (y + 1) * P;
+			row[0] = row[P - 1] = 0;
+			for (int x = 0; x < W; ++x)
+			{
+				const int v = (y + 1) * P + x + 1;
+				row[x + 1] = wb && wb->test(x, y) ? 0 : static_cast<std::uint8_t>(1 + (sb && sb->test(x, y) ? kk : 0));
+				if (goals.b->test(x, y))
+				{
+					d[v] = 0, nx[v] = head[0], pv[v] = -1;
+					if (head[0] >= 0) pv[head[0]] = v;
+					head[0] = v, ++queued;
+				}
+			}
+		}
+		wk.tiles = static_cast<long long>(W) * H;
+		const int off[8] = { -P - 1, -P, -P + 1, -1, 1, P - 1, P, P + 1 };
+		for (int cur = 0, empty = 0; queued > 0;)
+		{
+			const int b = cur % 10;
+			int v = head[b];
+			if (v < 0)
+			{
+				++cur, ++wk.scans;
+				if (++empty > 10) break;
+				continue;
+			}
+			empty = 0;
+			head[b] = nx[v];
+			if (nx[v] >= 0) pv[nx[v]] = -1;
+			--queued, ++wk.pops;
+			const int dv = d[v];
+			for (int i = 0; i < 8; ++i)
+			{
+				const int u = v + off[i];
+				const int c = cost[u];
+				if (!c) continue;
+				++wk.relax;
+				const int nd = dv + c;
+				if (nd >= d[u] || nd > 65534) continue;
+				if (d[u] != cbs::kUnreachable)
+				{
+					const int ob = d[u] % 10;
+					if (pv[u] >= 0) nx[pv[u]] = nx[u];
+					else head[ob] = nx[u];
+					if (nx[u] >= 0) pv[nx[u]] = pv[u];
+				}
+				else ++queued;
+				const int nb = nd % 10;
+				d[u] = static_cast<std::uint16_t>(nd), nx[u] = head[nb], pv[u] = -1;
+				if (head[nb] >= 0) pv[head[nb]] = u;
+				head[nb] = u;
+			}
+		}
+		last_work = wk;
+		extra(WF_BASE + WF_TILE * wk.tiles + WF_POP * wk.pops + WF_RELAX * wk.relax + WF_SCAN * wk.scans);
+		Field f{ dd };
+		f.rm = true;
+		return f;
+	}
+	// Tiles strictly nearer (walking, 8 neighbours) to `mine` than to `theirs`, over tiles not in `walls`
+	// (sources allowed): two host distance fields and a compare loop in our code. (A two-colour search in
+	// our code would cost about a full wfield, ~4.5M fuel on 100 x 100.)
+	Tiles territory(const Tiles& mine, const Tiles& theirs, const Tiles& walls)
+	{
+		PRIM_PROF_BEGIN;
+		last_work = {};
+		auto out = std::make_shared<Bitboard>();
+		if (!mine.b || !mine.b->any(m.H)) return { out };
+		Bitboard b1, b2;
+		if (walls.b) b1 = *walls.b, b2 = *walls.b;
+		b1.andnot(*mine.b);
+		const Field f1 = run_field(b1, *mine.b, nullptr);
+		Field f2;
+		const bool rival = theirs.b && theirs.b->any(m.H);
+		if (rival) b2.andnot(*theirs.b), f2 = run_field(b2, *theirs.b, nullptr);
+		const std::uint16_t* d1 = f1.d.get();
+		const std::uint16_t* d2 = rival ? f2.d.get() : nullptr;
+#ifdef GENOME_BOT
+		// the host field and the bitboard share the chunk order inside a chunk (entry (y % 8) * 8 + x % 8 is
+		// bit (y % 8) * 8 + x % 8): chunk (cy, cx) is field block cy * width + cx, bitboard word cy * stride + cx
+		const int cw = static_cast<int>(cbs::hostbb::md.chunked_width), chh = static_cast<int>(cbs::hostbb::md.chunked_height);
+		for (int cy = 0; cy < chh; ++cy)
+			for (int cx = 0; cx < cw; ++cx)
+			{
+				std::uint64_t bits = 0;
+				const std::uint16_t* a = d1 + (cy * cw + cx) * 64;
+				if (d2)
+				{
+					const std::uint16_t* b = d2 + (cy * cw + cx) * 64;
+					for (int i = 0; i < 64; ++i) bits |= static_cast<std::uint64_t>(a[i] < b[i]) << i;
+				}
+				else
+					for (int i = 0; i < 64; ++i) bits |= static_cast<std::uint64_t>(a[i] != cbs::kUnreachable) << i;
+				out->w[cy * cbs::hostbb::stride + cx] = bits;
+			}
+#else
+		for (int y = 0; y < m.H; ++y)
+			for (int x = 0; x < m.W; ++x)
+			{
+				const double a = field_at_raw(f1, { x, y }), b = d2 ? field_at_raw(f2, { x, y }) : 1e9;
+				if (a < b) out->set(x, y);
+			}
+#endif
+		// tiles: field entries compared (chunks x 64), pops: 1 with a rival set (two fields, a compare per entry)
+		last_work.tiles = static_cast<long long>(((m.W + 7) / 8) * ((m.H + 7) / 8)) * 64, last_work.pops = rival ? 1 : 0;
+		extra(rival ? TR_BASE2 + TR_ENTRY2 * last_work.tiles : TR_BASE1 + TR_ENTRY1 * last_work.tiles);
+		PRIM_PROF_END(4);
+		return { out };
+	}
+	static constexpr double TR_BASE1 = 531, TR_ENTRY1 = 17.15, TR_BASE2 = 641, TR_ENTRY2 = 22.31; // fitted on cambc probes (FUEL.md)
+	std::unique_ptr<std::uint8_t[]> wf_cost_;
+	std::unique_ptr<std::int32_t[]> wf_next_, wf_prev_;
+	// fitted on cambc probes (genome/FUEL.md)
+	static constexpr double WF_BASE = 20194, WF_TILE = 85.7, WF_POP = 414.7, WF_RELAX = 0, WF_SCAN = 32.3;
+
+	// A* from `from` to `to` (8 neighbours, unit steps, Chebyshev heuristic), over tiles not in `walls`
+	// (`to` is always allowed), expanding at most `budget` tiles. The open set is a bucket queue on
+	// (f, h): f never drops and rises by at most 2 per step, so 4 levels of f, each with one doubly
+	// linked list per h; the lowest (f, h) goes first (ties: the tile reached last). A parent changes
+	// only on a strictly shorter path, neighbours scanned row-major. Returns the length (-1 if not found
+	// within the budget) and the first step.
+	int astar(Tile from, Tile to, const Tiles& walls, double budget, Tile* step)
+	{
+		last_work = {};
+		if (step) *step = {};
+		if (!in_bounds(from) || !in_bounds(to)) return -1;
+		if (from == to) return 0;
+		const int W = m.W, H = m.H, N = W * H, HM = std::max(W, H) + 1;
+		guest_scratch();
+		if (!as_head_) as_head_.reset(new std::int32_t[4 * HM]);
+		const long long cap = static_cast<long long>(std::clamp(std::floor(budget), 0.0, static_cast<double>(N)));
+		// stamps per search: 2 gen = open (g, par, list links valid), 2 gen + 1 = expanded; no per-call clearing
+		if (++gen_ >= 0x7FFFFFFFu) std::fill(gstamp_.get(), gstamp_.get() + N, 0u), gen_ = 1;
+		std::uint32_t* st = gstamp_.get();
+		const std::uint32_t OPEN = 2 * gen_, DONE = 2 * gen_ + 1;
+		std::uint16_t* g = gcost_.get();
+		std::int32_t *par = gaux_.get(), *nx = gnext_.get(), *pv = gprev_.get(), *head = as_head_.get();
+		std::fill(head, head + 4 * HM, -1);
+		int minh[4] = { HM, HM, HM, HM }; // per f level, a lower bound of the non-empty h lists
+		auto hcost = [&](int x, int y) { return std::max(std::abs(x - to.x), std::abs(y - to.y)); };
+		auto link = [&](int v, int f, int h) {
+			const int bi = (f & 3) * HM + h;
+			nx[v] = head[bi], pv[v] = -1;
+			if (head[bi] >= 0) pv[head[bi]] = v;
+			head[bi] = v;
+			if (h < minh[f & 3]) minh[f & 3] = h;
+		};
+		auto unlink = [&](int v, int f, int h) {
+			const int bi = (f & 3) * HM + h;
+			if (pv[v] >= 0) nx[pv[v]] = nx[v];
+			else head[bi] = nx[v];
+			if (nx[v] >= 0) pv[nx[v]] = pv[v];
+		};
+		const int s = from.y * W + from.x, t = to.y * W + to.x;
+		const int h0 = hcost(from.x, from.y);
+		st[s] = OPEN, g[s] = 0, par[s] = -1;
+		link(s, h0, h0);
+		long long open = 1;
+		GuestWork wk;
+		const Bitboard* wb = walls.b.get();
+		int found = -1;
+		for (int f = h0, idle = 0; open > 0 && wk.pops < cap;)
+		{
+			const int L = f & 3;
+			int h = minh[L];
+			while (h < HM && head[L * HM + h] < 0) ++h, ++wk.scans;
+			if (h >= HM)
+			{
+				minh[L] = HM, ++f, ++wk.scans;
+				if (++idle > 4) break;
+				continue;
+			}
+			idle = 0, minh[L] = h;
+			const int v = head[L * HM + h];
+			unlink(v, f, h), --open;
+			st[v] = DONE, ++wk.pops;
+			if (v == t)
+			{
+				found = g[v];
+				break;
+			}
+			const int vx = v % W, vy = v / W, ng = g[v] + 1;
+			for (int y = std::max(0, vy - 1); y <= std::min(H - 1, vy + 1); ++y)
+				for (int x = std::max(0, vx - 1); x <= std::min(W - 1, vx + 1); ++x)
+				{
+					const int u = y * W + x;
+					if (u == v || st[u] == DONE || (u != t && wb && wb->test(x, y))) continue;
+					++wk.relax;
+					const int hu = hcost(x, y);
+					if (st[u] == OPEN)
+					{
+						if (ng >= g[u]) continue;
+						unlink(u, g[u] + hu, hu);
+					}
+					else ++open;
+					st[u] = OPEN, g[u] = static_cast<std::uint16_t>(ng), par[u] = v;
+					link(u, ng + hu, hu);
+				}
+		}
+		if (found > 0 && step)
+		{
+			int v = t;
+			while (par[v] != s) v = par[v], ++wk.tiles; // tiles: steps walked back along the path
+			*step = { v % W, v / W };
+		}
+		last_work = wk;
+#ifdef GENOME_TRACE_ASTAR
+		{
+			std::uint64_t hw = 0;
+			if (wb)
+				for (int y = 0; y < H; ++y)
+					for (int x = 0; x < W; ++x)
+						if (wb->test(x, y)) hw = hw * 1000003u + static_cast<std::uint64_t>(y * W + x + 1);
+			std::fprintf(GENOME_TRACE_FILE, "@@AS r%d c%d from %d,%d to %d,%d walls %llx pops %lld relax %lld found %d step %d,%d\n", static_cast<int>(round()), api.champ(), from.x, from.y,
+						 to.x, to.y, static_cast<unsigned long long>(hw), wk.pops, wk.relax, found, step ? step->x : -9, step ? step->y : -9);
+		}
+#endif
+		extra(AS_BASE + AS_POP * wk.pops + AS_RELAX * wk.relax + AS_SCAN * wk.scans + AS_BACK * wk.tiles);
+		return found;
+	}
+	std::unique_ptr<std::int32_t[]> as_head_;
+	static constexpr double AS_BASE = 1427, AS_POP = 380.9, AS_RELAX = 134.1, AS_SCAN = 27.3, AS_BACK = 15.2;
+	Tile path_step(Tile from, Tile to, const Tiles& walls, double budget)
+	{
+		PRIM_PROF_BEGIN;
+		Tile s;
+		astar(from, to, walls, budget, &s);
+		PRIM_PROF_END(2);
+		return s;
+	}
+	double path_len(Tile from, Tile to, const Tiles& walls, double budget)
+	{
+		PRIM_PROF_BEGIN;
+		const int n = astar(from, to, walls, budget, nullptr);
+		PRIM_PROF_END(3);
+		return n < 0 ? 1e9 : n;
+	}
 	// Walking field to `goals` over tiles not in `walls` (goal tiles always allowed), through the
 	// memoised distance field the interpreter's move_towards uses (dests = my tile: the bot's memo
 	// answers it across turns while the goals stay and the walls do not affect my box). Readable only
 	// in my 3 x 3 box and up to my own distance (the part the bot fills and the simulator's search
 	// stopped at my tile reaches); elsewhere unreachable, identically in the bot and the simulator.
+	// Walking field to one `goal` tile over tiles not in `walls` (the goal always allowed), through the
+	// memoised distance field the interpreter's dash_towards uses (root = the goal, dests = my 5 x 5 box
+	// without the goal). The search stops at the first layer reaching the box, so only the box tiles at
+	// that distance (the box's nearest to the goal) read their distance; every other tile is unreachable,
+	// identically in the bot and the simulator. For choosing a dash landing.
+	Field dash_field(Tile goal, const Tiles& walls)
+	{
+		const Unit& u = me_u();
+		const Tile c = u.pos;
+		if (!in_bounds(goal) || !in_bounds(c) || !(u.state & cbs::state_bit::alive) || goal == c) return empty_field();
+		Bitboard blocked, root, box, visited;
+		if (walls.b) blocked = *walls.b;
+		blocked.reset(goal.v());
+		root.set(goal.v());
+		cbs::draw_chebyshev(box, m.W, m.H, c.v(), 2.0f);
+		box.reset(goal.v());
+		if (!box_buf_) box_buf_.reset(new std::uint16_t[static_cast<std::size_t>(m.W) * m.H]);
+		std::uint16_t* buf = box_buf_.get();
+		api.distance_field(blocked, root, &box, cbs::kUnreachable, buf, visited);
+		extra(DASH_FIELD_BASE + DASH_FIELD_CHUNK * chunks());
+		std::shared_ptr<std::uint16_t[]> d(new std::uint16_t[25]);
+		std::uint16_t lo = cbs::kUnreachable;
+		for (int dy = -2; dy <= 2; ++dy)
+			for (int dx = -2; dx <= 2; ++dx)
+			{
+				const Vec2 q{ c.x + dx, c.y + dy };
+				const bool in = m.in_bounds(q) && !blocked.test(q) && !(q.x == goal.x && q.y == goal.y);
+				const std::uint16_t v = in ? buf[m.idx(q)] : cbs::kUnreachable;
+				d[(dy + 2) * 5 + dx + 2] = v;
+				if (v < lo) lo = v;
+			}
+		for (int i = 0; i < 25; ++i)
+			if (d[i] != lo) d[i] = cbs::kUnreachable;
+		Field f{ d };
+		f.bx = c.x, f.by = c.y, f.br = 2;
+		return f;
+	}
+	static constexpr double DASH_FIELD_BASE = 1206, DASH_FIELD_CHUNK = 8.5; // the wrapper beyond the Api's memo price (cambc probes)
 	Field box_field(const Tiles& goals, const Tiles& walls)
 	{
 		const Unit& u = me_u();
@@ -678,12 +1070,21 @@ public:
 	double field_at(const Field& f, Tile t) const
 	{
 		extra(70); // the read costs ~70 in the bot (bounds, chunked index; measured per scored option)
+		return field_at_raw(f, t);
+	}
+	double field_at_raw(const Field& f, Tile t) const
+	{
 		if (!f.d || !in_bounds(t)) return 1e9;
+		if (f.rm)
+		{
+			const std::uint16_t v = f.d[(t.y + 1) * (m.W + 2) + t.x + 1]; // padded row-major (wfield)
+			return v == cbs::kUnreachable ? 1e9 : v;
+		}
 		if (f.bx >= 0)
 		{
-			const int dx = t.x - f.bx, dy = t.y - f.by;
-			if (dx < -1 || dx > 1 || dy < -1 || dy > 1) return 1e9;
-			const std::uint16_t v = f.d[(dy + 1) * 3 + dx + 1];
+			const int dx = t.x - f.bx, dy = t.y - f.by, r = f.br;
+			if (dx < -r || dx > r || dy < -r || dy > r) return 1e9;
+			const std::uint16_t v = f.d[(dy + r) * (2 * r + 1) + dx + r];
 			return v == cbs::kUnreachable ? 1e9 : v;
 		}
 #ifdef GENOME_BOT
@@ -694,6 +1095,389 @@ public:
 #endif
 		return v == cbs::kUnreachable ? 1e9 : v;
 	}
+
+	// ---- fights: exact single-hit damage from the game's formulas and the units' host data (items' emblem
+	// passives, shields), as the engine applies it (float, in its order). Per pass, per champion: one items
+	// read and one buffs read.
+	struct FightData
+	{
+		std::uint64_t pass = 0;
+		std::uint32_t passives = 0;
+		float shield = 0;
+	};
+	FightData fight_[32];
+	const FightData& fight_data(const Unit& u)
+	{
+		static const FightData none{};
+		if (u.kind != 1 || u.h >= 32) return none;
+		FightData& f = fight_[u.h];
+		if (f.pass != pass_id)
+		{
+			f = FightData{};
+			f.pass = pass_id;
+			std::uint32_t items[cbs::kNumItems] = {};
+			if (api.champion_items(u.h, items) == Err::success)
+				for (int i = 0; i < cbs::kNumItems; ++i)
+					if (items[i] && cbs::item_design(i).passive != cbs::ItemPassive::none) f.passives |= 1u << static_cast<int>(cbs::item_design(i).passive);
+			cbs::BuffRecord b[8];
+			std::uint32_t n = 0;
+			if (api.champion_buff_data(u.h, b, 8, &n) == Err::success)
+				for (std::uint32_t i = 0; i < n && i < 8; ++i)
+					if (b[i].type == 0) f.shield += b[i].value; // BuffType::shield
+			extra(FD_FUEL);
+			++fd_fetches_;
+		}
+		return f;
+	}
+	long long fd_fetches_ = 0;
+	static bool has_ip(const FightData& f, cbs::ItemPassive p) { return f.passives >> static_cast<int>(p) & 1; }
+	// Game::apply_outgoing: the missing-health passive, then the monster emblem against camps
+	float outgoing(const Unit& a, float amount, bool vs_camp)
+	{
+		if (a.kind != 1 || a.type < 0) return amount;
+		if (cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).passive == cbs::Passive::missing_health_damage)
+			amount *= 1.0f + 0.5f * (1.0f - a.health / a.max_health);
+		if (vs_camp && has_ip(fight_data(a), cbs::ItemPassive::monster)) amount *= 1.1f;
+		return amount;
+	}
+	// Game::damage_champion's reductions before shields: durability, then jungle against camps
+	float incoming(const Unit& b, float amount, bool from_camp)
+	{
+		const FightData& f = fight_data(b);
+		if (has_ip(f, cbs::ItemPassive::durability)) amount *= 0.9f;
+		if (from_camp && has_ip(f, cbs::ItemPassive::jungle)) amount *= 0.7f;
+		return amount;
+	}
+	// what one basic attack of a takes off b (before b's shields); 0 if a cannot hurt b that way
+	double attack_damage(const Unit& a, const Unit& b)
+	{
+		PRIM_PROF_BEGIN;
+		last_work = {};
+		const long long f0 = fd_fetches_;
+		extra(AD_FUEL);
+		const double r = attack_damage_(a, b);
+		last_work.relax = fd_fetches_ - f0, last_work.tiles = b.kind;
+		PRIM_PROF_END(5);
+		return r;
+	}
+	double attack_damage_(const Unit& a, const Unit& b)
+	{
+		if (!a.valid() || !b.valid() || a.kind == b.kind && a.kind == 2) return 0;
+		if (a.kind == 2) return incoming(b, a.strength, true); // a camp's attack on a champion
+		if (b.kind == 2) return outgoing(a, a.strength, true) * cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).camp_damage_multiplier;
+		return incoming(b, outgoing(a, a.strength, false), false);
+	}
+	// what a's ability in `slot` takes off b (damage, stun and area damage abilities; 0 otherwise)
+	double cast_damage(const Unit& a, double slot, const Unit& b)
+	{
+		extra(CD_FUEL);
+		if (a.kind != 1 || !b.valid() || slot < 0 || slot > 1) return 0;
+		const auto& ab = cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).abilities[static_cast<int>(slot)];
+		if (ab.kind != cbs::AbilityKind::damage && ab.kind != cbs::AbilityKind::cc && ab.kind != cbs::AbilityKind::aoe_damage) return 0;
+		const float amount = outgoing(a, ab.modifier * a.focus, b.kind == 2);
+		return b.kind == 2 ? amount : incoming(b, amount, false);
+	}
+	double shield(const Unit& u) { return extra(SH_FUEL), fight_data(u).shield; }
+	// fitted on cambc probes (FUEL.md): FD a champion's items and buffs read once per pass; the rest per call
+	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60;
+
+	// ---- raw unit reads (SDK coverage): the host's data as the SDK reports it, no judgement. Unit handles
+	// index per-pass caches; a unit out of vision reads as 0.
+	struct UnitRaw // the arrays are filled when their stamp is stale, so they need no initialisation
+	{
+		std::uint64_t items_pass = 0, buffs_pass = 0, camp_pass = 0;
+		std::uint32_t items[cbs::kNumItems];
+		cbs::BuffRecord buffs[8];
+		std::uint32_t nbuffs;
+		std::int32_t camp_cd[2];
+	};
+	UnitRaw raw_ch_[cbs::kMaxChampions];
+	UnitRaw raw_camp_[8]; // direct-mapped on the camp handle (no heap: a first use costs nothing extra)
+	std::uint32_t raw_camp_h_[8] = { ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u };
+	UnitRaw* raw_of(const Unit& u)
+	{
+		if (u.kind == 1 && u.h < cbs::kMaxChampions) return &raw_ch_[u.h];
+		if (u.kind != 2) return nullptr;
+		const int i = static_cast<int>(u.h & 7);
+		if (raw_camp_h_[i] != u.h) raw_camp_h_[i] = u.h, raw_camp_[i].items_pass = raw_camp_[i].buffs_pass = raw_camp_[i].camp_pass = 0;
+		return &raw_camp_[i];
+	}
+	// cooldown left on slot s (0 ready): a champion's ability, a camp's attack (0) / ability (1)
+	double cooldown(const Unit& u, double s)
+	{
+		const int i = static_cast<int>(s);
+		if (i < 0 || i > 1) return 0;
+		if (u.kind == 1)
+		{
+			std::int32_t cd = 0;
+			api.champion_cooldown(u.h, static_cast<std::uint32_t>(i), &cd);
+			extra(RW_CD);
+			return cd;
+		}
+		UnitRaw* r = raw_of(u);
+		if (!r) return 0;
+		if (r->camp_pass != pass_id)
+		{
+			r->camp_pass = pass_id;
+			cbs::CampRecord c{};
+			r->camp_cd[0] = r->camp_cd[1] = 0;
+			if (api.camp(u.h, &c) == Err::success) r->camp_cd[0] = c.cooldowns[0], r->camp_cd[1] = c.cooldowns[1];
+			extra(RW_CAMP_FETCH);
+		}
+		else extra(RW_CAMP_HIT);
+		return r->camp_cd[i];
+	}
+	// a champion's ability design on slot s (any champion; the same table as slot_*)
+	const cbs::AbilityProps& uprops(const Unit& u, double s)
+	{
+		static thread_local cbs::AbilityProps none{};
+		const int i = static_cast<int>(s);
+		if (u.kind != 1 || u.h >= 32 || i < 0 || i > 1) return none;
+		const int k = static_cast<int>(u.h) * 2 + i;
+		if (uprops_pass_[k] != pass_id)
+		{
+			uprops_[k] = {};
+			api.champion_ability_props(u.h, static_cast<std::uint32_t>(i), &uprops_[k]);
+			uprops_pass_[k] = pass_id;
+			extra(RW_AB_FETCH);
+		}
+		else extra(RW_AB_HIT);
+		return uprops_[k];
+	}
+	cbs::AbilityProps uprops_[64] = {};
+	std::uint64_t uprops_pass_[64] = {};
+	double ability(const Unit& u, double s, int which)
+	{
+		const cbs::AbilityProps& p = uprops(u, s);
+		switch (which)
+		{
+		case 0: return p.kind;
+		case 1: return p.cooldown;
+		case 2: return p.range;
+		case 3: return p.radius;
+		case 4: return p.targets;
+		case 5: return p.modifier;
+		case 6: return p.duration;
+		default: return p.attributes & 1u;
+		}
+	}
+	// copies of item i a visible champion owns
+	double item_count(const Unit& u, double i)
+	{
+		UnitRaw* r = u.kind == 1 ? raw_of(u) : nullptr;
+		if (!r || !item_ok(i)) return 0;
+		if (r->items_pass != pass_id)
+		{
+			r->items_pass = pass_id;
+			std::fill(std::begin(r->items), std::end(r->items), 0u);
+			api.champion_items(u.h, r->items);
+			extra(RW_IT_FETCH);
+		}
+		else extra(RW_IT_HIT);
+		return r->items[static_cast<int>(i)];
+	}
+	double unit_gold(const Unit& u)
+	{
+		if (u.kind != 1) return 0;
+		std::uint32_t g = 0;
+		api.champion_gold(u.h, &g);
+		extra(RW_GOLD);
+		return g;
+	}
+	// buffs of type t (0 shield, 1 stun, 2 enhanced attack) on a visible unit: their summed value (shields; the
+	// number of buffs for other types), their longest duration left
+	const UnitRaw* ubuffs(const Unit& u)
+	{
+		UnitRaw* r = raw_of(u);
+		if (!r) return nullptr;
+		if (r->buffs_pass != pass_id)
+		{
+			r->buffs_pass = pass_id;
+			r->nbuffs = 0;
+			if (u.kind == 1)
+			{
+				if (api.champion_buff_data(u.h, r->buffs, 8, &r->nbuffs) != Err::success) r->nbuffs = 0;
+			}
+			else
+			{
+				cbs::CampBuffRecord cb[8];
+				std::uint32_t n = 0;
+				if (api.camp_buffs(u.h, cb, 8, &n) == Err::success)
+					for (std::uint32_t i = 0; i < n && i < 8; ++i) r->buffs[r->nbuffs++] = { cb[i].type, cb[i].timer, cb[i].magnitude };
+			}
+			r->nbuffs = std::min<std::uint32_t>(r->nbuffs, 8);
+			extra(u.kind == 1 ? RW_BF_FETCH : RW_BF_CAMP_FETCH);
+		}
+		else extra(RW_BF_HIT);
+		return r;
+	}
+	double buff_value(const Unit& u, double t)
+	{
+		const UnitRaw* r = ubuffs(u);
+		double v = 0;
+		if (r)
+			for (std::uint32_t i = 0; i < r->nbuffs; ++i)
+				if (r->buffs[i].type == static_cast<std::uint32_t>(t)) v += t == 0 ? r->buffs[i].value : 1; // the SDK has a value for shields only
+		return v;
+	}
+	double buff_turns(const Unit& u, double t)
+	{
+		const UnitRaw* r = ubuffs(u);
+		double v = 0;
+		if (r)
+			for (std::uint32_t i = 0; i < r->nbuffs; ++i)
+				if (r->buffs[i].type == static_cast<std::uint32_t>(t)) v = std::max<double>(v, r->buffs[i].duration);
+		return v;
+	}
+	// turns left on a visible champion's channel (recall, gem submission, teleport); 0 if none
+	double channel_left(const Unit& u)
+	{
+		if (u.kind != 1) return 0;
+		std::int32_t t = 0;
+		if (api.champion_channel_time(u.h, &t) != Err::success) t = 0;
+		extra(RW_CH);
+		return t;
+	}
+	// turns until camp group g respawns (0 if it is not respawning)
+	double group_cooldown(double g)
+	{
+		if (!group_ok(g)) return 0;
+		std::int32_t t = 0;
+		if (api.camp_group_cooldown(static_cast<std::uint32_t>(g), &t) != Err::success) t = 0;
+		extra(RW_GCD);
+		return t;
+	}
+	// a visible altar lock on tile p: hits left to break it (0 none); whether it is the enemy's
+	const cbs::AltarLockRecord* lock_at(Tile p)
+	{
+		if (locks_pass_ != pass_id)
+		{
+			locks_pass_ = pass_id;
+			nlocks_ = 0;
+			api.altar_locks(locks_, 16, &nlocks_);
+			nlocks_ = std::min<std::uint32_t>(nlocks_, 16);
+			extra(RW_LK_FETCH);
+		}
+		else extra(RW_LK_HIT);
+		for (std::uint32_t i = 0; i < nlocks_; ++i)
+			if (locks_[i].x == p.x && locks_[i].y == p.y) return &locks_[i];
+		return nullptr;
+	}
+	cbs::AltarLockRecord locks_[16] = {};
+	std::uint32_t nlocks_ = 0;
+	std::uint64_t locks_pass_ = 0;
+	double lock_hits(Tile p)
+	{
+		const cbs::AltarLockRecord* l = lock_at(p);
+		return l ? l->hits_remaining : 0;
+	}
+	bool lock_enemy(Tile p)
+	{
+		const cbs::AltarLockRecord* l = lock_at(p);
+		return l && static_cast<int>(l->team) != api.team();
+	}
+	// visible wards (any team's): ally / enemy ward tiles, built once per pass
+	void load_wards()
+	{
+		if (wards_pass_ == pass_id)
+		{
+			extra(RW_WD_HIT);
+			return;
+		}
+		wards_pass_ = pass_id;
+		auto a = std::make_shared<Bitboard>(), e = std::make_shared<Bitboard>();
+		cbs::WardRecord w[32];
+		std::uint32_t n = 0;
+		api.wards(w, 32, &n);
+		for (std::uint32_t i = 0; i < n && i < 32; ++i) (static_cast<int>(w[i].team) == api.team() ? *a : *e).set(w[i].x, w[i].y);
+		ally_wards_ = { a }, enemy_wards_ = { e };
+		extra(RW_WD_FETCH);
+	}
+	std::uint64_t wards_pass_ = 0;
+	Tiles ally_wards_, enemy_wards_;
+	Tiles ally_wards() { return load_wards(), ally_wards_; }
+	Tiles enemy_wards() { return load_wards(), enemy_wards_; }
+	// my ward resources: charges ready, turns until the next charge; my placed ward (invalid if none)
+	double ward_res(bool cooldown)
+	{
+		cbs::WardResources r{};
+		api.champion_wards(self(), &r);
+		extra(RW_WR);
+		return cooldown ? r.cooldown : r.charges;
+	}
+	Tile my_ward()
+	{
+		Vec2 p[4];
+		std::uint32_t n = 0;
+		api.champion_ward_positions(self(), p, 4, &n);
+		extra(RW_WP);
+		return n ? Tile{ p[0].x, p[0].y } : Tile{};
+	}
+	// what a ward at t would see / a champion of type k standing at t would see
+	Tiles ward_sight(Tile t)
+	{
+		if (!in_bounds(t)) return { std::make_shared<Bitboard>() };
+		return extra(RW_WSIGHT), sdk_mask([&](Bitboard& b) { api.ward_vision(t.v(), b); });
+	}
+	Tiles sight(double k, Tile t)
+	{
+		if (!in_bounds(t) || k < 0 || k >= cbs::kNumChampionTypes) return { std::make_shared<Bitboard>() };
+		return extra(RW_SIGHT), sdk_mask([&](Bitboard& b) { api.hypothetical_vision(static_cast<std::int32_t>(k), t.v(), b); });
+	}
+	// a teleport in flight (visible destination): of champion u, its destination and turns left
+	const cbs::TeleportRecord* teleport_of(const Unit& u)
+	{
+		if (u.kind != 1) return nullptr;
+		if (tps_pass_ != pass_id)
+		{
+			tps_pass_ = pass_id;
+			ntps_ = 0;
+			api.teleports(tps_, 12, &ntps_);
+			ntps_ = std::min<std::uint32_t>(ntps_, 12);
+			extra(RW_TP_FETCH);
+		}
+		else extra(RW_TP_HIT);
+		for (std::uint32_t i = 0; i < ntps_; ++i)
+			if (tps_[i].champion == u.h) return &tps_[i];
+		return nullptr;
+	}
+	cbs::TeleportRecord tps_[12];
+	std::uint32_t ntps_ = 0;
+	std::uint64_t tps_pass_ = 0;
+	Tile teleport_dest(const Unit& u)
+	{
+		const cbs::TeleportRecord* t = teleport_of(u);
+		return t ? Tile{ t->dx, t->dy } : Tile{};
+	}
+	double teleport_left(const Unit& u)
+	{
+		const cbs::TeleportRecord* t = teleport_of(u);
+		return t ? t->timer : 0;
+	}
+	// a visible champion's turn priority this round; whether I may sell now
+	double priority(const Unit& u)
+	{
+		if (u.kind != 1) return 0;
+		std::int32_t p = 0;
+		if (api.champion_priority(u.h, false, &p) != Err::success) p = 0;
+		extra(RW_PRI);
+		return p;
+	}
+	bool can_sell()
+	{
+		std::int32_t v = 0;
+		api.champion_can_sell(self(), &v);
+		extra(RW_SELL);
+		return v != 0;
+	}
+	// fitted on cambc probes (calib5, FUEL.md), beyond the Api's price of the call: a call, a record's fetch
+	// (once per unit per pass), a cached read
+	static constexpr double RW_CD = 40, RW_GOLD = 21, RW_CH = 17, RW_GCD = 47, RW_CAMP_FETCH = 94, RW_CAMP_HIT = 63, RW_AB_FETCH = 73,
+							RW_AB_HIT = 45, RW_IT_FETCH = 206, RW_IT_HIT = 31, RW_BF_FETCH = 99, RW_BF_CAMP_FETCH = 90, RW_BF_HIT = 55,
+							RW_LK_FETCH = 38, RW_LK_HIT = 22;
+	// batch 2 (calib6)
+	static constexpr double RW_WD_FETCH = 1005, RW_WD_HIT = 61, RW_WR = 56, RW_WP = 53, RW_WSIGHT = 384, RW_SIGHT = 423, RW_TP_FETCH = 30,
+							RW_TP_HIT = 20, RW_PRI = 18, RW_SELL = 26;
 
 	// ---- abilities
 	const cbs::AbilityProps& props(int s)
@@ -708,7 +1492,7 @@ public:
 		}
 		return props_[s];
 	}
-	double slot_kind(double s) { return extra(90), props(static_cast<int>(s)).kind; }
+	double slot_kind(double s) { return extra(44), props(static_cast<int>(s)).kind; } // a cached read in the bot (score variants, FUEL.md)
 	bool slot_ready(double s)
 	{
 		const int i = static_cast<int>(s);
@@ -718,7 +1502,7 @@ public:
 		extra(90);
 		return cd <= 0;
 	}
-	double slot_range(double s) { return extra(90), props(static_cast<int>(s)).range; }
+	double slot_range(double s) { return extra(44), props(static_cast<int>(s)).range; }
 	double slot_radius(double s) { return props(static_cast<int>(s)).radius; }
 	double slot_targets(double s) { return props(static_cast<int>(s)).targets; }
 	bool slot_moveless(double s) { return props(static_cast<int>(s)).attributes & 1u; }
@@ -780,6 +1564,7 @@ public:
 	// the target unit of an option of this pass (an entry of the pass's cached unit lists)
 	const Unit& unit_of(const Option& o) const
 	{
+		extra(20); // o.unit in a gene: ~20 in the bot (score variants)
 		static const Unit none{};
 		const Units* us = o.usrc == 1 ? &enemies_ : o.usrc == 2 ? &camps_ : o.usrc == 3 ? &allies_ : nullptr;
 		if (o.usrc == 4) return me_;
@@ -882,7 +1667,28 @@ public:
 						extra(55);
 					}
 				}
-			if (want(BUY_LOCK) && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock()) out.add(BUY_LOCK);
+			// consumables only on spawn or while dead (items may be bought elsewhere by Tavi)
+			const bool cons_shop = !(st & cbs::state_bit::alive) || (row_classes(self_u.pos.y)[self_u.pos.x] & kMySpawn);
+			if (want(BUY_LOCK) && cons_shop && g >= cbs::consumable_design(cbs::consumable::altar_lock).cost && !has_lock()) out.add(BUY_LOCK);
+			if (want(BUY_TP) && cons_shop)
+			{
+				load_cons();
+				extra(TP_BUY_CHECK);
+				const auto& d = cbs::consumable_design(cbs::consumable::tp_crystal);
+				if (g >= d.cost && cons_[cbs::consumable::tp_crystal] < static_cast<std::uint32_t>(d.carry_limit)) out.add(BUY_TP);
+			}
+		}
+		if (want(SELL) && self_u.type == static_cast<int>(cbs::ChampionType::tavi) && (st & cbs::state_bit::alive) && !acted_[SELL]) // one sale per turn
+		{
+			std::int32_t ok = 0;
+			api.champion_can_sell(self(), &ok);
+			extra(SELL_CHECK);
+			if (ok)
+			{
+				load_items();
+				for (int i = 0; i < cbs::kNumItems; ++i)
+					if (items_[i] > 0) out.add(SELL).item = static_cast<std::int8_t>(i), extra(SELL_OPTION);
+			}
 		}
 		LMARK(1);
 		if (!alive_now) return extra(250); // a dead champion's turn costs ~250 more in the bot (starter games)
@@ -912,6 +1718,8 @@ public:
 			add_units(out, ATTACK, -1, enemies(), 1, self_u.attack_range, p);
 			add_units(out, ATTACK, -1, camps(), 2, self_u.attack_range, p);
 		}
+		if ((st & cbs::state_bit::can_attack) && want(BREAK)) break_options(out, self_u.attack_range, p);
+		if (want(TELEPORT) && (st & (cbs::state_bit::can_move | cbs::state_bit::can_attack | cbs::state_bit::can_cast))) teleport_options(out, p);
 		LMARK(3);
 		if ((st & cbs::state_bit::can_cast) && want(CAST))
 			for (int s = 0; s < 2; ++s)
@@ -966,6 +1774,48 @@ public:
 		}
 		LMARK(7);
 	}
+	// A teleport crystal's landing tiles: within Chebyshev 3, not p, landable as a move (no wall, hole, altar,
+	// enemy spawn or known occupant; an unseen occupant makes the engine return false, as for moves).
+	void teleport_options(OptionList& out, Tile p)
+	{
+		load_cons();
+		extra(TP_CHECK);
+		if (cons_[cbs::consumable::tp_crystal] == 0) return;
+		const int r = 3, n0 = out.n;
+		for (int y = std::max(0, p.y - r), y1 = std::min(m.H - 1, p.y + r); y <= y1; ++y)
+		{
+			const std::uint8_t* row = row_classes(y);
+			for (int x = std::max(0, p.x - r), x1 = std::min(m.W - 1, p.x + r); x <= x1; ++x)
+			{
+				if ((x == p.x && y == p.y) || (row[x] & (kWall | kHole | kAltar | kEnemySpawn)) || occupied(x, y)) continue;
+				out.add(TELEPORT).tile = { x, y };
+			}
+		}
+		extra(TP_SCAN + TP_OPTION * (out.n - n0));
+	}
+	// consumables check, the 7 x 7 scan, per option (genome pairs that differ only in consider(TELEPORT), FUEL.md); buy check; sell check, per option
+	static constexpr double TP_CHECK = 20, TP_SCAN = 600, TP_OPTION = 60, TP_BUY_CHECK = 20, SELL_CHECK = 40, SELL_OPTION = 40;
+	// A basic attack on each visible enemy altar lock within attack range (5 clear it; a tribute there hits it
+	// too). The engine's lock list is read only when an altar is in range (locks sit on altars).
+	void break_options(OptionList& out, int range, Tile p)
+	{
+		extra(BR_BASE + BR_ALTAR * m.altar_list.size());
+		bool near = false;
+		for (Vec2 a : m.altar_list) near |= cbs::chebyshev(a, p.v()) <= range;
+		if (!near) return;
+		lock_at(Tile{}); // fetch this pass's lock list (priced there)
+		for (std::uint32_t i = 0; i < nlocks_; ++i)
+		{
+			const cbs::AltarLockRecord& l = locks_[i];
+			if (static_cast<int>(l.team) == api.team() || cbs::chebyshev({ l.x, l.y }, p.v()) > range) continue;
+			Option& o = out.add(BREAK);
+			o.tile = { l.x, l.y }, o.uh = l.handle;
+			extra(BR_OPTION);
+		}
+	}
+	// the altar scan and per altar (consider() variants listing only BREAK, 01broken-curve and 00lanes; FUEL.md),
+	// per option listed (as an ATTACK option); the lock list's fetch is lock_at's
+	static constexpr double BR_BASE = 83, BR_ALTAR = 16, BR_OPTION = 97;
 	// The tiles within Chebyshev r of p that are not walls (row-major; ground casts skip p itself).
 	void tile_options(OptionList& out, int kind, int slot, Tile p, int r, bool skip_self)
 	{
@@ -997,6 +1847,41 @@ public:
 	// Do one option; false if the engine refused it (it is then skipped for the rest of the turn).
 	bool execute(const Option& o)
 	{
+#ifndef GENOME_BOT
+		// GENOME_CHECK_FIGHT=1 (simulator): every attack / damage cast checks the predicted damage against the
+		// target's actual health and shield loss (@@FC lines on stderr)
+		static const bool check = std::getenv("GENOME_CHECK_FIGHT") != nullptr;
+		if (check && (o.kind == ATTACK || o.kind == CAST) && o.ukind != 0)
+		{
+			const Unit tgt = unit_of(o), self = me_u();
+			const double pred = o.kind == ATTACK ? attack_damage(self, tgt) : cast_damage(self, o.slot, tgt);
+			auto pool = [&]() -> double {
+				const auto& g = api.game();
+				if (o.ukind == 1)
+				{
+					const auto& c = g.champs[o.uh];
+					double sh = 0;
+					for (int i = 0; i < c.buffs.n; ++i)
+						if (c.buffs.b[i].type == cbs::BuffType::shield) sh += c.buffs.b[i].value;
+					return c.alive ? c.hp + sh : 0;
+				}
+				return g.camps[o.uh].life == cbs::CampLife::dead ? 0 : g.camps[o.uh].hp;
+			};
+			const double before = pool();
+			const bool r = execute_(o);
+			const double after = pool();
+			const bool splash = cbs::champion_design(static_cast<cbs::ChampionType>(self.type)).passive == cbs::Passive::splash_attack;
+			if (r && after > 0 && !splash && o.ukind == 1 && !(cbs::champion_design(static_cast<cbs::ChampionType>(tgt.type)).passive == cbs::Passive::retaliation))
+				std::fprintf(stderr, "@@FC kind %d pred %.4f actual %.4f %s\n", o.kind, pred, before - after, std::fabs(pred - (before - after)) < 1e-3 ? "ok" : "BAD");
+			else if (r && after > 0 && o.ukind == 2)
+				std::fprintf(stderr, "@@FC kind %d camp pred %.4f actual %.4f %s\n", o.kind, pred, before - after, std::fabs(pred - (before - after)) < 1e-3 ? "ok" : "BAD");
+			return r;
+		}
+#endif
+		return execute_(o);
+	}
+	bool execute_(const Option& o)
+	{
 		std::int32_t ok = 0;
 		Err e = Err::invalid_action;
 		switch (o.kind)
@@ -1019,6 +1904,10 @@ public:
 		case TRIBUTE: e = api.submit_gems(o.tile.v()), ok = 1; break;
 		case CANCEL: e = api.cancel_channel(), ok = 1; break;
 		case LOCK: e = api.use_consumable(cbs::consumable::altar_lock, o.tile.v(), &ok); break;
+		case BREAK: e = api.attack(static_cast<std::uint32_t>(cbs::EntityKind::altar_lock), o.uh), ok = 1; break;
+		case TELEPORT: e = api.use_consumable(cbs::consumable::tp_crystal, o.tile.v(), &ok); break;
+		case BUY_TP: e = api.buy_consumable(cbs::consumable::tp_crystal), ok = 1; break;
+		case SELL: e = api.sell(static_cast<std::uint32_t>(o.item)), ok = 1; break;
 		default: break;
 		}
 		return e == Err::success && ok;
@@ -1183,8 +2072,7 @@ private:
 	}
 	Tiles combine(const Tiles& a, const Tiles& b, int op)
 	{
-		auto r = std::make_shared<Bitboard>();
-		if (a.b) *r = *a.b;
+		auto r = a.b ? std::make_shared<Bitboard>(*a.b) : std::make_shared<Bitboard>();
 		if (op == 0 && b.b) *r |= *b.b;
 		if (op == 1)
 		{
@@ -1195,6 +2083,25 @@ private:
 		return { r };
 	}
 };
+
+// FRAME_GUARD at the top of a framed gene, FU_ before each framed primitive, MH_(p) before a memoised gene's call
+// (simulator only; nothing in the bot)
+struct FrameGuard
+{
+	Ctx& X;
+	bool saved;
+	explicit FrameGuard(Ctx& x) : X(x), saved(x.frame_open) { X.frame_open = true; }
+	~FrameGuard() { X.frame_close(saved); }
+};
+#ifdef GENOME_BOT
+#define MH_(p) ((void)0)
+#define FRAME_GUARD ((void)0)
+#define FU_ ((void)0)
+#else
+#define MH_(p) (X.memo_hit = (p))
+#define FRAME_GUARD FrameGuard frame_guard_(X)
+#define FU_ X.frame_used()
+#endif
 
 // Generated genes derive from this.
 struct GenesBase : KindFilter
@@ -1235,6 +2142,9 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	std::int64_t f_opt = 0, f_score = 0, f_exec = 0, t0 = X.api.fuel_remaining(), tp, start = t0;
 	const long long ops0 = X.ops;
 	int npass = 0, nopts = 0;
+#ifdef GENOME_PROF
+	const long long extra0 = X.extra_sum;
+#endif
 #define PROF_MARK(acc) (tp = X.api.fuel_remaining(), acc += t0 - tp, t0 = tp)
 #else
 #define PROF_MARK(acc) ((void)0)
@@ -1265,6 +2175,9 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	if (t1) t1_mark(X.api.fuel_remaining()); // play_turn start
 	// GENOME_TURN_CALLS=1 (simulator): team 0's calls per gene and options listed, every play turn (@@TC lines)
 	static const bool turn_calls = std::getenv("GENOME_TURN_CALLS") != nullptr;
+#if defined(GENOME_BOT) && defined(GENOME_TURN_ORDER)
+	if (!draft) std::printf("@@O %d\n", X.api.champ()), std::fflush(stdout); // which instance each fuel-file turn is (calibration)
+#endif
 	if (turn_calls && !draft) std::fill(std::begin(X.turn_calls_buf), std::end(X.turn_calls_buf), 0), GeneScope::turn_calls = X.turn_calls_buf;
 #endif
 	X.new_pass();
@@ -1279,7 +2192,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	{
 		// the pass guard: a later pass starts only with at least reserve() fuel left
 		if (pass > 0 && !draft && static_cast<double>(X.api.fuel_remaining()) < reserve) break;
-		if (!draft) X.extra(pass == 0 ? 575 : 1074); // a pass's own work in the bot (fitted per turn: seed and v23, identical games)
+		if (!draft) X.extra(pass == 0 ? 700 : 800); // a turn's fixed work in the bot: an empty turn (consider() lists nothing) costs ~1.13k; a later pass ~0.8k (fitted with the typed memo-hit prices on real head-to-heads; FUEL.md)
 		X.new_pass();
 #ifdef GENOME_PROF
 		std::int64_t f_upd = 0;
@@ -1298,7 +2211,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 			bool skip = false;
 			for (const Option& f : failed) skip |= same(o, f);
 			if (skip) continue;
-			X.extra(30); // the loop's own work per option scored in the bot (call, compare), beyond the gene's operations
+			X.extra(37); // the loop's own work per option scored in the bot (call, compare), beyond the gene's operations (idle genome, FUEL.md)
 			const double s = g.score_option(o);
 			if (!best || s > bs) best = &o, bs = s;
 		}
@@ -1331,7 +2244,13 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 		for (const auto& gs : gene_stats)
 			if (gs.name) std::printf("@@GENE r%d %s calls %lld fuel %lld per %.0f self %lld kids %lld\n", static_cast<int>(X.round()), gs.name, gs.calls, gs.fuel, gs.calls ? double(gs.fuel) / gs.calls : 0.0, gs.self, gs.kids);
 	// the field records, a few per turn from round 600 (a long print can be suspended and lost)
-	static int field_printed = 0;
+	static int field_printed = 0, prim_printed = 0;
+	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) >= 600)
+		for (int i = 0; i < 4 && prim_printed < n_prim_recs; ++i, ++prim_printed)
+		{
+			const PrimRec& r = prim_recs[prim_printed];
+			std::printf("@@PRIM %d fuel %lld tiles %lld pops %lld relax %lld scans %lld chunks %.0f\n", r.prim, r.fuel, r.n[0], r.n[1], r.n[2], r.n[3], X.chunks());
+		}
 	if (!draft && X.api.champ() == 0 && static_cast<int>(X.round()) >= 600)
 		for (int i = 0; i < 4 && field_printed < n_field_recs; ++i, ++field_printed)
 			std::printf("@@FIELD %d stop %d fuel %lld chunks %.0f\n", field_recs[field_printed].expansions, field_recs[field_printed].stopped,
@@ -1353,7 +2272,8 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 #ifdef GENOME_PROF
 	if (turn_calls && !draft && X.api.team() == 0)
 	{
-		std::printf("@@TC r%d c%d passes %d opts %d", static_cast<int>(X.round()), X.api.champ(), npass, nopts);
+		std::printf("@@TC r%d c%d passes %d opts %d ops %lld extra %lld spent %lld", static_cast<int>(X.round()), X.api.champ(), npass, nopts,
+					X.ops - ops0, X.extra_sum - extra0, static_cast<long long>(X.api.spent));
 		for (int i = 0; i < 256; ++i)
 			if (X.turn_calls_buf[i]) std::printf(" %d:%d", i, X.turn_calls_buf[i]);
 		std::printf("\n");
