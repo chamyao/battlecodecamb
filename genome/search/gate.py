@@ -140,6 +140,8 @@ def main():
     ap.add_argument("--arena-engine", default="", help="play the gate's matches on the arena service at this engine "
                                                       "(commit sha or ref) instead of locally")
     ap.add_argument("--max-hours", type=float, default=12)
+    ap.add_argument("--fresh", action="store_true",
+                    help="ignore earlier gatekeepers' gates (a new runtime: every genome is gated again)")
     args = ap.parse_args()
     out = Path(args.out)
     (out / "candidates").mkdir(parents=True, exist_ok=True)
@@ -151,7 +153,7 @@ def main():
     # genomes earlier gatekeeper jobs already gated stay gated
     ls = subprocess.run(["git", "-C", str(ROOT), "ls-tree", "-r", "--name-only", "origin/remote/genome"],
                         capture_output=True, text=True).stdout.split()
-    for path in ls:
+    for path in ([] if args.fresh else ls):
         if path.startswith("gatekeeper-") and path.endswith("/gates.jsonl"):
             txt = subprocess.run(["git", "-C", str(ROOT), "show", f"origin/remote/genome:{path}"],
                                  capture_output=True, text=True).stdout
