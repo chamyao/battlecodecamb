@@ -169,3 +169,12 @@ All on A81582-ringheal-mono (cand/). Real cambc /80, 0 crashes everywhere:
 (v30 solo: 99212 / 522.) The gg6 and rhm diffs overlap in context, so rh-mono-all was built by applying
 rhm's three edits (MONO_ONLY global, its v2 line, r15) to rh-mono-gg6. gg6 needs group_gems: build at or
 after genome/v0 fd778fc. Recommended next upload: A81582-rh-mono-all.
+
+## Oct 25 ~07:45: tune-B constants (found on v29) ported to rh-mono-all
+| variant | sim /80 vs rh-mono-all | real /80 vs rh-mono-all |
+|---|---|---|
+| cash4 (r5 `g < 4`) | 43 | 44, 0 crashes |
+| bag6 (r11 `g >= 6 and altar_eta() <= 3`) | 39 | 42 |
+cash4 is a small, insignificant gain (~+4/80); kept as cand/A81582-rh-mono-all-cash4 to ride along a later upload.
+01shortcut solo (sim, rounds/deaths): v29 2000/2000 (9/7), ringheal 2000/2000 (30/30), rh-mono 1584/1709 (5/6),
+rh-mono-all 1563/1709 (4/6): mono does not regress shortcut once the ring fix is present.
