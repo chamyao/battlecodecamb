@@ -1,0 +1,17 @@
+```python
+@gene("Z4a", 'once per turn: retreat state, fight state, monolith and golem tiles, the walking field', parents=['s3'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < LOW:
+        HURT = True
+    if hf > 0.95 or not alive():
+        HURT = False
+    if size(BAD) == 0:
+        BAD = type_spawns(MONOLITH) | type_spawns(GOLEM)
+    FIGHT = count(e.is_champion for e in enemies()) > 0 or any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())
+    OUTN = count(e.is_champion for e in enemies()) > count(a.is_champion for a in allies()) + 1
+    if OUTN or HURT or (gold() >= 300 and gems() == 0):
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+```
