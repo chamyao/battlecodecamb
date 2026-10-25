@@ -1,0 +1,7 @@
+```python
+@gene('s3', 'distance field to the goals')
+def goal_field() -> Field:
+    if round() > 1250 and me().health_frac > 0.7 and count(dist(a.pos, me().pos) <= 5 for a in allies()) >= 3:
+        return field(goals())
+    return field(goals() - type_spawns(MONOLITH))
+```
