@@ -186,3 +186,7 @@ rh-mono-all 1563/1709 (4/6): mono does not regress shortcut once the ring fix is
 - Search, v30 regates of A81615/A91640/A81582, raw and +mono: all six blocked by solo-farm.
 - Intel, paired rows for rh-mono-all vs ringheal's: net +9, no significant drop (rall2 +6, p 0.07); monster deaths 6.53 -> 4.74.
   Regression: boss-battle +534 rounds (only altar behind a monolith). Intel is building a narrow exemption.
+
+## Oct 25 ~07:00: A81582-rmab (intel boss-battle exemption on rh-mono-all)
+Real /80 vs rh-mono-all: 41, 0 crashes (near mirror; one-map change). Intel: boss-battle real 2-0, solo 1974 -> 1423 rounds.
+Safe to ride along with the v31 upload.
