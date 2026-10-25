@@ -10,23 +10,24 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
-## State of calibration (Oct 25, genome/fuel 3e4b4591)
+## State of calibration (Oct 25, genome/fuel after TELEPORT / BUY_TP / SELL)
 
 Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against the interpreted v23
-(`~/ws/bots/v23interp`), sim at 1000x against `gconv1.pol` with `--bot-seeds`.
+(`~/ws/bots/v23interp`), sim at 1000x against `gconv1.pol` with `--bot-seeds`. Real runs are from the current
+bot: after the simspeed merge, `combine()` copy-constructs its result, which made the bot's set
+operations cheaper, so set-op prices were refitted and every real run was redone.
 
 | genome | 00ambush | 00lanes | 01big-world |
 |---|---|---|---|
-| seed | 1.019 | 1.022 | 1.005 |
-| B318 | 1.017 | 1.014 | 1.004 |
-| B792 | 1.005 | 1.009 | 0.995 |
-| A458 (arena A) | 1.024 | 1.026 | 1.010 |
-| B1145 (arena B #1) | 1.004 | 1.008 | 0.993 |
-| B1092 (arena B, other species) | 1.004 | 0.979 | 0.988 |
-| starter | 1.013 | 1.023 | 1.015 |
-| idle (no consider()) | 0.998 | 0.982 | 0.995 |
-| calib5 (probe genome) | 0.976 | 0.975 | |
-| v23 | 1.102 | 1.123 | 1.099 |
+| seed | 1.015 | 1.016 | 1.001 |
+| B318 | 1.013 | 1.008 | 0.999 |
+| B792 | 1.001 | 1.003 | 0.990 |
+| A458 (arena A) | 1.021 | 1.020 | 1.006 |
+| B1145 (arena B #1) | 0.999 | 1.001 | 0.987 |
+| B1092 (arena B, other species) | 0.999 | 0.973 | 0.983 |
+| starter | 1.008 | 1.015 | 1.009 |
+| idle (no consider()) | 0.984 | 0.969 | 0.983 |
+| v23 | 1.102 | 1.118 | 1.100 |
 
 Open gaps:
 - v23 is over by 9-12%. Its per-option score path calls memoised genes (`here`, `walks`,
@@ -34,6 +35,8 @@ Open gaps:
   the seed family's memo hits, called from large genes, are slightly under. A fix needs memo-hit cost
   per call site (inlined or not) from each genome's wasm; parked by the genome lead.
 - A gene framed only through inlined callees keeps its old pricing (18 such genes in seed).
+- Any runtime change can move the bot's real cost (simspeed's `combine()` did by ~5% on seed):
+  rerun the real side after merging runtime changes from others, not only the sim.
 - `walk_nearest` prices follow the policy bot's history-dependent search mirror; probes in isolation
   read 1.1-1.5x, in genomes it is in line.
 - Later passes are priced 0: a free fit wants them negative, so complex genomes' second passes are
@@ -59,6 +62,33 @@ Tools: `tools/prof_pair.sh`, score variants (genomes that never act), `consider(
 for champion 0), and `GENOME_DEFS=GENOME_TURN_ORDER` in the bot. A cambc run needs its own bot folder
 per concurrent run. Rebuild `genome/build` and `genome/build-prof` after every runtime change:
 `genome_eval` refuses a genome compiled against another Ctx layout.
+
+## TELEPORT, BUY_TP, SELL (Oct 25)
+
+New option kinds, after BREAK:
+- TELEPORT (13): a teleport crystal to a tile within 3, landable as a move. Listed while we hold a crystal.
+- BUY_TP (14): buy a crystal, on spawn or dead.
+- SELL (15): Tavi on spawn, one sale per turn.
+`examples/tpsell.genome` (the seed with all three scored first; Tavi buys no crystals and recalls every
+60 rounds) against the interpreted v23. The bot and the sim take identical actions:
+- 01broken-curve: 3164 play actions, with 106 teleports, 106 crystal buys and 35 sales.
+- 00lanes: 4641 play actions, with 38 / 38 / 10.
+No listed option of the three failed in the sim.
+
+Prices come from genome pairs whose games are identical, differing only in consider() for one kind (scored 0):
+- TELEPORT listed while a crystal is held: +15.9k real per turn against +16.8k in the sim (~45
+  options a pass, each scored), so 60 per option on top of a 600 scan.
+- The SELL check (Tavi) and the BUY_TP check: +45 and +130 real per turn. Their sim deltas also hold
+  consider()'s early-return path, so they are not separated further.
+
+Set algebra refitted after the simspeed `combine()` change: | and & are 178 + 1.88 x chunks, - is
+166 + 2.9 x chunks (calib7 / calib8 probes 0.99-1.02 of real).
+
+Against f18654e7, 80 games:
+- 100x: identical for all five references and for B792 vs B318.
+- 1x against builtin:starter: seed, B318 and B792 identical; starter 39 -> 41; v23 78 -> 78 with
+  different games.
+- B792 vs B318 at 1x: 47 -> 49 (the set-price correction).
 
 ## BREAK: attacking enemy altar locks (Oct 25)
 
