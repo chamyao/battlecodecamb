@@ -1,0 +1,5 @@
+```python
+@gene('B104a', 'tiles I cannot step onto right now: terrain, altars, enemy spawn, units, unseen camp spawns (my own tile read once)', parents=['w3'])
+def blocked_now() -> Tiles:
+    return (TERRAIN | ally_tiles() | enemy_tiles() | camp_block()) - near(me().pos, 0)
+```

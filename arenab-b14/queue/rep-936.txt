@@ -1,0 +1,13 @@
+```python
+@gene('a13', 'a purchase is still due this turn (other options wait, unscored); cheap gold test first; fight first: no shopping while an enemy champion can hit us now or after one step; the lock only holds other options after round 400')
+def shop_pending() -> Bool:
+    if gold() < 10:
+        return False
+    if RULE < 2 or not at_spawn() or not can_shop():
+        return False
+    if foe_in_reach():
+        return False
+    if LOCK_BUY and not has_lock() and round() >= 400:
+        return True
+    return gold() >= 30 and next_shard() >= 0
+```
