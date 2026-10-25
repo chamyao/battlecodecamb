@@ -201,6 +201,12 @@ FRAMED_PRIMS = {"alive", "ally_tiles", "altars", "at", "box_field", "bushes", "c
                 "read_shared", "round", "sight", "size", "spawn_group", "spawn_type", "team_gems", "territory",
                 "type_spawns", "unit_gems", "unit_gold", "visible", "vision", "walk_nearest", "walls", "ward_sight",
                 "wfield", "write_shared"}
+# A memoised gene's hit in the bot, by return type: the copy out (score variants that read a memoised gene on
+# every option, inlined or called; FUEL.md). Inlining moves it little (a Num hit is ~27 inlined, ~30 called).
+MEMO_HIT = {"Num": 30, "Bool": 30, "Tile": 44, "Unit": 57, "Tiles": 74, "Field": 74, "Units": 74}
+# More per hit from a caller with a shadow-stack frame (its call site spills around the call). Chosen on three
+# real head-to-heads, the third held out (FUEL.md).
+MEMO_FRAMED = 12
 EFFECT_PRIMS = {"write_shared", "set_priority"}  # allowed only in update() and after()
 MEMORY_GENES = ("update", "after")  # the entry genes that may assign keeps and call effects
 
@@ -641,7 +647,10 @@ class Checker:
             if n in ("score", "update", "consider", "after", "reserve"):
                 self.err(e, f"entry gene {n} cannot be called")
             self.cur.calls.add(n)
-            return gene.ret, f"{n}(" + ", ".join(c for _, c, _ in args) + ")", ops + 1
+            call = f"{n}(" + ", ".join(c for _, c, _ in args) + ")"
+            if not gene.params and gene.ret != "None" and n not in MEMORY_GENES:
+                call = f"(MH_(@@MH {self.cur.name} {n}@@), {call})"  # the hit's price is set at its call site (to_cpp)
+            return gene.ret, call, ops + 1
         if n in PRIMS:
             if n in UNCALIBRATED and not os.environ.get("GENOME_UNCALIBRATED"):
                 self.err(e, f"{n} is not calibrated yet (GENOME_UNCALIBRATED=1 for probes)")
@@ -803,9 +812,8 @@ def to_cpp(genome):
         lines.append(f"\tGENE_PROF({order.index(n)}, \"{n}\");")
         if memo:
             # zero-argument genes are pure within a pass: computed once per pass, cached on this instance
-            # a hit costs ~73 fuel in the bot for a scalar, ~78 for a shared set or field (fitted per turn on identical games)
-            hit = 78 if g.ret in ("Tiles", "Field", "Units") else 73
-            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX({hit}); return val_{n}; }}",
+            # a hit costs what its call site set (MH_): the copy out by return type, more from a framed caller
+            lines += [f"\tif (stamp_{n} == X.pass_id) {{ FX(X.memo_hit); return val_{n}; }}",
                       *(["\tFRAME_GUARD;"] if g.framed else []),
                       f"\t{CPP[g.ret]} v = [&]() -> {CPP[g.ret]} {{"]
             lines += ["\t" + l for l in body]
@@ -817,7 +825,10 @@ def to_cpp(genome):
               "{ return new genome_gen::Genes(X); }",
               "// the runtime layout this genome was compiled against (genome_eval refuses a mismatch)",
               "extern \"C\" unsigned long genome_ctx_size() { return sizeof(genome::Ctx); }", ""]
-    return "\n".join(lines)
+    def hit_price(m):
+        caller, callee = genome.genes[m.group(1)], genome.genes[m.group(2)]
+        return str(int(MEMO_HIT.get(callee.ret, MEMO_HIT["Tiles"]) + (MEMO_FRAMED if caller.framed else 0)))
+    return re.sub(r"@@MH (\w+) (\w+)@@", hit_price, "\n".join(lines))
 
 
 def _fl(et):
