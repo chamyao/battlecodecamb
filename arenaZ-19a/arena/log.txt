@@ -105,3 +105,10 @@
 [09:10:29] [Z] summary: births 50 deaths 27 games 27320 $0.00; top [('Z48', 33.3, 0.94, 88, 'S35'), ('Z32', 32.82, 0.82, 864, 'S27'), ('Z46', 31.86, 0.85, 136, 'S33')]; top vs anchors {'Z48': None, 'Z32': 0.938, 'Z46': 0.75}
 [09:10:29] [Z] birth Z50 (mutate session) of ['Z40'] species S30; 24 genomes $0.00
 [09:11:05] [Z] birth Z51 (mutate session) of ['Z43'] species S31; 24 genomes $0.00
+[09:12:12] [Z] birth Z52 (mutate session) of ['Z28'] species S23; 24 genomes $0.00
+[09:12:39] [Z] new species S36 founded by Z53
+[09:12:39] [Z] birth Z53 (tune ) of ['Z51'] species S36; 24 genomes $0.00
+[09:13:48] [Z] new species S37 founded by Z54
+[09:13:48] [Z] birth Z54 (llm_cross session) of ['Z39', 'Z38'] species S37; 24 genomes $0.00
+[09:13:51] [Z] new species S38 founded by Z55
+[09:13:51] [Z] birth Z55 (llm_cross session) of ['Z39', 'Z46'] species S38; 24 genomes $0.00
