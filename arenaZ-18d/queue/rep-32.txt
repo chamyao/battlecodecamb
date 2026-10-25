@@ -1,0 +1,7 @@
+```python
+@gene('Z6c', 'an enemy champion or an awake camp is within my basic attack range', parents=['s1'])
+def target_in_reach() -> Bool:
+    r = me().attack_range
+    p = me().pos
+    return any(dist(u.pos, p) <= r for u in enemies()) or any(dist(u.pos, p) <= r and is_awake(u) for u in camps())
+```

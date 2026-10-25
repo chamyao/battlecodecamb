@@ -1,0 +1,11 @@
+```python
+@gene('Z39c', 'bank time: carry gems to an altar once the bag holds 15, or 5 when an altar is close, or any gems near the end', parents=['s2'])
+def banking() -> Bool:
+    g = gems()
+    if g >= 15 or (g > 0 and round() > 1850):
+        return True
+    if g >= 5:
+        a = nearest(altars() - locked_altars(), me().pos)
+        return valid(a) and dist(a, me().pos) <= 6
+    return False
+```

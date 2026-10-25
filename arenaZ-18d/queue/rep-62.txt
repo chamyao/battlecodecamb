@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; among forward steps, prefer ones that keep me near an ally")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if d > 0 and any(dist(a.pos, t) <= 2 for a in allies()):
+        d += 0.3
+    return d
+```

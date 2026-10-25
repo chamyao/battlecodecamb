@@ -1,0 +1,31 @@
+```python
+@gene('s2', 'where to walk: an altar with gems, else a living camp group, skipping monoliths and golems before round 800; weak groups (wolves, clusters) are left to the nearest ally so the team spreads')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    bad = type_spawns(MONOLITH)
+    if round() < 800:
+        bad = bad | type_spawns(GOLEM)
+    weak = type_spawns(WOLF) | type_spawns(GEM_CLUSTER) | type_spawns(GOLD_CLUSTER)
+    p = me().pos
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & bad) == 0:
+                if size(gt - weak) > 0 or not ally_closer(gt, p):
+                    acc = acc | gt
+    if size(acc) == 0:
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                acc = acc | group_tiles(g)
+    return acc
+
+@gene("new", "some living ally is strictly closer to this group of tiles than I am", parents=["s2"])
+def ally_closer(gt: Tiles, p: Tile) -> Bool:
+    mine = dist(nearest(gt, p), p)
+    return any(dist(nearest(gt, a.pos), a.pos) < mine for a in allies())
+```

@@ -1,0 +1,30 @@
+```python
+@gene('s1', 'value of doing this option now; default draft, abilities, Treasure then Jungle health then Power strength, keeps hunting camps until the bag is worth banking')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if items_owned(19) == 0:
+            return 100 if o.item == 18 else 0
+        if items_owned(29) == 0:
+            return 100 if o.item == 28 else 0
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if not banking() or is_awake(o.unit) else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z33a', 'bank time: carry gems to an altar once the bag holds 10, or any gems near the end', parents=['s2'])
+def banking() -> Bool:
+    g = gems()
+    return g >= 10 or (g > 0 and round() > 1850)
+```

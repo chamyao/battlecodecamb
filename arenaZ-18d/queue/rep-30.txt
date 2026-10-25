@@ -1,0 +1,11 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: cache the distance field to the goals", parents=["s3"])
+def update() -> None:
+    GF = field(goals())
+
+@gene("s3", "distance field to the goals (cached once per turn)")
+def goal_field() -> Field:
+    return GF
+```

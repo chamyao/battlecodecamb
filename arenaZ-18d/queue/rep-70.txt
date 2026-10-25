@@ -1,0 +1,6 @@
+```python
+@gene('Z13a', 'once per turn: cache the distance field to the goals, and let healthier champions act first next round', parents=['s3'])
+def update() -> None:
+    GF = field(goals())
+    set_priority(floor(100 * me().health_frac))
+```
