@@ -2,6 +2,22 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 15:40 UTC: best Z bots vs the A line (head to head, 80 games, ca5180b)
+
+| opponent | Z462 (18b) | Z400 (18b) | Z407 (19b) |
+| --- | --- | --- | --- |
+| starter | 76 | 75 | 78 |
+| seeds/v23 (A-line seed) | 23 | 26 | 13 |
+| A61188 (v27) | 19 | 14 | 7 |
+| A81582 (v30 base) | 13 | 16 | 3 |
+| A93208 (A-9 best) | 14 | 15 | 10 |
+| v33 (live) | 10 | 9 | 6 |
+
+The best Z bots (~480 births from the starter) beat the starter ~95%, but lose to the A line's own seed (v23 wins
+54-67/80) and to v33 (Z wins 8-12%; gems ~410 vs ~930 per game). The 648bafd results are within a few games of these.
+The Z panel ranks Z407 (516) close to Z462 (610), but against the A line Z407 is weaker on every row.
+Z-20b finished (481 births, 6h34; scripted replies from ~b140); its final panel is pending.
+
 ## 2026-10-25 15:17 UTC: A-9 stopped (plateau); Z-20 ahead of controls
 
 - A-9 panel m28-m36: 1060, 1047, 1068 | 1061, 1054, 1069, 1059 (screening on from b3240). Flat: 1044-1069 since b2552
