@@ -240,3 +240,25 @@
 [10:28:03] [Z] birth Z147 (mutate session) of ['Z130'] species S48; 24 genomes $0.00
 [10:28:04] [Z] birth Z148 (mutate session) of ['Z92'] species S42; 24 genomes $0.00
 [10:28:19] [Z] birth Z149 (cross ) of ['Z147', 'Z133'] species S48; 24 genomes $0.00
+[10:31:59] [Z] champion anchor champ3-Z134 (mu 37.2)
+[10:31:59] [Z] summary: births 150 deaths 127 games 88048 $0.00; top [('Z134', 37.23, 0.81, 728, 'S55'), ('Z140', 37.13, 0.81, 616, 'S56'), ('Z143', 36.95, 0.79, 432, 'S55')]; top vs anchors {'Z134': 1.0, 'Z140': 1.0, 'Z143': 0.75}
+[10:31:59] [Z] birth Z150 (mutate session) of ['Z124'] species S36; 24 genomes $0.00
+[10:32:01] [Z] new species S59 founded by Z151
+[10:32:01] [Z] birth Z151 (mutate session) of ['Z133'] species S59; 24 genomes $0.00
+[10:32:01] [Z] new species S60 founded by Z152
+[10:32:01] [Z] birth Z152 (mutate session) of ['Z124'] species S60; 24 genomes $0.00
+[10:32:02] [Z] birth Z153 (mutate session) of ['Z139'] species S49; 24 genomes $0.00
+[10:32:02] [Z] new species S61 founded by Z154
+[10:32:02] [Z] birth Z154 (mutate session) of ['Z146'] species S61; 24 genomes $0.00
+[10:32:02] [Z] birth Z155 (mutate session) of ['Z142'] species S53; 24 genomes $0.00
+[10:33:51] [Z] birth Z156 (mutate session) of ['Z124'] species S36; 24 genomes $0.00
+[10:33:51] [Z] birth Z157 (mutate session) of ['Z133'] species S59; 24 genomes $0.00
+[10:35:49] [Z] birth Z158 (llm_cross session) of ['Z152', 'Z133'] species S48; 24 genomes $0.00
+[10:37:57] [Z] birth Z159 (mutate session) of ['Z150'] species S60; 24 genomes $0.00
+[10:39:34] [Z] new species S62 founded by Z160
+[10:39:34] [Z] summary: births 160 deaths 137 games 93304 $0.00; top [('Z133', 37.5, 0.79, 1248, 'S48'), ('Z134', 37.25, 0.79, 1104, 'S55'), ('Z143', 37.24, 0.79, 784, 'S55')]; top vs anchors {'Z133': 0.938, 'Z134': 1.0, 'Z143': 0.75}
+[10:39:34] [Z] birth Z160 (mutate session) of ['Z143'] species S62; 24 genomes $0.00
+[10:39:55] [Z] birth Z161 (tune ) of ['Z157'] species S59; 24 genomes $0.00
+[10:40:18] [Z] birth Z162 (cross ) of ['Z158', 'Z133'] species S48; 24 genomes $0.00
+[10:40:32] [Z] birth Z163 (mutate session) of ['Z98'] species S37; 24 genomes $0.00
+[10:41:32] [Z] birth Z164 (mutate session) of ['Z151'] species S59; 24 genomes $0.00
