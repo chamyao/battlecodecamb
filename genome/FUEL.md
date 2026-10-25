@@ -10,29 +10,34 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
-## State of calibration (Oct 25, typed memo hits)
+## State of calibration (Oct 25, memo hits typed and by call site)
 
 Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against the interpreted v23
 (`~/ws/bots/v23interp`), sim at 1000x against `gconv1.pol` with `--bot-seeds`. Real runs are from the current bot.
 
 | genome | 00ambush | 00lanes | 01big-world |
 |---|---|---|---|
-| seed | 0.969 | 0.952 | 0.955 |
-| B318 | 0.969 | 0.946 | 0.954 |
-| B792 | 0.961 | 0.947 | 0.950 |
-| A458 (arena A) | 0.975 | 0.957 | 0.959 |
-| A61188 (live as v27) | 0.977 | 0.958 | 0.960 |
-| B1145 (arena B #1) | 0.960 | 0.947 | 0.948 |
-| B1092 (arena B, other species) | 0.962 | 0.925 | 0.947 |
-| starter | 1.023 | 1.029 | 1.022 |
+| seed | 0.982 | 0.970 | 0.967 |
+| B318 | 0.980 | 0.962 | 0.966 |
+| B792 | 0.972 | 0.962 | 0.960 |
+| A458 (arena A) | 0.988 | 0.974 | 0.971 |
+| A61188 (live as v27) | 0.989 | 0.974 | 0.972 |
+| B1145 (arena B #1) | 0.971 | 0.961 | 0.959 |
+| B1092 (arena B, other species) | 0.973 | 0.938 | 0.957 |
+| starter | 1.026 | 1.032 | 1.025 |
 | idle (no consider()) | 0.984 | 0.969 | 0.983 |
-| v23 | 1.018 | 1.016 | 1.009 |
+| v23 | 1.031 | 1.030 | 1.022 |
 
 Head-to-head against real cambc at 1x, 80 games each (both sides, all maps):
-- A61188 vs B792: real 48; sim 51; the sim picks the real winner in 63 of 80 games (bc70ece: 40, 54).
-- B792 vs B318: real 40; sim 40; 54 of 80 (bc70ece: 49, 53).
-The evolved genomes run 4-5% under in absolute terms (starter 2-3% over). These prices were chosen for
-head-to-head fidelity, the quantity selection uses, over the absolute ratio (see the section below).
+
+| matchup | real wins | sim wins | sim picks the real winner |
+|---|---|---|---|
+| A61188 vs B792 | 48 | 48 | 58 of 80 |
+| B792 vs B318 | 40 | 42 | 52 of 80 |
+| B1145 vs A61188 (held out) | 32 | 32 | 54 of 80 |
+
+Evolved genomes run 1-6% under in absolute terms (starter and v23 2-3% over). So they may hit the
+real per-turn cap a little more often than the sim predicts. Real cambc stays the upload decider.
 
 Open gaps:
 - (closed Oct 25: typed memo hits; v23 is now 1.01-1.02) v23 was over by 9-12%. Its per-option score path calls memoised genes (`here`, `walks`,
@@ -89,8 +94,16 @@ So inlining moves a hit little; its return type (the copy out) sets the cost. Th
 every non-set type and 78 for sets. Hits are now priced by type (`lang.MEMO_HIT`: 30 / 30 / 44 / 57 / 74).
 - The per-pass price was refitted with it (later passes 0 -> 800).
 - A caller-dependent extra (more from callers with a shadow-stack frame, as a whole-game fit suggested)
-  was tried at +12 and +24. It brings whole-game ratios nearer 1, but both real head-to-heads got worse
-  (63 -> 58 -> 55 and 54 -> 52 of 80), so hits are not priced per call site.
+  was tried at +12 and +24. It brings whole-game ratios nearer 1, but on the two matchups used to choose
+  prices it did worse (63 -> 58 -> 55 and 54 -> 52 of 80). The held-out matchup then decided: +12, below.
+
+Held out (not used to choose prices), B1145 vs A61188, 80 real games: B1145 wins 32.
+- bc70ece: sim 39, picks the real winner in 53 of 80.
+- typed: sim 32, 52 of 80.
+- framed +12: sim 32, 54 of 80.
+Framed +12 won the held-out matchup by 2 games (within noise; summed over the three matchups typed leads
+169 to 164), and by the agreed rule it ships: `lang.MEMO_FRAMED` = 12 per hit from a caller with a frame,
+the price set at each call site (MH_).
 
 80 real games each, A61188 vs B792 (real 48) and B792 vs B318 (real 40), at 1x:
 

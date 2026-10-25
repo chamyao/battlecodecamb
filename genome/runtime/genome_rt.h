@@ -254,6 +254,7 @@ public:
 	// address-taken local: lang.FRAMED_PRIMS) pays the frame (~12 fuel) on every call. The framed
 	// primitives' prices already carry one frame, so a call is charged it only when it ran none of them
 	// (e.g. a score gene using me() only on MOVE options still pays the frame on every option).
+	double memo_hit = 0; // simulator: the next memoised gene hit's price, set at its call site (MH_)
 	bool frame_open = false;
 	mutable double frame_acc = 0; // frame fuel not yet charged
 	static constexpr double FRAME_FUEL = 12;
@@ -2083,7 +2084,8 @@ private:
 	}
 };
 
-// FRAME_GUARD at the top of a framed gene, FU_ before each framed primitive (simulator only; nothing in the bot)
+// FRAME_GUARD at the top of a framed gene, FU_ before each framed primitive, MH_(p) before a memoised gene's call
+// (simulator only; nothing in the bot)
 struct FrameGuard
 {
 	Ctx& X;
@@ -2092,9 +2094,11 @@ struct FrameGuard
 	~FrameGuard() { X.frame_close(saved); }
 };
 #ifdef GENOME_BOT
+#define MH_(p) ((void)0)
 #define FRAME_GUARD ((void)0)
 #define FU_ ((void)0)
 #else
+#define MH_(p) (X.memo_hit = (p))
 #define FRAME_GUARD FrameGuard frame_guard_(X)
 #define FU_ X.frame_used()
 #endif
