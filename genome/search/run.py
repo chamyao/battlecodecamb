@@ -15,6 +15,10 @@ the same share of constant-tuning children. They differ only in the representati
 Results: runs/<name>/programs.jsonl (append-only; a rerun resumes). Report: genome/search/report.py.
 """
 import argparse
+import json
+import os
+import signal
+import sys
 import itertools
 import random
 import re
@@ -218,6 +222,8 @@ def main(argv=None):
             m["per_opponent"] = s.per_opponent
         pid = db.add(Program(0, island, child.source, score, [p.id for p in ps], child.model or child.op, None, m))
         best = db.best()[0]
+        if best.id == pid:
+            write_top()
         spent = f" ${claude.spent:.2f}" if claude else ""
         conf = f" confirm {m['delta_confirm']:+.3f}" if "confirm" in m else ""
         size = child.log.get("lines_changed", "?")
@@ -225,12 +231,27 @@ def main(argv=None):
               f"{' twin' if m['twin'] else ''} ({size} lines) | best {best.score:.3f} (#{best.id}){spent} | "
               f"{time.time() - t0:.0f}s", flush=True)
 
+    def write_top(n=10):
+        """best.<kind> and top.jsonl (the n best: id, score, lineage, per-opponent stats, text): small files a caller
+        can fetch while programs.jsonl grows past a file-size limit."""
+        with top_lock:
+            ranked = sorted((p for p in db.all if p.error is None and p.score > float("-inf")), key=lambda p: -p.score)
+            (out / f"best.{kind}").write_text(ranked[0].text)
+            with open(out / "top.jsonl.tmp", "w") as f:
+                for p in ranked[:n]:
+                    f.write(json.dumps({"id": p.id, "score": p.score, "island": p.island, "parents": p.parents,
+                                        "op": (p.metrics or {}).get("op"), "per_opponent": (p.metrics or {}).get("per_opponent"),
+                                        "text": p.text}) + "\n")
+            os.replace(out / "top.jsonl.tmp", out / "top.jsonl")
+
+    top_lock = threading.Lock()
+    signal.signal(signal.SIGTERM, lambda *_: (stop.set(), sys.exit(143)))  # a stopped run still writes best/top
     try:
         with ThreadPoolExecutor(args.workers) as pool:
             list(pool.map(one, range(args.max_programs * 2)))
     finally:
         best = db.best()[0]
-        (out / f"best.{kind}").write_text(best.text)
+        write_top()
         new = db.all[started:]
         cost = (claude.spent - spent0) if claude else 0.0
         if cost > 0 and not args.out:
