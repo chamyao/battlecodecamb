@@ -1,0 +1,85 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+LOW: Num = 0.6283
+GF: Field = None
+HURT: Bool = False
+FIGHT: Bool = False
+BAD: Tiles = None
+
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if HURT and not FIGHT else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if (o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit):
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z20a', 'value of casting an ability: damage on fights, heal and shield when hurt, dash toward goals')
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 85
+            if o.unit.is_camp and gems() == 0 and not ((o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit)):
+                return 65
+        return 0
+    if k == AB_HEAL:
+        return 75 if me().health_frac < 0.7 else 0
+    if k == AB_SHIELD:
+        return 75 if me().health_frac < 0.8 and FIGHT else 0
+    if k == AB_RESET:
+        return 62 if not can_attack() and FIGHT else 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            return 55 if progress(o.tile) > 1 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group without monoliths or golems")
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & BAD) == 0:
+                acc = acc | gt
+    return acc
+
+@gene("s4", "how much closer a step brings me to the goals (or home when hurt)")
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z20c', 'once per turn: retreat state, fight state, monolith and golem tiles, the walking field')
+def update() -> None:
+    hf = me().health_frac
+    if hf < LOW:
+        HURT = True
+    if hf > 0.95 or not alive():
+        HURT = False
+    if size(BAD) == 0:
+        BAD = type_spawns(MONOLITH) | type_spawns(GOLEM)
+    FIGHT = count(e.is_champion for e in enemies()) > 0 or any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())
+    if HURT:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
