@@ -242,6 +242,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   31 = genome A81582-rh-mono-all (v30 + v28's monolith fix + contest rule + gem-first after 6 buys; genome/v0
   adeb971, genome sha256 f54246b1..., bundle sha256 e4932580...; submitted 07:16:11 UTC Oct 25). Real 51/80 vs
   v30, 62/80 vs v29, 0 crashes. Revert target: v30 (90450da2).
+  v31 band batch 8: 27-23 vs v30's 21-29 on the same games (p ~0.03): the first winning band batch of any version.
+  32 = genome B1873 (Arena B relay: B-line + monolith fix + ring/heal + gem-first after 6 buys + kill-shot priority
+  + boss-battle altar exemption; genome/v0 0483238, genome sha256 20a329ce..., bundle sha256 52a3fb56...;
+  submitted 07:50:23 UTC Oct 25). Real vs v31 47/80, 0 crashes. Revert target: v31 (e4932580).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any

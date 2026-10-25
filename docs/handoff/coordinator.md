@@ -14,7 +14,8 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
 
 ## Live and history
-- Live (Oct 25 07:16 UTC): ladder version 31 = genome A81582-rh-mono-all (e4932580...), after v30 =
+- Live (Oct 25 07:50 UTC): ladder version 32 = genome B1873 (52a3fb56...), after v31 = A81582-rh-mono-all
+  (e4932580..., first winning band batch 27-23), v30 =
   A81582-ringheal (90450da2...), v29 = v28-emblem
   (61743fda...), v28 = a61188-mono
   (8a921761...), v27 = genome A61188 (8f44d04a..., 33-22 ranked), v26 = genome B792
