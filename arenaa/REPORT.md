@@ -2,6 +2,18 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 04:05 UTC
+
+- Genes per genome in final populations: Haiku runs stay at 6 (Z-1 6-7; Z-1x 6-8 after ~1,000 births;
+  Z-11r 6-7). Opus runs grow genes unprompted: Z-8x 10-15 (median 284 lines), Z-5 8-9 (median 167 lines:
+  the leanest and the strongest). The stuck gene count was a property of the writer.
+- Z-11r (Haiku splits): only 3 of 62 splits passed the behaviour-identical check; final panel best 131
+  (b622): the idea was not really tested. Z-16 = Z-11r with Opus-written splits, queued.
+- Z-9 (55/30/15 mix) done: 170 only by ~800 births; not adopted.
+- Started: A-8 (Opus session from arenaA-6) and A-8c (API control); Z-15 (batched Opus mutations, 8 per
+  call), Z-16 (Opus splits). Relay Z-10 at 252 births (leg 6 running).
+- API spend in the Arena A ledger: $59.21 (past the $40 reserve; Cham: credits are not the constraint).
+
 ## 2026-10-25 03:45 UTC: what drives Z-5's edge (model vs feedback)
 
 - Z-8x (all Opus via API, no feedback) finished: 402 births, $20.08. Panel best 130 (b119), 190 (b207),
