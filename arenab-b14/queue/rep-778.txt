@@ -1,0 +1,5 @@
+```python
+@gene('w12', 'tiles held by something other than a camp, plus camp spawns still respawning (never a goal); my own tile is never taken')
+def taken() -> Tiles:
+    return ((blocked() - camp_block()) | respawning()) - near(here(), 0)
+```

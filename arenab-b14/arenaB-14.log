@@ -1190,3 +1190,17 @@
 [09:16:48] [B] birth B2143 (mutate session) of ['B2130'] species S6; 24 genomes $11.08
 [09:16:55] [B] birth B2144 (mutate session) of ['B2136'] species S9; 24 genomes $11.08
 [09:17:09] [B] birth B2145 (mutate session) of ['B2142'] species S9; 24 genomes $11.08
+[09:17:26] [B] birth B2146 (mutate session) of ['B2115'] species S8; 24 genomes $11.08
+[09:17:36] [B] rejected mutate session: behavioural twin
+[09:18:05] [B] birth B2147 (mutate session) of ['B2050'] species S7; 24 genomes $11.08
+[09:18:14] [B] birth B2148 (mutate session) of ['B2134'] species S11; 24 genomes $11.08
+[09:18:14] [B] birth B2149 (mutate session) of ['B2115'] species S11; 24 genomes $11.08
+[09:18:38] [B] rejected mutate session: behavioural twin
+[09:18:59] [B] champion anchor champ43-B2130 (mu 48.4)
+[09:18:59] [B] summary: births 2150 deaths 2127 games 526248 $11.08; top [('B2130', 48.36, 0.83, 280, 'S6'), ('B2145', 47.96, 0.88, 120, 'S9'), ('B2150', 47.96, 6.0, 0, 'S9')]; top vs anchors {'B2130': 0.8, 'B2145': 0.708, 'B2137': 0.719}
+[09:18:59] [B] 2150 births (--max-births 2150): no more births
+[09:18:59] [B] birth B2150 (mutate session) of ['B2145'] species S9; 24 genomes $11.08
+[09:19:05] [B] rejected llm_cross session: solo-farm: 61073 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 559
+[09:19:06] [B] birth B2151 (tune ) of ['B2145'] species S9; 24 genomes $11.08
+[09:20:51] [B] summary: births 2151 deaths 2128 games 527944 $11.08; top [('B2137', 48.21, 0.82, 288, 'S10'), ('B2146', 47.56, 0.81, 240, 'S8'), ('B2143', 47.54, 0.82, 256, 'S6')]; top vs anchors {'B2137': 0.703, 'B2146': 0.525, 'B2143': 0.8}
+[09:20:52] [B] done: spent $11.08
