@@ -1989,3 +1989,59 @@
 [03:07:55] [Z] new species S453 founded by Z813
 [03:07:55] [Z] birth Z813 (llm_cross claude-haiku-5-5) of ['Z741', 'Z786'] species S453; 24 genomes $6.92
 [03:07:55] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:08:16] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:08:20] [Z] birth Z814 (mutate claude-haiku-5-5) of ['Z741'] species S419; 24 genomes $6.93
+[03:08:24] [Z] new species S454 founded by Z815
+[03:08:24] [Z] birth Z815 (llm_cross claude-haiku-5-5) of ['Z741', 'Z800'] species S454; 24 genomes $6.93
+[03:08:38] [Z] new species S455 founded by Z816
+[03:08:38] [Z] birth Z816 (mutate claude-haiku-5-5) of ['Z727'] species S455; 24 genomes $6.93
+[03:08:38] [Z] rejected tune : behavioural twin
+[03:08:50] [Z] rejected tune : behavioural twin
+[03:09:00] [Z] new species S456 founded by Z817
+[03:09:00] [Z] birth Z817 (llm_cross claude-haiku-5-5) of ['Z813', 'Z805'] species S456; 24 genomes $6.93
+[03:09:00] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:12] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 142: unknown name ECH
+[03:09:19] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:34] [Z] new species S457 founded by Z818
+[03:09:34] [Z] birth Z818 (llm_cross claude-haiku-5-5) of ['Z735', 'Z816'] species S457; 24 genomes $7.00
+[03:09:38] [Z] new species S458 founded by Z819
+[03:09:38] [Z] birth Z819 (mutate claude-haiku-5-5) of ['Z787'] species S458; 24 genomes $7.00
+[03:09:38] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:55] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:10:10] [Z] new species S459 founded by Z820
+[03:10:10] [Z] summary: births 820 deaths 797 games 202616 $7.01; top [('Z683', 41.92, 0.8, 2064, 'S372'), ('Z747', 41.15, 0.79, 1136, 'S404'), ('Z800', 41.04, 0.79, 584, 'S438')]; top vs anchors {'Z683': 0.925, 'Z747': 1.0, 'Z800': None}
+[03:10:10] [Z] birth Z820 (llm_cross claude-haiku-5-5) of ['Z790', 'Z787'] species S459; 24 genomes $7.01
+[03:10:14] [Z] birth Z821 (mutate claude-haiku-5-5) of ['Z786'] species S442; 24 genomes $7.01
+[03:10:18] [Z] new species S460 founded by Z822
+[03:10:18] [Z] birth Z822 (llm_cross claude-haiku-5-5) of ['Z815', 'Z683'] species S460; 24 genomes $7.01
+[03:10:39] [Z] birth Z823 (tune ) of ['Z803'] species S446; 24 genomes $7.04
+[03:10:46] [Z] new species S461 founded by Z824
+[03:10:46] [Z] birth Z824 (mutate claude-haiku-5-5) of ['Z800'] species S461; 24 genomes $7.04
+[03:10:46] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[03:10:58] [Z] rejected tune : behavioural twin
+[03:11:07] [Z] new species S462 founded by Z825
+[03:11:07] [Z] birth Z825 (mutate claude-haiku-5-5) of ['Z810'] species S462; 24 genomes $7.04
+[03:11:12] [Z] new species S463 founded by Z826
+[03:11:12] [Z] birth Z826 (mutate claude-haiku-5-5) of ['Z800'] species S463; 24 genomes $7.04
+[03:11:25] [Z] new species S464 founded by Z827
+[03:11:25] [Z] birth Z827 (llm_cross claude-haiku-5-5) of ['Z747', 'Z787'] species S464; 24 genomes $7.05
+[03:11:29] [Z] birth Z828 (tune ) of ['Z820'] species S459; 24 genomes $7.05
+[03:11:44] [Z] new species S465 founded by Z829
+[03:11:44] [Z] birth Z829 (llm_cross claude-haiku-5-5) of ['Z822', 'Z747'] species S465; 24 genomes $7.05
+[03:11:44] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 190: gene goal_field redefined or shadows a builtin
+[03:11:49] [Z] summary: births 830 deaths 807 games 204040 $7.05; top [('Z800', 42.14, 0.79, 648, 'S438'), ('Z683', 41.97, 0.8, 2088, 'S372'), ('Z787', 41.5, 0.8, 840, 'S437')]; top vs anchors {'Z800': None, 'Z683': 0.925, 'Z787': None}
+[03:11:49] [Z] birth Z830 (mutate claude-haiku-5-5) of ['Z747'] species S404; 24 genomes $7.05
+[03:12:07] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:12:15] [Z] birth Z831 (mutate claude-haiku-5-5) of ['Z822'] species S460; 24 genomes $7.06
+[03:12:19] [Z] new species S466 founded by Z832
+[03:12:19] [Z] birth Z832 (tune ) of ['Z787'] species S466; 24 genomes $7.06
+[03:12:23] [Z] new species S467 founded by Z833
+[03:12:23] [Z] birth Z833 (llm_cross claude-haiku-5-5) of ['Z813', 'Z796'] species S467; 24 genomes $7.06
+[03:12:38] [Z] rejected tune : behavioural twin
+[03:12:39] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 145: unsupported statement Continue
+[03:12:52] [Z] new species S468 founded by Z834
+[03:12:52] [Z] birth Z834 (tune ) of ['Z824'] species S468; 24 genomes $7.09
+[03:12:56] [Z] new species S469 founded by Z835
+[03:12:56] [Z] birth Z835 (mutate claude-opus-5-5) of ['Z796'] species S469; 24 genomes $7.09
+[03:12:56] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:13:14] [Z] birth Z836 (tune ) of ['Z821'] species S442; 24 genomes $7.10

@@ -1288,3 +1288,58 @@
 [03:07:50] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 172: gene goal_field redefined or shadows a builtin
 [03:07:58] [Z] new species S367 founded by Z645
 [03:07:58] [Z] birth Z645 (llm_cross claude-opus-5-5) of ['Z642', 'Z603'] species S367; 24 genomes $3.65
+[03:08:03] [Z] birth Z646 (mutate claude-haiku-5-5) of ['Z634'] species S363; 24 genomes $3.65
+[03:08:17] [Z] birth Z647 (llm_cross claude-haiku-5-5) of ['Z598', 'Z621'] species S361; 24 genomes $3.65
+[03:08:34] [Z] new species S368 founded by Z648
+[03:08:34] [Z] birth Z648 (llm_cross claude-haiku-5-5) of ['Z628', 'Z634'] species S368; 24 genomes $3.66
+[03:08:36] [Z] birth Z649 (llm_cross claude-haiku-5-5) of ['Z629', 'Z634'] species S357; 24 genomes $3.66
+[03:08:39] [Z] champion anchor champ13-Z646 (mu 38.9)
+[03:08:39] [Z] summary: births 650 deaths 627 games 102216 $3.66; top [('Z646', 38.9, 0.88, 112, 'S363'), ('Z634', 38.82, 0.84, 176, 'S349'), ('Z645', 38.56, 0.88, 104, 'S367')]; top vs anchors {'Z646': None, 'Z634': None, 'Z645': None}
+[03:08:39] [Z] birth Z650 (mutate claude-haiku-5-5) of ['Z616'] species S348; 24 genomes $3.66
+[03:08:59] [Z] new species S369 founded by Z651
+[03:08:59] [Z] birth Z651 (tune ) of ['Z564'] species S369; 24 genomes $3.66
+[03:09:00] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:09:11] [Z] new species S370 founded by Z652
+[03:09:11] [Z] birth Z652 (llm_cross claude-haiku-5-5) of ['Z603', 'Z647'] species S370; 24 genomes $3.66
+[03:09:29] [Z] new species S371 founded by Z653
+[03:09:29] [Z] birth Z653 (llm_cross claude-haiku-5-5) of ['Z628', 'Z646'] species S371; 24 genomes $3.72
+[03:09:33] [Z] new species S372 founded by Z654
+[03:09:33] [Z] birth Z654 (mutate claude-opus-5-5) of ['Z620'] species S372; 24 genomes $3.72
+[03:09:37] [Z] birth Z655 (llm_cross claude-haiku-5-5) of ['Z637', 'Z621'] species S358; 24 genomes $3.72
+[03:10:00] [Z] birth Z656 (mutate claude-haiku-5-5) of ['Z644'] species S366; 24 genomes $3.72
+[03:10:06] [Z] new species S373 founded by Z657
+[03:10:06] [Z] birth Z657 (llm_cross claude-haiku-5-5) of ['Z643', 'Z646'] species S373; 24 genomes $3.72
+[03:10:09] [Z] new species S374 founded by Z658
+[03:10:09] [Z] birth Z658 (llm_cross claude-haiku-5-5) of ['Z646', 'Z655'] species S374; 24 genomes $3.73
+[03:10:17] [Z] birth Z659 (mutate claude-haiku-5-5) of ['Z620'] species S358; 24 genomes $3.73
+[03:10:29] [Z] summary: births 660 deaths 637 games 103912 $3.73; top [('Z620', 38.8, 0.81, 416, 'S332'), ('Z653', 38.38, 0.9, 104, 'S371'), ('Z634', 38.35, 0.79, 272, 'S349')]; top vs anchors {'Z620': None, 'Z653': 0.875, 'Z634': None}
+[03:10:29] [Z] birth Z660 (mutate claude-haiku-5-5) of ['Z647'] species S361; 24 genomes $3.73
+[03:10:37] [Z] new species S375 founded by Z661
+[03:10:37] [Z] birth Z661 (llm_cross claude-haiku-5-5) of ['Z648', 'Z658'] species S375; 24 genomes $3.73
+[03:10:42] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[03:10:59] [Z] new species S376 founded by Z662
+[03:10:59] [Z] birth Z662 (llm_cross claude-haiku-5-5) of ['Z634', 'Z623'] species S376; 24 genomes $3.74
+[03:11:01] [Z] birth Z663 (mutate claude-haiku-5-5) of ['Z657'] species S373; 24 genomes $3.74
+[03:11:17] [Z] new species S377 founded by Z664
+[03:11:17] [Z] birth Z664 (tune ) of ['Z643'] species S377; 24 genomes $3.84
+[03:11:19] [Z] new species S378 founded by Z665
+[03:11:19] [Z] birth Z665 (llm_cross claude-opus-5-5) of ['Z643', 'Z657'] species S378; 24 genomes $3.84
+[03:11:34] [Z] new species S379 founded by Z666
+[03:11:34] [Z] birth Z666 (llm_cross claude-haiku-5-5) of ['Z662', 'Z628'] species S379; 24 genomes $3.84
+[03:11:37] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[03:11:42] [Z] birth Z667 (mutate claude-haiku-5-5) of ['Z643'] species S362; 24 genomes $3.84
+[03:11:54] [Z] birth Z668 (mutate claude-haiku-5-5) of ['Z665'] species S378; 24 genomes $3.85
+[03:11:56] [Z] new species S380 founded by Z669
+[03:11:56] [Z] birth Z669 (mutate claude-haiku-5-5) of ['Z643'] species S380; 24 genomes $3.85
+[03:12:01] [Z] summary: births 670 deaths 647 games 105232 $3.85; top [('Z634', 38.86, 0.8, 336, 'S349'), ('Z669', 38.81, 6.0, 0, 'S380'), ('Z661', 38.76, 0.88, 152, 'S375')]; top vs anchors {'Z634': None, 'Z661': 1.0, 'Z598': 0.917}
+[03:12:01] [Z] birth Z670 (mutate claude-haiku-5-5) of ['Z665'] species S378; 24 genomes $3.85
+[03:12:25] [Z] birth Z671 (mutate claude-haiku-5-5) of ['Z661'] species S375; 24 genomes $3.88
+[03:12:29] [Z] new species S381 founded by Z672
+[03:12:29] [Z] birth Z672 (mutate claude-opus-5-5) of ['Z667'] species S381; 24 genomes $3.88
+[03:12:31] [Z] new species S382 founded by Z673
+[03:12:31] [Z] birth Z673 (llm_cross claude-haiku-5-5) of ['Z662', 'Z667'] species S382; 24 genomes $3.88
+[03:12:55] [Z] birth Z674 (mutate claude-haiku-5-5) of ['Z598'] species S341; 24 genomes $3.88
+[03:12:57] [Z] new species S383 founded by Z675
+[03:12:57] [Z] birth Z675 (mutate claude-haiku-5-5) of ['Z564'] species S383; 24 genomes $3.88
+[03:13:00] [Z] new species S384 founded by Z676
+[03:13:00] [Z] birth Z676 (llm_cross claude-haiku-5-5) of ['Z634', 'Z672'] species S384; 24 genomes $3.88
