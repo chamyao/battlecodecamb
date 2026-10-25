@@ -1,0 +1,16 @@
+```python
+@gene('a8', 'a step downhill on the walking field to GOAL; among equal steps prefer tiles farther from enemies (much more so below half health) and in bushes (bushes always, as a tie-break)')
+def move_value(o: Option) -> Num:
+    g = step_gain(o.tile)
+    if g <= 0:
+        return 0
+    v = 100 + g
+    ft = foe_tiles()
+    if size(ft) > 0:
+        w = 0.9 if hurt_below(0.5) else 0.3
+        v -= w * count(dist(t, o.tile) <= 2 for t in ft)
+        v -= 0.1 * count(dist(t, o.tile) <= 3 for t in ft)
+    if o.tile in bushes():
+        v += 0.05
+    return v
+```

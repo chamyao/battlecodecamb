@@ -1,0 +1,9 @@
+```python
+@gene("a6", "fight casts: shield/heal on self once below 80% health (kept for when the hits land), damage or stun at TGT, attack resets once the attack is spent")
+def strike_cast(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 170 - o.slot if o.unit == me() and me().health_frac < 0.8 else 0
+    if k == AB_RESET:
+        return 150 - o.slot if not can_attack() else 0
+    return 170 - o.slot if o.tile == TGT else 0
+```
