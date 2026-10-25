@@ -1,0 +1,9 @@
+```python
+@gene("m9", "spawn tiles of respawning groups, except groups back within 8 turns (worth walking to now: we arrive as they respawn)")
+def respawning() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if group_respawning(g) and group_cooldown(g) > 8:
+            acc = acc | group_tiles(g)
+    return acc
+```

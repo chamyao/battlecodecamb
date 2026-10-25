@@ -593,3 +593,40 @@
 [07:02:54] [B] rejected tune : behavioural twin
 [07:03:00] [B] summary: births 1820 deaths 1797 games 427160 $11.08; top [('B1818', 48.62, 0.93, 120, 'S10'), ('B1816', 48.55, 0.86, 144, 'S6'), ('B1803', 48.11, 0.81, 880, 'S6')]; top vs anchors {'B1818': 0.844, 'B1816': 0.675, 'B1803': 0.74}
 [07:03:00] [B] birth B1820 (mutate session) of ['B1767'] species S3; 24 genomes $11.08
+[07:03:29] [B] birth B1821 (mutate session) of ['B1818'] species S10; 24 genomes $11.08
+[07:03:30] [B] rejected mutate session: behavioural twin
+[07:03:39] [B] rejected mutate session: behavioural twin
+[07:04:00] [B] rejected mutate session: behavioural twin
+[07:04:11] [B] birth B1822 (llm_cross session) of ['B1815', 'B1803'] species S6; 24 genomes $11.08
+[07:04:32] [B] birth B1823 (llm_cross session) of ['B1806', 'B1819'] species S9; 24 genomes $11.08
+[07:04:39] [B] birth B1824 (mutate session) of ['B1806'] species S8; 24 genomes $11.08
+[07:04:46] [B] birth B1825 (mutate session) of ['B1796'] species S6; 24 genomes $11.08
+[07:05:13] [B] rejected mutate session: solo-farm: 92161 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 488
+[07:05:26] [B] birth B1826 (mutate session) of ['B1821'] species S10; 24 genomes $11.08
+[07:05:26] [B] rejected mutate session: behavioural twin
+[07:05:40] [B] birth B1827 (mutate session) of ['B1817'] species S9; 24 genomes $11.08
+[07:06:05] [B] birth B1828 (mutate session) of ['B1816'] species S6; 24 genomes $11.08
+[07:06:07] [B] rejected mutate session: behavioural twin
+[07:06:13] [B] rejected mutate session: behavioural twin
+[07:06:44] [B] birth B1829 (mutate session) of ['B1816'] species S6; 24 genomes $11.08
+[07:06:46] [B] summary: births 1830 deaths 1807 games 430544 $11.08; top [('B1826', 48.91, 0.92, 112, 'S10'), ('B1830', 48.91, 6.0, 0, 'S10'), ('B1821', 48.81, 0.84, 176, 'S10')]; top vs anchors {'B1826': 0.833, 'B1821': None, 'B1816': 0.719}
+[07:06:46] [B] birth B1830 (mutate session) of ['B1826'] species S10; 24 genomes $11.08
+[07:07:03] [B] rejected mutate session: behavioural twin
+[07:07:24] [B] birth B1831 (mutate session) of ['B1829'] species S6; 24 genomes $11.08
+[07:07:37] [B] birth B1832 (mutate session) of ['B1814'] species S8; 24 genomes $11.08
+[07:07:37] [B] rejected mutate session: behavioural twin
+[07:07:57] [B] rejected mutate session: behavioural twin
+[07:08:03] [B] rejected tune : solo-farm: 61951 rounds to 1000 gems vs idle (40 maps x 2), more than 3% worse than the parent's 492
+[07:08:16] [B] rejected mutate session: behavioural twin
+[07:08:19] [B] rejected tune : behavioural twin
+[07:08:35] [B] rejected mutate session: behavioural twin
+[07:08:53] [B] birth B1833 (mutate session) of ['B1832'] species S8; 24 genomes $11.08
+[07:09:05] [B] birth B1834 (llm_cross session) of ['B1820', 'B1831'] species S6; 24 genomes $11.08
+[07:09:24] [B] birth B1835 (mutate session) of ['B1617'] species S4; 24 genomes $11.08
+[07:09:29] [B] rejected mutate session: behavioural twin
+[07:09:37] [B] birth B1836 (mutate session) of ['B1818'] species S10; 24 genomes $11.08
+[07:10:00] [B] rejected mutate session: behavioural twin
+[07:10:11] [B] rejected mutate session: behavioural twin
+[07:10:25] [B] birth B1837 (mutate session) of ['B1833'] species S8; 24 genomes $11.08
+[07:10:34] [B] birth B1838 (tune ) of ['B1816'] species S6; 24 genomes $11.08
+[07:10:36] [B] birth B1839 (mutate session) of ['B1826'] species S10; 24 genomes $11.08
