@@ -2,6 +2,21 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 03:10 UTC: Z series status (best / mean top 3 of 880)
+
+- Z-5 final population: Z392 394, Z430 371, Z477 357, Z452 347, Z458 336 (top-5 mean 361); Z477 h2h:
+  55/80 vs Z-1's best Z449, 53/80 vs Z-1x's top Z657 (663 births). ~1.7-1.8x Z-1's final at matched births.
+- Z-8/Z-8x (all Opus, API, no feedback): 130/118 (b119), 190/176 (b207); second to Z-5 (226 at b261).
+- Z-1x (Z-1 continued): 212/187 (b500), 228/218 (b617), 231/226 (b731): flattening after the b475 jump.
+- Z-11r (splits): 83, 83, 107, 121 (b415): baseline range so far.
+- Z-9 (55/30/15 mix): 90, 88, 107, 114 (b617): baseline-like. Z-6 (no ladder notes) final 96 (b514):
+  lowest baseline-like. Z-4 final 56. Z-10 relay m1 (b102) 85: replicate range so far.
+- Relay legs 1-3 done (152 births); per leg ~20-28 min and $3.5-6.3 of Claude Code usage. Leg 4 running.
+  Finding from the relay: the draft picks one champion every game, so ability branches for other
+  champions never run; many heal/shield/cast edits are twins for that reason.
+- New calibrated runtime genome/v0 ca5180b (sim = real on 3 matchups); next series pins genome/search e3ac822a.
+  B1145 (Arena B) beats A61188 (v27) 48/80 in both sim and real.
+
 ## 2026-10-25 02:50 UTC
 
 - Z-5 finished: 477 births in ~2 h (one container restart, resumed). Final in-arena top Z477 41.93, Z458
