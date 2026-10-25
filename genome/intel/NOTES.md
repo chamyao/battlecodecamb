@@ -76,3 +76,7 @@ Paired with b7: 21-29 -> 27-23 (6 flips to a win, 0 to a loss), gems +39 +- 20. 
 ## Batch 9 (2026-10-25, live v32 = B1873)
 
 Paired with b8: 27-23 -> 31-19, gems +87 +- 39, stuck 31.5 -> 4.0. elk_arena vs NotSoLonely won 936-720 (b8 lost 18-1008). boss_battle still lost but no longer frozen. See batches/b9.md.
+
+## Batch 10 (2026-10-25)
+
+Paired with b9: 48 of 50 games have identical scores, boss_battle included (363-1352). The v33 change was not observed; v33 activation is unconfirmed. See batches/b10.md.
