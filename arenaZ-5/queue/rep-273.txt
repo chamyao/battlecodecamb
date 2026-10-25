@@ -1,0 +1,23 @@
+```python
+@gene('Z135b', 'value of casts cast_value ignores: an attack reset after attacking with a target in range (first on enemies), a ground AoE that hits an enemy champion or an awake camp pack', parents=['Z18a'])
+def extra_cast(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        here = me().pos
+        reach = me().attack_range
+        if any(dist(u.pos, here) <= reach for u in enemies()):
+            return 89
+        if gems() == 0 and any(dist(u.pos, here) <= reach for u in camps()):
+            return 63
+        return 0
+    if (k == AB_AOE or k == AB_DAMAGE or k == AB_CC) and not exists(o.unit) and valid(o.tile):
+        r = slot_radius(o.slot)
+        if any(u.is_champion and dist(u.pos, o.tile) <= r for u in enemies()):
+            return 84
+        if k == AB_AOE and gems() == 0:
+            if count(dist(u.pos, o.tile) <= r and is_awake(u) for u in camps()) >= 2:
+                return 63
+    return 0
+```

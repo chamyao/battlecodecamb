@@ -1,0 +1,13 @@
+```python
+@gene('Z244b', 'after acting: announce a fight with an enemy champion (attack or cast tile + round) in shared bytes 0-2 so allies can join', parents=['Z47b'])
+def after() -> None:
+    t = tile(-5, -5)
+    if acted(ATTACK):
+        t = acted_tile(ATTACK)
+    if not (valid(t) and t in enemy_tiles()) and acted(CAST):
+        t = acted_tile(CAST)
+    if valid(t) and t in enemy_tiles():
+        write_shared(0, t.x + 1)
+        write_shared(1, t.y + 1)
+        write_shared(2, round() % 250 + 1)
+```
