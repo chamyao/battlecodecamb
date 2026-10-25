@@ -1,0 +1,84 @@
+```python
+@gene('s1', 'value of doing this option now: draft, casts, focus the weakest foe, fight back against awake camps, heal on spawn, cash out a big bag; shop durability and jungle emblems; recall only out of danger; bank first when foes are in sight')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        if HIT or under_threat():
+            return 0
+        if me().health_frac < 0.5:
+            return 76
+        if gems() >= 10 and me().health_frac < 0.5 and count_units(enemies()) == 0:
+            return 76
+        return 45 if gems() == 0 and gold() >= 210 else 0
+    if RETREAT and (o.kind == MOVE or o.kind == CAST or o.kind == ATTACK):
+        return retreat_value(o)
+    if o.kind == CAST:
+        return cast_v2(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (0.6312 - o.unit.health_frac)
+        if gems() == 0:
+            if big_camp(o.unit) and not is_awake(o.unit):
+                return 0
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 55
+        return 54 if path_blocked() else 0
+    if o.kind == TRIBUTE:
+        return 99 if count_units(enemies()) > 0 else 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health < me().max_health and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+
+@gene('Z217a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag')
+def update() -> None:
+    if not MAPPED:
+        BIGS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        MAPPED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key()
+    force = k != GKEY
+    if force:
+        GKEY = k
+        if gems() > 0:
+            ALT = near(tile(-5, -5), 0)
+            for a in altars() - locked_altars():
+                ALT = ALT | near(a, 1)
+        else:
+            LIVEG = near(tile(-5, -5), 0)
+            REWG = LIVEG
+            for gi in range(num_groups()):
+                if not group_respawning(gi):
+                    gt = group_tiles(gi)
+                    if group_reward(gi):
+                        REWG = REWG | gt
+                    elif size(gt & BIGS) == 0:
+                        LIVEG = LIVEG | gt
+    HIT = me().health < LASTHP - 0.5
+    LASTHP = me().health
+    RETREAT = me().health_frac < 0.3 and (HIT or under_threat())
+    here = me().pos
+    unseen = camp_spawns() - vision() - DEAD
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | unseen) - near(here, 0)
+    tgt = my_spawn() if RETREAT else goals()
+    if here in tgt:
+        GOAL = here
+    elif force or not valid(GOAL) or not (GOAL in tgt) or GOAL == here or round() >= GTURN:
+        cand = tgt - (blk - live - unseen)
+        GOAL = walk_nearest(cand, here, blk - cand)
+        GTURN = round() + 5
+    g = near(GOAL, 0)
+    WF = field_avoid(g, blk - g, near(here, 0))
+
+```

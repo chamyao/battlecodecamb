@@ -1,0 +1,67 @@
+```python
+HIT: Bool = False     # this turn: I lost health since last turn
+LASTHP: Num = 0       # my health at the start of last turn
+
+@gene('Z141a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag')
+def update() -> None:
+    if not HOMED:
+        HF = field(my_spawn())
+        HOMED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key()
+    if k != GKEY:
+        GS = goals()
+        GF = field(GS)
+        GKEY = k
+    HIT = me().health < LASTHP - 0.5
+    LASTHP = me().health
+    RETREAT = me().health_frac < 0.3 and (HIT or under_threat())
+    WF = HF if RETREAT else GF
+    here = me().pos
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | camp_tiles() | (camp_spawns() - vision() - DEAD)) - near(here, 0)
+    mine = at(WF, here)
+    if mine > 0 and mine < 100000 and not any(at(WF, t) < mine for t in near(here, 1) - blk):
+        tgt = my_spawn() if RETREAT else GS
+        WF = field_avoid(tgt, blk - tgt, near(here, 0))
+
+
+@gene('s1', 'value of doing this option now: draft, casts, focus the weakest foe, fight back against awake camps, heal on spawn, cash out a big bag; shop durability and jungle emblems; recall only out of danger, recall to shop with spare gold; recall below half health when safe; heal to full on spawn; no recall while taking damage')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        if HIT or under_threat():
+            return 0
+        if me().health_frac < 0.5:
+            return 76
+        if gems() >= 10 and me().health_frac < 0.5 and count_units(enemies()) == 0:
+            return 76
+        return 45 if gems() == 0 and gold() >= 210 else 0
+    if RETREAT and (o.kind == MOVE or o.kind == CAST or o.kind == ATTACK):
+        return retreat_value(o)
+    if o.kind == CAST:
+        return cast_v2(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (0.6312 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 55
+        return 54 if path_blocked() else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health < me().max_health and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+```

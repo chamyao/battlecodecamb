@@ -1,0 +1,43 @@
+```python
+@gene('s1', 'value of doing this option now: draft, casts, focus the weakest foe, fight back against awake camps, heal on spawn, cash out a big bag; shop durability and jungle emblems; recall only out of danger; no recall while taking damage, recall below half health when safe; press foes below 30% health')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        if HIT or under_threat():
+            return 0
+        if me().health_frac < 0.5:
+            return 76
+        return 76 if gems() >= 10 and me().health_frac < 0.5 and count_units(enemies()) == 0 else 0
+    if (o.kind == MOVE or o.kind == CAST or o.kind == ATTACK) and RETREAT:
+        return retreat_value(o)
+    if o.kind == CAST:
+        return cast_v2(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (0.6312 - o.unit.health_frac) + (8 if o.unit.health_frac < 0.3 else 0)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 55
+        return 54 if path_blocked() else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health < me().max_health and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+
+@gene('Z121c', 'shop: a durability health emblem, then a jungle health emblem, then bruiser strength; bigger buys first', parents=['s1'])
+def shop_value(o: Option) -> Num:
+    if items_owned(17) == 0:
+        return 100 + o.count / 100 if o.item == 16 and o.count <= 5 - items_owned(16) else 0
+    if items_owned(29) == 0:
+        return 100 + o.count / 100 if o.item == 28 and o.count <= 5 - items_owned(28) else 0
+    return 100 + o.count / 100 if o.item == 36 else 0
+
+```

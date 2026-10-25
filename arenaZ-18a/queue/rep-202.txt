@@ -1,0 +1,7 @@
+```python
+@gene('Z61a', 'an enemy champion within 5 or an awake camp within its range + 1', parents=['s3'])
+def under_threat() -> Bool:
+    p = me().pos
+    return any(dist(p, u.pos) <= 5 for u in enemies()) or any(is_awake(c) and dist(p, c.pos) <= c.attack_range + 1 for c in camps())
+
+```
