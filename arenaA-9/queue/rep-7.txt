@@ -1,0 +1,11 @@
+```python
+@gene('a12', 'dash this turn: retreat with fuel > 40k; walking rules with GOAL over 2 away and fuel > 45k, but camp walks keep the dash for escapes while an enemy champion is within 8')
+def dash_gate() -> Bool:
+    if RULE == 3:
+        return fuel() > 40000
+    if walks() and valid(GOAL) and dist(here(), GOAL) > 2 and fuel() > 45000:
+        if (RULE == 19 or RULE == 20) and enemies_within(8) > 0:
+            return False
+        return True
+    return False
+```

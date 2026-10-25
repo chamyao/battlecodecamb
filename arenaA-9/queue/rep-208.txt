@@ -1,0 +1,5 @@
+```python
+@gene('s13', 'in-reach enemy champion: one recalling (damage cancels it) or tributing first, then carried gems, then lowest health')
+def fight_foe() -> Unit:
+    return best(enemies(), lambda u: unit_gems(u) * 10 - u.health + (300 if is_recalling(u) else 0) + (200 if is_tributing(u) else 0) if in_reach(u) else -INF)
+```

@@ -1,0 +1,6 @@
+```python
+@gene("a1", "this turn's rule walks to GOAL (retreat, bank walks, monolith walk, live camp, camp walk)")
+def walks() -> Bool:
+    r = RULE
+    return r == 20 or r == 12 or r == 3 or r == 11 or r == 19 or r == 18 or r == 15
+```

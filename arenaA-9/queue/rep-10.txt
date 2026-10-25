@@ -1,0 +1,13 @@
+```python
+@gene('a5', 'cast-ahead applies: nearest enemy within 5 (or within a ready slot range, up to 7) and not on its spawn')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    if not exists(f) or f.pos in enemy_spawn():
+        return False
+    r = 5
+    if slot_ready(0):
+        r = max(r, min(7, slot_range(0)))
+    if slot_ready(1):
+        r = max(r, min(7, slot_range(1)))
+    return dist(here(), f.pos) <= r
+```

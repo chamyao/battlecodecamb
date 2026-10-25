@@ -1,0 +1,5 @@
+```python
+@gene("a15", "shards the turn's budget pays for (SHOP_GOLD / 30) for every k: one kind is bought at a time (next_shard decides it), in as few purchases as possible")
+def shard_until(k: Num) -> Num:
+    return floor(SHOP_GOLD / 30)
+```

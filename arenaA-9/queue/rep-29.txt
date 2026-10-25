@@ -1,0 +1,16 @@
+```python
+@gene('w4', 'nearest tile of s by walking, avoiding goal tiles within 2 of a visible enemy champion when others exist; fall back to straight-line nearest; invalid if s empty', parents=['w4'])
+def closest(s: Tiles) -> Tile:
+    if here() in s:
+        return here()
+    cand = s - taken()
+    et = enemy_tiles()
+    if size(et) > 0:
+        safe = cand - ring(et, 2)
+        if size(safe) > 0:
+            cand = safe
+    w = walk_nearest(cand, here(), blocked() - cand)
+    if valid(w):
+        return w
+    return nearest(s, here())
+```

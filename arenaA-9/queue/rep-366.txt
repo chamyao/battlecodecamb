@@ -1,0 +1,24 @@
+```python
+@gene('c1', "where this turn's rule walks; banking under threat also prefers the safe, unlocked altar; the monolith rule walks to a live monolith first")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11 or r == 12:
+        return bank_goal()
+    if r == 15:
+        m = closest(type_spawns(MONOLITH) - respawning())
+        if valid(m):
+            return m
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+@gene('s15', 'the nearest visible camp, big camps (monoliths, golems) ranked last; wounded camps preferred among near-equal distances')
+def live_camp() -> Unit:
+    return best(camps(), lambda c: -dist(here(), c.pos) - 2 * c.health_frac - (1000 if c.pos in BIG_CAMPS else 0))
+```

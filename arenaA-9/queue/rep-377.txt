@@ -1,0 +1,8 @@
+```python
+@gene("m4", "every tile within r of a tile of s")
+def ring(s: Tiles, r: Num) -> Tiles:
+    acc = s - s
+    for t in s:
+        acc = near(t, r) | acc
+    return acc
+```

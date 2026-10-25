@@ -1,0 +1,11 @@
+```python
+@gene("a6", "fight casts: shield/heal on self or the slot at TGT first, attack resets once the attack is spent; on a camp, damage and stun casts are saved while an enemy champion is within 8")
+def strike_cast(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 170 - o.slot if o.unit == me() else 0
+    if k == AB_RESET:
+        return 150 - o.slot if not can_attack() else 0
+    if RULE == 14 and (k == AB_DAMAGE or k == AB_AOE or k == AB_CC) and enemies_within(8) > 0:
+        return 0
+    return 170 - o.slot if o.tile == TGT else 0
+```

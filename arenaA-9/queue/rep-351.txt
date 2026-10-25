@@ -1,0 +1,17 @@
+```python
+@gene('m15', 'nearest open tile next to an altar free of visible enemy locks (not blocked), else nearest open tile next to any altar, else nearest tile next to any altar', parents=['m15'])
+def bank_t3() -> Tile:
+    open_ring = ALTAR_RING - taken()
+    if size(open_ring) > 0:
+        la = locked_altars()
+        el = la - la
+        for t in la:
+            if lock_enemy(t):
+                el = el | near(t, 0)
+        if size(el) > 0:
+            free = open_ring - ring(el, 1)
+            if size(free) > 0:
+                return closest(free)
+        return closest(open_ring)
+    return closest(ALTAR_RING)
+```

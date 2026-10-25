@@ -1,0 +1,5 @@
+```python
+@gene("w11", "tiles next to me a dash may pass through (not terrain or enemy spawn: TERRAIN keep, no per-pass engine calls)")
+def dash_mids() -> Tiles:
+    return near(here(), 1) - TERRAIN
+```

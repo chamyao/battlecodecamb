@@ -1,0 +1,9 @@
+```python
+@gene("r17", "bank before a dangerous group: 10+ gems and the next group's strength is at least 120 per champion of ours within 6 (240 for a pair, 120 alone, 360 for three or more)")
+def r_bankgroup() -> Bool:
+    g = camp_goal()
+    if not valid(g) or gems() < 10 or fuel() <= 65000:
+        return False
+    n = min(3, max(1, size(ally_tiles() & near(here(), 6))))
+    return group_threat(g) >= 120 * n
+```

@@ -1,0 +1,12 @@
+```python
+@gene('m11', "the camp walk's goal: nearest non-big spawn of a live group, falling back to any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    base = CAMP_BASE - BIG_CAMPS
+    t = closest(base - respawning())
+    if valid(t):
+        return t
+    t = closest(base)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```

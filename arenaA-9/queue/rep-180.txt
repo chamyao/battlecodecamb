@@ -1,0 +1,6 @@
+```python
+@gene('s4', 'within my basic attack range')
+def in_reach(u: Unit) -> Bool:
+    m = me()
+    return dist(m.pos, u.pos) <= m.attack_range
+```
