@@ -349,3 +349,9 @@ The suspension gate was never applied (my message arrived after the leg started)
 Relay writer patches run.py (--llm-queue) and score.py (--fitness exploit: wins/80 + 0.02 x kills) in its own worktree, seeds
 v33 + B318, opponent v33, 150 programs, mirror to arenab/x4-exploit. Keepers (>= 45/80 vs v33, >= 10 kills/game) get a real
 check, then become stress anchors. Genome lead: no upload for B2413; v33 stays.
+
+## Oct 25 ~14:55: exploit-4 (session writer, $0): no keepers
+151 programs vs v33 (fitness wins, kills as a filter). Sim tops #144 46/80 (10.7 kills), #74 45/80 (10.0). Real cambc vs v33:
+#144 40/80 (9.7 kills, 11.1 deaths/game), #74 43/80 (8.8 / 11.8). Sim fitness on this line saturates ~0.55-0.575.
+Patch dd60bcc1 and x4-exploit/ (3770bdcb) on arenab/b14-relay. With tune-B's real grid (35-44 around 40 over 70 variants),
+the evidence is that v33 is a local optimum for single edits; real-engine screening is now the only trustworthy filter.
