@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
-#include <exception>
 #include <atomic>
 #include <cstdio>
 #include <cstdlib>
@@ -249,19 +248,23 @@ public:
 	// primitives' prices already carry one frame, so a call is charged it only when it ran none of them
 	// (e.g. a score gene using me() only on MOVE options still pays the frame on every option).
 	bool frame_open = false;
-	double frame_acc = 0;
+	mutable double frame_acc = 0; // frame fuel not yet charged
 	static constexpr double FRAME_FUEL = 12;
 	void frame_used() { frame_open = false; }
+	// Runs in ~FrameGuard, so it must not charge: a charge can suspend the coroutine, which may then be
+	// cancelled by an exception, and a destructor may not throw. The fuel waits in frame_acc for the next
+	// charge (extra(), F(), loops), which bills its whole part.
 	void frame_close(bool saved)
 	{
-		if (frame_open && std::uncaught_exceptions() == 0)
-		{
-			frame_acc += FRAME_FUEL;
-			const double whole = std::floor(frame_acc);
-			frame_acc -= whole;
-			extra(whole);
-		}
+		if (frame_open) frame_acc += FRAME_FUEL;
 		frame_open = saved;
+	}
+	[[gnu::always_inline]] std::int64_t frame_take() const
+	{
+		if (frame_acc < 1) [[likely]] return 0;
+		const double whole = std::floor(frame_acc);
+		frame_acc -= whole;
+		return static_cast<std::int64_t>(whole);
 	}
 	void* prof_top = nullptr; // GENOME_PROF: the innermost open gene scope
 #ifdef GENOME_PROF
@@ -273,19 +276,20 @@ public:
 	void extra(double fuel) const
 	{
 #ifndef GENOME_BOT
-		if (fuel > 0) api.compute(static_cast<std::int64_t>(fuel));
+		const std::int64_t f = (fuel > 0 ? static_cast<std::int64_t>(fuel) : 0) + frame_take();
+		if (f > 0) api.compute(f);
 #endif
 	}
 	double chunks() const { return ((m.W + 7) / 8) * ((m.H + 7) / 8); }
 	[[gnu::always_inline]] void charge_ops(long n)
 	{
 		ops += n;
-		api.compute(n * GENOME_OP_FUEL);
+		api.compute(n * GENOME_OP_FUEL + frame_take());
 	}
 	void charge_loop(long n)
 	{
 		ops += n;
-		api.compute(n * GENOME_OP_FUEL + GENOME_LOOP_FUEL);
+		api.compute(n * GENOME_OP_FUEL + GENOME_LOOP_FUEL + frame_take());
 	}
 
 	void new_pass()
@@ -559,7 +563,7 @@ public:
 	{
 		auto b = std::make_shared<Bitboard>();
 		if (in_bounds(t)) cbs::draw_chebyshev(*b, m.W, m.H, t.v(), static_cast<float>(std::max(0.0, r)));
-		extra(122 + 1.03 * chunks());
+		extra(202 + 1.06 * chunks()); // ~80 more than first fitted: each new set's allocation (calib8, FUEL.md)
 		return { b };
 	}
 	Tile nearest(const Tiles& s, Tile t)
@@ -581,9 +585,9 @@ public:
 		return s.b ? s.b->count(m.H) : 0;
 	}
 	bool contains(const Tiles& s, Tile t) { return extra(66), s.b && in_bounds(t) && s.b->test(t.v()); }
-	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(76 + 3.1 * chunks()), combine(a, b, 0); }
-	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(76 + 3.1 * chunks()), combine(a, b, 1); }
-	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(77 + 4.0 * chunks()), combine(a, b, 2); }
+	Tiles tiles_or(const Tiles& a, const Tiles& b) { return extra(188 + 2.88 * chunks()), combine(a, b, 0); } // calib8
+	Tiles tiles_and(const Tiles& a, const Tiles& b) { return extra(188 + 2.88 * chunks()), combine(a, b, 1); }
+	Tiles tiles_minus(const Tiles& a, const Tiles& b) { return extra(176 + 3.9 * chunks()), combine(a, b, 2); }
 	// Row-major, as the simulator iterates. In the bot the host lists tiles chunk row by chunk row
 	// ((chunk row, chunk col, y, x)); a stable counting sort on y alone restores row-major order in
 	// linear time (the host bitboard's own for_each uses an insertion sort, quadratic per chunk row).
@@ -2103,7 +2107,7 @@ inline int play_turn(Ctx& X, GenesBase& g, int max_passes = 16)
 	{
 		// the pass guard: a later pass starts only with at least reserve() fuel left
 		if (pass > 0 && !draft && static_cast<double>(X.api.fuel_remaining()) < reserve) break;
-		if (!draft) X.extra(pass == 0 ? 575 : 1074); // a pass's own work in the bot (fitted per turn: seed and v23, identical games)
+		if (!draft) X.extra(pass == 0 ? 93 : 474); // a pass's own work in the bot (refitted with the set algebra's prices on 7 genomes x 3 maps, identical games; FUEL.md)
 		X.new_pass();
 #ifdef GENOME_PROF
 		std::int64_t f_upd = 0;

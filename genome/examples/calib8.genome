@@ -1,0 +1,86 @@
+"""Fuel calibration genome 7: the constructs of the arena genomes' costliest genes (walk_nearest, near unions,
+set algebra, contains). update() runs one probe per turn in rotation on the nearest
+visible enemy champion (else ally, else me), the nearest camp and my tile. Needs GENOME_UNCALIBRATED=1
+until accepted."""
+
+@gene("c0", "score: walk to the nearest camp spawn, attack camps")
+def score(o: Option) -> Num:
+    if o.kind == ATTACK:
+        return 60
+    if o.kind == MOVE:
+        return 50 - dist(o.tile, nearest(camp_spawns(), me().pos))
+    if o.kind == WARD:
+        return 40 + floor(round() % 7)
+    if o.kind == RECALL:
+        return 30 if round() % 97 == 5 else 0
+    return 0
+
+@gene("c1", "run one probe this turn (round mod #probes)")
+def update() -> None:
+    acc = 0
+    k = round()
+    slot = k % 8
+    m = me()
+    e = best(enemies(), lambda x: 0 - dist(x.pos, m.pos))
+    al = best(allies(), lambda x: 0 - dist(x.pos, m.pos))
+    u = m
+    if exists(al):
+        u = al
+    if exists(e):
+        u = e
+    c = best(camps(), lambda x: 0 - dist(x.pos, m.pos))
+    t = m.pos
+    if slot == 0:
+        acc += p_empty(k)
+    if slot == 1:
+        acc += p_or1(k)
+    if slot == 2:
+        acc += p_or3(k)
+    if slot == 3:
+        acc += p_rd4(k)
+    if slot == 4:
+        acc += p_near1(k, t)
+    if slot == 5:
+        acc += p_near2(k, t)
+    if slot == 6:
+        acc += p_sz(k)
+    if slot == 7:
+        acc += p_hold(k, t)
+    write_shared(7, acc)
+
+@gene("q0", "probe empty")
+def p_empty(k: Num) -> Num:
+    return k
+
+@gene("q1", "one union")
+def p_or1(k: Num) -> Num:
+    return size(walls() | camp_tiles()) + k
+
+@gene("q2", "three unions")
+def p_or3(k: Num) -> Num:
+    return size(walls() | camp_tiles() | ally_tiles() | enemy_tiles()) + k
+
+@gene("q3", "the four sets, no union")
+def p_rd4(k: Num) -> Num:
+    return size(walls()) + size(camp_tiles()) + size(ally_tiles()) + size(enemy_tiles()) + k
+
+@gene("q4", "one near")
+def p_near1(k: Num, t: Tile) -> Num:
+    return size(near(t, 2)) + k
+
+@gene("q5", "two nears, one union")
+def p_near2(k: Num, t: Tile) -> Num:
+    return size(near(t, 2) | near(t, 3)) + k
+
+@gene("q6", "size of a static set")
+def p_sz(k: Num) -> Num:
+    return size(walls()) + k
+
+@gene("q7", "a set held in a local")
+def p_hold(k: Num, t: Tile) -> Num:
+    return holdsz(t) + k
+
+@gene("h1", "a set in a local, then its size")
+def holdsz(t: Tile) -> Num:
+    s = near(t, 2)
+    return size(s)
