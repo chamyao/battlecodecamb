@@ -262,3 +262,91 @@
 [06:22:54] [Z] rejected tune : behavioural twin
 [06:23:10] [Z] rejected mutate claude-opus-5-5: GenomeError: score line 44: unknown function chase_target
 [06:23:17] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:23:19] [Z] birth Z128 (mutate claude-opus-5-5) of ['Z123'] species S72; 24 genomes $3.25
+[06:23:24] [Z] new species S74 founded by Z129
+[06:23:24] [Z] birth Z129 (tune ) of ['Z108'] species S74; 24 genomes $3.25
+[06:23:42] [Z] new species S75 founded by Z130
+[06:23:42] [Z] summary: births 130 deaths 107 games 31512 $3.39; top [('Z112', 34.01, 0.82, 304, 'S63'), ('Z120', 32.2, 0.81, 280, 'S62'), ('Z110', 31.89, 0.81, 288, 'S55')]; top vs anchors {'Z112': 0.25, 'Z120': 0.562, 'Z110': None}
+[06:23:42] [Z] birth Z130 (llm_cross claude-opus-5-5) of ['Z79', 'Z120'] species S75; 24 genomes $3.39
+[06:23:46] [Z] new species S76 founded by Z131
+[06:23:46] [Z] birth Z131 (mutate claude-opus-5-5) of ['Z120'] species S76; 24 genomes $3.39
+[06:23:46] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:23:47] [Z] new species S77 founded by Z132
+[06:23:47] [Z] birth Z132 (mutate claude-opus-5-5) of ['Z125'] species S77; 24 genomes $3.39
+[06:23:47] [Z] birth Z133 (mutate claude-opus-5-5) of ['Z104'] species S59; 24 genomes $3.39
+[06:23:48] [Z] new species S78 founded by Z134
+[06:23:48] [Z] birth Z134 (mutate claude-opus-5-5) of ['Z124'] species S78; 24 genomes $3.39
+[06:24:07] [Z] new species S79 founded by Z135
+[06:24:07] [Z] birth Z135 (mutate claude-opus-5-5) of ['Z112'] species S79; 24 genomes $3.48
+[06:24:07] [Z] rejected tune : behavioural twin
+[06:24:08] [Z] new species S80 founded by Z136
+[06:24:08] [Z] birth Z136 (mutate claude-opus-5-5) of ['Z120'] species S80; 24 genomes $3.48
+[06:24:16] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[06:24:20] [Z] rejected tune : behavioural twin
+[06:24:35] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[06:25:01] [Z] new species S81 founded by Z137
+[06:25:01] [Z] birth Z137 (mutate claude-opus-5-5) of ['Z81'] species S81; 24 genomes $3.69
+[06:25:02] [Z] birth Z138 (mutate claude-opus-5-5) of ['Z81'] species S66; 24 genomes $3.75
+[06:25:03] [Z] new species S82 founded by Z139
+[06:25:03] [Z] birth Z139 (mutate claude-opus-5-5) of ['Z120'] species S82; 24 genomes $3.75
+[06:25:03] [Z] new species S83 founded by Z140
+[06:25:03] [Z] summary: births 140 deaths 117 games 33264 $3.75; top [('Z130', 34.89, 0.86, 136, 'S75'), ('Z136', 33.72, 0.86, 160, 'S80'), ('Z140', 33.72, 6.0, 0, 'S83')]; top vs anchors {'Z130': 1.0, 'Z136': 1.0, 'Z112': 0.25}
+[06:25:03] [Z] birth Z140 (mutate claude-opus-5-5) of ['Z136'] species S83; 24 genomes $3.75
+[06:25:03] [Z] new species S84 founded by Z141
+[06:25:03] [Z] birth Z141 (mutate claude-opus-5-5) of ['Z118'] species S84; 24 genomes $3.75
+[06:25:03] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:25:09] [Z] new species S85 founded by Z142
+[06:25:09] [Z] birth Z142 (mutate claude-opus-5-5) of ['Z132'] species S85; 24 genomes $3.75
+[06:25:10] [Z] new species S86 founded by Z143
+[06:25:10] [Z] birth Z143 (mutate claude-opus-5-5) of ['Z121'] species S86; 24 genomes $3.75
+[06:25:31] [Z] birth Z144 (tune ) of ['Z136'] species S80; 24 genomes $3.75
+[06:25:31] [Z] birth Z145 (tune ) of ['Z139'] species S82; 24 genomes $3.75
+[06:25:31] [Z] new species S87 founded by Z146
+[06:25:31] [Z] birth Z146 (tune ) of ['Z141'] species S87; 24 genomes $3.75
+[06:25:31] [Z] rejected tune : behavioural twin
+[06:25:44] [Z] new species S88 founded by Z147
+[06:25:44] [Z] birth Z147 (llm_cross claude-opus-5-5) of ['Z142', 'Z130'] species S88; 24 genomes $3.81
+[06:25:46] [Z] rejected tune : behavioural twin
+[06:25:47] [Z] rejected tune : behavioural twin
+[06:26:00] [Z] new species S89 founded by Z148
+[06:26:00] [Z] birth Z148 (llm_cross claude-opus-5-5) of ['Z145', 'Z142'] species S89; 24 genomes $3.97
+[06:26:08] [Z] new species S90 founded by Z149
+[06:26:08] [Z] birth Z149 (llm_cross claude-opus-5-5) of ['Z145', 'Z140'] species S90; 24 genomes $3.97
+[06:26:09] [Z] new species S91 founded by Z150
+[06:26:09] [Z] champion anchor champ3-Z130 (mu 34.9)
+[06:26:09] [Z] summary: births 150 deaths 127 games 34760 $3.97; top [('Z130', 34.86, 0.81, 208, 'S75'), ('Z141', 34.82, 0.84, 144, 'S84'), ('Z142', 34.62, 0.86, 144, 'S85')]; top vs anchors {'Z130': 1.0, 'Z141': 0.875, 'Z142': 0.875}
+[06:26:09] [Z] birth Z150 (llm_cross claude-opus-5-5) of ['Z120', 'Z146'] species S91; 24 genomes $3.97
+[06:26:20] [Z] new species S92 founded by Z151
+[06:26:20] [Z] birth Z151 (mutate claude-opus-5-5) of ['Z132'] species S92; 24 genomes $4.07
+[06:26:21] [Z] birth Z152 (mutate claude-opus-5-5) of ['Z112'] species S63; 24 genomes $4.07
+[06:26:21] [Z] new species S93 founded by Z153
+[06:26:21] [Z] birth Z153 (mutate claude-opus-5-5) of ['Z144'] species S93; 24 genomes $4.07
+[06:26:22] [Z] new species S94 founded by Z154
+[06:26:22] [Z] birth Z154 (mutate claude-opus-5-5) of ['Z112'] species S94; 24 genomes $4.07
+[06:26:36] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:26:37] [Z] new species S95 founded by Z155
+[06:26:37] [Z] birth Z155 (mutate claude-opus-5-5) of ['Z134'] species S95; 24 genomes $4.13
+[06:26:39] [Z] new species S96 founded by Z156
+[06:26:39] [Z] birth Z156 (tune ) of ['Z145'] species S96; 24 genomes $4.13
+[06:26:49] [Z] rejected tune : behavioural twin
+[06:26:53] [Z] new species S97 founded by Z157
+[06:26:53] [Z] birth Z157 (llm_cross claude-opus-5-5) of ['Z130', 'Z146'] species S97; 24 genomes $4.18
+[06:27:01] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 103: unknown name ECH
+[06:27:01] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 92: unknown name ET
+[06:27:01] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 103: unknown name ECH
+[06:27:08] [Z] birth Z158 (mutate claude-opus-5-5) of ['Z141'] species S84; 24 genomes $4.27
+[06:27:35] [Z] new species S98 founded by Z159
+[06:27:35] [Z] birth Z159 (mutate claude-opus-5-5) of ['Z144'] species S98; 24 genomes $4.41
+[06:27:36] [Z] new species S99 founded by Z160
+[06:27:36] [Z] summary: births 160 deaths 137 games 36704 $4.41; top [('Z144', 34.95, 0.8, 248, 'S80'), ('Z159', 34.95, 6.0, 0, 'S98'), ('Z151', 34.86, 0.82, 184, 'S92')]; top vs anchors {'Z144': 0.875, 'Z151': 0.938, 'Z157': None}
+[06:27:36] [Z] birth Z160 (mutate claude-opus-5-5) of ['Z146'] species S99; 24 genomes $4.41
+[06:27:36] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[06:27:37] [Z] new species S100 founded by Z161
+[06:27:37] [Z] birth Z161 (mutate claude-opus-5-5) of ['Z130'] species S100; 24 genomes $4.41
+[06:27:37] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[06:27:45] [Z] rejected mutate claude-opus-5-5: GenomeError: score line 16: unknown name NEARE
+[06:27:45] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 95: unknown name EADJ
+[06:27:49] [Z] rejected tune : behavioural twin
+[06:27:53] [Z] birth Z162 (mutate claude-opus-5-5) of ['Z151'] species S92; 24 genomes $4.49
+[06:28:07] [Z] new species S101 founded by Z163
+[06:28:07] [Z] birth Z163 (llm_cross claude-opus-5-5) of ['Z120', 'Z150'] species S101; 24 genomes $4.55
