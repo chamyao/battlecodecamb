@@ -680,3 +680,14 @@
 [04:39:12] [Z] birth Z350 (llm_cross session) of ['Z336', 'Z317'] species S184; 24 genomes $0.00
 [04:41:52] [Z] summary: births 350 deaths 327 games 63816 $0.00; top [('Z350', 37.54, 0.82, 192, 'S184'), ('Z347', 37.24, 0.84, 232, 'S183'), ('Z349', 37.04, 0.82, 176, 'S180')]; top vs anchors {'Z350': 0.938, 'Z347': 0.875, 'Z349': None}
 [04:41:55] [Z] done: spent $0.00
+[04:43:50] [Z] resumed: 24 genomes, 350 births, 7977 matches, spent $0.00
+[04:43:50] [Z] fixed anchors: starter-anchor 25.00, champ1-Z45 30.05, champ2-Z92 32.04, champ3-Z137 34.11, champ4-Z191 33.83, champ5-Z239 35.27, champ6-Z285 34.69, champ7-Z347 36.05
+[04:44:08] [Z] birth Z351 (tune ) of ['Z347'] species S183; 24 genomes $0.00
+[04:45:09] [Z] new species S185 founded by Z352
+[04:45:09] [Z] birth Z352 (mutate session) of ['Z350'] species S185; 24 genomes $0.00
+[04:45:10] [Z] birth Z353 (mutate session) of ['Z285'] species S154; 24 genomes $0.00
+[04:45:25] [Z] birth Z354 (mutate session) of ['Z298'] species S165; 24 genomes $0.00
+[04:45:47] [Z] rejected tune : behavioural twin
+[04:46:16] [Z] birth Z355 (mutate session) of ['Z336'] species S184; 24 genomes $0.00
+[04:46:18] [Z] birth Z356 (llm_cross session) of ['Z209', 'Z313'] species S170; 24 genomes $0.00
+[04:46:34] [Z] birth Z357 (llm_cross session) of ['Z336', 'Z349'] species S180; 24 genomes $0.00
