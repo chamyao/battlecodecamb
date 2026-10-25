@@ -136,3 +136,6 @@ Two constants: a5 ahead_on d <= 5 -> 4; r5 cash-out g < 5 -> 3.
   Capped turns 364-381 (v33 411-450). Solo vs idle 95,088 rounds, 352 deaths.
 - My real cambc vs v33, 40 maps x 2 sides: 44/80, 0 crashes. v34 pick.
 - Live as ladder version 34 (2026-10-25T14:18:21Z, bundle sha256 9842ac5c...). Validation: intel batch 11, paired vs b10.
+- Batch 11 (intel b11.md, 4639d9f): 28-22 vs b10's 32-18 on the same 50 matchups, 3 flipped to wins and 7 to losses
+  (sign test p ~0.34). Gems -41, gems captured -56, gems lost on death +44. The earlier cash-out puts carriers on the
+  road more often and they lose bags. Nothing favours v34, so it is reverted: v33 bundle 37e7be1a... re-uploaded.
