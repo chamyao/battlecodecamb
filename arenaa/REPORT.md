@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 05:25 UTC
+
+- Relay Z-10 leg 9 done: births 401 -> 452 in ~18 min, sha 5a5df8f, 49 requests, all validated. Ratings are
+  compressed at 36-37: Z449 36.7 (cross with "banking": go to the altar only with 20+ gems, below 50%
+  health or late), Z451 36.6. The best-rated member, Z410 (37.47 after 496 games, cast at the most wounded
+  champion), died during the leg; leg 10 is asked to find out why the culling removed it. Two replies were
+  rewritten after the arena had already consumed them; leg 10's template says to write each reply once.
+- Leg 10 (452 -> 475, final) started: session_01QXK7C75sssPH4DsRAq9RMY. RELAY_DONE after it reports.
+
 ## 2026-10-25 05:10 UTC: A-8c done; Z-15 / Z-16 m2
 
 - A-8 (session writer) vs A-8c (API writer), panel /1200, best (top-3 mean):
