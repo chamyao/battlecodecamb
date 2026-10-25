@@ -422,3 +422,52 @@
 [02:46:47] [Z] birth Z206 (llm_cross claude-opus-5-5) of ['Z188', 'Z201'] species S114; 24 genomes $8.91
 [02:46:49] [Z] birth Z207 (mutate claude-opus-5-5) of ['Z187'] species S86; 24 genomes $8.91
 [02:47:10] [Z] rejected mutate claude-opus-5-5: GenomeError: banking line 64: unknown name BROUND
+[02:47:32] [Z] birth Z208 (mutate claude-opus-5-5) of ['Z192'] species S106; 24 genomes $9.22
+[02:47:34] [Z] new species S115 founded by Z209
+[02:47:34] [Z] birth Z209 (llm_cross claude-opus-5-5) of ['Z181', 'Z185'] species S115; 24 genomes $9.22
+[02:47:35] [Z] new species S116 founded by Z210
+[02:47:35] [Z] summary: births 210 deaths 187 games 51808 $9.22; top [('Z185', 36.4, 0.8, 440, 'S102'), ('Z209', 36.13, 6.0, 0, 'S115'), ('Z189', 35.94, 0.8, 384, 'S90')]; top vs anchors {'Z185': 0.75, 'Z189': 1.0, 'Z181': 0.875}
+[02:47:35] [Z] birth Z210 (llm_cross claude-opus-5-5) of ['Z191', 'Z184'] species S116; 24 genomes $9.22
+[02:48:07] [Z] new species S117 founded by Z211
+[02:48:07] [Z] birth Z211 (mutate claude-opus-5-5) of ['Z177'] species S117; 24 genomes $9.31
+[02:48:08] [Z] birth Z212 (mutate claude-opus-5-5) of ['Z208'] species S106; 24 genomes $9.31
+[02:48:24] [Z] new species S118 founded by Z213
+[02:48:24] [Z] birth Z213 (llm_cross claude-opus-5-5) of ['Z185', 'Z207'] species S118; 24 genomes $9.46
+[02:48:32] [Z] birth Z214 (mutate claude-opus-5-5) of ['Z191'] species S105; 24 genomes $9.50
+[02:48:37] [Z] new species S119 founded by Z215
+[02:48:37] [Z] birth Z215 (mutate claude-opus-5-5) of ['Z181'] species S119; 24 genomes $9.50
+[02:48:42] [Z] rejected mutate claude-opus-5-5: GenomeError: progress line 136: unknown name DANGER
+[02:48:55] [Z] rejected mutate claude-opus-5-5: GenomeError: update line 154: goal_field takes (Tiles, Tile)
+[02:48:56] [Z] new species S120 founded by Z216
+[02:48:56] [Z] birth Z216 (mutate claude-opus-5-5) of ['Z188'] species S120; 24 genomes $9.66
+[02:49:05] [Z] birth Z217 (tune ) of ['Z188'] species S103; 24 genomes $9.66
+[02:49:06] [Z] new species S121 founded by Z218
+[02:49:06] [Z] birth Z218 (mutate claude-opus-5-5) of ['Z213'] species S121; 24 genomes $9.66
+[02:49:28] [Z] birth Z219 (mutate claude-opus-5-5) of ['Z185'] species S102; 24 genomes $9.75
+[02:49:29] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[02:49:51] [Z] summary: births 220 deaths 197 games 54912 $9.90; top [('Z215', 36.79, 0.82, 200, 'S119'), ('Z205', 35.96, 0.8, 352, 'S107'), ('Z177', 35.91, 0.79, 896, 'S97')]; top vs anchors {'Z215': None, 'Z205': 0.875, 'Z177': 0.75}
+[02:49:51] [Z] birth Z220 (mutate claude-opus-5-5) of ['Z196'] species S108; 24 genomes $9.90
+[02:49:52] [Z] new species S122 founded by Z221
+[02:49:52] [Z] birth Z221 (llm_cross claude-opus-5-5) of ['Z215', 'Z185'] species S122; 24 genomes $9.90
+[02:50:07] [Z] new species S123 founded by Z222
+[02:50:07] [Z] birth Z222 (llm_cross claude-opus-5-5) of ['Z189', 'Z177'] species S123; 24 genomes $10.06
+[02:50:13] [Z] birth Z223 (mutate claude-opus-5-5) of ['Z205'] species S107; 24 genomes $10.06
+[02:50:15] [Z] new species S124 founded by Z224
+[02:50:15] [Z] birth Z224 (mutate claude-opus-5-5) of ['Z205'] species S124; 24 genomes $10.06
+[02:50:33] [Z] birth Z225 (mutate claude-opus-5-5) of ['Z215'] species S119; 24 genomes $10.09
+[02:50:36] [Z] rejected mutate claude-opus-5-5: GenomeError: cast_value line 179: unknown name ENEAR
+[02:51:00] [Z] new species S125 founded by Z226
+[02:51:00] [Z] birth Z226 (mutate claude-opus-5-5) of ['Z225'] species S125; 24 genomes $10.35
+[02:51:01] [Z] birth Z227 (mutate claude-opus-5-5) of ['Z211'] species S117; 24 genomes $10.35
+[02:51:01] [Z] rejected llm_cross claude-opus-5-5: behavioural twin
+[02:51:14] [Z] rejected tune : behavioural twin
+[02:51:27] [Z] birth Z228 (mutate claude-opus-5-5) of ['Z181'] species S99; 24 genomes $10.44
+[02:51:28] [Z] birth Z229 (mutate claude-opus-5-5) of ['Z199'] species S110; 24 genomes $10.44
+[02:51:34] [Z] summary: births 230 deaths 207 games 57200 $10.44; top [('Z221', 36.56, 0.81, 240, 'S122'), ('Z228', 36.26, 1.03, 72, 'S99'), ('Z229', 36.07, 1.85, 16, 'S110')]; top vs anchors {'Z221': 1.0, 'Z228': None, 'Z225': 1.0}
+[02:51:34] [Z] birth Z230 (mutate claude-opus-5-5) of ['Z177'] species S97; 24 genomes $10.44
+[02:51:51] [Z] new species S126 founded by Z231
+[02:51:51] [Z] birth Z231 (mutate claude-opus-5-5) of ['Z223'] species S126; 24 genomes $10.52
+[02:51:51] [Z] rejected mutate claude-opus-5-5: GenomeError: cast_value line 226: unknown name WEAKP
+[02:52:11] [Z] birth Z232 (llm_cross claude-opus-5-5) of ['Z222', 'Z223'] species S123; 24 genomes $10.68
+[02:52:13] [Z] birth Z233 (mutate claude-opus-5-5) of ['Z221'] species S122; 24 genomes $10.68
+[02:52:13] [Z] birth Z234 (mutate claude-opus-5-5) of ['Z170'] species S63; 24 genomes $10.68
