@@ -1,0 +1,143 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+HERE: Num = 0
+HERE_T: Tile = None
+HEALING: Bool = False
+
+@gene('Z174a', 'value of doing this option now; ladder draft, damage/cc/aoe casts, dash toward goals, shield/heal when hurt, recall when low (or healing and quite low)', parents=['Z167a', 'Z97a'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == HEART_OF_RUIN:
+            return 8
+        if o.champ == VESPER_VALE:
+            return 6
+        if o.champ == MARCELLA:
+            return 4
+        if o.champ == VENDETTA:
+            return 3
+        if o.champ == RYTH:
+            return 2
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        hf = me().health_frac
+        if hf < 0.2878:
+            return 90
+        if HEALING and hf < 0.35:
+            return 90
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 4
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+            if exists(o.unit):
+                if o.unit.is_champion and o.unit.is_enemy:
+                    return 85
+                if o.unit.is_camp and gems() == 0:
+                    return 65
+            elif k == AB_AOE and valid(o.tile):
+                if any(u.is_champion and dist(u.pos, o.tile) <= slot_radius(o.slot) for u in enemies()):
+                    return 84
+            return 0
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 96 if me().health_frac < 0.7 else 0
+        if k == AB_DASH:
+            if valid(o.tile):
+                return 55 if progress(o.tile) > 1 else 0
+            return 0
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z174b', 'only list option kinds the policy can score positively (saves listing/scoring fuel)', parents=['Z167a'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    return True
+
+@gene('s2', 'where to walk: an altar with gems, else a living non-monolith camp group (monoliths are death traps solo)')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    mp = me().pos
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if size(ts) > 0:
+                t = nearest(ts, mp)
+                if spawn_type(t) != MONOLITH:
+                    acc = acc | ts
+    return acc
+
+@gene('Z167b', 'distance field to the goals (camp spawns if none) or to my spawn while healing; when healing or carrying 20+ gems, route around a 2-tile buffer of visible enemy champions, falling back to their tiles, then the plain field', parents=['s3'])
+def goal_field() -> Field:
+    g = goals()
+    if HEALING:
+        g = my_spawn()
+    elif size(g) == 0:
+        g = camp_spawns()
+    if HEALING or gems() >= 20:
+        occ = enemy_tiles()
+        if size(occ) > 0:
+            av = occ
+            for u in enemies():
+                if u.is_champion:
+                    av = av | near(u.pos, 2)
+            av = av - near(me().pos, 0)
+            f = field_avoid(g, av, g - g)
+            if at(f, me().pos) < 100000000:
+                return f
+            f2 = field_avoid(g, occ, g - g)
+            if at(f2, me().pos) < 100000000:
+                return f2
+    return field(g)
+
+@gene('s4', 'how much closer a step brings me to the goals (cached field and cached own value, refreshed if I moved); unreachable is no progress')
+def progress(t: Tile) -> Num:
+    p = me().pos
+    here = HERE
+    if not valid(HERE_T) or dist(p, HERE_T) != 0:
+        here = at(GF, p)
+    there = at(GF, t)
+    if here >= 1000000 or there >= 1000000:
+        return 0
+    return here - there
+
+@gene('Z174c', 'healing hysteresis (hurt, hurt and outmatched, rich and clearly outmatched); goal field once per turn with cached own value; reset healing while dead', parents=['Z167c', 'Z6a'])
+def update() -> None:
+    if alive():
+        hf = me().health_frac
+        if hf < 0.4:
+            HEALING = True
+        elif hf < 0.6 and threat_ratio() > 1.3:
+            HEALING = True
+        elif hf < 0.75 and gems() >= 40 and threat_ratio() > 1.2:
+            HEALING = True
+        if hf >= 0.95:
+            HEALING = False
+        GF = goal_field()
+        HERE_T = me().pos
+        HERE = at(GF, HERE_T)
+    else:
+        HEALING = False
+
+@gene('Z38a', 'nearby enemy champion threat relative to my own plus nearby allied effective strength', parents=['Z6a'])
+def threat_ratio() -> Num:
+    m = me()
+    mine = (m.strength + m.focus) * m.health_frac + 1
+    help = sum((a.strength + a.focus) * a.health_frac for a in allies() if a.is_champion and dist(a.pos, m.pos) <= 4 and dist(a.pos, m.pos) > 0)
+    theirs = sum((u.strength + u.focus) * u.health_frac for u in enemies() if u.is_champion and dist(u.pos, m.pos) <= 5)
+    return theirs / (mine + 0.6 * help)
