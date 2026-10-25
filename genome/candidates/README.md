@@ -68,4 +68,4 @@ genome/candidates/A81582.genome, sha256 0b367e241df6... (remote/genome fbf8ced5 
 - Gatekeeper-19 vs v29 (v28-emblem), paired rule: h2h 50/80 (55/80 at fuel x10); no anchor block (closest:
   a61188-mono 44/52, p 0.128; A61188 48/55, p 0.162).
 - Real cambc smoke vs v29: 1-3 (won 00lanes; lost 01big-world, 00great-wall, 01boss-battle), 0 crashes.
-  Full real 80 vs v29 running; upload only if >= 42/80.
+- Real cambc 3.0.5 --release vs v29, 40 maps x 2 sides: 52/80, 0 crashes either side. Upload after batch 6 validates v29.
