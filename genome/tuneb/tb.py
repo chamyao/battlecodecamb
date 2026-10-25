@@ -1,6 +1,6 @@
 """Tune-B harness: variants of the live genome by text edits, scored with genome_eval.
 
-Runtime: genome/v0 568cbf5 (built genome/build/genome_eval). Opponents: genome/tuneb/opp (stress genomes from
+Runtime: genome/v0 568cbf5 (= 97194bf / f781053: no runtime change) (built genome/build/genome_eval). Opponents: genome/tuneb/opp (stress genomes from
 genome/intel), policies compiled into genome/build/tuneb/*.pol.
 """
 import glob, hashlib, json, os, re, subprocess, sys
@@ -11,7 +11,7 @@ EVAL_ECON = os.path.join(ROOT, 'genome', 'build_econ', 'genome_eval')  # with th
 VAR = os.path.join(ROOT, 'genome', 'build', 'tuneb', 'var')
 POL = os.path.join(ROOT, 'genome', 'build', 'tuneb')
 MAPS = sorted(glob.glob(os.path.join(ROOT, 'maps', '*.map26a')))
-BASE = os.path.join(ROOT, 'genome', 'candidates', 'a61188-mono.genome')
+BASE = os.path.join(ROOT, 'genome', 'candidates', 'v28-emblem.genome')  # v29 live (Oct 25 05:11Z); v28 = a61188-mono
 
 CHAMPS = ['RYTH', 'VESPER_VALE', 'VENDETTA', 'CASSI', 'STELLAR', 'PRISM', 'MARCELLA', 'WILLOW', 'REN', 'VARG',
           'TAVI', 'HEART_OF_RUIN']
@@ -23,6 +23,7 @@ ANCHORS = {
     'L1c': 'tune-v20-L1c.pol', 'gconv1': 'style-gconv1.pol', 'v7': 'v7.pol', 'L1': 'tune-v20-L1.pol',
     'rall2': 'rall2-ca4-lean-g.pol', 'metadraft': 'opp-tune5-metadraft.pol',
     'B792': 'genome/candidates/B792.genome', 'A61188': 'genome/candidates/A61188.genome',
+    'v28': 'genome/candidates/a61188-mono.genome',
 }
 
 _so = {}
@@ -124,3 +125,20 @@ def econ(a, b, games=80, seed=1, bot_seeds=True, threads=4, maps=None):
         acc['items500_us'] += c[9 + us]
         acc['win'] += 1.0 if g['winner'] == us else 0.5 if g['winner'] not in (0, 1) else 0.0
     return {k: v / len(G) for k, v in acc.items()} | dict(games=len(G))
+
+
+def sign_test(cand, base, maps=None, exclude=('01boss-battle',)):
+    """Paired sign test on games where candidate and base results differ (game g = map (g/2) % #maps).
+    Returns (cand-only wins, base-only wins, two-sided p)."""
+    from math import comb
+    maps = maps or MAPS
+    up = dn = 0
+    for g, (c, b) in enumerate(zip(cand, base)):
+        if any(e in maps[(g // 2) % len(maps)] for e in exclude):
+            continue
+        if c > b: up += 1
+        elif c < b: dn += 1
+    n = up + dn
+    k = min(up, dn)
+    p = min(1.0, 2 * sum(comb(n, i) for i in range(k + 1)) / 2 ** n) if n else 1.0
+    return up, dn, p
