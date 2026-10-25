@@ -1,0 +1,168 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+RETREAT: Bool = False
+LASTR: Num = 0
+LASTG: Num = 0
+FRESH: Bool = False
+
+@gene('s1', 'value of doing this option now; treasure then strength shards; focus weak gem-carrying champions; hurt bots disengage; retreating bots prefer steps that open distance from close enemy champions; chase/dash at weak prey when healthy; recall while retreating only when spawn is a real walk away and no enemy is close; no camp fights when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 6:
+            return 100 if items_owned(6) < 6 else 0
+        if items_owned(6) >= 7 and item_strength(o.item) > 0:
+            return 50 + item_strength(o.item)
+        return 0
+    hf = me().health_frac
+    hurt = hf < 0.35
+    if o.kind == RECALL:
+        if RETREAT or hf < 0.4:
+            if count(dist(u.pos, me().pos) <= 4 for u in enemies()) == 0:
+                if my_d0() > 5 or hf < 0.25:
+                    return 90
+        return 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if hurt and o.unit.health_frac > hf + 0.2:
+                return 40
+            return 80 + 10 * (1 - o.unit.health_frac) + min(5, unit_gems(o.unit) / 10)
+        if hurt or RETREAT:
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+            if exists(o.unit):
+                if o.unit.is_champion and o.unit.is_enemy:
+                    return 78
+                if o.unit.is_camp and gems() == 0 and not hurt and not RETREAT:
+                    return 62
+            return 0
+        if k == AB_SHIELD:
+            return 65 if count(dist(u.pos, me().pos) <= 4 for u in enemies()) > 0 else 0
+        if k == AB_HEAL:
+            return 65 if hf < 0.6 else 0
+        if k == AB_DASH:
+            if valid(o.tile):
+                if hf > 0.5925 and not RETREAT:
+                    p = prey()
+                    if exists(p) and p.health_frac < 0.4 and dist(o.tile, p.pos) <= 1:
+                        return 57
+                if progress(o.tile) > 1:
+                    return 55
+            return 0
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        pr = progress(o.tile)
+        if RETREAT:
+            if pr >= 0:
+                th = min((dist(u.pos, me().pos) for u in enemies() if u.is_champion), default=99)
+                if th <= 4:
+                    tn = min((dist(u.pos, o.tile) for u in enemies() if u.is_champion), default=99)
+                    if tn > th:
+                        return 52
+        elif hf > 0.6:
+            p = prey()
+            if exists(p) and p.is_champion and p.health_frac < 0.5055 and dist(p.pos, me().pos) <= 10:
+                if dist(o.tile, p.pos) < dist(me().pos, p.pos):
+                    return 56
+        return 50 if pr > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: a free altar with gems (camps if none), a cleared group to capture, else a living non-monolith camp group, skipping golems early')
+def goals() -> Tiles:
+    empty = near(tile(-5, -5), 0)
+    if gems() > 0:
+        acc = empty
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    rew = empty
+    acc = empty
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    safe = acc - type_spawns(MONOLITH)
+    if round() < 400:
+        easy = safe - type_spawns(GOLEM)
+        if size(easy) > 0:
+            return easy
+    if size(safe) > 0:
+        return safe
+    return acc
+
+@gene('s3', 'distance field to spawn while retreating, else to the goals, spawn if none')
+def goal_field(hurt: Bool) -> Field:
+    if hurt:
+        return field(my_spawn())
+    g = goals()
+    if size(g) == 0:
+        return field(my_spawn())
+    return field(g)
+
+@gene('s4', 'how much closer a step brings me to the goals (cached field, own distance once per pass, unreachable-safe on both ends)')
+def progress(t: Tile) -> Num:
+    d1 = at(GF, t)
+    if d1 >= 1000000:
+        return 0
+    d0 = my_d0()
+    if d0 >= 1000000:
+        return 0
+    return d0 - d1
+
+@gene('Z335a', 'my own distance on the cached goal field, computed once per pass', parents=['s4'])
+def my_d0() -> Num:
+    return at(GF, me().pos)
+
+@gene('Z34a', 'goal distance field with retreat hysteresis (go home below 40%, 55% with 30+ gems, stay until 90%); refreshed only on retreat change, gem change or every 2 rounds; skip while dead', parents=['s1', 's3', 's4'])
+def update() -> None:
+    if alive():
+        h = me().health_frac
+        thr = 0.506 if gems() >= 30 else 0.4
+        newr = h < thr or (RETREAT and h < 0.9)
+        changed = (newr and not RETREAT) or (RETREAT and not newr)
+        RETREAT = newr
+        if changed or not FRESH or gems() != LASTG or round() - LASTR >= 3:
+            GF = goal_field(RETREAT)
+            LASTR = round()
+            LASTG = gems()
+            FRESH = True
+    else:
+        RETREAT = False
+        FRESH = False
+
+@gene('Z34b', 'skip option kinds we never use or cannot use now (no move/attack when unable, no tribute without gems, no recall on spawn, no moves while channeling a tribute) to save fuel', parents=['s1', 's3', 's4'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    if kind == BUY:
+        return can_shop() and gold() >= 30
+    if kind == RECALL:
+        return me().health_frac < 0.2118 and not (me().pos in my_spawn())
+    if kind == CAST:
+        return slot_ready(0) or slot_ready(1)
+    if kind == MOVE:
+        if channeling() and gems() > 0:
+            return False
+        return can_move()
+    if kind == ATTACK:
+        return can_attack()
+    if kind == TRIBUTE:
+        return gems() > 0
+    return True
+
+@gene('Z76a', 'a weak visible enemy champion within 6 tiles worth chasing, not guarded by more healthy enemies than allies near me can match; prefers gem carriers (invalid if none)', parents=['s1'])
+def prey() -> Unit:
+    sup = 1 + count(dist(a.pos, me().pos) <= 5 and a.health_frac > 0.4 for a in allies())
+    return best(enemies(), lambda u: (1 - u.health_frac) + 0.01 * unit_gems(u) - (100 if (not u.is_champion) or u.health_frac >= 0.4162 or dist(u.pos, me().pos) > 7 or count(v.is_champion and v.health_frac > 0.5 and dist(v.pos, u.pos) <= 3 for v in enemies()) >= max(2, sup) else 0))
