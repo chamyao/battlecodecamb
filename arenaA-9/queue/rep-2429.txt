@@ -1,0 +1,5 @@
+```python
+@gene('s3', 'health plus current shield below a fraction of max (a shield soaks damage like health)')
+def hurt_below(f: Num) -> Bool:
+    return me().health + shield(me()) < f * me().max_health
+```
