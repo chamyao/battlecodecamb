@@ -236,3 +236,7 @@ broken_curve one spell, corridors pre-existing. Batch 9 (paired with b8) at 08:1
 | bush0 + gg4 | 43 | 44 |
 | bush0 | 38 | 39 |
 On v31 the pairs were 50/80 in sim; most of that does not carry over to B1873. bush0+gg4 kept as cand/B1873-bush0-gg4 (small rider).
+
+## Oct 25 ~08:55: Arena B leg 7 done (2000 births); no genome beats v32 in real
+Real /80 vs v32 = B1873, 0 crashes: B1889 (champ38, top anchor 50.4) 36, B1999 39, B1996 38, B1968 32.
+v31 and v32c anchors held at 48.3 / 48.0. Arena tops cluster near v32; leg 8 goes on with elk_arena contest as the target.
