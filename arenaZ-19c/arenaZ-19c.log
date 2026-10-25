@@ -759,3 +759,14 @@
 [11:21:33] [Z] rejected mutate session: behavioural twin
 [11:21:36] [Z] summary: births 470 deaths 447 games 105336 $0.00; top [('Z465', 43.8, 6.0, 0, 'S83'), ('Z470', 43.46, 6.0, 0, 'S83'), ('Z391', 43.1, 0.79, 344, 'S72')]; top vs anchors {'Z391': None, 'Z417': 1.0, 'Z463': None}
 [11:21:36] [Z] birth Z470 (mutate session) of ['Z460'] species S83; 24 genomes $0.00
+[11:22:22] [Z] birth Z471 (tune ) of ['Z447'] species S104; 24 genomes $0.00
+[11:22:26] [Z] birth Z472 (mutate session) of ['Z444'] species S102; 24 genomes $0.00
+[11:22:29] [Z] rejected mutate session: behavioural twin
+[11:22:35] [Z] birth Z473 (mutate session) of ['Z451'] species S93; 24 genomes $0.00
+[11:22:40] [Z] rejected mutate session: behavioural twin
+[11:22:45] [Z] birth Z474 (mutate session) of ['Z391'] species S83; 24 genomes $0.00
+[11:22:46] [Z] rejected mutate session: behavioural twin
+[11:22:47] [Z] 475 births (--max-births 475): no more births
+[11:22:47] [Z] birth Z475 (mutate session) of ['Z444'] species S102; 24 genomes $0.00
+[11:24:42] [Z] summary: births 475 deaths 452 games 107656 $0.00; top [('Z417', 43.14, 0.8, 360, 'S69'), ('Z458', 42.37, 0.79, 280, 'S101'), ('Z471', 42.18, 0.8, 192, 'S104')]; top vs anchors {'Z417': 1.0, 'Z458': None, 'Z471': None}
+[11:24:43] [Z] done: spent $0.00
