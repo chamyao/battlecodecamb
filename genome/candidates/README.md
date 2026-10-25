@@ -117,4 +117,5 @@ ring/heal and gg6; new: a kill-shot fight outranks the pass-through bank (rule 1
 - Arena B lead, real cambc: 47/80 vs v31, 49/80 vs v30, 56/80 vs v29, 0 crashes. Solo vs idle 95,846 rounds, 362 deaths
   (v31 97,417 / 379). Sim 37/80 vs v31.
 - My real cambc vs v31, 40 maps x 2 sides: 47/80, 0 crashes. Carries the rmab boss-battle exemption (relay auto-ingest).
-- Live as ladder version 32 (2026-10-25T07:50:23Z, bundle sha256 52a3fb56...). Validation: intel batch 9, paired vs b8.
+- Live as ladder version 32 (2026-10-25T07:50:23Z, bundle sha256 52a3fb56...). Batch 9 vs b8 (v31): 31-19 vs 27-23 (6 up, 2 down),
+  gems +87 +- 39; stuck champion-rounds 31.5 -> 4.0; elk_arena vs NotSoLonely W 936-720 (was L 18-1008); boss_battle still 0-1.
