@@ -852,3 +852,14 @@
 [05:19:47] [Z] birth Z452 (mutate session) of ['Z417'] species S200; 24 genomes $0.00
 [05:22:00] [Z] summary: births 452 deaths 429 games 83872 $0.00; top [('Z449', 36.69, 0.81, 192, 'S210'), ('Z451', 36.62, 0.8, 200, 'S186'), ('Z424', 36.5, 0.8, 472, 'S190')]; top vs anchors {'Z449': 0.75, 'Z451': None, 'Z424': 0.75}
 [05:22:01] [Z] done: spent $0.00
+[05:24:20] [Z] resumed: 24 genomes, 452 births, 10484 matches, spent $0.00
+[05:24:20] [Z] fixed anchors: starter-anchor 25.00, champ1-Z45 30.05, champ2-Z92 32.04, champ3-Z137 34.11, champ4-Z191 33.83, champ5-Z239 35.27, champ6-Z285 34.69, champ7-Z347 36.05, champ8-Z396 37.83, champ9-Z440 37.51
+[05:28:05] [Z] birth Z453 (mutate session) of ['Z432'] species S206; 24 genomes $0.00
+[05:28:07] [Z] new species S215 founded by Z454
+[05:28:07] [Z] birth Z454 (llm_cross session) of ['Z384', 'Z444'] species S215; 24 genomes $0.00
+[05:28:10] [Z] new species S216 founded by Z455
+[05:28:10] [Z] birth Z455 (mutate session) of ['Z447'] species S216; 24 genomes $0.00
+[05:28:44] [Z] new species S217 founded by Z456
+[05:28:44] [Z] birth Z456 (tune ) of ['Z408'] species S217; 24 genomes $0.00
+[05:29:12] [Z] new species S218 founded by Z457
+[05:29:12] [Z] birth Z457 (llm_cross session) of ['Z453', 'Z392'] species S218; 24 genomes $0.00
