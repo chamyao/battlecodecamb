@@ -1,0 +1,15 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: the distance field to the goals", parents=["s3"])
+def update() -> None:
+    GF = field(goals())
+
+@gene("new", "skip option kinds the policy never uses (saves listing fuel)", parents=["s3"])
+def consider(kind: Num) -> Bool:
+    return not (kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL)
+
+@gene("s3", "distance field to the goals, computed once per turn")
+def goal_field() -> Field:
+    return GF
+```

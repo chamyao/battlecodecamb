@@ -1,0 +1,33 @@
+```python
+@gene('s1', 'value of doing this option now: casts, fight back against awake camps, focus the weakest target, stat-driven shopping')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        w = 1 - o.unit.health_frac
+        if o.unit.is_champion:
+            return 80 + 5 * w
+        if gems() == 0:
+            return 60 + 1.5 * w
+        return 58 + 1.5 * w if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z25a', 'value of buying an item: treasure shards first, then strength-heavy combat stats', parents=['s1'])
+def buy_value(o: Option) -> Num:
+    v = item_strength(o.item) * 2 + item_health(o.item) / 25
+    if item_passive(o.item) == P_TREASURE and round() < 600:
+        v += 20
+    if v <= 0:
+        return 0
+    return 100 + v + o.count
+```

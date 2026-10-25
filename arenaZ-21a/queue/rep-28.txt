@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals, preferring bush tiles on ties")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if d > 0 and t in bushes():
+        d += 0.1
+    return d
+```

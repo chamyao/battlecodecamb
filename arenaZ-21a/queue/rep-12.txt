@@ -1,0 +1,7 @@
+```python
+@gene("s3", "distance field to the goals, or home to heal when hurt and carrying nothing")
+def goal_field() -> Field:
+    if gems() == 0 and me().health_frac < 0.5 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        return field(my_spawn())
+    return field(goals())
+```
