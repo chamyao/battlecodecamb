@@ -2829,3 +2829,41 @@
 [03:18:31] [B] birth B1403 (mutate claude-haiku-5-5) of ['B1334'] species S4; 24 genomes $10.29
 [03:18:33] [B] birth B1404 (mutate claude-opus-5-5) of ['B1395'] species S5; 24 genomes $10.29
 [03:18:40] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:18:51] [B] birth B1405 (mutate claude-haiku-5-5) of ['B1334'] species S4; 24 genomes $10.29
+[03:18:53] [B] birth B1406 (mutate claude-haiku-5-5) of ['B1376'] species S2; 24 genomes $10.29
+[03:18:56] [B] birth B1407 (mutate claude-haiku-5-5) of ['B1334'] species S2; 24 genomes $10.29
+[03:19:08] [B] birth B1408 (tune ) of ['B1390'] species S4; 24 genomes $10.29
+[03:19:10] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:19:11] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:19:12] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:19:15] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:19:20] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:19:22] [B] birth B1409 (mutate claude-haiku-5-5) of ['B1351'] species S2; 24 genomes $10.33
+[03:19:26] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:19:27] [B] summary: births 1410 deaths 1387 games 310552 $10.33; top [('B1395', 44.89, 0.8, 224, 'S5'), ('B1351', 44.74, 0.83, 576, 'S2'), ('B1401', 44.66, 0.82, 152, 'S4')]; top vs anchors {'B1395': 0.719, 'B1351': 0.75, 'B1401': 0.531}
+[03:19:27] [B] birth B1410 (mutate claude-opus-5-5) of ['B1334'] species S2; 24 genomes $10.33
+[03:19:28] [B] birth B1411 (tune ) of ['B1348'] species S2; 24 genomes $10.33
+[03:19:29] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:19:29] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:19:37] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:19:39] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:19:41] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:19:44] [B] birth B1412 (mutate claude-haiku-5-5) of ['B1351'] species S2; 24 genomes $10.34
+[03:19:46] [B] birth B1413 (mutate claude-haiku-5-5) of ['B1410'] species S2; 24 genomes $10.34
+[03:19:48] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:19:52] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:19:56] [B] birth B1414 (cross ) of ['B1396', 'B1390'] species S4; 24 genomes $10.34
+[03:19:59] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/B318.genome'
+[03:20:01] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:20:06] [B] birth B1415 (tune ) of ['B1374'] species S3; 24 genomes $10.34
+[03:20:10] [B] birth B1416 (mutate claude-haiku-5-5) of ['B1395'] species S5; 24 genomes $10.34
+[03:20:11] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:20:13] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:20:20] [B] rejected tune : behavioural twin
+[03:20:21] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter-carry.genome'
+[03:20:23] [B] rejected mutate claude-haiku-5-5: behavioural twin
+[03:20:24] [B] match error: FileNotFoundError: [Errno 2] No such file or directory: '/root/arena-data/runs/24/hunter.genome'
+[03:20:25] [B] birth B1417 (mutate claude-haiku-5-5) of ['B1407'] species S2; 24 genomes $10.34
+[03:20:33] [B] birth B1418 (mutate claude-haiku-5-5) of ['B1390'] species S4; 24 genomes $10.34
+[03:20:41] [B] birth B1419 (mutate claude-haiku-5-5) of ['B1407'] species S4; 24 genomes $10.40
+[03:20:44] [B] rejected mutate claude-opus-5-5: behavioural twin
