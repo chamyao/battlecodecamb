@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 10:27 UTC: Z-19 m1/m2
+
+- Z-19 (isolated, no screening): m1 19a 246, 19b 267 (legacy); 19c 341, 19d 202 (min-mu). 19b m2 **409 at b283**,
+  already above Z-5's 394 at b413. Within-pair spread is large; no cull read yet.
+- Caveats on 19b: the no-own-games rule reached the Z-19 writers ~25 min after launch (08:55), so early screening is
+  possible; their final reports will say. The fingerprint check runs at the end. If clean, an unscreened isolated
+  writer with --births-in-flight 8 is already at Z-5's level by ~280 births.
+
 ## 2026-10-25 10:15 UTC
 
 - Births: Z-19a 136, 19b 372, 19c 168, 19d 123; Z-20a 73, 20b 74 (screening runs are slower per birth); A-9 leg 4 at
