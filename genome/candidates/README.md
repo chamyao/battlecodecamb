@@ -61,3 +61,11 @@ v28 + Treasure shards concentrated on one carrier until its emblem completes (ea
   hunter-carry +7, rall2 +3, metadraft/farmer/lockall -4 each.
 - Smoke, real cambc vs v28: 00lanes, 01big-world, 01gold-rush 3/3 wins (close), 0 crashes.
 - Live as ladder version 29 (2026-10-25T05:11:34Z, bundle sha256 61743fda...). Validation: intel batch 6, paired vs b5.
+
+## A81582 (Arena A, arenaA-8 session-writer run; candidate)
+
+genome/candidates/A81582.genome, sha256 0b367e241df6... (remote/genome fbf8ced5 gate-v29/A8-A81582.genome).
+- Gatekeeper-19 vs v29 (v28-emblem), paired rule: h2h 50/80 (55/80 at fuel x10); no anchor block (closest:
+  a61188-mono 44/52, p 0.128; A61188 48/55, p 0.162).
+- Real cambc smoke vs v29: 1-3 (won 00lanes; lost 01big-world, 00great-wall, 01boss-battle), 0 crashes.
+  Full real 80 vs v29 running; upload only if >= 42/80.
