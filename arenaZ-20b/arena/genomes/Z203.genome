@@ -1,0 +1,117 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+LOW: Num = 0.35
+GF: Field = None
+HURT: Bool = False
+FIGHT: Bool = False
+BAD: Tiles = None
+OUTN: Bool = False
+STILL: Num = 0
+
+@gene('s1', 'value of doing this option now')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        if o.champ == RYTH:
+            return 20
+        if o.champ == VESPER_VALE:
+            return 19
+        if o.champ == VENDETTA:
+            return 22
+        if o.champ == CASSI:
+            return 17
+        if o.champ == TAVI:
+            return 16
+        return 1.0512
+    if o.kind == BUY:
+        return 100 if o.item == 36 else 0
+    if o.kind == RECALL:
+        return 72 if HURT and not FIGHT else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if (o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit):
+            return 0
+        return 75 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 56
+    if o.kind == MOVE:
+        if STILL >= 2:
+            return 50 + rand(10)
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else a living camp group without monoliths or golems')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.9167)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & BAD) == 0:
+                acc = acc | gt
+    return acc
+
+@gene('s4', 'how much closer a step brings me to the goals (or home when hurt)')
+def progress(t: Tile) -> Num:
+    return at(GF, me().pos) - at(GF, t)
+
+@gene('Z6a', 'once per turn: retreat state, fight state, monolith and golem tiles, the walking field', parents=['s3'])
+def update() -> None:
+    hf = me().health_frac
+    if hf < LOW:
+        HURT = True
+    if hf > 0.95 or not alive():
+        HURT = False
+    if size(BAD) == 0:
+        BAD = type_spawns(MONOLITH) | type_spawns(GOLEM)
+    FIGHT = count(e.is_champion for e in enemies()) > 0 or any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())
+    OUTN = count(e.is_champion for e in enemies()) > count(a.is_champion for a in allies()) + 1
+    if OUTN or HURT:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+
+@gene('Z32a', 'value of casting an ability: damage on fights, heal and shield when hurt, dash toward goals', parents=['Z6a', 's1', 's2', 's4'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 85
+            if o.unit.is_camp and gems() == 0 and not ((o.unit.type == MONOLITH or o.unit.type == GOLEM) and not is_awake(o.unit)):
+                return 65
+        return 0
+    if k == AB_HEAL:
+        return 75 if me().health_frac < 0.7 else 0
+    if k == AB_SHIELD:
+        return 75 if me().health_frac < 0.8 and FIGHT else 0
+    if k == AB_RESET:
+        return 62 if not can_attack() else 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            return 55 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z152a', 'skip option kinds never used, shopping away from spawn, recall unless hurt, tribute without gems', parents=['Z32a', 'Z6a'])
+def consider(kind: Num) -> Bool:
+    if kind == BUY:
+        return can_shop()
+    if kind == RECALL:
+        return HURT
+    if kind == TRIBUTE:
+        return gems() > 0
+    return kind != WARD and kind != LOCK and kind != BUY_LOCK and kind != CANCEL
+
+@gene('Z174a', 'after the turn: count turns in a row with no action while away from the goal')
+def after() -> None:
+    if alive() and not channeling() and at(GF, me().pos) > 0 and not (acted(MOVE) or acted(ATTACK) or acted(CAST) or acted(TRIBUTE) or acted(RECALL) or acted(BUY)):
+        STILL += 1
+    else:
+        STILL = 0
