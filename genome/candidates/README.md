@@ -105,4 +105,4 @@ genome/candidates/A81582-rh-mono-all.genome, sha256 f54246b181c6caa1... (genome/
 needs a build at or after genome/v0 fd778fc.
 - Arena B lead, real cambc: 51/80 vs v30, 49/80 vs rh-mono, 62/80 vs v29, 0 crashes. Solo vs idle 97,417 rounds, 379 deaths
   (v30 99,212 / 522). Sim 42/80 vs v30.
-- My real 80 vs v30: running.
+- My real cambc vs v30 (ringheal), 40 maps x 2 sides: 51/80, 0 crashes. v31 pick.
