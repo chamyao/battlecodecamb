@@ -1041,3 +1041,43 @@
 [01:22:24] [Z] birth Z520 (mutate claude-haiku-5-5) of ['Z515'] species S205; 24 genomes $2.87
 [01:22:26] [Z] birth Z521 (mutate claude-haiku-5-5) of ['Z507'] species S196; 24 genomes $2.87
 [01:22:34] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:22:42] [Z] birth Z522 (tune ) of ['Z497'] species S199; 24 genomes $2.87
+[01:22:47] [Z] birth Z523 (mutate claude-haiku-5-5) of ['Z514'] species S204; 24 genomes $2.87
+[01:22:54] [Z] rejected tune : behavioural twin
+[01:23:03] [Z] new species S206 founded by Z524
+[01:23:03] [Z] birth Z524 (mutate claude-opus-5-5) of ['Z513'] species S206; 24 genomes $2.92
+[01:23:09] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:23:15] [Z] birth Z525 (llm_cross claude-haiku-5-5) of ['Z515', 'Z523'] species S204; 24 genomes $2.92
+[01:23:22] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:23:26] [Z] birth Z526 (mutate claude-haiku-5-5) of ['Z473'] species S183; 24 genomes $2.92
+[01:23:30] [Z] rejected mutate claude-haiku-5-5: GenomeError: goal_field line 89: cannot assign to walls
+[01:23:39] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:23:40] [Z] rejected tune : behavioural twin
+[01:23:44] [Z] birth Z527 (mutate claude-haiku-5-5) of ['Z520'] species S205; 24 genomes $2.93
+[01:23:57] [Z] birth Z528 (mutate claude-haiku-5-5) of ['Z513'] species S177; 24 genomes $2.93
+[01:23:58] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:23:59] [Z] rejected mutate claude-opus-5-5: GenomeError: goal_field line 74: unknown name NF
+[01:24:14] [Z] birth Z529 (mutate claude-haiku-5-5) of ['Z500'] species S193; 24 genomes $2.97
+[01:24:14] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:24:21] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 148: gene is_monolith_group redefined or shadows a builtin
+[01:24:23] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:24:32] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:24:37] [Z] summary: births 530 deaths 507 games 103952 $2.98; top [('Z525', 40.51, 0.83, 192, 'S204'), ('Z515', 40.01, 0.81, 280, 'S202'), ('Z527', 39.58, 0.86, 120, 'S205')]; top vs anchors {'Z525': None, 'Z515': None, 'Z527': None}
+[01:24:37] [Z] birth Z530 (mutate claude-haiku-5-5) of ['Z524'] species S206; 24 genomes $2.98
+[01:24:46] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[01:24:49] [Z] birth Z531 (mutate claude-haiku-5-5) of ['Z497'] species S199; 24 genomes $2.98
+[01:24:49] [Z] rejected tune : behavioural twin
+[01:25:01] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:25:09] [Z] new species S207 founded by Z532
+[01:25:09] [Z] birth Z532 (mutate claude-haiku-5-5) of ['Z488'] species S207; 24 genomes $2.99
+[01:25:15] [Z] new species S208 founded by Z533
+[01:25:15] [Z] birth Z533 (mutate claude-haiku-5-5) of ['Z525'] species S208; 24 genomes $2.99
+[01:25:26] [Z] birth Z534 (mutate claude-haiku-5-5) of ['Z497'] species S199; 24 genomes $3.11
+[01:25:33] [Z] new species S209 founded by Z535
+[01:25:33] [Z] birth Z535 (llm_cross claude-opus-5-5) of ['Z525', 'Z515'] species S209; 24 genomes $3.11
+[01:25:35] [Z] birth Z536 (mutate claude-haiku-5-5) of ['Z527'] species S205; 24 genomes $3.11
+[01:25:39] [Z] new species S210 founded by Z537
+[01:25:39] [Z] birth Z537 (tune ) of ['Z488'] species S210; 24 genomes $3.11
+[01:25:41] [Z] spent $3.11 of $3.00: no more births
+[01:26:26] [Z] summary: births 537 deaths 514 games 106784 $3.11; top [('Z525', 40.46, 0.8, 384, 'S204'), ('Z515', 40.26, 0.79, 392, 'S202'), ('Z533', 40.11, 0.83, 200, 'S208')]; top vs anchors {'Z525': None, 'Z515': None, 'Z533': 0.875}
+[01:26:28] [Z] done: spent $3.11

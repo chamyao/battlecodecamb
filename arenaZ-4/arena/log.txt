@@ -1047,3 +1047,28 @@
 [01:22:20] [Z] rejected mutate claude-haiku-5-5: behavioural twin
 [01:22:23] [Z] birth Z345 (llm_cross claude-haiku-5-5) of ['Z329', 'Z260'] species S244; 24 genomes $2.93
 [01:22:33] [Z] rejected mutate claude-haiku-5-5: type check: near_threat_adj must stay exactly as it is
+[01:22:42] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:22:47] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:22:48] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:22:57] [Z] birth Z346 (mutate claude-opus-5-5) of ['Z321'] species S235; 24 genomes $2.95
+[01:23:01] [Z] new species S255 founded by Z347
+[01:23:01] [Z] birth Z347 (mutate claude-haiku-5-5) of ['Z301'] species S255; 24 genomes $2.95
+[01:23:04] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:23:20] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:23:21] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:23:37] [Z] birth Z348 (llm_cross claude-haiku-5-5) of ['Z275', 'Z341'] species S252; 24 genomes $2.97
+[01:23:39] [Z] new species S256 founded by Z349
+[01:23:39] [Z] birth Z349 (mutate claude-opus-5-5) of ['Z347'] species S256; 24 genomes $2.97
+[01:23:39] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:24:00] [Z] new species S257 founded by Z350
+[01:24:00] [Z] champion anchor champ7-Z348 (mu 33.4)
+[01:24:00] [Z] summary: births 350 deaths 327 games 79752 $2.97; top [('Z348', 33.42, 0.86, 120, 'S252'), ('Z345', 33.29, 0.81, 216, 'S244'), ('Z336', 33.01, 0.8, 328, 'S248')]; top vs anchors {'Z348': 0.75, 'Z345': 1.0, 'Z336': 0.792}
+[01:24:00] [Z] birth Z350 (mutate claude-haiku-5-5) of ['Z340'] species S257; 24 genomes $2.97
+[01:24:00] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[01:24:02] [Z] birth Z351 (mutate claude-haiku-5-5) of ['Z336'] species S248; 24 genomes $2.97
+[01:24:15] [Z] rejected mutate claude-haiku-5-5: type check: the new gene N must compute something threat_scaled and threat_quad do not compute now: 
+[01:24:18] [Z] spent $3.00 of $3.00: no more births
+[01:24:24] [Z] birth Z352 (mutate claude-haiku-5-5) of ['Z351'] species S248; 24 genomes $3.00
+[01:24:25] [Z] rejected mutate claude-opus-5-5: behavioural twin
+[01:25:35] [Z] summary: births 352 deaths 329 games 81752 $3.00; top [('Z345', 33.32, 0.8, 304, 'S244'), ('Z348', 33.06, 0.8, 264, 'S252'), ('Z342', 32.74, 0.8, 368, 'S249')]; top vs anchors {'Z345': 1.0, 'Z348': 0.75, 'Z342': 0.875}
+[01:25:37] [Z] done: spent $3.00

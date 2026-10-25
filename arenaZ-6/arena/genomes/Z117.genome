@@ -1,0 +1,130 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene("Z61a", "value of doing this option now; casts damage/cc at targets, heals/shields when hurt, recalls when low, tributes more when carrying many gems", parents=["Z71a", "Z61a"])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.2:
+            return 90
+        if gems() >= 10 and me().health_frac < 0.5:
+            return 75
+        return 58 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 14 * (1 - o.unit.health_frac)
+        return 60 + 5 * (1 - o.unit.health_frac) if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70 + min(gems(), 30)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene("Z83a", "skip option kinds that never score (wards, locks, cancels) to save fuel", parents=["Z71a"])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == BUY_LOCK or kind == LOCK or kind == CANCEL:
+        return False
+    return True
+
+@gene("s2", "where to walk: an altar with gems, else cleared groups awaiting capture, else living camps (groups within 8 tiles first, then the living group with best gems+gold minus distance)", parents=["Z71a", "s2"])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    my_zone = near(me().pos, 8)
+    near_acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(my_zone & gt) > 0:
+                near_acc = near_acc | gt
+    if size(near_acc) > 0:
+        return near_acc
+    best_g = -1
+    best_v = -1000000
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            d = dist(nearest(group_tiles(g), me().pos), me().pos)
+            v = 3 * group_gems(g) + group_gold(g) - d
+            if v > best_v:
+                best_v = v
+                best_g = g
+    if best_g >= 0:
+        return group_tiles(best_g)
+    return acc
+
+@gene("Z71b", "compute the goal distance field once per turn into a keep", parents=["Z71b", "Z5a"])
+def update() -> None:
+    GF = field(goals())
+
+@gene('Z71c', 'closer step toward goals, minus a danger penalty for enemy champions (radius 3) and awake monsters, scaled up as my own health falls; unreachable tiles score 0', parents=['Z71c', 'Z61b'])
+def progress(t: Tile) -> Num:
+    there = at(GF, t)
+    if there > 100000:
+        return 0
+    step = at(GF, me().pos) - there
+    danger = sum((2 if u.is_champion else 0.3) * u.health_frac for u in enemies() if dist(u.pos, t) <= 3)
+    hp_loss = 1 - me().health_frac
+    return step * 2 - danger * (1 + 4 * hp_loss)
+
+@gene("Z49a", "value of casting an ability: at a unit, damage/cc on enemy champions and camps, heals/shields on hurt allies or self; ground casts go to ground_cast_value", parents=["Z24a", "Z49a"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if not exists(o.unit):
+        if not valid(o.tile):
+            return 0
+        return ground_cast_value(o, k)
+    u = o.unit
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if u.is_enemy and u.is_champion:
+            return 85 + 10 * (1 - u.health_frac)
+        if u.is_camp and gems() == 0:
+            return 62
+        return 0
+    if k == AB_HEAL or k == AB_SHIELD:
+        if (not u.is_enemy) and (not u.is_camp):
+            if u.health_frac < 0.6:
+                return 88
+            if k == AB_SHIELD and u.health_frac < 0.85:
+                if any(e.is_champion and dist(e.pos, u.pos) <= 4 for e in enemies()):
+                    return 86
+        if k == AB_HEAL and me().health_frac < 0.5 and u.is_champion and not u.is_enemy:
+            return 85
+        return 0
+    return 0
+
+@gene("Z106a", "value of a ground-targeted cast: enemy champions (or camps) inside the radius", parents=["Z106a"])
+def ground_cast_value(o: Option, k: Num) -> Num:
+    r = max(slot_radius(o.slot), 1)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        n = count(e.is_champion and dist(e.pos, o.tile) <= r for e in enemies())
+        if n > 0:
+            return 84 + 4 * n
+        if gems() == 0:
+            nc = count(dist(cm.pos, o.tile) <= r for cm in camps())
+            if nc > 0:
+                return 60 + nc
+        return 0
+    if k == AB_HEAL or k == AB_SHIELD:
+        n = count(a.health_frac < 0.6 and dist(a.pos, o.tile) <= r for a in allies())
+        if n > 0:
+            return 86 + 2 * n
+        return 0
+    return 0

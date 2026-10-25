@@ -1,0 +1,88 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; also casts damage/cc at targets and heals/shields when hurt')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 88 + (1 - o.unit.health_frac) * 5
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70 if gems() > 0 else 0
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else cleared groups awaiting capture, else living camps (groups within 8 tiles first)')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    my_zone = near(me().pos, 8)
+    near_acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(my_zone & gt) > 0:
+                near_acc = near_acc | gt
+    if size(near_acc) > 0:
+        return near_acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'closer to goals by field distance, minus a penalty per enemy within 3 tiles of the step (heavier when hurt or carrying gems)')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    d = at(f, me().pos) - at(f, t)
+    th = threat_tiles()
+    if size(th) == 0:
+        return d
+    danger = size(near(t, 3) & th)
+    w = 2
+    if me().health_frac < 0.4:
+        w = 6
+    elif gems() > 0:
+        w = 4
+    return d - danger * w
+
+@gene('Z24a', 'value of casting an ability option: heal/shield when hurt, damage/cc enemy champions (more when they are low), camps when empty-handed', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL or k == AB_SHIELD:
+        return 168 if me().health_frac < 0.5 else 0
+    if not exists(o.unit):
+        return 0
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 90 + (1 - o.unit.health_frac) * 10
+        if o.unit.is_camp and gems() == 0:
+            return 50
+    return 0
+
+@gene('Z145a', 'enemy occupancy mask, computed once per pass', parents=['s4'])
+def threat_tiles() -> Tiles:
+    return enemy_tiles()
