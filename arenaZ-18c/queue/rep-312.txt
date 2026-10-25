@@ -1,0 +1,9 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; variant: when hurt, steps next to awake monsters count less")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.5 and d > 0:
+        if any(is_awake(c) and dist(c.pos, t) <= 1 for c in camps()):
+            return d * 0.5
+    return d
+```
