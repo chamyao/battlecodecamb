@@ -1,70 +1,5 @@
 [
  {
-  "milestone": "0",
-  "births": 10,
-  "t": 1792881724,
-  "best": 46,
-  "best_genome": "seed",
-  "mean_top3": 46.0,
-  "games": 880,
-  "complete": true
- },
- {
-  "milestone": "1",
-  "births": 100,
-  "t": 1792882223,
-  "best": 45,
-  "best_genome": "Z82",
-  "mean_top3": 40.0,
-  "games": 880,
-  "complete": true,
-  "births_per_hour": 649.3
- },
- {
-  "milestone": "2",
-  "births": 208,
-  "t": 1792882889,
-  "best": 65,
-  "best_genome": "Z193",
-  "mean_top3": 58.3,
-  "games": 880,
-  "complete": true,
-  "births_per_hour": 583.8
- },
- {
-  "milestone": "3",
-  "births": 306,
-  "t": 1792883567,
-  "best": 93,
-  "best_genome": "Z276",
-  "mean_top3": 75.7,
-  "games": 880,
-  "complete": true,
-  "births_per_hour": 520.4
- },
- {
-  "milestone": "4",
-  "births": 403,
-  "t": 1792884354,
-  "best": 104,
-  "best_genome": "Z398",
-  "mean_top3": 82.7,
-  "games": 880,
-  "complete": true,
-  "births_per_hour": 443.7
- },
- {
-  "milestone": "final",
-  "births": 475,
-  "t": 1792885854,
-  "best": 215,
-  "best_genome": "Z449",
-  "mean_top3": 196.3,
-  "games": 880,
-  "complete": true,
-  "births_per_hour": 172.8
- },
- {
   "milestone": "5",
   "births": 500,
   "t": 1792893388,
@@ -72,8 +7,7 @@
   "best_genome": "Z500",
   "mean_top3": 186.7,
   "games": 880,
-  "complete": true,
-  "births_per_hour": 11.9
+  "complete": true
  },
  {
   "milestone": "6",
@@ -96,5 +30,71 @@
   "games": 880,
   "complete": true,
   "births_per_hour": 249.3
+ },
+ {
+  "milestone": "8",
+  "births": 813,
+  "t": 1792897698,
+  "best": 234,
+  "best_genome": "Z796",
+  "mean_top3": 230.0,
+  "games": 880,
+  "complete": true,
+  "births_per_hour": 261.9
+ },
+ {
+  "milestone": "9",
+  "births": 923,
+  "t": 1792899388,
+  "best": 256,
+  "best_genome": "Z914",
+  "mean_top3": 234.7,
+  "games": 880,
+  "complete": true,
+  "births_per_hour": 234.3
+ },
+ {
+  "milestone": "10",
+  "births": 1002,
+  "t": 1792900219,
+  "best": 253,
+  "best_genome": "Z928",
+  "mean_top3": 234.7,
+  "games": 880,
+  "complete": true,
+  "births_per_hour": 342.2
+ },
+ {
+  "milestone": "11",
+  "births": 1108,
+  "t": 1792902074,
+  "best": 245,
+  "best_genome": "Z1107",
+  "mean_top3": 240.7,
+  "games": 880,
+  "complete": true,
+  "births_per_hour": 205.7
+ },
+ {
+  "milestone": "12",
+  "births": 1206,
+  "t": 1792903423,
+  "best": 257,
+  "best_genome": "Z1200",
+  "mean_top3": 255.3,
+  "games": 880,
+  "complete": true,
+  "births_per_hour": 261.5
+ },
+ {
+  "milestone": "13",
+  "births": 1309,
+  "t": 1792905063,
+  "best": 255,
+  "best_genome": "Z1308",
+  "mean_top3": 245.0,
+  "games": 880,
+  "complete": true,
+  "births_per_hour": 226.1
  }
 ]
