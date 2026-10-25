@@ -1,0 +1,25 @@
+```python
+@gene("c1", "where this turn's rule walks; a threatened bank walk (rule 11) prefers altar-ring tiles not within 2 of a visible enemy champion")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        ft = enemy_tiles()
+        if size(ft) > 0:
+            safe = ALTAR_RING - ring(ft, 2)
+            if size(safe) > 0:
+                return closest(safe)
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+```

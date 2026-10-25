@@ -1,0 +1,6 @@
+```python
+@gene("s6", "visible enemy champions within r tiles, not counting ones stunned for 2+ more turns")
+def enemies_within(r: Num) -> Num:
+    h = here()
+    return count(dist(h, u.pos) <= r and buff_turns(u, 1) < 2 for u in enemies())
+```

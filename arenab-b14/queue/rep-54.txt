@@ -1,0 +1,10 @@
+```python
+@gene("s10", "fewest turns until a visible enemy champion could hit us (1000 if none); stunned enemies are delayed by their stun, and a pack of 2+ enemies within 7 counts one turn sooner")
+def threat_eta() -> Num:
+    h = here()
+    t = min((eta(dist(h, u.pos) - u.attack_range, u.move_speed) + buff_turns(u, 1) for u in enemies()), default=1000)
+    pack = count(dist(h, u.pos) <= 7 for u in enemies())
+    if pack >= 2:
+        t = max(t - 1, 0)
+    return t
+```

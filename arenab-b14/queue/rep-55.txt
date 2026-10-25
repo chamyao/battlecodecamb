@@ -1,0 +1,13 @@
+```python
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked; 1000 if none); an altar with a visible enemy champion within 4 counts 4 turns farther, so contested altars do not look close")
+def altar_eta() -> Num:
+    h = here()
+    sp = me().move_speed
+    best = 1000
+    for a in altars() - locked_altars():
+        t = eta(max(0, dist(h, a) - 1), sp)
+        if any(dist(u.pos, a) <= 4 for u in enemies()):
+            t = t + 4
+        best = min(best, t)
+    return best
+```

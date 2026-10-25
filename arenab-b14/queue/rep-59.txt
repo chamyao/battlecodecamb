@@ -1,0 +1,9 @@
+```python
+@gene('w7', 'a dash may land on p: a free middle tile next to both ends unless p is adjacent; while retreating (rule 3) never land within 2 of a visible enemy champion', parents=["w7"])
+def dash_path_ok(p: Tile) -> Bool:
+    if RULE == 3 and any(dist(u.pos, p) <= 2 for u in enemies()):
+        return False
+    if dist(here(), p) <= 1:
+        return True
+    return any(dist(q, p) <= 1 and not (q in BLOCK) for q in dash_mids())
+```

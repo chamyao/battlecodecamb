@@ -1,0 +1,11 @@
+```python
+@gene("m13", "nearest tile next to a safe altar that no enemy lock blocks, avoiding tiles within 3 of a visible enemy champion when any other is left (do not carry the bag into a raid)")
+def bank_t1() -> Tile:
+    s = SAFE_RING - ring(locked_altars(), 1)
+    foes = enemy_tiles()
+    if size(foes) > 0:
+        free = s - ring(foes, 3)
+        if size(free) > 0:
+            return closest(free)
+    return closest(s)
+```

@@ -1,0 +1,24 @@
+```python
+@gene("c1", "where this turn's rule walks; a retreat falls back next to a healthy ally within 6 (peel and group up) before heading for spawn")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        h = here()
+        a = best(allies(), lambda u: -dist(u.pos, h) if (u.is_champion and u.pos != h and u.health_frac >= 0.6 and dist(u.pos, h) <= 6) else -INF)
+        if exists(a) and a.pos != h and a.health_frac >= 0.6 and dist(a.pos, h) <= 6 and dist(a.pos, h) >= 2:
+            return closest(near(a.pos, 1))
+        return closest(my_spawn())
+    if r == 11:
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+```
