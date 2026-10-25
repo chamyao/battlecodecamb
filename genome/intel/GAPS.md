@@ -404,3 +404,32 @@ Three anchors drop by 4: metadraft, farmer and lockall (one game over the bar; S
 
 Local cambc, v28-emblem vs v28, 6 maps: won 4 of 6. Gold by r250 874 vs 951 and by r500 2,281 vs 2,209. Champions
 with a Treasure emblem by r250 1.67 vs 0.50, by r500 3.0 vs 3.2. Team item points at r500 65 vs 66.
+
+## Map ranking by cost (pooled b1-b5: v22, v25, v26, v27, v28 on the same 50 matchups)
+
+Cost = the sum of loss margins / 1000 (a 1000-gem loss counts 1). Each map's 5 or 10 games are 1 or 2 matchups × 5
+bots, so a map's cost is partly its opponent.
+
+| map | W-L (b1-b5) | v28 | mean loss margin | cost | top loss causes |
+|---|---|---|---|---|---|
+| 01shortcut | 0-10 | 0-2 | 792 | 7.9 | no-bank 5, gems-lost 4, low-yield 4 |
+| 00elkring | 0-10 | 0-2 | 547 | 5.5 | fights 10 |
+| 00contest | 3-7 | 1-1 | 743 | 5.2 | low-yield 7, fights 5 |
+| 01broken_curve | 1-9 | 0-2 | 559 | 5.0 | low-yield 5, no-bank 2 |
+| 01elk_arena | 0-5 | 0-1 | 954 | 4.8 | low-yield 5, no-bank 4 |
+| 01starvation | 0-5 | 0-1 | 941 | 4.7 | fights 5, slow-start 4 |
+| 00corners | 0-10 | 0-2 | 466 | 4.7 | fights 4 |
+| 00eight | 0-5 | 0-1 | 805 | 4.0 | fights 5 |
+| 01yellow_brick_road | 0-5 | 0-1 | 737 | 3.7 | slow-start 3 |
+| 00reverse_spiral | 0-5 | 0-1 | 697 | 3.5 | low-yield 5, fights 5 |
+| 01boss_battle | 0-5 | 0-1 | 689 | 3.4 | monolith 5, gems-lost 5 |
+
+The top 5 maps carry 32% of the total cost and the top 10 carry 56%. Over all losses the causes are low-yield 86,
+fights 81, slow-start 31, gems-lost 19, monolith 15, no-bank 13.
+
+Families:
+- **Bank access** (shortcut, broken_curve, elk_arena): 17.7 of 87.6, about 20%, across three maps. Altars walled in
+  by camps or monolith groups, enemy locks, or no reachable gem group. This is the next directed target worth more
+  than one map, and it is partly reproducible in the sim: shortcut and elk-arena idle and bank late there.
+- **Fights** (elkring, corners, eight, starvation, gemfight): about 21.6, the band's fight and economy edge.
+- **Yield** (contest, reverse_spiral, expanse): monolith-only gems, spawn duels.
