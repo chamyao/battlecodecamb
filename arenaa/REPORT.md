@@ -2,6 +2,12 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 13:21 UTC
+
+- Controls done: Z-21a 371, Z-21b 335 (final populations, /880, 1.7 h each). Screened finals: 18b 610, 19a 346,
+  19b 513, 19c 479. Z-20a/b still running (203/297 births); 20b m2 478 at b226. Details in SCREEN.md.
+- A-9 leg 5 (screening) at 3381.
+
 ## 2026-10-25 12:19 UTC
 
 - Births: Z-20a 173, 20b 209 (screened); Z-21a 291, 21b 283 (no-games controls, started 1h later but faster per
