@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 06:20 UTC: relay final; Z-17 queued
+
+- Z-10 relay final (476 births): panel best 85 / 96 / 107 / 145 (Z400, b405). Z-5 (same writer and feedback, one
+  continuous session) had 394 at ~b413. Both used the legacy cull, so the cull does not explain the gap.
+  What differs is the writer's memory (reset every 50 births vs continuous), so continuous context is
+  most of Z-5's edge. Caveat: one run each, and Z-5 has no replicate. This supports long legs for
+  session relays (arenaA-9 uses ~400-birth legs).
+- Z-17a/b/c queued on EC2 (jobs/genome 64a22ea8), exactly as designed in CULL.md; panels panelZ-17a/b/c.
+- A81582 is being uploaded by the genome lead (it passed vs v29 at 50/80; the solo-farm check warned on one
+  map, but the total is faster).
+
 ## 2026-10-25 06:15 UTC: arenaA-9 overnight
 
 - Strongest A line: arenaA-8 (Opus session writer + feedback, from arenaA-6). Panel 1006/1200 vs A-8c's
