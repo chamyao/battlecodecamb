@@ -1,0 +1,7 @@
+```python
+@gene("s3", "distance field to the goals, or to my spawn to heal below 40 percent health when carrying few gems")
+def goal_field() -> Field:
+    if gems() < 5 and me().health_frac < 0.4:
+        return field(my_spawn())
+    return field(goals())
+```
