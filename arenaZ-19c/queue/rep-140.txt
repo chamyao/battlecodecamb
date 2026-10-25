@@ -1,0 +1,24 @@
+```python
+GMODE: Num = -1
+
+GL: Tiles = None
+
+@gene('Z127b', 'once per turn: cache the goal field and the tiles of enemy champions and awake camps', parents=['s3'])
+def update() -> None:
+    mode = 1 if gems() >= 8 or (gems() > 0 and me().health_frac < 0.5) else 0
+    if mode != GMODE or round() % 4 == 0 or size(GL) == 0:
+        GL = goals()
+        GMODE = mode
+    g = GL
+    sig = size(g) + 10000 * size(g & near(me().pos, 0))
+    if sig != GSIG or round() % 25 == 0:
+        GF = field(g)
+        GSIG = sig
+    acc = near(tile(-5, -5), 0)
+    for u in enemies():
+        acc = acc | near(u.pos, 0)
+    for c in camps():
+        if is_awake(c):
+            acc = acc | near(c.pos, 0)
+    TH = acc
+```

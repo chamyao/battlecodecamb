@@ -1,0 +1,10 @@
+```python
+@gene('Z147e', "the shard to buy next: Treasure, then Jungle, then Bruiser, in this champion's stat", parents=['s1'])
+def next_shard() -> Num:
+    s = shop_stat()
+    if items_owned(19 + s) == 0:
+        return 18 + s
+    if items_owned(37 + s) > 0 and items_owned(25 + s) == 0:
+        return 24 + s
+    return 36 + s
+```
