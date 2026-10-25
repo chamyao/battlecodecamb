@@ -1,0 +1,105 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+RETREAT: Bool = False
+
+@gene('Z71a', 'value of doing this option now; casts damage/cc at targets, heals/shields when hurt', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 5
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 50 + p if p > 0 else 0
+    return 0
+
+@gene('s2', 'where to walk: an altar with gems, else cleared groups awaiting capture, else living camps (groups within 8, then 16 tiles, then all)')
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and group_reward(g):
+            acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    my_zone = near(me().pos, 8)
+    near_acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(my_zone & gt) > 0:
+                near_acc = near_acc | gt
+    if size(near_acc) > 0:
+        return near_acc
+    my_zone2 = near(me().pos, 16)
+    mid_acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(my_zone2 & gt) > 0:
+                mid_acc = mid_acc | gt
+    if size(mid_acc) > 0:
+        return mid_acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z71b', 'compute the goal distance field once per turn; retreat to spawn to heal when badly hurt, or when moderately hurt with an enemy champion close (hysteresis) instead of chasing goals', parents=['s3'])
+def update() -> None:
+    hf = me().health_frac
+    threat = sum(1 for u in enemies() if u.is_champion and dist(u.pos, me().pos) <= 6)
+    if hf < 0.3 or (hf < 0.6 and threat > 0):
+        RETREAT = True
+    if hf >= 0.9:
+        RETREAT = False
+    if RETREAT:
+        GF = field(my_spawn())
+    else:
+        GF = field(goals())
+
+@gene('Z71c', 'closer step toward goals (or home when retreating), minus a health- and gem-scaled penalty for enemy champions and awake monsters within 3 tiles; enemy list cached per pass', parents=['s4'])
+def progress(t: Tile) -> Num:
+    step = at(GF, me().pos) - at(GF, t)
+    danger = sum((1.3 if u.is_champion else 0.4) * u.health_frac for u in foes() if dist(u.pos, t) <= 3)
+    bonus = 1.5 if RETREAT else 0
+    return step * (2 + bonus) - danger * 3 * caution_level()
+
+@gene('Z360a', 'visible enemies, fetched once per loop pass instead of once per move option', parents=['Z71c'])
+def foes() -> Units:
+    return enemies()
+
+@gene('Z360b', 'how careful to be: rises when hurt and when carrying many gems', parents=['Z71c'])
+def caution_level() -> Num:
+    return 2.5 - me().health_frac * 2 + min(gems() / 60, 1)
+
+@gene('Z24a', 'value of casting an ability option at a unit target', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL or k == AB_SHIELD:
+        return 85 if me().health_frac < 0.5 else 0
+    if not exists(o.unit):
+        return 0
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if o.unit.is_champion and o.unit.is_enemy:
+            return 82
+        if o.unit.is_camp and gems() == 0:
+            return 58
+    return 0

@@ -1,0 +1,63 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+DANGER: Tiles = None
+
+@gene('Z118a', 'value of doing this option now; steps toward goals weigh more while carrying gems; attack non-champions only when empty-handed', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 0.4428
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 98
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p > 0:
+            return 50 + 15 * gems() if gems() > 0 else 50
+        return 0
+    return 0
+
+@gene('Z118b', 'where to walk: unlocked altar with gems (else any altar); without gems, cleared groups awaiting capture first, then living camps that hold gold or gems', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        free = altars() - locked_altars()
+        src = free if size(free) > 0 else altars()
+        for a in src:
+            acc = acc | near(a, 0.6334)
+        return acc
+    rew = near(tile(-5, -5), 0)
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            rew = rew | group_tiles(g)
+        elif group_gems(g) + group_gold(g) > 0 and not group_respawning(g):
+            acc = acc | group_tiles(g)
+    if size(rew) > 0:
+        return rew
+    return acc
+
+@gene("s3", "distance field to the goals")
+def goal_field() -> Field:
+    return field(goals())
+
+@gene("s4", "how much closer a step brings me to the goals; steps into danger cost extra while carrying gems", parents=["s4"])
+def progress(t: Tile) -> Num:
+    base = at(goal_field(), me().pos) - at(goal_field(), t)
+    if gems() > 0 and t in DANGER:
+        return base - 3
+    return base
+
+@gene("Z73a", "per-turn tiles within 2 of enemy champions, used to avoid walking into danger with gems", parents=["Z73a"])
+def update() -> None:
+    DANGER = DANGER - DANGER
+    for u in enemies():
+        if u.is_champion:
+            DANGER = DANGER | near(u.pos, 2)
