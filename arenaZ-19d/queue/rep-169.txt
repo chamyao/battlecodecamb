@@ -1,0 +1,14 @@
+```python
+@gene('s3', 'distance field to the goals, skipping golem and monolith camps; home when hurt and empty-handed')
+def goal_field() -> Field:
+    if me().health_frac < 0.3 and gems() == 0:
+        return field(my_spawn())
+    return field(goals() - type_spawns(MONOLITH) - type_spawns(GOLEM))
+
+@gene("s4", "how much closer a step brings me to the goals; when hurt under fire, how much safer it is")
+def progress(t: Tile) -> Num:
+    if me().health_frac < 0.3 and threat_at(me().pos) > 0:
+        return threat_at(me().pos) - threat_at(t)
+    return at(goal_field(), me().pos) - at(goal_field(), t)
+
+```
