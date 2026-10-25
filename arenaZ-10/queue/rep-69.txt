@@ -1,0 +1,29 @@
+```python
+GF: Field = None
+
+@gene("new", "once per turn: cache the distance field to the goals not occupied by another ally", parents=["s3"])
+def update() -> None:
+    g = goals()
+    free = g - (ally_tiles() - near(me().pos, 0))
+    if size(free) == 0:
+        free = g
+    GF = field(free)
+
+@gene("s3", "distance field to the goals (cached once per turn in update)")
+def goal_field() -> Field:
+    return GF
+
+@gene("s2", "where to walk: an altar once carrying 8+ gems (any gems late, hurt, or with no camp left), else a living camp group")
+def goals() -> Tiles:
+    camps_left = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            camps_left = camps_left | group_tiles(g)
+    bank = gems() >= 8 or (gems() > 0 and (round() > 1850 or me().health_frac < 0.5 or size(camps_left) == 0))
+    if bank:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    return camps_left
+```

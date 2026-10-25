@@ -1,0 +1,62 @@
+```python
+@gene('s1', 'value of doing this option now; casts abilities, shop plan, recall at 42% or to spend banked gold, fights back against awake camps while carrying gems')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        if me().health_frac < 0.42:
+            return 90
+        return 52 if shop_trip() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene('Z11a', 'value of casting: damage/cc on enemies (area casts by number hit) or camps (awake ones even with gems), heal when hurt, shield in fights, dash toward goals or home when low and threatened', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_HEAL:
+        return 47 if me().health_frac < 0.6 else 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.7 or any(u.is_champion and dist(u.pos, me().pos) <= 4 for u in enemies()):
+            return 78
+        return 0
+    if k == AB_DASH:
+        if not valid(o.tile):
+            return 0
+        if me().health_frac < 0.35 and threatened():
+            home = field(my_spawn())
+            return 92 if at(home, me().pos) - at(home, o.tile) >= 2 else 0
+        if progress(o.tile) >= 2 and (gems() > 0 or me().health_frac > 0.5):
+            return 55
+        return 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 84
+            if o.unit.is_camp and (gems() == 0 or is_awake(o.unit)):
+                return 62
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(u.pos, o.tile) <= r for u in enemies())
+            if n > 0:
+                return 80 + min(n, 3)
+            if gems() == 0 and any(dist(u.pos, o.tile) <= r for u in camps()):
+                return 93
+        return 0
+    return 0
+```

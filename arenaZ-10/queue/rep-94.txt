@@ -1,0 +1,16 @@
+```python
+@gene('s4', 'how much closer a step brings me to the goals (one field lookup); while carrying gems, a step next to an enemy champion counts as no progress')
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    d = at(f, me().pos) - at(f, t)
+    if d > 0 and gems() > 0 and any(u.is_champion and dist(u.pos, t) <= 1 for u in enemies()):
+        return 0
+    return d
+
+@gene("s3", "distance field to the goals; home instead when hurt below 35% with an enemy champion within 5")
+def goal_field() -> Field:
+    if gems() == 0 and me().health_frac < 0.35 and not can_shop():
+        if any(u.is_champion and dist(u.pos, me().pos) <= 5 for u in enemies()):
+            return field(my_spawn())
+    return field(goals())
+```

@@ -1,0 +1,48 @@
+```python
+@gene('s1', 'value of doing this option now; drafts ladder favourites, casts abilities, treasure-then-bruiser shop plan, recall at 42% (55% when carrying 30+ gems near an enemy champion) or to spend banked gold, fights back against awake camps while carrying gems')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_pref(o.champ)
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        if me().health_frac < 0.42:
+            return 90
+        if gems() >= 30 and me().health_frac < 0.55 and any(u.is_champion and dist(u.pos, me().pos) <= 5 for u in enemies()):
+            return 88
+        return 52 if shop_trip() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "draft preference: Vesper Vale, Heart of Ruin, Marcella, Vendetta, Ryth, then anything", parents=["s1"])
+def draft_pref(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 10
+    if c == HEART_OF_RUIN:
+        return 9
+    if c == MARCELLA:
+        return 8
+    if c == VENDETTA:
+        return 7
+    if c == RYTH:
+        return 6
+    return 1
+
+@gene("s4", "how much closer a step brings me to the goals (one field lookup)")
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    return at(f, me().pos) - at(f, t)
+```

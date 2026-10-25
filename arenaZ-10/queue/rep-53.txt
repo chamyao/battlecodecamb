@@ -1,0 +1,39 @@
+```python
+@gene('s1', 'value of doing this option now; drafts ladder favourites, casts abilities, treasure shards early then bruiser strength, recall at 42%, fights back against awake camps while carrying gems')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_value(o.champ)
+    if o.kind == BUY:
+        return buy_value(o)
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.42 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 5 * (1 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.5:
+            return 45
+        return 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "draft preference: Vesper Vale, Heart of Ruin, Marcella, Vendetta, Ryth, then anything", parents=["s1"])
+def draft_value(c: Num) -> Num:
+    if c == VESPER_VALE:
+        return 10
+    if c == HEART_OF_RUIN:
+        return 9
+    if c == MARCELLA:
+        return 8
+    if c == VENDETTA:
+        return 7
+    if c == RYTH:
+        return 6
+    return 1
+```

@@ -1,0 +1,14 @@
+```python
+@gene('s3', 'distance field to the goals (cached once per turn in update); home when low and an enemy champion is close; plain field if the cached one cannot reach me')
+def goal_field() -> Field:
+    if gems() == 0 and me().health_frac < 0.42 and not can_shop():
+        if any(u.is_champion and dist(u.pos, me().pos) <= 5 for u in enemies()):
+            return home_field()
+    if at(GF, me().pos) >= 100000:
+        return field(goals())
+    return GF
+
+@gene("new", "distance field to my spawn", parents=["s3"])
+def home_field() -> Field:
+    return field(my_spawn())
+```
