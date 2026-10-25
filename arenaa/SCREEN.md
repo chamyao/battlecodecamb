@@ -111,3 +111,14 @@ and no other genomes. Both controls are clean. Final-population panels requested
 Screening is not uniformly better: Z-19a (screened, 346) is below control Z-21a (371). The screened runs spread
 widely (346-610), while the controls are tight (335-371). The mean is higher with screening (legacy screened 18b/19a/19b
 mean 490 vs controls 353), but n is small and the screening varied. Z-20a/b (screening from the start, explicit) decide.
+
+## A-9 leg 5 with screening (strong population; 15:13 UTC)
+
+A-9 leg 5 (b3240 -> 3644) let its writer screen: 759 candidate screens, about 65k games (20 maps x 2 sides vs 2 top
+members), 11.5k CPU-s. The screen changed the pick in 42% of requests. But across 185 accepted children with 150+ games,
+the screen's win delta vs the parent and the arena's mu delta vs the parent correlate at **-0.05**. On a converged,
+strong population, an 80-game screen against 2 opponents is noise. It only catches blatant losers and twins. The leg
+also took 3h35 vs about 80 min unscreened.
+Read: screening pays when effects are large (early, weak populations: the Z runs from the starter) and not when they
+are small (late, strong populations), unless the screen is much bigger (300+ games over many opponents). The panel
+slope after b3240 will confirm or refute this.
