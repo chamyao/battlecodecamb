@@ -308,3 +308,8 @@ sim games, and on this lineage the sim and real disagree (B1873 37 sim / 47 real
 | kill185 | 43 | 38 |
 All 0 crashes. On the B1873 line the sim h2h no longer predicts real in either direction (B1873 37 sim / 47 real; these
 48 sim / 37-38 real). From here, tune-B candidates are confirmed in real cambc before being reported.
+
+## Oct 25 ~12:00: Arena B leg 9 done (2302 births); none beats v33 in real
+Real /80 vs v33, 0 crashes: B2180 (champ44) 41 (capped 477), B2295 (champ46) 39 (507), B2249 (champ45) 33 (526).
+Tops now run ~9.3-10 suspensions/match in the sim vs ~7.6 for the leg-7 tops; leg 10 adds a gate rejecting children
+>10% above their parent's a_susp, and v33 as a weight-2 anchor. panelB-14 m22 1103 (peak m19 1142): the arena has plateaued.
