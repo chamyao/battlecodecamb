@@ -1,0 +1,269 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+LOW: Bool = False
+HF: Field = None
+HSET: Bool = False
+GSIG: Num = -1
+GAGE: Num = 0
+ECLOSE: Num = 99
+CAWAKE: Num = 99
+ETH: Tiles = None
+
+@gene('Z412a', 'value of doing this option now: treasure shards first then strength (bruiser) shards, safe recall when retreating, finish low enemies (prefer gem carriers; ranged retreaters only finish nearly dead ones), attack camps while not banking but do not wake sleeping camps when hurt with an enemy champion close, prefer nearly dead camps, keep hitting awake camps that fight us', parents=['Z212a'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if o.item == 6:
+            return 100 if items_owned(6) < 5 else 0
+        if items_owned(6) >= 5 and item_strength(o.item) > 0:
+            return 90 + min(item_strength(o.item), 9)
+        return 0
+    if o.kind == RECALL:
+        return recall_value()
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            if LOW and me().attack_range > 1 and o.unit.health_frac > 0.25:
+                return 0
+            return 80 + 10 * (1 - o.unit.health_frac) + min(unit_gems(o.unit), 50) / 10
+        if LOW:
+            return 0
+        if not banking():
+            if o.unit.is_camp and not is_awake(o.unit) and ECLOSE <= 5 and me().health_frac < 0.7:
+                return 0
+            return 60 + 8 * (1 - o.unit.health_frac)
+        if o.unit.is_camp and is_awake(o.unit) and me().health_frac > 0.35:
+            return 50
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        return 49 + p if p > 0 else 0
+    return 0
+
+@gene('Z147a', 'skip listing option kinds the policy never values (wards, altar locks, cancels), shops only when affordable at spawn, tributes only with gems', parents=['Z103a'])
+def consider(kind: Num) -> Bool:
+    if kind == WARD or kind == LOCK or kind == BUY_LOCK or kind == CANCEL:
+        return False
+    if kind == BUY:
+        return gold() >= 30 and can_shop()
+    if kind == TRIBUTE:
+        return gems() > 0
+    return True
+
+@gene('Z412b', 'whether to bank: big bag (smaller later), winning tribute, altar very close, worthwhile bag with enemy nearby (cached distance), or hurt while carrying', parents=['Z30b'])
+def banking() -> Bool:
+    g = gems()
+    if g <= 0:
+        return False
+    if team_gems() + g >= 1000:
+        return True
+    r = round()
+    if g >= 20:
+        return True
+    if g >= 15 and r > 600:
+        return True
+    if g >= 12 and r > 1000:
+        return True
+    if g >= 6 and r > 1500:
+        return True
+    if r > 1800:
+        return True
+    m = me()
+    hf = m.health_frac
+    if g >= 5:
+        a = nearest(altars(), m.pos)
+        if valid(a) and dist(a, m.pos) <= 4:
+            return True
+    if g >= 10 and ECLOSE <= 5:
+        return True
+    if g >= 8:
+        return hf < 0.75
+    return hf < 0.55
+
+@gene('Z212b', 'where to walk: an altar when banking, else a cleared group to capture, else loot groups (gem groups preferred after round 600, gold only before 1200), any group early or when none carry loot, else explore camp spawns', parents=['Z30c'])
+def goals() -> Tiles:
+    if banking():
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        if size(acc) > 0:
+            return acc
+    acc = near(tile(-5, -5), 0)
+    rich = near(tile(-5, -5), 0)
+    gemrich = near(tile(-5, -5), 0)
+    ready = near(tile(-5, -5), 0)
+    mono = type_spawns(MONOLITH)
+    r = round()
+    early = r < 300
+    goldok = r < 1200
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if size(gt & mono) == 0:
+                acc = acc | gt
+                if group_gems(g) > 0:
+                    gemrich = gemrich | gt
+                    rich = rich | gt
+                elif goldok and group_gold(g) > 0:
+                    rich = rich | gt
+                if group_reward(g):
+                    ready = ready | gt
+    if size(ready) > 0:
+        return ready
+    if r > 600 and size(gemrich) > 0:
+        return gemrich
+    if not early and size(rich) > 0:
+        return rich
+    if size(acc) == 0 and gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+    if size(acc) == 0:
+        acc = camp_spawns() - mono
+    return acc
+
+@gene('s3', 'distance field to the given goals')
+def goal_field(g: Tiles) -> Field:
+    return field(g)
+
+@gene('Z107a', 'cheap fingerprint of a tile set (size plus two mixed coordinate sums) so the goal field is rebuilt only when goals change, with fewer collisions between different sets', parents=['s3'])
+def goal_signature(g: Tiles) -> Num:
+    return size(g) * 7919 + sum(t.x * 131 + t.y * 17 + t.x * t.y * 3 for t in g)
+
+@gene('s4', 'how much closer a step brings me to the goals, or home when retreating (cached fields), minus a penalty for stepping into enemy-champion threat range when fleeing or carrying gems; 0 when either end is unreachable')
+def progress(t: Tile) -> Num:
+    f = HF if LOW else GF
+    a = at(f, me().pos)
+    b = at(f, t)
+    if a >= 100000000 or b >= 100000000:
+        return 0
+    d = a - b
+    if t in ETH and not (me().pos in ETH):
+        d -= 1.5
+    return d
+
+@gene('Z412c', 'skip work while dead; cache nearest enemy champion / awake camp distance; home field once; goal field rebuilt on change or every 6 turns; retreat at 40/45/50% by gems with hysteresis; cache enemy threat tiles when fleeing or carrying gems', parents=['Z4a'])
+def update() -> None:
+    if not alive():
+        return
+    if not HSET:
+        HF = field(my_spawn())
+        HSET = True
+    m = me()
+    mp = m.pos
+    ECLOSE = 99
+    ETH = ETH - ETH
+    carry = gems() >= 30
+    for u in enemies():
+        if u.is_champion:
+            ECLOSE = min(ECLOSE, dist(u.pos, mp))
+            if LOW or carry:
+                ETH = ETH | near(u.pos, u.attack_range + 2)
+    CAWAKE = min((dist(c.pos, mp) for c in camps() if is_awake(c)), default=99)
+    hf = m.health_frac
+    if LOW:
+        if hf > 0.9:
+            LOW = False
+            GSIG = -1
+    else:
+        lim = 0.4
+        if gems() >= 20:
+            lim = 0.45
+        if gems() >= 40:
+            lim = 0.5
+        if hf < lim and not channeling():
+            LOW = True
+    if not LOW:
+        if channeling():
+            return
+        g = goals()
+        sig = goal_signature(g)
+        GAGE += 1
+        if sig != GSIG or GAGE >= 6:
+            GF = goal_field(g)
+            GSIG = sig
+            GAGE = 0
+
+@gene('Z147b', 'cast value: stun tributers, finish low enemy champions, CC to escape when retreating, focus damaged camps unless banking, shield on cooldown in fights (cached threat distances), heal lowest ally, escape dash when low, dash toward goals/home, dash onto weak enemies', parents=['Z126a', 'Z4b'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    m = me()
+    hf = m.health_frac
+    mp = m.pos
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                if k == AB_CC and is_tributing(o.unit):
+                    return 95
+                if o.unit.health_frac < 0.4:
+                    return 85 + 10 * (1 - o.unit.health_frac)
+                if k == AB_CC and LOW:
+                    return 88
+                return 75 + 10 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and not LOW:
+                bonus = 4 * (1 - o.unit.health_frac)
+                if not banking():
+                    return 55 + 10 * (1 - o.unit.health_frac)
+                if is_awake(o.unit) and hf > 0.35:
+                    if dist(o.unit.pos, mp) <= 2:
+                        return 53 + bonus
+                    return 50
+        return 0
+    if k == AB_SHIELD:
+        if hf < 0.95:
+            if ECLOSE <= 4:
+                return 72
+            if CAWAKE <= 2:
+                return 72
+        return 0
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy:
+            return 72 + 5 * (1 - o.unit.health_frac) if o.unit.health_frac < 0.6 else 0
+        return 72 if hf < 0.6 else 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            if hf < 0.35 and not LOW:
+                if ECLOSE <= 5:
+                    home = nearest(my_spawn(), mp)
+                    if valid(home):
+                        gain = dist(mp, home) - dist(o.tile, home)
+                        if gain >= 2:
+                            return 74 + gain
+                return 0
+            p = progress(o.tile)
+            if LOW:
+                return 74 + p if p >= 2 else 0
+            if hf > 0.6 and ECLOSE <= 7:
+                if any(u.is_champion and u.health_frac < 0.35 and dist(u.pos, o.tile) <= 1 for u in enemies()):
+                    return 70
+            if p >= 2 and (hf > 0.5 or gems() > 0):
+                return 45 + p
+        return 0
+    return 0
+
+@gene('Z412d', 'recall when retreating, to shop when rich and worn, or when very rich and far from home; only if no enemy champion or awake camp close (cached distances)', parents=['Z50a'])
+def recall_value() -> Num:
+    mp = me().pos
+    hd = at(HF, mp)
+    if LOW:
+        if hd <= 5:
+            return 0
+        val = 90
+    else:
+        if hd <= 12 or banking():
+            return 0
+        g = gold()
+        hf = me().health_frac
+        if not ((g >= 120 and hf <= 0.75) or (g >= 300 and hd > 18)):
+            return 0
+        val = 85
+    if ECLOSE <= 5:
+        return 0
+    if CAWAKE <= 3:
+        return 0
+    return val
