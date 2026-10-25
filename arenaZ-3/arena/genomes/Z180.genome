@@ -1,0 +1,85 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; moves scale with progress toward goals; also casts abilities', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.371 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p > 0:
+            return 40 + 5 * min(p, 6)
+        return 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group", parents=["s2"])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.5607)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('s3', 'distance field to the goals; go home when below 35% health and stay on spawn until 80% health', parents=['s3'])
+def goal_field() -> Field:
+    hf = me().health_frac
+    home = my_spawn()
+    if hf < 0.35 or (hf < 0.8 and me().pos in home):
+        return field(home)
+    return field(goals())
+
+@gene('s4', 'progress toward goals, discounted by nearby enemies when hurt (scaled by enemy count)', parents=['s4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    p = at(f, me().pos) - at(f, t)
+    if me().health_frac < 0.5:
+        p -= 2.5 * count(dist(u.pos, t) <= 3 for u in enemies())
+    return p
+
+@gene('Z49a', 'value of casting an ability option; focus hurt enemy champions, scale shield/heal with threat count and missing health, dash only for real progress', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 80 + 25 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and gems() == 0:
+                return 55
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(u.pos, o.tile) <= r for u in enemies())
+            return 60 + 15 * min(n, 3) if n > 0 else 0
+        return 0
+    if k == AB_SHIELD:
+        threats = count(dist(u.pos, me().pos) <= 5 for u in enemies())
+        if me().health_frac < 0.9 and threats > 0:
+            return 50 + 15 * min(threats, 3) + 10 * (1 - me().health_frac)
+        return 0
+    if k == AB_HEAL:
+        threats = count(dist(u.pos, me().pos) <= 6 for u in enemies())
+        if me().health_frac < 0.6 and threats > 0:
+            return 60 + 30 * (1 - me().health_frac)
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile) and me().health_frac > 0.5 and progress(o.tile) >= 4:
+            return 50
+        return 0
+    return 0

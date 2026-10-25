@@ -1,0 +1,48 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now, with moves discounted more steeply by enemy champion threat at the destination')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.5
+    if o.kind == BUY:
+        return 90 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.1962 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p <= 0:
+            return 0
+        return max(1, 55 - 25 * threat_decay(o.tile) / max(1, me().strength * me().health_frac))
+    return 0
+
+@gene('s3', 'distance field to the walk targets')
+def goal_field() -> Field:
+    return field(walk_targets())
+
+@gene('Z283a', 'walk targets: unlocked altars when carrying gems, else living camp groups holding gems', parents=['s3'])
+def walk_targets() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+    if size(acc) == 0:
+        for g in range(num_groups()):
+            if not group_respawning(g) and group_gems(g) > 0:
+                acc = acc | group_tiles(g)
+    return acc
+
+@gene('s4', 'how much closer a step brings me to the goals, with approaching gains tripled and retreats doubled')
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    return d * 3 if d > 0 else d * 2
+
+@gene('Z104a', 'distance-decayed strength of enemy champions within 10 tiles of a tile, weighted by their health', parents=['Z16a'])
+def threat_decay(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac / (1 + dist(u.pos, t)) for u in enemies() if u.is_champion and dist(u.pos, t) <= 10)

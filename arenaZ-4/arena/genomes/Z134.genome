@@ -1,0 +1,81 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+GF: Field = None
+
+@gene('Z224a', 'cache the goal distance field once per turn', parents=['s3'])
+def update() -> None:
+    GF = field(fallback_goals())
+
+@gene('Z224b', 'value of doing this option now: moves scored by camp-aware step gain discounted by direct reach threat plus ally-offset decayed threat; recall at moderate low health', parents=['s1', 'Z9a', 'Z177a'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 95 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.3 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 90
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        p = step_gain(o.tile)
+        if p <= 0:
+            return 0
+        threat = threat_at(o.tile) + net_threat(o.tile)
+        return max(1, 55 - 15 * threat / max(1, me().strength * me().health_frac))
+    return 0
+
+@gene('s2', 'where to walk: an unlocked altar with gems, else tiles of open camp groups', parents=['s2'])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    return open_camps()
+
+@gene('Z224c', 'distance field to the goals, read from the per-turn cache', parents=['s3'])
+def goal_field() -> Field:
+    return GF
+
+@gene('Z60a', 'goals if any, else tiles of living camp groups not awaiting capture', parents=['s2'])
+def fallback_goals() -> Tiles:
+    base = goals()
+    if size(base) > 0:
+        return base
+    return open_camps()
+
+@gene('Z265a', 'tiles of camp groups that are neither respawning nor awaiting capture', parents=['Z60a'])
+def open_camps() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g) and not group_reward(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('Z143a', 'gain from a step toward the goals, minus one for camp tiles, zero for unreachable tiles', parents=['Z143a', 's4'])
+def step_gain(t: Tile) -> Num:
+    gt = at(goal_field(), t)
+    if gt > 1000000:
+        return 0
+    d = at(goal_field(), me().pos) - gt
+    if t in camp_tiles():
+        return d - 1
+    return d
+
+@gene('Z9a', 'health-weighted strength of enemy champions that can reach a tile next turn', parents=['Z9a', 's1'])
+def threat_at(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac for u in enemies() if u.is_champion and dist(u.pos, t) <= u.attack_range + u.move_speed)
+
+@gene('Z104a', 'distance-decayed strength of enemy champions within 10 tiles of a tile, weighted by their health', parents=['Z104a'])
+def threat_decay(t: Tile) -> Num:
+    return sum(u.strength * u.health_frac / (1 + dist(u.pos, t)) for u in enemies() if u.is_champion and dist(u.pos, t) <= 10)
+
+@gene('Z177a', 'distance-decayed enemy champion threat at a tile minus half the distance-decayed strength of nearby allied champions, floored at zero', parents=['Z104a'])
+def net_threat(t: Tile) -> Num:
+    support = sum(a.strength * a.health_frac / (1 + dist(a.pos, t)) for a in allies() if a.is_champion and dist(a.pos, t) <= 6 and a.pos != me().pos)
+    return max(0, threat_decay(t) - 0.5 * support)

@@ -1,0 +1,89 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+@gene('s1', 'value of doing this option now; moves scale with progress toward goals (+10 when carrying gems); casts via cast_value', parents=['s1'])
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1.2288
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.3146 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == MOVE:
+        p = progress(o.tile)
+        if p > 0:
+            bonus = 10 if gems() > 0 else 0
+            return 30 + 5 * min(p, 6) + bonus
+        return 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems, else a living camp group worth taking (gems/gold/reward), else any living group", parents=["s2"])
+def goals() -> Tiles:
+    if gems() > 0:
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.9749)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    fallback = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            fallback = fallback | group_tiles(g)
+            if group_gems(g) + group_gold(g) > 0 or group_reward(g):
+                acc = acc | group_tiles(g)
+    if size(acc) > 0:
+        return acc
+    return fallback
+
+@gene("s3", "distance field to the goals", parents=["s3"])
+def goal_field() -> Field:
+    return field(goals())
+
+@gene('s4', 'progress toward goals; enemy penalty grows as health falls (1x at 50%, 3x at 0%); small bonus for standing near allies when healthy', parents=['s4'])
+def progress(t: Tile) -> Num:
+    f = goal_field()
+    p = at(f, me().pos) - at(f, t)
+    hf = me().health_frac
+    if hf < 0.5:
+        mult = 1 + (0.5 - hf) * 4
+        p -= 3 * mult * count(dist(u.pos, t) <= 3 for u in enemies())
+    else:
+        p += 0.5 * count(dist(u.pos, t) <= 2 for u in allies())
+    return p
+
+@gene('Z49a', 'value of casting an ability option; damage/CC on enemy champions scales with their missing health; dash valued by progress gained', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 65 + 30 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and gems() == 0:
+                return 55
+            return 0
+        if valid(o.tile):
+            r = max(slot_radius(o.slot), 1)
+            n = count(dist(u.pos, o.tile) <= r for u in enemies())
+            return 72 if n > 0 else 0
+        return 0
+    if k == AB_SHIELD:
+        if me().health_frac < 0.8 and count(dist(u.pos, me().pos) <= 4 for u in enemies()) > 0:
+            return 65
+        return 0
+    if k == AB_HEAL:
+        return 65 if me().health_frac < 0.6 else 0
+    if k == AB_DASH:
+        if valid(o.tile) and me().health_frac > 0.5:
+            p = progress(o.tile)
+            if p >= 4:
+                return min(60, 10 * p)
+        return 0
+    return 0

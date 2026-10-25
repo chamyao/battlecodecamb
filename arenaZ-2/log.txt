@@ -438,3 +438,78 @@
 [00:35:24] [Z] rejected mutate claude-haiku-5-5: behavioural twin
 [00:35:27] [Z] birth Z216 (mutate claude-opus-5-5) of ['Z209'] species S83; 24 genomes $0.95
 [00:35:36] [Z] birth Z217 (mutate claude-haiku-5-5) of ['Z215'] species S71; 24 genomes $0.95
+[00:35:42] [Z] birth Z218 (llm_cross claude-haiku-5-5) of ['Z209', 'Z212'] species S84; 24 genomes $0.95
+[00:35:44] [Z] birth Z219 (mutate claude-haiku-5-5) of ['Z189'] species S77; 24 genomes $0.95
+[00:35:54] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:35:57] [Z] new species S86 founded by Z220
+[00:35:57] [Z] summary: births 220 deaths 197 games 40640 $0.95; top [('Z219', 34.66, 0.92, 88, 'S77'), ('Z220', 34.66, 6.0, 0, 'S86'), ('Z176', 34.52, 0.8, 608, 'S57')]; top vs anchors {'Z219': None, 'Z176': None, 'Z196': None}
+[00:35:57] [Z] birth Z220 (tune ) of ['Z219'] species S86; 24 genomes $0.95
+[00:36:00] [Z] birth Z221 (mutate claude-haiku-5-5) of ['Z181'] species S67; 24 genomes $0.96
+[00:36:00] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 97: cannot assign to near
+[00:36:16] [Z] new species S87 founded by Z222
+[00:36:16] [Z] birth Z222 (mutate claude-haiku-5-5) of ['Z202'] species S87; 24 genomes $0.98
+[00:36:19] [Z] new species S88 founded by Z223
+[00:36:19] [Z] birth Z223 (mutate claude-haiku-5-5) of ['Z219'] species S88; 24 genomes $0.98
+[00:36:21] [Z] new species S89 founded by Z224
+[00:36:21] [Z] birth Z224 (mutate claude-opus-5-5) of ['Z210'] species S89; 24 genomes $0.98
+[00:36:38] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:36:39] [Z] birth Z225 (mutate claude-haiku-5-5) of ['Z219'] species S77; 24 genomes $0.98
+[00:36:39] [Z] birth Z226 (mutate claude-haiku-5-5) of ['Z222'] species S87; 24 genomes $0.98
+[00:36:48] [Z] rejected mutate claude-haiku-5-5: EditError: no change
+[00:36:52] [Z] birth Z227 (mutate claude-haiku-5-5) of ['Z219'] species S77; 24 genomes $0.98
+[00:36:56] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:37:02] [Z] new species S90 founded by Z228
+[00:37:02] [Z] birth Z228 (mutate claude-haiku-5-5) of ['Z180'] species S90; 24 genomes $0.98
+[00:37:06] [Z] birth Z229 (mutate claude-haiku-5-5) of ['Z163'] species S54; 24 genomes $0.98
+[00:37:08] [Z] summary: births 230 deaths 207 games 42264 $0.98; top [('Z217', 34.82, 0.84, 136, 'S71'), ('Z229', 34.02, 6.0, 0, 'S54'), ('Z176', 34.01, 0.8, 696, 'S57')]; top vs anchors {'Z217': None, 'Z176': None, 'Z196': None}
+[00:37:08] [Z] birth Z230 (mutate claude-haiku-5-5) of ['Z205'] species S80; 24 genomes $0.98
+[00:37:24] [Z] birth Z231 (mutate claude-haiku-5-5) of ['Z189'] species S77; 24 genomes $1.03
+[00:37:26] [Z] new species S91 founded by Z232
+[00:37:26] [Z] birth Z232 (mutate claude-haiku-5-5) of ['Z196'] species S91; 24 genomes $1.03
+[00:37:31] [Z] new species S92 founded by Z233
+[00:37:31] [Z] birth Z233 (mutate claude-opus-5-5) of ['Z228'] species S92; 24 genomes $1.03
+[00:37:44] [Z] new species S93 founded by Z234
+[00:37:44] [Z] birth Z234 (mutate claude-haiku-5-5) of ['Z148'] species S93; 24 genomes $1.03
+[00:37:46] [Z] new species S94 founded by Z235
+[00:37:46] [Z] birth Z235 (llm_cross claude-haiku-5-5) of ['Z230', 'Z217'] species S94; 24 genomes $1.03
+[00:37:48] [Z] birth Z236 (mutate claude-haiku-5-5) of ['Z176'] species S57; 24 genomes $1.03
+[00:38:07] [Z] new species S95 founded by Z237
+[00:38:07] [Z] birth Z237 (mutate claude-haiku-5-5) of ['Z214'] species S95; 24 genomes $1.04
+[00:38:07] [Z] birth Z238 (mutate claude-haiku-5-5) of ['Z217'] species S71; 24 genomes $1.04
+[00:38:11] [Z] birth Z239 (llm_cross claude-haiku-5-5) of ['Z189', 'Z235'] species S94; 24 genomes $1.04
+[00:38:23] [Z] rejected tune : behavioural twin
+[00:38:28] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:38:38] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:38:39] [Z] summary: births 240 deaths 217 games 44392 $1.08; top [('Z238', 35.3, 0.88, 112, 'S71'), ('Z230', 34.91, 0.81, 176, 'S80'), ('Z196', 34.3, 0.79, 528, 'S74')]; top vs anchors {'Z238': None, 'Z230': 0.625, 'Z196': None}
+[00:38:39] [Z] birth Z240 (tune ) of ['Z180'] species S90; 24 genomes $1.08
+[00:38:40] [Z] new species S96 founded by Z241
+[00:38:40] [Z] birth Z241 (mutate claude-opus-5-5) of ['Z228'] species S96; 24 genomes $1.08
+[00:38:48] [Z] rejected mutate claude-haiku-5-5: GenomeError: progress line 68: unknown name CURD
+[00:39:00] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:39:01] [Z] birth Z242 (llm_cross claude-haiku-5-5) of ['Z220', 'Z228'] species S90; 24 genomes $1.08
+[00:39:02] [Z] birth Z243 (mutate claude-haiku-5-5) of ['Z180'] species S90; 24 genomes $1.08
+[00:39:20] [Z] birth Z244 (mutate claude-haiku-5-5) of ['Z220'] species S86; 24 genomes $1.09
+[00:39:21] [Z] birth Z245 (mutate claude-haiku-5-5) of ['Z196'] species S85; 24 genomes $1.09
+[00:39:21] [Z] new species S97 founded by Z246
+[00:39:21] [Z] birth Z246 (llm_cross claude-haiku-5-5) of ['Z240', 'Z220'] species S97; 24 genomes $1.09
+[00:39:40] [Z] birth Z247 (mutate claude-haiku-5-5) of ['Z171'] species S40; 24 genomes $1.09
+[00:39:41] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[00:39:48] [Z] birth Z248 (mutate claude-opus-5-5) of ['Z171'] species S40; 24 genomes $1.12
+[00:39:57] [Z] new species S98 founded by Z249
+[00:39:57] [Z] birth Z249 (mutate claude-haiku-5-5) of ['Z243'] species S98; 24 genomes $1.12
+[00:40:05] [Z] new species S99 founded by Z250
+[00:40:05] [Z] champion anchor champ5-Z244 (mu 35.4)
+[00:40:05] [Z] summary: births 250 deaths 227 games 46416 $1.12; top [('Z244', 35.44, 0.84, 136, 'S86'), ('Z238', 35.25, 0.81, 208, 'S71'), ('Z245', 34.84, 0.85, 128, 'S85')]; top vs anchors {'Z244': None, 'Z238': 0.75, 'Z245': 0.875}
+[00:40:05] [Z] birth Z250 (llm_cross claude-haiku-5-5) of ['Z243', 'Z244'] species S99; 24 genomes $1.12
+[00:40:07] [Z] new species S100 founded by Z251
+[00:40:07] [Z] birth Z251 (mutate claude-haiku-5-5) of ['Z229'] species S100; 24 genomes $1.12
+[00:40:12] [Z] birth Z252 (mutate claude-haiku-5-5) of ['Z210'] species S44; 24 genomes $1.12
+[00:40:18] [Z] new species S101 founded by Z253
+[00:40:18] [Z] birth Z253 (tune ) of ['Z204'] species S101; 24 genomes $1.12
+[00:40:20] [Z] rejected mutate claude-haiku-5-5: GenomeError: cast_value line 99: cannot assign to near
+[00:40:21] [Z] birth Z254 (mutate claude-haiku-5-5) of ['Z210'] species S44; 24 genomes $1.13
+[00:40:38] [Z] birth Z255 (mutate claude-haiku-5-5) of ['Z204'] species S101; 24 genomes $1.15
+[00:40:38] [Z] new species S102 founded by Z256
+[00:40:38] [Z] birth Z256 (mutate claude-haiku-5-5) of ['Z229'] species S102; 24 genomes $1.15
+[00:40:44] [Z] birth Z257 (mutate claude-opus-5-5) of ['Z214'] species S95; 24 genomes $1.15
+[00:40:47] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 81: gene goal_field redefined or shadows a builtin
