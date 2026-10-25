@@ -108,3 +108,11 @@ needs a build at or after genome/v0 fd778fc.
   (v30 99,212 / 522). Sim 42/80 vs v30.
 - My real cambc vs v30 (ringheal), 40 maps x 2 sides: 51/80, 0 crashes. v31 pick.
 - Live as ladder version 31 (2026-10-25T07:16:11Z, bundle sha256 e4932580...). Validation: intel batch 8, paired vs b7.
+
+## B1873 (Arena B relay leg 6; v32 candidate)
+
+genome/candidates/B1873.genome, sha256 20a329ce544e9707... (genome/arenab 42275ee7). B-line with the monolith fix,
+ring/heal and gg6; new: a kill-shot fight outranks the pass-through bank (rule 165 + r_killshot).
+- Arena B lead, real cambc: 47/80 vs v31, 49/80 vs v30, 56/80 vs v29, 0 crashes. Solo vs idle 95,846 rounds, 362 deaths
+  (v31 97,417 / 379). Sim 37/80 vs v31.
+- My real 80 vs v31: running.
