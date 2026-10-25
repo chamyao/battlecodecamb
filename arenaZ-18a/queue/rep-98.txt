@@ -1,0 +1,32 @@
+```python
+DEAD: Tiles = None    # camp spawns seen empty (their camp is dead) in groups not yet cleared
+
+@gene("Z102a", "start of turn: track camp spawns seen empty, refresh the cached goal field when the goal set changed")
+def update() -> None:
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key() + 100000000000 * size(DEAD)
+    if k != GKEY:
+        GF = field(goals())
+        GKEY = k
+
+@gene("s2", "where to walk: an altar with gems; else live groups minus spawns seen empty, or a cleared group to capture")
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if group_reward(g):
+                acc = acc | gt
+            else:
+                acc = acc | (gt - DEAD)
+    return acc
+```

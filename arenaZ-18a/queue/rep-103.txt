@@ -1,0 +1,50 @@
+```python
+DEAD: Tiles = None    # camp spawns seen empty (their camp is dead) in groups not yet cleared
+GF: Field = None      # cached walking field to the goals
+GKEY: Num = -1000     # goal set the cached field was computed for
+
+@gene("s3", "distance field to the goals, cached across turns and recomputed only when the goal set changes")
+def goal_field() -> Field:
+    return GF
+
+@gene("new", "start of turn: track camp spawns seen empty, refresh the cached goal field when the goal set changed", parents=["s3"])
+def update() -> None:
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key()
+    if k != GKEY:
+        GF = field(goals())
+        GKEY = k
+
+@gene("new", "a number that changes whenever the goal set changes: bag state, locked altars, living and cleared groups, dead spawns", parents=["s3"])
+def goal_key() -> Num:
+    if gems() > 0:
+        return -1 - size(locked_altars())
+    acc = 0
+    p = 1
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc += p * (2 if group_reward(g) else 1)
+        p *= 3
+    return acc + 100000000000 * size(DEAD)
+
+@gene("s2", "where to walk: an altar with gems; else live groups minus spawns seen empty, or a cleared group to capture")
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if group_reward(g):
+                acc = acc | gt
+            else:
+                acc = acc | (gt - DEAD)
+    return acc
+```

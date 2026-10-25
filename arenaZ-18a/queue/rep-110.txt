@@ -1,0 +1,24 @@
+```python
+GOALF: Field = None   # cached walking field to the goals
+GSET: Tiles = None    # cached goal set
+
+@gene("Z102a", "start of turn: track camp spawns seen empty, refresh the cached goal field when the goal set changed, and walk around units when the cached field is blocked")
+def update() -> None:
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key() + 100000000000 * size(DEAD)
+    if k != GKEY:
+        GSET = goals()
+        GOALF = field(GSET)
+        GKEY = k
+    GF = GOALF
+    here = me().pos
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | (camp_spawns() - vision() - DEAD)) - near(here, 0)
+    mine = at(GF, here)
+    if mine > 0 and mine < 100000 and not any(at(GF, t) < mine for t in near(here, 1) - blk):
+        GF = field_avoid(GSET, blk - GSET, near(here, 0))
+```
