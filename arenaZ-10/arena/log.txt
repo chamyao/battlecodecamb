@@ -839,3 +839,16 @@
 [05:17:39] [Z] new species S214 founded by Z445
 [05:17:39] [Z] birth Z445 (tune ) of ['Z424'] species S214; 24 genomes $0.00
 [05:17:44] [Z] birth Z446 (mutate session) of ['Z438'] species S194; 24 genomes $0.00
+[05:18:01] [Z] birth Z447 (mutate session) of ['Z424'] species S199; 24 genomes $0.00
+[05:18:02] [Z] rejected tune : behavioural twin
+[05:18:21] [Z] rejected mutate session: behavioural twin
+[05:18:48] [Z] birth Z448 (mutate session) of ['Z441'] species S205; 24 genomes $0.00
+[05:18:49] [Z] birth Z449 (llm_cross session) of ['Z435', 'Z436'] species S210; 24 genomes $0.00
+[05:19:06] [Z] champion anchor champ9-Z440 (mu 37.5)
+[05:19:06] [Z] summary: births 450 deaths 427 games 81832 $0.00; top [('Z440', 37.51, 0.83, 144, 'S211'), ('Z410', 37.23, 0.79, 480, 'S186'), ('Z427', 36.61, 0.8, 248, 'S207')]; top vs anchors {'Z440': None, 'Z410': 1.0, 'Z427': 1.0}
+[05:19:06] [Z] 450 births (--max-births 450): no more births
+[05:19:06] [Z] birth Z450 (mutate session) of ['Z439'] species S205; 24 genomes $0.00
+[05:19:44] [Z] birth Z451 (llm_cross session) of ['Z440', 'Z424'] species S186; 24 genomes $0.00
+[05:19:47] [Z] birth Z452 (mutate session) of ['Z417'] species S200; 24 genomes $0.00
+[05:22:00] [Z] summary: births 452 deaths 429 games 83872 $0.00; top [('Z449', 36.69, 0.81, 192, 'S210'), ('Z451', 36.62, 0.8, 200, 'S186'), ('Z424', 36.5, 0.8, 472, 'S190')]; top vs anchors {'Z449': 0.75, 'Z451': None, 'Z424': 0.75}
+[05:22:01] [Z] done: spent $0.00
