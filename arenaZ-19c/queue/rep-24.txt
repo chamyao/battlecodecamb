@@ -1,0 +1,26 @@
+```python
+GF: Field = None
+
+@gene('s2', 'where to walk: an altar once carrying 6+ gems, else a living camp group that is not a monolith')
+def goals() -> Tiles:
+    if gems() >= 6 or (gems() > 0 and me().health_frac < 0.5):
+        acc = near(tile(-5, -5), 0)
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 1)
+        return acc
+    acc = near(tile(-5, -5), 0)
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            ts = group_tiles(g)
+            if spawn_type(nearest(ts, me().pos)) != MONOLITH:
+                acc = acc | ts
+    return acc
+
+@gene('s3', 'distance field to the goals, computed once per turn in update')
+def goal_field() -> Field:
+    return GF
+
+@gene("new", "once per turn: cache the distance field to the goals", parents=["s3"])
+def update() -> None:
+    GF = field(goals())
+```
