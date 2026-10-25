@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals")
+def progress(t: Tile) -> Num:
+    base = at(goal_field(), me().pos) - at(goal_field(), t)
+    if base > 0 and any(not is_awake(c) and c.type == GOLEM and dist(c.pos, t) <= 1 for c in camps()):
+        return base - 0.5
+    return base
+```
