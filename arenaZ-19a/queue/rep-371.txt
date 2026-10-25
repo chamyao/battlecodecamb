@@ -1,0 +1,5 @@
+```python
+@gene("Z197d", "how many awake camps and enemy champions can hit this tile; enemy champions count double")
+def danger_at(t: Tile) -> Num:
+    return count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps()) + 2 * count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+```

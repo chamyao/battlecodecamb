@@ -1,0 +1,22 @@
+```python
+@gene('Z472b', 'once per turn: remember every tile of monolith groups and of golem groups (first turn), cache the distance field to the goals minus groups too strong for now', parents=['s3'])
+def update() -> None:
+    if not MONO_DONE:
+        mono = type_spawns(MONOLITH)
+        gol = type_spawns(GOLEM)
+        acc = near(tile(-5, -5), 0)
+        acc2 = near(tile(-5, -5), 0)
+        for g in range(num_groups()):
+            gt = group_tiles(g)
+            if size(gt & mono) > 0:
+                acc = acc | gt
+            if size(gt & gol) > 0:
+                acc2 = acc2 | gt
+        MONO = acc
+        GOLEMS = acc2
+        MONO_DONE = True
+    if round() < 800:
+        GF = field(goals() - MONO - GOLEMS - walls() - holes() - altars())
+    else:
+        GF = field(goals() - MONO - walls() - holes() - altars())
+```
