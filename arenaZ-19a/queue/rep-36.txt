@@ -1,0 +1,29 @@
+```python
+@gene("new", "worth recalling: low health, or 150+ gold with an empty bag and nothing threatening nearby", parents=["s1"])
+def want_recall() -> Bool:
+    if me().health_frac < 0.35:
+        return True
+    return gold() >= 150 and gems() == 0 and threats() == 0 and not (me().pos in my_spawn())
+
+@gene("s1", "value of doing this option now; recall to shop when rich, focus the weakest enemy champion, never poke a monolith")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o.item, o.count)
+    if o.kind == RECALL:
+        return 90 if want_recall() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 9
+        if o.unit.type == MONOLITH:
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

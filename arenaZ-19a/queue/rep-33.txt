@@ -1,0 +1,37 @@
+```python
+@gene("new", "shop value: a Treasure strength emblem first (more gold), then Power strength", parents=["s1"])
+def buy_value(item: Num, n: Num) -> Num:
+    if item == 18 and items_owned(19) == 0:
+        return 100 + n
+    if item == 6:
+        return 95 + n
+    return 0
+
+@gene("new", "worth recalling: low health, or 150+ gold with an empty bag and no enemy champion in sight", parents=["s1"])
+def want_recall() -> Bool:
+    if me().health_frac < 0.35:
+        return True
+    return gold() >= 150 and gems() == 0 and THREATS == 0 and not (me().pos in my_spawn())
+
+@gene("s1", "value of doing this option now")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return buy_value(o.item, o.count)
+    if o.kind == RECALL:
+        return 90 if want_recall() else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        if o.unit.type == MONOLITH:
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

@@ -1,0 +1,10 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; prefer bushes; when hurt, avoid tiles in reach of awake camps (a camp kill destroys the bag)")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.5 and THREATS > 0 and any(is_awake(u) and dist(u.pos, t) <= 4 for u in camps()):
+        return d - 1.5
+    if d > 0 and t in bushes():
+        return d + 0.5
+    return d
+```

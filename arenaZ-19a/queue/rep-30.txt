@@ -1,0 +1,22 @@
+```python
+GF: Field = None
+MONO: Tiles = None
+MONO_DONE: Bool = False
+
+@gene("new", "once per turn: remember every tile of monolith groups (first turn), cache the distance field to the goals minus monolith groups", parents=["s3"])
+def update() -> None:
+    if not MONO_DONE:
+        mono = type_spawns(MONOLITH)
+        acc = near(tile(-5, -5), 0)
+        for g in range(num_groups()):
+            gt = group_tiles(g)
+            if size(gt & mono) > 0:
+                acc = acc | gt
+        MONO = acc
+        MONO_DONE = True
+    GF = field(goals() - MONO)
+
+@gene("s3", "distance field to the goals without monolith groups (cached once per turn in update)")
+def goal_field() -> Field:
+    return GF
+```
