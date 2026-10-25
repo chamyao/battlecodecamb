@@ -489,3 +489,16 @@
 [03:52:42] [Z] new species S143 founded by Z244
 [03:52:42] [Z] birth Z244 (mutate session) of ['Z190'] species S143; 24 genomes $0.00
 [03:52:46] [Z] birth Z245 (mutate session) of ['Z234'] species S137; 24 genomes $0.00
+[03:52:57] [Z] birth Z246 (mutate session) of ['Z243'] species S137; 24 genomes $0.00
+[03:53:31] [Z] birth Z247 (mutate session) of ['Z239'] species S141; 24 genomes $0.00
+[03:53:34] [Z] birth Z248 (mutate session) of ['Z160'] species S97; 24 genomes $0.00
+[03:53:35] [Z] birth Z249 (mutate session) of ['Z160'] species S125; 24 genomes $0.00
+[03:54:17] [Z] champion anchor champ5-Z239 (mu 35.3)
+[03:54:17] [Z] summary: births 250 deaths 227 games 44568 $0.00; top [('Z239', 35.27, 0.83, 144, 'S108'), ('Z171', 34.97, 0.79, 776, 'S85'), ('Z231', 34.49, 0.8, 248, 'S126')]; top vs anchors {'Z239': None, 'Z171': 0.833, 'Z231': None}
+[03:54:17] [Z] 250 births (--max-births 250): no more births
+[03:54:17] [Z] birth Z250 (mutate session) of ['Z196'] species S136; 24 genomes $0.00
+[03:54:21] [Z] birth Z251 (mutate session) of ['Z224'] species S135; 24 genomes $0.00
+[03:54:22] [Z] new species S144 founded by Z252
+[03:54:22] [Z] birth Z252 (llm_cross session) of ['Z239', 'Z231'] species S144; 24 genomes $0.00
+[03:57:04] [Z] summary: births 252 deaths 229 games 46208 $0.00; top [('Z252', 35.03, 0.8, 184, 'S144'), ('Z215', 34.67, 0.79, 456, 'S88'), ('Z171', 34.5, 0.79, 864, 'S85')]; top vs anchors {'Z252': None, 'Z215': None, 'Z171': 0.833}
+[03:57:05] [Z] done: spent $0.00
