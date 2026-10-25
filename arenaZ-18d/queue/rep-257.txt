@@ -1,0 +1,8 @@
+```python
+@gene("s4", "how much closer a step brings me to the goals; while carrying a bag worth banking, steps near threats are penalised")
+def progress(t: Tile) -> Num:
+    d = at(goal_field(), me().pos) - at(goal_field(), t)
+    if banking():
+        d -= threat_at(t)
+    return d
+```

@@ -1,0 +1,9 @@
+```python
+@gene('Z144f', 'tiles holding enemy champions or awake camps (ground casts never open new camp fights)', parents=['s1'])
+def fight_tiles() -> Tiles:
+    acc = enemy_tiles()
+    for u in camps():
+        if is_awake(u):
+            acc = acc | near(u.pos, 0)
+    return acc
+```
