@@ -1,0 +1,23 @@
+```python
+@gene('Z62a', 'draft preference: Ryth, Vesper Vale, Vendetta, then Tavi and Varg', parents=['s1'])
+def pick_value(c: Num) -> Num:
+    if c == RYTH:
+        return 10
+    if c == VESPER_VALE:
+        return 9
+    if c == VENDETTA:
+        return 8
+    if c == TAVI:
+        return 7
+    if c == VARG:
+        return 6
+    return 1
+
+@gene('Z231a', 'standing on (or next to) a cleared group waiting for capture: stay and finish the 5-round capture before walking home', parents=['s3'])
+def capturing() -> Bool:
+    for g in range(num_groups()):
+        if group_reward(g):
+            if dist(nearest(group_tiles(g), me().pos), me().pos) <= 1:
+                return True
+    return False
+```
