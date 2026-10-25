@@ -1,0 +1,8 @@
+```python
+@gene("m14", "nearest tile next to a safe altar, preferring tiles that are not camp spawns (a respawn would take them)")
+def bank_t2() -> Tile:
+    t = closest(SAFE_RING - camp_spawns())
+    if valid(t):
+        return t
+    return closest(SAFE_RING)
+```
