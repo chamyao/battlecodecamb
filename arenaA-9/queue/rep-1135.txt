@@ -1,0 +1,21 @@
+```python
+@gene('w4', 'nearest tile of s by walking; if none is walk-reachable, fall back to the straight-line nearest free tile of s (any tile of s if all are held); invalid if s empty', parents=['w4'])
+def closest(s: Tiles) -> Tile:
+    h = here()
+    if h in s:
+        return h
+    cand = s - taken()
+    w = walk_nearest(cand, h, blocked() - cand)
+    if valid(w):
+        return w
+    if size(cand) > 0:
+        return nearest(cand, h)
+    return nearest(s, h)
+
+@gene('w7', 'a dash may land on p: a free middle tile next to both ends that no visible enemy champion is adjacent to, unless p is adjacent to me (enemy tiles read once)', parents=['w7'])
+def dash_path_ok(p: Tile) -> Bool:
+    if dist(here(), p) <= 1:
+        return True
+    ft = foe_tiles()
+    return any(dist(q, p) <= 1 and not (q in BLOCK) and not any(dist(e, q) <= 1 for e in ft) for q in dash_mids())
+```
