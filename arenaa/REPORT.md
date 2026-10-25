@@ -2,6 +2,16 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 05:05 UTC
+
+- Relay Z-10 leg 8 done: births 350 -> 401 in ~25 min including setup, sha 22af5eb. The in-arena top
+  stayed at about 37 (Z400 37.2, Z377 37.0, Z394 36.9); it did not rise above leg 7's 37.5. New pieces
+  in the leaders: "ready goals" (a cleared group within 5 is the goal even when carrying gems), and,
+  when hurt with no gems, dropping goal camps near enemy champions. Porting the recall-48 change into
+  older lineages gained about +1 to +2 each. Edits gated on rare conditions mostly come back as twins.
+- Leg 9 (401 -> 450) started: session_01UUrEjtf9MFE4pGZhEf2uvB. Leg 10 (450 -> 475) is the last; RELAY_DONE
+  follows it.
+
 ## 2026-10-25 04:50 UTC: panel milestones
 
 The A panel now has 15 opponents (adds B318, B1145 and A61188), so A scores are out of 1200 and are not
