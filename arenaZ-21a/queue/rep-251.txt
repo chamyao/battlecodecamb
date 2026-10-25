@@ -1,0 +1,36 @@
+```python
+@gene('Z7a', 'value of casting an ability now: damage on the weakest champion or camp we fight, shields in fights, resets with a target, dash next to a badly hurt enemy champion, Heart of Ruin dash onto targets, dashes toward goals', parents=['s1'])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_champion:
+                return 85 + 3 * (1 - o.unit.health_frac)
+            if o.unit.is_camp and (is_awake(o.unit) or gems() == 0):
+                return 64 + (1 - o.unit.health_frac)
+            return 0
+        if valid(o.tile):
+            h = count(dist(u.pos, o.tile) <= 1 for u in enemies()) + count(dist(c.pos, o.tile) <= 1 and (is_awake(c) or gems() == 0) for c in camps())
+            return 64 + h if h > 0 else 0
+        return 0
+    if k == AB_SHIELD:
+        return 66 if any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()) or any(dist(u.pos, me().pos) <= 3 for u in enemies()) else 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        r = me().attack_range
+        return 62 if any(dist(u.pos, me().pos) <= r for u in enemies()) or any(dist(c.pos, me().pos) <= r and (is_awake(c) or gems() == 0) for c in camps()) else 0
+    if k == AB_HEAL:
+        return 70 if exists(o.unit) and o.unit.health_frac < 0.6 else 0
+    if k == AB_DASH:
+        if not valid(o.tile):
+            return 0
+        if any(dist(u.pos, o.tile) <= 1 and u.health_frac < 0.4 for u in enemies()) and me().health_frac > 0.4:
+            return 70
+        if me().type == HEART_OF_RUIN:
+            h = count(dist(u.pos, o.tile) <= 1 for u in enemies()) + count(dist(c.pos, o.tile) <= 1 and (is_awake(c) or gems() == 0) for c in camps())
+            if h > 0:
+                return 66 + h
+        return 51 if progress(o.tile) >= 2 else 0
+    return 0
+```

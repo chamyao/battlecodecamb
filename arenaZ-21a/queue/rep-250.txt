@@ -1,0 +1,20 @@
+```python
+@gene('Z48a', 'worth recalling to spend gold: rich, carrying nothing, nobody near, and no capture pending under or next to me', parents=['s1'])
+def shop_trip() -> Bool:
+    if gold() < 150 or gems() > 0:
+        return False
+    if capturing():
+        return False
+    if any(dist(u.pos, me().pos) <= 8 for u in enemies()):
+        return False
+    return not any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())
+
+@gene("new", "a cleared group waiting for capture is within 2 tiles (or under me): stay and finish the 5-round capture before walking home", parents=["s1"])
+def capturing() -> Bool:
+    for g in range(num_groups()):
+        if group_reward(g):
+            ts = group_tiles(g)
+            if dist(nearest(ts, me().pos), me().pos) <= 2:
+                return True
+    return False
+```

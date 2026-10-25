@@ -1,0 +1,11 @@
+```python
+@gene('Z52a', 'worth recalling to spend gold: at least 150 gold, carrying nothing, no enemy or awake camp near, and no capture pending under or next to me', parents=['s1'])
+def shop_trip() -> Bool:
+    if gold() < 150 or gems() > 0:
+        return False
+    if capturing():
+        return False
+    if any(dist(u.pos, me().pos) <= 8 for u in enemies()):
+        return False
+    return not any(is_awake(c) and dist(c.pos, me().pos) <= 5 for c in camps())
+```

@@ -1,0 +1,11 @@
+```python
+@gene('s3', 'distance field home to heal when hurt (above a quarter health only once no capture is pending nearby), empty-handed and not in a fight; else to a fight an ally just announced nearby; else to the goals plus enemy champions worth hunting')
+def goal_field() -> Field:
+    if gems() == 0 and me().health_frac < 0.5 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        if me().health_frac < 0.25 or not capturing():
+            return field(my_spawn())
+    r = rally_tiles()
+    if size(r) > 0:
+        return field(r)
+    return field(open_goals() | hunt_tiles())
+```

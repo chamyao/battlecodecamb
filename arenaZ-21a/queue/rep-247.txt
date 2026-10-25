@@ -1,0 +1,22 @@
+```python
+@gene("new", "a cleared group waiting for capture is within 2 tiles (or under me): stay and finish the 5-round capture before walking home", parents=["s3"])
+def capturing() -> Bool:
+    for g in range(num_groups()):
+        if group_reward(g):
+            ts = group_tiles(g)
+            if dist(nearest(ts, me().pos), me().pos) <= 2:
+                return True
+    return False
+
+@gene('s3', 'distance field home when hurt (unless a capture is pending next to me and I am above a quarter health) or rich (spawn close, no capture pending), empty-handed and not in a fight; else to a fight an ally just announced nearby; else to the goals computed once per turn in update')
+def goal_field() -> Field:
+    if gems() == 0 and not any(is_awake(c) and dist(c.pos, me().pos) <= 4 for c in camps()):
+        if me().health_frac < 0.5 and (me().health_frac < 0.25 or not capturing()):
+            return field(my_spawn())
+        if gold() >= 150 and dist(nearest(my_spawn(), me().pos), me().pos) <= 12 and not capturing():
+            return field(my_spawn())
+    r = rally_tiles()
+    if size(r) > 0:
+        return field(r)
+    return GF
+```
