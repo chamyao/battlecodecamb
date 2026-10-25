@@ -374,3 +374,7 @@ Batch 11 paired with b10.
 28-22 (b10 32-18): 3 flips up, 7 down, p ~0.34. Gems -41 +- 35, captured -56 +- 32, gems lost on death +44 +- 44. Fits cash3
 (earlier, smaller cash-outs). Proposed: v35 = v33-ahead4 (no cash3), b12 paired with b10/b11; revert to v33 if it is also down.
 Note: cash_min looked good in every real local h2h (v29, v31, v33 bases) but local opponents are all our own lineage.
+
+## Oct 25 ~17:00: v34 reverted to v33 (genome lead)
+Lesson: a +4/80 local real edge (vs our own lineage) did not transfer to the band. Cash-out knobs frozen for tune-B; ahead4
+alone remains an untested band candidate.
