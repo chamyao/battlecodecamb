@@ -1,0 +1,15 @@
+```python
+@gene('a9', "shopping on spawn: the team's altar lock (only after round 400: early gold goes to shards), then shards in the policy's split; yields to healing when hurt under threat; bulk buys preferred")
+def shop_value(o: Option) -> Num:
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and RULE >= 2 and at_spawn() and round() >= 400 else 0
+    if o.item != next_shard():
+        return 0
+    if o.count > shard_left() or not at_spawn():
+        return 0
+    if RULE < 2 and gold() < 90:
+        return 0
+    if threat_near() and hurt_below(0.5):
+        return 0
+    return 190 + o.count
+```
