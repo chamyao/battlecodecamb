@@ -60,3 +60,4 @@ v28 + Treasure shards concentrated on one carrier until its emblem completes (ea
 - Arena B lead: real cambc 45/80 vs the v28 build, 0 crashes; sim 52/80 vs v28; anchors A61188 +16, rushbank +7,
   hunter-carry +7, rall2 +3, metadraft/farmer/lockall -4 each.
 - Smoke, real cambc vs v28: 00lanes, 01big-world, 01gold-rush 3/3 wins (close), 0 crashes.
+- Live as ladder version 29 (2026-10-25T05:11:34Z, bundle sha256 61743fda...). Validation: intel batch 6, paired vs b5.
