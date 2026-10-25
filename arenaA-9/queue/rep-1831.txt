@@ -1,0 +1,5 @@
+```python
+@gene("s14", "the visible camp in reach to hit: an awake one first (it is already fighting us), else the first in reach")
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: (2 if is_awake(c) else 1) if in_reach(c) else 0)
+```

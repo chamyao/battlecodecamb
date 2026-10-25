@@ -1,0 +1,6 @@
+```python
+@gene("r8", "place the team's altar lock: holder next to an altar (any bag size), lock not yet placed, no enemy champion within 5")
+def r_lock() -> Bool:
+    v = read_shared(7)
+    return has_lock() and fuel() > 60000 and v - 2 * floor(v / 2) == 0 and enemies_within(5) == 0 and valid(lock_altar())
+```

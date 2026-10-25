@@ -1,0 +1,6 @@
+```python
+@gene("m6", "tiles next to an altar out of monolith reach (5), the tiles themselves also out of reach")
+def safe_altar_ring() -> Tiles:
+    mr = ring(type_spawns(MONOLITH), 5)
+    return ring(altars() - mr, 1) - mr
+```

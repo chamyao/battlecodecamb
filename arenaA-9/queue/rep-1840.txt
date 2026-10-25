@@ -1,0 +1,5 @@
+```python
+@gene("s2", "standing on our spawn region (a finished recall counts as home)")
+def at_spawn() -> Bool:
+    return here() in my_spawn() or (is_recalling(me()) and channel_left(me()) <= 0)
+```

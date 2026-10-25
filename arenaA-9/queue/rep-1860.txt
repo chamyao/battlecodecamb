@@ -1,0 +1,5 @@
+```python
+@gene("a10", "never buy the team's altar lock (locks show no effect on results; the 10 gold goes to shards instead)")
+def wants_lock() -> Bool:
+    return False
+```
