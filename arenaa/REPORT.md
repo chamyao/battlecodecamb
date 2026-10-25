@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 12:02 UTC
+
+- A-9 m32 **1068/1200** (A93208, b3211): new high, from leg 4 (before screening started at b3240).
+- Z-19 latest: 19a 355 (b393), 19b 516 (b416), 19c 479 (b475), 19d 230 (b209). The cull spread within each rule
+  (~160-250) swamps the difference between rules; no cull effect readable.
+- Z-20a/b m2 pending; Z-21a/b at 71/57 births.
+
 ## 2026-10-25 11:36 UTC: A-9 leg 4 done; leg 5 switches on writer screening
 
 - Leg 4: births 2836 -> 3240; in-arena top about 49.5 (A93205, champ59-A92939). Panel m28 1060, m30 1047: roughly flat.
