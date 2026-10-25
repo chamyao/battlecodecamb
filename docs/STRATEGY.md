@@ -246,6 +246,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   32 = genome B1873 (Arena B relay: B-line + monolith fix + ring/heal + gem-first after 6 buys + kill-shot priority
   + boss-battle altar exemption; genome/v0 0483238, genome sha256 20a329ce..., bundle sha256 52a3fb56...;
   submitted 07:50:23 UTC Oct 25). Real vs v31 47/80, 0 crashes. Revert target: v31 (e4932580).
+  v32 band batch 9: 31-19 (v31 27-23, v30 21-29 on the same games), gems +87 +/- 40 vs v31; gain is economy.
+  33 = genome B1873-bossbush (v32 + no bush move bonus on the boss-battle altar layout; identical elsewhere;
+  genome/v0 1842b9c, genome sha256 7ff741cb..., bundle sha256 37e7be1a...; submitted 08:36:16 UTC Oct 25).
+  Real vs v32: boss-battle 2-0, other maps mirrored. Revert target: v32 (52a3fb56).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
