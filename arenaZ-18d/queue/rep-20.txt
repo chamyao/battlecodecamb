@@ -1,0 +1,25 @@
+```python
+@gene('s1', 'value of doing this option now; default draft order, abilities, Treasure emblem first then Power strength, recalls to shop with a full purse')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        if items_owned(19) == 0:
+            return 100 if o.item == 18 else 0
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if me().health_frac < 0.35:
+            return 90
+        return 40 if gold() >= 150 and gems() == 0 and not target_in_reach() else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

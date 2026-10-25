@@ -1,0 +1,6 @@
+```python
+@gene('Z13a', 'once per turn: cache the distance field to the goals, skipped while dead or channeling (it is not used then)', parents=['s3'])
+def update() -> None:
+    if alive() and not channeling():
+        GF = field(goals())
+```

@@ -1,0 +1,58 @@
+```python
+@gene("s1", "value of doing this option now; casts abilities")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80
+        return 60 if gems() == 0 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "value of casting an ability: damage and stuns on fight targets, resets after an attack, shields when hurt, heals on hurt allies, dashes toward goals", parents=["s1"])
+def cast_value(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_DAMAGE or k == AB_CC or k == AB_AOE:
+        if exists(o.unit):
+            if o.unit.is_champion and o.unit.is_enemy:
+                return 85
+            if o.unit.is_camp:
+                return 75 if gems() == 0 or is_awake(o.unit) else 0
+            return 0
+        if valid(o.tile):
+            return 78 if o.tile in fight_tiles() else 0
+        return 0
+    if k == AB_RESET:
+        return 55 if not can_attack() and target_in_reach() else 0
+    if k == AB_SHIELD:
+        return 70 if me().health_frac < 0.85 and target_in_reach() else 0
+    if k == AB_HEAL:
+        if exists(o.unit) and not o.unit.is_enemy:
+            return 72 if o.unit.health_frac < 0.6 else 0
+        return 0
+    if k == AB_DASH:
+        if valid(o.tile):
+            return 45 if progress(o.tile) >= 2 else 0
+        return 0
+    return 0
+
+@gene("new", "tiles holding enemy champions or camps", parents=["s1"])
+def fight_tiles() -> Tiles:
+    return enemy_tiles() | camp_tiles()
+
+@gene("new", "an enemy champion or a camp is within my basic attack range", parents=["s1"])
+def target_in_reach() -> Bool:
+    r = me().attack_range
+    p = me().pos
+    return any(dist(u.pos, p) <= r for u in enemies()) or any(dist(u.pos, p) <= r for u in camps())
+```
