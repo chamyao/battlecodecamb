@@ -45,3 +45,7 @@ with new game instances (bot seeds off, policy seeds 11 and 12); (b) 6 opponents
 
 No sign of overfitting. The screened genomes lose less on new instances than Z-5's, and lead by more on unseen
 opponents (2.2-2.5x Z-5). The ranking holds across all three measures. n = 1 run; Z-20 is the replicate test.
+
+Extra data point: Z-18c (min-mu) was stopped at 331 births. Its writer copied no evolved genomes and screened with its
+own genome_eval games (vs the starter and its own members). Its final population is being scored, for comparison
+with Z-18d (min-mu, unscreened, 301 at 477).
