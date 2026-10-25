@@ -238,6 +238,10 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   30 = genome A81582-ringheal (Arena A's A81582 + ring and heal bug fixes; genome/v0 69db2f6, genome sha256
   9620bbfb..., bundle sha256 90450da2...; submitted 06:39:47 UTC Oct 25). Real vs v29 57/80 and 55/80, 0 crashes;
   450 capped turns vs v29's 301 in that h2h. Revert target: v29 (61743fda).
+  v29 final ranked 18-22. v30 early: ranked 10-5, but monolith deaths back to 2.3-3.5/game (lacked v28's edit).
+  31 = genome A81582-rh-mono-all (v30 + v28's monolith fix + contest rule + gem-first after 6 buys; genome/v0
+  adeb971, genome sha256 f54246b1..., bundle sha256 e4932580...; submitted 07:16:11 UTC Oct 25). Real 51/80 vs
+  v30, 62/80 vs v29, 0 crashes. Revert target: v30 (90450da2).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
