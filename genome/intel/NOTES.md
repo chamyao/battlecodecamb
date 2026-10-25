@@ -44,3 +44,19 @@ the v25 build). Against v22 (b1) both are ahead: 15-35 → 17-33, gems +68 ± 52
 Paired with b3 (v26): 4 flips to a win, 8 to a loss. Gems −13 ± 46, gems lost on death +15 ± 12. This is the
 lowest record of the four batches, though not significant alone. The losses concentrate on early bankers (GLM5.3
 3-2 → 0-5), which matches the sim: v27 is weaker than B792 against stress/rushbank (50 vs 59 of 80).
+
+## Batch 5: 25 Oct 2026, ~03:45 UTC, 50 games, 18-32 (v28 = a61188-mono: v27 + the intel mono edit)
+
+Paired with b4 (v27) on the same 50 matchups:
+- Record 13-37 → 18-32, with **5 flips to a win and 0 to a loss** (sign test p ≈ 0.03).
+- Deaths to monoliths 1.86 → 0.58 per game (−1.3 ± 0.6); deaths to camps −1.0 ± 0.4.
+- Gems submitted +39 ± 23; gems lost on death −28 ± 27; deaths to champions unchanged (−0.1).
+- Monolith maps:
+  - 00great_wall vs lETHal: L → W, monolith deaths 21 → 0.
+  - 01shortcut vs noobers: monolith deaths 22 → 4, still a loss.
+  - 01gold_rush and 00split vs GLM5.3: both L → W.
+  - 01boss_battle: 19 → 12, still a loss (the deliberate monolith push).
+
+This is the first directed child validated on the real band.
+
+Records on this plan: v22 15-35, v25 18-32, v26 17-33, v27 13-37, **v28 18-32**.

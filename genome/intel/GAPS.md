@@ -1,5 +1,18 @@
 # GAPS: our live bot's measurable weaknesses in real band games (Arena B evidence)
 
+## v4: batch 5, v28 = a61188-mono live (25 Oct, ~03:45 UTC)
+
+Gap "monolith wake-ups" is closed in real games. Paired v27 → v28 on b1's plan:
+- 13-37 → 18-32, with 5 flips to a win and 0 to a loss.
+- Deaths to monoliths 1.86 → 0.58 per game.
+
+What remains on monolith maps:
+- 01boss_battle: the r15 monolith push, which is deliberate.
+- 01shortcut: still unbankable for us (gems 27-497).
+
+The other gaps stand as in v2/v3: capture yield, fights and kill bounties, early bankers (GLM5.3, noobers), and
+the zero-gem maps 00contest and 01elk_arena.
+
 ## v3: batch 4, v27 = A61188 live (25 Oct, ~01:58 UTC; b1's exact plan, paired)
 
 | batch (bot) | record | win rate | submitted by r500, us / them |
