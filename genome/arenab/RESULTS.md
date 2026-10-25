@@ -148,3 +148,13 @@ plain A81582 vs v29: 50/80 on the same builds.
 Sim, bot seeds, /80 vs A81582-ringheal: A81615 37, A91640 40. With the ring+heal fixes grafted on
 (ring lines in v2, r2 heal uses i22): A81615-rh 38, A91640-rh 40. Not forwarded; search told to
 regate vs v30 once it is live.
+
+## Oct 25 ~06:50: A-8 family dies to monoliths solo; A81582-ringheal-mono (cand/)
+Real cambc vs A81582-ringheal (v30): A91640-rh 40/80, A81615-rh 35/80 (both FAIL; not forwarded).
+00great-wall solo vs idle (sim): v30 1750/1975 rounds, 38/45 deaths; v29 1448/1345, 11/12.
+Bisect (one gene swapped at a time, both directions): v30's a0 and r14 put into v29 bring the deaths back
+(34/33 and 29/42). The A-8 lineage predates intel's monolith fix (camp-walk attacks, r13/r14 and s14 only on
+farmable camps, i1). graft.py `mono` onto v30 = A81582-ringheal-mono:
+- great-wall solo 1313/1267 rounds, 16/13 deaths; all 80 solo: rounds 98956 (v30 99212, v29 106435), deaths 356 (v30 522).
+- sim h2h /80: 40 vs v30, 50 vs v29.
+- real cambc: 45/80 vs v30 (0 crashes), 57/80 vs v29 -> PASS. Next upload after v30.
