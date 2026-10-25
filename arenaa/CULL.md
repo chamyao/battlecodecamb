@@ -44,3 +44,22 @@ Cost about 3 x $18 from the Arena A reserve ($98).
 - Operators: share of crossovers by gene ID vs by meaning; acceptance per operator.
 - Decision: adopt min-mu if both min-mu arms end above both legacy arms on the panel best (or the means
   differ by more than the legacy replicate spread). Otherwise report "no measurable effect".
+
+## Update 07:10 UTC: API credits ran out; arenaZ-18 on session writers
+
+API credits ran out at 06:50, with Z-17a/b/c at 357 / 351 / 415 births. They were stopped. Each gets a final panel
+milestone on its final population, and they are compared at their stopping points.
+
+arenaZ-18a-d repeats the test with session writers (no API spend). Setup: setup_z5.sh (7e40b6f + file queue,
+648bafd) + cull-minmu.patch, --births-in-flight 8, --max-births 475, one continuous session each. Mirrors go to
+arenaa/z18{a,b,c,d}-mirror; panels end on queue/DONE.
+
+| run | cull | session |
+| --- | --- | --- |
+| Z-18a | legacy | session_0124AdjXpbfxCvSQsScx2yEw |
+| Z-18b | legacy | session_01ULhgKDzHAr3dGhyoD3U8YN |
+| Z-18c | min-mu | session_019MLHiGCXuWrwBfEstUEbeR |
+| Z-18d | min-mu | session_01CS5TjBxC3g5RcfD4n5gHHm |
+
+The rng-salt patch does not apply on the queue patch and is not needed: session replies differ run to run, so each
+run is its own replicate. The measures and the decision rule are as above.

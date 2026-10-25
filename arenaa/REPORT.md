@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 07:10 UTC: API credits out; Z-17 stopped; Z-18 on sessions
+
+- API credits ran out at 06:50 (account balance). Z-17a/b/c were stopped at 357 / 351 / 415 births; final
+  milestones are pending. So far: 17a legacy 112 / 107; 17b min-mu 112 / 141; 17c min-mu 104 / 113 (m1 / m2,
+  17c m2 / m3). Mixed.
+- A-9 is unaffected (session writer): m17 1023/1200 at b1777, m18 1019 (partial). Already above A-8's 1006.
+- Z-18a-d: the cull test on 4 session writers (2 legacy, 2 min-mu), no API spend. See CULL.md.
+
 ## 2026-10-25 06:45 UTC
 
 - A-8 final: 1006/1200 (m16, A81604), top-3 999.7. A-8c final 946 (peak 966). Session writer +40-60.
