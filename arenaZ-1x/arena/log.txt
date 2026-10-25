@@ -3110,3 +3110,39 @@
 [05:09:06] [Z] new species S672 founded by Z1308
 [05:09:06] [Z] birth Z1308 (llm_cross claude-haiku-5-5) of ['Z1303', 'Z1261'] species S672; 24 genomes $12.32
 [05:09:16] [Z] birth Z1309 (mutate claude-haiku-5-5) of ['Z1278'] species S656; 24 genomes $12.32
+[05:09:35] [Z] summary: births 1310 deaths 1287 games 319840 $12.38; top [('Z1303', 44.29, 0.83, 200, 'S667'), ('Z1308', 44.28, 0.95, 88, 'S672'), ('Z1296', 44.13, 0.83, 256, 'S670')]; top vs anchors {'Z1303': None, 'Z1308': None, 'Z1296': 1.0}
+[05:09:35] [Z] birth Z1310 (llm_cross claude-haiku-5-5) of ['Z1304', 'Z1264'] species S657; 24 genomes $12.38
+[05:09:42] [Z] birth Z1311 (tune ) of ['Z1304'] species S644; 24 genomes $12.38
+[05:09:50] [Z] birth Z1312 (mutate claude-opus-5-5) of ['Z1283'] species S662; 24 genomes $12.38
+[05:10:08] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:10:19] [Z] birth Z1313 (mutate claude-haiku-5-5) of ['Z1277'] species S646; 24 genomes $12.38
+[05:10:26] [Z] birth Z1314 (mutate claude-haiku-5-5) of ['Z1277'] species S646; 24 genomes $12.38
+[05:10:35] [Z] birth Z1315 (mutate claude-haiku-5-5) of ['Z1306'] species S671; 24 genomes $12.38
+[05:11:03] [Z] birth Z1316 (mutate claude-haiku-5-5) of ['Z1285'] species S666; 24 genomes $12.39
+[05:11:11] [Z] new species S673 founded by Z1317
+[05:11:11] [Z] birth Z1317 (mutate claude-haiku-5-5) of ['Z1264'] species S673; 24 genomes $12.39
+[05:11:19] [Z] new species S674 founded by Z1318
+[05:11:19] [Z] birth Z1318 (llm_cross claude-haiku-5-5) of ['Z1273', 'Z1313'] species S674; 24 genomes $12.39
+[05:11:46] [Z] birth Z1319 (mutate claude-haiku-5-5) of ['Z1318'] species S674; 24 genomes $12.45
+[05:11:56] [Z] new species S675 founded by Z1320
+[05:11:56] [Z] summary: births 1320 deaths 1297 games 321840 $12.45; top [('Z1313', 44.07, 0.85, 136, 'S646'), ('Z1312', 44.04, 0.82, 160, 'S662'), ('Z1303', 44.03, 0.8, 352, 'S667')]; top vs anchors {'Z1313': None, 'Z1312': None, 'Z1303': None}
+[05:11:56] [Z] birth Z1320 (mutate claude-opus-5-5) of ['Z1264'] species S675; 24 genomes $12.45
+[05:11:56] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[05:12:17] [Z] birth Z1321 (mutate claude-haiku-5-5) of ['Z1256'] species S635; 24 genomes $12.45
+[05:12:36] [Z] birth Z1322 (llm_cross claude-haiku-5-5) of ['Z1303', 'Z1313'] species S674; 24 genomes $12.46
+[05:12:44] [Z] birth Z1323 (llm_cross claude-haiku-5-5) of ['Z1308', 'Z1312'] species S672; 24 genomes $12.46
+[05:12:52] [Z] birth Z1324 (mutate claude-haiku-5-5) of ['Z1321'] species S635; 24 genomes $12.46
+[05:13:13] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:13:22] [Z] birth Z1325 (mutate claude-haiku-5-5) of ['Z1323'] species S672; 24 genomes $12.47
+[05:13:30] [Z] birth Z1326 (mutate claude-haiku-5-5) of ['Z1323'] species S672; 24 genomes $12.47
+[05:13:30] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:13:40] [Z] rejected tune : behavioural twin
+[05:13:42] [Z] rejected tune : behavioural twin
+[05:13:56] [Z] new species S676 founded by Z1327
+[05:13:56] [Z] birth Z1327 (tune ) of ['Z1303'] species S676; 24 genomes $12.47
+[05:13:56] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:14:19] [Z] birth Z1328 (mutate claude-haiku-5-5) of ['Z1257'] species S667; 24 genomes $12.55
+[05:14:28] [Z] new species S677 founded by Z1329
+[05:14:28] [Z] birth Z1329 (mutate claude-opus-5-5) of ['Z1326'] species S677; 24 genomes $12.55
+[05:14:37] [Z] summary: births 1330 deaths 1307 games 324288 $12.55; top [('Z1280', 44.21, 0.82, 456, 'S660'), ('Z1320', 43.88, 0.8, 256, 'S675'), ('Z1327', 43.84, 0.95, 104, 'S676')]; top vs anchors {'Z1280': None, 'Z1320': 1.0, 'Z1327': 1.0}
+[05:14:37] [Z] birth Z1330 (llm_cross claude-haiku-5-5) of ['Z1289', 'Z1313'] species S665; 24 genomes $12.55

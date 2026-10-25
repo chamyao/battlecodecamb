@@ -156,12 +156,7 @@ def update() -> None:
         h = me().health_frac
         p = me().pos
         carry = unit_gems(me())
-        low = 0.5305 + 0.2288 * min(carry / 20, 1)
-        near_e = count(dist(u.pos, p) <= 6 for u in enemies())
-        near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
-        swarmed = near_e >= 3 and h < 0.7
-        threatened = carry >= 10 and any(u.is_champion and dist(u.pos, p) <= 3 for u in enemies())
-        if h < low or (h < 0.7 and near_e >= near_a) or (h < 0.75 and near_e > near_a + 1) or swarmed or threatened:
+        if retreat_trigger(h, p, carry):
             RETREAT = True
         elif h > 0.8:
             RETREAT = False
@@ -174,10 +169,22 @@ def update() -> None:
                     HOME_SET = True
                 GOAL_F = HOME_F
         else:
-            g = goals()
-            if size(g) > 0:
-                GOAL_F = field(g)
-            else:
-                GOAL_F = field(camp_tiles())
+            GOAL_F = advance_field()
     else:
         RETREAT = False
+
+@gene('X470a', 'retreat trigger: below a gem-scaled health threshold, outnumbered when hurt, swarmed, or carrying 10+ gems near an enemy champion', parents=['Z567c'])
+def retreat_trigger(h: Num, p: Tile, carry: Num) -> Bool:
+    low = 0.5305 + 0.2288 * min(carry / 20, 1)
+    near_e = count(dist(u.pos, p) <= 6 for u in enemies())
+    near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
+    swarmed = near_e >= 3 and h < 0.7
+    threatened = carry >= 10 and any(u.is_champion and dist(u.pos, p) <= 3 for u in enemies())
+    return h < low or (h < 0.7 and near_e >= near_a) or (h < 0.75 and near_e > near_a + 1) or swarmed or threatened
+
+@gene('X470b', 'field to walk by when not retreating: goals field, or camp-tile field if there are no goals', parents=['Z567c'])
+def advance_field() -> Field:
+    g = goals()
+    if size(g) > 0:
+        return field(g)
+    return field(camp_tiles())

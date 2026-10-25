@@ -134,7 +134,6 @@ def update() -> None:
         h = me().health_frac
         p = me().pos
         carry = unit_gems(me())
-        low = 0.5305 + 0.2 * min(carry / 20, 1)
         near_e = 0
         for u in enemies():
             d = dist(u.pos, p)
@@ -144,18 +143,23 @@ def update() -> None:
                 E_NEAR5 = True
             if d <= 4:
                 E_NEAR4 = True
-        near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
         if h < 0.6:
             AWAKE_NEAR2 = any(is_awake(c) and dist(c.pos, p) <= 2 for c in camps())
-        swarmed = near_e >= 3 and h < 0.7
-        threatened = carry >= 10 and any(dist(u.pos, p) <= 3 for u in enemies() if u.is_champion)
-        if h < low or (h < 0.75 and near_e > near_a + 1) or swarmed or threatened:
+        if retreat_trigger(h, p, carry, near_e):
             RETREAT = True
         elif h > 0.9:
             RETREAT = False
     else:
         RETREAT = False
     GOAL_F = choose_goal_field()
+
+@gene('X460a', 'whether to start retreating: below a threshold rising with carried gems, below 75% when outnumbered, below 70% when swarmed, or carrying 10+ gems with a champion within 3', parents=['Z388a'])
+def retreat_trigger(h: Num, p: Tile, carry: Num, near_e: Num) -> Bool:
+    low = 0.5305 + 0.2 * min(carry / 20, 1)
+    near_a = sum(0.9364 for u in allies() if dist(u.pos, p) <= 6)
+    swarmed = near_e >= 3 and h < 0.7
+    threatened = carry >= 10 and any(dist(u.pos, p) <= 3 for u in enemies() if u.is_champion)
+    return h < low or (h < 0.75 and near_e > near_a + 1) or swarmed or threatened
 
 @gene('X450a', 'distance field for this turn: spawn (plus altars with 5+ gems) while retreating, else the normal goals', parents=['Z388a'])
 def choose_goal_field() -> Field:

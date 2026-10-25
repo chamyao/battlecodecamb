@@ -994,3 +994,76 @@
 [05:09:26] [Z] new species S219 founded by Z460
 [05:09:26] [Z] summary: births 460 deaths 437 games 78288 $2.39; top [('Z455', 39.75, 0.94, 120, 'S213'), ('Z460', 39.75, 6.0, 0, 'S219'), ('Z454', 37.31, 0.89, 104, 'S196')]; top vs anchors {'Z455': None, 'Z454': None, 'Z456': None}
 [05:09:26] [Z] birth Z460 (mutate claude-haiku-5-5) of ['Z455'] species S219; 24 genomes $2.39
+[05:09:30] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[05:09:43] [Z] split Z425.update: applied (['ok']) $0.0377
+[05:09:48] [Z] new species S220 founded by Z461
+[05:09:48] [Z] birth Z461 (llm_cross claude-haiku-5-5) of ['Z460', 'Z437'] species S220; 24 genomes $2.39
+[05:09:49] [Z] new species S221 founded by Z462
+[05:09:49] [Z] birth Z462 (llm_cross claude-haiku-5-5) of ['Z444', 'Z441'] species S221; 24 genomes $2.39
+[05:10:07] [Z] new species S222 founded by Z463
+[05:10:07] [Z] birth Z463 (mutate claude-opus-5-5) of ['Z444'] species S222; 24 genomes $2.44
+[05:10:09] [Z] birth Z464 (mutate claude-haiku-5-5) of ['Z439'] species S212; 24 genomes $2.44
+[05:10:09] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:10:21] [Z] birth Z465 (tune ) of ['Z460'] species S219; 24 genomes $2.44
+[05:10:23] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:10:28] [Z] new species S223 founded by Z466
+[05:10:28] [Z] birth Z466 (mutate claude-haiku-5-5) of ['Z464'] species S223; 24 genomes $2.44
+[05:10:34] [Z] birth Z467 (mutate claude-haiku-5-5) of ['Z455'] species S219; 24 genomes $2.44
+[05:10:46] [Z] birth Z468 (mutate claude-haiku-5-5) of ['Z444'] species S222; 24 genomes $2.44
+[05:10:48] [Z] birth Z469 (llm_cross claude-haiku-5-5) of ['Z464', 'Z455'] species S212; 24 genomes $2.44
+[05:10:49] [Z] summary: births 470 deaths 447 games 80248 $2.44; top [('Z455', 39.67, 0.83, 240, 'S213'), ('Z467', 39.49, 1.01, 80, 'S219'), ('Z469', 38.45, 6.0, 0, 'S212')]; top vs anchors {'Z455': None, 'Z467': None, 'Z454': None}
+[05:10:49] [Z] birth Z470 (tune ) of ['Z463'] species S222; 24 genomes $2.44
+[05:11:06] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:11:06] [Z] split Z437.update: applied (['ok']) $0.0619
+[05:11:09] [Z] birth Z471 (mutate claude-haiku-5-5) of ['Z458'] species S218; 24 genomes $2.44
+[05:11:14] [Z] new species S224 founded by Z472
+[05:11:14] [Z] birth Z472 (tune ) of ['Z456'] species S224; 24 genomes $2.44
+[05:11:23] [Z] birth Z473 (mutate claude-haiku-5-5) of ['Z471'] species S218; 24 genomes $2.49
+[05:11:29] [Z] new species S225 founded by Z474
+[05:11:29] [Z] birth Z474 (mutate claude-opus-5-5) of ['Z469'] species S225; 24 genomes $2.49
+[05:11:37] [Z] new species S226 founded by Z475
+[05:11:37] [Z] birth Z475 (llm_cross claude-haiku-5-5) of ['Z461', 'Z405'] species S226; 24 genomes $2.49
+[05:11:44] [Z] new species S227 founded by Z476
+[05:11:44] [Z] birth Z476 (mutate claude-haiku-5-5) of ['Z437'] species S227; 24 genomes $2.49
+[05:11:46] [Z] new species S228 founded by Z477
+[05:11:46] [Z] birth Z477 (llm_cross claude-haiku-5-5) of ['Z455', 'Z473'] species S228; 24 genomes $2.49
+[05:11:50] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:12:04] [Z] birth Z478 (mutate claude-haiku-5-5) of ['Z473'] species S218; 24 genomes $2.50
+[05:12:06] [Z] birth Z479 (mutate claude-haiku-5-5) of ['Z477'] species S228; 24 genomes $2.50
+[05:12:07] [Z] summary: births 480 deaths 457 games 82160 $2.50; top [('Z467', 39.62, 0.82, 184, 'S219'), ('Z455', 39.41, 0.8, 328, 'S213'), ('Z474', 38.62, 0.87, 112, 'S225')]; top vs anchors {'Z467': None, 'Z455': None, 'Z474': None}
+[05:12:07] [Z] birth Z480 (mutate claude-haiku-5-5) of ['Z473'] species S228; 24 genomes $2.50
+[05:12:19] [Z] rejected tune : behavioural twin
+[05:12:25] [Z] split Z475.update: applied (['ok']) $0.0622
+[05:12:26] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:12:32] [Z] rejected tune : behavioural twin
+[05:12:38] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:12:43] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:12:46] [Z] new species S229 founded by Z481
+[05:12:46] [Z] birth Z481 (mutate claude-opus-5-5) of ['Z467'] species S229; 24 genomes $2.55
+[05:12:48] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:12:55] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:13:00] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:13:07] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:13:10] [Z] rejected llm_cross claude-haiku-5-5: behavioural twin
+[05:13:14] [Z] birth Z482 (mutate claude-haiku-5-5) of ['Z466'] species S223; 24 genomes $2.55
+[05:13:21] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:13:26] [Z] rejected mutate claude-haiku-5-5: GenomeError: line 176: gene dash_cast_value redefined or shadows a builtin
+[05:13:29] [Z] birth Z483 (mutate claude-haiku-5-5) of ['Z470'] species S222; 24 genomes $2.60
+[05:13:30] [Z] birth Z484 (mutate claude-opus-5-5) of ['Z470'] species S222; 24 genomes $2.60
+[05:13:34] [Z] new species S230 founded by Z485
+[05:13:34] [Z] birth Z485 (tune ) of ['Z478'] species S230; 24 genomes $2.60
+[05:13:50] [Z] birth Z486 (mutate claude-haiku-5-5) of ['Z453'] species S187; 24 genomes $2.60
+[05:13:50] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:13:53] [Z] birth Z487 (mutate claude-haiku-5-5) of ['Z457'] species S214; 24 genomes $2.60
+[05:14:02] [Z] rejected tune : behavioural twin
+[05:14:06] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:14:08] [Z] rejected mutate claude-haiku-5-5: behavioural twin
+[05:14:15] [Z] birth Z488 (mutate claude-haiku-5-5) of ['Z455'] species S213; 24 genomes $2.60
+[05:14:18] [Z] birth Z489 (mutate claude-haiku-5-5) of ['Z484'] species S222; 24 genomes $2.63
+[05:14:25] [Z] new species S231 founded by Z490
+[05:14:25] [Z] summary: births 490 deaths 467 games 85704 $2.63; top [('Z479', 40.01, 0.81, 320, 'S228'), ('Z489', 39.85, 0.94, 88, 'S222'), ('Z481', 39.46, 0.82, 248, 'S229')]; top vs anchors {'Z479': None, 'Z489': None, 'Z481': None}
+[05:14:25] [Z] birth Z490 (mutate claude-opus-5-5) of ['Z461'] species S231; 24 genomes $2.63
+[05:14:26] [Z] rejected tune : behavioural twin
+[05:14:30] [Z] new species S232 founded by Z491
+[05:14:30] [Z] birth Z491 (mutate claude-haiku-5-5) of ['Z489'] species S232; 24 genomes $2.63
+[05:14:40] [Z] birth Z492 (mutate claude-haiku-5-5) of ['Z479'] species S228; 24 genomes $2.63
