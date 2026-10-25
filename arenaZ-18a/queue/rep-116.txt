@@ -1,0 +1,31 @@
+```python
+HOMEF: Field = None   # walking field home (static)
+HOMED: Bool = False   # HOMEF computed
+
+@gene("Z102a", "start of turn: track dead camp spawns, cached goal field, walk around units when blocked; walk home instead when badly hurt with a foe or awake camp near")
+def update() -> None:
+    if not HOMED:
+        HOMEF = field(my_spawn())
+        HOMED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key() + 100000000000 * size(DEAD)
+    if k != GKEY:
+        GSET = goals()
+        GOALF = field(GSET)
+        GKEY = k
+    here = me().pos
+    threat = any(dist(here, u.pos) <= 5 for u in enemies()) or any(is_awake(c) and dist(here, c.pos) <= c.attack_range + 1 for c in camps())
+    if me().health_frac < 0.35 and threat:
+        GF = HOMEF
+    else:
+        GF = GOALF
+        blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | (camp_spawns() - vision() - DEAD)) - near(here, 0)
+        mine = at(GF, here)
+        if mine > 0 and mine < 100000 and not any(at(GF, t) < mine for t in near(here, 1) - blk):
+            GF = field_avoid(GSET, blk - GSET, near(here, 0))
+```

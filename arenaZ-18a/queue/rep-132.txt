@@ -1,0 +1,64 @@
+```python
+ALT: Tiles = None     # tiles next to altars we can tribute at (cached)
+LIVEG: Tiles = None   # spawn tiles of live groups not yet cleared (cached)
+REWG: Tiles = None    # spawn tiles of cleared groups waiting for capture (cached)
+GOAL: Tile = None     # this turn's walking goal
+GTURN: Num = 0        # round to re-pick the walking goal
+WF: Field = None      # this turn's walking field
+
+@gene("Z114a", "start of turn: dead camp spawns, cached goal sets (rebuilt when bag or group state changes), retreat flag, then a walking goal by walk distance (re-picked every 8 rounds) and a field to it around units")
+def update() -> None:
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = -1 - size(locked_altars())
+    if gems() == 0:
+        k = 0
+        p = 1
+        for g in range(num_groups()):
+            if not group_respawning(g):
+                k += p * (2 if group_reward(g) else 1)
+            p *= 3
+    force = k != GKEY
+    if force:
+        GKEY = k
+        if gems() > 0:
+            ALT = near(tile(-5, -5), 0)
+            for a in altars() - locked_altars():
+                ALT = ALT | near(a, 1)
+        else:
+            LIVEG = near(tile(-5, -5), 0)
+            REWG = LIVEG
+            for g in range(num_groups()):
+                if not group_respawning(g):
+                    if group_reward(g):
+                        REWG = REWG | group_tiles(g)
+                    else:
+                        LIVEG = LIVEG | group_tiles(g)
+    RETREAT = me().health_frac < 0.35 and under_threat()
+    here = me().pos
+    unseen = camp_spawns() - vision() - DEAD
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | live | unseen) - near(here, 0)
+    tgt = my_spawn() if RETREAT else goals()
+    if here in tgt:
+        GOAL = here
+    elif force or not valid(GOAL) or not (GOAL in tgt) or GOAL == here or round() >= GTURN:
+        cand = tgt - (blk - live - unseen)
+        GOAL = walk_nearest(cand, here, blk - cand)
+        GTURN = round() + 8
+    gt = near(GOAL, 0)
+    WF = field_avoid(gt, blk - gt, near(here, 0))
+
+@gene("s2", "where to walk: an altar with gems; else cleared groups to capture and live groups minus spawns seen empty")
+def goals() -> Tiles:
+    if gems() > 0:
+        return ALT
+    return REWG | (LIVEG - DEAD)
+
+@gene("s3", "walking field this turn (set in update)")
+def goal_field() -> Field:
+    return WF
+```

@@ -1,0 +1,180 @@
+"""The official starter bot as a genome (sim/src/bots.cpp), for checking the runtime: it should play
+about even with builtin:starter. Starter rules in priority order become scores."""
+
+DEAD: Tiles = None    # camp spawns seen empty (their camp is dead) in groups not yet cleared
+GS: Tiles = None      # cached goal set
+WF: Field = None      # this turn's walking field
+GF: Field = None      # cached walking field to the goals
+GKEY: Num = -1000     # goal set the cached field was computed for
+HF: Field = None      # walking field home (static)
+HOMED: Bool = False   # HF computed
+RETREAT: Bool = False # this turn: badly hurt under threat, walk home
+
+@gene('s1', 'value of doing this option now: draft, casts, focus the weakest foe, fight back against awake camps, heal on spawn, cash out a big bag; shop durability and jungle emblems; recall only out of danger, recall to shop with spare gold')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return pick_value(o.champ)
+    if o.kind == BUY:
+        return shop_value(o)
+    if o.kind == RECALL:
+        if under_threat():
+            return 0
+        if me().health_frac < 0.35:
+            return 76
+        if gems() >= 10 and me().health_frac < 0.5 and count_units(enemies()) == 0:
+            return 76
+        return 45 if gems() == 0 and gold() >= 210 else 0
+    if RETREAT and (o.kind == MOVE or o.kind == CAST or o.kind == ATTACK):
+        return retreat_value(o)
+    if o.kind == CAST:
+        return cast_v2(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + 10 * (0.6312 - o.unit.health_frac)
+        if gems() == 0:
+            return 60 + 5 * (1 - o.unit.health_frac)
+        if is_awake(o.unit):
+            return 55
+        return 54 if path_blocked() else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().pos in my_spawn() and me().health_frac < 0.9 and count_units(enemies()) == 0:
+            return 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("s2", "where to walk: an altar with gems; else live groups minus spawns seen empty, or a cleared group to capture")
+def goals() -> Tiles:
+    acc = near(tile(-5, -5), 0)
+    if gems() > 0:
+        for a in altars() - locked_altars():
+            acc = acc | near(a, 0.9021)
+        return acc
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            gt = group_tiles(g)
+            if group_reward(g):
+                acc = acc | gt
+            else:
+                acc = acc | (gt - DEAD)
+    return acc
+
+@gene('s3', 'walking field this turn (set in update)')
+def goal_field() -> Field:
+    return WF
+
+@gene('Z141a', 'start of turn: refresh the goal field only when the goal set changed; home field once; retreat flag')
+def update() -> None:
+    if not HOMED:
+        HF = field(my_spawn())
+        HOMED = True
+    live = camp_tiles()
+    DEAD = (DEAD | ((camp_spawns() & vision()) - live)) - live
+    if size(DEAD) > 0:
+        for g in range(num_groups()):
+            if group_respawning(g):
+                DEAD = DEAD - group_tiles(g)
+    k = goal_key()
+    if k != GKEY:
+        GS = goals()
+        GF = field(GS)
+        GKEY = k
+    RETREAT = me().health_frac < 0.35 and under_threat()
+    WF = HF if RETREAT else GF
+    here = me().pos
+    blk = (walls() | holes() | altars() | enemy_spawn() | ally_tiles() | enemy_tiles() | camp_tiles() | (camp_spawns() - vision() - DEAD)) - near(here, 0)
+    mine = at(WF, here)
+    if mine > 0 and mine < 100000 and not any(at(WF, t) < mine for t in near(here, 1) - blk):
+        tgt = my_spawn() if RETREAT else GS
+        WF = field_avoid(tgt, blk - tgt, near(here, 0))
+
+@gene('Z141b', 'a number that changes whenever the goal set changes: bag state, locked altars, living groups', parents=['s2'])
+def goal_key() -> Num:
+    if gems() > 0:
+        return -1 - size(locked_altars())
+    acc = 0
+    p = 1
+    for g in range(num_groups()):
+        if not group_respawning(g):
+            acc += p * (1 if group_reward(g) else 1)
+        p *= 3
+    return acc + 100000000000 * size(DEAD)
+
+@gene('s4', 'how much closer a step brings me to the goals, minus a penalty for stepping next to enemy champions when hurt')
+def progress(t: Tile) -> Num:
+    gain = at(goal_field(), me().pos) - at(goal_field(), t)
+    if me().health_frac < 0.5 and any(dist(u.pos, t) <= u.attack_range + 1 for u in enemies()):
+        return gain - 2
+    return gain
+
+@gene('Z141c', 'shop: a durability health emblem, then a jungle health emblem, then power strength; bigger buys first', parents=['s1'])
+def shop_value(o: Option) -> Num:
+    if items_owned(17) == 0:
+        return 100 + o.count / 100 if o.item == 16 and o.count <= 5 - items_owned(16) else 0
+    if items_owned(29) == 0:
+        return 100 + o.count / 100 if o.item == 28 and o.count <= 5 - items_owned(28) else 0
+    return 100 + o.count / 100 if o.item == 6 else 0
+
+@gene('Z141d', 'value of a cast: damage or stun on foes and camps, shield or heal when hurt, attack resets once the attack is spent, dash two steps toward the goal')
+def cast_v2(o: Option) -> Num:
+    k = slot_kind(o.slot)
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 85 if o.unit == me() and me().health_frac < 0.7 else 0
+    if k == AB_RESET:
+        if can_attack():
+            return 0
+        r = me().attack_range
+        if any(dist(u.pos, me().pos) <= r for u in enemies()):
+            return 88
+        return 66 if gems() == 0 and any(dist(c.pos, me().pos) <= r for c in camps()) else 0
+    if k == AB_DASH:
+        return 52 if progress(o.tile) >= 2 else 0
+    if k == AB_DAMAGE or k == AB_AOE or k == AB_CC:
+        if exists(o.unit) and o.unit.is_enemy and o.unit.is_champion:
+            return 86
+        if exists(o.unit) and o.unit.is_camp and gems() == 0:
+            return 65
+        if any(u.pos == o.tile for u in enemies()):
+            return 84
+    return 0
+
+@gene('Z61a', 'an enemy champion within 5 or an awake camp within its range + 1', parents=['s3'])
+def under_threat() -> Bool:
+    p = me().pos
+    return any(dist(p, u.pos) <= 5 for u in enemies()) or any(is_awake(c) and dist(p, c.pos) <= c.attack_range + 1 for c in camps())
+
+@gene('Z15a', 'draft preference: Vendetta, Vesper Vale, Tavi, Ryth, Ren, then anything', parents=['s1'])
+def pick_value(c: Num) -> Num:
+    if c == VENDETTA:
+        return 6
+    if c == VESPER_VALE:
+        return 5
+    if c == TAVI:
+        return 4
+    if c == RYTH:
+        return 3
+    if c == REN:
+        return 2
+    return 1
+
+@gene('Z141e', 'no free step brings me closer to the goals (a camp or unit is in the way)')
+def path_blocked() -> Bool:
+    return not any(progress(t) > 0 for t in near(me().pos, 1) - camp_tiles() - ally_tiles() - enemy_tiles())
+
+@gene('Z141f', 'while retreating: step or dash home first, shield or heal, otherwise hit only what is in reach')
+def retreat_value(o: Option) -> Num:
+    if o.kind == MOVE:
+        return 95 if raw_gain(o.tile) > 0 else 0
+    if o.kind == CAST:
+        k = slot_kind(o.slot)
+        if k == AB_DASH:
+            return 96 if raw_gain(o.tile) >= 2 else 0
+        if k == AB_SHIELD or k == AB_HEAL:
+            return 97 if o.unit == me() else 0
+        return cast_v2(o) / 2
+    return 40
+
+@gene('Z141g', "how much closer a step onto t brings me on this turn's walking field (no danger penalty)")
+def raw_gain(t: Tile) -> Num:
+    return at(goal_field(), me().pos) - at(goal_field(), t)
