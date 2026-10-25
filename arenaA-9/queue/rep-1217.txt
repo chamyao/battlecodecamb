@@ -1,0 +1,9 @@
+```python
+@gene('r15', 'go for monoliths too: nothing tributed by round 800, or behind between rounds 1000 and 1850 with 3+ allies within 6 (monoliths need a group; too late to pay off after 1850)')
+def r_mono() -> Bool:
+    t = team_gems()
+    r = round()
+    if t == 0 and r > 800:
+        return True
+    return r > 1000 and r < 1850 and t < enemy_gems() and size(ally_tiles() & near(here(), 6)) >= 4
+```

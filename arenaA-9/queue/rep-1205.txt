@@ -1,0 +1,8 @@
+```python
+@gene("r8", "place the team's altar lock: holder with an empty bag next to an altar, lock not yet placed, before round 1200 (a late lock rarely pays its turn)")
+def r_lock() -> Bool:
+    if round() >= 1200 or gems() > 0 or not has_lock():
+        return False
+    v = read_shared(7)
+    return fuel() > 60000 and v - 2 * floor(v / 2) == 0 and valid(lock_altar())
+```

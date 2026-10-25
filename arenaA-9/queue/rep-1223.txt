@@ -1,0 +1,5 @@
+```python
+@gene("s14", "the visible camp in reach to hit: the most wounded, a sleeping monolith or golem last (it is not woken while another camp is in reach)")
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: (3 - c.health_frac - (2 if camp_spawn(c) in BIG_CAMPS and not is_awake(c) else 0)) if in_reach(c) else 0)
+```

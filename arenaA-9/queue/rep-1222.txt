@@ -1,0 +1,8 @@
+```python
+@gene("r14", "fight the first camp in reach; a sleeping monolith or golem is not woken alone (only when the monolith rule holds)")
+def r_camp() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not in_reach(c):
+        return False
+    return not (camp_spawn(c) in BIG_CAMPS) or is_awake(c) or r_mono()
+```

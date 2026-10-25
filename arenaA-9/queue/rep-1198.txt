@@ -1,0 +1,19 @@
+```python
+@gene('a3', 'cast-ahead: damage, area or stun (slot kind k) on a close enemy champion before it reaches us; damage and area casts gain on a wounded one', parents=['a3'])
+def ahead_value(o: Option, k: Num) -> Num:
+    f = ahead_foe()
+    if not exists(f) or RULE < 6 or k == AB_SHIELD or k == AB_HEAL or k == AB_RESET or not ahead_on():
+        return 0
+    near_foe = dist(o.tile, f.pos) <= 1
+    if k == AB_AOE:
+        if not near_foe:
+            return 0
+    elif o.tile != f.pos:
+        return 0
+    base = 180 - o.slot
+    if k == AB_CC and threat_eta() <= 2:
+        base += 20
+    if (k == AB_DAMAGE or k == AB_AOE) and f.health_frac < 0.3:
+        base += 30
+    return base
+```

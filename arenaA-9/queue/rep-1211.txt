@@ -1,0 +1,28 @@
+```python
+@gene('a9', "shopping on spawn: the team's altar lock (only before round 1200: a late lock is rarely placed in time), then shards in the policy's split; cheap checks first")
+def shop_value(o: Option) -> Num:
+    if RULE < 2 or not at_spawn():
+        return 0
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and round() < 1200 else 0
+    if o.item != next_shard() or o.count > shard_left():
+        return 0
+    return 190 + o.count / 100
+
+@gene("c1", "where this turn's rule walks; banking under threat also prefers the safe, unlocked altar")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11 or r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+```
