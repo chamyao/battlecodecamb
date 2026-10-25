@@ -1,0 +1,9 @@
+```python
+@gene("Z80a", "keep hunting camps while the bag is small: bank once carrying 20+ gems, when below 40% health, or near the end")
+def banking() -> Bool:
+    if gems() <= 0:
+        return False
+    if gems() >= 20 or me().health_frac < 0.4:
+        return True
+    return round() > 1900
+```

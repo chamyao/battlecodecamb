@@ -1,0 +1,44 @@
+```python
+@gene("s1", "value of doing this option now; never wake a sleeping monolith; finish weak targets; flee then recall when hurt; recall to shop with a full purse; chase weak enemy champions")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if in_fight():
+            return 0
+        if me().health_frac < 0.35:
+            return 90
+        if gems() == 0 and gold() >= 150 and not can_shop() and at(GF, me().pos) >= 3:
+            return 52 if me().health_frac < 0.85 or gold() >= 300 else 0
+        return 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 5
+        if not fightable(o.unit):
+            return 0
+        if gems() == 0:
+            return 60 + (1 - o.unit.health_frac) * 3
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35 and in_fight():
+            g = threat_dist(o.tile) - threat_dist(me().pos)
+            return 95 + g if g > 0 else 0
+        if me().health_frac > 0.6:
+            w = best(enemies(), lambda u: 0 - u.health_frac)
+            if exists(w) and w.health_frac < 0.4 and dist(w.pos, me().pos) <= 5:
+                return 70 if dist(o.tile, w.pos) < dist(me().pos, w.pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("Z54a", "a camp worth hitting: anything already awake, or a sleeping one that is not a monolith")
+def fightable(u: Unit) -> Bool:
+    if is_awake(u):
+        return True
+    return not u.type == MONOLITH
+```

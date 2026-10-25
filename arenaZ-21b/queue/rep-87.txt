@@ -1,0 +1,24 @@
+```python
+AF: Field = None
+AK: Num = -1
+CF: Field = None
+CK: Num = -1
+
+@gene("Z19a", "keep two cached walk fields, one to the altars and one to the camps; recompute either only when its goal set changes; skip while channeling or dead")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = goals()
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if gems() > 0:
+        if k != AK:
+            AK = k
+            AF = field(gs)
+    elif k != CK:
+        CK = k
+        CF = field(gs)
+
+@gene("s3", "distance field to the current goals: the cached altar field while carrying gems, else the cached camp field")
+def goal_field() -> Field:
+    return AF if gems() > 0 else CF
+```

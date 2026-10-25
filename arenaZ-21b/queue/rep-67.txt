@@ -1,0 +1,46 @@
+```python
+@gene("s1", "value of doing this option now; never wake a sleeping golem or monolith; flee then recall when hurt; recall to shop when safe; join allies fighting enemy champions when healthy; dash")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        if threat_dist(me().pos) <= 5:
+            return 0
+        if me().health_frac < 0.35:
+            return 90
+        if gems() == 0 and gold() >= 150 and not can_shop() and at(GF, me().pos) >= 3:
+            return 52 if me().health_frac < 0.85 or gold() >= 300 else 0
+        return 0
+    if o.kind == CAST:
+        if slot_kind(o.slot) == AB_DASH:
+            return dash_value(o.tile)
+        if exists(o.unit) and o.unit.is_camp and not fightable(o.unit):
+            return 0
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 10
+        if not fightable(o.unit):
+            return 0
+        if gems() == 0:
+            return 60
+        return 55 if is_awake(o.unit) else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        if me().health_frac < 0.35:
+            here = threat_dist(me().pos)
+            if here <= 5:
+                g = threat_dist(o.tile) - here
+                return 95 + g if g > 0 else 0
+        if me().health_frac > 0.7 and gems() < 10:
+            p = me().pos
+            w = best(enemies(), lambda u: 0 - dist(u.pos, p))
+            if exists(w) and dist(w.pos, p) <= 7 and dist(w.pos, p) > 1:
+                if any(dist(a.pos, w.pos) <= 4 and dist(a.pos, p) > 0 for a in allies()):
+                    return 65 if dist(o.tile, w.pos) < dist(p, w.pos) else 0
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+```

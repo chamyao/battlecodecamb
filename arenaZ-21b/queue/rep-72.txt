@@ -1,0 +1,15 @@
+```python
+@gene("Z17a", "recompute the goal distance field only when the goal set changes (monolith spawns left out unless nothing else); skip while channeling or dead")
+def update() -> None:
+    if channeling() or not alive():
+        return
+    gs = goals()
+    if gems() == 0:
+        rest = gs - type_spawns(MONOLITH)
+        if size(rest) > 0:
+            gs = rest
+    k = size(gs) * 100003 + sum(t.x * 131 + t.y for t in gs)
+    if k != GK:
+        GK = k
+        GF = field(gs)
+```
