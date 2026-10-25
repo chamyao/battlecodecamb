@@ -1,0 +1,39 @@
+```python
+@gene('s1', 'value of doing this option now; focus the weakest enemy champion, never poke a monolith')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if retreating():
+        if o.kind == MOVE:
+            dn = danger_at(o.tile)
+            return 95 - dn if dn < danger_at(me().pos) else 0
+        if o.kind == RECALL:
+            return 0
+        if o.kind == ATTACK:
+            return 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.35 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 9
+        if o.unit.type == MONOLITH:
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "hurt and threatened: walk out of reach before recalling (damage cancels a recall)", parents=["s1"])
+def retreating() -> Bool:
+    return me().health_frac < 0.35 and danger_at(me().pos) > 0
+
+@gene("new", "how many awake camps and enemy champions can hit this tile", parents=["s1"])
+def danger_at(t: Tile) -> Num:
+    return count(is_awake(u) and dist(u.pos, t) <= u.attack_range for u in camps()) + count(dist(u.pos, t) <= u.attack_range + 1 for u in enemies())
+```

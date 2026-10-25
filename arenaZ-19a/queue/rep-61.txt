@@ -1,0 +1,37 @@
+```python
+@gene('s1', 'value of doing this option now; focus the weakest enemy champion, never poke a monolith')
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return draft_order(o.champ)
+    if o.kind == BUY:
+        return 100 if o.item == 6 else 0
+    if o.kind == RECALL:
+        return 90 if me().health_frac < 0.25 else 0
+    if o.kind == CAST:
+        return cast_value(o)
+    if o.kind == ATTACK:
+        if o.unit.is_champion:
+            return 80 + (1 - o.unit.health_frac) * 9
+        if o.unit.type == MONOLITH:
+            return 0
+        return 60 if gems() == 0 else 0
+    if o.kind == TRIBUTE:
+        return 70
+    if o.kind == MOVE:
+        return 50 if progress(o.tile) > 0 else 0
+    return 0
+
+@gene("new", "draft order: a ranged stunner, a ranged gold earner, an area stunner, a splash melee, a healer", parents=["Z47a"])
+def draft_order(c: Num) -> Num:
+    if c == TAVI:
+        return 10
+    if c == VESPER_VALE:
+        return 9
+    if c == RYTH:
+        return 8
+    if c == VARG:
+        return 7
+    if c == WILLOW:
+        return 6
+    return 1
+```
