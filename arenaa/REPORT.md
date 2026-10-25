@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-25 06:12 UTC: A81582 passes the gate
+
+- The genome lead reports that A81582 (arenaA-8, the session-writer run) passed the gate vs v29: 50/80 head to head,
+  55/80 at 10x fuel, no anchor blocks. It is the first Arena A genome to pass since v27, and the next upload
+  candidate (upload handled by the lead / Arena B).
+- The lead also relays that Cham is asleep and wants the work to continue without waiting on approvals,
+  within the approved spend. Z-17 proceeds as designed.
+
 ## 2026-10-25 06:10 UTC: cull fix, arenaZ-17 launched
 
 - Fix: genome/search e837b50e, `--cull min-mu` (default legacy unchanged) + patches/cull-minmu.patch for
