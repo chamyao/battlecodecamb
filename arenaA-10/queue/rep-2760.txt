@@ -1,0 +1,10 @@
+```python
+@gene("r7", "fight the weakest enemy champion in reach (not on its own spawn), unless I carry 20+ gems with an altar 2 turns away and the foe is not a kill shot (bank the bag first)")
+def r_fight() -> Bool:
+    f = fight_foe()
+    if not exists(f) or dist(here(), f.pos) > me().attack_range or f.pos in enemy_spawn():
+        return False
+    if gems() >= 20 and altar_eta() <= 2 and attack_damage(me(), f) < f.health + shield(f):
+        return False
+    return True
+```
