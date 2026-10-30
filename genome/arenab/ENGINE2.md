@@ -191,3 +191,7 @@ capture_state == CONTESTED). Combined (v40-hold): vs v40 71 / 40 / 31, vs live v
 x6-61 alone; the hold rule masks the kill-shot gain. No better candidate than v40.
 
 ## v40 live (06:12Z); exploit-7 briefed (target v40, seeds v40/x6-61/x6-30, same setup; capture-contest emphasis)
+
+## Band b16: v40 31-29 (same as v39, 6 flips each way); gems +30, +93 on b14 new maps. The 79/140 vs v39 did not carry to
+ladder teams. v41 = v40 + cheap mono_groups going up. exploit-7 switched to multi-opponent fitness (v40, v38, v33, x6-30, band styles),
+real screen vs v40 and v38.
