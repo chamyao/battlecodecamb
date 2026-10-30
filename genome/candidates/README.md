@@ -333,5 +333,6 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 | s2 | A11696 | v46 | 12-18 | 13-17 | 7 / 8 | -32.7 +- 52.2 | neutral, not promoted |
 | s3 | A11599 | v47 | 11-19 | 13-17 | 4 / 6 | -55.3 +- 52.6 | down, not promoted |
 | s4 | A11791 | v48 | 9-21 | 13-17 | 4 / 8 | -54.2 +- 47.7 | clearly down |
+| s5 | v43-fix3 | v49 | 10-20 | 13-17 | 3 / 6 | -12.9 +- 36.1 | not promoted (baseline drift check pending) |
 - A11774 (sha a66b6b33, older A-11 lineage): 76 vs v40 / 69 vs v41; solo total 157,114, stalls on stalactites A and B. Screen queue last.
 - All four A-lineage screens are below v40 with +1.7 to +3.0 deaths to champions per game; A11774 dropped from the queue.
