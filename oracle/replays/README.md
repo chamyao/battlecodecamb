@@ -23,3 +23,11 @@ with the engine's ward table (`Game_Visualiser_ReadState`, omniscient perspectiv
 wards at +133436, stride 40: owner +12, team +16, x +20, y +24, disabled +36).
 
 Results: docs/ENGINE_FINDINGS.md, "Real ladder games".
+
+## Engine 2.0.0 (cambc 4.0.0)
+
+`rereplay_v2.sh BUNDLE MAP [MAX]` does the same for 2.0.0 games: it sets up intel's port of `engine.js` (84 items,
+the 2.0.0 snapshot layout; origin/genome/intel `genome/intel/tools/extract_v2`) with the `v2_0_0` visualiser wasm
+from the cambc 4.0.0 asset cache, and takes the bundle `cambc run -o` writes. Needs `sim/build/cambsim*.so` (pip
+install pybind11, rebuild `sim/build`). Oct 30: real games replayed with 0 divergences (00lost-world 4152 turns,
+00reverse-spiral 18000, 00quarry 15284).
