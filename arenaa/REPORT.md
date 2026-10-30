@@ -11,7 +11,7 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - A-11, not yet started (waits on Cham's go), is to use b9d2fae1. The old runtime rewarded fuel-heavy genomes.
 - 05:50, fuel: round-1 turns were 18-20k under real (an extra pass), fixed on genome/fuel 6c5b096e: start-up refit on
   70 maps, group_tiles priced. A103823-w1 vs v39a sim 67 (real 68); per-game agreement 93/140. A-11 brief moved to
-  6c5b096e (or its genome/v0 merge).
+  genome/v0 10d24fea (the merge of 6c5b096e).
 
 ## 2026-10-30 05:20 UTC: 2.0.0-sim gate passes don't reproduce on real cambc
 
