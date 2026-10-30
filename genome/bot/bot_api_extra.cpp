@@ -44,7 +44,7 @@ Err Api::camp_group_cooldown(std::uint32_t g, std::int32_t* out) { return E2(sdk
 // engine 2.0.0 (cambc 4.0.0 SDK)
 Err Api::camp_group_capture_state(std::uint32_t g, std::int32_t* timer, std::int32_t* state)
 {
-	camp_group_capture_state s{};
+	cambc::detail::camp_group_capture_state s{};
 	const std::int32_t rc = sdk_camp_group_capture_state(g, &s);
 	*timer = s.timer;
 	*state = s.state;

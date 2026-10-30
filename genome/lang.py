@@ -192,11 +192,11 @@ PRIMS = {
 }
 # Primitives whose simulator price is not yet calibrated against cambc (genome/FUEL.md): rejected unless
 # GENOME_UNCALIBRATED=1 (calibration probes), so the search cannot use them before they are priced.
-UNCALIBRATED = {"capture_state", "capture_timer"}
+UNCALIBRATED = set()
 # calibrated Oct 24 (genome/FUEL.md): wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield;
 # the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
 # group_cooldown, lock_hits, lock_enemy; ally_wards, enemy_wards, ward_charges, ward_cooldown, my_ward,
-# ward_sight, sight, teleport_dest, teleport_left, priority, can_sell
+# ward_sight, sight, teleport_dest, teleport_left, priority, can_sell; Oct 30 (cambc 4.0.0, calib9): capture_state, capture_timer
 # Primitives whose inlined bot code takes a local's address, so a gene using one gets a shadow-stack frame
 # (prologue and epilogue on every call, ~12 fuel). Found by compiling each primitive alone with the bot's
 # flags (wasi-sdk -O3) and checking for the stack-pointer write (FUEL.md).

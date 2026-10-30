@@ -1103,6 +1103,7 @@ public:
 	{
 		std::uint64_t pass = 0;
 		std::uint32_t passives = 0;
+		int emblem_families = 0; // engine 2.0.0 collectors: item families with an emblem held
 		float shield = 0;
 	};
 	FightData fight_[32];
@@ -1117,8 +1118,17 @@ public:
 			f.pass = pass_id;
 			std::uint32_t items[cbs::kNumItems] = {};
 			if (api.champion_items(u.h, items) == Err::success)
+			{
+				std::uint32_t fam = 0;
 				for (int i = 0; i < cbs::kNumItems; ++i)
-					if (items[i] && cbs::item_design(i).passive != cbs::ItemPassive::none) f.passives |= 1u << static_cast<int>(cbs::item_design(i).passive);
+					if (items[i])
+					{
+						const auto& d = cbs::item_design(i);
+						if (d.passive != cbs::ItemPassive::none) f.passives |= 1u << static_cast<int>(d.passive);
+						if (!d.purchasable) fam |= 1u << (i / 6);
+					}
+				f.emblem_families = __builtin_popcount(fam);
+			}
 			cbs::BuffRecord b[8];
 			std::uint32_t n = 0;
 			if (api.champion_buff_data(u.h, b, 8, &n) == Err::success)
@@ -1131,13 +1141,17 @@ public:
 	}
 	long long fd_fetches_ = 0;
 	static bool has_ip(const FightData& f, cbs::ItemPassive p) { return f.passives >> static_cast<int>(p) & 1; }
-	// Game::apply_outgoing: the missing-health passive, then the monster emblem against camps
+	// Game::apply_outgoing: the missing-health passive, the monster emblem against camps, then (engine 2.0.0)
+	// the skirmish emblem against champions and the collectors emblem
 	float outgoing(const Unit& a, float amount, bool vs_camp)
 	{
 		if (a.kind != 1 || a.type < 0) return amount;
 		if (cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).passive == cbs::Passive::missing_health_damage)
 			amount *= 1.0f + 0.5f * (1.0f - a.health / a.max_health);
-		if (vs_camp && has_ip(fight_data(a), cbs::ItemPassive::monster)) amount *= 1.15f; // engine 2.0.0
+		const FightData& f = fight_data(a);
+		if (vs_camp && has_ip(f, cbs::ItemPassive::monster)) amount *= 1.15f;
+		if (!vs_camp && has_ip(f, cbs::ItemPassive::skirmish)) amount *= 1.05f;
+		if (has_ip(f, cbs::ItemPassive::collectors)) amount *= 1.0f + 0.01f * static_cast<float>(f.emblem_families);
 		return amount;
 	}
 	// Game::damage_champion's reductions before shields: durability, then jungle against camps
@@ -1179,7 +1193,8 @@ public:
 	}
 	double shield(const Unit& u) { return extra(SH_FUEL), fight_data(u).shield; }
 	// fitted on cambc probes (FUEL.md): FD a champion's items and buffs read once per pass; the rest per call
-	static constexpr double FD_FUEL = 900, AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60;
+	static constexpr double FD_FUEL = 1650, // 900 on 3.0.5: 84 items now, and the emblem families (calib4 on cambc 4.0.0)
+							 AD_FUEL = 140, CD_FUEL = 204, SH_FUEL = 60;
 
 	// ---- raw unit reads (SDK coverage): the host's data as the SDK reports it, no judgement. Unit handles
 	// index per-pass caches; a unit out of vision reads as 0.
@@ -1437,12 +1452,12 @@ public:
 	// what a ward at t would see / a champion of type k standing at t would see
 	Tiles ward_sight(Tile t)
 	{
-		if (!in_bounds(t)) return { std::make_shared<Bitboard>() };
+		if (!in_bounds(t)) return extra(RW_WSIGHT_OFF), Tiles{ std::make_shared<Bitboard>() };
 		return extra(RW_WSIGHT), sdk_mask([&](Bitboard& b) { api.ward_vision(t.v(), b); });
 	}
 	Tiles sight(double k, Tile t)
 	{
-		if (!in_bounds(t) || k < 0 || k >= cbs::kNumChampionTypes) return { std::make_shared<Bitboard>() };
+		if (!in_bounds(t) || k < 0 || k >= cbs::kNumChampionTypes) return extra(RW_SIGHT_OFF), Tiles{ std::make_shared<Bitboard>() };
 		return extra(RW_SIGHT), sdk_mask([&](Bitboard& b) { api.hypothetical_vision(static_cast<std::int32_t>(k), t.v(), b); });
 	}
 	// a teleport in flight (visible destination): of champion u, its destination and turns left
@@ -1494,13 +1509,18 @@ public:
 	// fitted on cambc probes (calib5, FUEL.md), beyond the Api's price of the call: a call, a record's fetch
 	// (once per unit per pass), a cached read
 	static constexpr double RW_CD = 40, RW_GOLD = 21, RW_CH = 17, RW_GCD = 47, RW_CAMP_FETCH = 94, RW_CAMP_HIT = 63, RW_AB_FETCH = 73,
-							RW_AB_HIT = 45, RW_IT_FETCH = 206, RW_IT_HIT = 31, RW_BF_FETCH = 99, RW_BF_CAMP_FETCH = 90, RW_BF_HIT = 55,
+							RW_AB_HIT = 45, RW_IT_FETCH = 374, RW_IT_HIT = 31, RW_BF_FETCH = 99, RW_BF_CAMP_FETCH = 90, RW_BF_HIT = 55,
 							RW_LK_FETCH = 38, RW_LK_HIT = 22;
 	// batch 2 (calib6)
-	static constexpr double RW_WD_FETCH = 1005, RW_WD_HIT = 61, RW_WR = 56, RW_WP = 53, RW_WSIGHT = 384, RW_SIGHT = 423, RW_TP_FETCH = 30,
+	static constexpr double RW_WD_FETCH = 752, RW_WD_HIT = 61, RW_WR = 56, RW_WP = 53, RW_WSIGHT = 274, RW_SIGHT = 326, RW_TP_FETCH = 30,
 							RW_TP_HIT = 20, RW_PRI = 18, RW_SELL = 26;
-	// engine 2.0.0 (provisional: group_cooldown's price until probed on cambc 4.0.0)
-	static constexpr double RW_CAP = 47;
+	// engine 2.0.0, cambc 4.0.0 probes (calib9 and calib5 rerun, FUEL.md): a capture read costs group_cooldown's
+	// + 31; group_cooldown itself is 63 or 72 by context, so this is +-4% either way. RW_IT_FETCH above was 206 on
+	// 3.0.5: the item record doubled to 84 entries.
+	static constexpr double RW_CAP = 74;
+	// refitted on cambc 4.0.0 (calib6 rerun, calib10): RW_WD_FETCH was 1005, RW_WSIGHT 384, RW_SIGHT 423 on 3.0.5;
+	// an off-map tile's empty set costs these (it was priced 0)
+	static constexpr double RW_SIGHT_OFF = 217, RW_WSIGHT_OFF = 181;
 
 	// ---- abilities
 	const cbs::AbilityProps& props(int s)
@@ -2072,7 +2092,7 @@ private:
 		std::fill(std::begin(items_), std::end(items_), 0u);
 		api.champion_items(self(), items_);
 		have_items_ = true;
-		extra(210);
+		extra(378); // 210 on 3.0.5; the item record doubled to 84 entries (RW_IT_FETCH: +168 on cambc 4.0.0 probes)
 	}
 	void load_cons()
 	{
