@@ -124,3 +124,31 @@ Sources and confidence:
    - Capture and Prospector speed up farming.
    - Greed is a late gold sink.
    - Shop gene a11 is a natural place to try them once the sim knows the items.
+
+## Top-team drafts since the switch
+
+Ranked games among the top 16 of the ladder, fetched at 03:05Z on 2026-10-30. All 190 games ran on 2.0.0 (01:xxZ to 03:00Z), giving 380 team-games. The tally comes from the match list's `draftPicks` (tools/drafts.py). For comparison, the 1.0.3 top-16 sample from 2026-10-23 has 570 team-games (analysis data/ladder-2026-10-23).
+
+| champion | v2 pick rate | v1 pick rate | v2 win rate when picked | first picks (v2) |
+|---|---|---|---|---|
+| Vendetta | 82% | 58% | 52% | 32 |
+| Heart of Ruin | 81% | 78% | 50% | 87 |
+| Vesper Vale | 78% | 92% | 50% | 141 |
+| Marcella | 76% | 76% | 50% | 51 |
+| Ryth | 44% | 55% | 51% | 29 |
+| Tavi | 24% | 15% | 48% | 11 |
+| Cassi & Issac | 17% | 11% | 49% | 6 |
+| Willow | 15% | 22% | 51% | 0 |
+| Prism | 11% | 26% | 44% | 19 |
+| Varg | 11% | 6% | 43% | 0 |
+| Ren | 6% | 2% | 45% | 0 |
+| Stellar | 1% | 3% | 40% | 4 |
+
+- Vesper Vale is still the most common first pick despite the nerf, but its pick rate fell from 92% to 78%.
+- Vendetta rose from 58% to 82%. Tavi and Cassi & Issac rose a little; Prism halved.
+- The core of the top teams is unchanged: VV, Vendetta, Marcella and Heart of Ruin, often with Ryth. Teams with that core: NEETCoders, print dont int, Trzy Kwaterki, Claudus Maximus, Intercontinental Fish and Supaswag.
+- Teams playing Tavi: hello and German Empire (Ryth/VV/Vendetta/Marcella/Tavi), and Mite.
+- Ad Astra (rank 2) plays Ryth/VV/Heart of Ruin, often with Marcella and Varg.
+- prism best girl (rank 1) varies its draft, mostly VV/Vendetta/Cassi & Issac/Heart of Ruin.
+- Our v38 drafts Vendetta/VV/Tavi/Ryth/Ren, the same as v33. Ren is buffed but rare at the top (6%). Our draft never takes Marcella or Heart of Ruin, which 76-81% of the top teams take.
+- `draftPicks` has 3-5 entries per team (234 of 380 have 5). The draw order and what a short list means have not been checked.
