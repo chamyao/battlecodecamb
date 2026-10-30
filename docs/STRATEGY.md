@@ -263,6 +263,9 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   v36 band batch 12: 31-19 vs v33's 32-18, gems -40.
   37 = v33's bundle again (37e7be1a, 15:28:27 UTC Oct 25). Genome line's new bar: constant-only tweaks need >=46/80
   real vs live. Next lever: champion fights (deaths to champions 6/game in wins vs 16 in losses).
+  38 = genome A93635-v33port (A-9's A93635 with v33's fixes grafted; bundle sha256 d54619f2...; 02:06:53 UTC
+  Oct 30). Real cambc 47/80 vs v33, 0 crashes; sim 46/80, anchors clean; solo-farm worse on 01boss-battle
+  (sim tribute lock) and 00contest. Validation: band batch 13. Revert target: v33 (37e7be1a).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
