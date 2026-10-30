@@ -12,6 +12,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   Stalls of more than 300 rounds: 01boss-battle B (A11696/A11599/A11663: 2000 vs 1498), 02stalactites (A11663 B;
   A11501 A and B), gift-wrapping B (A11501). Screen order: A11696, A11599, v43-fix3, A11501, x6-61. The A-11 writer
   was asked for a directed boss-battle-B fix.
+- 10:57, b800 gate vs v40/v41: A11791 73/74 (carries v40's v2; sent to the queue, sha 0859ce55), A11807 61/67,
+  A11806 71/66. The v40 seed died early, so v40's v2/c0/held_groups now go in through update-link and cross replies.
+  858 births of 1200.
 
 ## 2026-10-30 10:18 UTC: A-11 after the v40 restart (748 births)
 
