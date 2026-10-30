@@ -100,3 +100,15 @@ v40-graft cross replies (tools/xv40.py). A11791 carries it.
 | A11893 | 3cddc03d3d9c7b24... | 29.07 (136) | 70/140 | 67/140 | 0 | fail |
 | A11876 | ed5f792f015ef0bc... | 28.09 (440) | 69/140 | 71/140 | 0 | fail |
 | A11774 | a66b6b335b49abf2... | 28.05 (1872) | 76/140 | 69/140 | 0 | fail (76 vs v40 only) |
+
+## 1000 births (top 3 by mu at birth 1004), vs v40 / v41
+
+| genome | sha256 | arena mu at pick (games) | vs v40 | vs v41 | crashes | result |
+| --- | --- | --- | --- | --- | --- | --- |
+| A111001 | c92dea629146afae... | 28.19 (104) | 78/140 | 66/140 | 0 | fail (v40 only) |
+| A11976 | 7a7531247d3ffc6c... | 27.94 (440) | 78/140 | 70/140 | 0 | fail (v40 only) |
+| A111000 | d54770a37db25995... | 27.83 (56) | 77/140 | 71/140 | 0 | fail (v40 only) |
+
+First batch where all three clear 76 vs v40 (v40-weighted selection since the restart; earlier batches 61-74 vs v40),
+but v41 (v40m) scores 66-71 vs the same genomes. Since v40 and v41 differ only in fuel (m8), the v40/v41 gap per genome
+(8-12 games) is the noise of one 140-game sample.
