@@ -249,3 +249,15 @@ v43-fix (cand/engine2/v43-fix.genome): the same rule, ignoring enemies on their 
   quarry A 861 (v40 861). Remaining v43-only slow spots, unchanged by the fix: boss-battle B 2000 (v40 1498), famine B 1773
   (1532), expanse A 1463 (1309).
 - vs v43 (x8-140 on 671ac45b): 71 / 41 / 30, a bugfix-level change.
+
+## boss-battle B / famine B on v43-fix: bisection and fix (solo vs genome idle, real 4.0.0)
+v40 genes into v43-fix one at a time: only m11 fixes both (boss-battle B 2000 -> 1572, famine B 1773 -> 1532). v43's m11 sends
+a healthy champion to any contested ally capture within 8 first; idle enemies on/near their spawn keep a group contested, so
+champions keep walking back to it.
+| variant | solo total | quarry A | boss-battle B | famine B | expanse A | new slow spots vs v40 | vs v43 /140 |
+|---|---|---|---|---|---|---|---|
+| v40 | 158,785 | 861 | 1498 | 1532 | 1309 | - | - |
+| v43-fix (Zb) | 159,048 | 861 | 2000 | 1773 | 1463 | - | 71 / 41 / 30 |
+| v43-fix2 (+ m11 contest target minus ring(enemy_spawn, 3)) | 162,053 | 840 | 1353 | 1646 | 1569 | 12 maps (stalactites B, boss-battle A, stampede A 2000) | 70 / 33 / 37 |
+| v43-fix3 (+ m11 only when an enemy champion off its spawn is within 10) | 160,409 | 861 | 1572 | 1675 | 1309 | 02stalactites A 2000 (v40 429) | **75 / 43 / 32** |
+fix3 without stalactites A: 158,838. Stalactites is the fragile map from the v38 bisection (8 unrelated single swaps move it).
