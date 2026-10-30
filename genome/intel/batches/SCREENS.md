@@ -28,3 +28,11 @@ Each candidate's screen is paired with v40's games from b18base (09:57Z). Column
 - **Common factor:** every below-noise candidate has **+1.2 to +3.1 deaths to champions** (control +0.7). The fight-seeking edits (exploit-7 and exploit-8, and the A lineage) lose more champions to real opponents than they gain.
 - **None promoted.** v40 is live (v52).
 | s9 | A11976 (genome/v0 10d5db97, sha 7a753124), paired with s8 | v53 (13:22:22Z / 13:31:49Z) | 18b76f0d | 13-17 (s8) | 10-20 | 3 / 6 | -65.7 ± 42.1 | +0.6 ± 1.1 | down: deaths normal, but captures -7.6 ± 2.1. Not promoted |
+| s10 | v40-join3 (genome/v0 5ce7b4bf, sha 538a1b4c), paired with s8 | v54 (13:41:02Z / 13:42:36Z) | 9457c524 | 13-17 (s8) | 8-22 | 1 / 6 | -74.4 ± 38.2 | +0.9 ± 0.7 | clearly down (captures -5.1 ± 2.3): reverted |
+
+**Revert after s10:** v40 bundle 7317ef88 re-verified and submitted 13:53:16Z as **v55**; live by 14:02:12Z.
+
+**Queue finished.** 9 candidates screened (s1-s7, s9, s10) plus the v40 control (s8): none beat v40.
+- **A11976** (survival-first) fixed the excess deaths (+0.6), but lost captures (-7.6).
+- **v40-join3** (fight cohesion) lost captures (-5.1) and gems (-74).
+- So both directions away from v40's balance (more fighting, or more caution and grouping) cost more on the ladder than they gain.
