@@ -80,3 +80,6 @@ v38 d1 order: Vendetta, Vesper Vale, Tavi, Ryth, Ren. Single changes, 70 maps x 
 | Ven, HoR, VV, Marcella, Ryth (top teams' core) | 28 |
 All 0 errors; none passes. Ren's slot is a wash; Tavi is load-bearing for this genome (remote shop: it buys anywhere),
 and the top teams' core is far worse for our play style. VV's nerf does not make it replaceable by Issac.
+
+## Search pass A103740 (arenaA-10) on 4.0.0
+Old-engine sim 46/80 vs v38 (gatekeeper-32, all anchors clean). cambc 4.0.0 vs v38: 61/140 (old maps 45/80, new 16/60). Fail.
