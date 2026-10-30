@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 02:55 UTC: old sim misleads on engine 2.0.0; A-10 switches to real-engine search
+
+- gate4 vs v38 (cambc 4.0.0, 70 maps x 2, bar 76/140), all 0 crashes: A103646-v33port 72, A103649-v33port 70,
+  -kf 63, v33port-heal 57, h4 57. None passes. The old-sim ranking inverted: heal was best in the sim and worst for real.
+  The search sim gate also had them all at 39-41/80 vs v38.
+- Lesson: once the ladder engine changes, the old sim is not just noisy but misleading for fine-tuning. The coarse
+  port (v38) carried over; the sim-tuned refinements did not.
+- A-10 now: stop the old-sim arena and run a directed search on the real engine (gate4 vs v38, ~2 min per candidate),
+  one structural change at a time from v38, logged in arenaA-10/candidates/REAL.md. Candidates >= 76/140 go to the
+  genome lead. Intel's 2.0.0 notes: genome/intel/ENGINE2.md.
+
 ## 2026-10-30 02:46 UTC: engine change on the ladder
 
 - The ladder now runs engine 2.0.0 (cambc 4.0.0): 30 new maps (70 total), ~48 new item types (tribute, capture,
