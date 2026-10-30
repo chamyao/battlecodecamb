@@ -107,3 +107,16 @@ Base v38: stalactites 1782, quarry 2000. 31 genes differ.
 - 02stalactites: 8 different single swaps each fix it (a12 399, m11 427, s4 433, v2 448, r11 454, s15 454, r3 461, s3 515);
   8 others make it 2000 (a3, a8, a9, r16, v3, w1, w10, w3). Fragile timing/path behaviour, no single cause.
 - 00quarry: no single swap fixes it (all 2000). Left to intel (replay extractor on v2) and the genome lead.
+
+## Solo cluster bisection (00stampede, 01starvation, 01gold-rush, 01boss-battle: v38 2000 on all, v33 finishes)
+v33 genes into v38, one at a time: only v2 (1573/1399/1939/1947) and m11 (1875/1430/1932/1771) improve all four; a9, a12,
+m5, r16 fix boss-battle (1348-1390); m6, r11, r12, r5 help gold-rush. v38's m11 skips groups an ally already holds
+(held_groups: the "spread" idea that lost 3-7 / 2-8 in intel's real tests on v33); v38's v2 adds lock-skip near
+enemies, a narrower BLOCK (allies > 4 away ignored) and more priority classes.
+Gates on 4.0.0 (correct old/new split; earlier "old-map" counts in this file included the ten new 00-maps):
+| candidate | vs v38 /140 (old/80, new/60) | vs v33 /140 | solo total (v38 83,068; v33 80,876) |
+|---|---|---|---|
+| v38 + v33 v2 | 77 (41, 36) | 79 (v38 itself: 82) | 79,348 |
+| v38 + v33 m11 + v2 | 77 (42, 35) | - | 80,712 |
+| v38 + v33 m11 | 67 (39, 28) | - | 81,797 |
+v38-v2 clears the structural bar vs v38 but is -3 vs v33 against v38's own row: within noise, not recommended.
