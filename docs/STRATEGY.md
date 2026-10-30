@@ -279,6 +279,8 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   43 = exploit-8 x8-140 (09:57 UTC Oct 30, bundle ed994fd9...; multi-opponent fitness): 81/140 vs v40 (old 48,
   new 33). Validation: b18 paired with b18base (v40 re-run). Known bug: solo stall on 00quarry side A (1699 rounds
   vs v40's 861); fix in progress. Revert target v40 (7317ef88...).
+  v43 b18: 30-30 vs v40's same-hour re-run 33-27. 44 = v40's bundle again (10:32 UTC Oct 30). Candidates now go
+  through short ladder screens (30 games each) before an upload.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
