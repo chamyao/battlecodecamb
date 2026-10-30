@@ -2,6 +2,19 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 06:03 UTC: arenaA-11 started in a fresh writer session
+
+- session_01H75at7s2GPNPWtwopowYqq, mirror arenaa/a11-mirror. Set up on the genome lead's call: the A-10 session wanted
+  Cham's own go, and Cham's standing instructions cover a new session writer.
+- Setup:
+  - arena code from genome/search; runtime and sim from genome/v0 dd28e2f3;
+  - queue writer, no API, no own screening;
+  - --births-in-flight 8, --cull legacy, 70 maps, 800 births;
+  - anchors v38 + v33;
+  - seeds v39a, v38, A-10 candidates and top members, with the w1 quarry fix grafted;
+  - _INDEX_PRIMS += buff_turns, ring;
+  - top 3 real-gated (cambc 4.0.0) vs live v39 every 100 births, logged to arenaA-11/candidates/REAL.md.
+
 ## 2026-10-30 06:10 UTC: first-turn budget variants of v39a (real cambc 4.0.0, built at genome/v0 10d24fea)
 
 Fuel found that v39a's first turn needs 201-206k, while 4.0.0 takes ~22k of the 200k first-turn budget for start-up,
