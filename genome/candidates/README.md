@@ -253,3 +253,5 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
   75 vs v33 (v39a on this runtime: 71 / 78). GO as v40, built on genome/v0 HEAD runtime (engine-2 tables).
 - x6-61 (sha 513f4ef13f29c7b7): every ally on a contested capture holds. My gate4: 77/140 (old 43, new 34), 0 crashes.
   Passes too; held back in favour of x6-83.
+- x6-83 live as ladder version 40 (submitted 2026-10-30T06:08:08Z, bundle sha256 7317ef88..., built with cambc 4.0.0
+  on the engine-2 runtime). Validation: b16 = band_v2 paired with b15. Revert target v39 (bundle 97492ba3...).
