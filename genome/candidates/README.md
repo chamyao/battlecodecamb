@@ -255,6 +255,9 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
   Passes too; held back in favour of x6-83.
 - x6-83 live as ladder version 40 (submitted 2026-10-30T06:08:08Z, bundle sha256 7317ef88..., built with cambc 4.0.0
   on the engine-2 runtime). Validation: b16 = band_v2 paired with b15. Revert target v39 (bundle 97492ba3...).
+- Batch 16 (intel b16.md): v40 31-29, same as b15's v39 on the same 60 games (6 flips each way). Old maps 16-14 vs
+  18-12; b14 new maps 9-11 vs 7-13 (gems +93); saved new maps 6-4 = 6-4. Neutral on the ladder despite 79/140 locally;
+  kept (no revert).
 
 ## v40m (v40 + cheap mono_groups; Arena A lead, genome/arenaa 0695713f3)
 
