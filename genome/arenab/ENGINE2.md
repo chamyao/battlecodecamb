@@ -411,3 +411,13 @@ The strict trigger only pays for Tavi, our banker with the lowest health. Extend
 - Captures: held.
 d-out2b is the first edit to beat v40 on the band. d2-tout cut deaths further but lost captures on the ladder, so it was not adopted.
 New base for Arena B work: d-out2b (cand/engine2/d-out2b.genome).
+d2-tout on the ladder screen went 12-18, level with d-out2b. Deaths were -0.8, but captures -2.5 and gems -41, so it was not adopted. Targeted retreat works; broader caution gives up farm.
+
+## On d-out2b (live v59): Marcella slice
+Marcella is the top killer in deaths_v40.json: 223 of 903.
+- 176 of those are 'apart' (a fight in place); 99 victims were at ≥0.9 health 10 rounds earlier; 71 were Tavi.
+- d-out2b's trigger covers 34 of Marcella's 223 kills. Counting an enemy Marcella twice raises that to 108, i.e. +74 ladder deaths covered.
+- A lone champion vs a lone Marcella still doesn't trigger (weighted 2 vs us 1: the +2 margin is not met).
+
+**d4-marc:** d-out2b with each enemy Marcella counted twice in dx1.
+Gated against the live bot d-out2b; solo compared with gsolo-d-out2b. full.sh and solo.sh now take the reference bot as an argument.
