@@ -2,6 +2,22 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 06:10 UTC: first-turn budget variants of v39a (real cambc 4.0.0, built at genome/v0 10d24fea)
+
+Fuel found that v39a's first turn needs 201-206k, while 4.0.0 takes ~22k of the 200k first-turn budget for start-up,
+so the real bot is cut off on turn 1. Variants (arenaa/candidates/), gate4 vs v39a (70 maps x 2):
+
+| variant | change | vs v39a | turn-1 max (median of maps) | maps with turn 1 capped | turn-2 caps (of 350) |
+| --- | --- | --- | --- | --- | --- |
+| v39a | none | | 178.6k | 14/70 | 3 |
+| v39b | turn 1 maps only the cheap sets; full map from turn 2 | **74/140**, 0 crashes | 141.7k | 1/70 | 86 |
+| v39c | only mono_groups deferred to turn 2; rest recomputed then | 71/140, 0 crashes | 162.5k | 4/70 | 65 |
+
+Read: freeing turn 1 helps (v39b +4 over even). But the deferred map then hits the 100k normal budget on turn 2,
+because the cost is the group_tiles builds (~170 fuel per host bit set in the bot), not where they run. The cleaner fix is
+a cheaper group_tiles build in the runtime (bitboard ops instead of per-bit host sets), or spreading mono_groups over
+turns 2-4. Neither variant meets the 76 bar yet.
+
 ## 2026-10-30 05:30 UTC: the 2.0.0 sim's residual bias is fuel pricing; fixed in genome/v0 b9d2fae1
 
 - One-map diff (real replays at arenaa/data/simdiff/): 01elk-arena A103823-w1 vs v39a is 0-1008 real, 900-468 sim.
