@@ -313,3 +313,11 @@ Quota is 50 groups per rolling hour, so ladder testing is cheap: ~15-20 min of l
 - Pre-filter: real gate4 vs live >= 72/140, 0 crashes, no new solo stall vs the genome idle bot.
 - Screen: upload, run screen_v1 paired with the live bot's screen; revert at once if it's clearly down.
 - Promote: if it's up on flips and gems, run the full 60-game band; keep it only if the band agrees.
+
+## arenaA-11 tops for the ladder screen (Arena A lead; real gate4 vs v40 / v41)
+
+A11501 75/76 (fb1b19cd), A11696 74/72 (380b8b4b), A11663 73/72 (c63d0c9b), A11599 73/74 (068e7c98).
+Solo vs genome idle, cambc 4.0.0, 70 maps x 2 (genome/bot/solo4.sh), total rounds: v40 158,785; A11501 154,576;
+A11696 153,283; A11663 156,109; A11599 153,786. Stalls (>300 rounds slower than v40): all four on 01boss-battle B
+except A11501; A11501 on 02stalactites A+B and 02gift-wrapping B; A11663 on 02stalactites B.
+Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
