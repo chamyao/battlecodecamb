@@ -20,6 +20,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   Still at the 200k cap: 01big-world, adgato-gemcombat5, 01yellow-brick-road; most other maps end at 185-190k
   (the pass guard). Further turn-1 trimming has diminishing returns. The remaining big item is cast scoring on
   yellow-brick-road.
+- Last try, the genome lead's suggestion: v40c = v40m with no cast scoring on the first play turn. 69/140 vs v40m
+  (median turn 1 164k -> 146k; maps at the cap 4 -> 3). Dropped. Turn-1 trimming is done; v40m holds the gain.
+- A-11 asked to add v40 and v40m as anchors, inject v40m and its m8, and real-gate vs live v40.
 
 ## 2026-10-30 06:03 UTC: arenaA-11 started in a fresh writer session
 
