@@ -441,3 +441,5 @@ Per gem-bearing capture we get about 17.2 gems, so the low gems-per-capture figu
 - **c-gem3:** the camp walk switches to gem-only groups (GEM_BASE) after 3 shop buys instead of 6.
 | c-nogold vs d-out2b | 64 | 38 / 26 | 1239 / 1038 (more); captures 10230 / 11042 (-7%); solo: 6 new slow games (boss-battle B, famine B, gift-wrapping B, harvest A, stalactites A and B) |
 Gold-only captures pay: their gold buys the fights we win. Skipping them loses fights and stalls the solo games.
+| c-gem3 vs d-out2b | 66 | 36 / 30 | 1046 / 1010; captures 10600 / 10859 (-2%); solo famine B 1930 (1675) |
+Moving to gem groups earlier fails too. Opposite probe, **c-gem9**: stay on mixed camps until 9 buys.
