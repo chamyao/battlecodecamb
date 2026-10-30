@@ -216,3 +216,16 @@ while candidates were on 671ac45b. With v38 rebuilt on 671ac45b ("v38n"): x7-125
 overfits v40. No candidate. Hold-out rows in this file against "v38" and "v33e2" before this note are on mismatched builds.
 Rule from here: every reference is built on the candidate's runtime. exploit-8 started with multi-opponent fitness
 (v40, v38, v33, x6-30, band styles; all on 671ac45b).
+
+## exploit-8 (multi-opponent mean fitness: v40, v38, v33, x6-30, farmer; all on 671ac45b; ran vs v40)
+Relay writer's real screen (total, old/new); bar >= 76 vs v40 and not below v40's own row vs v38 (84) and v33 (65):
+| bot | vs v40 | vs v38 | vs v33 |
+|---|---|---|---|
+| x8-140 (e3217087) | 81 (48/33) | 80 (43/37) | 72 (38/34) |
+| x8-87 | 73 | 79 | 74 |
+| x8-8 / x8-11 | 72 | 79 | 75 |
+| v40 own row | 70 | 84 (48/36) | 65 (40/25) |
+No candidate under the bar. x8-140 is +11 vs v40 and +7 vs v33 but -4 vs v38 (sum over the three: 233 vs v40's 219); it fights
+better (10.0 kills / 6.9 deaths per game vs the mirror's 8.75 / 8.75). Line adds: break an enemy capture before its timer
+runs out (camp_goal), hit the champion not camps in a fight, lock the altar nearest an enemy gem carrier.
+Every exploit-8 program beats v40 vs v33 and trails it vs v38.
