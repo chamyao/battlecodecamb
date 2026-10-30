@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 08:02 UTC: A-11 check-in (333 births)
+
+- Top mu 29.1-29.9, mostly species S0 (7 of 24 members); anchors v38 25.2 / v33 25.0. No v40/v41 anchors yet: the restart
+  message (07:35) may not have arrived. The session is running; the mirror last pushed at 07:35.
+- Writer's gate at b300, still vs v39: A11297 74, A11261 74, A11296 73. All fail. The arena tops still sit at about v39
+  strength on real. The sim mu climb (29+) isn't turning into real wins: arena mu is relative to the population,
+  and the anchors (v38/v33) are below the live bot.
+
 ## 2026-10-30 07:15 UTC: A-11 at 242 births
 
 - Top mu ~29.0 (A11202/A11219). Writer's gate at b202 (still vs v39): A11172 73, A11159 76, A11150 71.
