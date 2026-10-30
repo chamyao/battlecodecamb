@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 04:40 UTC: A-10 done; its best sim candidate fails on the real engine
+
+- A-10 finished at 4045 births (old 1.0.3 sim). My switch messages reached it only at 04:29, after the end.
+- Its best sim candidate, v33port-spawnedge (sim 57/80 vs v33), on real cambc 4.0.0 gate4: 67/140 vs v38, 68/140 vs v33
+  (v38 82, v39a 84), 0 crashes. That confirms again that the old sim's late refinements don't transfer.
+- Writer lessons: the v33 graft gives the big jump (+8..+15); later single fixes are about +1 each, on a plateau;
+  camp-targeting changes are fragile; the tuner perturbs index arguments of buff_turns and ring (not in _INDEX_PRIMS).
+- A-11 is asked to run in the same session, mirrored under arenaA-11/ on arenaa/a10-mirror (its push scope).
+
 ## 2026-10-30 04:10 UTC: v38 00quarry freeze fixed (v39a)
 
 - Root cause: a bush blind spot. On 00quarry, camp spawn (6,10) (group 6, with (5,10); mirror (28,10)) is a bush tile.
