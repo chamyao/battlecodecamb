@@ -295,3 +295,4 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
   fight, lock the altar nearest an enemy gem carrier. Arena B (all on 671ac45b): 81 vs v40, 80 vs v38 (v40: 84),
   72 vs v33 (v40: 65); kills/deaths 10.0/6.9 vs the mirror's 8.75/8.75.
 - My gate4 vs live v40: 81/140 (old 48, new 33), 0 crashes. GO as v43; band paired with b16.
+- x8-140 live as ladder version 43 (submitted 2026-10-30T09:57:53Z, bundle sha256 ed994fd9...). Intel re-ran v40's band first (b18base, same hour) to control for opponent updates; v43's band is b18, paired with b18base.
