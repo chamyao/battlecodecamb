@@ -171,3 +171,16 @@ cs-bank (bag ready at 6+ gems when outnumbered that way): 62 / 36 / 26
 cs-both: 63 / 33 / 30
 All worse. Same result as on the old engine: pulling carriers out of play costs more than the bags it saves. Waiting on
 exploit-6 for anchors that reproduce the ladder fights.
+
+## exploit-6 (engine 2.0.0, queue writer, $0): candidates, not just anchors
+Relay writer's real screen vs v39a (runtime 671ac45b): top 8 at 80-83/140 (mirror 70); no keeper at the 1.3x kill bar; anchors
+frozen: x6-61, x6-83, x6-30 (arenab/b14-relay cdba85d3 arenab-b14/x6-exploit/exploit-6/keep/anchors/).
+Line: v39a -> #4 (update: contest a gem group an enemy is farming; healthiest fighter acts first) -> #30 (held_groups: do not
+leave a contested capture) -> #61 (r_hold: every ally on a contested capture holds).
+My check on cambc 4.0.0, vs the live v39 build (v39a on runtime 35bcf691a) and hold-outs (total / old / new):
+| candidate | vs live v39 | vs v38 | vs v33 |
+|---|---|---|---|
+| x6-83 (823f1ca3) | 79 / 46 / 33 | 80 / 46 / 34 | 75 / 39 / 36 |
+| x6-61 (513f4ef1) | 77 / 43 / 34 | 78 / 43 / 35 | 77 / 40 / 37 |
+| ref: v39a on 671ac45b | 69 (genome lead) | 71 / 38 / 33 | 78 / 46 / 32 |
+Both clear the 76 structural bar vs live and gain +7-9 vs v38 over v39a's row; vs v33 they are -1 to -3.
