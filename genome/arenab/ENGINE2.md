@@ -467,3 +467,5 @@ Shop order on d-out2b: Treasure Str to its emblem (18/19), Jungle HP to its embl
 - **s-hunt3:** Hunter Str to its emblem (60/61, +50 kill gold) as the 3rd emblem, then as before.
 - **s-skirm3:** Skirmish Str to its emblem (66/67, x1.05 vs champions) as the 3rd emblem, then as before.
 (v39a probes: Hunter and Skirmish lost as a 1st emblem or in place of Jungle. Here Treasure and Jungle stay first.)
+**s13, d4-marc on the ladder:** 10-20 vs a clean d-out2b control's 12-18. Deaths to Marcella fell 109 → 71, but total deaths to champions only 329 → 318: the deaths moved to other killers. Reverted to d-out2b (v61).
+Lesson: retreating from one specific killer hands the kill to another.
