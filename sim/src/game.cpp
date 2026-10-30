@@ -159,7 +159,7 @@ void Game::grant_gold(Champion& ch, std::uint32_t amount, bool earned)
 {
 	int pct = 0;
 	if (champion_design(ch.type).passive == Passive::bonus_gold) pct += 33;
-	if (ch.has_passive(ItemPassive::treasure)) pct += 20;
+	if (ch.has_passive(ItemPassive::treasure)) pct += 10; // engine 2.0.0 (was 20)
 	// Bonus gold is kept exactly in hundredths: amount * (100 + pct) / 100.
 	const std::int64_t total = static_cast<std::int64_t>(amount) * (100 + pct);
 	ch.gold_cents += total;
@@ -266,10 +266,10 @@ int Game::channel_time(int c) const { return champs[c].channel_timer; }
 
 float Game::apply_outgoing(const Champion& src, float amount, bool vs_camp) const
 {
-	// Applied sequentially in float, as the engine does: (base * (1 + missing-health bonus)) * 1.1.
+	// Applied sequentially in float, as the engine does: (base * (1 + missing-health bonus)) * 1.15.
 	if (champion_design(src.type).passive == Passive::missing_health_damage)
 		amount *= 1.0f + 0.5f * (1.0f - src.hp / src.max_hp);
-	if (vs_camp && src.has_passive(ItemPassive::monster)) amount *= 1.1f;
+	if (vs_camp && src.has_passive(ItemPassive::monster)) amount *= 1.15f; // engine 2.0.0 (was 1.1)
 	return amount;
 }
 

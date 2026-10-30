@@ -29,7 +29,7 @@ static void dump_constants()
 		camp_design d{};
 		if (sdk_camp_design(t, &d) == 0) hexdump("camp_design", t, &d, sizeof d);
 	}
-	for (int t = 0; t < 64; ++t)
+	for (int t = 0; t < 96; ++t) // 84 items since engine 2.0.0
 	{
 		detail::item_info d{};
 		if (sdk_item_info(t, &d) == 0) hexdump("item_info", t, &d, sizeof d);

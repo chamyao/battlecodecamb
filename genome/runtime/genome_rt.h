@@ -1137,7 +1137,7 @@ public:
 		if (a.kind != 1 || a.type < 0) return amount;
 		if (cbs::champion_design(static_cast<cbs::ChampionType>(a.type)).passive == cbs::Passive::missing_health_damage)
 			amount *= 1.0f + 0.5f * (1.0f - a.health / a.max_health);
-		if (vs_camp && has_ip(fight_data(a), cbs::ItemPassive::monster)) amount *= 1.1f;
+		if (vs_camp && has_ip(fight_data(a), cbs::ItemPassive::monster)) amount *= 1.15f; // engine 2.0.0
 		return amount;
 	}
 	// Game::damage_champion's reductions before shields: durability, then jungle against camps
