@@ -1,0 +1,8 @@
+```python
+@gene("a10", "the team's lock is neither bought nor placed and I have none and can pay; before round 300 the lock waits until shards are no longer affordable or 40+ gold is banked (early gold goes to shards)")
+def wants_lock() -> Bool:
+    v = read_shared(7)
+    if floor(v) - 4 * floor(v / 4) != 0 or has_lock() or gold() < 10:
+        return False
+    return round() > 300 or gold() >= 40 or next_shard() < 0
+```

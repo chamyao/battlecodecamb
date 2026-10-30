@@ -1,0 +1,12 @@
+```python
+@gene('a12', 'dash this turn: retreat or cash-out with fuel > 40k; walking rules with GOAL over 2 away and fuel > 45k, or over 4 away with fuel > 30k when an enemy champion is within 6 (reach a contested camp or bank first)', parents=['a12'])
+def dash_gate() -> Bool:
+    if RULE == 3 or RULE == 5:
+        return fuel() > 40000
+    if not walks() or not valid(GOAL):
+        return False
+    d = dist(here(), GOAL)
+    if d > 2 and fuel() > 45000:
+        return True
+    return d > 4 and fuel() > 30000 and count(dist(e.pos, here()) <= 6 for e in enemies()) > 0
+```

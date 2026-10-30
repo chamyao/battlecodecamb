@@ -1,0 +1,7 @@
+```python
+@gene("r4", "recall: below 30% health and nothing near; not while an enemy champion in reach dies to our next basic attack (take the kill first)")
+def r_recall() -> Bool:
+    if at_spawn() or not hurt_below(0.3):
+        return False
+    return not any(in_reach(u) and attack_damage(me(), u) >= u.health + shield(u) for u in enemies())
+```

@@ -1,0 +1,8 @@
+```python
+@gene("w3", "tiles I cannot step onto: terrain, altars, enemy spawn, units, unseen camp spawns; below 30% health also the tiles next to an enemy champion (no walking into a kill)")
+def blocked() -> Tiles:
+    b = TERRAIN | ally_tiles() | enemy_tiles() | camp_block()
+    if hurt_below(0.3):
+        b = b | ring(enemy_tiles(), 1)
+    return b - near(here(), 0)
+```
