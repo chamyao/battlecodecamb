@@ -1,0 +1,15 @@
+```python
+@gene('r17', "bank before a dangerous group: 10+ gems and the next group's strength is 240+ (160+ with 20+ gems), or 5+ gems below half health (a hurt carrier banks before the next fight)")
+def r_bankgroup() -> Bool:
+    if fuel() <= 65000 or gems() < 5:
+        return False
+    g = camp_goal()
+    if not valid(g):
+        return False
+    if hurt_below(0.5):
+        return True
+    if gems() < 10:
+        return False
+    s = group_threat(g)
+    return s >= 240 or (gems() >= 20 and s >= 160)
+```

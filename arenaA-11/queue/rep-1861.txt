@@ -1,0 +1,20 @@
+```python
+@gene('m11', "the camp walk's goal: weak gem-paying groups first once I have bought 6 times (skipping groups an ally is already capturing), else the nearest non-big spawn of a live group that no ally is already capturing, then of any live group, falling back to any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    held = held_groups()
+    resp = respawning()
+    if BUYS >= 6 and size(GEM_BASE) > 0:
+        t = closest(GEM_BASE - resp - held)
+        if valid(t):
+            return t
+    t = closest(CAMP_BASE - resp - BIG_CAMPS - held)
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - resp - BIG_CAMPS)
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```

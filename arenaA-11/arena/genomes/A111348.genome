@@ -1,0 +1,887 @@
+"""Seed genome: the live ladder policy style-gconv1 (v23, policies/candidates/style-gconv1.policy) as genes.
+
+The policy is a rule pile run top to bottom, ending the turn at the first rule that acts. Here:
+- update() picks this turn's rule once (rule(): the highest-priority rule whose condition holds; each
+  rule's priority is a constant in rule(), so reordering rules is a constant change) and keeps its
+  goal tile and target tile;
+- score(o) values each legal option under that rule (r_* genes are conditions; act_value, cast_value
+  and shop_value value the options by kind), plus two non-terminal parts that run before it as in the
+  policy: shopping on spawn and the cast-ahead at a close enemy champion.
+Every hypothesis block the policy used (in_danger, threat_eta, altar_eta, group_threat, closest,
+move_towards, dash_towards, ...) is an ordinary gene below, written from SDK reads.
+
+Where it differs from the policy:
+- conditions are read once at the start of the turn (update); the policy reads a few of them after its
+  own earlier actions that turn (e.g. the fight target after the cast-ahead), and buys the lock before
+  its lock-placement check (here a lock bought this turn is placed next turn at the earliest);
+- shared byte 7 (lock bought / placed) is written in update(), before the purchase, when the purchase
+  will go through; byte 6 (set_team_target) is not written: nothing in the policy reads it;
+- shards are bought in powers of two (BUY counts), the same totals per kind;
+- every action is an option of the loop, tried once per turn; a refused one is not retried that turn.
+"""
+
+RULE: Num = 0           # this turn's rule (ids in rule())
+GOAL: Tile = None       # where this turn's rule walks (or dashes)
+TGT: Tile = None        # the altar / unit tile this turn's rule acts on
+LOCK_BUY: Bool = False  # buy the team's altar lock this turn
+SHOP_GOLD: Num = 0      # gold left for shards after the lock
+MAPPED: Bool = False    # the static sets below are computed (once per game)
+ALTAR_RING: Tiles = None
+SAFE_RING: Tiles = None
+MONO_GROUPS: Tiles = None
+TERRAIN: Tiles = None   # walls, holes, altars, enemy spawn
+CAMP_BASE: Tiles = None # camp spawns outside monolith/golem groups
+BIG_CAMPS: Tiles = None # monolith and golem spawns
+SK0: Num = 0            # ability kind of slot 0
+SK1: Num = 0            # ability kind of slot 1
+BLOCK: Tiles = None     # this turn: tiles I cannot step onto (computed at turn start)
+FIELD: Field = None     # this turn: walking field to GOAL, out to my tile
+OPEN: Bool = False      # this turn: GOAL can be walked to
+ALTAR_MONO: Bool = False  # some altar-ring tile is a monolith-group spawn (boss-battle layout)
+MONO_ONLY: Bool = False  # every gem-paying camp spawn is in a monolith group
+GEM_BASE: Tiles = None  # CAMP_BASE tiles of weak gem-paying groups (from round 3)
+GEM_MAPPED: Bool = False
+BUYS: Num = 0           # shop spends of 30+ gold so far
+LAST_GOLD: Num = 0
+
+@gene("v1", "value of doing this option now")
+def score(o: Option) -> Num:
+    k = o.kind
+    if k == PICK:
+        return pick_value(o.champ)
+    if k == BUY or k == BUY_LOCK:
+        return shop_value(o)
+    if shop_pending():
+        return 0
+    if k == CAST:
+        return cast_value(o)
+    return act_value(o)
+
+@gene('v3', "option kinds worth listing this pass: only those this turn's rule (or shopping, cast-ahead) can use; shop kinds only when we can actually shop on spawn; wards only with a charge in hand, in a bush on the camp walk or while holding a capture", parents=['v3'])
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and can_shop() and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == CAST:
+        return r == 7 or r == 14 or ((r == 3 or r == 20 or r == 5 or walks()) and dash_gate() and (SK0 == AB_DASH or SK1 == AB_DASH)) or (r >= 6 and ahead_on())
+    if k == ATTACK:
+        return r == 7 or r == 13 or r == 14 or r == 20
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == WARD:
+        return (r == 20 or r == 16) and ward_charges() > 0 and here() in bushes()
+    return False
+
+@gene('v2', 'start of turn: choose the rule, its goal and target (the lock is not placed with an enemy champion within 5: camp walk instead); shared-memory and priority writes (fighters, retreaters, lock placers, pre-fight bankers and bankers walking under threat act first next round, bankers at an altar or walking to bank next); allies over 4 away do not block a step check or dash; camp fighters act second; cash-out recallers act first next round; among fighters the healthiest acts first (focus fire behind it); from round 30 the camp walk contests a weak gem-paying group an enemy champion is farming (within 3 of it) when it is at most 10 tiles farther than the plain goal, unless below 40% health')
+def update() -> None:
+    if not MAPPED:
+        ALTAR_RING = altar_ring()
+        SAFE_RING = safe_altar_ring()
+        MONO_GROUPS = mono_groups()
+        small = camp_spawns() - type_spawns(MONOLITH) - type_spawns(GOLEM)
+        if size(ALTAR_RING - small) > 0:
+            ALTAR_RING = ALTAR_RING - small
+        if size(SAFE_RING - small) > 0:
+            SAFE_RING = SAFE_RING - small
+        ALTAR_MONO = size(ALTAR_RING & MONO_GROUPS) > 0
+        MONO_ONLY = size((type_spawns(WOLF) | type_spawns(ELK) | type_spawns(GEM_CLUSTER) | type_spawns(GOLEM)) - MONO_GROUPS) == 0
+        TERRAIN = walls() | holes() | altars() | enemy_spawn()
+        BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
+        SK0 = slot_kind(0)
+        SK1 = slot_kind(1)
+        MAPPED = True
+    if not GEM_MAPPED and round() >= 3:
+        GEM_BASE = CAMP_BASE & gem_groups()
+        GEM_MAPPED = True
+    if gold() <= LAST_GOLD - 30:
+        BUYS = BUYS + 1
+    LAST_GOLD = gold()
+    RULE = rule()
+    if RULE == 8 and enemies_within(5) > 0:
+        RULE = 20
+    GOAL = camp_goal() if RULE == 20 else rule_goal()
+    TGT = rule_target()
+    if RULE == 20 and round() > 30 and valid(GOAL) and not hurt_below(0.4) and size(GEM_BASE) > 0:
+        hot = ring(enemy_tiles(), 3) & (GEM_BASE - respawning())
+        if size(hot) > 0 and not (GOAL in hot):
+            gt = closest(hot)
+            if valid(gt) and dist(here(), gt) <= dist(here(), GOAL) + 10:
+                GOAL = gt
+    OPEN = False
+    if walks() and valid(GOAL) and GOAL != here():
+        BLOCK = blocked() - (ally_tiles() - near(here(), 4))
+        OPEN = walk_open()
+        FIELD = walk_field()
+    LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
+    if LOCK_BUY:
+        write_shared(7, read_shared(7) + 2)
+    SHOP_GOLD = gold() - (10 if LOCK_BUY else 0)
+    if RULE == 8:
+        write_shared(7, read_shared(7) + 1)
+    if RULE == 7:
+        set_priority(150 + floor(me().health_frac * 50))
+    elif RULE == 3 or RULE == 9 or RULE == 11 or RULE == 8 or RULE == 5:
+        set_priority(150 + rand(20))
+    elif RULE == 10 or RULE == 6 or RULE == 17 or RULE == 12 or RULE == 14:
+        set_priority(85 + rand(20))
+    elif RULE == 20:
+        set_priority(1 + rand(100))
+
+@gene("d1", "draft preference: Vendetta, Vesper Vale, Tavi, Ryth, Ren, then anything")
+def pick_value(c: Num) -> Num:
+    if c == VENDETTA:
+        return 6
+    if c == VESPER_VALE:
+        return 5
+    if c == TAVI:
+        return 4
+    if c == RYTH:
+        return 3
+    if c == REN:
+        return 1
+    return 1
+
+@gene('c0', "this turn's rule: the highest-priority rule whose condition holds (ids 1-20, 20 always holds); a kill shot in reach outranks cashing out (take the carrier first)")
+def rule() -> Num:
+    top = 0
+    pick = 0
+    if 200 > top and r_idle():
+        top = 200
+        pick = 1
+    if 190 > top and r_heal():
+        top = 190
+        pick = 2
+    if 122 > top and r_run():
+        top = 180
+        pick = 3
+    if 175 > top and r_recall():
+        top = 175
+        pick = 4
+    if 172 > top and r_fight() and r_killshot():
+        top = 172
+        pick = 7
+    if 170 > top and r_cashout():
+        top = 170
+        pick = 5
+    if 160 > top and r_pass():
+        top = 160
+        pick = 6
+    if 150 > top and r_fight():
+        top = 150
+        pick = 7
+    if 264 > top and r_lock():
+        top = 140
+        pick = 8
+    if 130 > top and r_prefight():
+        top = 130
+        pick = 10
+    if 120 > top and bank_on() and valid(adj_altar()):
+        top = 120
+        pick = 11
+    if 118 > top and bank_on() and threat_near():
+        top = 118
+        pick = 11
+    if 117 > top and r_hold() and not threat_near():
+        top = 117
+        pick = 16
+    if 116 > top and bank_on() and bank_blocked():
+        top = 116
+        pick = 13
+    if 114 > top and bank_on():
+        top = 114
+        pick = 12
+    if 100 > top and r_camp():
+        top = 100
+        pick = 14
+    if 90 > top and r_mono():
+        top = 90
+        pick = 15
+    if 80 > top and r_hold():
+        top = 80
+        pick = 16
+    if 70 > top and r_bankgroup() and valid(adj_altar()):
+        top = 70
+        pick = 17
+    if 68 > top and r_bankgroup():
+        top = 68
+        pick = 18
+    if 60 > top and r_live():
+        top = 60
+        pick = 19
+    if 10 > top:
+        top = 10
+        pick = 20
+    return pick
+
+@gene('c1', "where this turn's rule walks; banking under threat, and banking before a dangerous group, go to the bank walk's altar (safe, unlocked)")
+def rule_goal() -> Tile:
+    r = RULE
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11 or r == 12 or r == 18:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+
+@gene("c2", "the altar or unit tile this turn's rule acts on")
+def rule_target() -> Tile:
+    r = RULE
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+
+@gene('r1', 'nothing to do: dead, channeling, cannot act, or recalling with nothing near (stay put so the recall completes)', parents=['r1'])
+def r_idle() -> Bool:
+    if not alive() or channeling() or (not can_move() and not can_attack()):
+        return True
+    return is_recalling(me()) and not under_fire()
+
+@gene("r2", "heal on spawn: hurt and nothing can be hit from here")
+def r_heal() -> Bool:
+    return at_spawn() and me().health < me().max_health and not foe_in_reach_off_spawn()
+
+@gene('r3', 'retreat on foot: below 30% health and under fire, or below 50% under fire while carrying 15+ gems (a death hands the bag to the killer)')
+def r_run() -> Bool:
+    if at_spawn() or not under_fire():
+        return False
+    return hurt_below(0.3) or (gems() >= 15 and hurt_below(0.5))
+
+@gene('r4', 'recall: below 30% health and nothing near (no enemy champion able to hit us within 2 turns; damage cancels the channel, so under pressure the retreat on foot runs instead)')
+def r_recall() -> Bool:
+    return not at_spawn() and hurt_below(0.3) and threat_eta() > 2
+
+@gene('r5', 'recall with 5+ gems when hurt (threshold rises faster with carried gems: 0.67 at 10, 0.83 at 20) and nothing near (no enemy able to hit us within the 5-turn channel), unless an altar is close enough to bank first')
+def r_cashout() -> Bool:
+    if at_spawn():
+        return False
+    g = gems()
+    if g < 4:
+        return False
+    f = min(0.85, 0.7223 + g / 55)
+    if not hurt_below(f):
+        return False
+    if under_fire() or threat_eta() <= 5:
+        return False
+    return altar_eta() > 4
+
+@gene("r6", "pass-through bank: gems, an altar next to us and nothing able to hit us")
+def r_pass() -> Bool:
+    return gems() > 0 and valid(adj_altar()) and (gems() <= 10 or not foe_in_reach())
+
+@gene('r7', 'fight the weakest enemy champion in reach (not on its own spawn, nor next to it while I am below half health: it heals there and its respawning allies join)')
+def r_fight() -> Bool:
+    f = fight_foe()
+    if not exists(f) or dist(here(), f.pos) > me().attack_range or f.pos in enemy_spawn():
+        return False
+    return not (hurt_below(0.5) and size(near(f.pos, 1) & enemy_spawn()) > 0)
+
+@gene("r8", "place the team's altar lock: holder with an empty bag next to an altar, lock not yet placed")
+def r_lock() -> Bool:
+    v = read_shared(7)
+    return gems() == 0 and has_lock() and fuel() > 60000 and v - 2 * floor(v / 2) == 0 and valid(lock_altar())
+
+@gene("r9", "pre-fight bank: 5+ gems, an enemy can reach us within 2 turns, altar next to us")
+def r_prefight() -> Bool:
+    return gems() >= 5 and threat_eta() <= 2 and valid(adj_altar())
+
+@gene('r10', 'bank now: carrying gems and the bag is ready, or next to an altar with 3+ gems', parents=['r10'])
+def bank_on() -> Bool:
+    return gems() > 0 and (bag_ready() or (gems() >= 3 and valid(adj_altar())))
+
+@gene('r11', 'bag ready: 12+, or 10+ with an altar 3 turns away or a threat near, or late, or hurt', parents=['r11'])
+def bag_ready() -> Bool:
+    g = gems()
+    return g >= 12 or (g >= 10 and altar_eta() <= 3) or (g >= 10 and threat_near()) or round() > 1500 or hurt_below(0.3)
+
+@gene('r12', 'threat near: enemy within 5, hurt with an enemy within 7, or able to hit us within 3 turns; while I am above 80% health, enemies below 40% within 5 do not count (they will not engage)')
+def threat_near() -> Bool:
+    if threat_eta() <= 3:
+        return True
+    if me().health_frac > 0.8:
+        h = here()
+        return any(dist(h, u.pos) <= 5 and u.health_frac >= 0.4 and not is_recalling(u) for u in enemies())
+    return enemies_within(5) > 0 or (hurt_below(0.5084) and enemies_within(7) > 0)
+
+@gene('r13', 'every altar-adjacent tile is a camp spawn and the camp in reach stands on the nearest one: fight the blocker (cheap camp check first)')
+def bank_blocked() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not farmable(c) or not (c.pos in camp_spawns()):
+        return False
+    return not valid(bank_t1()) and not valid(bank_t2()) and c.pos == bank_t3()
+
+@gene('r14', 'fight the first camp in reach, but do not wake a sleeping one with a healthy (50%+) enemy champion within 4 (it would third-party the fight)')
+def r_camp() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not farmable(c):
+        return False
+    if is_awake(c):
+        return True
+    h = here()
+    return not any(dist(h, u.pos) <= 4 and u.health_frac >= 0.5 for u in enemies())
+
+@gene('r15', 'go for monoliths too: on a monolith-only map from round 400, nothing tributed by round 800, or behind after round 1000 with 3+ allies within 7 (monoliths need a group)')
+def r_mono() -> Bool:
+    if MONO_ONLY and round() > 400:
+        return True
+    if team_gems() == 0 and round() > 800:
+        return True
+    return round() > 1000 and team_gems() < enemy_gems() and size(ally_tiles() & near(here(), 7)) >= 4
+
+@gene('r16', 'standing on a cleared camp spawn: hold so the capture timer runs, unless an ally holds an earlier tile (row-major) of the same group (one holder is enough; the rest move on)')
+def r_hold() -> Bool:
+    h = here()
+    g = spawn_group(h)
+    if g < 0 or not group_reward(g):
+        return False
+    k = h.y * 1000 + h.x
+    return not any(t.y * 1000 + t.x < k for t in ally_tiles() & group_tiles(g))
+
+@gene('r17', "bank before a dangerous group: 10+ gems and the next group's strength is 240+, or 20+ gems and strength 160+ (a bigger bag is worth a safer clear)")
+def r_bankgroup() -> Bool:
+    if gems() < 10 or fuel() <= 65000:
+        return False
+    g = camp_goal()
+    if not valid(g):
+        return False
+    s = group_threat(g)
+    return s >= 240 or (gems() >= 20 and s >= 160)
+
+@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem)")
+def r_live() -> Bool:
+    c = live_camp()
+    return dist(camp_goal(), here()) == 0 and exists(c) and not (c.pos in BIG_CAMPS)
+
+@gene('a0', "value of a move, attack, tribute, recall, lock or ward option under this turn's rule; default rule also hits enemy champions in reach (not on their spawn; killable ones and carriers of 10+ gems, then carriers and wounded first); on the camp walk an enemy champion is hit only if killable, carrying 10+ gems, or 20%+ healthier than it is not (no brawls on even terms)")
+def act_value(o: Option) -> Num:
+    k = o.kind
+    r = RULE
+    if k == MOVE:
+        return move_value(o) if walks() else 0
+    if k == ATTACK:
+        if r == 7 or r == 14:
+            return 178 if o.unit.pos == TGT else 0
+        if r == 13:
+            return 150 if o.unit.pos == TGT else 0
+        if r == 20:
+            if o.unit.is_enemy and o.unit.is_champion:
+                if o.unit.pos in enemy_spawn():
+                    return 0
+                if attack_damage(me(), o.unit) < o.unit.health + shield(o.unit) and unit_gems(o.unit) < 10 and o.unit.health_frac + 0.2 > me().health_frac:
+                    return 0
+                return 120 + min(5, unit_gems(o.unit) / 4) + (15 if unit_gems(o.unit) >= 10 else 0) + 4 * (1.0459 - o.unit.health_frac) + (10 if attack_damage(me(), o.unit) >= o.unit.health + shield(o.unit) else 0)
+            return 90 if o.unit.is_camp and farmable(o.unit) and o.unit.pos == reach_camp().pos else 0
+        return 0
+    if k == TRIBUTE:
+        return 150 if (r == 6 or r == 9 or r == 10 or r == 17) and o.tile == TGT else 0
+    if k == RECALL:
+        return 150 if r == 4 or r == 5 else 0
+    if k == LOCK:
+        return 150 if r == 8 and o.tile == TGT else 0
+    if k == WARD:
+        return 130 if r == 20 and o.tile == here() and here() in bushes() and count_units(enemies()) == 0 else 0
+    return 0
+
+@gene("a1", "this turn's rule walks to GOAL (retreat, bank walks, monolith walk, live camp, camp walk)")
+def walks() -> Bool:
+    r = RULE
+    return r == 3 or r == 11 or r == 12 or r == 15 or r == 18 or r == 19 or r == 20
+
+@gene('a2', 'value of a cast option: dash on walks and cash-out retreats, cast-ahead, casts and resets of a fight; a self-heal whenever below 60% health, below 75% in a fight or carrying 10+ gems, or below 85% carrying 20+ gems (the bag is at stake)', parents=['a2'])
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        return dash_value(o) if (RULE == 3 or RULE == 20 or RULE == 5 or walks()) else 0
+    if k == AB_HEAL and o.unit == me():
+        h = me().health_frac
+        if h < 0.6 or ((RULE == 7 or RULE == 14 or gems() >= 8) and h < 0.75) or (gems() >= 20 and h < 0.85):
+            return 172 - o.slot
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+
+@gene('a3', 'cast-ahead: damage, area or stun (slot kind k) on a close enemy champion before it reaches us; the bonus goes to a cast that kills it (exact damage vs health + shield, v33)', parents=['a3'])
+def ahead_value(o: Option, k: Num) -> Num:
+    f = ahead_foe()
+    if not exists(f) or RULE < 6 or k == AB_SHIELD or k == AB_HEAL or k == AB_RESET or not ahead_on():
+        return 0
+    near_foe = dist(o.tile, f.pos) <= 1
+    if k == AB_AOE:
+        if not near_foe:
+            return 0
+    elif o.tile != f.pos:
+        return 0
+    base = 180 - o.slot
+    if k == AB_CC and threat_eta() <= 2:
+        base += 20
+    if (k == AB_DAMAGE or k == AB_AOE) and cast_damage(me(), o.slot, f) >= f.health + shield(f):
+        base += 30
+    return base
+
+@gene('a4', 'cast-ahead target: enemies off their spawn and not recalling home, carrying the most gems, then nearest, with a strong pull toward wounded ones (finishable)')
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    h = here()
+    return best(enemies(), lambda u: -INF if (u.pos in es or is_recalling(u)) else unit_gems(u) * 10 - dist(h, u.pos) - 16 * u.health_frac)
+
+@gene('a5', 'cast-ahead applies: nearest enemy within 5 and not on its spawn')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    return exists(f) and dist(here(), f.pos) <= 6 and not (f.pos in enemy_spawn())
+
+@gene("a6", "fight casts: shield/heal on self or the slot at TGT first, attack resets once the attack is spent")
+def strike_cast(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD or k == AB_HEAL:
+        return 170 - o.slot if o.unit == me() else 0
+    if k == AB_RESET:
+        return 232 - o.slot if not can_attack() else 0
+    return 170 - o.slot if o.tile == TGT else 0
+
+@gene("a7", "a dash onto the landing tile that brings us closest to GOAL (slot 0 first)")
+def dash_value(o: Option) -> Num:
+    if not dash_gate():
+        return 0
+    s = dash_spot()
+    return 140 - o.slot if valid(s) and o.tile == s else 0
+
+@gene('a12', 'dash this turn: retreat with fuel > 35k; bank walks with GOAL over 1 away, other walking rules over 2 away, fuel > 45k; not on the camp walk while an enemy champion is within 4 (keep the dash to escape)')
+def dash_gate() -> Bool:
+    if RULE == 3:
+        return fuel() > 35000
+    if not walks() or not valid(GOAL) or fuel() <= 45000:
+        return False
+    if RULE == 20 and enemies_within(4) > 0:
+        return False
+    return dist(here(), GOAL) > (1 if (RULE == 11 or RULE == 12) else 2)
+
+@gene('a8', 'a step downhill on the walking field to GOAL; among equal steps prefer tiles farther from enemies and in bushes')
+def move_value(o: Option) -> Num:
+    g = step_gain(o.tile)
+    if g <= 0:
+        return 0
+    v = 100 + g
+    ft = foe_tiles()
+    if size(ft) > 0:
+        v -= 0.2763 * count(dist(t, o.tile) <= 2 for t in ft)
+        v -= 0.1 * count(dist(t, o.tile) <= 3 for t in ft)
+        if o.tile in bushes() and not ALTAR_MONO:
+            v += 0.05
+    return v
+
+@gene('A61568a', 'enemy-occupied tiles this pass (one engine call, reused by every move option)', parents=['a8'])
+def foe_tiles() -> Tiles:
+    return enemy_tiles()
+
+@gene('a9', "shopping on spawn: the team's altar lock, then shards in the policy's split, with the durability health emblem (10% less damage, for champion fights) before the jungle emblem; below 60% health a health shard comes first (spawn health purchases heal)")
+def shop_value(o: Option) -> Num:
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and RULE >= 2 and at_spawn() else 0
+    want = next_shard()
+    if (want == 54 or want == 18) and me().health_frac < 0.6 and items_owned(17) == 0:
+        want = 16
+    elif (want == 28 or want == 36) and items_owned(17) == 0:
+        want = 16
+    if o.item != want:
+        return 0
+    if o.count > shard_left() or RULE < 2 or not at_spawn():
+        return 0
+    return 190 + o.count / 100
+
+@gene('a13', 'a purchase is still due this turn (other options wait, unscored); the gold checks come first (cheapest)')
+def shop_pending() -> Bool:
+    g = gold()
+    if g < 10:
+        return False
+    return RULE >= 2 and at_spawn() and can_shop() and ((LOCK_BUY and not has_lock()) or (g >= 30 and next_shard() >= 0))
+
+@gene("a10", "the team's lock is neither bought nor placed and I have none and can pay")
+def wants_lock() -> Bool:
+    v = read_shared(7)
+    return floor(v) - 4 * floor(v / 4) == 0 and not has_lock() and gold() >= 10
+
+@gene('a11', 'next shard to buy: prospector strength until its emblem (engine 2.0.0 family), then treasure strength until its emblem, then jungle health until its emblem, then bruiser strength (7 shards of stats per emblem, the best value once the passives are owned)')
+def next_shard() -> Num:
+    if items_owned(55) == 0 and items_owned(19) == 0:
+        return 54
+    if items_owned(19) == 0:
+        return 18
+    if items_owned(29) == 0:
+        return 28
+    return 36
+
+@gene("a14", "shards bought this turn (30 gold each)")
+def shards_done() -> Num:
+    return max(0, -floor(-(SHOP_GOLD - gold()) / 30))
+
+@gene("a15", "shards of the first k kinds in the turn's split (of the shards SHOP_GOLD pays for)")
+def shard_until(k: Num) -> Num:
+    n = floor(SHOP_GOLD / 30)
+    t = floor(n / 2)
+    j = floor((n - t) / 2)
+    s = floor((n - t - j) / 2)
+    if k == 1:
+        return t
+    if k == 2:
+        return t + j
+    if k == 3:
+        return t + j + s
+    return n
+
+@gene("a16", "units of the next shard still to buy")
+def shard_left() -> Num:
+    d = shards_done()
+    for k in range(4):
+        if d < shard_until(k + 1):
+            return shard_until(k + 1) - d
+    return 0
+
+@gene("s1", "my tile")
+def here() -> Tile:
+    return me().pos
+
+@gene("s2", "standing on our spawn region")
+def at_spawn() -> Bool:
+    return here() in my_spawn()
+
+@gene('s3', 'health plus current shield below a fraction of max (a shield soaks damage like health)')
+def hurt_below(f: Num) -> Bool:
+    return me().health + shield(me()) < f * me().max_health
+
+@gene('s4', 'within my basic attack range (enemy champions on their own spawn never count: hitting them there is wasted)')
+def in_reach(u: Unit) -> Bool:
+    if u.is_champion and u.pos in enemy_spawn():
+        return False
+    return dist(here(), u.pos) <= me().attack_range
+
+@gene('s5', 'a visible enemy champion can hit me now or after one step (move + attack); nearly dead ones count only if they carry gems')
+def foe_in_reach() -> Bool:
+    h = here()
+    r = me().attack_range
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if u.health_frac > 0.2 or unit_gems(u) > 0)
+
+@gene('s6', 'visible enemy champions within r tiles (nearly dead ones count only if carrying gems)')
+def enemies_within(r: Num) -> Num:
+    return count(
+        dist(here(), u.pos) <= r and (u.health_frac >= 0.1522 or unit_gems(u) > 0)
+        for u in enemies()
+    )
+
+@gene('s7', 'in danger: an awake camp can hit me, an enemy champion is within its range + 1, or a gem carrier is within 2')
+def in_danger() -> Bool:
+    p = here()
+    if any(c.attack_range > 0 and dist(p, camp_spawn(c)) <= c.attack_range + 2 and dist(p, c.pos) <= c.attack_range and is_awake(c) for c in camps()):
+        return True
+    return any(dist(p, u.pos) <= u.attack_range + 1 or (unit_gems(u) > 0 and dist(p, u.pos) <= 2) for u in enemies())
+
+@gene('s8', 'under fire: in danger or an enemy champion within 6 (parent B radius)')
+def under_fire() -> Bool:
+    return in_danger() or enemies_within(7) > 0
+
+@gene('s9', 'turns to cover d tiles at speed s, padded 20% for detours around terrain and units')
+def eta(d: Num, s: Num) -> Num:
+    if d <= 0:
+        return 0
+    return -floor(-(d * 6 / 5) / max(1, s))
+
+@gene('s10', 'fewest turns until a visible enemy champion could hit us (1000 if none); ones recalling home are leaving and do not count; a stunned one loses its stun turns')
+def threat_eta() -> Num:
+    return min((eta(dist(here(), u.pos) - u.attack_range, u.move_speed) + buff_turns(u, 0.5234) for u in enemies() if not is_recalling(u)), default=1000)
+
+@gene('s11', 'turns to stand next to an altar we can tribute at (1000 if none); only enemy locks block a tribute, so our own locked altar counts')
+def altar_eta() -> Num:
+    la = locked_altars()
+    d = min((max(0, dist(here(), a) - 1) for a in altars() if not (a in la and lock_enemy(a))), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+
+@gene("s12", "summed strength of the living camps in the group spawning on t (unseen camps at design strength)")
+def group_threat(t: Tile) -> Num:
+    g = spawn_group(t)
+    if g < 0:
+        return 0
+    acc = 0
+    for s in group_tiles(g):
+        seen = count(camp_spawn(c) == s for c in camps())
+        if seen > 0:
+            acc += sum(c.strength for c in camps() if camp_spawn(c) == s)
+        elif not visible(s):
+            acc += camp_base_strength(spawn_type(s))
+    return acc
+
+@gene('s13', 'in-reach enemy champion: carried gems first, then lowest health')
+def fight_foe() -> Unit:
+    return best(enemies(), lambda u: (1000 if attack_damage(me(), u) >= u.health + shield(u) else 0) + unit_gems(u) * 10 - u.health if in_reach(u) else -INF)
+
+@gene('s14', 'the visible camp in reach worth hitting, the most wounded first (finish a camp before starting another)')
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: 2 - c.health_frac if farmable(c) else 0)
+
+@gene('s15', 'the nearest visible camp, big camps (monoliths, golems) ranked last; awake camps (already in a fight) count 3 tiles nearer; wounded camps preferred among near-equal distances')
+def live_camp() -> Unit:
+    return best(camps(), lambda c: -dist(here(), c.pos) - 2 * c.health_frac - (1000 if c.pos in BIG_CAMPS else 0) + (3 if is_awake(c) else 0))
+
+@gene('m1', 'first tile of a set, preferring altars not enemy-locked (row-major), invalid if empty')
+def first_tile(s: Tiles) -> Tile:
+    open_s = s - locked_altars()
+    return best(open_s, lambda t: 0) if size(open_s) > 0 else best(s, lambda t: 0)
+
+@gene('m2', 'an altar next to us: one free of enemy locks first (our own lock does not block our tribute), else an enemy-locked one (a tribute there hits the lock)')
+def adj_altar() -> Tile:
+    adj = altars() & near(here(), 1)
+    if size(adj) == 0:
+        return tile(-1, -1)
+    la = adj & locked_altars()
+    el = la - la
+    for t in la:
+        if lock_enemy(t):
+            el = el | near(t, 0)
+    open_adj = adj - el
+    if size(open_adj) > 0:
+        return best(open_adj, lambda t: 0 if t in la else 1)
+    return first_tile(adj)
+
+@gene('m3', 'an altar within lock reach (2), unlocked ones first, then the one nearest the enemy spawn (the altar they would bank at)')
+def lock_altar() -> Tile:
+    a = altars() & near(here(), 2)
+    if size(a) == 0:
+        return tile(-1, -1)
+    free = a - locked_altars()
+    if size(free) == 0:
+        return first_tile(a)
+    es = enemy_spawn()
+    return best(free, lambda t: -dist(t, nearest(es, t)))
+
+@gene("m4", "every tile within r of a tile of s")
+def ring(s: Tiles, r: Num) -> Tiles:
+    acc = s - s
+    for t in s:
+        acc = acc | near(t, r)
+    return acc
+
+@gene('m5', 'tiles next to an altar that can be stood on (no walls, holes or altars)')
+def altar_ring() -> Tiles:
+    return ring(altars(), 1) - walls() - holes() - altars()
+
+@gene("m6", "tiles next to an altar out of monolith reach (5)")
+def safe_altar_ring() -> Tiles:
+    return ring(altars() - ring(type_spawns(MONOLITH), 5), 1)
+
+@gene("m8", "spawn tiles of every group with a monolith")
+def mono_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if any(spawn_type(t) == MONOLITH for t in group_tiles(g)):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene("m9", "spawn tiles of respawning groups")
+def respawning() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('m11', "the camp walk's goal: weak gem-paying groups first once I have bought 6 times (skipping groups an ally is already capturing), else the nearest non-big spawn of a live group that no ally is already capturing, falling back to any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    held = held_groups()
+    if BUYS >= 6 and size(GEM_BASE) > 0:
+        t = closest(GEM_BASE - respawning() - held)
+        if valid(t):
+            return t
+    t = closest(CAMP_BASE - respawning() - BIG_CAMPS - held)
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+
+@gene('m12', 'bank walk: open safe altar unless a safe altar is 3+ tiles nearer; else any safe altar, else any altar; banking under threat (rule 11) takes whichever of the two safe choices is farther from the nearest visible enemy champion', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if valid(a) and valid(b):
+        if RULE == 11 and a != b:
+            return a if foe_gap(a) + 2 >= foe_gap(b) else b
+        if dist(here(), b) + 3 < dist(here(), a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+
+@gene('A105774a', 'distance from tile t to the nearest visible enemy champion (99 if none)', parents=['m12'])
+def foe_gap(t: Tile) -> Num:
+    return min((dist(t, u.pos) for u in enemies()), default=99)
+
+@gene('m13', 'nearest tile next to a safe altar that no enemy lock blocks (our own lock does not block our tribute)')
+def bank_t1() -> Tile:
+    la = locked_altars()
+    el = la - la
+    for t in la:
+        if lock_enemy(t):
+            el = el | near(t, 0)
+    return closest(SAFE_RING - ring(el, 1))
+
+@gene('m14', 'nearest tile next to a safe altar that no enemy champion stands on or next to')
+def bank_t2() -> Tile:
+    et = enemy_tiles()
+    if size(et) == 0:
+        return closest(SAFE_RING)
+    return closest(SAFE_RING - ring(et, 1))
+
+@gene('m15', 'nearest open tile next to any altar (not blocked), else nearest tile next to any altar', parents=['m15'])
+def bank_t3() -> Tile:
+    open_ring = ALTAR_RING - taken()
+    if size(open_ring) > 0:
+        return closest(open_ring)
+    return closest(ALTAR_RING)
+
+@gene('w1', 'camp spawn tiles out of vision and not respawning: assumed occupied')
+def unseen_camps() -> Tiles:
+    return camp_spawns() - vision() - near(here(), 1) - respawning()
+
+@gene("w2", "tiles holding a camp (seen, or an unseen camp spawn)")
+def camp_block() -> Tiles:
+    return camp_tiles() | unseen_camps()
+
+@gene('w3', 'tiles I cannot step onto: terrain, altars, enemy spawn, units (except recalling enemy champions, which are leaving), unseen camp spawns')
+def blocked() -> Tiles:
+    et = enemy_tiles()
+    for u in enemies():
+        if is_recalling(u):
+            et = et - near(u.pos, 0)
+    return (TERRAIN | ally_tiles() | et | camp_block()) - near(here(), 0)
+
+@gene('w4', 'nearest tile of s by walking; if none is walk-reachable, fall back to the straight-line nearest free tile of s (any tile of s if all are held); invalid if s empty', parents=['w4'])
+def closest(s: Tiles) -> Tile:
+    if here() in s:
+        return here()
+    cand = s - taken()
+    w = walk_nearest(cand, here(), blocked() - cand)
+    if valid(w):
+        return w
+    if size(cand) > 0:
+        return nearest(cand, here())
+    return nearest(s, here())
+
+@gene('A94141a', 'spawn tiles of cleared groups an ally already stands on (its capture needs no second champion)', parents=['m11'])
+def held_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    others = ally_tiles() - near(here(), 0)
+    for g in range(num_groups()):
+        if group_reward(g):
+            gt = group_tiles(g)
+            if size(others & gt) > 0:
+                acc = acc | gt
+    return acc
+
+@gene("w12", "tiles held by something other than a camp (never a goal)")
+def taken() -> Tiles:
+    return blocked() - camp_block()
+
+@gene("w5", "walking field to GOAL, searched out to my own tile")
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    return field_avoid(g, blocked() - g, near(here(), 0))
+
+@gene('w6', 'how much closer a step onto t brings me to GOAL (0: no walk this turn); turn-start field and blocks; no step into a 2-enemy pinch below 60% health')
+def step_gain(t: Tile) -> Num:
+    if not OPEN or t in BLOCK:
+        return 0
+    if hurt_below(0.6) and count(dist(u.pos, t) <= 1 for u in enemies()) >= 2:
+        return 0
+    return at(FIELD, here()) - at(FIELD, t)
+
+@gene('w10', 'GOAL can be walked to: not terrain and not held by an enemy champion unless it is over 2 away (it will likely have moved; allies move, so an ally on GOAL does not block the walk)', parents=['w10'])
+def walk_open() -> Bool:
+    if not valid(GOAL) or GOAL == here():
+        return False
+    if GOAL in TERRAIN:
+        return False
+    return dist(here(), GOAL) > 2 or not (GOAL in enemy_tiles())
+
+@gene('w7', 'a dash may land on p: a free middle tile next to both ends that no visible healthy (30%+) enemy champion is adjacent to, unless p is adjacent to me', parents=['w7'])
+def dash_path_ok(p: Tile) -> Bool:
+    if dist(here(), p) <= 1:
+        return True
+    ev = enemies()
+    return any(dist(q, p) <= 1 and not (q in BLOCK) and not any(dist(e.pos, q) <= 1 and e.health_frac >= 0.3 for e in ev) for q in dash_mids())
+
+@gene('w11', 'tiles next to me a dash may pass through (not wall, altar or enemy spawn)')
+def dash_mids() -> Tiles:
+    return near(here(), 1) - walls() - altars() - enemy_spawn()
+
+@gene('w9', 'the dash landing tile closest to GOAL by walking, ties broken by fewest enemy champions within 3 of it (weighted 25 each: a landing next to enemies costs more than 2 tiles of progress), invalid if none', parents=['w9'])
+def dash_spot() -> Tile:
+    if not valid(GOAL) or GOAL == here():
+        return tile(-1, -1)
+    mine = at(FIELD, here())
+    bk = INF
+    s = tile(-1, -1)
+    ev = enemies()
+    for t in near(here(), 2):
+        d = at(FIELD, t)
+        if d < mine and t != here() and not (t in BLOCK):
+            if dash_path_ok(t):
+                k = d * 10 + 25 * sum(1 for e in ev if dist(e.pos, t) <= 3)
+                if k < bk:
+                    bk = k
+                    s = t
+    return s
+
+@gene('A105774b', 'the in-reach enemy champion the fight targets dies to one basic attack now (health plus shield)', parents=['r7'])
+def r_killshot() -> Bool:
+    f = fight_foe()
+    return exists(f) and attack_damage(me(), f) >= f.health + shield(f)
+
+@gene('A105774c', "camp in reach worth hitting: not in a monolith's group (a hit wakes the group), unless the team goes for monoliths, it stands on an altar-ring tile and I carry gems (boss-battle), or it is already awake and below 30% (finishing it wakes nothing new)", parents=['s14'])
+def farmable(c: Unit) -> Bool:
+    if not in_reach(c):
+        return False
+    if not (camp_spawn(c) in MONO_GROUPS):
+        return True
+    if gems() > 0 and camp_spawn(c) in ALTAR_RING:
+        return True
+    if is_awake(c) and c.health_frac < 0.3:
+        return True
+    return r_mono()
+
+@gene('A105774d', 'spawn tiles of every group whose reward has gems and whose design strength is under 300', parents=['m8'])
+def gem_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if group_gems(g) > 0 and sum(camp_base_strength(spawn_type(t)) for t in group_tiles(g)) < 300:
+            acc = acc | group_tiles(g)
+    return acc
+
+@gene('A105774e', 'a visible enemy champion off its own spawn can hit me now or after one step (a hurt champion next to an enemy spawn otherwise never heals)', parents=['s5'])
+def foe_in_reach_off_spawn() -> Bool:
+    h = here()
+    r = me().attack_range
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if u.health_frac > 0.2 and not (u.pos in enemy_spawn()))

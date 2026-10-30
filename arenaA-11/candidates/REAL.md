@@ -147,3 +147,15 @@ leg 3 and real-gated below.
 
 On 01boss-battle team B vs v40, A11976 had 0 gems (lost); A11976-a9 won with 1003 gems. A11976's draft is Vendetta,
 Vesper Vale, Tavi, Ren, Varg (my d1 edit), not v40's Ryth/Ren.
+
+## 1300 births (leg 3, top 3 by mu at birth ~1300): wins / total deaths (camps included), 140 games each
+
+| genome | sha256 | mu (games) | vs v40 | vs x6-61 | vs x8-140 |
+| --- | --- | --- | --- | --- | --- |
+| v40 (baseline) | 823f1ca37244526a... | 26.94 | (lead: deaths 1728) | 66 / 1746 | 59 / 1938 |
+| A111286 | 5f4d86ddf758f43d... | 27.68 (248) | 63 / 1633 | 67 / 1612 | 69 / 1601 |
+| A111169 | ee7a8bef5a1b4a90... | 27.33 (1664) | 69 / 2243 | 71 / 2208 | 69 / 2231 |
+| A111227 | b14c3db9efee4bf9... | 27.20 (936) | 64 / 1622 | 64 / 1624 | 70 / 1602 |
+
+None reaches 72 vs v40. A111286 and A111227 die less than v40 vs the stress anchors (and beat v40's record vs
+x8-140: 69-70 vs 59), but lose to v40 itself.

@@ -1,0 +1,5 @@
+```python
+@gene("m13", "nearest tile next to a safe altar that no enemy lock blocks and no enemy champion stands on")
+def bank_t1() -> Tile:
+    return closest(SAFE_RING - ring(locked_altars(), 1) - enemy_tiles())
+```
