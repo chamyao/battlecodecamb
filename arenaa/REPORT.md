@@ -2,6 +2,18 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 10:18 UTC: A-11 after the v40 restart (748 births)
+
+- Real gates vs v40/v41, 0 crashes, all fail: b700 A11663 73/72, A11696 74/72, A11691 68/68; b600 re-gates
+  A11594 70/73, A11599 73/74, A11584 69/71.
+- Arena calibration: v40 26.94, v41 27.02; tops 28.3-28.9; the v40 seed died at 26.1. The sim still rates tops
+  above v40, while real puts them 5-8 games below.
+- Mutations since the restart: a durability emblem before jungle, contesting enemy-farmed camps in m11, killshot
+  counting a ready damage cast, and guard normalisation.
+- Asked the writer to measure sim h2h vs v40 (5-level fuel ensemble) for the 6 real-gated genomes plus a v40 control.
+  If the sim is high for evolved genomes, model error is being selected for, and it goes to fuel. If not, arena mu vs
+  h2h is the gap, and fitness needs a direct h2h-vs-v40 term.
+
 ## 2026-10-30 09:22 UTC: A-11 interrupted to deliver the restart order
 
 - A-11 reached 580 births without acting on the v40 orders (06:22-08:50); its gates are still vs v39.
