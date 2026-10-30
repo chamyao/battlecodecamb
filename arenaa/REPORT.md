@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 02:46 UTC: engine change on the ladder
+
+- The ladder now runs engine 2.0.0 (cambc 4.0.0): 30 new maps (70 total), ~48 new item types (tribute, capture,
+  prospector, hunter, skirmish, greed, collectors families) and a new camp-capture state. Our sim and A-10 train on the
+  old rules and maps. The genome lead is re-running v38 vs v33 on real 4.0.0 (140 games); intel is collecting the rule
+  changes. A-10 keeps running for now, but its sim gains may not transfer until the sim is updated.
+- A-10 candidates so far (sim vs v33, old engine): A103646-v33port 51, -kf 52, v33port-heal 54 (writer: plateau at 52-54).
+
 ## 2026-10-30 02:12 UTC: A93635-v33port live as ladder v38
 
 - Uploaded as ladder v38 (02:06:53Z); intel band batch b13 at ~02:28Z. Search gate: sim h2h 46/80, anchors clean.
