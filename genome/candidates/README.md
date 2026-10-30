@@ -345,3 +345,8 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
   vs real opponents (control +0.7). Fight-seeking edits (exploit-7/8, the A lineage) lose champions on the ladder;
   gate4 and solo checks can't see it. v40-join3 dropped. Next: survival-first candidates (A11976).
 - s9: survival-first removes the excess deaths but farms less (captures -7.6, gems captured -54). v40 sits between the two failure modes; the A lineage is dropped from the screen queue.
+- Arena A stat-fitness check (arenaa/REPORT.md, data/fitcheck): over the 9 screened genomes, no local metric vs
+  v40/x6-61/x8-140 in the 2.0.0 sim ranks the ladder screens (Spearman: wins -0.31, captures +0.05, deaths -0.29).
+  Our anchors don't behave like ladder teams; every genome dies 8.0-8.8 times a game against them. No A-12. Until we
+  have ladder-like local opponents (e.g. policies distilled from ladder replays), the ladder screen is the only
+  reliable fitness. Also: A11976 drafts Varg instead of Ryth (d1), a plausible cause of its capture deficit.
