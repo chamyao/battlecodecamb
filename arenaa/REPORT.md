@@ -9,6 +9,10 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Ladder screens (genome/v0 README): s4 A11791 down, s5 v43-fix3, s6 x6-61 level, s7 x7-125 down; v40 is live again
   as v52 (the drift control). A11976 is next in the screen queue.
 - A-11 reaches its 1200 budget at about 13:30.
+- 13:18: A-11 hit 1200 at 13:15. My 10:17-12:28 messages reached the writer only at 13:17, so the stress anchors and
+  survival-first course never ran: A11976's low deaths came from selection, not from that course. Approved one more
+  leg to 1500 with x6-61 and x8-140 anchors (w2), survival-first mutations plus the boss-battle-B fix, deaths in the
+  real gates, and a messages check between batches.
 
 ## 2026-10-30 12:40 UTC: A-11 b1000 tops pass the deaths pre-filter
 
