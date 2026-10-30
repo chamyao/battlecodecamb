@@ -486,3 +486,6 @@ Pre-built and pre-gated stacks, ready for whichever screen wins:
 Stacking both new emblems delays Durability by 2 slots, and gems lost on death rise. A 4th emblem would need to come after Durability, not before.
 | s-sh5 (Skirmish, Durability, Hunter) vs d-out2b | 73 | 42 / 31 | 1093 / 1175; captures level; gems lost on death 6948 / 6579 (+2.6 per game); solo: boss-battle A and B 2000 (1424 / 1572) |
 Not clean: more gems lost on death and the boss-battle stalls. Gating s-hs5 (Hunter, Durability, Skirmish).
+| **s-hs5** (Hunter, Durability, Skirmish) vs d-out2b | **76** | 42 / 34 | 1023 / 1163 (-1.0 per game); captures 10609 / 10472 (+1.3%); gems lost on death 7007 / 7112 (level); solo: boss-battle A and B 2000 (shared with s-sh5) |
+s-hs5 is the best stack locally. The boss-battle stalls come from the 5th-emblem timeline (identical solo totals for both orders); boss-battle is the known-fragile map from the v43 bisection.
+Candidate if s14 (s-hunt3) screens up.
