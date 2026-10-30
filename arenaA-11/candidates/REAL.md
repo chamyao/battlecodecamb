@@ -92,3 +92,11 @@ seed (A11619) died at 26.1. Sim rates the tops ~+1.4 mu over v40; real says they
 
 v40's v2 (contest edit, healthiest-fighter-first) is now spreading in the population, through update-link replies and
 v40-graft cross replies (tools/xv40.py). A11791 carries it.
+
+## 900 births (top 3 by mu at birth ~904), vs v40 / v41
+
+| genome | sha256 | arena mu at pick (games) | vs v40 | vs v41 | crashes | result |
+| --- | --- | --- | --- | --- | --- | --- |
+| A11893 | 3cddc03d3d9c7b24... | 29.07 (136) | 70/140 | 67/140 | 0 | fail |
+| A11876 | ed5f792f015ef0bc... | 28.09 (440) | 69/140 | 71/140 | 0 | fail |
+| A11774 | a66b6b335b49abf2... | 28.05 (1872) | 76/140 | 69/140 | 0 | fail (76 vs v40 only) |

@@ -1,0 +1,14 @@
+```python
+@gene('a2', 'value of a cast option: dash on walks and cash-out retreats, cast-ahead, casts and resets of a fight; a self-heal whenever below 60% health, below 75% in a fight or carrying 10+ gems, or below 85% carrying 20+ gems (the bag is at stake)', parents=['a2'])
+def cast_value(o: Option) -> Num:
+    k = SK0 if o.slot == 0 else SK1
+    if k == AB_DASH:
+        return dash_value(o) if (RULE == 3 or RULE == 20 or RULE == 5 or walks()) else 0
+    if k == AB_HEAL and o.unit == me():
+        h = me().health_frac
+        if h < 0.6 or ((RULE == 7 or RULE == 14 or gems() >= 10) and h < 0.75) or (gems() >= 20 and h < 0.85):
+            return 172 - o.slot
+    if RULE == 7 or RULE == 14:
+        return max(ahead_value(o, k), strike_cast(o, k))
+    return ahead_value(o, k)
+```

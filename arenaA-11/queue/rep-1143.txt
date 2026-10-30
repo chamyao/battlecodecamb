@@ -1,0 +1,57 @@
+```python
+@gene('v2', 'start of turn: choose the rule, its goal and target (the lock is not placed with an enemy champion within 5: camp walk instead); shared-memory and priority writes (fighters, retreaters, lock placers, pre-fight bankers and bankers walking under threat act first next round, bankers at an altar or walking to bank next); allies over 4 away do not block a step check or dash; camp fighters act second; cash-out recallers act first next round; among fighters the healthiest acts first (focus fire behind it); from round 30 the camp walk contests a weak gem-paying group an enemy champion is farming (within 3 of it) when it is at most 10 tiles farther than the plain goal, unless below 40% health')
+def update() -> None:
+    if not MAPPED:
+        ALTAR_RING = altar_ring()
+        SAFE_RING = safe_altar_ring()
+        MONO_GROUPS = mono_groups()
+        small = camp_spawns() - type_spawns(MONOLITH) - type_spawns(GOLEM)
+        if size(ALTAR_RING - small) > 0:
+            ALTAR_RING = ALTAR_RING - small
+        if size(SAFE_RING - small) > 0:
+            SAFE_RING = SAFE_RING - small
+        ALTAR_MONO = size(ALTAR_RING & MONO_GROUPS) > 0
+        MONO_ONLY = size((type_spawns(WOLF) | type_spawns(ELK) | type_spawns(GEM_CLUSTER) | type_spawns(GOLEM)) - MONO_GROUPS) == 0
+        TERRAIN = walls() | holes() | altars() | enemy_spawn()
+        BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
+        SK0 = slot_kind(0)
+        SK1 = slot_kind(1)
+        MAPPED = True
+    if not GEM_MAPPED and round() >= 3:
+        GEM_BASE = CAMP_BASE & gem_groups()
+        GEM_MAPPED = True
+    if gold() <= LAST_GOLD - 30:
+        BUYS = BUYS + 1
+    LAST_GOLD = gold()
+    RULE = rule()
+    if RULE == 8 and enemies_within(5) > 0:
+        RULE = 20
+    GOAL = camp_goal() if RULE == 20 else rule_goal()
+    TGT = rule_target()
+    if RULE == 20 and round() > 30 and valid(GOAL) and not hurt_below(0.4) and size(GEM_BASE) > 0:
+        hot = ring(enemy_tiles(), 3) & (GEM_BASE - respawning())
+        if size(hot) > 0 and not (GOAL in hot):
+            gt = closest(hot)
+            if valid(gt) and dist(here(), gt) <= dist(here(), GOAL) + 10:
+                GOAL = gt
+    OPEN = False
+    if walks() and valid(GOAL) and GOAL != here():
+        BLOCK = blocked() - (ally_tiles() - near(here(), 4))
+        OPEN = walk_open()
+        FIELD = walk_field()
+    LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
+    if LOCK_BUY:
+        write_shared(7, read_shared(7) + 2)
+    SHOP_GOLD = gold() - (10 if LOCK_BUY else 0)
+    if RULE == 8:
+        write_shared(7, read_shared(7) + 1)
+    if RULE == 7:
+        set_priority(150 + floor(me().health_frac * 50))
+    elif RULE == 3 or RULE == 9 or RULE == 11 or RULE == 8 or RULE == 5:
+        set_priority(150 + rand(20))
+    elif RULE == 10 or RULE == 6 or RULE == 17 or RULE == 12 or RULE == 14:
+        set_priority(120 + rand(20))
+    elif RULE == 20:
+        set_priority(1 + rand(100))
+```
