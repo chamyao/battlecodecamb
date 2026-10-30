@@ -201,16 +201,23 @@ def solo_check(cand, ref, max_slower=150, offset=3.0):
 
 
 def gate_paired(text, ref, anchors, threads=5, min_wins=43, sign_alpha=0.1, exclude=(), bars=None, rater=None,
-                solo=True, early_exit=True):
+                solo=True, early_exit=True, ensemble=()):
     """The paired rule: head-to-head vs the live bot >= min_wins over all 80 games; an anchor blocks only if a one-sided
     sign test on the diverging games (same map and side, candidate vs ref) gives p < sign_alpha for a drop. Maps in
     `exclude` are left out of the anchor rows only. With solo, the solo-farm check (solo_farm/solo_check) runs first and,
-    with early_exit, a block there skips the anchor rows. Needs a rater with per-game results (local)."""
+    with early_exit, a block there skips the anchor rows. Needs a rater with per-game results (local).
+    With ensemble (fuel multipliers), the head-to-head is the mean wins over those fuel levels: games are chaotic, so one
+    1x sample of a candidate picked for a high one overrates it (winner's curse); h2h_1x keeps the 1x sample."""
     R = rater or LocalRater()
     spec, rspec = R.side(text, "genome"), R.side(ref)
     w, n = R.rate(spec, rspec, threads)
-    rec = {"h2h_wins": w, "h2h_games": n, "h2h": w / n, "clear": w >= min_wins, "rule": "paired sign test",
-           "sign_alpha": sign_alpha, "anchor_rows_exclude": list(exclude)}
+    rec = {"h2h_1x": w}
+    if ensemble:
+        ens = {str(fm): w if fm == 1.0 else R.rate(spec, rspec, threads, fuel_mult=fm)[0] for fm in ensemble}
+        w = round(sum(ens.values()) / len(ens), 1)
+        rec["h2h_ensemble"] = ens
+    rec.update({"h2h_wins": w, "h2h_games": n, "h2h": w / n, "clear": w >= min_wins, "rule": "paired sign test",
+                "sign_alpha": sign_alpha, "anchor_rows_exclude": list(exclude)})
     bars = {} if bars is None else bars
     if solo:  # the solo-farm check (vs builtin:idle) runs before the anchor rows: it is cheap and fails early
         key = f"{Path(ref).name}|solo"
@@ -289,6 +296,9 @@ def main():
     ap.add_argument("--sign-alpha", type=float, default=0.0,
                     help="> 0: the paired rule (an anchor blocks only if a one-sided sign test on the diverging games "
                          "gives p < this); plays locally, since it needs per-game results")
+    ap.add_argument("--fuel-ensemble", default="",
+                    help="with --sign-alpha: comma-separated fuel multipliers; the head-to-head is the mean wins over them "
+                         "(e.g. 0.96,0.98,1.0,1.02,1.04); the key gets +ens")
     ap.add_argument("--graft", default="",
                     help="comma-separated gene ids copied from the reference into every gated genome before gating "
                          "(e.g. w1: a fix the live bot carries that the arena lineage lacks); the key gets +graft:<ids>")
@@ -420,7 +430,7 @@ def main():
             for m in (live if chain.startswith("files:") else sorted(live, key=lambda m: -m["mu"])[:args.top]):
                 # one key per genome across a chain of resumed jobs, per reference bot
                 key = (f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/{NG}" + ("/paired" if args.sign_alpha > 0 else "")
-                       + (f"+graft:{args.graft}" if args.graft else ""))
+                       + (f"+graft:{args.graft}" if args.graft else "") + ("+ens" if args.fuel_ensemble else ""))
                 if key in seen:
                     continue
                 seen.add(key)
@@ -440,7 +450,8 @@ def main():
                 try:
                     if args.sign_alpha > 0:
                         rec = gate_paired(text, args.ref, anchors, args.threads, args.min_wins, args.sign_alpha,
-                                          tuple(filter(None, args.exclude_anchor_maps.split(","))), bars=bars)
+                                          tuple(filter(None, args.exclude_anchor_maps.split(","))), bars=bars,
+                                          ensemble=tuple(float(x) for x in args.fuel_ensemble.split(",") if x))
                     else:
                         rec = gate(text, args.ref, anchors, args.threads, args.min_wins, bars=bars, log=log,
                                    rater=ArenaRater(args.arena_engine) if args.arena_engine else None)
