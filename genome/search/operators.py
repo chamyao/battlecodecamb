@@ -239,11 +239,14 @@ _INDEX_PRIMS = {"slot_kind", "slot_ready", "slot_range", "slot_radius", "slot_ta
                 "item_cost", "item_strength", "item_focus", "item_health", "item_passive", "items_owned",
                 "read_shared", "write_shared", "picked_by_us", "picked_by_them", "group_gems", "group_gold",
                 "group_respawning", "group_tiles", "tile", "range", "buff_turns", "ring"}
+# variables that hold rule ids or rule priorities (c0's ladder: `if N > top and ...: top = N; pick = M`)
+_ID_VARS = {"pick", "top"}
 
 
 def tunable_constants(source):
     """Numeric literals worth tuning: (line, col, end_col, value) in source coordinates (UTF-8 columns).
-    Skips zeros, indices (slot/item/offset/group/tile args), ==/!= comparisons, and @gene headers."""
+    Skips zeros, indices (slot/item/offset/group/tile args), ==/!= comparisons, rule ids and priorities
+    (assignments to and comparisons with pick/top), and @gene headers."""
     mod = ast.parse(source)
     skip = set()
     for node in ast.walk(mod):
@@ -254,6 +257,11 @@ def tunable_constants(source):
             for a in node.args:
                 skip.update(id(n) for n in ast.walk(a) if isinstance(n, ast.Constant))
         elif isinstance(node, ast.Compare) and any(isinstance(o, (ast.Eq, ast.NotEq)) for o in node.ops):
+            skip.update(id(n) for n in ast.walk(node) if isinstance(n, ast.Constant))
+        elif isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id in _ID_VARS for t in node.targets):
+            skip.update(id(n) for n in ast.walk(node.value) if isinstance(n, ast.Constant))
+        elif isinstance(node, ast.Compare) and any(isinstance(n, ast.Name) and n.id in _ID_VARS
+                                                   for n in [node.left, *node.comparators]):
             skip.update(id(n) for n in ast.walk(node) if isinstance(n, ast.Constant))
     out = []
     for node in ast.walk(mod):
