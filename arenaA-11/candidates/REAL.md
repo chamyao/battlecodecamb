@@ -122,3 +122,28 @@ but v41 (v40m) scores 66-71 vs the same genomes. Since v40 and v41 differ only i
 | A111099 | ca4e952f05a21bbf... | 27.51 (112) | 67/140 | 73/140 | 0 | fail |
 
 The 1000-birth 77-78 vs v40 did not repeat; the arena's tops stay in the 58-78 band against the live bots.
+
+## 1200 births (top 3 by mu at birth 1206), vs v40 / v41 (deaths = total deaths of the candidate over 140 games)
+
+| genome | sha256 | arena mu at pick (games) | vs v40 | vs v41 | crashes | result |
+| --- | --- | --- | --- | --- | --- | --- |
+| A111203 | cf341f32bb0913ad... | 27.99 (168) | 62/140 | 64/140 | 0 | fail |
+| A111175 | 689b5f2cad4e70fa... | 27.85 (536) | 62/140 | 62/140 (deaths 1748) | 0 | fail |
+| A111195 | 18501c0924946d1b... | 27.85 (216) | 73/140 (deaths 1638) | 68/140 (deaths 1612) | 0 | fail |
+
+## Boss-battle stall (01boss-battle solo vs idle, sim)
+
+A11976: both sides stall at round 2000 with 681/724 gems, 23-28 deaths (v40: A 1000 gems at round 1294). Of 27
+single-gene swaps of v40's version into A11976, only a9 (shop_value) fixes both sides (1000 gems at rounds 1375-1622);
+a11 (no prospector) fixes 3 of 4 games. Cause: my "below 60% health buy a jungle health shard first" a9 edit, together
+with prospector-first a11, swaps the wanted item while shop_pending still blocks every other option, so a hurt
+champion parks on spawn. Fixes: candidates/A11976-a9.genome, A111001-a9.genome (= parent + v40's a9), ingested in
+leg 3 and real-gated below.
+
+| genome | sha256 | vs v40 (deaths) | vs v41 (deaths) | crashes |
+| --- | --- | --- | --- | --- |
+| A11976-a9 | 8fb2a7dd674765c0... | 74/140 (1766) | 64/140 (1837) | 0 |
+| A111001-a9 | a729c43420109a65... | 74/140 (1765) | 64/140 (1814) | 0 |
+
+On 01boss-battle team B vs v40, A11976 had 0 gems (lost); A11976-a9 won with 1003 gems. A11976's draft is Vendetta,
+Vesper Vale, Tavi, Ren, Varg (my d1 edit), not v40's Ryth/Ren.
