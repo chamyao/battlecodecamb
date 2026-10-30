@@ -1,0 +1,11 @@
+```python
+@gene('a11', 'next shard to buy: prospector strength until its emblem (engine 2.0.0 family), then treasure strength until its emblem, then jungle health until its emblem, then bruiser strength (7 shards of stats per emblem, the best value once the passives are owned)')
+def next_shard() -> Num:
+    if items_owned(55) == 0 and items_owned(19) == 0:
+        return 54
+    if items_owned(19) == 0:
+        return 18
+    if items_owned(29) == 0:
+        return 28
+    return 36
+```

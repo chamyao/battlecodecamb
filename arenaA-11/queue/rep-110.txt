@@ -1,0 +1,18 @@
+```python
+@gene('A94141a', 'spawn tiles of cleared groups a healthy (30%+) ally already stands on (its capture needs no second champion; a dying holder does not count)', parents=['m11'])
+def held_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    h = here()
+    others = acc
+    for u in allies():
+        if u.pos != h and u.health_frac >= 0.3:
+            others = others | near(u.pos, 0)
+    if size(others) == 0:
+        return acc
+    for g in range(num_groups()):
+        if group_reward(g):
+            gt = group_tiles(g)
+            if size(others & gt) > 0:
+                acc = acc | gt
+    return acc
+```

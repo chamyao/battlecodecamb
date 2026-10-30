@@ -1,0 +1,8 @@
+```python
+@gene("r7", "fight the weakest enemy champion in reach (not on its own spawn, nor next to it while I am below half health: it heals there)")
+def r_fight() -> Bool:
+    f = fight_foe()
+    if not exists(f) or dist(here(), f.pos) > me().attack_range or f.pos in enemy_spawn():
+        return False
+    return not (hurt_below(0.5) and dist(f.pos, nearest(enemy_spawn(), f.pos)) <= 1)
+```
