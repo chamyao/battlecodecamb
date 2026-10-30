@@ -326,6 +326,25 @@ def main():
                         raise FileNotFoundError(p)
                     return g.stdout
                 dirs, arena, job = [rdir], chain, rdir.split("/")[0]
+            elif chain.startswith("files:"):  # every .genome file in a branch dir: files:<branch>:<dir>[:<finished marker>]
+                br, rdir, donef = (chain[6:].split(":") + [""])[:3]
+                git("fetch", "-q", "origin", br)
+                names = [n for n in git("ls-tree", "--name-only", f"origin/{br}", f"{rdir}/").stdout.split()
+                         if n.endswith(".genome")]
+                finished += bool(donef) and git("cat-file", "-e", f"origin/{br}:{donef}").returncode == 0
+                s = {"members": {}}
+                for n in names:  # one entry per file content, so an edited file is gated again
+                    sha = git("rev-parse", f"origin/{br}:{n}").stdout.strip()[:12]
+                    nm = f"{Path(n).stem}#{sha}"
+                    s["members"][nm] = {"name": nm, "kind": "genome", "alive": True, "games": 10 ** 9, "mu": 0.0,
+                                        "path": Path(n).name}
+
+                def fetch(p, br=br, rdir=rdir):
+                    g = git("show", f"origin/{br}:{rdir}/{p}")
+                    if g.returncode != 0:
+                        raise FileNotFoundError(p)
+                    return g.stdout
+                dirs, arena, job = [rdir], chain, rdir.split("/")[0]
             elif chain.endswith("*"):  # every job <prefix>N on jobs/genome, in order: a chain of resumes
                 import re
                 names = git("ls-tree", "--name-only", "origin/jobs/genome").stdout.split()
@@ -336,7 +355,7 @@ def main():
             else:
                 dirs = chain.split("+")
                 done = git("cat-file", "-e", f"origin/remote/genome:{dirs[-1].split('/')[0]}/rc").returncode == 0
-            if not chain.startswith(("api:", "branch:")):
+            if not chain.startswith(("api:", "branch:", "files:")):
                 if not dirs:
                     continue
                 finished += done
@@ -356,7 +375,7 @@ def main():
                     return g.stdout
             live = [m for m in s["members"].values() if m["kind"] == "genome" and m["alive"]
                     and m["games"] >= args.min_games]
-            for m in sorted(live, key=lambda m: -m["mu"])[:args.top]:
+            for m in (live if chain.startswith("files:") else sorted(live, key=lambda m: -m["mu"])[:args.top]):
                 # one key per genome across a chain of resumed jobs, per reference bot
                 key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/80" + ("/paired" if args.sign_alpha > 0 else "")
                 if key in seen:
