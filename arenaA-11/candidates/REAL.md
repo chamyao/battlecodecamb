@@ -43,3 +43,11 @@ i.e. v39a +- noise; nothing yet clears the bar by a margin.
 | A11393 | b749078fd1012bec... | 29.17 (128) | 77/140 | 0 | PASS |
 | A11368 | cde3a51093cdd652... | 28.82 (592) | 72/140 | 0 | fail |
 | A11358 | 698000c8b9c04812... | 28.76 (712) | 71/140 | 0 | fail |
+
+## 500 births (top 3 by mu at birth 507)
+
+| genome | sha256 | arena mu at pick (games) | real vs v39 | crashes | result |
+| --- | --- | --- | --- | --- | --- |
+| A11453 | e7a3145adf73f62a... | 28.60 (1080) | 72/140 | 0 | fail |
+| A11501 | fb1b19cd2bbc3c70... | 28.46 (96) | 76/140 | 0 | PASS (at bar) |
+| A11476 | 361c3c1bc3a8a25b... | 28.24 (872) | 77/140 | 0 | PASS |
