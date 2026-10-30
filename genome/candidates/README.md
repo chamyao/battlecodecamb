@@ -242,3 +242,6 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
   one flip is vs JOHN_BANEGA_DON, which changed its bot); b14 new maps 7-13 vs 5-15; 10 extra new maps 6-4 = 6-4.
   The fix also unfroze 02harvest (L -> W 1027-481) and 00quarry (0 -> 865 gems). Nothing regressed; v39 kept.
   b15 is the band baseline from now on.
+- Sim fixes merged (fuel 4fee8e27 extra x1.04, then 6c5b096e start-up refit + group_tiles priced; genome/v0 10d24fea):
+  A103823-w1 sim 83 -> 73 -> 67 (real 68). Gatekeeper-44's only clean near-miss, A103746-w1 (sha cec021bf, sim
+  ensemble 74): real 70/140 vs live v39, 0 crashes. Fails.
