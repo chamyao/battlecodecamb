@@ -286,3 +286,6 @@ The edit, on x6-83 (v40): new rule 23 at priority 125, placed before r_prefight.
 
 Pre-filter vs live v40 (cambc 4.0.0, runtime 671ac45b, 140 games): **64/140** (old 34/80, new 30/60). The bar is 72, so it fails. I did not run the solo check.
 The unconditional join pulls units off income for fights they can't swing. The next narrower variant joins only when we'd outnumber the enemy near the foe.
+
+**v40-join2** adds an outnumber gate: our allies within 6 of the foe, plus the joiner, must exceed the enemies within 6 of it. Result: **70/140** vs v40 (old 38/80, new 32/60). That fails the 72 bar, but by less than v40-join, so the outnumber gate helps.
+**v40-join3** is v40-join2 plus a rescue-only condition: an ally within 6 of the foe must be below half health. It is gating now.
