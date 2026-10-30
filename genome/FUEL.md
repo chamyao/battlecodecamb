@@ -24,11 +24,28 @@ play turns cost ~190k against the sim's 140-170k.
   01elk-arena / 00lanes for a genome touching every group, as A103823-w1's `mono_groups` does. With the price,
   ft_gt matches idle exactly and ft_mono is within 1.5k.
 
-After both: identical-game first turns are 4-8k under (were 18-20k), whole games 0.996-1.004. A103823-w1 vs
-v39a sim A wins 83 -> 73 (extra x1.04) -> 67, real 68; per-game agreement 87 -> 89 -> 93 / 140. Open: the
-reversed game itself still opens differently. At the normal budget the real first turn spends 196k and runs one
-pass, while the same turn at 1e8 ran its passes in 189k. So the real bot does more on its first turn when the
-budget binds, and the sim does not model that.
+- `camp_spawns()` and `type_spawns(k)` builds were priced 0 too: 44 per camp, and 123 + 17.8 per camp per type.
+  With these, ft_cs and ft_ts match idle to within 150 on all three maps.
+
+Why it decided the reversed game: cambc 4.0.0 starts the first play turn with ~177.6k left. The bot's instance
+start-up comes out of the 200k (probe: starter-cpp shows 177.6k remaining at its first play turn). v39a's first
+turns need 201-206k (1e8 games), so the real bot is cut off on turn 1, while the sim, 8k cheaper there, fitted
+them in. After the build prices, identical-game first turns are within ~1k on both teams (whole games 1.000 /
+1.003). The game now resolves as in real: v39a wins 972-468 (real 1008-0); the side-swapped game also matches.
+(My 1x trace of that game used the trace build, whose @@G printing costs real fuel. It cannot judge
+first-turn passes at the normal budget: use normal builds for 1x fuel comparisons.)
+
+Matchups after this (sim A wins / real; per-game agreement):
+
+| matchup | original | now | real |
+|---|---|---|---|
+| A103823-w1 vs v39a | 83 (87/140) | 69 (87/140) | 68 |
+| A103930-w1 vs v39a | 78 | 66 | 63 (lead's gate) |
+| A61188 vs B792 | 73 (90) | 75 (90) | 83 |
+| B792 vs B318 | 75 (90) | 76 (89) | 65 |
+| B1145 vs A61188 | 56 (89) | 57 (94) | 61 |
+
+Mean sim - real +5.0 -> +0.6; mean |sim - real| 11.0 -> 5.4.
 
 ## Sim optimistic for evolved genomes: extra() x 1.04 (Oct 30)
 

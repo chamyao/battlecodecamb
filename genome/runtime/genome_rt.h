@@ -541,6 +541,7 @@ public:
 		extra(74);
 		return stat(campsp_, [&](Bitboard& b) {
 			for (const auto& c : m.camps) b.set(c.pos);
+			extra(44.0 * static_cast<double>(m.camps.size()) / kExtraScale); // the one-off build (first-turn probes, Oct 30)
 		});
 	}
 	// spawn tiles of the camps of one type (static map)
@@ -552,6 +553,7 @@ public:
 		return stat(type_sp_[i], [&](Bitboard& b) {
 			for (const auto& c : m.camps)
 				if (static_cast<int>(c.type) == i) b.set(c.pos);
+			extra((123 + 17.8 * static_cast<double>(m.camps.size())) / kExtraScale); // the one-off build (first-turn probes, Oct 30)
 		});
 	}
 	Tiles locked_altars()
