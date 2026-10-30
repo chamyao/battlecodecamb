@@ -164,3 +164,10 @@ old-map cost. Shop probes on 2.0.0 are done: v39a's shop stands.
 exploit-5 keepers (old engine) vs live v39 on 4.0.0 (total / old / new): x5-24 65/31/34, x5-108 64/36/28, x5-134 69/41/28.
 None is a strong exploiter on 2.0.0. exploit-6 briefed (relay writer): runtime 671ac45b sim, target v39a, seeds v39a/x5-134/x5-24,
 fitness wins + 0.01 x kills, 150 programs, top 8 real-screened on 4.0.0 (140 games), keepers become stress anchors.
+
+## Carrier-safety edits on v39a vs live v39 (4.0.0; total / old / new)
+cs-run (carrier with 20+ gems retreats when visible enemies within 7 outnumber allies within 5): 60 / 28 / 32
+cs-bank (bag ready at 6+ gems when outnumbered that way): 62 / 36 / 26
+cs-both: 63 / 33 / 30
+All worse. Same result as on the old engine: pulling carriers out of play costs more than the bags it saves. Waiting on
+exploit-6 for anchors that reproduce the ladder fights.
