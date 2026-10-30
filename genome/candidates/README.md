@@ -184,3 +184,12 @@ hold 117, gem-groups after 6 buys, bossbush.
 - A103649-v33port (sha 8985a0bb...): 70/140, 0 crashes. Fails.
   None of the five arenaA-10 ports beats v38 on engine 2.0.0; the old-engine sim ranking (54/52/51 vs v33) did not
   carry over.
+
+## Engine-2 probes on v38 (Arena B lead, cambc 4.0.0, 70 maps x 2 sides vs v38; genome/arenab ENGINE2.md)
+
+- Shop order: Monster first 76, Jungle first 74, Monster for Treasure 72, no Treasure 68, Treasure third 66, no Jungle
+  59. v38's Treasure -> Jungle -> Durability -> Bruiser holds.
+- Draft: Marcella for Ren 71, HoR for Ren 69, Issac for VV 65, VV last 65, Marcella+HoR for Tavi+Ren 45, top-team core 28.
+  v38's draft holds; Tavi's remote shop carries our banking logic.
+- New item families: unbuyable until the runtime has kNumItems 84 (bot/src/cbs/core.h is 42); every probe 2/140.
+  Fuel is doing "M0.5: bot constants" (items 42-83, 2.0.0 passives and champion stats) on genome/fuel.
