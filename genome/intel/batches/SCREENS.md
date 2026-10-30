@@ -10,3 +10,4 @@ Each candidate's screen is paired with v40's games from b18base (09:57Z). Column
 | s4 | A11791 (genome/v0 a3f131da, sha 0859ce55) | v48 (11:41:53Z / 11:51:41Z) | 90d8b4fc | 13-17 | 9-21 | 4 / 8 | -54.2 ± 47.7 | +3.0 ± 1.1 | clearly down: not promoted; replaced at once by s5 |
 | s5 | v43-fix3 (genome/v0 1e8898f6 = arenab 7bb80059, sha 6760603a) | v49 (12:02:12Z / 12:11:39Z) | 3bc991c2 | 13-17 | 10-20 | 3 / 6 | -12.9 ± 36.1 | +1.2 ± 0.8 | down on flips: not promoted |
 | s6 | x6-61 (genome/v0 1e8898f6, sha 513f4ef1) | v50 (12:22:05Z / 12:32:13Z) | 62102500 | 13-17 | 13-17 | 3 / 3 | +24.5 ± 26.4 | +0.8 ± 0.9 | level on flips, slightly up on gems (captures +1.9 ± 1.4): not promoted (needs up on both) |
+| s7 | x7-125 (genome/v0 6d5ed41, sha 4afcd1b6) | v51 (12:42:55Z / 12:51:39Z) | 95b141b6 | 13-17 | 7-23 | 2 / 8 | -48.5 ± 36.4 | +3.1 ± 1.0 | clearly down: reverted to v40 at once (s8) |
