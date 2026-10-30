@@ -40,3 +40,6 @@ Each candidate's screen is paired with v40's games from b18base (09:57Z). Column
 | s11 | d-out2b (genome/v0 4787e102, sha b072d8bc; v40 + retreat when outnumbered), paired with s11c | v56 (16:31:29Z / 16:43:32Z) | 63f4d4e6 | 10-20 (s11c) | 12-18 | 4 / 2 | +1.1 ± 28.2 | **-0.8 ± 0.7** | up on flips, gems level, fewer deaths (gems lost on death -14 ± 8): **promoted to the full band b19** |
 
 **b19 (full band, d-out2b as v56, 16:55Z) vs b19base (v40 as v57, 17:02Z): 31-29 vs 30-30.** Flips 6 to a win / 5 to a loss; gems -7.2 ± 25.3; deaths to champions -0.8 ± 0.6; gems lost on death **-14.5 ± 6.9**; captures -1.1 ± 1.5. This meets the genome lead's bar (up on flips; gems and deaths no worse), so **d-out2b is the new live choice**. The d2-tout screen (s12) runs first, then the better of d2-tout and d-out2b goes live.
+| s12 | d2-tout (genome/v0 97637588, sha 404637c9; d-out2b + Tavi retreats whenever outnumbered), paired with b19base (v40 screen subset, 10-20) | v58 (17:28:39Z / 17:33:08Z) | b71709aa | 10-20 | 12-18 | 6 / 4 | -40.1 ± 46.3 | -1.6 ± 1.0 | vs **d-out2b** (b19 subset, 12-18): flips 4 / 4, gems -41.3 ± 34.1, deaths -0.8 ± 0.6, captures -2.5 ± 2.3. Not better than d-out2b |
+
+**Live: d-out2b as v59** (bundle 63f4d4e6, identical to v56). Submitted 17:43:09Z, live by 17:45:54Z. **The new baseline is b19** (d-out2b's 60 band games, 16:55Z).
