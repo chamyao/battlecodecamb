@@ -195,3 +195,16 @@ x6-61 alone; the hold rule masks the kill-shot gain. No better candidate than v4
 ## Band b16: v40 31-29 (same as v39, 6 flips each way); gems +30, +93 on b14 new maps. The 79/140 vs v39 did not carry to
 ladder teams. v41 = v40 + cheap mono_groups going up. exploit-7 switched to multi-opponent fitness (v40, v38, v33, x6-30, band styles),
 real screen vs v40 and v38.
+
+## exploit-7 (vs v40 only; the multi-opponent change arrived after it started)
+Relay writer's real screen vs v40: x7-125 77, x7-142 77, x7-110 76, x7-149 76 (mirror 70). Line: v40 -> #12 (hold a capture
+through a threat with 3 allies on it) -> #27 (rule_target focus fire) -> #34 (no monoliths with an enemy within 6) -> #110
+(later cash-out: recall below 0.4 + gems/60, cap 0.7; was 0.5 + gems/60, cap 0.85) -> #125 (stop piling onto a contested
+capture once 3 allies hold it). Gain is gems v40 loses on death (1.14x), not kills.
+My multi-opponent check on 4.0.0 (total / old / new):
+| bot | vs v40 | vs v38 | vs v33 | vs x6-61 |
+|---|---|---|---|---|
+| x7-125 (4afcd1b6) | 77 / 42 / 35 | 80 / 49 / 31 | 76 / 38 / 38 | 79 / 42 / 37 |
+| x7-149 (e12059a2) | 76 / 45 / 31 | 74 / 43 / 31 | 74 / 39 / 35 | 74 / 44 / 30 |
+| v40 itself | 70 (mirror) | 80 / 46 / 34 | 75 / 39 / 36 | 66 / 39 / 27 |
+x7-125 is >= v40's own row against every reference (+7, 0, +1, +13). x7-149 is below v40 on v38. Candidate: x7-125.
