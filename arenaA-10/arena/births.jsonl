@@ -3643,3 +3643,13 @@
 {"arena": "A9", "t": 1792940922.8, "name": "A93642", "birth": 3642, "parents": ["A93633"], "species": "S4", "mu": 47.67316680323916, "op": "mutate", "model": "session"}
 {"arena": "A9", "t": 1792940956.1, "name": "A93643", "birth": 3643, "parents": ["A93523"], "species": "S2", "mu": 48.47073029241571, "op": "mutate", "model": "session"}
 {"arena": "A9", "t": 1792941013.1, "name": "A93644", "birth": 3644, "parents": ["A93629"], "species": "S3", "mu": 48.11158674100556, "op": "mutate", "model": "session"}
+{"arena": "A10", "t": 1793325287.2, "name": "A103645", "birth": 3645, "parents": ["A93498", "A93643"], "species": "S2", "mu": 49.01170530782506, "op": "cross", "model": ""}
+{"arena": "A10", "t": 1793325402.1, "name": "A103646", "birth": 3646, "parents": ["A93636"], "species": "S5", "mu": 48.38112154447493, "op": "tune", "model": ""}
+{"arena": "A10", "t": 1793325488.1, "name": "A103647", "birth": 3647, "parents": ["A103645"], "species": "S4", "mu": 48.428438566569305, "op": "tune", "model": ""}
+{"arena": "A10", "t": 1793325564.7, "name": "A103648", "birth": 3648, "parents": ["A93618", "A93635"], "species": "S5", "mu": 49.06210748353082, "op": "llm_cross", "model": "session"}
+{"arena": "A10", "t": 1793325628.7, "name": "A103649", "birth": 3649, "parents": ["A103646", "A93635"], "species": "S5", "mu": 49.44574083047021, "op": "cross", "model": ""}
+{"arena": "A10", "t": 1793325770.9, "name": "A103650", "birth": 3650, "parents": ["A93498"], "species": "S2", "mu": 48.43860920644561, "op": "mutate", "model": "session"}
+{"arena": "A10", "t": 1793325783.9, "name": "A103651", "birth": 3651, "parents": ["A93642"], "species": "S4", "mu": 46.42818209162189, "op": "mutate", "model": "session"}
+{"arena": "A10", "t": 1793325784.8, "name": "A103652", "birth": 3652, "parents": ["A93641"], "species": "S5", "mu": 48.122156804054256, "op": "mutate", "model": "session"}
+{"arena": "A10", "t": 1793325803.3, "name": "A103653", "birth": 3653, "parents": ["A103646"], "species": "S5", "mu": 49.1931671080914, "op": "mutate", "model": "session"}
+{"arena": "A10", "t": 1793325811.7, "name": "A103654", "birth": 3654, "parents": ["A93643"], "species": "S3", "mu": 48.53191063823972, "op": "mutate", "model": "session"}

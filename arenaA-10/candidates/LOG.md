@@ -1,0 +1,5 @@
+# arenaA-10 candidates (>= 43/80 vs v33 in an 80-game bot-seeded sim screen, 40 maps x 2 sides)
+
+| name | vs v33 | vs B318 | vs A61188 | what changed |
+| --- | --- | --- | --- | --- |
+| A93635-v33port | 46/80 | 67/80 | 67/80 | A-9's A93635 + v33's fixes grafted (tools/port.py): altar rings without small-camp spawns, farmable() monolith rule (r13/r14/s14/a0, MONO_ONLY in r15), heal off enemy spawn (i22), killshot fight 165, hold-through-bag 117, gem-groups-first after 6 buys, boss-battle bush. Also the arena child of req 2603. A93635 unported: 34/80 vs v33, so the port is worth +12. |

@@ -1,0 +1,14 @@
+```python
+@gene('r14', 'fight the first camp in reach, but only a farmable one (not in a monolith group unless going for monoliths; v33 monolith fix), and do not wake a sleeping one with an enemy champion within 5 (it would third-party the fight)')
+def r_camp() -> Bool:
+    c = reach_camp()
+    return exists(c) and in_reach(c) and farmable(c) and (is_awake(c) or enemies_within(5) == 0)
+
+@gene("new", "camp worth hitting: not in a monolith's group (a hit wakes the whole group), unless it stands on an altar-ring tile and I carry gems, or the team goes for monoliths (ported from v33 i1)", parents=["r14"])
+def farmable(c: Unit) -> Bool:
+    if not (camp_spawn(c) in MONO_GROUPS):
+        return True
+    if gems() > 0 and camp_spawn(c) in ALTAR_RING:
+        return True
+    return r_mono()
+```

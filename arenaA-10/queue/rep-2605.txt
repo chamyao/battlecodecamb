@@ -1,0 +1,5 @@
+```python
+@gene('r3', 'retreat on foot: below 30% health and under fire or with a threat near (v33)')
+def r_run() -> Bool:
+    return not at_spawn() and hurt_below(0.3) and (under_fire() or threat_near())
+```
