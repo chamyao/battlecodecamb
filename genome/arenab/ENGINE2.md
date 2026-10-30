@@ -43,3 +43,19 @@ bots; our r_hold / group_reward logic was written for the old capture rule.
 v33 (B1873-bossbush) builds unchanged with cambc 4.0.0 (`cambc build --release`, fresh .cambc cache) and plays a
 mirror on all 70 maps with 0 crashes/errors (side A 32, side B 38; mean 1,350 rounds, 14 games to r2000). Workspace:
 scratchpad cambc4/ws4 (venv with cambc 4.0.0; ~/ws stays on 3.0.5).
+
+## Shop probe on 4.0.0 vs v38 (Oct 30 ~03:40 UTC)
+v38 = A93635-v33port (sha 67ea6f01). Its a11 + a9: Treasure-Str 18/19 -> Jungle-HP 28/29 -> Durability-HP 16/17 -> Bruiser-Str 36.
+Variants (cand/engine2/), built from genome/v0 HEAD runtime with cambc 4.0.0 --release, 70 maps x 2 sides
+(genome/arenab/gate4.sh, build4.sh). Bar for a constant-only change: >= 81/140.
+| order | vs v38 /140 |
+|---|---|
+| Monster-Str -> Treasure -> Jungle -> Dur -> Bruiser (shop-mon-treas) | 76 |
+| Jungle -> Treasure -> Dur -> Bruiser (shop-jung-first) | 74 |
+| Monster-Str -> Jungle -> Dur -> Bruiser (shop-mon-first) | 72 |
+| Jungle -> Dur -> Bruiser (shop-no-treas) | 68 |
+| Jungle -> Dur -> Treasure -> Bruiser (shop-treas-last) | 66 |
+| Treasure -> Monster-Str -> Dur -> Bruiser (shop-treas-mon) | 59 |
+All 0 errors. No pass. Monster-first is mildly positive (76, 72) and dropping Jungle hurts (59); Treasure's halving did not
+make it a liability. The seven new families (ids 42-83) were not tried: their effects are not in the SDK; waiting for
+intel's rules export. (gate4.sh's mirror line counts both sides as the candidate when names match; ignore it.)
