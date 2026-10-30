@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 06:55 UTC: A-11 at 155 births; first real gates
+
+- Top mu ~29.2 (A11124); anchors v38 25.2 / v33 25.0; the v39a seed died at 25.7.
+- Writer's gate at b117 vs v39a: A11106 78, A11101 76, A1182 74 (0 crashes).
+- My re-gate vs the live v40 (05a41d20): A11106 (99fa6598) **69/140**, A11101 (36e0777d) **63/140**. Both fail;
+  v40 is ~7-10 games above v39a.
+- Writer asked to gate vs v40, add v40/v40m as anchors and seeds, and stop the tuner perturbing rule() pick/top ids
+  (it found lineages where the unthreatened r_hold branch picks 15, the monolith walk).
+
 ## 2026-10-30 06:30 UTC: A-11 check-in
 
 - Healthy: 56 births in ~15 min (about 3.7/min, so 800 by about 09:45), mirror pushes every ~15 min (63e3cc67d).
