@@ -154,3 +154,10 @@ genome/candidates/v33-ahead4.genome, sha256 7bead1581516d949... (genome/arenab).
 **Upload bar (2026-10-25, after v34/v36):** a +3-4/80 local real-cambc edge from a constant tweak did not carry to the
 band twice. A constant-only tweak now needs real cambc >= 46/80 vs live (0 crashes) for an upload; under that it is
 screen-only. Structural edits keep the 43/80 bar.
+
+## A93635-v33port (Arena A-9's A93635 + v33's fixes grafted in; arenaA-10)
+
+genome/candidates/A93635-v33port.genome, sha256 67ea6f01adef2b58... (arenaa/a10-mirror 38f5ab8b,
+arenaA-10/candidates/). Structural: ring small-spawn exclusion, farmable monolith rule, heal off-spawn, killshot 165,
+hold 117, gem-groups after 6 buys, bossbush.
+- Arena A writer, sim (ca5180b, 80 games, bot seeds): 46 vs v33 (unported A93635: 34), 67 vs B318, 67 vs A61188.
