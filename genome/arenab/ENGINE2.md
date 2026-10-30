@@ -189,3 +189,5 @@ Both clear the 76 structural bar vs live and gain +7-9 vs v38 over v39a's row; v
 x6-83 vs x6-61: x6-83 changes c0 (kill shot at 172 above cash-out) and r16 stays v39a; x6-61 changes r16 (every ally holds while
 capture_state == CONTESTED). Combined (v40-hold): vs v40 71 / 40 / 31, vs live v39 77 / 43 / 34, vs v38 78 / 43 / 35, identical to
 x6-61 alone; the hold rule masks the kill-shot gain. No better candidate than v40.
+
+## v40 live (06:12Z); exploit-7 briefed (target v40, seeds v40/x6-61/x6-30, same setup; capture-contest emphasis)
