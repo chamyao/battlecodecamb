@@ -36,3 +36,5 @@ Each candidate's screen is paired with v40's games from b18base (09:57Z). Column
 - **A11976** (survival-first) fixed the excess deaths (+0.6), but lost captures (-7.6).
 - **v40-join3** (fight cohesion) lost captures (-5.1) and gems (-74).
 - So both directions away from v40's balance (more fighting, or more caution and grouping) cost more on the ladder than they gain.
+| s11c | **v40 control** (live v55, no submit), paired with s8 | v55 (- / screened 16:20:49Z) | 7317ef88 | 13-17 (s8) | 10-20 | 2 / 5 | -54.9 ± 33.4 | +1.2 ± 0.8 | **opponent drift**: v40 lost 3 wins between 13:11Z and 16:20Z. A fresh control is needed at the start of every screen session |
+| s11 | d-out2b (genome/v0 4787e102, sha b072d8bc; v40 + retreat when outnumbered), paired with s11c | v56 (16:31:29Z / 16:43:32Z) | 63f4d4e6 | 10-20 (s11c) | 12-18 | 4 / 2 | +1.1 ± 28.2 | **-0.8 ± 0.7** | up on flips, gems level, fewer deaths (gems lost on death -14 ± 8): **promoted to the full band b19** |
