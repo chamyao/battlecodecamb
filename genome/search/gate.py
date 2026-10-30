@@ -378,10 +378,10 @@ def main():
                         raise FileNotFoundError(p)
                     return g.stdout
                 dirs, arena, job = [rdir], chain, rdir.split("/")[0]
-            elif chain.startswith("files:"):  # every .genome file in a branch dir: files:<branch>:<dir>[:<finished marker>]
+            elif chain.startswith("files:"):  # every .genome file under a branch dir (subdirs too): files:<branch>:<dir>[:<marker>]
                 br, rdir, donef = (chain[6:].split(":") + [""])[:3]
                 git("fetch", "-q", "origin", br)
-                names = [n for n in git("ls-tree", "--name-only", f"origin/{br}", f"{rdir}/").stdout.split()
+                names = [n for n in git("ls-tree", "-r", "--name-only", f"origin/{br}", f"{rdir}/").stdout.split()
                          if n.endswith(".genome")]
                 finished += bool(donef) and git("cat-file", "-e", f"origin/{br}:{donef}").returncode == 0
                 s = {"members": {}}
@@ -389,7 +389,7 @@ def main():
                     sha = git("rev-parse", f"origin/{br}:{n}").stdout.strip()[:12]
                     nm = f"{Path(n).stem}#{sha}"
                     s["members"][nm] = {"name": nm, "kind": "genome", "alive": True, "games": 10 ** 9, "mu": 0.0,
-                                        "path": Path(n).name}
+                                        "path": n[len(rdir) + 1:]}
 
                 def fetch(p, br=br, rdir=rdir):
                     g = git("show", f"origin/{br}:{rdir}/{p}")
