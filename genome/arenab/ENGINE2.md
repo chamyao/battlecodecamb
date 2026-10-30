@@ -301,3 +301,27 @@ The rule really does fire against idle enemies. It doesn't come from reaching fo
 This is the same pattern as the x7/x8 table: a local head-to-head edge, paid for with stalls against a parked enemy.
 
 The genome lead's call: let the ladder decide. v40-join3 is #7 in the ladder-screen queue (boss-battle and stalactites are known-fragile maps). The cohesion line stops unless the screen likes it.
+
+## Death-reduction line (new direction after ladder screens s1-s8)
+Every below-noise ladder candidate had +1.2 to +3.1 deaths to champions per game; the control had +0.7.
+New tool, `genome/arenab/deaths.py RUNDIR CAND`: it extracts the replays (intel's extract_v2, engine/v2_0_0.wasm) and counts deaths to champions per side in a gate run.
+Local deaths to champions over 140 games (cand / ref):
+| run | cand | ref |
+|---|---|---|
+| j3 vs v40 | 1071 | 1141 |
+| x7-125 vs v40 | 1151 | 1144 |
+| x8-36f vs v40 | 1174 | 1194 |
+| x7-125 vs v38n | 1156 | 1080 |
+Local head-to-head deaths don't reproduce the ladder signal: x7-125 is level with v40 locally but +3.1 per game on the ladder.
+I've asked intel for a per-death dump of the ladder deaths.
+
+Where champions die locally, as a share of deaths to champions (v40 vs v38n; x7-125 vs v40 is similar):
+- 59-64% were above 70% health 10 rounds before death. These are burst deaths, so a retreat at 30% health is too late.
+- 52-56% had no ally within 6.
+- 36-44% faced 2+ more enemies than allies.
+- 17% carried 10+ gems.
+
+Variants on v40 (x6-83):
+- **d-out:** new rule dx1 at priority 171 (after killshot, before cashout). Retreat to spawn when off spawn with 2+ enemy champions within 6, outnumbering us (me included).
+- **d-th:** r_run threshold 0.3 → 0.45 (with 15+ gems: 0.5 → 0.6).
+- **d-both:** d-out plus d-th.
