@@ -1,0 +1,12 @@
+```python
+@gene('r16', 'standing on a cleared camp spawn: hold so the capture timer runs, unless an ally holds an earlier tile (row-major) of the same group with no enemy champion within 4 (one holder is enough when unthreatened; the rest move on)')
+def r_hold() -> Bool:
+    h = here()
+    g = spawn_group(h)
+    if g < 0 or not group_reward(g):
+        return False
+    if enemies_within(4) > 0:
+        return True
+    k = h.y * 1000 + h.x
+    return not any(t.y * 1000 + t.x < k for t in ally_tiles() & group_tiles(g))
+```

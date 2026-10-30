@@ -1,0 +1,5 @@
+```python
+@gene("r2", "heal on spawn: below 95% health and nothing can be hit from here (topping off the last few points wastes turns)")
+def r_heal() -> Bool:
+    return at_spawn() and me().health < 0.95 * me().max_health and not foe_in_reach_off_spawn()
+```
