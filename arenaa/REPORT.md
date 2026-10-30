@@ -12,6 +12,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - A-10 now: stop the old-sim arena and run a directed search on the real engine (gate4 vs v38, ~2 min per candidate),
   one structural change at a time from v38, logged in arenaA-10/candidates/REAL.md. Candidates >= 76/140 go to the
   genome lead. Intel's 2.0.0 notes: genome/intel/ENGINE2.md.
+- 2.0.0 also rebalanced champions (Vesper Vale strength 55 -> 45; Issac and Varg 40 -> 45; Ren stun 0.75 -> 1.1; Tavi cc
+  1.4 -> 1.6; Cassi and Willow focus up). Our draft was tuned on the old stats. The sim port to 2.0.0 is ~9-11 h away
+  (fuel); until then, gate4 only. A re-tuned draft was suggested to the writer as the first real-engine try.
 
 ## 2026-10-30 02:46 UTC: engine change on the ladder
 
