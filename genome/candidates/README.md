@@ -300,3 +300,6 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
 - v43-fix (sha 6f21c5c82d7d7b2c, genome/arenab ad002963f): Zb's champion-over-camp rule ignores enemies on their own
   spawn (and near-dead enemies without gems). Quarry A solo 1699 -> 861; 70-map solo total 159,965 -> 159,048.
   My gate4 vs live v43: 71/140, 0 crashes (bugfix level). GO after v43's band (b18) is in.
+- Batch 18 (intel b18.md): v43 30-30 vs v40's same-hour re-run (b18base) 33-27; gems -18 +- 26; flips 4 up / 7 down.
+  Reverted to v40; the queued v43-fix upload is cancelled. Pattern: gate4 edges of 79-84/140 (v40, v41, v43) have
+  not moved the band, so the ladder band decides and gate4 is only a pre-filter.
