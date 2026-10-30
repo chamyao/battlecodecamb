@@ -229,3 +229,7 @@ No candidate under the bar. x8-140 is +11 vs v40 and +7 vs v33 but -4 vs v38 (su
 better (10.0 kills / 6.9 deaths per game vs the mirror's 8.75 / 8.75). Line adds: break an enemy capture before its timer
 runs out (camp_goal), hit the champion not camps in a fight, lock the altar nearest an enemy gem carrier.
 Every exploit-8 program beats v40 vs v33 and trails it vs v38.
+
+## v43 = x8-140 live (genome lead real 81/140 vs live v40). Search sim solo-blocked it (+1057 rounds on 00quarry, 00reverse-spiral,
+01starvation); real cambc solo vs idle (both sides): quarry 879/822 vs v40 879/818, reverse-spiral 2000/2000 both, starvation
+2000/2000 vs 1912/2000. Sim artefact; real solo is the check. Sim also underrates v43 h2h by ~12.
