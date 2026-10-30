@@ -2,6 +2,22 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 04:10 UTC: v38 00quarry freeze fixed (v39a)
+
+- Root cause: a bush blind spot. On 00quarry, camp spawn (6,10) (group 6, with (5,10); mirror (28,10)) is a bush tile.
+  Under 2.0.0 vision a bush cannot be seen from outside, so w1 unseen_camps ("camp spawns out of vision: assumed
+  occupied") blocked it forever. Nobody stepped on it or attacked it, the group never cleared, and v38's camp walk
+  kept its goal on (6,10). Champions parked around it from round ~12 (trace: rule 20, goal (6,10), goal in BLOCK
+  via unseen_camps). v33 has the same w1 but its camp_goal wanders elsewhere.
+- Fix (one gene, arenaa/candidates/v39a.genome, sha256 22ec24cf...0871): w1 subtracts near(here(), 1) instead of
+  near(here(), 0). Per the rules, stepping onto an unseen occupied tile fails and reveals it for the round, so the
+  champion probes the bush and attacks the camp the same turn (verified in trace).
+- Real engine (cambc 4.0.0, deterministic), gate4: v39a vs v33 84/140 vs v38's 82/140. The only differences are
+  00quarry A and B, both now wins (as A 1001-383; v38 had 0 gems). v39a vs v38 72/140, 0 crashes.
+- How: per-turn RULE/GOAL/BLOCK trace printed from the generated C++ (genes.cpp), plus a camp/bush dump.
+- The genome lead says the 2.0.0 sim is merged (genome/v0 6fb46951, exact vs cambc 4.0.0 on 70/70 maps). Next:
+  arenaA-11 on it.
+
 ## 2026-10-30 02:55 UTC: old sim misleads on engine 2.0.0; A-10 switches to real-engine search
 
 - gate4 vs v38 (cambc 4.0.0, 70 maps x 2, bar 76/140), all 0 crashes: A103646-v33port 72, A103649-v33port 70,
