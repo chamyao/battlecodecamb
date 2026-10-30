@@ -38,3 +38,5 @@ All 50 batch-13 replays (engine 2.0.0) extracted. Compared with the official
 match summaries, team gems, per-champion kills and the champion picks match on
 every game. The final round is off by one (1013 vs 1012), the same convention as
 the v1 extractor.
+
+`design_v2_0_0.json`: settings, champions and camps dumped with analysis/designs.js and the v2_0_0 wasm. The item records are left out: designs.js reads them with the v1 layout, which gave garbled names for v2. The item stats are in ENGINE2.md (from the in-game probe).

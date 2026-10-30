@@ -77,7 +77,25 @@ Sources and confidence:
 
 (The table has 7 families with passives plus Greed, which has none.)
 
-- New import: `camp_group_capture_state(group)` returns a timer and a state: no capture available, ally capturing, contested, …
+- **Champion rebalance.** Read from the v2.0.0 wasm with analysis/designs.js (`Game_API_Champion_Design`). The full dump is tools/extract_v2/design_v2_0_0.json; diffed against analysis/design_v1_0_3.json. Settings and camps: no change. Champions, v1 → v2:
+
+  | champion | change |
+  |---|---|
+  | Vesper Vale | base strength 55 → 45 |
+  | Issac | base strength 40 → 45 |
+  | Varg | base strength 40 → 45 |
+  | Ryth | strength growth 5 → 4.5 |
+  | Marcella | strength growth 5 → 4.5, focus growth 15 → 14 |
+  | Heart of Ruin | strength growth 3.5 → 3.0, focus growth 12 → 10 |
+  | Cassi | base focus 70 → 100 |
+  | Willow | base focus 120 → 140 |
+  | Stellar | focus growth 7 → 8.5 |
+  | Prism | health growth 60 → 65 |
+  | Ren | cc (ability 1) modifier 0.75 → 1.1 (cooldown 8, range 4, duration 1 unchanged) |
+  | Tavi | cc (ability 2) modifier 1.4 → 1.6 |
+
+  Vendetta: no change. Vesper Vale loses the most: 10 base strength, and the Treasure passive drops from 20% to 10% (see Unchanged).
+- New import: `camp_group_capture_state(group)` returns a `timer` and a `state` (CampGroupCaptureType): 0 no capture available, 1 ally capturing, 2 contested, 3 enemy capturing, 4 capture available. v1 rules (docs/GameRules.md "Camps & capture"): a 5-round timer, extra allies do not speed it up, an empty or contested region resets it. Whether a contested capture still resets in 2.0.0 has not been measured. The separate CONTESTED state suggests it may now pause; this is untested.
 - New CLI: `cambc submissions list|activate`.
   - Currently "Mode: follow newest ready version; Live: 38".
   - This shows which version is live, which answers the b10 question. Note v35 shows "cancelled": v36 replaced it two minutes later.
