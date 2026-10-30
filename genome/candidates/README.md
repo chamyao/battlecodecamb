@@ -163,3 +163,4 @@ hold 117, gem-groups after 6 buys, bossbush.
 - Arena A writer, sim (ca5180b, 80 games, bot seeds): 46 vs v33 (unported A93635: 34), 67 vs B318, 67 vs A61188.
 - My real cambc vs v33, 40 maps x 2 sides: 47/80, 0 crashes (12 maps 2-0, 23 1-1, 5 0-2: elkring, interlock,
   road-of-riches, fracture, starvation). GO to intel; validation band batch paired vs b10.
+- Live as ladder version 38 (2026-10-30T02:06:53Z, bundle sha256 d54619f2...). Validation: intel batch 13, paired vs b10.
