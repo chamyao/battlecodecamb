@@ -282,3 +282,6 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
 - x7-125m = x7-125 + v41's cheap mono_groups (sha 1dbbde1f): my gate4 vs live v41 70/140 (old 37, new 33), 0 crashes.
   Fails (mirror level).
 - Retracted by the Arena B lead: its v38/v33 hold-outs used reference bots on older runtimes. With v38 rebuilt on 671ac45b, x7-125 is 68 vs v38 (v40: 84); the later cash-out overfits v40. Hold-outs must use the candidate's runtime.
+- Batch 17 (intel b17.md): v41 28-32 vs b16's v40 31-29 on the same 60 games; gems -38 +- 18; 2 flips to a win, 5
+  to a loss (old maps 14-16, b14 new maps 8-12). Against v39's b15: flat. Reverted to v40 (bundle 7317ef88...), since
+  the ladder band measures real opponents and the local 79/140 self-play edge did not transfer (as with x6-83 in b16).
