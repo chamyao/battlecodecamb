@@ -20,6 +20,7 @@ passing genomes in <out>/candidates/. Stops when every arena's job has an rc fil
 import argparse
 import json
 import math
+import re
 import os
 import urllib.request
 import subprocess
@@ -29,6 +30,42 @@ from pathlib import Path
 from funsearch.evaluate import MAPS, ROOT
 
 NG = 2 * len(MAPS)  # distinct games per pair: every map once from each side (80 on engine 1.0.3, 140 on 2.0.0)
+
+
+GENE_HEAD = re.compile(r"""^@gene\(\s*['"]([^'"]+)['"]""")
+
+
+def gene_blocks(text):
+    """{gene id: (start, end)} line spans: the @gene line, its def line and the indented body (trailing blanks excluded)."""
+    lines, spans, i = text.split("\n"), {}, 0
+    while i < len(lines):
+        m = GENE_HEAD.match(lines[i])
+        if not m:
+            i += 1
+            continue
+        j = i + 1
+        while j < len(lines) and (lines[j].startswith("@") or lines[j].startswith("def ")):
+            j += 1  # further decorators and the def line
+        while j < len(lines) and (not lines[j].strip() or lines[j][:1].isspace()):
+            j += 1
+        while j > i + 1 and not lines[j - 1].strip():
+            j -= 1
+        spans[m.group(1)] = (i, j)
+        i = j
+    return spans
+
+
+def graft(text, donor, ids):
+    """text with each gene in ids replaced by the donor's version of it (genes the text lacks are left out).
+    Returns (new text, ids actually changed)."""
+    lines, dl = text.split("\n"), donor.split("\n")
+    have, give, done = gene_blocks(text), gene_blocks(donor), []
+    for g in sorted((g for g in ids if g in have and g in give), key=lambda g: -have[g][0]):
+        (a, b), (c, d) = have[g], give[g]
+        if lines[a:b] != dl[c:d]:
+            lines[a:b] = dl[c:d]
+            done.append(g)
+    return "\n".join(lines), sorted(done)
 
 from .. import build as gbuild
 from .score import Scorer
@@ -252,6 +289,9 @@ def main():
     ap.add_argument("--sign-alpha", type=float, default=0.0,
                     help="> 0: the paired rule (an anchor blocks only if a one-sided sign test on the diverging games "
                          "gives p < this); plays locally, since it needs per-game results")
+    ap.add_argument("--graft", default="",
+                    help="comma-separated gene ids copied from the reference into every gated genome before gating "
+                         "(e.g. w1: a fix the live bot carries that the arena lineage lacks); the key gets +graft:<ids>")
     ap.add_argument("--exclude-anchor-maps", default="01boss-battle",
                     help="with --sign-alpha: maps left out of the anchor rows (kept in the head-to-head)")
     ap.add_argument("--max-hours", type=float, default=12)
@@ -379,7 +419,8 @@ def main():
                     and m["games"] >= args.min_games]
             for m in (live if chain.startswith("files:") else sorted(live, key=lambda m: -m["mu"])[:args.top]):
                 # one key per genome across a chain of resumed jobs, per reference bot
-                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/{NG}" + ("/paired" if args.sign_alpha > 0 else "")
+                key = (f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/{NG}" + ("/paired" if args.sign_alpha > 0 else "")
+                       + (f"+graft:{args.graft}" if args.graft else ""))
                 if key in seen:
                     continue
                 seen.add(key)
@@ -390,7 +431,12 @@ def main():
                 except Exception:
                     log(f"{key}: genome file missing")
                     continue
-                log(f"gate {key} (mu {m['mu']:.2f}, {m['games']} games)")
+                grafted = []
+                if args.graft and ref_text is not None:
+                    text, grafted = graft(text, ref_text, args.graft.split(","))
+                    if text.strip() == ref_text.strip():
+                        continue  # the live bot once grafted
+                log(f"gate {key} (mu {m['mu']:.2f}, {m['games']} games)" + (f" grafted {grafted}" if grafted else ""))
                 try:
                     if args.sign_alpha > 0:
                         rec = gate_paired(text, args.ref, anchors, args.threads, args.min_wins, args.sign_alpha,
@@ -402,7 +448,7 @@ def main():
                     log(f"{key}: {type(e).__name__}: {e}")
                     continue
                 rec = {"key": key, "arena": arena, "name": m["name"], "mu": m["mu"], "games": m["games"],
-                       "ref": Path(args.ref).name, "t": round(time.time()), **rec}
+                       "ref": Path(args.ref).name, "t": round(time.time()), **({"grafted": grafted} if args.graft else {}), **rec}
                 with open(gates, "a") as fh:
                     fh.write(json.dumps(rec) + "\n")
                 log(f"{key}: {json.dumps({k: v for k, v in rec.items() if k not in ('key', 'arena', 't')})}"
