@@ -20,7 +20,7 @@ enum class Call : std::uint16_t
 	champion_buff_data, ability_damage, ability_heal, ability_shield,
 	// world queries
 	vision, ward_vision, wards, teleports, altar_locks, occupancy, camp, camp_state, camp_buffs, camp_design, camp_group_state,
-	camp_group_cooldown, is_visible, has_unit, unit_at, submitted_gems, round_number, item_info, consumable_info, game_settings,
+	camp_group_cooldown, camp_group_capture_state, is_visible, has_unit, unit_at, submitted_gems, round_number, item_info, consumable_info, game_settings,
 	// static map
 	metadata, map_mask, map_symmetry, spawn_region, map_camp_query,
 	// actions

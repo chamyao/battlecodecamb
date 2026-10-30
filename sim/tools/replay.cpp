@@ -3,6 +3,7 @@
 // regenerated with the tracer's exact formatting and compared with the engine's.
 //
 // Usage: replay MAP.map26a SCRIPT [--max-diffs N] [--quiet]
+#include <cstdlib>
 #include <cinttypes>
 #include <cstdarg>
 #include <cstdio>
@@ -103,11 +104,11 @@ struct Observer
 		std::int32_t p0 = 0, p1 = 0;
 		const int q0 = static_cast<int>(api.champion_priority(h, false, &p0)), q1 = static_cast<int>(api.champion_priority(h, true, &p1));
 		s += fmt(" prio=%d,%d", q0 ? -1000 - q0 : p0, q1 ? -1000 - q1 : p1);
-		std::uint32_t items[42] = {};
+		std::uint32_t items[kNumItems] = {};
 		if (api.champion_items(h, items) == Err::success)
 		{
 			s += " items=";
-			for (int i = 0; i < 42; ++i)
+			for (int i = 0; i < kNumItems; ++i)
 				if (items[i]) s += fmt("%d:%u;", i, items[i]);
 		}
 		if (self)
@@ -169,7 +170,9 @@ struct Observer
 			if (api.camp_group_state(g, &st) != Err::success || st == 0) continue;
 			std::int32_t cd = 0;
 			const int rc = static_cast<int>(api.camp_group_cooldown(g, &cd));
-			out.push_back(fmt("group %u st=%u cd=%d", g, st, rc ? -1000 - rc : cd));
+			std::int32_t ct = 0, cs = 0;
+			const int rc2 = static_cast<int>(api.camp_group_capture_state(g, &ct, &cs));
+			out.push_back(fmt("group %u st=%u cd=%d cap=%d,%d", g, st, rc ? -1000 - rc : cd, rc2 ? -1000 - rc2 : ct, rc2 ? 0 : cs));
 		}
 		{
 			WardRecord w[32];
@@ -216,6 +219,10 @@ std::string normalise(std::string s)
 {
 	const auto p = s.find(" fuel=");
 	if (p != std::string::npos) s.erase(p);
+	// Traces recorded before the tracer printed capture state (engine 2.0.0): REPLAY_NO_CAP=1 drops it.
+	static const bool no_cap = std::getenv("REPLAY_NO_CAP") != nullptr;
+	if (no_cap)
+		if (const auto q = s.find(" cap="); q != std::string::npos) s.erase(q);
 	return s;
 }
 

@@ -290,6 +290,8 @@ static void play()
 	M("camp_buffs", 0, sdk_camp_buffs(0, cb, 8, &uv));
 	M("camp_group_state", 0, sdk_camp_group_state(0, &uv));
 	M("camp_group_cooldown", 0, sdk_camp_group_cooldown(0, &iv));
+	detail::camp_group_capture_state cgs{};
+	for (std::uint32_t g = 0; g < 3; ++g) M("camp_group_capture_state", 0, sdk_camp_group_capture_state(g, &cgs)); // engine 2.0.0
 	camp_design cdes{};
 	M("camp_design", 0, sdk_camp_design(0, &cdes));
 	M("bc_round_number", 0, sdk_bc_round_number(&uv));

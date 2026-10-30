@@ -1347,6 +1347,27 @@ public:
 		extra(RW_GCD);
 		return t;
 	}
+	// engine 2.0.0: camp group g's capture state (CAP_* constants; CAP_NONE when the group is not in sight) and
+	// its countdown (the full capture time when nobody is capturing; 0 when not in sight)
+	double capture_state(double g)
+	{
+		std::int32_t t = 0, s = 0;
+		if (!capture_read(g, t, s)) return 0;
+		return s;
+	}
+	double capture_timer(double g)
+	{
+		std::int32_t t = 0, s = 0;
+		if (!capture_read(g, t, s)) return 0;
+		return t;
+	}
+	bool capture_read(double g, std::int32_t& t, std::int32_t& s)
+	{
+		if (!group_ok(g)) return false;
+		const bool ok = api.camp_group_capture_state(static_cast<std::uint32_t>(g), &t, &s) == Err::success;
+		extra(RW_CAP);
+		return ok;
+	}
 	// a visible altar lock on tile p: hits left to break it (0 none); whether it is the enemy's
 	const cbs::AltarLockRecord* lock_at(Tile p)
 	{
@@ -1478,6 +1499,8 @@ public:
 	// batch 2 (calib6)
 	static constexpr double RW_WD_FETCH = 1005, RW_WD_HIT = 61, RW_WR = 56, RW_WP = 53, RW_WSIGHT = 384, RW_SIGHT = 423, RW_TP_FETCH = 30,
 							RW_TP_HIT = 20, RW_PRI = 18, RW_SELL = 26;
+	// engine 2.0.0 (provisional: group_cooldown's price until probed on cambc 4.0.0)
+	static constexpr double RW_CAP = 47;
 
 	// ---- abilities
 	const cbs::AbilityProps& props(int s)
