@@ -477,3 +477,7 @@ The solo results of s-skirm3 and s-hunt3 are identical (same total, same stamped
 Both pass the loosened bar; sent to the genome lead.
 | dr-marc (Ren → Marcella in the draft) vs d-out2b | 64 | 35 / 29 | 1005 / 1077; captures 10612 / 10566; gems lost on death 7553 / 7324; solo: stampede A 2000 |
 Fails the loosened bar. The genome's fight and cast genes evolved with Ren in that draft slot, so a straight swap leaves Marcella under-used. A Marcella pick would need its own tuning pass.
+Ladder screens: s-hunt3 = s14, s-skirm3 = s15, each paired with a same-hour d-out2b control.
+Pre-built and pre-gated stacks, ready for whichever screen wins:
+- **s-hs4:** Hunter 3rd, Skirmish 4th.
+- **s-sh4:** Skirmish 3rd, Hunter 4th.
