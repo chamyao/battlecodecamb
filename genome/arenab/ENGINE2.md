@@ -421,3 +421,6 @@ Marcella is the top killer in deaths_v40.json: 223 of 903.
 
 **d4-marc:** d-out2b with each enemy Marcella counted twice in dx1.
 Gated against the live bot d-out2b; solo compared with gsolo-d-out2b. full.sh and solo.sh now take the reference bot as an argument.
+| **d4-marc** vs d-out2b | **73** | 43 / 30 | 1070 / 1100; died after <50% HP 23% / 24%; captures 10636 / 10592 (level); solo 158,951 (d-out2b 159,056), no losses, no new stalls |
+d4-marc passes the pre-filter. Caveat: our draft never picks Marcella, so the double count never fires in local games.
+The local gate only shows the edit is harmless here (the residual is noise). Whether it helps can only be shown on the ladder, where Marcella is the top killer.
