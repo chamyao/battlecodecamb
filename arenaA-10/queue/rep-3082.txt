@@ -1,0 +1,21 @@
+```python
+@gene('w4', 'nearest tile of s by walking; altar-ring sets drop small-camp spawn tiles (a living camp blocks them; v33 ring fix) when any other tile is left; if none is walk-reachable, fall back to the straight-line nearest free tile of s (any tile of s if all are held); invalid if s empty', parents=['w4'])
+def closest(s: Tiles) -> Tile:
+    if here() in s:
+        return here()
+    t = ring_free(s)
+    cand = t - taken()
+    w = walk_nearest(cand, here(), blocked() - cand)
+    if valid(w):
+        return w
+    if size(cand) > 0:
+        return nearest(cand, here())
+    return nearest(t, here())
+
+@gene("new", "s without small-camp spawn tiles when s lies wholly next to altars and something is left (bank walks never target a tile a living camp blocks); else s", parents=["w4"])
+def ring_free(s: Tiles) -> Tiles:
+    if size(s - ALTAR_RING) > 0:
+        return s
+    t = s - (camp_spawns() - BIG_CAMPS)
+    return t if size(t) > 0 else s
+```

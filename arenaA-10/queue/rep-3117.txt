@@ -1,0 +1,5 @@
+```python
+@gene('m5', 'tiles next to an altar that can be stood on (no walls, holes, altars or enemy spawn tiles); ring radius back to exactly 1 (a tuned 1.14 radius is not a tile distance)')
+def altar_ring() -> Tiles:
+    return ring(altars(), 1) - walls() - holes() - altars() - enemy_spawn()
+```

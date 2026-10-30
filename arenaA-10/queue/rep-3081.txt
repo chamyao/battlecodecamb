@@ -1,0 +1,5 @@
+```python
+@gene("s2", "standing on our spawn region, alive (a dead champion's stale tile never counts as home)")
+def at_spawn() -> Bool:
+    return alive() and here() in my_spawn()
+```
