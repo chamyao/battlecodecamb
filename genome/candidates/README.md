@@ -363,3 +363,4 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 - Arena B follow-ups that failed vs v40: d2-th (Tavi half-HP disengage) 62, d3-ven 65, d3-vv 60. The strict
   outnumbered trigger only pays for Tavi.
 - d-out2b live as ladder version 59 (submitted 2026-10-30T17:43:09Z, bundle sha256 63f4d4e6...). Band baseline: b19. Revert target v40 (7317ef88).
+- d4-marc (Arena B, sha 170c4ecf): d-out2b counting each enemy Marcella twice in dx1 (covers +74 of v40's ladder deaths to Marcella). My gate4 vs live d-out2b 73/140, 0 crashes; locally harmless (our pool rarely fields Marcella). Screen s13.
