@@ -15,6 +15,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   - Anchors v40 (w4), v41 (w2), v28-emblem and B318 (w1): calibrated 200 games, then frozen. v38 and v33 kept.
   - v40 seeded; max births 1200; gate >= 76 vs v40 and v41.
   - Last gates vs v39 at b600: A11584 78, A11594 80, A11599 79. Being re-gated vs v40/v41.
+- 09:30, search gatekeeper-50 (40 A-11 gates vs v40): no pass, no clean near-miss. Best h2h A11572 75.2 (blocked by
+  v28-emblem and rushbank), A11558 74.0 (solo-blocked on 00contest), A11457 73.6 (B318). Same pattern: solo +3k to +6k
+  rounds, h2h about even, losing to fighters. All pre-restart genomes; the restart's fight-weighted anchors target this.
 
 ## 2026-10-30 08:02 UTC: A-11 check-in (333 births)
 
