@@ -9,6 +9,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Writer's gate at b300, still vs v39: A11297 74, A11261 74, A11296 73. All fail. The arena tops still sit at about v39
   strength on real. The sim mu climb (29+) isn't turning into real wins: arena mu is relative to the population,
   and the anchors (v38/v33) are below the live bot.
+- 08:05: at b400 the writer's gate vs v39 gives A11393 77, A11368 72, A11358 71. My gate of A11393 (b749078f) vs live
+  v40: **71/140**, fail. Asked for the restart now: tuner fix 60a2da208 + fixpicks, v40 and v41 anchors,
+  anchor weight v40=4 / v41=2, v40 seeded, gate vs v40 and v41 (>= 76 on both).
 
 ## 2026-10-30 07:15 UTC: A-11 at 242 births
 
