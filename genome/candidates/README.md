@@ -178,3 +178,6 @@ hold 117, gem-groups after 6 buys, bossbush.
 ## arenaA-10 ports, gated on cambc 4.0.0 vs v38 (70 maps x 2 sides; bar 76/140, 0 crashes)
 
 - A103646-v33port-kf (sha 38e8e2ff...): 63/140, 0 crashes. Fails.
+- v33port-heal (sha 8fa74295...): 57/140, 0 crashes. Fails.
+- v33port-h4 (sha 59a70f5e...): 57/140, 0 crashes. Fails.
+- A103646-v33port (sha f74c7b9b...): 72/140, 0 crashes. Fails (bar 76).
