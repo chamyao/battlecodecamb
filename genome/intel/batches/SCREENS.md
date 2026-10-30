@@ -11,3 +11,19 @@ Each candidate's screen is paired with v40's games from b18base (09:57Z). Column
 | s5 | v43-fix3 (genome/v0 1e8898f6 = arenab 7bb80059, sha 6760603a) | v49 (12:02:12Z / 12:11:39Z) | 3bc991c2 | 13-17 | 10-20 | 3 / 6 | -12.9 ± 36.1 | +1.2 ± 0.8 | down on flips: not promoted |
 | s6 | x6-61 (genome/v0 1e8898f6, sha 513f4ef1) | v50 (12:22:05Z / 12:32:13Z) | 62102500 | 13-17 | 13-17 | 3 / 3 | +24.5 ± 26.4 | +0.8 ± 0.9 | level on flips, slightly up on gems (captures +1.9 ± 1.4): not promoted (needs up on both) |
 | s7 | x7-125 (genome/v0 6d5ed41, sha 4afcd1b6) | v51 (12:42:55Z / 12:51:39Z) | 95b141b6 | 13-17 | 7-23 | 2 / 8 | -48.5 ± 36.4 | +3.1 ± 1.0 | clearly down: reverted to v40 at once (s8) |
+| s8 | **v40 control** (revert; bundle 7317ef88) | v52 (13:00:29Z / 13:11:43Z) | 7317ef88 | 13-17 | 13-17 | 3 / 3 | +10.0 ± 22.4 | +0.7 ± 0.8 | control: v40 is live again |
+
+## Reading the 7 screens (13:15Z)
+
+- **The control sets the noise floor.** v40 against its own 09:57Z games: 16 of 30 identical, flips 3 / 3, gems +10 ± 22. Opponents drift over about 3 hours, but symmetrically.
+  - A candidate's screen means something only beyond about ±3 flips each way.
+  - b16 → b18base showed 55 of 60 identical over 4 hours. Today's drift is larger.
+- **Inside the noise:** x6-61 (3 / 3, gems +24 ± 26) matches the v40 control almost exactly. A11696 (7 / 8) churns a lot but nets to zero.
+- **Below the noise, consistently:**
+  - x7-125: 2 / 8.
+  - A11791: 4 / 8.
+  - A11501: 2 / 5.
+  - v43-fix3: 3 / 6.
+  - A11599: 4 / 6.
+- **Common factor:** every below-noise candidate has **+1.2 to +3.1 deaths to champions** (control +0.7). The fight-seeking edits (exploit-7 and exploit-8, and the A lineage) lose more champions to real opponents than they gain.
+- **None promoted.** v40 is live (v52).
