@@ -10,6 +10,18 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
+## fuel()-threshold genes are high-variance between sim and real (Oct 30)
+
+x8-140 (live v43) vs v40: real 81 / 140, sim 72 (ensemble 69.2). The rules are exact. At 1e8 both teams play the
+same actions, and real 1x games replayed through the sim from their actions (oracle/replays/rereplay_v2.sh) show
+0 state divergences. In 00lost-world game 37 the bots part at round 21: real x8 dashes, sim x8 does not.
+x8's `dash_gate` needs `fuel() > 45000` at scoring time; other genes gate at 40k, 60k and 65k. On identical games
+the real bot has a median 280-450 more fuel left at a turn's first decision. Whole games are 1.005-1.011 sim/real
+for x8 and 1.000 for v40, so the gate tips toward "no dash" in the sim. Sim fuel x1.01 / x1.02 / x1.04 gives
+76 / 68 / 68 (x1.00: 72): such genes make a genome's result jump with a few hundred fuel of price error rather
+than shift. Gate genomes with fuel() thresholds on real games. v43 was also picked from 8 keepers by its real
+score (keepers' sim 69.6-71.4), so its 81 carries some selection.
+
 ## First turn on cambc 4.0.0: start-up refit, group tile builds priced (Oct 30)
 
 The reversed game (01elk-arena, A103823-w1 as team A vs v39a) is real 0-1008 and sim 900-468 at every fuel
