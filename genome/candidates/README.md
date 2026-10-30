@@ -181,3 +181,6 @@ hold 117, gem-groups after 6 buys, bossbush.
 - v33port-heal (sha 8fa74295...): 57/140, 0 crashes. Fails.
 - v33port-h4 (sha 59a70f5e...): 57/140, 0 crashes. Fails.
 - A103646-v33port (sha f74c7b9b...): 72/140, 0 crashes. Fails (bar 76).
+- A103649-v33port (sha 8985a0bb...): 70/140, 0 crashes. Fails.
+  None of the five arenaA-10 ports beats v38 on engine 2.0.0; the old-engine sim ranking (54/52/51 vs v33) did not
+  carry over.
