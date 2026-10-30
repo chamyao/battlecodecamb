@@ -455,3 +455,6 @@ New rule db1, `r_threatbank(n)`, at priority 155 (after killshot, cashout and pa
 - `altar_eta() < threat_eta()`: the nearest usable altar is reachable before that enemy can hit us.
 Variants: **b-tb15** (n = 15) and **b-tb10** (n = 10).
 deaths.py now also reports gems lost on death to champions (carried the round before death). c-gem9 vs d-out2b: 6972 / 6929, i.e. about 49 per game locally.
+| b-tb15 vs d-out2b | 72 | 42 / 30 | 1055 / 1049; captures 10603 / 10583; **gems lost on death 7124 / 6345 (+5.6 per game)**; solo clean |
+b-tb15 passes the head-to-head bar but repeats the v34 cash3 failure: more gems are lost on death, because carriers walk to bank with an enemy near. Not sent.
+**b-near:** n = 10, and only when the altar is at most 2 turns away (and before the threat).
