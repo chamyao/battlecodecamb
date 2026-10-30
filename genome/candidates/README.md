@@ -281,3 +281,4 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
   79 vs x6-61.
 - x7-125m = x7-125 + v41's cheap mono_groups (sha 1dbbde1f): my gate4 vs live v41 70/140 (old 37, new 33), 0 crashes.
   Fails (mirror level).
+- Retracted by the Arena B lead: its v38/v33 hold-outs used reference bots on older runtimes. With v38 rebuilt on 671ac45b, x7-125 is 68 vs v38 (v40: 84); the later cash-out overfits v40. Hold-outs must use the candidate's runtime.
