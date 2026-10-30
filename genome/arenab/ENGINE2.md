@@ -469,3 +469,6 @@ Shop order on d-out2b: Treasure Str to its emblem (18/19), Jungle HP to its embl
 (v39a probes: Hunter and Skirmish lost as a 1st emblem or in place of Jungle. Here Treasure and Jungle stay first.)
 **s13, d4-marc on the ladder:** 10-20 vs a clean d-out2b control's 12-18. Deaths to Marcella fell 109 → 71, but total deaths to champions only 329 → 318: the deaths moved to other killers. Reverted to d-out2b (v61).
 Lesson: retreating from one specific killer hands the kill to another.
+| **s-hunt3** vs d-out2b | **70** | 36 / 34 | 1048 / 1110; captures 10685 / 10579 (level); gems lost on death 6309 / 6723; solo 158,738, no losses; slow game: 00stampede A 2000 (d-out2b 1763) |
+The stampede A game is slower play, not a freeze. s-hunt3 submits 960 by round 2000 vs d-out2b's 1120 at 1763; it is still attacking, capturing and dying (63 respawns after round 1500 vs 26).
+Passes the loosened bar with that caveat; sent to the genome lead.
