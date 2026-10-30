@@ -472,3 +472,6 @@ Lesson: retreating from one specific killer hands the kill to another.
 | **s-hunt3** vs d-out2b | **70** | 36 / 34 | 1048 / 1110; captures 10685 / 10579 (level); gems lost on death 6309 / 6723; solo 158,738, no losses; slow game: 00stampede A 2000 (d-out2b 1763) |
 The stampede A game is slower play, not a freeze. s-hunt3 submits 960 by round 2000 vs d-out2b's 1120 at 1763; it is still attacking, capturing and dying (63 respawns after round 1500 vs 26).
 Passes the loosened bar with that caveat; sent to the genome lead.
+| **s-skirm3** vs d-out2b | **72** | 41 / 31 | 1062 / 1102; captures 10811 / 10626 (+1.7%); gems lost on death 6698 / 6639 (level); solo 158,738, the same slow 00stampede A game |
+The solo results of s-skirm3 and s-hunt3 are identical (same total, same stampede game). The slowdown comes from delaying the Durability emblem by one slot, not from the family bought.
+Both pass the loosened bar; sent to the genome lead.
