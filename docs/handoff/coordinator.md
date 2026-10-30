@@ -14,6 +14,9 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   and pool. Lines were told Oct 24 ~17:30 UTC. When interp changes, build a new engine and announce its sha.
 
 ## Live and history
+- ENGINE CHANGE: pip cambc 4.0.0 (ladder engine 2.0.0) released Oct 25 23:42 UTC: 30 new maps (70 total),
+  ~48 new item types, camp capture. Our sim (deploy/v0), arena engines and local cambc 3.0.5 measure the OLD
+  engine; all gates since Oct 26 are on old rules. Genome line re-gating on 4.0.0 (Oct 30). Sim needs an upgrade.
 - Live (Oct 30 02:06 UTC): v38 = genome A93635-v33port (d54619f2...; real 47/80 vs v33), band batch 13 pending.
   Before: v37 (Oct 25 15:28 UTC) = v33's bundle (B1873-bossbush) again; v34 and v36 tweaks were no better. Earlier, v35 = v33's bundle (genome B1873-bossbush, 37e7be1a...; ranked 86-74, band 32-18),
   re-uploaded after v34 (v33-cash3-ahead4, 9842ac5c) went 28-22 on the band. Before: v32 = B1873
