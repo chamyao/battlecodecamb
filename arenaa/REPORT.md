@@ -2,6 +2,12 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 06:30 UTC: A-11 check-in
+
+- Healthy: 56 births in ~15 min (about 3.7/min, so 800 by about 09:45), mirror pushes every ~15 min (63e3cc67d).
+  Top mu: A1142 27.39, A117 27.38 (S2), A1118 27.27; anchors v38 25.20, v33 25.00. No REAL.md yet (first gate at b100).
+- Rejections are parse/rule errors (e.g. "cannot assign to at") and behavioural twins, as in A-10.
+
 ## 2026-10-30 06:25 UTC: v40m, a cheap mono_groups: 79/140 vs live v40
 
 - Fuel's turn-1 measurements on the real bot: v39a/v40's first turn is >= 200k on 25/70 maps. The biggest item is
