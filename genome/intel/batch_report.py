@@ -70,6 +70,10 @@ def main(argv):
     def cell(f, gs, p=False):
         if not gs:
             return '-'
+        try:
+            f(gs)
+        except (ZeroDivisionError, statistics.StatisticsError):
+            return '-'  # e.g. no monolith maps in this subset
         e, se = boot(gs, f)
         return f'{100 * e:.0f}% ± {100 * se:.0f}' if p else f'{e:.1f} ± {se:.1f}'
     P(f'{len(G)} games, our record {len(W)}-{len(L)}\n')
