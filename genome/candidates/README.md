@@ -272,3 +272,4 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
 
 - A11106 (sha 99fa6598): writer's real vs v39a 78/140; my gate4 vs live v41 71/140, 0 crashes. Fails.
 - A11101 (sha 36e0777d): writer's real vs v39a 76/140; my gate4 vs live v41 73/140, 0 crashes. Fails.
+- A11159 (200-birth check, sha a4ed9139): writer's real vs v39a 76/140; my gate4 vs live v41 73/140, 0 crashes. Fails.
