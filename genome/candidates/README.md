@@ -161,3 +161,5 @@ genome/candidates/A93635-v33port.genome, sha256 67ea6f01adef2b58... (arenaa/a10-
 arenaA-10/candidates/). Structural: ring small-spawn exclusion, farmable monolith rule, heal off-spawn, killshot 165,
 hold 117, gem-groups after 6 buys, bossbush.
 - Arena A writer, sim (ca5180b, 80 games, bot seeds): 46 vs v33 (unported A93635: 34), 67 vs B318, 67 vs A61188.
+- My real cambc vs v33, 40 maps x 2 sides: 47/80, 0 crashes (12 maps 2-0, 23 1-1, 5 0-2: elkring, interlock,
+  road-of-riches, fracture, starvation). GO to intel; validation band batch paired vs b10.
