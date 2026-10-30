@@ -9,6 +9,10 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Arena tops cluster at about v39 strength on real (71-78 vs v39, 63-73 vs v40/v41). Nothing beats the live bot by a margin yet.
 - Writer asked to gate vs v41, anchor on it, and require >= 76 vs both v41 and v40.
 - Its structural lead: normalising rule() guards (v39a's "264 > top" lets r_lock override idle/heal/run/fights).
+- 07:35: the tuner was perturbing rule ids and priorities: pick = 1.1356 disabled idle; pick 16 -> 15 turned a
+  capture hold into the monolith walk (A11106 has it); guards like 246 > top let later rules override idle, heal and run.
+  Fixed on genome/search 60a2da208: tunable_constants skips assignments to and comparisons with pick/top;
+  _INDEX_PRIMS += buff_turns, ring; with a test. A-11 cherry-picks it at its restart, with the v41/v40 anchors.
 
 ## 2026-10-30 06:55 UTC: A-11 at 155 births; first real gates
 
