@@ -401,3 +401,5 @@ A half-health disengage fails again, even for Tavi alone: it costs fights and fa
 d2-tout was confirmed by the genome lead (76/140, deaths 1476 vs 1682) and is queued for a ladder screen after b19.
 | d3-ven (d2-tout + Vendetta strict) | 65 | 35 / 30 | 994 / 1136; captures 10578 / 10938 (-3%); solo stalactites A 2000 |
 Vendetta is a front-line fighter: making it leave fights costs games. Next: d3-vv (d2-tout + Vesper Vale strict).
+| d3-vv (d2-tout + Vesper Vale strict) | 60 | 34 / 26 | 1045 / 1117; captures 10549 / 10938 (-4%); solo stalactites A 2000 |
+The strict trigger only pays for Tavi, our banker with the lowest health. Extending it to any front-liner costs games and captures. The death line is d-out2b → d2-tout.
