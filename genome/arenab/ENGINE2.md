@@ -38,13 +38,7 @@ bots; our r_hold / group_reward logic was written for the old capture rule.
 3. The sim needs the new item families, the passive changes, the capture rule and the new maps before it
    can screen anything again.
 4. First directed targets once measurable: the shop (Treasure halved; new families unknown) and capture holds.
-</content>
-</invoke>
-<invoke name="Bash">
-<parameter name="command">cd /home/user/battlecodecamb && git add genome/arenab/ENGINE2.md && git commit -qm "arenab: ENGINE2.md, engine 2.0.0 changes from the cambc 4.0.0 SDK diff
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_014z6kT179VSJzF3ij5ukoAv" && git push -q -u origin genome/arenab 2>&1|tail -1; git log --oneline -1
 ## Smoke on 4.0.0 (Oct 30 ~03:20 UTC)
 v33 (B1873-bossbush) builds unchanged with cambc 4.0.0 (`cambc build --release`, fresh .cambc cache) and plays a
 mirror on all 70 maps with 0 crashes/errors (side A 32, side B 38; mean 1,350 rounds, 14 games to r2000). Workspace:
