@@ -439,3 +439,5 @@ Per gem-bearing capture we get about 17.2 gems, so the low gems-per-capture figu
 (Rewards: wolf 4 gems, elk 15, gem cluster 7 for 120 health, gold cluster 20 gold and 0 gems.)
 - **c-nogold:** camp_goal skips a gold-only cluster when a gem-paying group is at most 4 tiles farther.
 - **c-gem3:** the camp walk switches to gem-only groups (GEM_BASE) after 3 shop buys instead of 6.
+| c-nogold vs d-out2b | 64 | 38 / 26 | 1239 / 1038 (more); captures 10230 / 11042 (-7%); solo: 6 new slow games (boss-battle B, famine B, gift-wrapping B, harvest A, stalactites A and B) |
+Gold-only captures pay: their gold buys the fights we win. Skipping them loses fights and stalls the solo games.
