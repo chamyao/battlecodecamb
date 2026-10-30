@@ -14,6 +14,10 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   - seeds v39a, v38, A-10 candidates and top members, with the w1 quarry fix grafted;
   - _INDEX_PRIMS += buff_turns, ring;
   - top 3 real-gated (cambc 4.0.0) vs live v39 every 100 births, logged to arenaA-11/candidates/REAL.md.
+- Running since 06:06 UTC (setup 73d9268 on arenaa/a11-mirror).
+  - Seeds: v39a + 21 A-10 genomes with the w1 graft. v38 + graft equals v39a, so v38 is not a separate seed.
+  - Anchors: v33 (fixed at 25) and v38 (calibrated over 200 games, then frozen).
+  - Sanity check: v39a vs v38 is 72/140 in the sim, the same as on real cambc.
 
 ## 2026-10-30 06:10 UTC: first-turn budget variants of v39a (real cambc 4.0.0, built at genome/v0 10d24fea)
 
