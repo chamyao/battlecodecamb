@@ -13,6 +13,11 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   survival-first course never ran: A11976's low deaths came from selection, not from that course. Approved one more
   leg to 1500 with x6-61 and x8-140 anchors (w2), survival-first mutations plus the boss-battle-B fix, deaths in the
   real gates, and a messages check between batches.
+- 13:24: leg 3 (1206 -> 1500) is running with x6-61/x8-140 anchors at weight 2. Boss-battle stall traced: the
+  writer's a9 edit (a jungle health shard when hurt) plus the lineage's prospector-first a11 keeps shop_pending
+  blocking all options, so a hurt champion parks on spawn. v40's a9 fixes both sides; A11976-a9 and A111001-a9 are
+  seeded and being real-gated. b1200 gate: A111203 62/64, A111175 62. The writer's deaths column counts all
+  deaths, not just deaths to champions.
 
 ## 2026-10-30 12:40 UTC: A-11 b1000 tops pass the deaths pre-filter
 
