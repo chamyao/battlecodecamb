@@ -342,6 +342,7 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 | s11 | d-out2b | v56 | 12-18 | 10-20 (s11c) | 4 / 2 | +1.1 +- 28.2 | up on flips, gems level; deaths -0.8, captures level: promoted to band b19 |
 | s12 | d2-tout | v58 | 12-18 | 12-18 (d-out2b, b19) | 4 / 4 | -41 +- 34 | not better than d-out2b (captures -2.5) |
 | s13 | d4-marc | v60 | 10-20 | 12-18 (s13c, d-out2b; no drift) | 2 / 4 | -10 +- 25 | not up: deaths to Marcella -35% but total deaths -3%; reverted to d-out2b (v61) |
+| s14 | s-hunt3 | v62 | 7-23 | 12-18 (s13c) | 1 / 6 | -61.5 +- 28.8 | clearly down: Hunter +38 kill gold/game doesn't repay the emblem; captures -4.0; reverted (v63) |
 - A11774 (sha a66b6b33, older A-11 lineage): 76 vs v40 / 69 vs v41; solo total 157,114, stalls on stalactites A and B. Screen queue last.
 - All four A-lineage screens are below v40 with +1.7 to +3.0 deaths to champions per game; A11774 dropped from the queue.
 - A11976 (sha 7a753124, A-11 b1000 after the survival-first course): my gate4 vs v40 78/140, 0 crashes, deaths 1551 vs v40's 1728; vs x6-61 76, vs x8-140 75 (Arena A lead). Screen queue: right after the v40 control.
