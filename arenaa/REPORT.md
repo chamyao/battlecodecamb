@@ -7,8 +7,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - A93635-v33port = A-9's A93635 with v33's fixes grafted (ring small-spawn exclusion, farmable monolith, heal
   off-spawn, killshot 165, hold 117, gem-groups after 6 buys, bossbush). Writer's sim screen (80 games, ca5180b):
   **46/80 vs v33** (unported 34/80), 67/80 vs B318, 67/80 vs A61188. The same port onto A93498 scored 43/80. Sent to
-  the genome lead for the real-cambc gate (structural bar 43/80) and upload. File: arenaa/a10-mirror
-  arenaA-10/candidates/.
+  the genome lead: **real cambc 47/80 vs v33, 0 crashes** (sha 67ea6f01...): PASS, intel has the GO (band batch paired vs
+  b10). Per map: 12 at 2-0, 23 at 1-1, 5 at 0-2 (elkring, interlock, road-of-riches, fracture, starvation). Those maps
+  were passed to the writer as the next target, along with screening vs v33port itself.
 
 ## 2026-10-30 01:55 UTC: back after the weekly-limit stop; strength run A-10
 
