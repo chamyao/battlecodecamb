@@ -13,6 +13,10 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   capture hold into the monolith walk (A11106 has it); guards like 246 > top let later rules override idle, heal and run.
   Fixed on genome/search 60a2da208: tunable_constants skips assignments to and comparisons with pick/top;
   _INDEX_PRIMS += buff_turns, ring; with a test. A-11 cherry-picks it at its restart, with the v41/v40 anchors.
+- 07:36: v41 (v40m) scored 28-32 on the ladder band vs v40's 31-29 (gems -38), so it is reverted to v40. A 3-game
+  difference in 60 is within band noise, but the call is the genome lead's. Lesson: the cheaper turn 1 changes play
+  from turn 1 (more passes), and 79/140 h2h vs v40 did not carry over to the ladder field. A-11 gates vs v40 again;
+  v41 stays an anchor.
 
 ## 2026-10-30 06:55 UTC: A-11 at 155 births; first real gates
 
