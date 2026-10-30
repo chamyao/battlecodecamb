@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 07:15 UTC: A-11 at 242 births
+
+- Top mu ~29.0 (A11202/A11219). Writer's gate at b202 (still vs v39): A11172 73, A11159 76, A11150 71.
+- My gate of A11159 vs live v41: **73/140**, 0 crashes. Fail.
+- Arena tops cluster at about v39 strength on real (71-78 vs v39, 63-73 vs v40/v41). Nothing beats the live bot by a margin yet.
+- Writer asked to gate vs v41, anchor on it, and require >= 76 vs both v41 and v40.
+- Its structural lead: normalising rule() guards (v39a's "264 > top" lets r_lock override idle/heal/run/fights).
+
 ## 2026-10-30 06:55 UTC: A-11 at 155 births; first real gates
 
 - Top mu ~29.2 (A11124); anchors v38 25.2 / v33 25.0; the v39a seed died at 25.7.
