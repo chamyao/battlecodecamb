@@ -208,3 +208,11 @@ My multi-opponent check on 4.0.0 (total / old / new):
 | x7-149 (e12059a2) | 76 / 45 / 31 | 74 / 43 / 31 | 74 / 39 / 35 | 74 / 44 / 30 |
 | v40 itself | 70 (mirror) | 80 / 46 / 34 | 75 / 39 / 36 | 66 / 39 / 27 |
 x7-125 is >= v40's own row against every reference (+7, 0, +1, +13). x7-149 is below v40 on v38. Candidate: x7-125.
+
+## CORRECTION: x7-125 retracted (reference-bot runtime mismatch)
+My v38 and v33 reference bots in the hold-outs above were built on older genome/v0 runtimes (v33e2 even on the pre-2.0 one),
+while candidates were on 671ac45b. With v38 rebuilt on 671ac45b ("v38n"): x7-125 68 / 41 / 27, x7-149 76 / 45 / 31, v40 (x6-83)
+84 / 48 / 36 (relay writer's numbers reproduced). Every exploit-7 pick drops 8-16 vs v38 relative to v40: the later cash-out
+overfits v40. No candidate. Hold-out rows in this file against "v38" and "v33e2" before this note are on mismatched builds.
+Rule from here: every reference is built on the candidate's runtime. exploit-8 started with multi-opponent fitness
+(v40, v38, v33, x6-30, band styles; all on 671ac45b).
