@@ -322,3 +322,4 @@ A11696 153,283; A11663 156,109; A11599 153,786. Stalls (>300 rounds slower than 
 except A11501; A11501 on 02stalactites A+B and 02gift-wrapping B; A11663 on 02stalactites B.
 Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 - Arena B pre-filter (vs v40, solo vs genome idle): x7-125 77 (boss-battle A+B stall), x7-149 76, x8-36 75, x8-36f 71. x7-125 is added at the end of the screen queue. Note: 01boss-battle B stalls are common across lineages (v40 1498 is the outlier).
+- A11791 (sha 0859ce55, carries v40's v2): writer's gate4 73 vs v40 / 74 vs v41; solo total 154,628, one stall (boss-battle A). Screen queue #3.
