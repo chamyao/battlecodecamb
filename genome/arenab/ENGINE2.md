@@ -265,3 +265,17 @@ fix3 without stalactites A: 158,838. Stalactites is the fragile map from the v38
 ## b18: v43 30-30 vs v40 same-hour 33-27; reverted to v40, v43 line dropped (v43-fix3 kept on file as a possible base).
 Three local 79-84/140 wins (v40, v41, v43) all landed within +-3 on the ladder band. Candidate work on hold until intel sizes a
 ladder screen band.
+
+## Ladder-screen regime: local pre-filter (>= 72 vs live v40, no new solo stall vs genome idle)
+Solo vs genome idle, 70 maps x 2 (v40 total 158,785):
+| candidate | vs v40 /140 | solo total | new stalls vs v40 |
+|---|---|---|---|
+| x7-125 | 77 | 160,429 | boss-battle A and B 2000 (v40 1424 / 1498) |
+| x7-149 | 76 | 159,769 | boss-battle A 2000, gold-rush B 2000, gift-wrapping B 1245 (759) |
+| x8-36 | 75 | 160,427 | boss-battle B 2000, stalactites B 2000 (588) |
+| x8-87 | 73 | 160,547 | same |
+| x8-8 | 72 | 160,544 | same |
+| x8-36f (+ m11 real-contester gate) | 71 | 158,647 | tangle A 2000 (1893) only |
+| x8-87f / x8-8f | 64 / 66 | 158,746 | tangle A only |
+The contest-the-capture behaviour that wins locally is the one that stalls against an idle enemy parked by its spawn; gating it
+on a real contester removes the stalls and most of the h2h edge. Whether the stall matters vs moving ladder teams is a ladder question.
