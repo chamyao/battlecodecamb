@@ -135,15 +135,18 @@ void Game::recompute_stats(Champion& ch)
 	const auto& d = champion_design(ch.type);
 	ch.health_pts = ch.strength_pts = ch.focus_pts = 0;
 	ch.passives = 0;
+	unsigned families = 0;
 	for (int i = 0; i < kNumItems; ++i)
 	{
 		if (!ch.items[i]) continue;
 		const auto& it = item_design(i);
+		if (!it.purchasable) families |= 1u << (i / 6);
 		ch.health_pts += it.health_points * ch.items[i];
 		ch.strength_pts += it.strength_points * ch.items[i];
 		ch.focus_pts += it.focus_points * ch.items[i];
 		if (it.passive != ItemPassive::none) ch.passives |= 1u << static_cast<int>(it.passive);
 	}
+	ch.emblem_families = __builtin_popcount(families);
 	ch.max_hp = d.base_health + d.health_growth * static_cast<float>(ch.health_pts);
 	ch.strength = d.base_strength + d.strength_growth * static_cast<float>(ch.strength_pts);
 	ch.focus = d.base_focus + d.focus_growth * static_cast<float>(ch.focus_pts);
@@ -159,7 +162,7 @@ void Game::grant_gold(Champion& ch, std::uint32_t amount, bool earned)
 {
 	int pct = 0;
 	if (champion_design(ch.type).passive == Passive::bonus_gold) pct += 33;
-	if (ch.has_passive(ItemPassive::treasure)) pct += 20;
+	if (ch.has_passive(ItemPassive::treasure)) pct += 10; // engine 2.0.0 (was 20)
 	// Bonus gold is kept exactly in hundredths: amount * (100 + pct) / 100.
 	const std::int64_t total = static_cast<std::int64_t>(amount) * (100 + pct);
 	ch.gold_cents += total;
@@ -266,10 +269,13 @@ int Game::channel_time(int c) const { return champs[c].channel_timer; }
 
 float Game::apply_outgoing(const Champion& src, float amount, bool vs_camp) const
 {
-	// Applied sequentially in float, as the engine does: (base * (1 + missing-health bonus)) * 1.1.
+	// Applied sequentially in float, as the engine does: (base * (1 + missing-health bonus)) * 1.15.
 	if (champion_design(src.type).passive == Passive::missing_health_damage)
 		amount *= 1.0f + 0.5f * (1.0f - src.hp / src.max_hp);
-	if (vs_camp && src.has_passive(ItemPassive::monster)) amount *= 1.1f;
+	if (vs_camp && src.has_passive(ItemPassive::monster)) amount *= 1.15f; // engine 2.0.0 (was 1.1)
+	if (!vs_camp && src.has_passive(ItemPassive::skirmish)) amount *= 1.05f; // engine 2.0.0
+	// engine 2.0.0: +1% per item family with an emblem held (24/24 traces)
+	if (src.has_passive(ItemPassive::collectors)) amount *= 1.0f + 0.01f * static_cast<float>(src.emblem_families);
 	return amount;
 }
 
@@ -407,7 +413,8 @@ void Game::kill_champion(int target, int killer)
 		k.gems += gems;
 		k.kills++;
 		teams[k.team].kills++;
-		grant_gold(k, static_cast<std::uint32_t>(settings().kill_gold), true);
+		// engine 2.0.0 hunter emblem: +50 kill gold (whether other gold bonuses scale it is unconfirmed)
+		grant_gold(k, static_cast<std::uint32_t>(settings().kill_gold + (k.has_passive(ItemPassive::hunter) ? 50 : 0)), true);
 		recompute_stats(k);
 		if (champion_design(k.type).passive == Passive::reset_cooldowns_on_kill) k.cooldown[0] = k.cooldown[1] = 0;
 	}
@@ -485,6 +492,14 @@ void Game::process_respawns()
 	}
 }
 
+bool Game::capture_contested(int g) const
+{
+	bool present[2] = {};
+	for (int h : map_->groups[g].camps)
+		if (const int c = champion_at(map_->camps[h].pos); c >= 0) present[champs[c].team] = true;
+	return present[0] && present[1];
+}
+
 void Game::check_capture_regions()
 {
 	for (std::size_t g = 0; g < groups.size(); ++g)
@@ -502,6 +517,13 @@ void Game::check_capture_regions()
 			G.capture_team = -1;
 			G.capture_timer = 0;
 		}
+		else if (G.capture_timer > 3) // engine 2.0.0: a capture-emblem holder stepping on clamps the timer at once
+			for (int h : map_->groups[g].camps)
+				if (const int c = champion_at(map_->camps[h].pos); c >= 0 && champs[c].has_passive(ItemPassive::capture))
+				{
+					G.capture_timer = 3;
+					break;
+				}
 	}
 }
 
@@ -564,13 +586,27 @@ void Game::process_captures()
 			continue;
 		}
 		const int team = present[0] ? 0 : 1;
+		// engine 2.0.0: while a capture-emblem holder is on the region the capture time is 3 (magnitude 3.0) instead
+		// of capture_time; the running timer is clamped to it before each countdown (fits the traced captures,
+		// including a holder joining midway and a holder leaving after the first round).
+		bool holder = false;
+		for (int h : map_->groups[g].camps)
+			if (const int c = champion_at(map_->camps[h].pos); c >= 0 && champs[c].has_passive(ItemPassive::capture)) holder = true;
+		const int max_time = holder ? 3 : settings().capture_time;
 		if (G.capture_team != team)
 		{
 			G.capture_team = team;
-			G.capture_timer = settings().capture_time;
+			G.capture_timer = max_time;
 		}
-		else if (--G.capture_timer > 0)
-			continue;
+		else
+			G.capture_timer = std::min(G.capture_timer, max_time) - 1;
+		if (events_on())
+		{
+			std::printf("@@EV r=%d capt group=%d team=%d timer=%d on:", round, static_cast<int>(g), team, G.capture_timer);
+			for (int h : map_->groups[g].camps)
+				if (const int c = champion_at(map_->camps[h].pos); c >= 0) std::printf(" %d%s", c, champs[c].has_passive(ItemPassive::capture) ? "*" : "");
+			std::printf("\n");
+		}
 		if (G.capture_timer > 0) continue;
 		// Reward: split among allies on the region; lowest id gets the remainder.
 		int who[kMaxChampions], n = 0;
@@ -589,6 +625,15 @@ void Game::process_captures()
 			teams[champs[who[0]].team].captures++;
 			teams[champs[who[0]].team].gems_captured += info.gems;
 		}
+		// engine 2.0.0 prospector: +25% of the holder's share of the cluster camps' rewards (gold_cluster, gem_cluster),
+		// floored, before other gold bonuses. Fits every traced capture, solo and split.
+		int cluster_gold = 0, cluster_gems = 0;
+		for (int h : info.camps)
+			if (const CampType t = map_->camps[h].type; t == CampType::gold_cluster || t == CampType::gem_cluster)
+			{
+				cluster_gold += camp_design(t).gold;
+				cluster_gems += camp_design(t).gems;
+			}
 		for (int i = 0; i < n; ++i)
 		{
 			Champion& ch = champs[who[i]];
@@ -597,6 +642,13 @@ void Game::process_captures()
 			{
 				gold += static_cast<std::uint32_t>(info.gold % n);
 				gems += static_cast<std::uint32_t>(info.gems % n);
+			}
+			if (ch.has_passive(ItemPassive::prospector))
+			{
+				// the holder's share of the cluster rewards is split like the reward itself (remainder to the first)
+				const int sg = cluster_gold / n + (i == 0 ? cluster_gold % n : 0), sm = cluster_gems / n + (i == 0 ? cluster_gems % n : 0);
+				gold += static_cast<std::uint32_t>(0.25f * static_cast<float>(sg));
+				gems += static_cast<std::uint32_t>(0.25f * static_cast<float>(sm));
 			}
 			ch.gems += gems;
 			grant_gold(ch, gold, true);
@@ -1331,6 +1383,8 @@ Err Game::submit_gems(int c, Vec2 altar)
 	ch.channel = Channel::tribute;
 	const double raw = std::ceil(settings().submit_gem_duration_multiplier * ch.gems) + settings().submit_gem_base_duration;
 	ch.channel_timer = std::max(settings().submit_gem_minimum_duration, static_cast<int>(raw));
+	// engine 2.0.0: tribute emblem shortens the channel by 33%, rounded up (20/20 traced starts; does not stack)
+	if (ch.has_passive(ItemPassive::tribute)) ch.channel_timer = static_cast<int>(std::ceil(ch.channel_timer * (1.0f - 0.33f)));
 	ch.channel_target = altar;
 	ch.submit_started = true;
 	return Err::success;

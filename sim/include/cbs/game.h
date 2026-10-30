@@ -58,6 +58,7 @@ struct Champion
 	int items[kNumItems] = {};
 	int health_pts = 0, strength_pts = 0, focus_pts = 0;
 	std::uint32_t passives = 0; // bit per ItemPassive
+	int emblem_families = 0;	// item families with an emblem held (collectors passive)
 	float max_hp = 0, strength = 0, focus = 0;
 	// Gold is kept exactly in hundredths (bonus gold accumulates fractions); the API reports floor(gold).
 	std::int64_t gold_cents = 0;
@@ -265,6 +266,7 @@ public:
 	void update_group_memory(int c);
 	// Capture progress resets the moment a reward region becomes empty or contested.
 	void check_capture_regions();
+	bool capture_contested(int g) const; // both teams stand on the region
 	void on_position_changed(int c);
 
 	// Recompute derived stats (max hp, strength, focus) from items and passives.

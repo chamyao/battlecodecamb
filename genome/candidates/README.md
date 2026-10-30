@@ -69,3 +69,145 @@ genome/candidates/A81582.genome, sha256 0b367e241df6... (remote/genome fbf8ced5 
   a61188-mono 44/52, p 0.128; A61188 48/55, p 0.162).
 - Real cambc smoke vs v29: 1-3 (won 00lanes; lost 01big-world, 00great-wall, 01boss-battle), 0 crashes.
 - Real cambc 3.0.5 --release vs v29, 40 maps x 2 sides: 52/80, 0 crashes either side. Upload after batch 6 validates v29.
+
+## A81582-ringgg (A81582 + Arena B's ring fix and weak-gem-groups-first; supersedes A81582 as the next upload)
+
+genome/candidates/A81582-ringgg.genome, sha256 aa5e6aa743675e10... (genome/arenab 5e3aeef2 cand/A81582-ringgg.genome).
+Needs the group gold/gems bot fix (genome/v0 fd778fc or later).
+- Arena B lead, real cambc (built at fd778fc): 49/80 vs v29, 0 crashes; capped normal turns 473 vs 307 (watch).
+  Solo vs a do-nothing bot, rounds to 1000 over 10 maps: 16,393 (A81582) -> 14,725.
+- Sim: 45/80 vs v29, 39/80 vs A81582; solo total vs idle 100,601 -> 96,568.
+- Smoke, real vs v29: 01elk-arena W 1014-84, 01broken-curve L 730-1001, 00great-wall W 1016-641; 0 crashes.
+- WITHDRAWN (Arena B lead, 06:14 UTC): in real cambc it loses 01pilgrimage, 01gold-rush and 01broken-curve 0-2 each vs v29;
+  gem-first starves gold against a real opponent.
+
+## A81582-ringheal (A81582 + two solo-farming bug fixes, no gem-groups)
+
+genome/candidates/A81582-ringheal.genome, sha256 9620bbfbce8afff4... (genome/arenab 7ac4808c cand/A81582-ringheal.genome).
+(1) Altar rings exclude small-camp spawn tiles, so bank walks never target a tile a living camp blocks; (2) r2 ignores
+enemies on their own spawn, so hurt carriers next to an enemy spawn can heal. Reads neither group_gems nor group_gold.
+- Arena B lead, real cambc at fd778fc: 55/80 vs v29, 0 crashes (plain A81582: 50/80 on the same builds); capped turns 450 vs 301.
+- Sim: 46/80 vs v29, 40/80 vs A81582; solo vs idle: games short of 1000 halved (10 -> 5).
+- My smoke, real vs v29 (side A, hard maps): 3 losses. My full real cambc vs v29, 40 maps x 2 sides: 57/80, 0 crashes. Next upload.
+- Live as ladder version 30 (2026-10-25T06:39:47Z, bundle sha256 90450da2...). Batch 7 vs b6 (v29): 21-29 vs 20-30, neutral;
+  monolith deaths 2.28 vs 0.58 per game (lineage lacks the monolith fix); ranked 10-5 at 15 games.
+
+## A81582-ringheal-mono (v30 + v28's monolith fix via graft.py mono; candidate for after v30)
+
+genome/candidates/A81582-ringheal-mono.genome, sha256 9a566695b7b06184... (genome/arenab 5019e0cc).
+The A-8/A-9 lineage never got intel's farmable-camps fix; solo on great-wall v30 loses 38-45 champions per game, v29 11-12.
+- Arena B lead, real cambc: 45/80 vs v30 (ringheal), 57/80 vs v29, 0 crashes. Solo vs idle, all 80 games: deaths 356 (v30 522),
+  rounds 98,956 (v30 99,212). Sim: 40/80 vs v30, 50/80 vs v29.
+- My real cambc vs v30 (ringheal), 40 maps x 2 sides: 45/80, 0 crashes; wins both sides on 00great-wall and 01shortcut. v31 candidate.
+
+## A81582-rh-mono-all (v30 + mono + intel's rhm contest rule + gg6 gem-first after 6 buys; supersedes rh-mono for v31)
+
+genome/candidates/A81582-rh-mono-all.genome, sha256 f54246b181c6caa1... (genome/arenab 843629e0). Reads group_gems:
+needs a build at or after genome/v0 fd778fc.
+- Arena B lead, real cambc: 51/80 vs v30, 49/80 vs rh-mono, 62/80 vs v29, 0 crashes. Solo vs idle 97,417 rounds, 379 deaths
+  (v30 99,212 / 522). Sim 42/80 vs v30.
+- My real cambc vs v30 (ringheal), 40 maps x 2 sides: 51/80, 0 crashes. v31 pick.
+- Live as ladder version 31 (2026-10-25T07:16:11Z, bundle sha256 e4932580...). Batch 8 vs b7 (v30): 27-23 vs 21-29, 6 flips to a win,
+  0 to a loss (p ~0.03), gems +39 +- 20; great_wall monolith deaths 35 -> 1, shortcut 12 -> 0.
+
+## B1873 (Arena B relay leg 6; v32 candidate)
+
+genome/candidates/B1873.genome, sha256 20a329ce544e9707... (genome/arenab 42275ee7). B-line with the monolith fix,
+ring/heal and gg6; new: a kill-shot fight outranks the pass-through bank (rule 165 + r_killshot).
+- Arena B lead, real cambc: 47/80 vs v31, 49/80 vs v30, 56/80 vs v29, 0 crashes. Solo vs idle 95,846 rounds, 362 deaths
+  (v31 97,417 / 379). Sim 37/80 vs v31.
+- My real cambc vs v31, 40 maps x 2 sides: 47/80, 0 crashes. Carries the rmab boss-battle exemption (relay auto-ingest).
+- Live as ladder version 32 (2026-10-25T07:50:23Z, bundle sha256 52a3fb56...). Batch 9 vs b8 (v31): 31-19 vs 27-23 (6 up, 2 down),
+  gems +87 +- 39; stuck champion-rounds 31.5 -> 4.0; elk_arena vs NotSoLonely W 936-720 (was L 18-1008); boss_battle still 0-1.
+
+## B1873-bossbush (v32 + no bush move bonus on the boss-battle layout; v33)
+
+genome/candidates/B1873-bossbush.genome, sha256 7ff741cbb0826666... (genome/arenab a52d986d). One edit: the a8 bush move
+bonus is skipped when some altar-ring tile is a monolith-group spawn (ALTAR_MONO, set once in v2).
+- Arena B lead, real cambc vs v32: 40/80 = 01boss-battle 2-0 + 1-1 on each other map (identical play), 0 crashes.
+- My check, real vs v32: 01boss-battle 2-0; 00lanes and 01big-world mirror v32 exactly (same rounds, side wins).
+- Live as ladder version 33 (2026-10-25T08:36:16Z, bundle sha256 37e7be1a...). Validation: intel batch 10, paired vs b9.
+
+## v33-cash3-ahead4 (tune-B on v33; v34 candidate)
+
+genome/candidates/v33-cash3-ahead4.genome, sha256 6ca9e9e63bced4a1... (genome/arenab d0351648; genome/tuneb 579c317).
+Two constants: a5 ahead_on d <= 5 -> 4; r5 cash-out g < 5 -> 3.
+- tune-B and Arena B lead, real cambc: 44 vs v33, 44 vs v32, 46 vs v31, 59 vs farmer, 65 vs rushbank (v33's row: 40/40/44/50/66).
+  Capped turns 364-381 (v33 411-450). Solo vs idle 95,088 rounds, 352 deaths.
+- My real cambc vs v33, 40 maps x 2 sides: 44/80, 0 crashes. v34 pick.
+- Live as ladder version 34 (2026-10-25T14:18:21Z, bundle sha256 9842ac5c...). Validation: intel batch 11, paired vs b10.
+- Batch 11 (intel b11.md, 4639d9f): 28-22 vs b10's 32-18 on the same 50 matchups, 3 flipped to wins and 7 to losses
+  (sign test p ~0.34). Gems -41, gems captured -56, gems lost on death +44. The earlier cash-out puts carriers on the
+  road more often and they lose bags. Nothing favours v34, so it is reverted: v33 bundle 37e7be1a... re-uploaded.
+- Reverted: v33 re-submitted as ladder version 35 (2026-10-25T14:54:24Z, same bundle sha256 37e7be1a...).
+
+## v33-ahead4 (v33 + a5 ahead_on d <= 5 -> 4 only; v34 without cash3)
+
+genome/candidates/v33-ahead4.genome, sha256 7bead1581516d949... (genome/arenab). Splits v34's two edits.
+- tune-B real cambc: 43 vs v33, 44 vs v32, 46 vs v31, 58 vs farmer, 68 vs rushbank. Solo identical to v33.
+- My real cambc vs v33, 40 maps x 2 sides: 44/80, 0 crashes. GO to intel as v36; validation b12 paired vs b10 and b11.
+- Live as ladder version 36 (2026-10-25T14:56:30Z, bundle sha256 614be6e6...). Validation: intel batch 12, paired vs b10 and b11.
+- Batch 12 (intel b12.md, bd7a24b): 31-19 vs b10's 32-18 (4 flipped to wins, 5 to losses), gems -42 +- 34; vs b11 28-22 -> 31-19.
+  ahead4 is record-neutral but costs ~40 gems/game in both b11 and b12; cash3 alone added losses on packs, the_farm
+  and lanes. Reverted: v33 re-submitted as ladder version 37 (2026-10-25T15:28:27Z, bundle 37e7be1a...).
+
+**Upload bar (2026-10-25, after v34/v36):** a +3-4/80 local real-cambc edge from a constant tweak did not carry to the
+band twice. A constant-only tweak now needs real cambc >= 46/80 vs live (0 crashes) for an upload; under that it is
+screen-only. Structural edits keep the 43/80 bar.
+
+## A93635-v33port (Arena A-9's A93635 + v33's fixes grafted in; arenaA-10)
+
+genome/candidates/A93635-v33port.genome, sha256 67ea6f01adef2b58... (arenaa/a10-mirror 38f5ab8b,
+arenaA-10/candidates/). Structural: ring small-spawn exclusion, farmable monolith rule, heal off-spawn, killshot 165,
+hold 117, gem-groups after 6 buys, bossbush.
+- Arena A writer, sim (ca5180b, 80 games, bot seeds): 46 vs v33 (unported A93635: 34), 67 vs B318, 67 vs A61188.
+- My real cambc vs v33, 40 maps x 2 sides: 47/80, 0 crashes (12 maps 2-0, 23 1-1, 5 0-2: elkring, interlock,
+  road-of-riches, fracture, starvation). GO to intel; validation band batch paired vs b10.
+- Live as ladder version 38 (2026-10-30T02:06:53Z, bundle sha256 d54619f2...). Validation: intel batch 13, paired vs b10.
+- Search gate (gatekeeper-30 rule, ca5180b): sim h2h 46/80 vs v33; anchors 0 blocks (gains vs A61188 66/56, B1873 45/39).
+  Solo-farm blocks: total +339 rounds, driven by 01boss-battle +1382 (sim tribute lock) and 00contest +378; without
+  boss-battle it is ~1,040 rounds better. Advisory under upload-first; watch contest and boss_battle in b13.
+- Batch 13 (intel b13.md, 36a626a): 29-21 vs b10's 32-18, but the ladder engine is now 2.0.0 (pip cambc 4.0.0; b10 and
+  earlier were 1.0.3), so the comparison is confounded. Local real gates (cambc 3.0.5) and the sim measure the old
+  engine. Engine 2.0.0 adds 30 maps (70 in the pool), 8 item families (tribute, capture, prospector, hunter, skirmish,
+  greed, collectors; shard/emblem of strength/focus/health) and camp_group_capture_state. Re-gating v38 vs v33 on
+  cambc 4.0.0 (70 maps x 2 sides).
+- Real cambc 4.0.0 (engine 2.0.0), 70 maps x 2 sides vs v33: 82/140, 0 crashes, 140/140 results; old 40 maps 47/80,
+  30 new maps 35/60; 18 games reach round 2000. v38 is kept.
+
+## arenaA-10 ports, gated on cambc 4.0.0 vs v38 (70 maps x 2 sides; bar 76/140, 0 crashes)
+
+- A103646-v33port-kf (sha 38e8e2ff...): 63/140, 0 crashes. Fails.
+- v33port-heal (sha 8fa74295...): 57/140, 0 crashes. Fails.
+- v33port-h4 (sha 59a70f5e...): 57/140, 0 crashes. Fails.
+- A103646-v33port (sha f74c7b9b...): 72/140, 0 crashes. Fails (bar 76).
+- A103649-v33port (sha 8985a0bb...): 70/140, 0 crashes. Fails.
+  None of the five arenaA-10 ports beats v38 on engine 2.0.0; the old-engine sim ranking (54/52/51 vs v33) did not
+  carry over.
+
+## Engine-2 probes on v38 (Arena B lead, cambc 4.0.0, 70 maps x 2 sides vs v38; genome/arenab ENGINE2.md)
+
+- Shop order: Monster first 76, Jungle first 74, Monster for Treasure 72, no Treasure 68, Treasure third 66, no Jungle
+  59. v38's Treasure -> Jungle -> Durability -> Bruiser holds.
+- Draft: Marcella for Ren 71, HoR for Ren 69, Issac for VV 65, VV last 65, Marcella+HoR for Tavi+Ren 45, top-team core 28.
+  v38's draft holds; Tavi's remote shop carries our banking logic.
+- New item families: unbuyable until the runtime has kNumItems 84 (bot/src/cbs/core.h is 42); every probe 2/140.
+  Fuel is doing "M0.5: bot constants" (items 42-83, 2.0.0 passives and champion stats) on genome/fuel.
+
+## Search gate passes (engine-1.0.3 sim) re-checked on cambc 4.0.0 vs v38
+
+- A103740 (arenaA-10, blob 3fde74c2; sim pass h2h 46/80, anchors clean): 61/140, 0 crashes. Fails.
+- A103823 (sim 47/80, hunter-blocked): 69/140, 0 crashes. Fails.
+
+## v38 on engine 2.0.0: batch 14 and the 00quarry freeze
+
+- Batch 14 (intel b14.md, 17874bd): 24-26. Old-map part paired with b13: 19-11 vs 18-12 (1 flip). New maps: 5-15,
+  with gems 638 vs 820 and deaths to champions 12.2 vs 8.2. New maps are 43% of the pool and the main weakness.
+- Bug: v38 as team A on 00quarry freezes (0 gems, 60 gold; no actions from round 63). Confirmed in my gate4 log; v33
+  wins that map. With the Arena A lead to fix. 02the-pack is 0-0 for every bot (gold tiebreak), not a regression.
+
+## Engine-2 runtime on genome/v0 (merge 6fb46951 of genome/fuel f952d598)
+
+- Sim exact vs cambc 4.0.0 (seed 70/70 maps), new item passives, capture_state/capture_timer prims; kNumItems 84.
+- v38 rebuilt on it (same genome, new constants) vs the live v38 build: 69/140, 0 crashes; 00quarry-A still frozen.
+  The constants alone are neutral, so no upload.

@@ -33,7 +33,8 @@ add_test(NAME maps COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_maps.
 add_executable(replay tools/replay.cpp)
 target_link_libraries(replay cbs)
 # Full traced games from cambc (oracle/run_trace.py): replay must match line for line.
-foreach(t 00elkring-100 01islands-12 00contest-13)
+# engine 2.0.0 (cambc 4.0.0) traces; they exercise the new item passives and camp_group_capture_state.
+foreach(t 01elk-arena-5 02arena-5 00anvil-6)
   string(REGEX REPLACE "-[0-9]+$" "" tmap ${t})
   add_test(NAME replay_${t} COMMAND sh -c "xz -dc ${REPO}/oracle/fixtures/traces/${t}.txt.xz | $<TARGET_FILE:replay> ${REPO}/maps/${tmap}.map26a /dev/stdin --quiet")
 endforeach()

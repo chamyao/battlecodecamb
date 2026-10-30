@@ -57,3 +57,8 @@ Uploads go through the intel session's logged-in cambc, on the lead's instructio
 project's coordinator only when a candidate clears the bar (both lines upload to the same ladder slot).
 Ladder check (Oct 24 22:30 UTC): ranked v24 (v22 ZIP) 67-53, v25 B318 8-12, v26 B792 11-19. Head-to-head wins over
 the live bot have not predicted band results; a revert to v24 and a stricter bar are with Cham.
+
+**2026-10-25 (Cham): no more Claude API credit.** Every LLM call now goes through Claude Code sessions: arena runs use
+the file-queue backend (`--llm-queue`, genome/search/queuellm.py, model "session", cost 0) answered by session writers.
+No new API-backed runs (no FUNSEARCH_API_KEY runs, no promptbench --budget); stopped API runs (Z-17a/b/c, exploit-3)
+resume only on the queue backend.
