@@ -356,3 +356,8 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 - d-out2b (Arena B, sha b072d8bc): v40 + dx1 retreat to spawn when outnumbered by 2+ live enemy champions within 6. Arena B: 72/140, deaths 1080 vs 1139, captures level, no new solo stall. My gate4 vs v40: 72/140, 0 crashes, deaths 1585 vs 1683. To the ladder screen (s11).
 - Control s11c (v40, 16:20Z): 10-20 vs s8's 13-17; flips 2 up / 5 down, gems -55, deaths +1.2. Opponents strengthened over ~3 h with no change on our side, comparable to some earlier 'down' verdicts (A11501, v43-fix3 at 10-20). Rule: a fresh control at the start of each screen session.
 - d2-tout (Arena B, sha 404637c9): d-out2b + Tavi retreats when outnumbered at all within 6. My gate4 vs v40 76/140, 0 crashes, deaths 1476 vs 1682 (-12%). Solo: stalactites A stall (resource exhaustion, 10 gems short). Screen queue after b19/b19base, against the same-hour v40 control.
+- Batch 19: d-out2b 31-29 vs same-hour v40 (b19base) 30-30; flips 6 up / 5 down; gems -7 +- 25; deaths -0.8 +- 0.6;
+  gems lost on death -14.5 +- 6.9; captures -1.1 +- 1.5. Adopted: the first bot since v40 with ladder evidence of
+  not being worse (fewer deaths, farming level). d2-tout is screening (s12) vs both; the better of the two goes live.
+- Arena B follow-ups that failed vs v40: d2-th (Tavi half-HP disengage) 62, d3-ven 65, d3-vv 60. The strict
+  outnumbered trigger only pays for Tavi.
