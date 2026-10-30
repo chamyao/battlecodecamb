@@ -272,6 +272,8 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   v39 b15: 31-29 (v38 30-30). 40 = exploit-6 x6-83 (06:08 UTC Oct 30, bundle 7317ef88...): contests gem groups
   an enemy farms, healthiest fighter first; holds contested captures. 79/140 vs v39 on 4.0.0 (old maps 46/80,
   new 33/60), 0 crashes. Validation: b16. Revert target v39 (97492ba3...). Queued next: v40m (79/140 vs v40).
+  v40 b16: 31-29, same as v39 on the same games (kept). 41 = v40m (06:33 UTC Oct 30, bundle 7cd1e540...): v40
+  with cheaper monolith-group lookup (turn-1 fuel cap maps 14 -> 4); 79/140 vs v40. Validation: b17. Revert target v40.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
