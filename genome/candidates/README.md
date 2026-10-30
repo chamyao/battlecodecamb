@@ -245,3 +245,11 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
 - Sim fixes merged (fuel 4fee8e27 extra x1.04, then 6c5b096e start-up refit + group_tiles priced; genome/v0 10d24fea):
   A103823-w1 sim 83 -> 73 -> 67 (real 68). Gatekeeper-44's only clean near-miss, A103746-w1 (sha cec021bf, sim
   ensemble 74): real 70/140 vs live v39, 0 crashes. Fails.
+
+## exploit-6 structural edits on v39a (Arena B lead, queue writer, runtime 671ac45b)
+
+- x6-83 (sha 823f1ca37244526a): contest a gem group an enemy is farming, with the healthiest fighter first; hold on
+  contested captures. My gate4 vs live v39: 79/140 (old 46/80, new 33/60), 0 crashes. Arena B hold-outs: 80 vs v38,
+  75 vs v33 (v39a on this runtime: 71 / 78). GO as v40, built on genome/v0 HEAD runtime (engine-2 tables).
+- x6-61 (sha 513f4ef13f29c7b7): every ally on a contested capture holds. My gate4: 77/140 (old 43, new 34), 0 crashes.
+  Passes too; held back in favour of x6-83.
