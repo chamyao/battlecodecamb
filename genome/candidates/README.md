@@ -304,3 +304,4 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
   Reverted to v40; the queued v43-fix upload is cancelled. Pattern: gate4 edges of 79-84/140 (v40, v41, v43) have
   not moved the band, so the ladder band decides and gate4 is only a pre-filter.
 - v43-fix3 (sha 6760603a, genome/arenab 7bb80059e): v43-fix + m11 contest help only with a real off-spawn contester; fixes the boss-battle B, famine B and expanse A stalls; 75/140 vs v43; stalactites A 429 -> 2000. On file only, since the v43 line was dropped after b18.
+- Reverted: v40 re-submitted as ladder version 44 (2026-10-30T10:32:02Z, bundle 7317ef88...). Band baseline for the next candidate: b18base (v40, 33-27).
