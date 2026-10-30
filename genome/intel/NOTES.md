@@ -92,3 +92,7 @@ Reverted: v33 (bundle 37e7be1a) was re-submitted as ladder version 35 at 2026-10
 vs b10: 32-18 -> 31-19 (4 flips to a win, 5 to a loss), gems -42 +- 34. vs b11: 28-22 -> 31-19 (3 / 0). The ahead4 change is record-neutral but costs gems; cash3 caused the extra b11 losses. See batches/b12.md.
 
 Reverted again: v33 (bundle 37e7be1a) was re-submitted as ladder version 37 at 2026-10-25T15:28:27Z on the genome lead's GO (ahead4: same record, -40 gems per game).
+
+## Batch 13 (2026-10-30, live v38 = A93635-v33port, engine 2.0.0)
+
+The ladder engine moved to v2.0.0 (cambc 4.0.0); our tools are on 1.0.3 / 3.0.5. b13 is 29-21 vs b10 32-18, but bot, engine and opponents all changed, so it is confounded. See batches/b13.md.
