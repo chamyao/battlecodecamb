@@ -11,7 +11,15 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   arenaa/candidates/v40m.genome.
 - Real cambc 4.0.0, both built at 05a41d20, gate4 vs v40: **79/140, 0 crashes**. Turn-1 max median 178.7k -> 162.2k;
   maps with turn 1 capped 14 -> 4 (>= 175k: 40 -> 22); turn-2 caps 3 -> 0 of 350.
-- Sent to the genome lead to confirm with their own gate4.
+- The genome lead confirmed 79/140 (old maps 49, new maps 30). Intel uploads it after v40's b16 band (~06:50).
+- Next target, ring (15k): v40r = v40m with m6 safe_altar_ring checking each altar's distances instead of building
+  radius-5/6 reach sets (same set). Real gate4 vs v40m: 69/140, 0 crashes. Median turn 1 165k -> 159k, but the maps at
+  the cap are unchanged (4). No gain: chaos, since behaviour is the same.
+- Per-gene turn-1 profile (GENOME_PROF, real bot): 01big-world ring 34k / update 24k self / mono_groups 17k;
+  01yellow-brick-road cast_value 108k over 188 calls (cast options scored on turn 1), ring 22k.
+  Still at the 200k cap: 01big-world, adgato-gemcombat5, 01yellow-brick-road; most other maps end at 185-190k
+  (the pass guard). Further turn-1 trimming has diminishing returns. The remaining big item is cast scoring on
+  yellow-brick-road.
 
 ## 2026-10-30 06:03 UTC: arenaA-11 started in a fresh writer session
 
