@@ -1,0 +1,13 @@
+```python
+@gene('r13', 'the camp in reach stands on the nearest altar-adjacent tile and every closer safe choice is gone or over 10 away: fight the blocker (cheap camp check first)')
+def bank_blocked() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not farmable(c) or not (c.pos in camp_spawns()):
+        return False
+    if c.pos != bank_t3():
+        return False
+    a = bank_t1()
+    b = bank_t2()
+    h = here()
+    return (not valid(a) or dist(h, a) > 10) and (not valid(b) or dist(h, b) > 10)
+```
