@@ -350,3 +350,4 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
   Our anchors don't behave like ladder teams; every genome dies 8.0-8.8 times a game against them. No A-12. Until we
   have ladder-like local opponents (e.g. policies distilled from ladder replays), the ladder screen is the only
   reliable fitness. Also: A11976 drafts Varg instead of Ryth (d1), a plausible cause of its capture deficit.
+- Coordinator: analysis/sprint1 Fish-clone study (Oct 24): Fish champions die 6% of the time after falling below half HP, ours 88%. Low-HP retreat is the Arena B lead's next directed edit on v40.
