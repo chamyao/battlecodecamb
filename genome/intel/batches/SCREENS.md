@@ -50,3 +50,4 @@ Each candidate's screen is paired with v40's games from b18base (09:57Z). Column
 | s15 | s-skirm3 (genome/v0 74f67282, sha 830c6c39; d-out2b + Skirmish Str emblem bought 3rd), paired with s15c | v64 (18:52:43Z / 19:01:38Z) | b2c7bff5 | 12-18 | 9-21 | 3 / 6 | -40.0 ± 28.3 | +0.5 ± 0.7 | down (captures -3.0 ± 1.6; kill gold 183 → 180). **Reverted to d-out2b** (v65, submitted 19:11:24Z, live 19:15:31Z) |
 
 Shop emblems bought 3rd (Hunter s14, Skirmish s15) both cost about 3 captures and 40-60 gems per game against these opponents: they delay the Bruiser stats. d-out2b's shop order stands.
+| w1c | drift watch: d-out2b control (live v65), paired with s15c | v65 (- / 22:1xZ) | 63f4d4e6 | 12-18 | 12-18 | 0 / 0 | +0.0 | +0.0 | identical, no drift |
