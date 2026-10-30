@@ -18,6 +18,10 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   blocking all options, so a hurt champion parks on spawn. v40's a9 fixes both sides; A11976-a9 and A111001-a9 are
   seeded and being real-gated. b1200 gate: A111203 62/64, A111175 62. The writer's deaths column counts all
   deaths, not just deaths to champions.
+- 13:40: A11976-a9 (A11976 with v40's a9, sha 8fb2a7dd), real: 74 vs v40, 75 vs x6-61, 73 vs x8-140. Boss-battle B is
+  fixed (wins at round 1642), but deaths go to 1766/1780/1879 (v40 1610 in the same games). The hurt jungle-shard edit is
+  both the stall and A11976's survival edge. Not recommended. The writer is to make a9b: keep the shard, release
+  shop_pending.
 
 ## 2026-10-30 12:40 UTC: A-11 b1000 tops pass the deaths pre-filter
 
