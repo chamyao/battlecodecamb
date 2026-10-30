@@ -281,6 +281,9 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   vs v40's 861); fix in progress. Revert target v40 (7317ef88...).
   v43 b18: 30-30 vs v40's same-hour re-run 33-27. 44 = v40's bundle again (10:32 UTC Oct 30). Candidates now go
   through short ladder screens (30 games each) before an upload.
+  45-51 = screens (A11501, A11696, A11599, A11791, v43-fix3, x6-61, x7-125): none beat v40 on the same games
+  (v40 13-17; best x6-61 level, x7-125 7-23). 52 = v40 again (drift control 13-17). Fight-seekers die +1.2 to +3.1
+  more per game vs ladder teams; no local metric ranks the screens. Next lever: ladder-like local opponents.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any

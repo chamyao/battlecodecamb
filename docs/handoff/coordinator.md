@@ -18,7 +18,7 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   ~48 new item types, camp capture. Our sim (deploy/v0), arena engines and local cambc 3.0.5 measure the OLD
   engine; all gates since Oct 26 are on old rules. Genome sim ported, exact vs 4.0.0 (genome/v0 671ac45b);
   deploy/v0 and arena engines are still on the old engine.
-- Live (Oct 30 10:32 UTC): v44 = v40's bundle (x6-83, 7317ef88...) again; v43 (x8-140) went 30-30 vs v40's 33-27 on b18.
+- Live (Oct 30 ~13:40 UTC): v52 = v40's bundle again after screens v45-v51 (none beat v40). Earlier, v44 = v40's bundle (x6-83, 7317ef88...) again; v43 (x8-140) went 30-30 vs v40's 33-27 on b18.
   Before: v42 (07:36 UTC) = v40's bundle (x6-83, 7317ef88...) again; v41 (v40m) went 28-32 on b17.
   The ladder band now decides uploads (local 79/140 edges twice failed to show).
   Before: v40 (06:08 UTC) = genome x6-83 (7317ef88...), b16 31-29.
