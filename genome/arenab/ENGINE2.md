@@ -279,3 +279,10 @@ Solo vs genome idle, 70 maps x 2 (v40 total 158,785):
 | x8-87f / x8-8f | 64 / 66 | 158,746 | tangle A only |
 The contest-the-capture behaviour that wins locally is the one that stalls against an idle enemy parked by its spawn; gating it
 on a real contester removes the stalls and most of the h2h edge. Whether the stall matters vs moving ladder teams is a ladder question.
+
+## Fight-cohesion edit: v40-join (pre-filter FAIL)
+
+The edit, on x6-83 (v40): new rule 23 at priority 125, placed before r_prefight. The bot walks to join an enemy within 9 tiles when an ally is within 6 tiles of that enemy. Conditions: not at spawn, health >0.5, gems <15, and the enemy is not on its spawn. New genes: j1 `join_foe` and j2 `r_join`.
+
+Pre-filter vs live v40 (cambc 4.0.0, runtime 671ac45b, 140 games): **64/140** (old 34/80, new 30/60). The bar is 72, so it fails. I did not run the solo check.
+The unconditional join pulls units off income for fights they can't swing. The next narrower variant joins only when we'd outnumber the enemy near the foe.
