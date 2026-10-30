@@ -12,6 +12,10 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - 08:05: at b400 the writer's gate vs v39 gives A11393 77, A11368 72, A11358 71. My gate of A11393 (b749078f) vs live
   v40: **71/140**, fail. Asked for the restart now: tuner fix 60a2da208 + fixpicks, v40 and v41 anchors,
   anchor weight v40=4 / v41=2, v40 seeded, gate vs v40 and v41 (>= 76 on both).
+- 08:27, search gatekeeper-50 (18 A-11 genomes vs v40, 30 anchors, solo vs idle): no pass, no clean near-miss.
+  A-11 farms far better than v40 (solo +2k to +5k rounds) but is even head-to-head; the blocking anchors are fighters
+  (v28-emblem, B318, metadraft). Real check of A11261 (10199f2c) vs v40: 71/140. A-11 writer asked to aim mutations at
+  fights and contests, not farming.
 
 ## 2026-10-30 07:15 UTC: A-11 at 242 births
 
