@@ -184,3 +184,8 @@ My check on cambc 4.0.0, vs the live v39 build (v39a on runtime 35bcf691a) and h
 | x6-61 (513f4ef1) | 77 / 43 / 34 | 78 / 43 / 35 | 77 / 40 / 37 |
 | ref: v39a on 671ac45b | 69 (genome lead) | 71 / 38 / 33 | 78 / 46 / 32 |
 Both clear the 76 structural bar vs live and gain +7-9 vs v38 over v39a's row; vs v33 they are -1 to -3.
+
+## v40 = x6-83 (genome/v0 8e6dfb46c; genome lead reproduced 79/140 vs live v39)
+x6-83 vs x6-61: x6-83 changes c0 (kill shot at 172 above cash-out) and r16 stays v39a; x6-61 changes r16 (every ally holds while
+capture_state == CONTESTED). Combined (v40-hold): vs v40 71 / 40 / 31, vs live v39 77 / 43 / 34, vs v38 78 / 43 / 35, identical to
+x6-61 alone; the hold rule masks the kill-shot gain. No better candidate than v40.
