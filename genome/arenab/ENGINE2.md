@@ -489,3 +489,8 @@ Not clean: more gems lost on death and the boss-battle stalls. Gating s-hs5 (Hun
 | **s-hs5** (Hunter, Durability, Skirmish) vs d-out2b | **76** | 42 / 34 | 1023 / 1163 (-1.0 per game); captures 10609 / 10472 (+1.3%); gems lost on death 7007 / 7112 (level); solo: boss-battle A and B 2000 (shared with s-sh5) |
 s-hs5 is the best stack locally. The boss-battle stalls come from the 5th-emblem timeline (identical solo totals for both orders); boss-battle is the known-fragile map from the v43 bisection.
 Candidate if s14 (s-hunt3) screens up.
+**s14, s-hunt3 on the ladder:** 7-23 vs d-out2b's 12-18; captures -4.0, gems -61. Hunter's +38 kill gold per game doesn't repay the emblem.
+Hunter is out, s-hs5 included despite its 76 locally: local h2h does not track the ladder.
+Pre-built Skirmish stacks with a non-Hunter 5th emblem (Skirmish, Durability, then X), in case s15 screens up:
+- **s-sc5:** X = Capture (48/49).
+- **s-sp5:** X = Prospector (54/55).
