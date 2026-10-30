@@ -97,7 +97,7 @@ struct FuelBudget
 {
 	static constexpr std::int64_t kCpp = 100000;
 	std::int64_t per_turn = kCpp;
-	int draft_first_turn_multiplier = 10;
+	int draft_first_turn_multiplier = 100; // engine 2.0.0 (cambc 4.0.0 replays: 10M on the first draft turn; was 10)
 	int play_first_turn_multiplier = 2;
 };
 } // namespace cbs

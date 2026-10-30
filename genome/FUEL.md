@@ -48,6 +48,35 @@ No current genome (candidates, B1145, seed) calls any of these prims. The one th
 runtime's own self-item load, which lists Tavi's SELL options on spawn. Every existing genome compiles to
 the same C++ as before the port.
 
+**Fuel budget:** cambc 4.0.0 gives the first draft turn 10M (100x the turn's 100k; it was 10x). The
+simulator's `FuelBudget::draft_first_turn_multiplier` now matches; no genome uses more than ~50k there.
+
+**Validation on cambc 4.0.0.** Whole game, sim fuel / real fuel on identical games (1e8 fuel against the
+interpreted v23, sim at 1000x against `gconv1.pol`), same as the table below for 3.0.5:
+
+| genome | 00lanes | 01elk-arena | 02arena | 00crater |
+|---|---|---|---|---|
+| A61188 | 0.975 (3.0.5: 0.974) | 0.968 | 0.991 | 0.983 |
+| B792 | 0.965 (3.0.5: 0.962) | 0.959 | 0.972 | 0.968 |
+| v28-emblem | 0.969 (3.0.5: 0.968) | 0.969 | | |
+
+Head-to-head against real cambc 4.0.0 at 1x, 140 games each (all 70 maps, both sides; games paired by map
+and side):
+
+| matchup | real wins | sim wins | sim picks the real winner |
+|---|---|---|---|
+| A61188 vs B792 | 83 | 73 | 90 of 140 |
+| B792 vs B318 | 65 | 75 | 90 of 140 |
+| B1145 vs A61188 | 61 | 56 | 89 of 140 |
+
+These games are chaotic at 1x: the same simulated matchup run at 0.99x or 1.01x fuel picks a different winner
+in 24 and 28 of 140 games (at 0.97x / 1.03x in 38 and 44), so per-game agreement with real games cannot get
+near 140 while the sim is ~3% under real fuel.
+
+Identity: against the runtime before the price refits (922b98f), vs starter and head to head, at 1x and 100x,
+A61188's games are fuel-identical (140/140 each). v28-emblem's fuel moves in every game, with the same winner
+in 140/140: its `items_owned` read goes through the self-item load, now 378 (see above).
+
 ## State of calibration (Oct 25, memo hits typed and by call site)
 
 Whole game, sim fuel / real fuel on identical games: cambc at 1e8 fuel against the interpreted v23
