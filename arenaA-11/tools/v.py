@@ -4,6 +4,7 @@ sys.path.insert(0, '/home/user/battlecodecamb')
 from genome.search import edit
 R = '/home/user/battlecodecamb/arenaA-11'
 _, _, V = edit.segments(open(f'{R}/seeds/v39a.genome').read())
+_, _, V40 = edit.segments(open(f'{R}/v40.genome').read())
 for s in sys.argv[1:]:
     q = json.load(open(f'{R}/queue/req-{s}.json')); u = q['user']
     print(f"##### {q['seq']} {q['op']} {q['parents']} | {u.splitlines()[0][:70]}")
@@ -15,6 +16,8 @@ for s in sys.argv[1:]:
         name = re.search(r'def (\w+)', blk).group(1)
         if gid in V and edit.body_canon(V[gid]) == edit.body_canon(blk) and len(blk) > 600:
             print(f'--- {name} [{gid}] = v39a ({len(blk)} chars)')
+        elif gid in V40 and edit.body_canon(V40[gid]) == edit.body_canon(blk) and len(blk) > 600:
+            print(f'--- {name} [{gid}] = v40 ({len(blk)} chars)')
         elif gid in V and len(blk) > 1200:
             import difflib
             print(f'--- {name} [{gid}] diff vs v39a:')

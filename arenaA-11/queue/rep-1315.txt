@@ -1,0 +1,7 @@
+```python
+@gene('Zd', 'a visible enemy champion off its own spawn can hit me now or after one step (a hurt champion next to an enemy spawn otherwise never heals); one below 20% counts only while carrying gems', parents=['s5'])
+def foe_in_reach_off_spawn() -> Bool:
+    h = here()
+    r = me().attack_range
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if (u.health_frac > 0.2 or unit_gems(u) > 0) and not (u.pos in enemy_spawn()))
+```

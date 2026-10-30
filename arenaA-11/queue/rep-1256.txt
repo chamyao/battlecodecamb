@@ -1,0 +1,5 @@
+```python
+@gene('m6', 'tiles next to an altar out of monolith reach (5), not within 3 of a golem spawn (a golem wakes on a tribute next to it) and not within 6 of the enemy spawn')
+def safe_altar_ring() -> Tiles:
+    return ring(altars() - ring(type_spawns(MONOLITH), 5) - ring(type_spawns(GOLEM), 3) - ring(enemy_spawn(), 6), 1)
+```
