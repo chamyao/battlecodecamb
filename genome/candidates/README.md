@@ -287,3 +287,4 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
   the ladder band measures real opponents and the local 79/140 self-play edge did not transfer (as with x6-83 in b16).
 - Reverted: v40 re-submitted as ladder version 42 (2026-10-30T07:36:04Z, same bundle 7317ef88...). b16 stays the band baseline.
 - A11393 (400-birth check, sha b749078f): writer's real vs v39a 77/140; my gate4 vs live v40 71/140, 0 crashes. Fails.
+- 500-birth check: A11476 (sha 361c3c1b; 77 vs v39a) is 70/140 vs live v40; A11501 (sha fb1b19cd; 76 vs v39a) is 75/140 vs v40. 0 crashes. Both fail.
