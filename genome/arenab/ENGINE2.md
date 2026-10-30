@@ -461,3 +461,9 @@ b-tb15 passes the head-to-head bar but repeats the v34 cash3 failure: more gems 
 | b-near vs d-out2b | 71 | 41 / 30 | 1096 / 1077; captures 10536 / 10766 (-2%); gems lost on death 6666 / 6670 (level); solo clean |
 Bank-under-threat line closed. The loose trigger (b-tb15) raises gems lost on death; the tight one (b-near) changes nothing.
 Gems lost on death are not cut by bank timing on top of d-out2b; d-out2b's retreat already takes the carrier out.
+
+## Draft and shop on d-out2b (loosened pre-filter for ladder-only effects: ≥68/140 vs d-out2b, 0 crashes, no new solo stall, captures level)
+Shop order on d-out2b: Treasure Str to its emblem (18/19), Jungle HP to its emblem (28/29), Durability HP emblem (16/17), then bruiser Str (36).
+- **s-hunt3:** Hunter Str to its emblem (60/61, +50 kill gold) as the 3rd emblem, then as before.
+- **s-skirm3:** Skirmish Str to its emblem (66/67, x1.05 vs champions) as the 3rd emblem, then as before.
+(v39a probes: Hunter and Skirmish lost as a 1st emblem or in place of Jungle. Here Treasure and Jungle stay first.)
