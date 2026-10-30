@@ -211,3 +211,12 @@ hold 117, gem-groups after 6 buys, bossbush.
 - Sim exact vs cambc 4.0.0 (seed 70/70 maps), new item passives, capture_state/capture_timer prims; kNumItems 84.
 - v38 rebuilt on it (same genome, new constants) vs the live v38 build: 69/140, 0 crashes; 00quarry-A still frozen.
   The constants alone are neutral, so no upload.
+
+## v39a (v38 + quarry bush fix; Arena A lead, genome/arenaa 1fad7357e)
+
+genome/candidates/v39a.genome, sha256 22ec24cf7b33d238... One gene: w1 unseen_camps subtracts near(here(), 1) instead
+of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets probed instead of treated as occupied forever.
+- My gate4, built on the live bot's runtime (genome/v0 35bcf691a) vs live v38: 72/140 = mirror 70 + both 00quarry games;
+  0 crashes. Arena A lead: vs v33 84/140 (v38 82), only 00quarry differs.
+- Built on the engine-2 runtime (671ac45b) vs live v38: 71/140 (the runtime change reshuffles chaotic games).
+- Uploaded as a pure bugfix (exception to the 76 bar: every other game is unchanged), built on 35bcf691a's runtime.
