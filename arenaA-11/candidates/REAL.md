@@ -27,3 +27,11 @@ so the passes are within the mirror noise band (+-~8/140); a second real run wou
 
 A11106 (78 at the 100 check) was second by mu (28.08, 1048 games). Real scores of arena tops cluster at 71-78,
 i.e. v39a +- noise; nothing yet clears the bar by a margin.
+
+## 300 births (top 3 by mu at birth 299)
+
+| genome | sha256 | arena mu at pick (games) | real vs v39 | crashes | result |
+| --- | --- | --- | --- | --- | --- |
+| A11297 | f80702b1513da018... | 29.35 (88) | 74/140 | 0 | fail |
+| A11261 | 10199f2cb514975a... | 29.35 (504) | 74/140 | 0 | fail |
+| A11296 | 40bc2cedd6aea978... | 29.07 (72) | 73/140 | 0 | fail |
