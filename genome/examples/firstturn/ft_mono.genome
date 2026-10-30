@@ -1,0 +1,20 @@
+"""First-turn probe FT: turn 1 update() runs one construct, later turns nothing (cambc 4.0.0 first-use costs)."""
+
+@gene("i1", "nothing is worth doing (picks: the first)")
+def score(o: Option) -> Num:
+    if o.kind == PICK:
+        return 1
+    return 0
+
+@gene("u1", "the construct, on the first play round only")
+def update() -> None:
+    if round() < 6:
+        write_shared(3, size(mono_groups()))
+
+@gene("m8", "spawn tiles of every group with a monolith")
+def mono_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if any(spawn_type(t) == MONOLITH for t in group_tiles(g)):
+            acc = acc | group_tiles(g)
+    return acc
