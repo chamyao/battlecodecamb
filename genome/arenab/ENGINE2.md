@@ -148,3 +148,14 @@ v39a = v38 + quarry bush fix (sha 22ec24cf). Each family's Str emblem either fir
 Hold-out for prospector-first (total / old / new): vs v38 71 / 35 / 36 (v39a itself 71 / 38 / 33); vs v33 83 / 47 / 36
 (v39a 78 / 46 / 32). New maps +3-4 over v39a against every reference. Hunter and Skirmish do not pay as a first emblem;
 Jungle stays load-bearing.
+
+## Prospector follow-ups vs the live v39 build (v39a on runtime 35bcf691a), cambc 4.0.0
+prospector-first vs live v39: 69 / 35 / 34 (genome lead's run: same). Follow-ups (total / old / new):
+| variant | result |
+|---|---|
+| Prospector after Treasure (pros-after-treas) | 63 / 32 / 31 |
+| Prospector first when >= 12 gem+gold cluster spawns (pros-cond12) | 69 / 35 / 34 |
+| ... >= 20 (pros-cond20) | 70 / 36 / 34 |
+| ... >= 30 (pros-cond30) | 69 / 37 / 32 |
+None reaches the 76 structural bar. The +3-4 new-map edge is real but small; no map-type gate isolates it from the
+old-map cost. Shop probes on 2.0.0 are done: v39a's shop stands.
