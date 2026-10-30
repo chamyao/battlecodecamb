@@ -495,3 +495,5 @@ Pre-built Skirmish stacks with a non-Hunter 5th emblem (Skirmish, Durability, th
 - **s-sc5:** X = Capture (48/49).
 - **s-sp5:** X = Prospector (54/55).
 | s-sc5 (Skirmish, Durability, Capture) vs d-out2b | 74 | 44 / 30 | 1064 / 1120; captures 10771 / 10501 (+2.6%); gems lost on death 9402 / 8245 (+8.3 per game); solo 157,247 (faster), boss-battle B 2000 |
+| **s-sp5** (Skirmish, Durability, Prospector) vs d-out2b | **78** | 48 / 30 | 1096 / 1195 (-0.7 per game); captures level; gems lost on death 7378 / 7557 (level); solo 157,868 (faster), boss-battle A and B 2000 |
+s-sp5 is the best Skirmish stack locally, with the same boss-battle 5th-emblem caveat. Candidate only if s15 (s-skirm3) screens up.
