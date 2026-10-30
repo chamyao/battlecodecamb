@@ -67,3 +67,16 @@ genome_rt.h never lists BUY options for ids 42-83 and shop_pending() keeps the c
 that never appears. Not a measurement of the families. Needed before any probe: kNumItems 84 plus item_design rows
 (cost, combine count, passive, stat growth) for the 7 new families in bot/src/cbs (from the rules export), and the
 same in the sim. The bot's own cbs tables also still carry the old Treasure/Monster passive values.
+
+## Draft probe on 4.0.0 vs v38 (Oct 30 ~04:10 UTC)
+v38 d1 order: Vendetta, Vesper Vale, Tavi, Ryth, Ren. Single changes, 70 maps x 2 (cand/engine2/draft-*):
+| draft (pick order) | vs v38 /140 |
+|---|---|
+| Ven, VV, Tavi, Ryth, Marcella (Marcella for Ren) | 71 |
+| Ven, VV, Tavi, Ryth, HoR (HoR for Ren) | 69 |
+| Ven, Issac, Tavi, Ryth, Ren (Issac for VV) | 65 |
+| Ven, Tavi, Ryth, Ren, VV (VV last) | 65 |
+| Ven, VV, Marcella, Ryth, HoR (no Tavi, no Ren) | 45 |
+| Ven, HoR, VV, Marcella, Ryth (top teams' core) | 28 |
+All 0 errors; none passes. Ren's slot is a wash; Tavi is load-bearing for this genome (remote shop: it buys anywhere),
+and the top teams' core is far worse for our play style. VV's nerf does not make it replaceable by Issac.
