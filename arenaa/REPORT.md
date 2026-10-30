@@ -17,6 +17,8 @@ Read: freeing turn 1 helps (v39b +4 over even). But the deferred map then hits t
 because the cost is the group_tiles builds (~170 fuel per host bit set in the bot), not where they run. The cleaner fix is
 a cheaper group_tiles build in the runtime (bitboard ops instead of per-bit host sets), or spreading mono_groups over
 turns 2-4. Neither variant meets the 76 bar yet.
+- Genome lead's gate setting (vs the live v39 build, v39a at runtime 35bcf691a; v39b built at dd28e2f3): v39b **70/140**,
+  0 crashes. A fail: the 74 was chaos. A-11's runtime is genome/v0 dd28e2f3.
 
 ## 2026-10-30 05:30 UTC: the 2.0.0 sim's residual bias is fuel pricing; fixed in genome/v0 b9d2fae1
 
