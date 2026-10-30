@@ -1,0 +1,5 @@
+```python
+@gene("s14", "the visible camp in reach worth hitting: the one with least health left first (fewest hits to a kill)")
+def reach_camp() -> Unit:
+    return best(camps(), lambda c: 10000 - c.health if farmable(c) else 0)
+```

@@ -1,0 +1,85 @@
+[06:06:40] [A11] new species S0 founded by seed
+[06:06:49] [A11] new arena A11: seed seed in species S0, 1 anchors
+[06:06:49] [A11] added anchor v38 (calibrating for 200 games)
+[06:06:49] [A11] fixed anchors: v33 25.00, v38 25.00
+[06:07:33] [A11] new species S1 founded by A111
+[06:07:33] [A11] birth A111 (directed ) of ['seed'] species S1; 2 genomes $0.00
+[06:07:34] [A11] birth A112 (directed ) of ['seed'] species S1; 3 genomes $0.00
+[06:07:35] [A11] birth A113 (directed ) of ['seed'] species S1; 4 genomes $0.00
+[06:07:35] [A11] birth A114 (directed ) of ['seed'] species S1; 5 genomes $0.00
+[06:07:35] [A11] birth A115 (tune ) of ['seed'] species S0; 6 genomes $0.00
+[06:07:36] [A11] birth A116 (directed ) of ['seed'] species S0; 7 genomes $0.00
+[06:07:36] [A11] rejected directed : behavioural twin
+[06:07:38] [A11] new species S2 founded by A117
+[06:07:38] [A11] birth A117 (directed ) of ['seed'] species S2; 8 genomes $0.00
+[06:08:16] [A11] birth A118 (directed ) of ['seed'] species S0; 9 genomes $0.00
+[06:08:17] [A11] new species S3 founded by A119
+[06:08:17] [A11] birth A119 (directed ) of ['seed'] species S3; 10 genomes $0.00
+[06:08:18] [A11] new species S4 founded by A1110
+[06:08:18] [A11] summary: births 10 deaths 0 games 536 $0.00; top [('A116', 26.28, 1.02, 64, 'S0'), ('A115', 26.18, 1.01, 64, 'S0'), ('seed', 25.79, 0.81, 320, 'S0')]; top vs anchors {'A116': 0.5, 'A115': 0.688, 'seed': 0.526}
+[06:08:18] [A11] birth A1110 (directed ) of ['seed'] species S4; 11 genomes $0.00
+[06:08:20] [A11] birth A1111 (directed ) of ['seed'] species S3; 12 genomes $0.00
+[06:08:21] [A11] birth A1112 (directed ) of ['seed'] species S4; 13 genomes $0.00
+[06:08:21] [A11] new species S5 founded by A1113
+[06:08:21] [A11] birth A1113 (directed ) of ['seed'] species S5; 14 genomes $0.00
+[06:08:22] [A11] new species S6 founded by A1114
+[06:08:22] [A11] birth A1114 (directed ) of ['seed'] species S6; 15 genomes $0.00
+[06:08:24] [A11] birth A1115 (directed ) of ['seed'] species S6; 16 genomes $0.00
+[06:08:31] [A11] anchor v38 frozen at mu 25.20 after 200 games
+[06:08:47] [A11] birth A1116 (directed ) of ['A118'] species S0; 17 genomes $0.00
+[06:08:48] [A11] birth A1117 (directed ) of ['seed'] species S1; 18 genomes $0.00
+[06:08:49] [A11] new species S7 founded by A1118
+[06:08:49] [A11] birth A1118 (directed ) of ['A118'] species S7; 19 genomes $0.00
+[06:08:49] [A11] birth A1119 (directed ) of ['seed'] species S4; 20 genomes $0.00
+[06:08:50] [A11] summary: births 20 deaths 0 games 776 $0.00; top [('A1110', 26.63, 2.53, 8, 'S4'), ('A118', 26.48, 0.93, 88, 'S0'), ('A1116', 26.48, 6.0, 0, 'S0')]; top vs anchors {'A118': 0.688, 'A115': 0.688, 'A119': 0.5}
+[06:08:50] [A11] birth A1120 (directed ) of ['A118'] species S7; 21 genomes $0.00
+[06:08:51] [A11] birth A1121 (directed ) of ['A116'] species S4; 22 genomes $0.00
+[06:10:03] [A11] birth A1122 (tune ) of ['A119'] species S3; 23 genomes $0.00
+[06:10:03] [A11] birth A1123 (tune ) of ['A1119'] species S4; 24 genomes $0.00
+[06:11:38] [A11] birth A1124 (mutate session) of ['A118'] species S0; 24 genomes $0.00
+[06:11:41] [A11] birth A1125 (mutate session) of ['A1116'] species S0; 24 genomes $0.00
+[06:11:42] [A11] birth A1126 (mutate session) of ['A1119'] species S4; 24 genomes $0.00
+[06:11:43] [A11] birth A1127 (mutate session) of ['A1113'] species S5; 24 genomes $0.00
+[06:11:54] [A11] rejected mutate session: behavioural twin
+[06:11:54] [A11] birth A1128 (mutate session) of ['A1118'] species S7; 24 genomes $0.00
+[06:11:55] [A11] birth A1129 (mutate session) of ['A1118'] species S7; 24 genomes $0.00
+[06:11:55] [A11] summary: births 30 deaths 7 games 3612 $0.00; top [('A1116', 26.92, 0.8, 208, 'S0'), ('A1120', 26.8, 0.79, 248, 'S7'), ('A1125', 26.8, 1.07, 56, 'S0')]; top vs anchors {'A1116': 0.625, 'A1120': None, 'A1125': 0.438}
+[06:11:55] [A11] birth A1130 (mutate session) of ['A1118'] species S7; 24 genomes $0.00
+[06:12:23] [A11] rejected tune : behavioural twin
+[06:12:43] [A11] birth A1131 (cross ) of ['A1117', 'A112'] species S1; 24 genomes $0.00
+[06:12:52] [A11] rejected mutate session: behavioural twin
+[06:12:54] [A11] birth A1132 (mutate session) of ['A1119'] species S4; 24 genomes $0.00
+[06:12:55] [A11] birth A1133 (mutate session) of ['A1127'] species S5; 24 genomes $0.00
+[06:13:18] [A11] birth A1134 (mutate session) of ['A1116'] species S0; 24 genomes $0.00
+[06:13:18] [A11] birth A1135 (mutate session) of ['seed'] species S0; 24 genomes $0.00
+[06:13:19] [A11] birth A1136 (mutate session) of ['A117'] species S2; 24 genomes $0.00
+[06:13:19] [A11] birth A1137 (mutate session) of ['A1112'] species S4; 24 genomes $0.00
+[06:13:28] [A11] rejected mutate session: behavioural twin
+[06:13:30] [A11] birth A1138 (mutate session) of ['A1116'] species S0; 24 genomes $0.00
+[06:14:18] [A11] birth A1139 (mutate session) of ['A117'] species S2; 24 genomes $0.00
+[06:14:19] [A11] summary: births 40 deaths 17 games 5632 $0.00; top [('A1126', 27.37, 0.83, 136, 'S4'), ('A1140', 27.37, 6.0, 0, 'S4'), ('A1116', 27.11, 0.8, 408, 'S0')]; top vs anchors {'A1126': 0.5, 'A1116': 0.625, 'A1112': 0.583}
+[06:14:19] [A11] birth A1140 (mutate session) of ['A1126'] species S4; 24 genomes $0.00
+[06:14:56] [A11] rejected mutate session: behavioural twin
+[06:14:57] [A11] birth A1141 (mutate session) of ['A1135'] species S0; 24 genomes $0.00
+[06:14:57] [A11] birth A1142 (mutate session) of ['A1136'] species S2; 24 genomes $0.00
+[06:14:58] [A11] birth A1143 (mutate session) of ['A116'] species S0; 24 genomes $0.00
+[06:14:59] [A11] birth A1144 (mutate session) of ['A1127'] species S5; 24 genomes $0.00
+[06:14:59] [A11] rejected mutate session: behavioural twin
+[06:15:09] [A11] birth A1145 (mutate session) of ['A1136'] species S2; 24 genomes $0.00
+[06:15:13] [A11] rejected mutate session: behavioural twin
+[06:15:40] [A11] birth A1146 (mutate session) of ['A1139'] species S2; 24 genomes $0.00
+[06:15:41] [A11] rejected tune : behavioural twin
+[06:15:43] [A11] birth A1147 (tune ) of ['A1110'] species S4; 24 genomes $0.00
+[06:16:06] [A11] birth A1148 (cross ) of ['A1146', 'A1142'] species S2; 24 genomes $0.00
+[06:16:06] [A11] rejected cross : behavioural twin
+[06:18:08] [A11] rejected mutate session: behavioural twin
+[06:18:10] [A11] birth A1149 (mutate session) of ['A1113'] species S5; 24 genomes $0.00
+[06:18:11] [A11] summary: births 50 deaths 27 games 8736 $0.00; top [('A1142', 27.39, 0.79, 256, 'S2'), ('A117', 27.38, 0.79, 624, 'S2'), ('A1148', 27.29, 0.79, 256, 'S2')]; top vs anchors {'A1142': None, 'A117': 0.688, 'A1148': None}
+[06:18:11] [A11] birth A1150 (mutate session) of ['A1118'] species S7; 24 genomes $0.00
+[06:18:12] [A11] birth A1151 (mutate session) of ['A1113'] species S5; 24 genomes $0.00
+[06:18:12] [A11] birth A1152 (mutate session) of ['A1135'] species S0; 24 genomes $0.00
+[06:18:12] [A11] birth A1153 (mutate session) of ['A1136'] species S2; 24 genomes $0.00
+[06:18:12] [A11] birth A1154 (mutate session) of ['A1136'] species S2; 24 genomes $0.00
+[06:18:17] [A11] birth A1155 (mutate session) of ['A1136'] species S2; 24 genomes $0.00
+[06:18:54] [A11] birth A1156 (cross ) of ['A118', 'A1152'] species S0; 24 genomes $0.00
+[06:20:26] [A11] rejected mutate session: GenomeError: blocked line 751: cannot assign to at

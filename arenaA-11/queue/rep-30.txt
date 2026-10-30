@@ -1,0 +1,16 @@
+```python
+@gene("a9", "shopping on spawn: the team's altar lock, then a prospector strength emblem first (engine 2.0.0 family), then shards in the policy's split, with a durability health emblem (10% less damage) after the treasure and jungle emblems")
+def shop_value(o: Option) -> Num:
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and RULE >= 2 and at_spawn() and round() < 1200 else 0
+    want = next_shard()
+    if items_owned(55) == 0 and items_owned(19) == 0:
+        want = 54
+    elif want == 36 and items_owned(17) == 0:
+        want = 16
+    if o.item != want:
+        return 0
+    if o.count > shard_left() or RULE < 2 or not at_spawn():
+        return 0
+    return 190 + o.count / 100
+```
