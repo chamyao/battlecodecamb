@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 02:12 UTC: A93635-v33port live as ladder v38
+
+- Uploaded as ladder v38 (02:06:53Z); intel band batch b13 at ~02:28Z. Search gate: sim h2h 46/80, anchors clean.
+  Solo-farm vs idle is +339 rounds worse in total (01boss-battle +1382, the sim's tribute lock; 00contest +378).
+  gatekeeper-31 now follows arenaA-10 vs v38. Next candidate in line: A103646-v33port (51/80 vs v33 in sim).
+  The writer now screens against v38.
+
 ## 2026-10-30 02:05 UTC: first A-10 candidate
 
 - A93635-v33port = A-9's A93635 with v33's fixes grafted (ring small-spawn exclusion, farmable monolith, heal
