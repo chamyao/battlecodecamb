@@ -281,10 +281,14 @@ public:
 #endif
 	// Simulator only: the runtime's own work in the bot beyond what the Api already prices (fitted
 	// from genome/examples/calib.genome profiled in cambc; docs in genome/FUEL.md). Compiled away in the bot.
+	// Every extra() price x 1.04 (Oct 30, cambc 4.0.0): on identical games the sim was 2-3% under real for every
+	// evolved genome, the gap growing with the turn's work (heavy turns 3-5% under), so the bot hit its budget
+	// more often in cambc than in the sim. x1.04 brings whole games to 0.996-1.011 of real (FUEL.md).
+	static constexpr double kExtraScale = 1.04;
 	void extra(double fuel) const
 	{
 #ifndef GENOME_BOT
-		const std::int64_t f = (fuel > 0 ? static_cast<std::int64_t>(fuel) : 0) + frame_take();
+		const std::int64_t f = (fuel > 0 ? static_cast<std::int64_t>(fuel * kExtraScale) : 0) + frame_take();
 		if (f > 0) api.compute(f);
 #ifdef GENOME_PROF
 		extra_sum += f;
