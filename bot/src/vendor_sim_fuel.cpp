@@ -63,6 +63,7 @@ PriceTable::PriceTable()
 	set(Call::camp_design, 7);
 	set(Call::camp_group_state, 7);
 	set(Call::camp_group_cooldown, 7);
+	set(Call::camp_group_capture_state, 7); // engine 2.0.0, measured (fuel probe, 108 calls)
 	set(Call::is_visible, 10);
 	set(Call::has_unit, 10);
 	set(Call::unit_at, 10);
