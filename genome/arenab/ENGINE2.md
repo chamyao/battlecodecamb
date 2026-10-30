@@ -120,3 +120,18 @@ Gates on 4.0.0 (correct old/new split; earlier "old-map" counts in this file inc
 | v38 + v33 m11 + v2 | 77 (42, 35) | - | 80,712 |
 | v38 + v33 m11 | 67 (39, 28) | - | 81,797 |
 v38-v2 clears the structural bar vs v38 but is -3 vs v33 against v38's own row: within noise, not recommended.
+
+## b14 new-map losses (intel extract_v2 rows) and a yield probe
+15 new-map losses: gems per capture us 13.2 vs them 24.3; first tribute r314 vs r247; we capture more often but smaller
+(02famine 120 caps x 7.3 vs 46 x 22.3; 02treasure_box 148 x 7.4 vs 62 x 16; 00anvil 105 x 6.3 vs 72 x 12). Low-yield 10/15,
+fights 9/15. 02the_pack is 0-0 for everyone; 00quarry is the v38 freeze.
+Probe on 4.0.0 vs v38 (/140, old /80, new /60), all 0 errors, none passes:
+| variant | total | old | new |
+|---|---|---|---|
+| gem groups strength cap 300 -> 450 | 72 | 42 | 30 |
+| cap 300 -> 600 | 71 | 41 | 30 |
+| gem groups with >= 12 gems, cap 450 | 73 | 43 | 30 |
+| gem-first after 3 buys, cap 450 | 66 | 40 | 26 |
+| gem-first from round 3 (no buy gate) | 58 | 30 | 28 |
+Richer-group targeting does not pay against v38; the band's rich-group opponents also out-fight us there, so the yield
+gap is not a camp-choice constant.
