@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 09:22 UTC: A-11 interrupted to deliver the restart order
+
+- A-11 reached 580 births without acting on the v40 orders (06:22-08:50); its gates are still vs v39.
+- Cause: the writer runs one continuous turn (its queue loop), so cross-session messages wait for a turn end.
+- 09:21: interrupt_session, then the consolidated order: tuner fix 60a2da208, v40 anchor at weight 4 (v41 2,
+  emblem/B318 1), v40 seeded, gate vs v40 and v41, mutations aimed at fights.
+- Lesson for future writer sessions: put "check messages between batches" in the starting prompt, or interrupt
+  to deliver.
+
 ## 2026-10-30 08:02 UTC: A-11 check-in (333 births)
 
 - Top mu 29.1-29.9, mostly species S0 (7 of 24 members); anchors v38 25.2 / v33 25.0. No v40/v41 anchors yet: the restart
