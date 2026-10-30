@@ -285,3 +285,4 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
 - Batch 17 (intel b17.md): v41 28-32 vs b16's v40 31-29 on the same 60 games; gems -38 +- 18; 2 flips to a win, 5
   to a loss (old maps 14-16, b14 new maps 8-12). Against v39's b15: flat. Reverted to v40 (bundle 7317ef88...), since
   the ladder band measures real opponents and the local 79/140 self-play edge did not transfer (as with x6-83 in b16).
+- Reverted: v40 re-submitted as ladder version 42 (2026-10-30T07:36:04Z, same bundle 7317ef88...). b16 stays the band baseline.
