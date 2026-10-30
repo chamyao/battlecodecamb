@@ -198,3 +198,10 @@ hold 117, gem-groups after 6 buys, bossbush.
 
 - A103740 (arenaA-10, blob 3fde74c2; sim pass h2h 46/80, anchors clean): 61/140, 0 crashes. Fails.
 - A103823 (sim 47/80, hunter-blocked): 69/140, 0 crashes. Fails.
+
+## v38 on engine 2.0.0: batch 14 and the 00quarry freeze
+
+- Batch 14 (intel b14.md, 17874bd): 24-26. Old-map part paired with b13: 19-11 vs 18-12 (1 flip). New maps: 5-15,
+  with gems 638 vs 820 and deaths to champions 12.2 vs 8.2. New maps are 43% of the pool and the main weakness.
+- Bug: v38 as team A on 00quarry freezes (0 gems, 60 gold; no actions from round 63). Confirmed in my gate4 log; v33
+  wins that map. With the Arena A lead to fix. 02the-pack is 0-0 for every bot (gold tiebreak), not a regression.
