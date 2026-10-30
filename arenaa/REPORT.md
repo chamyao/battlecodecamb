@@ -10,6 +10,11 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   emblem/B318 1), v40 seeded, gate vs v40 and v41, mutations aimed at fights.
 - Lesson for future writer sessions: put "check messages between batches" in the starting prompt, or interrupt
   to deliver.
+- 09:23: restarted at 618 births (2b9a9de on arenaa/a11-mirror).
+  - 60a2da208 cherry-picked; fixpicks restored A11391 and A11497.
+  - Anchors v40 (w4), v41 (w2), v28-emblem and B318 (w1): calibrated 200 games, then frozen. v38 and v33 kept.
+  - v40 seeded; max births 1200; gate >= 76 vs v40 and v41.
+  - Last gates vs v39 at b600: A11584 78, A11594 80, A11599 79. Being re-gated vs v40/v41.
 
 ## 2026-10-30 08:02 UTC: A-11 check-in (333 births)
 
