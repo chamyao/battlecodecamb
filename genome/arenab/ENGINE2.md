@@ -424,3 +424,18 @@ Gated against the live bot d-out2b; solo compared with gsolo-d-out2b. full.sh an
 | **d4-marc** vs d-out2b | **73** | 43 / 30 | 1070 / 1100; died after <50% HP 23% / 24%; captures 10636 / 10592 (level); solo 158,951 (d-out2b 159,056), no losses, no new stalls |
 d4-marc passes the pre-filter. Caveat: our draft never picks Marcella, so the double count never fires in local games.
 The local gate only shows the edit is harmless here (the residual is noise). Whether it helps can only be shown on the ladder, where Marcella is the top killer.
+
+## Capture side, on d-out2b
+v40's b18base ladder rows, per game:
+| | us | them |
+|---|---|---|
+| gems captured | 895 | 743 |
+| captures | 73.3 | 52.5 |
+| gold-only captures | 21.4 | |
+| gems per capture | 12.2 | 14.1 |
+| gold earned | 5812 | 5058 |
+
+Per gem-bearing capture we get about 17.2 gems, so the low gems-per-capture figure is an artefact of the gold-only captures; we already out-capture opponents on gems. The live question is whether gold-only captures are worth their walk plus 5 rounds.
+(Rewards: wolf 4 gems, elk 15, gem cluster 7 for 120 health, gold cluster 20 gold and 0 gems.)
+- **c-nogold:** camp_goal skips a gold-only cluster when a gem-paying group is at most 4 tiles farther.
+- **c-gem3:** the camp walk switches to gem-only groups (GEM_BASE) after 3 shop buys instead of 6.
