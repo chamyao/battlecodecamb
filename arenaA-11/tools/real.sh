@@ -6,10 +6,11 @@ G=$(realpath $1); N=$2; OPP=${3:-v40}; R=/home/user/battlecodecamb; O=/tmp/claud
 export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt
 cd $R && bash genome/bot/sync.sh $G ~/ws4/bots/$N > /dev/null
 bash genome/bot/gate4.sh $N $OPP $O
-w=0; n=0; cr=0
+w=0; n=0; cr=0; dt=0
 for f in $O/*-A.log $O/*-B.log; do
   s=${f%.log}; s=${s##*-}; n=$((n+1))
   if [ $s = A ]; then grep -q "Team A ($N) wins" $f && w=$((w+1)); else grep -q "Team B ($N) wins" $f && w=$((w+1)); fi
   c=$(awk -v b=$N '$2==b && NF>=7 {print $7}' $f | head -1); cr=$((cr+${c:-0}))
+  d=$(awk -v b=$N '$2==b && NF>=7 {print $5}' $f | head -1); dt=$((dt+${d:-0}))
 done
-echo "$N vs $OPP $(sha256sum $G | cut -c1-16) $w/$n crashes $cr"
+echo "$N vs $OPP $(sha256sum $G | cut -c1-16) $w/$n crashes $cr deaths $dt"

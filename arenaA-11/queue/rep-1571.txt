@@ -1,0 +1,13 @@
+```python
+@gene('Zb', "camp in reach worth hitting: not in a monolith's group (a hit wakes the group), unless the team goes for monoliths, it stands on an altar-ring tile and I carry gems (boss-battle), or it is already awake and below 30% (finishing it wakes nothing new)", parents=['s14'])
+def farmable(c: Unit) -> Bool:
+    if not in_reach(c):
+        return False
+    if not (camp_spawn(c) in MONO_GROUPS):
+        return True
+    if gems() > 0 and camp_spawn(c) in ALTAR_RING:
+        return True
+    if is_awake(c) and c.health_frac < 0.3:
+        return True
+    return r_mono()
+```

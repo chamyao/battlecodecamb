@@ -1,0 +1,13 @@
+```python
+@gene('w3', 'tiles I cannot step onto: terrain, altars, enemy spawn, units (except recalling champions of either side, which are leaving), unseen camp spawns')
+def blocked() -> Tiles:
+    et = enemy_tiles()
+    for u in enemies():
+        if is_recalling(u):
+            et = et - near(u.pos, 0)
+    at = ally_tiles()
+    for u in allies():
+        if is_recalling(u):
+            at = at - near(u.pos, 0)
+    return (TERRAIN | at | et | camp_block()) - near(here(), 0)
+```
