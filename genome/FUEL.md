@@ -37,7 +37,7 @@ also moved the h2h but overshot whole-game fuel by ~900 per turn. With x 1.04:
 | B792 vs B318 (real 65) | 75 | 78 (agree 90 -> 89) |
 | B1145 vs A61188 (real 61) | 56 | 52 (agree 89 -> 93) |
 
-Over the five matchups the mean sim - real goes from +4.4 to +0.8. Total per-game agreement over the four with
+Over the five matchups the mean sim - real goes from +5.0 to +2.2 (mean |sim - real| 11.0 -> 7.4). Total per-game agreement over the four with
 my real games goes from 356 to 361 / 560. Single matchups carry about +-7 of noise: 1% fuel flips about 20% of
 these games. The part of a gate's offset that remains is selection: a genome is gated because its sim score is
 high. Every genome's sim fuel moves with this change, by design. The per-primitive probe prices above are now
