@@ -265,3 +265,5 @@ genome/candidates/v40m.genome, sha256 8e8c265af954d456... One gene: m8 mono_grou
 groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1 cap maps 14 -> 4.
 - Arena A lead, real vs v40: 79/140. My gate4 vs v40 (both built at genome/v0 HEAD): 79/140 (old 49/80, new 30/60),
   0 crashes. GO, queued after b16 (v40's band) finishes, so the two batches stay clean.
+- v40m live as ladder version 41 (submitted 2026-10-30T06:33:54Z, bundle sha256 7cd1e540...). Validation: b17 paired
+  with b16. Revert target v40 (7317ef88...).
