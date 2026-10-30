@@ -1,0 +1,76 @@
+--- /tmp/claude-0/-home-user-battlecodecamb/c65674c2-e6ff-5758-b82d-a1b20d8d31bc/scratchpad/engine.js.v1bak	2026-10-30 02:54:07.618138174 +0000
++++ /tmp/claude-0/-home-user-battlecodecamb/c65674c2-e6ff-5758-b82d-a1b20d8d31bc/scratchpad/an/analysis/engine.js	2026-10-30 02:54:07.631398078 +0000
+@@ -1,13 +1,13 @@
+ // Load the official engine (WASM, extracted from the cambc visualiser) and walk a
+ // .repl26a replay step by step. Snapshot layouts copied from the visualiser bundle
+-// (PanelChrome-*.js: functions Tr/yr). Engine version v1_0_3 (cambc 3.0.5).
++// (PanelChrome-*.js: functions Tr/yr). Engine versions v1_0_3 (cambc 3.0.5) and v2_0_0 (cambc 4.0.0; layout from visualiser index/PanelChrome mr()).
+ 'use strict';
+ const fs = require('fs');
+ const path = require('path');
+ 
+ const WASM = process.env.CAMBC_WASM || path.join(__dirname, 'engine', 'v1_0_3.wasm');
+ 
+-const ITEMS = ('Monster Shard of Strength.Monster Emblem of Strength.Monster Shard of Focus.Monster Emblem of Focus.Monster Shard of Health.Monster Emblem of Health.Power Shard of Strength.Power Emblem of Strength.Power Shard of Focus.Power Emblem of Focus.Power Shard of Health.Power Emblem of Health.Durability Shard of Strength.Durability Emblem of Strength.Durability Shard of Focus.Durability Emblem of Focus.Durability Shard of Health.Durability Emblem of Health.Treasure Shard of Strength.Treasure Emblem of Strength.Treasure Shard of Focus.Treasure Emblem of Focus.Treasure Shard of Health.Treasure Emblem of Health.Jungle Shard of Strength.Jungle Emblem of Strength.Jungle Shard of Focus.Jungle Emblem of Focus.Jungle Shard of Health.Jungle Emblem of Health.Home Shard of Strength.Home Emblem of Strength.Home Shard of Focus.Home Emblem of Focus.Home Shard of Health.Home Emblem of Health.Bruiser Shard of Strength.Bruiser Emblem of Strength.Bruiser Shard of Focus.Bruiser Emblem of Focus.Bruiser Shard of Health.Bruiser Emblem of Health').split('.');
++const ITEMS = ('Monster Shard of Strength.Monster Emblem of Strength.Monster Shard of Focus.Monster Emblem of Focus.Monster Shard of Health.Monster Emblem of Health.Power Shard of Strength.Power Emblem of Strength.Power Shard of Focus.Power Emblem of Focus.Power Shard of Health.Power Emblem of Health.Durability Shard of Strength.Durability Emblem of Strength.Durability Shard of Focus.Durability Emblem of Focus.Durability Shard of Health.Durability Emblem of Health.Treasure Shard of Strength.Treasure Emblem of Strength.Treasure Shard of Focus.Treasure Emblem of Focus.Treasure Shard of Health.Treasure Emblem of Health.Jungle Shard of Strength.Jungle Emblem of Strength.Jungle Shard of Focus.Jungle Emblem of Focus.Jungle Shard of Health.Jungle Emblem of Health.Home Shard of Strength.Home Emblem of Strength.Home Shard of Focus.Home Emblem of Focus.Home Shard of Health.Home Emblem of Health.Bruiser Shard of Strength.Bruiser Emblem of Strength.Bruiser Shard of Focus.Bruiser Emblem of Focus.Bruiser Shard of Health.Bruiser Emblem of Health' + ['Tribute', 'Capture', 'Prospector', 'Hunter', 'Skirmish', 'Greed', 'Collectors'].map(f => ['Strength', 'Focus', 'Health'].map(s => `.${f} Shard of ${s}.${f} Emblem of ${s}`).join('')).join('')).split('.');
+ const CHAMPS = ['Ryth', 'Vesper Vale', 'Vendetta', 'Cassi', 'Issac', 'Stellar', 'Prism', 'Marcella', 'Willow', 'Ren', 'Varg', 'Tavi', 'Heart of Ruin'];
+ const DRAFT = ['Ryth', 'Vesper Vale', 'Vendetta', 'Cassi & Issac', 'Stellar', 'Prism', 'Marcella', 'Willow', 'Ren', 'Varg', 'Tavi', 'Heart of Ruin'];
+ const CAMPS = ['wolf', 'elk', 'gem_cluster', 'gold_cluster', 'monolith', 'golem'];
+@@ -49,8 +49,9 @@
+     this.h = this.dv.getBigUint64(this.out, true);
+     X.Engine_Free(p);
+     if (isMap) return;
+-    if (X.Game_Visualiser_TimelineSnapshotSize() !== 40152) throw new Error('snapshot layout');
+-    this.snap = X.Engine_Malloc(40152);
++    this.snapSize = X.Game_Visualiser_TimelineSnapshotSize();
++    if (this.snapSize !== 40152 && this.snapSize !== 42840) throw new Error('snapshot layout ' + this.snapSize);
++    this.snap = X.Engine_Malloc(this.snapSize);
+     this.check(X.Game_Visualiser_Timeline_GetMain(this.h, this.out));
+     this.timeline = this.dv.getBigUint64(this.out, true);
+     this.check(X.Game_Visualiser_Timeline_Info(this.h, this.timeline, this.args, this.args + 8, this.args + 16));
+@@ -66,7 +67,7 @@
+   next() { this.check(this.X.Game_Visualiser_Timeline_ReplayNext(this.h, 1)); }
+   state() {
+     this.check(this.X.Game_Visualiser_ReadTimelineState(this.h, this.snap));
+-    return decodeTimeline(this.dv, this.snap);
++    return decodeTimeline(this.dv, this.snap, this.snapSize);
+   }
+   // Walk the whole main timeline, calling fn(state) at every step.
+   walk(fn) {
+@@ -107,25 +108,27 @@
+ }
+ 
+ // yr(): timeline snapshot.
+-function decodeTimeline(e, t) {
+-  const n = header(e, t, 40152, 120);
++// v2 (42840): 84 items per champion (+168 bytes), so later champion fields and every list after champions shift.
++function decodeTimeline(e, t, size = 40152) {
++  const v2 = size === 42840, ci = v2 ? 168 : 0, ca = v2 ? 2688 : 0, ni = v2 ? 84 : 42;
++  const n = header(e, t, size, 120);
+   const r = o => e.getUint32(t + o, true), i = o => e.getInt32(t + o, true), a = o => e.getFloat32(t + o, true);
+   const ent = o => ({ kind: r(o), index: r(o + 4) });
+   function list(countOff, dataOff, stride, cap, f) {
+     const c = r(countOff); if (c > cap) throw new Error('bad count');
+     const out = new Array(c); for (let k = 0; k < c; k++) out[k] = f(dataOff + k * stride); return out;
+   }
+-  n.champions = list(172, 196, 252, 16, o => ({
++  n.champions = list(172, 196, 252 + ci, 16, o => ({
+     entity: ent(o), team: r(o + 8), type: r(o + 12),
+     position: i(o + 16) >= 0 && i(o + 20) >= 0 ? { x: i(o + 16), y: i(o + 20) } : undefined,
+     health: a(o + 24), maxHealth: a(o + 28), alive: !!r(o + 32), gold: r(o + 36), gems: r(o + 40), kills: r(o + 44),
+-    items: gr(e, t + o + 48, ITEMS.length), consumables: gr(e, t + o + 216, 4), abilityTargets: [r(o + 232), r(o + 236)],
+-    stunSource: r(o + 248) ? ent(o + 240) : undefined,
++    items: gr(e, t + o + 48, ni), consumables: gr(e, t + o + ci + 216, 4), abilityTargets: [r(o + ci + 232), r(o + ci + 236)],
++    stunSource: r(o + ci + 248) ? ent(o + ci + 240) : undefined,
+   }));
+-  n.camps = list(176, 4228, 28, 500, o => ({ entity: ent(o), team: r(o + 8), type: r(o + 12), position: { x: i(o + 16), y: i(o + 20) }, health: a(o + 24) }));
+-  n.groups = list(180, 18228, 8, 500, o => ({ rewardAvailable: !!r(o), captureTeam: r(o + 4) }));
+-  n.wards = list(184, 22228, 8, 128, o => ({ team: r(o), disabled: !!r(o + 4) }));
+-  n.spells = list(192, 23764, 16, 1024, o => ({ entity: ent(o), owner: ent(o + 8) }));
++  n.camps = list(176, 4228 + ca, 28, 500, o => ({ entity: ent(o), team: r(o + 8), type: r(o + 12), position: { x: i(o + 16), y: i(o + 20) }, health: a(o + 24) }));
++  n.groups = list(180, 18228 + ca, 8, 500, o => ({ rewardAvailable: !!r(o), captureTeam: r(o + 4) }));
++  n.wards = list(184, 22228 + ca, 8, 128, o => ({ team: r(o), disabled: !!r(o + 4) }));
++  n.spells = list(192, 23764 + ca, 16, 1024, o => ({ entity: ent(o), owner: ent(o + 8) }));
+   return n;
+ }
+ 

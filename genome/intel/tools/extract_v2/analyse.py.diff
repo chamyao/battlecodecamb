@@ -1,0 +1,11 @@
+--- /tmp/claude-0/-home-user-battlecodecamb/c65674c2-e6ff-5758-b82d-a1b20d8d31bc/scratchpad/analyse.py.v1bak	2026-10-30 02:57:18.704898505 +0000
++++ /tmp/claude-0/-home-user-battlecodecamb/c65674c2-e6ff-5758-b82d-a1b20d8d31bc/scratchpad/an/analysis/analyse.py	2026-10-30 02:57:18.732447222 +0000
+@@ -9,7 +9,7 @@
+ CH = ['Ryth', 'Vesper Vale', 'Vendetta', 'Cassi', 'Issac', 'Stellar', 'Prism', 'Marcella', 'Willow', 'Ren', 'Varg', 'Tavi', 'Heart of Ruin']
+ DRAFT = ['Ryth', 'Vesper Vale', 'Vendetta', 'Cassi & Issac', 'Stellar', 'Prism', 'Marcella', 'Willow', 'Ren', 'Varg', 'Tavi', 'Heart of Ruin']
+ CAMP = ['wolf', 'elk', 'gem', 'gold', 'monolith', 'golem']
+-FAM = ['Monster', 'Power', 'Durability', 'Treasure', 'Jungle', 'Home', 'Bruiser']
++FAM = ['Monster', 'Power', 'Durability', 'Treasure', 'Jungle', 'Home', 'Bruiser', 'Tribute', 'Capture', 'Prospector', 'Hunter', 'Skirmish', 'Greed', 'Collectors']
+ STAT = ['Str', 'Foc', 'HP']
+ CONS = {0: 'teleport', 2: 'altar_lock'}
+ TOP4 = ['Intercontinental Fish', 'Nyx', 'Univardisty of Shingtonwash', 'hello']

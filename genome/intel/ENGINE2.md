@@ -94,11 +94,8 @@ Sources and confidence:
 ## Tooling status
 
 - **genome_eval / sim:** engine 1.0.3 rules and the 40-map pool. Item ids 42-83 don't exist there, and genomes can't use them until sim/include/cbs and the genome runtime learn them.
-- **Replay extractor** (analysis/extract.js): fails on 2.0.0 replays.
-  - The v2.0.0 wasm exists locally (`~/.cache/cambc/assets/*/visualiser/assets/v2_0_0-*.wasm`).
-  - But `engine.js` asserts `Game_Visualiser_TimelineSnapshotSize() === 40152`, and the snapshot layout changed in v2.
-  - It needs its offsets re-derived before b13+ replays can be extracted.
-  - Meanwhile, the official summaries (`summaries/*.json`) give per-team gems, per-champion kills/deaths/items/gold, and bot faults. Note that `deaths`/`kills` are strings there.
+- **Replay extractor** (analysis/extract.js): ported to 2.0.0 in genome/intel/tools/extract_v2 (drop-in engine.js and analyse.py for analysis/sprint1, plus the v2_0_0 wasm from the cambc 4.0.0 cache). The v2 snapshot is 42840 bytes (v1 40152): 84 items, +168 bytes per champion, +2688 bytes before camps. Validated on all 50 b13 replays against the official summaries.
+- Meanwhile, the official summaries (`summaries/*.json`) give per-team gems, per-champion kills/deaths/items/gold, and bot faults. Note that `deaths`/`kills` are strings there.
 - **cambc 3.0.5** (old engine) in this container; 4.0.0 is in a scratch venv.
 
 ## Implications
