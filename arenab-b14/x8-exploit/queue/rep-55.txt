@@ -1,0 +1,18 @@
+```python
+@gene('w4', 'nearest tile of s by walking; if none is walk-reachable, the nearest free tile within 2 of s by walking (wait close by, not behind a wall), then straight-line nearest; invalid if s empty; block set read once per call', parents=['w4'])
+def closest(s: Tiles) -> Tile:
+    h = here()
+    if h in s:
+        return h
+    b = blocked()
+    cand = s - taken()
+    w = walk_nearest(cand, h, b - cand)
+    if valid(w):
+        return w
+    near2 = ring(s, 2) - b
+    if size(near2) > 0:
+        w2 = walk_nearest(near2, h, b)
+        if valid(w2):
+            return w2
+    return nearest(s, h)
+```
