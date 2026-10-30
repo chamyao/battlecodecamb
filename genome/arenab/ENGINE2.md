@@ -494,3 +494,4 @@ Hunter is out, s-hs5 included despite its 76 locally: local h2h does not track t
 Pre-built Skirmish stacks with a non-Hunter 5th emblem (Skirmish, Durability, then X), in case s15 screens up:
 - **s-sc5:** X = Capture (48/49).
 - **s-sp5:** X = Prospector (54/55).
+| s-sc5 (Skirmish, Durability, Capture) vs d-out2b | 74 | 44 / 30 | 1064 / 1120; captures 10771 / 10501 (+2.6%); gems lost on death 9402 / 8245 (+8.3 per game); solo 157,247 (faster), boss-battle B 2000 |
