@@ -343,6 +343,7 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 | s12 | d2-tout | v58 | 12-18 | 12-18 (d-out2b, b19) | 4 / 4 | -41 +- 34 | not better than d-out2b (captures -2.5) |
 | s13 | d4-marc | v60 | 10-20 | 12-18 (s13c, d-out2b; no drift) | 2 / 4 | -10 +- 25 | not up: deaths to Marcella -35% but total deaths -3%; reverted to d-out2b (v61) |
 | s14 | s-hunt3 | v62 | 7-23 | 12-18 (s13c) | 1 / 6 | -61.5 +- 28.8 | clearly down: Hunter +38 kill gold/game doesn't repay the emblem; captures -4.0; reverted (v63) |
+| s15 | s-skirm3 | v64 | 9-21 | 12-18 (s15c, no drift) | 3 / 6 | -40.0 +- 28.3 | down (captures -3.0); reverted to d-out2b (v65) |
 - A11774 (sha a66b6b33, older A-11 lineage): 76 vs v40 / 69 vs v41; solo total 157,114, stalls on stalactites A and B. Screen queue last.
 - All four A-lineage screens are below v40 with +1.7 to +3.0 deaths to champions per game; A11774 dropped from the queue.
 - A11976 (sha 7a753124, A-11 b1000 after the survival-first course): my gate4 vs v40 78/140, 0 crashes, deaths 1551 vs v40's 1728; vs x6-61 76, vs x8-140 75 (Arena A lead). Screen queue: right after the v40 control.
@@ -369,3 +370,5 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 - Arena B closed lines on d-out2b: capture targeting (c-nogold 64, c-gem3 66, c-gem9 71 neutral) and bank-under-threat (b-tb15 +5.6 gems lost on death, b-near neutral). Next: draft and shop (Hunter/Skirmish emblems, Marcella for Ren), with a loosened local pre-filter (>= 68) since these are opponent-dependent.
 - s-hunt3 (Arena B, sha 5cfbfb64): d-out2b + Hunter Str emblem 3rd (after Treasure, Jungle). Arena B 70/140 vs d-out2b, deaths -6%, captures level; stampede A slower (not a freeze). Screen s14.
 - s-skirm3 (Arena B, sha 830c6c39313985a0): d-out2b + Skirmish Str emblem 3rd. 72/140 vs d-out2b, deaths -4%, captures +1.7%. Screen s15 after s-hunt3.
+- Shop line closed: a new-family emblem bought 3rd (Hunter s14, Skirmish s15) costs 3-4 captures and 40-60 gems a game
+  on the ladder by delaying Bruiser stats. All stacked variants (s-hs5 76, s-sp5 78 locally) are dropped. d-out2b's shop stands.
