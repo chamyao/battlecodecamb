@@ -261,3 +261,7 @@ champions keep walking back to it.
 | v43-fix2 (+ m11 contest target minus ring(enemy_spawn, 3)) | 162,053 | 840 | 1353 | 1646 | 1569 | 12 maps (stalactites B, boss-battle A, stampede A 2000) | 70 / 33 / 37 |
 | v43-fix3 (+ m11 only when an enemy champion off its spawn is within 10) | 160,409 | 861 | 1572 | 1675 | 1309 | 02stalactites A 2000 (v40 429) | **75 / 43 / 32** |
 fix3 without stalactites A: 158,838. Stalactites is the fragile map from the v38 bisection (8 unrelated single swaps move it).
+
+## b18: v43 30-30 vs v40 same-hour 33-27; reverted to v40, v43 line dropped (v43-fix3 kept on file as a possible base).
+Three local 79-84/140 wins (v40, v41, v43) all landed within +-3 on the ladder band. Candidate work on hold until intel sizes a
+ladder screen band.
