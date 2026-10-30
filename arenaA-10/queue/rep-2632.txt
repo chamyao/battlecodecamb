@@ -1,0 +1,11 @@
+```python
+@gene("r7", "fight the weakest enemy champion in reach (not on its own spawn), unless I am below 40% health against a foe with over twice my health fraction that one hit cannot kill (a losing trade hands it my bag)")
+def r_fight() -> Bool:
+    f = fight_foe()
+    if not exists(f) or dist(here(), f.pos) > me().attack_range or f.pos in enemy_spawn():
+        return False
+    m = me().health_frac
+    if m < 0.4 and f.health_frac > 2 * m and attack_damage(me(), f) < f.health + shield(f):
+        return False
+    return True
+```

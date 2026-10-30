@@ -1,0 +1,7 @@
+```python
+@gene('r1', 'nothing to do: dead, channeling, cannot act, or recalling while no enemy champion can hit us next turn (stay put so the recall completes)', parents=['r1'])
+def r_idle() -> Bool:
+    if not alive() or channeling() or (not can_move() and not can_attack()):
+        return True
+    return is_recalling(me()) and threat_eta() > 1
+```
