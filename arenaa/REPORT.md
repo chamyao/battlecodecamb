@@ -16,6 +16,8 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - 10:30 check-in (b748): anchors v41 27.02, v40 26.94, v38 25.20, v33 25.00, v28-emblem 23.45, B318 22.81. Tops are
   A11728 29.24 and A11663 28.47 (0.598 vs anchors over 112 games; real 73/140 vs v40). Waiting on the writer's
   sim-vs-real table.
+- 10:35: v43 (x8-140) went live at 10:02 and was reverted to v40 at 10:31 (band b18: v43 30-30, v40 33-27).
+  Search's gatekeeper-51 had A11106 at 77.6 ensemble vs v43; real cambc gives **75/140** vs v43 (69 vs v40). A fail.
 
 ## 2026-10-30 09:22 UTC: A-11 interrupted to deliver the restart order
 
