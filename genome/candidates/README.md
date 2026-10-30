@@ -193,3 +193,8 @@ hold 117, gem-groups after 6 buys, bossbush.
   v38's draft holds; Tavi's remote shop carries our banking logic.
 - New item families: unbuyable until the runtime has kNumItems 84 (bot/src/cbs/core.h is 42); every probe 2/140.
   Fuel is doing "M0.5: bot constants" (items 42-83, 2.0.0 passives and champion stats) on genome/fuel.
+
+## Search gate passes (engine-1.0.3 sim) re-checked on cambc 4.0.0 vs v38
+
+- A103740 (arenaA-10, blob 3fde74c2; sim pass h2h 46/80, anchors clean): 61/140, 0 crashes. Fails.
+- A103823 (sim 47/80, hunter-blocked): 69/140, 0 crashes. Fails.
