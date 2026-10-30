@@ -373,3 +373,6 @@ New variants:
 | d-out4b | 63 | 36 / 27 | 998 / 1052; captures 10596 / 11134 (-5%); solo: new stall 02stalactites A 2000 |
 Retreating whenever a champion is alone against 2 costs captures and the head-to-head (the same trade as the cautious ladder screens).
 (A batch job queued on a pgrep wait loop matched its own command line and hung for 2 hours. `full.sh` now runs one variant per job.)
+| **d-out2b** | **72** | 41 / 31 | 1080 / 1139 (-0.4 per game); died after <50% HP 24% / 24%; captures 10864 / 10738 (+1%); solo total 159,056 (v40 158,785), no losses, **no new stalls** |
+**d-out2b passes the full pre-filter** and goes to the genome lead for a ladder screen. Genome: cand/engine2/d-out2b.genome (v40 + rule dx1 at priority 171).
+Rule dx1: off spawn, 2+ enemy champions within 6 (not on their spawn, health ≥ 0.15 or carrying gems), and at least 2 more of them than of us (me included) within 6 → retreat to spawn. A killshot still goes first.
