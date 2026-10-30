@@ -1,0 +1,14 @@
+```python
+@gene("c2", "the altar or unit tile this turn's rule acts on (reads RULE: no second run of rule())")
+def rule_target() -> Tile:
+    r = RULE
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+```

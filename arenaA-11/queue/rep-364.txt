@@ -1,0 +1,17 @@
+```python
+@gene('m2', 'an altar next to us: one free of enemy locks first (our own lock does not block our tribute), the one with fewest enemy champions within 3 among those, else an enemy-locked one (a tribute there hits the lock)')
+def adj_altar() -> Tile:
+    adj = altars() & near(here(), 1)
+    if size(adj) == 0:
+        return tile(-1, -1)
+    la = adj & locked_altars()
+    el = la - la
+    for t in la:
+        if lock_enemy(t):
+            el = el | near(t, 0)
+    open_adj = adj - el
+    if size(open_adj) > 0:
+        et = enemy_tiles()
+        return best(open_adj, lambda t: (0 if t in la else 1) - 2 * size(et & near(t, 3)))
+    return first_tile(adj)
+```
