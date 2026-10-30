@@ -297,3 +297,6 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
 - My gate4 vs live v40: 81/140 (old 48, new 33), 0 crashes. GO as v43; band paired with b16.
 - x8-140 live as ladder version 43 (submitted 2026-10-30T09:57:53Z, bundle sha256 ed994fd9...). Intel re-ran v40's band first (b18base, same hour) to control for opponent updates; v43's band is b18, paired with b18base.
 - Bug: v43 (x8-140) stalls in solo vs the genome idle bot on 00quarry side A (1699 rounds; v40 861, v39a 891), the same in sim and real. It's a genome trait from an x8 edit; the Arena B lead is bisecting. (A starter-based idle drafts differently and hides it.)
+- v43-fix (sha 6f21c5c82d7d7b2c, genome/arenab ad002963f): Zb's champion-over-camp rule ignores enemies on their own
+  spawn (and near-dead enemies without gems). Quarry A solo 1699 -> 861; 70-map solo total 159,965 -> 159,048.
+  My gate4 vs live v43: 71/140, 0 crashes (bugfix level). GO after v43's band (b18) is in.
