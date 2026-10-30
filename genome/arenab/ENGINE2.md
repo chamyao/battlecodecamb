@@ -337,3 +337,13 @@ Results vs v40, 140 games:
 Softer d-out versions, now gating:
 - **d-out2:** retreat only when outnumbered by 2+ (enemies ≥ allies incl. me + 2).
 - **d-out3:** d-out, only when also below 70% health.
+| d-out2 | **75** | 43 / 32 | 1091 / 1165 (-0.5 per game); died after <50% HP 24% vs v40 25%; captures 10926 / 10709 |
+| d-out3 | 71 | 40 / 31 | 1048 / 1114 |
+d-out2 passes the head-to-head bar and the deaths ≤ v40 check. Its solo check is running.
+
+The coordinator's target (Fish study): Fish champions die 6% of the time after dropping below half health, ours 88%.
+Locally, deaths.py measures about 25% for both v40 and d-out2 (any drop below 0.5 that ends in death before recovering). The Fish figure must use a different definition.
+My guess at why d-th failed: its trigger, under_fire, includes awake camps, so champions abandoned camp fights at 45% and walked to spawn.
+New variants, which a camp alone never triggers:
+- **d-h50:** new rule dh1 at priority 171. Off spawn and below 0.5 health (shield counts), with an enemy champion within 6 or able to hit us within 2 turns → retreat to spawn.
+- **d-h50r:** d-h50, plus recall below 0.5 when no threat within 5 turns and not under fire.
