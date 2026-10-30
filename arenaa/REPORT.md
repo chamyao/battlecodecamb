@@ -2,6 +2,37 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 13:45 UTC: A-11 stopped; conclusions and the next fitness
+
+Ladder screens of A-lineage candidates (30 games, vs v40's 13-17 control):
+
+| screen | candidate | result | deaths/game vs v40 | captures/game vs v40 |
+| --- | --- | --- | --- | --- |
+| s1-s3 | A11501, A11696, A11599 (fight/contest edits) | 10-20, 12-18, 11-19 | +1.7 to +2.4 | lower |
+| s4 | A11791 (carries v40's v2) | 9-21 | +3.0 | lower |
+| s9 | A11976 (lowest real deaths) | 10-20 | +0.6 (control level) | -7.6 (gems -54) |
+
+Conclusions:
+1. v40 sits between two failure modes. Lineages selected for winning h2h become aggressive and lose champions vs
+   real teams. The one cautious lineage (A11976: hurt health shard, fewer deaths) farms less. Neither beats v40.
+2. Arena mu and local h2h don't predict the ladder. Tops rated +1.5 mu over v40 scored 58-78/140 real vs v40, and
+   the few at 76-78 lost their screens. Real h2h vs one bot is also a weak predictor: v41 79/140 vs v40 and v43 both
+   lost bands.
+3. My 08:27 steer toward fights and contests (from gatekeeper-50's blocking fighters) made it worse. Lesson: read
+   blocking anchors as symptoms, and check ladder-relevant stats (deaths, captures) before steering mutations.
+4. Tooling found along the way:
+   - the rule-id tuner bug (fixed, genome/search 60a2da208);
+   - long-loop sessions don't see messages (use interrupt or a between-batch check);
+   - fuel pricing fixes (sim-real bias +10 -> +0.6);
+   - the bush blind spot (v39);
+   - v40m's cheap mono_groups (lost a band anyway);
+   - the a9 hurt-shard finding (fewer deaths, but a boss-battle stall).
+
+Proposal (needs a go): if Arena A trains again, arena.py fitness should score what the ladder rewards. Per game vs
+v40 and the stress anchors (x6-61, x8-140): captures and gems captured (up) and deaths to champions (down), plus wins.
+A real gate on those stats, not wins only, before any ladder screen.
+Not started; nothing Arena-A-side is queued for the ladder.
+
 ## 2026-10-30 13:10 UTC: A-11 check-in (1139 births)
 
 - b1100 gate vs v40/v41: A111088 66/58, A111026 69/71, A111099 67/73. All fail. b1000's 77-78 didn't repeat; arena
