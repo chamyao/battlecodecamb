@@ -56,6 +56,10 @@ Sources and confidence:
     | home | 0.5 |
 
   So the genome item constants (18/19 Treasure Str, 28/29 Jungle Hp, 36 Bruiser Str) still point at the same items.
+- **Changed passive magnitudes** (v1 values from docs/GameRules.md; Arena B found the same in its SDK diff, genome/arenab 64f3b615):
+  - **Treasure: 20% → 10% more gold.** Vesper Vale + Treasure is now 33% + 10% = 43%, down from 53%. This weakens the v29 emblem plan (Treasure Str first).
+  - **Monster: 10% → 15% more damage to camps.**
+  - Durability (10%), Jungle (30%) and Home (50%) are unchanged.
 
 ## New
 
