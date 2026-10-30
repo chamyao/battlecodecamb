@@ -1,0 +1,14 @@
+```python
+@gene("w5", "walking field to GOAL, searched out to my own tile; below half health it first tries a field that also avoids tiles next to visible enemy champions, falling back to the plain field when that cuts me off")
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    b = blocked() - g
+    if hurt_below(0.5):
+        risky = b - b
+        for u in enemies():
+            risky = risky | near(u.pos, 1)
+        f = field_avoid(g, b | (risky - g - near(here(), 0)), near(here(), 0))
+        if at(f, here()) < INF:
+            return f
+    return field_avoid(g, b, near(here(), 0))
+```

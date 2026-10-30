@@ -1,0 +1,36 @@
+```python
+@gene('v2', 'no lock placement after round 1600 (camp walk instead: a late lock rarely pays back the turns); start of turn: choose the rule, its goal and target; shared-memory and priority writes (fighters, retreaters, pre-fight bankers and bankers walking under threat act first next round, bankers at an altar or walking to bank next); the lock is not placed with an enemy champion within 5: camp walk instead; lock placers act first next round; allies over 4 away do not block a step check or dash; cash-out recallers act first next round')
+def update() -> None:
+    if not MAPPED:
+        ALTAR_RING = altar_ring()
+        SAFE_RING = safe_altar_ring()
+        MONO_GROUPS = mono_groups()
+        TERRAIN = walls() | holes() | altars() | enemy_spawn()
+        BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
+        SK0 = slot_kind(0)
+        SK1 = slot_kind(1)
+        MAPPED = True
+    RULE = rule()
+    if RULE == 8 and (enemies_within(5) > 0 or round() > 1600):
+        RULE = 20
+    GOAL = camp_goal() if RULE == 20 else rule_goal()
+    TGT = rule_target()
+    OPEN = False
+    if walks() and valid(GOAL) and GOAL != here():
+        BLOCK = blocked() - (ally_tiles() - near(here(), 4))
+        OPEN = walk_open()
+        FIELD = walk_field()
+    LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
+    if LOCK_BUY:
+        write_shared(7, read_shared(7) + 2)
+    SHOP_GOLD = gold() - (10 if LOCK_BUY else 0)
+    if RULE == 8:
+        write_shared(7, read_shared(7) + 1)
+    if RULE == 7 or RULE == 3 or RULE == 9 or RULE == 11 or RULE == 8 or RULE == 5:
+        set_priority(150 + rand(20))
+    elif RULE == 10 or RULE == 6 or RULE == 17 or RULE == 12:
+        set_priority(120 + rand(20))
+    elif RULE == 20:
+        set_priority(1 + rand(100))
+```
