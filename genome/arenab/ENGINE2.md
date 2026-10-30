@@ -497,3 +497,20 @@ Pre-built Skirmish stacks with a non-Hunter 5th emblem (Skirmish, Durability, th
 | s-sc5 (Skirmish, Durability, Capture) vs d-out2b | 74 | 44 / 30 | 1064 / 1120; captures 10771 / 10501 (+2.6%); gems lost on death 9402 / 8245 (+8.3 per game); solo 157,247 (faster), boss-battle B 2000 |
 | **s-sp5** (Skirmish, Durability, Prospector) vs d-out2b | **78** | 48 / 30 | 1096 / 1195 (-0.7 per game); captures level; gems lost on death 7378 / 7557 (level); solo 157,868 (faster), boss-battle A and B 2000 |
 s-sp5 is the best Skirmish stack locally, with the same boss-battle 5th-emblem caveat. Candidate only if s15 (s-skirm3) screens up.
+**s15, s-skirm3 on the ladder:** 9-21 vs d-out2b's 12-18 (no drift); captures -3.0, gems -40.
+Both new-family emblems lose 3-4 captures per game on the ladder by delaying Bruiser stats. Shop line closed, s-sp5 included.
+
+## Standing down (genome lead, 19:16Z)
+d-out2b (live v61) is the local optimum for directed single edits.
+Closed lines:
+- half-HP disengage;
+- regroup toward allies;
+- the strict outnumber trigger on front-liners;
+- the Tavi strict trigger (d2-tout: ladder level, captures -2.5);
+- Marcella double count (d4-marc: deaths moved to other killers);
+- capture targeting;
+- bank under threat;
+- Hunter and Skirmish emblems and their stacks;
+- the Ren → Marcella draft swap.
+Recurring lesson: local h2h vs our own lineage does not track the ladder (s-hunt3 70 locally → 7-23; s-hs5 76; s-sp5 78).
+The next step needs ladder-like opponents, which is Cham's decision.
