@@ -6,3 +6,5 @@
 | A103646-v33port | 51/80 | 67/80 | 67/80 | A103646 (arena tune child of A93636, rated 49.6) + the same v33 graft (tools/port.py). Unported A103646: 36/80 vs v33. farmer (genome/examples/farmer.genome): 80/80. Reference, v33 itself: 66/80 vs B318, 56/80 vs A61188, 80/80 vs farmer. |
 | A103649-v33port | 48/80 | - | - | A103649 (arena cross of A103646 x A93635) + the v33 graft. |
 | A103646-v33port-kf | 52/80 | 67/80 | 63/80 | A103646-v33port + rule_goal/rule_target read RULE (no re-run of rule(); 51/80 alone) + fight_foe ranks one-hit kills first. Sent to the arena as cross child of req 2641. |
+| v33port-h4 | 52/80 | - | - | A103646-v33port-kf + pass-through bank with <= 10 gems even with a foe in reach (1-turn channel), no step into a 2-enemy pinch below half health, stun turns in threat_eta, our own lock does not block altar_eta/bank_t1, threat-aware altar choice (foe_gap). Gems 868 vs 833 for -kf. Sent to arena (req 2685). |
+| v33port-heal | 54/80 | 64/80 | 62/80 | v33port-h4 + self-heal below 75% while carrying 10+ gems. Sent to arena (req 2687). h4 + this + calm altar tile + hurt-carrier bank-first = 52/80 vs v33, 69 B318, 60 A61188 (plateau ~52 +- 2). |

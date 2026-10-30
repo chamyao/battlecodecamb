@@ -1,0 +1,5 @@
+```python
+@gene("w11", "tiles next to me a dash may pass through (not wall, altar or enemy spawn)")
+def dash_mids() -> Tiles:
+    return near(here(), 1) - walls() - altars() - enemy_spawn()
+```

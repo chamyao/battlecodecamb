@@ -1,0 +1,18 @@
+```python
+@gene('m15', 'nearest open tile next to any altar (not blocked), preferring ones no visible enemy champion stands next to, else nearest tile next to any altar', parents=['m15'])
+def bank_t3() -> Tile:
+    open_ring = ALTAR_RING - taken()
+    if size(open_ring) > 0:
+        calm = open_ring - near_foes()
+        if size(calm) > 0:
+            return closest(calm)
+        return closest(open_ring)
+    return closest(ALTAR_RING)
+
+@gene("new", "tiles within 1 of a visible enemy champion", parents=["m15"])
+def near_foes() -> Tiles:
+    acc = ALTAR_RING - ALTAR_RING
+    for u in enemies():
+        acc = acc | near(u.pos, 1)
+    return acc
+```
