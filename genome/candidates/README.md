@@ -231,3 +231,10 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
 - Str emblem first: Prospector 76, Hunter 66, Capture 62, Skirmish 61, Tribute 51. In place of Jungle: all <= 65.
 - v39a-prospector-first (sha ca9c2a42...): my gate4 vs the live v39 build is 69/140 (old 35/80, new 34/60), 0 crashes.
   Fails (a shop-order change, bar 81). The new-map gain (+3-4) is consistent but is paid back on the old maps.
+
+## Search gatekeeper-41 (engine-2 sim) near-misses, real-checked vs live v39
+
+- All regate40 and A-10 genomes fail the sim solo check on 00quarry (no w1 fix). With v39a's w1 fix grafted:
+  - A103823-w1 (sha 35af880b): sim h2h 83/140, real 66/140, 0 crashes.
+  - A103930-w1 (sha 478dd015): sim h2h 78/140, real 63/140, 0 crashes.
+  The 2.0.0 sim head-to-head overrates these A-10 genomes by ~15/140 against v39a.
