@@ -274,6 +274,8 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   new 33/60), 0 crashes. Validation: b16. Revert target v39 (97492ba3...). Queued next: v40m (79/140 vs v40).
   v40 b16: 31-29, same as v39 on the same games (kept). 41 = v40m (06:33 UTC Oct 30, bundle 7cd1e540...): v40
   with cheaper monolith-group lookup (turn-1 fuel cap maps 14 -> 4); 79/140 vs v40. Validation: b17. Revert target v40.
+  v41 b17: 28-32 (v40 31-29). 42 = v40's bundle again (7317ef88...). Lesson: local self-play edges (79/140) twice
+  failed to show on the band; the ladder band now decides. Genome 2.0.0 sim now unbiased vs real (mean sim-real +0.6).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
