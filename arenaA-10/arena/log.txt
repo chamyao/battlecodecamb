@@ -6129,3 +6129,29 @@
 [02:03:04] [A10] birth A103652 (mutate session) of ['A93641'] species S5; 24 genomes $7.80
 [02:03:23] [A10] birth A103653 (mutate session) of ['A103646'] species S5; 24 genomes $7.80
 [02:03:31] [A10] birth A103654 (mutate session) of ['A93643'] species S3; 24 genomes $7.80
+[02:03:56] [A10] birth A103655 (mutate session) of ['A103646'] species S5; 24 genomes $7.80
+[02:05:21] [A10] rejected tune : behavioural twin
+[02:08:51] [A10] rejected mutate session: behavioural twin
+[02:08:59] [A10] birth A103656 (mutate session) of ['A103648'] species S5; 24 genomes $7.80
+[02:08:59] [A10] rejected mutate session: behavioural twin
+[02:09:00] [A10] birth A103657 (mutate session) of ['A103654'] species S4; 24 genomes $7.80
+[02:09:01] [A10] birth A103658 (mutate session) of ['A93624'] species S5; 24 genomes $7.80
+[02:09:34] [A10] rejected mutate session: behavioural twin
+[02:09:35] [A10] birth A103659 (mutate session) of ['A103650'] species S4; 24 genomes $7.80
+[02:09:36] [A10] summary: births 3660 deaths 3637 games 843696 $7.80; top [('A103656', 50.7, 0.97, 80, 'S5'), ('A103648', 49.82, 0.84, 224, 'S5'), ('A93623', 49.29, 0.81, 648, 'S3')]; top vs anchors {'A103656': None, 'A103648': 0.917, 'A93623': 0.938}
+[02:09:36] [A10] birth A103660 (mutate session) of ['A93624'] species S5; 24 genomes $7.80
+[02:09:44] [A10] birth A103661 (cross ) of ['A103648', 'A103655'] species S5; 24 genomes $7.80
+[02:11:10] [A10] rejected mutate session: behavioural twin
+[02:11:16] [A10] rejected tune : behavioural twin
+[02:11:20] [A10] birth A103662 (tune ) of ['A93636'] species S5; 24 genomes $7.80
+[02:11:43] [A10] birth A103663 (mutate session) of ['A93605'] species S5; 24 genomes $7.80
+[02:11:52] [A10] birth A103664 (mutate session) of ['A93635'] species S5; 24 genomes $7.80
+[02:11:57] [A10] birth A103665 (mutate session) of ['A93618'] species S4; 24 genomes $7.80
+[02:12:02] [A10] rejected mutate session: EditError: modified fixed gene v2 (update)
+[02:12:04] [A10] birth A103666 (mutate session) of ['A103661'] species S5; 24 genomes $7.80
+[02:12:33] [A10] rejected tune : behavioural twin
+[02:13:01] [A10] birth A103667 (mutate session) of ['A103652'] species S5; 24 genomes $7.80
+[02:13:01] [A10] rejected mutate session: behavioural twin
+[02:13:11] [A10] rejected mutate session: behavioural twin
+[02:13:26] [A10] birth A103668 (tune ) of ['A103656'] species S5; 24 genomes $7.80
+[02:13:47] [A10] birth A103669 (tune ) of ['A103666'] species S5; 24 genomes $7.80
