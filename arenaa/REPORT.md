@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 05:20 UTC: 2.0.0-sim gate passes don't reproduce on real cambc
+
+- Search (gatekeeper-41, 2.0.0 sim) reports the A-10 genomes with the w1 bush fix grafted: A103823-w1 83/140 and
+  A103930-w1 78/140 vs v39.
+- Real cambc 4.0.0 (gate4 method, built at genome/v0 6fb46951) gives 68/140 (sha 35af880b) and 67/140 (sha 478dd015)
+  vs v39a, 0 crashes; 68 and 66 on the old runtime build.
+- A 10-15 game gap. Asked search to diff one map (sim vs cambc). Until it is resolved, uploads need a real gate4 pass.
+
 ## 2026-10-30 05:00 UTC: v39a live as ladder v39; A-11 waits on Cham's go
 
 - The genome lead uploaded v39a as ladder v39 (genome/v0 059731b87). Since then, on genome/v0: Arena B's solo bisection
