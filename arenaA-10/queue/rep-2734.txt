@@ -1,0 +1,11 @@
+```python
+@gene("r2", "heal on spawn: hurt and nothing off its own spawn can hit me from here (v33: enemies on their own spawn do not count, or a hurt champion next to an enemy spawn never heals)")
+def r_heal() -> Bool:
+    return at_spawn() and me().health < me().max_health and not foe_in_reach_off_spawn()
+
+@gene("new", "a visible enemy champion off its own spawn can hit me now or after one step (v33 i22)", parents=["s5"])
+def foe_in_reach_off_spawn() -> Bool:
+    h = here()
+    r = me().attack_range
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if u.health_frac > 0.2 and not (u.pos in enemy_spawn()))
+```

@@ -1,0 +1,38 @@
+```python
+@gene('c1', "where this turn's rule walks; banking under threat also prefers the safe, unlocked altar; reads this turn's RULE instead of re-running rule()")
+def rule_goal() -> Tile:
+    r = RULE
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11 or r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer; else any safe altar, else any altar; banking under threat (rule 11) takes whichever of the two safe choices is farther from the nearest visible enemy champion', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if valid(a) and valid(b):
+        if RULE == 11 and a != b:
+            return a if foe_gap(a) + 2 >= foe_gap(b) else b
+        if dist(here(), b) + 4 < dist(here(), a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+
+@gene("new", "distance from tile t to the nearest visible enemy champion (99 if none)", parents=["m12"])
+def foe_gap(t: Tile) -> Num:
+    return min((dist(t, u.pos) for u in enemies()), default=99)
+```

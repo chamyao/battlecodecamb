@@ -1,0 +1,12 @@
+```python
+@gene('r12', 'threat near: enemy within 5, two or more enemies within 7 (a pair collapses fast), hurt with an enemy within 7, or able to hit us within 3 turns; while I am above 80% health, single enemies below 40% within 5 do not count (they will not engage)')
+def threat_near() -> Bool:
+    if threat_eta() <= 3:
+        return True
+    if enemies_within(7) >= 2:
+        return True
+    if me().health_frac > 0.8:
+        h = here()
+        return any(dist(h, u.pos) <= 5 and u.health_frac >= 0.4 and not is_recalling(u) for u in enemies())
+    return enemies_within(5) > 0 or (hurt_below(0.5) and enemies_within(7) > 0)
+```

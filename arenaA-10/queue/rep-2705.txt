@@ -1,0 +1,5 @@
+```python
+@gene("r4", "recall: below 30% health and nothing near (no enemy champion able to hit us within 2 turns; damage cancels the channel, so under pressure the retreat on foot runs instead)")
+def r_recall() -> Bool:
+    return not at_spawn() and hurt_below(0.3) and threat_eta() > 2
+```
