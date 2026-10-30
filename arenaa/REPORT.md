@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 10:46 UTC: new regime, ladder screens
+
+- The genome lead: intel can screen on the ladder itself (30 swing games, ~20 min, immediate revert if down). The local real
+  gate is a pre-filter at >= 72 vs live v40, 0 crashes, no new solo stall.
+- Sent to the queue (vs v40 / v41, real): A11501 75/76 (fb1b19cd), A11696 74/72 (380b8b4b), A11663 73/72 (c63d0c9b),
+  A11599 73/74 (068e7c98). The A-11 writer now reports >= 72 tops straight to the genome lead.
+
 ## 2026-10-30 10:18 UTC: A-11 after the v40 restart (748 births)
 
 - Real gates vs v40/v41, 0 crashes, all fail: b700 A11663 73/72, A11696 74/72, A11691 68/68; b600 re-gates
