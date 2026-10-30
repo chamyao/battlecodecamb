@@ -223,3 +223,5 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
 - Arena B solo-cluster bisection (stampede, starvation, gold-rush, boss-battle): only v33's v2 and m11 help all four.
   v38 + v33 v2 (sha 437b3b49): 77/140 vs v38, 79 vs v33 (v38 itself 82), solo 79,348 vs 83,068. Within mirror noise,
   not uploaded. (Arena B's earlier old/new splits counted the ten new 00-maps as old; totals were right.)
+- v39a live as ladder version 39 (submitted 2026-10-30T04:11:26Z, bundle sha256 97492ba3...). Validation: band_v2
+  (intel b99c234), old maps paired with b13, new maps with b14.
