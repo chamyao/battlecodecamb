@@ -288,4 +288,14 @@ Pre-filter vs live v40 (cambc 4.0.0, runtime 671ac45b, 140 games): **64/140** (o
 The unconditional join pulls units off income for fights they can't swing. The next narrower variant joins only when we'd outnumber the enemy near the foe.
 
 **v40-join2** adds an outnumber gate: our allies within 6 of the foe, plus the joiner, must exceed the enemies within 6 of it. Result: **70/140** vs v40 (old 38/80, new 32/60). That fails the 72 bar, but by less than v40-join, so the outnumber gate helps.
-**v40-join3** is v40-join2 plus a rescue-only condition: an ally within 6 of the foe must be below half health. It is gating now.
+**v40-join3** is v40-join2 plus a rescue-only condition: an ally within 6 of the foe must be below half health.
+Result: **72/140** vs v40 (old 39/80, new 33/60), which passes the head-to-head bar.
+Solo vs genome idle: total 161,435 (v40 158,785), no losses, but **2 new stalls**: 01boss-battle A at 2000 (v40 1424) and 02stalactites A at 2000 (v40 429). It fails the no-new-stall rule.
+Stall checks on just those two A games (v40 re-run reproduces 1424 / 429):
+| variant | boss-battle A | stalactites A |
+|---|---|---|
+| join3b (also skip foes within ring(enemy_spawn, 3)) | 2000 | 2000 |
+| join3c (join3b + champions only) | 2000 | 2000 |
+| joinoff (control: r_join returns False) | 1424 | 429 |
+The rule really does fire against idle enemies. It doesn't come from reaching for foes on their spawn, or from monsters. The likely trigger is an ally hurt by camps near an idle enemy champion. I haven't diagnosed it further.
+This is the same pattern as the x7/x8 table: a local head-to-head edge, paid for with stalls against a parked enemy.
