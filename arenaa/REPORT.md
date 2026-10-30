@@ -2,6 +2,13 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 05:00 UTC: v39a live as ladder v39; A-11 waits on Cham's go
+
+- The genome lead uploaded v39a as ladder v39 (genome/v0 059731b87). Since then, on genome/v0: Arena B's solo bisection
+  gives v38+v2 77/140 (not uploaded); the first new-item probe, v39a-prospector-first, is 69/140 vs live v39.
+- A-11 has not started. The A-10 session (idle, 632k context) wants Cham's go typed in its own session before a new
+  multi-hour run and an arena-code edit (_INDEX_PRIMS). Brief ready: arenaA-11/ on arenaa/a10-mirror.
+
 ## 2026-10-30 04:40 UTC: A-10 done; its best sim candidate fails on the real engine
 
 - A-10 finished at 4045 births (old 1.0.3 sim). My switch messages reached it only at 04:29, after the end.
