@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 11:45 UTC: ladder screens of A-11 tops lose (more deaths)
+
+- Intel's 30-game ladder screens vs v40's 13-17: A11501 10-20, A11696 12-18, A11599 11-19. All three have +1.7 to +2.4
+  deaths to champions per game and fewer captures against real opponents. A11791 is screening now.
+- Lesson: my 08:27 steer toward fights and contests (from gatekeeper-50's blocking fighters) bred aggression that wins
+  arena and h2h games but loses to ladder teams.
+- A-11 changed course: stress anchors x6-30, x6-61, x8-140 at weight 2; survival-first mutations (retreat thresholds,
+  no chasing, safer holds); deaths-to-champions reported with gates.
+
 ## 2026-10-30 10:46 UTC: new regime, ladder screens
 
 - The genome lead: intel can screen on the ladder itself (30 swing games, ~20 min, immediate revert if down). The local real
