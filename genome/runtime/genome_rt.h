@@ -506,8 +506,12 @@ public:
 		if (!slot)
 		{
 			auto b = std::make_shared<Bitboard>();
-			for (int c : m.groups[static_cast<int>(g)].camps) b->set(m.camps[c].pos);
+			const auto& camps = m.groups[static_cast<int>(g)].camps;
+			for (int c : camps) b->set(m.camps[c].pos);
 			slot = b;
+			// the build, priced 0 until Oct 30: 46 + 148 per camp in the bot (first-turn probes on cambc 4.0.0,
+			// 3 maps); a genome touching every group on turn 1 was 3-14k under on its first turn
+			extra((46 + 148.0 * static_cast<double>(camps.size())) / kExtraScale);
 		}
 		return { slot };
 	}
@@ -2349,14 +2353,13 @@ public:
 			if (api.champ() >= 0) t1_mark(api.fuel_remaining()); // runtime and genes made
 #endif
 			// the bot's one-off start-up on a champion's first turn (map and game built from the engine,
-			// runtime tables): first-turn fuel minus the simulator's, idle genome on 8 maps (err < 4.5k)
+			// runtime tables): first-turn fuel minus the simulator's, idle genome on all 70 maps on cambc 4.0.0
+			// (resid sd 2.5k, max 7.1k; the 3.0.5 fit, 17444 + 3.13 WH + 35.5 holes + 376 camps, was off by
+			// -191k..+8k there). Divided by the extra() scale so the charge is as fitted.
 			if (api.champ() >= 0)
 			{
 				const auto& m = api.map();
-				std::int64_t holes = 0;
-				for (int y = 0; y < m.H; ++y)
-					for (int x = 0; x < m.W; ++x) holes += m.holes.test(x, y);
-				X.extra(17444 + 3.13 * m.W * m.H + 35.5 * holes + 376.0 * m.camps.size());
+				X.extra((24802 + 0.74 * m.W * m.H + 276.3 * m.camps.size() + 278.2 * m.groups.size() + 353.5 * m.altar_list.size()) / Ctx::kExtraScale);
 			}
 			for (;;)
 			{

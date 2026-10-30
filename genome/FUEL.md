@@ -10,6 +10,26 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
+## First turn on cambc 4.0.0: start-up refit, group tile builds priced (Oct 30)
+
+The reversed game (01elk-arena, A103823-w1 as team A vs v39a) is real 0-1008 and sim 900-468 at every fuel
+level. At 1e8 fuel it replays action for action, both teams (8024 / 8505 actions). At the normal budget it
+diverges on round 1: the sim's champions run a second pass (dash + move), the real ones do not. Real first
+play turns cost ~190k against the sim's 140-170k.
+- Start-up (`GenomePlayer::make_bot`): the 3.0.5 fit (17444 + 3.13 WH + 35.5 holes + 376 camps) was off by
+  -191k to +8k on cambc 4.0.0 (holes no longer cost anything). Refit with the idle genome on all 70 maps (the
+  largest first turn of team A): 24802 + 0.74 WH + 276 camps + 278 groups + 354 altars; resid sd 2.5k, max 7.1k.
+- `group_tiles(g)` builds its set once per group and was priced 0: 46 + 148 per camp. First-turn probe genomes
+  (genome/examples/firstturn: idle, one construct each on turn 1) put the miss at 10-14k per champion on
+  01elk-arena / 00lanes for a genome touching every group, as A103823-w1's `mono_groups` does. With the price,
+  ft_gt matches idle exactly and ft_mono is within 1.5k.
+
+After both: identical-game first turns are 4-8k under (were 18-20k), whole games 0.996-1.004. A103823-w1 vs
+v39a sim A wins 83 -> 73 (extra x1.04) -> 67, real 68; per-game agreement 87 -> 89 -> 93 / 140. Open: the
+reversed game itself still opens differently. At the normal budget the real first turn spends 196k and runs one
+pass, while the same turn at 1e8 ran its passes in 189k. So the real bot does more on its first turn when the
+budget binds, and the sim does not model that.
+
 ## Sim optimistic for evolved genomes: extra() x 1.04 (Oct 30)
 
 Search's gate (regate40/BIAS.md) had the sim above real for all 9 gated genomes (mean +9.8 / 140; worst:
