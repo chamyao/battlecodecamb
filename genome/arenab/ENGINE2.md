@@ -403,3 +403,11 @@ d2-tout was confirmed by the genome lead (76/140, deaths 1476 vs 1682) and is qu
 Vendetta is a front-line fighter: making it leave fights costs games. Next: d3-vv (d2-tout + Vesper Vale strict).
 | d3-vv (d2-tout + Vesper Vale strict) | 60 | 34 / 26 | 1045 / 1117; captures 10549 / 10938 (-4%); solo stalactites A 2000 |
 The strict trigger only pays for Tavi, our banker with the lowest health. Extending it to any front-liner costs games and captures. The death line is d-out2b → d2-tout.
+
+## d-out2b LIVE as v59 (intel, b19 full band, same hour)
+- Record: 31-29 vs v40's 30-30.
+- Gems lost on death: -14.5 ± 6.9.
+- Deaths to champions: -0.8 ± 0.6.
+- Captures: held.
+d-out2b is the first edit to beat v40 on the band. d2-tout cut deaths further but lost captures on the ladder, so it was not adopted.
+New base for Arena B work: d-out2b (cand/engine2/d-out2b.genome).
