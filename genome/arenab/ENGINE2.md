@@ -233,3 +233,9 @@ Every exploit-8 program beats v40 vs v33 and trails it vs v38.
 ## v43 = x8-140 live (genome lead real 81/140 vs live v40). Search sim solo-blocked it (+1057 rounds on 00quarry, 00reverse-spiral,
 01starvation); real cambc solo vs idle (both sides): quarry 879/822 vs v40 879/818, reverse-spiral 2000/2000 both, starvation
 2000/2000 vs 1912/2000. Sim artefact; real solo is the check. Sim also underrates v43 h2h by ~12.
+
+## CORRECTION: v43 quarry-A stall is real
+My solo checks used a C++ starter with play_turn removed as "idle"; fuel/search use genome/examples/idle.genome (different
+draft). 00quarry side A, real 4.0.0: x8-140 (v43) 879 vs starter-idle but 1699 vs genome-idle (B side 796); v40 861/794,
+v39a 891/794 vs genome-idle. The sim was right: v43 stalls on quarry A against that draft. Solo-vs-idle numbers earlier in this
+file used the starter idle. From here, solo checks use the genome idle.
