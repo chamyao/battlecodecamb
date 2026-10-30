@@ -172,3 +172,5 @@ hold 117, gem-groups after 6 buys, bossbush.
   engine. Engine 2.0.0 adds 30 maps (70 in the pool), 8 item families (tribute, capture, prospector, hunter, skirmish,
   greed, collectors; shard/emblem of strength/focus/health) and camp_group_capture_state. Re-gating v38 vs v33 on
   cambc 4.0.0 (70 maps x 2 sides).
+- Real cambc 4.0.0 (engine 2.0.0), 70 maps x 2 sides vs v33: 82/140, 0 crashes, 140/140 results; old 40 maps 47/80,
+  30 new maps 35/60; 18 games reach round 2000. v38 is kept.
