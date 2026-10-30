@@ -305,3 +305,11 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
   not moved the band, so the ladder band decides and gate4 is only a pre-filter.
 - v43-fix3 (sha 6760603a, genome/arenab 7bb80059e): v43-fix + m11 contest help only with a real off-spawn contester; fixes the boss-battle B, famine B and expanse A stalls; 75/140 vs v43; stalactites A 429 -> 2000. On file only, since the v43 line was dropped after b18.
 - Reverted: v40 re-submitted as ladder version 44 (2026-10-30T10:32:02Z, bundle 7317ef88...). Band baseline for the next candidate: b18base (v40, 33-27).
+
+## Ladder screen policy (2026-10-30, from intel's SCREEN.md)
+
+Quota is 50 groups per rolling hour, so ladder testing is cheap: ~15-20 min of live time per candidate. screen_v1 =
+6 groups / 30 games (17 of 22 historic swing games + 8 close ones; it reproduced the verdicts for v39, v40, v41, v43).
+- Pre-filter: real gate4 vs live >= 72/140, 0 crashes, no new solo stall vs the genome idle bot.
+- Screen: upload, run screen_v1 paired with the live bot's screen; revert at once if it's clearly down.
+- Promote: if it's up on flips and gems, run the full 60-game band; keep it only if the band agrees.
