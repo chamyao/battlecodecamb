@@ -4,5 +4,6 @@ cd /home/user/battlecodecamb/arenaA-11/queue
 for p in "$@"; do s=${p%%:*}; k=${p##*:}
   if [ "$k" = e ]; then printf '```python\n```\n' > rep-$s.txt
   elif [ "$k" = x ]; then python3 ../tools/xover.py $s auto > /dev/null
+  elif [ "$k" = v ]; then python3 ../tools/xv40.py $s > /dev/null
   else cp rep-$k.txt rep-$s.txt; fi
 done

@@ -1,0 +1,25 @@
+```python
+@gene('m11', "the camp walk's goal: when healthy (70%+), a live non-big camp spawn within 12 that an enemy champion is farming (within 3 of it: contest it); else weak gem-paying groups first once I have bought 7 times, else the nearest non-big spawn of a live group that no ally is already capturing, falling back to any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    resp = respawning()
+    if me().health_frac >= 0.7:
+        et = enemy_tiles() - enemy_spawn()
+        if size(et) > 0:
+            near_me = near(here(), 12)
+            contested = (CAMP_BASE - resp - BIG_CAMPS) & near_me & ring(et, 3)
+            if size(contested) > 0:
+                t = closest(contested)
+                if valid(t):
+                    return t
+    if BUYS >= 7 and size(GEM_BASE) > 0:
+        t = closest(GEM_BASE - resp)
+        if valid(t):
+            return t
+    t = closest(CAMP_BASE - resp - BIG_CAMPS - held_groups())
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```
