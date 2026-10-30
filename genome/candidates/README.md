@@ -296,3 +296,4 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
   72 vs v33 (v40: 65); kills/deaths 10.0/6.9 vs the mirror's 8.75/8.75.
 - My gate4 vs live v40: 81/140 (old 48, new 33), 0 crashes. GO as v43; band paired with b16.
 - x8-140 live as ladder version 43 (submitted 2026-10-30T09:57:53Z, bundle sha256 ed994fd9...). Intel re-ran v40's band first (b18base, same hour) to control for opponent updates; v43's band is b18, paired with b18base.
+- Bug: v43 (x8-140) stalls in solo vs the genome idle bot on 00quarry side A (1699 rounds; v40 861, v39a 891), the same in sim and real. It's a genome trait from an x8 edit; the Arena B lead is bisecting. (A starter-based idle drafts differently and hides it.)
