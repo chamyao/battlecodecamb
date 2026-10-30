@@ -379,3 +379,14 @@ Rule dx1: off spawn, 2+ enemy champions within 6 (not on their spawn, health ≥
 | d-out4c | 51 | 26 / 25 | 1099 / 1024 (more deaths); captures 10433 / 11511 (-9%); solo: new stall 02stalactites A 2000 |
 Regrouping toward the nearest ally is worse than retreating to spawn. It pulls champions off their farm and across the map, and they die more.
 d-out2b went to the ladder as screen s11 (the genome lead reproduced it: 72/140, deaths 1585 vs 1683).
+
+## d-out2b on the ladder (s11): 12-18 vs the fresh v40 control's 10-20
+4 flips up, 2 down; gems level; deaths -0.8; captures level. Promoted to the full band b19 (genome lead / intel).
+
+Second death edit on top of d-out2b. Tavi is the most frequent victim on the ladder: 260 of 903 deaths.
+- Of those 260: 167 with no ally within 6, 97 at 1v1, 121 at ≥0.9 health 10 rounds earlier, and 213 'apart' (a fight in place).
+- Tavi has 900 health (the lowest), a range-3 attack, and banks for the team.
+
+Variants:
+- **d2-tout:** for Tavi, dx1 uses d-out's trigger (2+ enemies and more of them than of us within 6). Other champions keep d-out2b's +2 margin.
+- **d2-th:** adds rule dt1 at priority 171. Tavi off spawn and below 0.5 health, with an enemy champion off its spawn within 6 or able to hit it within 2 turns → retreat to spawn.
