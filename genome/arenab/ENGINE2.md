@@ -347,3 +347,25 @@ My guess at why d-th failed: its trigger, under_fire, includes awake camps, so c
 New variants, which a camp alone never triggers:
 - **d-h50:** new rule dh1 at priority 171. Off spawn and below 0.5 health (shield counts), with an enemy champion within 6 or able to hit us within 2 turns → retreat to spawn.
 - **d-h50r:** d-h50, plus recall below 0.5 when no threat within 5 turns and not under fire.
+d-out2 solo vs genome idle: total 164,115 (v40 158,785), no losses, but 2 new stalls: 00rushbait-v2 B at 2000 (v40 1411) and 01shortcut A at 2000 (v40 1511).
+| d-h50 | 40 | 23 / 17 | 1004 / 770; captures 9211 / 11602 (-21%) |
+| d-h50r | 50 | 27 / 23 | |
+Half-HP disengage loses badly even when champion-only: it gives up fights and farming.
+
+Ladder death dump (intel, genome/intel/batches/deaths_v40.json; v40 b18base + s8, 903 deaths to champions).
+Allies within 6 (excluding the victim) × enemies within 6 at death, top cases:
+- 0 × 2: 254 (28%)
+- 0 × 1: 200 (22%)
+- 0 × 3: 102
+- 1 × 1: 80
+- 1 × 2: 70
+- 1 × 3: 68
+
+Share of ladder deaths each trigger covers (at death):
+- d-out: 52%.
+- d-out2: 16%.
+- 65% were below 0.5 health 3 rounds before death, but the median 10 rounds before was 0.84.
+
+New variants:
+- **d-out4:** retreat when no ally is within 6 and 2+ enemies are within 6, or when outnumbered by 2+. This covers the dominant 2v1 case.
+- **d-out2b / d-out4b:** d-out2 / d-out4, but enemy champions on their own spawn are not counted. In a quick check on its 2 stall games, d-out2b removes both stalls (1355 / 1511).
