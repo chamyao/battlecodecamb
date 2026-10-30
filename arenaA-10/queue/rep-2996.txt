@@ -1,0 +1,12 @@
+```python
+@gene('r14', 'fight the first farmable camp in reach (never waking a sleeping one below 30% health), but do not wake a sleeping one with an enemy champion within 5 (it would third-party the fight), nor a sleeping camp of a strong group (240+) alone below half health (v33: no ally within 6)')
+def r_camp() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not farmable(c) or not (is_awake(c) or enemies_within(5) == 0):
+        return False
+    if not is_awake(c) and hurt_below(0.3):
+        return False
+    if not is_awake(c) and hurt_below(0.5) and group_threat(camp_spawn(c)) >= 240:
+        return count(dist(a.pos, here()) <= 6 and a.pos != here() for a in allies()) > 0
+    return True
+```

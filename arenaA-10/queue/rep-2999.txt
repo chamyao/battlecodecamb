@@ -1,0 +1,7 @@
+```python
+@gene('s4', 'within my basic attack range (enemy champions on their own spawn count only while carrying 10+ gems: otherwise hitting them there is wasted)')
+def in_reach(u: Unit) -> Bool:
+    if u.is_champion and u.pos in enemy_spawn() and unit_gems(u) < 10:
+        return False
+    return dist(here(), u.pos) <= me().attack_range
+```

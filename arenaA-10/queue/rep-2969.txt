@@ -1,0 +1,55 @@
+```python
+@gene('a0', "value of a move, attack, tribute, recall, lock or ward option under this turn's rule; default rule also hits enemy champions in reach (not on their spawn; killable ones and carriers first) and only farmable camps (v33 monolith rule)")
+def act_value(o: Option) -> Num:
+    k = o.kind
+    r = RULE
+    if k == MOVE:
+        return move_value(o) if walks() else 0
+    if k == ATTACK:
+        if r == 7 or r == 14:
+            return 178 if o.unit.pos == TGT else 0
+        if r == 13:
+            return 150 if o.unit.pos == TGT else 0
+        if r == 20:
+            if o.unit.is_enemy and o.unit.is_champion:
+                if o.unit.pos in enemy_spawn():
+                    return 0
+                return 120 + min(5, unit_gems(o.unit) / 4) + (10 if attack_damage(me(), o.unit) >= o.unit.health + shield(o.unit) else 0)
+            return 90 if o.unit.is_camp and farmable(o.unit) and o.unit.pos == reach_camp().pos else 0
+        return 0
+    if k == TRIBUTE:
+        return 150 if (r == 6 or r == 9 or r == 10 or r == 17) and o.tile == TGT else 0
+    if k == RECALL:
+        return 150 if r == 4 or r == 5 else 0
+    if k == LOCK:
+        return 150 if r == 8 and o.tile == TGT else 0
+    if k == WARD:
+        return 130 if r == 20 and o.tile == here() and here() in bushes() and count_units(enemies()) == 0 else 0
+    return 0
+
+@gene("new", "camp in reach worth hitting: not in a monolith group (a hit wakes the group), unless the team goes for monoliths, or it stands on an altar-ring tile and I carry gems (v33 i1)", parents=["a0"])
+def farmable(c: Unit) -> Bool:
+    if not in_reach(c):
+        return False
+    if not (camp_spawn(c) in MONO_GROUPS):
+        return True
+    if gems() > 0 and camp_spawn(c) in ALTAR_RING:
+        return True
+    return r_mono()
+
+
+@gene('a8', 'a step downhill on the walking field to GOAL; among equal steps prefer tiles farther from enemies (twice as strongly below half health) and in bushes')
+def move_value(o: Option) -> Num:
+    g = step_gain(o.tile)
+    if g <= 0:
+        return 0
+    v = 100 + g
+    ft = foe_tiles()
+    if size(ft) > 0:
+        w = 2 if hurt_below(0.5) else 1
+        v -= w * 0.3 * count(dist(t, o.tile) <= 2 for t in ft)
+        v -= w * 0.1 * count(dist(t, o.tile) <= 3 for t in ft)
+        if o.tile in bushes():
+            v += 0.05
+    return v
+```

@@ -1,0 +1,9 @@
+```python
+@gene('r15', 'go for monoliths too: nothing tributed by round 1064 (or a monolith-only map), or after round 1000 with 3+ allies within 7 when behind, or after round 1400 with them regardless (monolith captures decide late games)')
+def r_mono() -> Bool:
+    if (team_gems() == 0 or MONO_ONLY) and round() > 1064:
+        return True
+    if round() <= 1000 or size(ally_tiles() & near(here(), 7)) < 4:
+        return False
+    return team_gems() < enemy_gems() or round() > 1400
+```

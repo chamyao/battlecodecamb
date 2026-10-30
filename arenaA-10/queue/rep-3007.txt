@@ -1,0 +1,5 @@
+```python
+@gene('r10', 'bank now: carrying gems and the bag is ready, or next to an altar with 2+ gems (a one-turn tribute while passing)', parents=['r10'])
+def bank_on() -> Bool:
+    return gems() > 0 and (bag_ready() or (gems() >= 2 and valid(adj_altar())))
+```
