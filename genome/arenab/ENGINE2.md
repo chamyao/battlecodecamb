@@ -59,3 +59,11 @@ Variants (cand/engine2/), built from genome/v0 HEAD runtime with cambc 4.0.0 --r
 All 0 errors. No pass. Monster-first is mildly positive (76, 72) and dropping Jungle hurts (59); Treasure's halving did not
 make it a liability. The seven new families (ids 42-83) were not tried: their effects are not in the SDK; waiting for
 intel's rules export. (gate4.sh's mirror line counts both sides as the candidate when names match; ignore it.)
+
+## The new item families are not reachable from our bots
+Probe: v38 with each new family's Str emblem (ids 42/43 ... 78/79) in place of Treasure: every variant 2/140 vs v38.
+Cause: the runtime's engine model has `kNumItems = 42` (genome/v0 bot/src/cbs/core.h; also sim/include/cbs/core.h), so
+genome_rt.h never lists BUY options for ids 42-83 and shop_pending() keeps the champion waiting on spawn for an item
+that never appears. Not a measurement of the families. Needed before any probe: kNumItems 84 plus item_design rows
+(cost, combine count, passive, stat growth) for the 7 new families in bot/src/cbs (from the rules export), and the
+same in the sim. The bot's own cbs tables also still carry the old Treasure/Monster passive values.
