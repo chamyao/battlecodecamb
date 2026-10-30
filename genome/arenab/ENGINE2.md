@@ -325,3 +325,15 @@ Variants on v40 (x6-83):
 - **d-out:** new rule dx1 at priority 171 (after killshot, before cashout). Retreat to spawn when off spawn with 2+ enemy champions within 6, outnumbering us (me included).
 - **d-th:** r_run threshold 0.3 → 0.45 (with 15+ gems: 0.5 → 0.6).
 - **d-both:** d-out plus d-th.
+Results vs v40, 140 games:
+| variant | wins | old / new | deaths to champions (cand / v40) |
+|---|---|---|---|
+| d-out | 59 | 31 / 28 | 975 / 1149 (-1.2 per game) |
+| d-th | 24 | 10 / 14 | 984 / 730 |
+| d-both | 27 | 15 / 12 | 913 / 687 |
+- d-th is catastrophic: leaving at 45% health gives away fights v40 then wins.
+- d-out does cut deaths, but it costs the head-to-head.
+
+Softer d-out versions, now gating:
+- **d-out2:** retreat only when outnumbered by 2+ (enemies ≥ allies incl. me + 2).
+- **d-out3:** d-out, only when also below 70% health.
