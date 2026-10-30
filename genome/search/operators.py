@@ -238,7 +238,7 @@ def llm_cross(a_src, a_score, b_src, b_score, claude, prefix):
 _INDEX_PRIMS = {"slot_kind", "slot_ready", "slot_range", "slot_radius", "slot_targets", "slot_moveless",
                 "item_cost", "item_strength", "item_focus", "item_health", "item_passive", "items_owned",
                 "read_shared", "write_shared", "picked_by_us", "picked_by_them", "group_gems", "group_gold",
-                "group_respawning", "group_tiles", "tile", "range"}
+                "group_respawning", "group_tiles", "tile", "range", "buff_turns", "ring"}
 
 
 def tunable_constants(source):
