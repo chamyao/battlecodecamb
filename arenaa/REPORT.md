@@ -8,6 +8,10 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   gate is a pre-filter at >= 72 vs live v40, 0 crashes, no new solo stall.
 - Sent to the queue (vs v40 / v41, real): A11501 75/76 (fb1b19cd), A11696 74/72 (380b8b4b), A11663 73/72 (c63d0c9b),
   A11599 73/74 (068e7c98). The A-11 writer now reports >= 72 tops straight to the genome lead.
+- The genome lead's solo check (real, vs idle): all four farm faster than v40 in total (153-156k vs 158.8k rounds).
+  Stalls of more than 300 rounds: 01boss-battle B (A11696/A11599/A11663: 2000 vs 1498), 02stalactites (A11663 B;
+  A11501 A and B), gift-wrapping B (A11501). Screen order: A11696, A11599, v43-fix3, A11501, x6-61. The A-11 writer
+  was asked for a directed boss-battle-B fix.
 
 ## 2026-10-30 10:18 UTC: A-11 after the v40 restart (748 births)
 
