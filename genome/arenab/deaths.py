@@ -74,4 +74,5 @@ if __name__ == '__main__':
     cm = sum((not r['by_champ']) and r['cand'] for r in rows); om = sum((not r['by_champ']) and not r['cand'] for r in rows)
     print(f'{cand}: games {len(pairs)}  deaths to champions cand {c} / ref {o}   other deaths cand {cm} / ref {om}'
           f'   died after <50% HP cand {E[True][1]}/{E[True][0]} ({100*E[True][1]/max(1,E[True][0]):.0f}%) ref {E[False][1]}/{E[False][0]} ({100*E[False][1]/max(1,E[False][0]):.0f}%)'
-          f'   captures cand {K[True]} / ref {K[False]}')
+          f'   captures cand {K[True]} / ref {K[False]}'
+          f'   gems lost on death to champions cand {sum((r["gems"] or 0) for r in rows if r["by_champ"] and r["cand"])} / ref {sum((r["gems"] or 0) for r in rows if r["by_champ"] and not r["cand"])}')

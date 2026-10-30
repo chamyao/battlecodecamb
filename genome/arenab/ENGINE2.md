@@ -446,3 +446,12 @@ Moving to gem groups earlier fails too. Opposite probe, **c-gem9**: stay on mixe
 | c-gem9 vs d-out2b | 71 | 41 / 30 | 1082 / 1092; captures 10774 / 10688 (level); solo clean (159,063) |
 The gold → gem switch point is flat from 6 to 9 buys and falls off at 3; skipping gold clusters is clearly bad.
 d-out2b's camp targeting is at a local optimum on this axis. Capture-side line closed: no candidate.
+
+## Gems lost on death, on d-out2b: conditional threat bank
+History: v34 cash3 (an earlier cash-out in general) and x7-125 (a later cash-out) both failed on the band. The trigger must be conditional only.
+New rule db1, `r_threatbank(n)`, at priority 155 (after killshot, cashout and pass-through bank, before fight 150). It walks to bank (rule 11) when all of these hold:
+- off spawn, carrying n+ gems, and no altar next to us (adjacent banking keeps its own rules);
+- an enemy champion off its spawn within 8;
+- `altar_eta() < threat_eta()`: the nearest usable altar is reachable before that enemy can hit us.
+Variants: **b-tb15** (n = 15) and **b-tb10** (n = 10).
+deaths.py now also reports gems lost on death to champions (carried the round before death). c-gem9 vs d-out2b: 6972 / 6929, i.e. about 49 per game locally.
