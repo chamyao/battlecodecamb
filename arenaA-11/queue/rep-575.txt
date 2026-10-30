@@ -1,0 +1,12 @@
+```python
+@gene("m3", "an altar within lock reach (2), unlocked ones first, then the one nearest the enemy spawn (the altar they would bank at)")
+def lock_altar() -> Tile:
+    a = altars() & near(here(), 2)
+    if size(a) == 0:
+        return tile(-1, -1)
+    free = a - locked_altars()
+    if size(free) == 0:
+        return first_tile(a)
+    es = enemy_spawn()
+    return best(free, lambda t: -dist(t, nearest(es, t)))
+```
