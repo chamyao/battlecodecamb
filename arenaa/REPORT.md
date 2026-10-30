@@ -17,6 +17,12 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - How: per-turn RULE/GOAL/BLOCK trace printed from the generated C++ (genes.cpp), plus a camp/bush dump.
 - The genome lead says the 2.0.0 sim is merged (genome/v0 6fb46951, exact vs cambc 4.0.0 on 70/70 maps). Next:
   arenaA-11 on it.
+- arenaA-11 requested (04:06) from the A-10 session, which stops A-10 (its old-engine search never got to REAL.md):
+  - same queue-writer arena, on 6fb46951, all 70 maps, fresh ratings, 800 births;
+  - anchors v38 (live) + v33;
+  - seeds v39a, v38, A103646/A103649-v33port and A-10's top 20;
+  - no writer screening; mutations aimed at the new items and the champion rebalance;
+  - gate4 vs v38 for the top 3 every 100 births (REAL.md).
 
 ## 2026-10-30 02:55 UTC: old sim misleads on engine 2.0.0; A-10 switches to real-engine search
 
