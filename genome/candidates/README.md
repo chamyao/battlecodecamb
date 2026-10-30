@@ -167,3 +167,8 @@ hold 117, gem-groups after 6 buys, bossbush.
 - Search gate (gatekeeper-30 rule, ca5180b): sim h2h 46/80 vs v33; anchors 0 blocks (gains vs A61188 66/56, B1873 45/39).
   Solo-farm blocks: total +339 rounds, driven by 01boss-battle +1382 (sim tribute lock) and 00contest +378; without
   boss-battle it is ~1,040 rounds better. Advisory under upload-first; watch contest and boss_battle in b13.
+- Batch 13 (intel b13.md, 36a626a): 29-21 vs b10's 32-18, but the ladder engine is now 2.0.0 (pip cambc 4.0.0; b10 and
+  earlier were 1.0.3), so the comparison is confounded. Local real gates (cambc 3.0.5) and the sim measure the old
+  engine. Engine 2.0.0 adds 30 maps (70 in the pool), 8 item families (tribute, capture, prospector, hunter, skirmish,
+  greed, collectors; shard/emblem of strength/focus/health) and camp_group_capture_state. Re-gating v38 vs v33 on
+  cambc 4.0.0 (70 maps x 2 sides).
