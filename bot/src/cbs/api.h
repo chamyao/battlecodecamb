@@ -93,11 +93,8 @@ struct MemoStats
 	long long calls = 0, misses = 0, layers = 0;
 	long long call_n[static_cast<int>(Call::count)] = {}, call_fuel[static_cast<int>(Call::count)] = {}; // by Call, all charges
 };
-inline MemoStats& memo_stats()
-{
-	static MemoStats s;
-	return s;
-}
+inline MemoStats memo_stats_v; // a plain global: no guard on the charge path
+inline MemoStats& memo_stats() { return memo_stats_v; }
 
 class Api
 {
@@ -129,10 +126,15 @@ public:
 	void charge(Call c, std::int64_t n = 0, std::int64_t n2 = 0, std::int64_t n3 = 0)
 	{
 		if (!count_charges) return;
-		PriceContext ctx{ g_.map().W, g_.map().H, n, n2, n3 };
-		const std::int64_t p = prices_->price(c, ctx);
+		const std::int64_t p = price(c, n, n2, n3);
 		spent += p;
 		if (c != Call::compute && c != Call::yield) ++api_calls;
+		if (memo_stats().enabled || (!unlimited && spent > budget)) [[unlikely]]
+			charge_rest(c, p);
+	}
+	// The rest of charge(), rarely needed: diagnostics, then the overrun (throw or suspend).
+	[[gnu::noinline]] void charge_rest(Call c, std::int64_t p)
+	{
 		if (memo_stats().enabled && prices_->bot_memo)
 		{
 			MemoStats& ms = memo_stats();
@@ -150,7 +152,19 @@ public:
 			}
 	}
 	// Charge a policy's own computation (building blocks) explicitly.
-	void compute(std::int64_t fuel) { charge(Call::compute, fuel); }
+	[[gnu::always_inline]] void compute(std::int64_t fuel)
+	{
+		if (compute_identity_ && count_charges) [[likely]]
+		{
+			// charge(Call::compute, fuel) when its price is exactly the fuel
+			spent += fuel;
+			if (memo_stats().enabled || (!unlimited && spent > budget)) [[unlikely]]
+				charge_rest(Call::compute, fuel);
+			return;
+		}
+		compute_general(fuel);
+	}
+	[[gnu::noinline]] void compute_general(std::int64_t fuel) { charge(Call::compute, fuel); }
 	// Yield the rest of this turn.
 	void end_turn()
 	{
@@ -183,7 +197,7 @@ public:
 	Err champion_restrictions(std::uint32_t h, std::uint8_t* out);
 	Err champion_ability_props(std::uint32_t h, std::uint32_t slot, AbilityProps* out);
 	Err champion_cooldown(std::uint32_t h, std::uint32_t slot, std::int32_t* out);
-	Err champion_items(std::uint32_t h, std::uint32_t* out /*42*/);
+	Err champion_items(std::uint32_t h, std::uint32_t* out /*kNumItems*/);
 	Err champion_consumables(std::uint32_t h, std::uint32_t* out /*4*/);
 	Err champion_gems(std::uint32_t h, std::uint32_t* out);
 	Err champion_gold(std::uint32_t h, std::uint32_t* out);
@@ -204,6 +218,7 @@ public:
 	Err camp_buffs(std::uint32_t h, CampBuffRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err camp_group_state(std::uint32_t g, std::uint32_t* out);
 	Err camp_group_cooldown(std::uint32_t g, std::int32_t* out);
+	Err camp_group_capture_state(std::uint32_t g, std::int32_t* timer, std::int32_t* state); // engine 2.0.0
 	Err wards(WardRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err teleports(TeleportRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* count);
@@ -260,6 +275,26 @@ private:
 	int team_, champ_;
 	const PriceTable* prices_;
 	Coroutine* coro_ = nullptr;
+	// prices_ folded with this map's size (set_prices): price = fixed + (kn n + kn2 n2 + kn3 n3) / 1000,
+	// the same integers as PriceTable::price. Unused (custom) when the table has a custom function.
+	struct Folded
+	{
+		std::int64_t fixed, kn, kn2, kn3;
+	};
+	Folded folded_[static_cast<int>(Call::count)];
+	bool custom_price_ = true;
+	bool compute_identity_ = false; // Call::compute costs exactly n
+	void fold_prices();
+	std::int64_t price(Call c, std::int64_t n, std::int64_t n2, std::int64_t n3) const
+	{
+		if (custom_price_)
+		{
+			PriceContext ctx{ g_.map().W, g_.map().H, n, n2, n3 };
+			return prices_->price(c, ctx);
+		}
+		const Folded& f = folded_[static_cast<int>(c)];
+		return f.fixed + (f.kn * n + f.kn2 * n2 + f.kn3 * n3) / 1000;
+	}
 
 	bool playing() const { return champ_ >= 0; }
 	const Bitboard& vis();	  // cached vision for the current game state

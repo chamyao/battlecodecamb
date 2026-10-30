@@ -47,6 +47,8 @@ struct MatchOptions
 	int max_rounds = 0;		 // 0 = settings().max_rounds
 	std::size_t stack_size = 256 * 1024;
 	bool record_turn_fuel = false;
+	// Called after every round with the game state (observation only, e.g. checkpoints for analysis).
+	std::function<void(const Game&)> on_round;
 };
 
 struct MatchStats
