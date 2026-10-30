@@ -2,6 +2,17 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 06:25 UTC: v40m, a cheap mono_groups: 79/140 vs live v40
+
+- Fuel's turn-1 measurements on the real bot: v39a/v40's first turn is >= 200k on 25/70 maps. The biggest item is
+  mono_groups at 38k (a group_tiles scan of every group).
+- v40m = v40 (x6-83, genome/v0 05a41d20) with gene m8 building mono_groups from the monolith spawns' groups only
+  (`for t in type_spawns(MONOLITH): acc |= group_tiles(spawn_group(t))`). Same set, so no behaviour change;
+  arenaa/candidates/v40m.genome.
+- Real cambc 4.0.0, both built at 05a41d20, gate4 vs v40: **79/140, 0 crashes**. Turn-1 max median 178.7k -> 162.2k;
+  maps with turn 1 capped 14 -> 4 (>= 175k: 40 -> 22); turn-2 caps 3 -> 0 of 350.
+- Sent to the genome lead to confirm with their own gate4.
+
 ## 2026-10-30 06:03 UTC: arenaA-11 started in a fresh writer session
 
 - session_01H75at7s2GPNPWtwopowYqq, mirror arenaa/a11-mirror. Set up on the genome lead's call: the A-10 session wanted
