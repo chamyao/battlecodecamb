@@ -41,6 +41,36 @@ opponent's kills), gems lost to champions. Candidate fitnesses are compared by S
 screen wins: wins alone, captures - k*deaths_champ, gems_captured - lost_to_champs, and a fitted 2-term blend
 (leave-one-out, so 9 points can't overfit it). Running since 13:50 (~35 min).
 
+**Result (14:25): the validation fails.** The sim stats are means over 3 opponents x 3 fuel levels x 140 games;
+data in arenaa/data/fitcheck/.
+
+| genome | screen wins /30 | sim win | captures | gems captured | deaths to champs | gems lost to champs |
+| --- | --- | --- | --- | --- | --- | --- |
+| v40 | 13 | 0.491 | 67.8 | 839 | 8.41 | 49.3 |
+| x6-61 | 13 | 0.498 | 67.7 | 830 | 8.25 | 48.6 |
+| A11696 | 12 | 0.479 | 66.9 | 788 | 8.41 | 54.4 |
+| A11599 | 11 | 0.501 | 67.7 | 798 | 8.06 | 49.7 |
+| A11501 | 10 | 0.521 | 65.7 | 790 | 8.78 | 51.6 |
+| v43-fix3 | 10 | 0.529 | 68.5 | 853 | 8.09 | 46.2 |
+| A11976 | 10 | 0.533 | 65.4 | 808 | 8.21 | 50.9 |
+| A11791 | 9 | 0.513 | 66.2 | 798 | 8.03 | 49.2 |
+| x7-125 | 7 | 0.487 | 68.5 | 825 | 8.30 | 51.8 |
+
+Spearman rank correlation with screen wins:
+- win -0.31;
+- captures +0.05; gems captured +0.09;
+- -deaths_champ -0.29; -lost_to_champs +0.19;
+- captures - k * deaths_champ, for k of 3 or 5: -0.08 to -0.10.
+No fitness ranks the screens; the fitted blend wasn't attempted, since no single stat has a signal to fit.
+
+Read:
+- The stress anchors don't reproduce ladder opponents. The ladder showed +1.7 to +3.0 deaths/game for the A lineage;
+  vs v40/x6-61/x8-140 every genome dies 8.0-8.8 times a game.
+- The screens themselves are noisy: the v40 control's noise floor is about +-3 flips, so only x7-125 (7) and maybe A11791 (9)
+  are clearly separated.
+- Recommendation: **no stat-fitness A-12**. To train for the ladder, the arena needs opponents that behave like ladder
+  teams (e.g. policies distilled from ladder replays). Until then, ladder screens are the only reliable fitness.
+
 ## 2026-10-30 13:10 UTC: A-11 check-in (1139 births)
 
 - b1100 gate vs v40/v41: A111088 66/58, A111026 69/71, A111099 67/73. All fail. b1000's 77-78 didn't repeat; arena
