@@ -27,3 +27,4 @@ Each candidate's screen is paired with v40's games from b18base (09:57Z). Column
   - A11599: 4 / 6.
 - **Common factor:** every below-noise candidate has **+1.2 to +3.1 deaths to champions** (control +0.7). The fight-seeking edits (exploit-7 and exploit-8, and the A lineage) lose more champions to real opponents than they gain.
 - **None promoted.** v40 is live (v52).
+| s9 | A11976 (genome/v0 10d5db97, sha 7a753124), paired with s8 | v53 (13:22:22Z / 13:31:49Z) | 18b76f0d | 13-17 (s8) | 10-20 | 3 / 6 | -65.7 ± 42.1 | +0.6 ± 1.1 | down: deaths normal, but captures -7.6 ± 2.1. Not promoted |
