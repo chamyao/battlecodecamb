@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 13:10 UTC: A-11 check-in (1139 births)
+
+- b1100 gate vs v40/v41: A111088 66/58, A111026 69/71, A111099 67/73. All fail. b1000's 77-78 didn't repeat; arena
+  tops sit at 58-78 vs the live bots.
+- Ladder screens (genome/v0 README): s4 A11791 down, s5 v43-fix3, s6 x6-61 level, s7 x7-125 down; v40 is live again
+  as v52 (the drift control). A11976 is next in the screen queue.
+- A-11 reaches its 1200 budget at about 13:30.
+
 ## 2026-10-30 12:40 UTC: A-11 b1000 tops pass the deaths pre-filter
 
 Real cambc 4.0.0, 70x2, 0 crashes; wins /140 and deaths to champions summed over the 140 games. x6-30 isn't on
