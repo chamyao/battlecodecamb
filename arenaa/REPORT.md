@@ -8,6 +8,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   prospector, hunter, skirmish, greed, collectors families) and a new camp-capture state. Our sim and A-10 train on the
   old rules and maps. The genome lead is re-running v38 vs v33 on real 4.0.0 (140 games); intel is collecting the rule
   changes. A-10 keeps running for now, but its sim gains may not transfer until the sim is updated.
+- v38 holds on the new engine: **82/140 vs v33 on cambc 4.0.0** (old maps 47/80, new 35/60), 0 crashes. New real gate:
+  genome/bot/gate4.sh (cambc 4.0.0, 70 maps) vs live, structural bar >= 76/140, 0 crashes. The writer now screens vs v38;
+  v33port-heal is queued first for gate4.
 - A-10 candidates so far (sim vs v33, old engine): A103646-v33port 51, -kf 52, v33port-heal 54 (writer: plateau at 52-54).
 
 ## 2026-10-30 02:12 UTC: A93635-v33port live as ladder v38
