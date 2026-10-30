@@ -2,6 +2,19 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 01:55 UTC: back after the weekly-limit stop; strength run A-10
+
+- What stopped: the account's weekly Claude Code limit was hit on Oct 25 (~16:00 UTC). Every session stopped,
+  including the search session. Z-5's continuation never started (z5-mirror still at 477). Z-20a stopped at 361 births
+  (last panel 499 at b211). Z-20b finished (481), but its final panel was never scored. No panels or gates ran since.
+- Ladder: v33 (B1873-bossbush) is live as ladder v37 after v34/v36 tweaks were reverted. Upload bar: structural
+  >= 43/80 vs live, constant-only >= 46/80 (real cambc).
+- Cham: train a stronger bot. arenaA-10 (session_01H75at3niTDgEoHAS5fSoXn): resumes A-9's final population (3644)
+  with live v33 as an anchor (weight 2). One Opus session writer, 8 in flight, allowed to read our own candidates and
+  port their fixes (A-9 lacks v33's ring/heal/mono/bush fixes), and to screen candidates 80 games vs v33 (the upload
+  test). Genomes >= 43/80 vs v33 are logged to arenaA-10/candidates. Mirror arenaa/a10-mirror, 3644 -> 4044 births.
+  Only one session runs, to save the weekly limit.
+
 ## 2026-10-25 15:55 UTC: Z-5 continued by its original writer
 
 - Per Cham: continue Z-5 rather than start fresh. Its writer session (session_01LXULJygQbjZz8b3EXxV3nT) was unarchived
