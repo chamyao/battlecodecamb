@@ -2,6 +2,15 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 14:36 UTC: A-11 closed
+
+- Stopped cleanly at 1377 births. The 13:42 stop reached it only after an interrupt at 14:34. Final mirror 73ddc4f
+  (arenaa/a11-mirror); a summary sits at the top of arenaA-11/candidates/REAL.md.
+- Last gate (b1300, survival-only leg): A111286 63 vs v40 (deaths 1633), A111227 64 (1622), A111169 69 (2243). Safer than
+  v40 vs x8-140 but losing h2h, so the same two-mode split.
+- Arena A is idle: no runs, no ladder candidates, no check-ins. Next decision (Cham, via the genome lead): ladder-like
+  opponents distilled from replays, as the precondition for any further arena training.
+
 ## 2026-10-30 13:45 UTC: A-11 stopped; conclusions and the next fitness
 
 Ladder screens of A-lineage candidates (30 games, vs v40's 13-17 control):
