@@ -352,3 +352,4 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
   have ladder-like local opponents (e.g. policies distilled from ladder replays), the ladder screen is the only
   reliable fitness. Also: A11976 drafts Varg instead of Ryth (d1), a plausible cause of its capture deficit.
 - Coordinator: analysis/sprint1 Fish-clone study (Oct 24): Fish champions die 6% of the time after falling below half HP, ours 88%. Low-HP retreat is the Arena B lead's next directed edit on v40.
+- d-out2b (Arena B, sha b072d8bc): v40 + dx1 retreat to spawn when outnumbered by 2+ live enemy champions within 6. Arena B: 72/140, deaths 1080 vs 1139, captures level, no new solo stall. My gate4 vs v40: 72/140, 0 crashes, deaths 1585 vs 1683. To the ladder screen (s11).
