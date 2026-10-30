@@ -11,3 +11,7 @@
 | v33port-heal-recall | 55/80 | 64/80 | 62/80 | v33port-heal + recall (r4, below 30%) only when no enemy champion can hit within 2 turns (damage cancels the channel). Sent to arena (req 2717). |
 | v33port-calmbank | 56/80 | 64/80 | 60/80 | q1 (= v33port-heal-recall + monolith push after round 1400 with 3+ allies, 55/80) + bank_t2 prefers safe-altar tiles no enemy champion stands next to. Not yet sent to the arena. |
 | v33port-spawnedge | 57/80 | 64/80 | 60/80 | v33port-calmbank + safe altar ring excludes altars within 3 of a golem spawn + no fight against a foe next to its own spawn while I am below half health. Sent to arena (req 2831). |
+| A104033 | 54/80 | 67/80 | 63/80 | final arena #2 (S6, 50.17 in-arena), a mutate child in the ported lineage; highest gems of any screen (891 vs v33's 748). |
+| A104023 | 55/80 | - | - | final arena #1 (S7, 50.47 in-arena); behaviour (gems 877.12) matches my injected w_b (v33port-calmbank + dash_mids excludes altars). |
+
+Notes: x_2803 = v33port-spawnedge (57/80) is the best screened genome. Ideas screened harmful on it (do not ship): v33's r_run with threat_near (43), contested-camp avoidance in camp_goal (34), reach_camp reorder (42), treasure-first before round 300 (38), walk_field avoiding enemies when hurt (51), w1 unseen camps within 25 (52), under_fire ignoring recallers (53). Arena tuner bug seen in the wild: it perturbs index arguments (buff_turns(u, 1) -> 0.5234, ring(altars(), 1) -> 1.14).

@@ -1,0 +1,11 @@
+```python
+@gene("a6", "fight casts: shield on self, heal on self only when actually hurt (below 90%), or the slot at TGT first, attack resets once the attack is spent")
+def strike_cast(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD:
+        return 170 - o.slot if o.unit == me() else 0
+    if k == AB_HEAL:
+        return 170 - o.slot if o.unit == me() and me().health_frac < 0.9 else 0
+    if k == AB_RESET:
+        return 150 - o.slot if not can_attack() else 0
+    return 170 - o.slot if o.tile == TGT else 0
+```
