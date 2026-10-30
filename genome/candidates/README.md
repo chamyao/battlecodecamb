@@ -330,3 +330,4 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 |---|---|---|---|---|---|---|---|
 | s1 | A11501 | v45 | 10-20 | 13-17 | 2 / 5 | +2.5 +- 35.5 | down, not promoted |
 - v40-join3 (Arena B fight cohesion, sha 538a1b4cee533829): rescue an ally below half health within 6 of the foe; 72/140 vs v40; solo stalls on boss-battle A and stalactites A (both known fragile). Screen queue last, to let the ladder decide.
+| s2 | A11696 | v46 | 12-18 | 13-17 | 7 / 8 | -32.7 +- 52.2 | neutral, not promoted |
