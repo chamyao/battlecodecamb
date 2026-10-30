@@ -335,6 +335,7 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 | s4 | A11791 | v48 | 9-21 | 13-17 | 4 / 8 | -54.2 +- 47.7 | clearly down |
 | s5 | v43-fix3 | v49 | 10-20 | 13-17 | 3 / 6 | -12.9 +- 36.1 | not promoted (baseline drift check pending) |
 | s6 | x6-61 | v50 | 13-17 | 13-17 | 3 / 3 | +24.5 +- 26.4 | level, not promoted |
+| s7 | x7-125 | v51 | 7-23 | 13-17 | 2 / 8 | -48.5 +- 36.4 | clearly down; reverted to v40 (v52) |
 - A11774 (sha a66b6b33, older A-11 lineage): 76 vs v40 / 69 vs v41; solo total 157,114, stalls on stalactites A and B. Screen queue last.
 - All four A-lineage screens are below v40 with +1.7 to +3.0 deaths to champions per game; A11774 dropped from the queue.
 - A11976 (sha 7a753124, A-11 b1000 after the survival-first course): my gate4 vs v40 78/140, 0 crashes, deaths 1551 vs v40's 1728; vs x6-61 76, vs x8-140 75 (Arena A lead). Screen queue: right after the v40 control.
