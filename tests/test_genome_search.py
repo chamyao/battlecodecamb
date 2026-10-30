@@ -72,6 +72,21 @@ def _cull_arena(rule):
     return sorted(n for n, x in a.s["members"].items() if not x["alive"])
 
 
+def test_tune_skips_rule_ids_and_index_args():
+    src = """def rule() -> Num:
+    top = 0
+    pick = 20
+    if 117 > top and r_hold() and dist(here(), GOAL) < 3:
+        top = 117
+        pick = 16
+    x = ring(altars(), 1) | near(here(), 2.5)
+    y = buff_turns(me(), 1)
+    return pick
+"""
+    vals = [v for _, _, _, v in operators.tunable_constants(src)]
+    assert vals == [3, 2.5]
+
+
 def test_cull_rules():
     assert _cull_arena("legacy") == ["parent"]  # the old relaxed rule kills the strong parent
     assert _cull_arena("min-mu") == ["weak"]
