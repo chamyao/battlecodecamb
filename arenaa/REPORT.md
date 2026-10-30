@@ -16,6 +16,8 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   A-11 farms far better than v40 (solo +2k to +5k rounds) but is even head-to-head; the blocking anchors are fighters
   (v28-emblem, B318, metadraft). Real check of A11261 (10199f2c) vs v40: 71/140. A-11 writer asked to aim mutations at
   fights and contests, not farming.
+- 08:46, b500 (still gated vs v39): A11501 76, A11476 77, A11453 72. Real vs v40: A11476 70; A11501 (fb1b19cd)
+  **75 vs v40 and 76 vs v41**, a near-miss at the bar (sent to the genome lead). Still no restart onto v40.
 
 ## 2026-10-30 07:15 UTC: A-11 at 242 births
 
