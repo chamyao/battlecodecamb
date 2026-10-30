@@ -396,3 +396,6 @@ The stalactites A "stall" is resource exhaustion, not a retreat loop.
 - v40 wins at 429, presumably by reaching the threshold before the map's resources run out. d2-tout ends 10 gems short.
 - This is the fragile map from the v38 bisection, where 8 unrelated single swaps move it.
 d2-tout goes to the genome lead with this caveat.
+| d2-th | 62 | 35 / 27 | 1067 / 1025 (more); captures 10234 / 11017 (-7%); solo clean (158,632) |
+A half-health disengage fails again, even for Tavi alone: it costs fights and farm. The outnumbered trigger is the edit that works.
+d2-tout was confirmed by the genome lead (76/140, deaths 1476 vs 1682) and is queued for a ladder screen after b19.
