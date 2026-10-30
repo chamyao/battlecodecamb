@@ -369,3 +369,4 @@ Share of ladder deaths each trigger covers (at death):
 New variants:
 - **d-out4:** retreat when no ally is within 6 and 2+ enemies are within 6, or when outnumbered by 2+. This covers the dominant 2v1 case.
 - **d-out2b / d-out4b:** d-out2 / d-out4, but enemy champions on their own spawn are not counted. In a quick check on its 2 stall games, d-out2b removes both stalls (1355 / 1511).
+- **d-out4c:** d-out4b with enemies counted within 8; the outnumbered retreat walks to the nearest ally champion more than 2 away (regroup), else to spawn. This follows the genome lead's 'don't be alone near 2+ enemies'.
