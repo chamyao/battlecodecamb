@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 02:05 UTC: first A-10 candidate
+
+- A93635-v33port = A-9's A93635 with v33's fixes grafted (ring small-spawn exclusion, farmable monolith, heal
+  off-spawn, killshot 165, hold 117, gem-groups after 6 buys, bossbush). Writer's sim screen (80 games, ca5180b):
+  **46/80 vs v33** (unported 34/80), 67/80 vs B318, 67/80 vs A61188. The same port onto A93498 scored 43/80. Sent to
+  the genome lead for the real-cambc gate (structural bar 43/80) and upload. File: arenaa/a10-mirror
+  arenaA-10/candidates/.
+
 ## 2026-10-30 01:55 UTC: back after the weekly-limit stop; strength run A-10
 
 - What stopped: the account's weekly Claude Code limit was hit on Oct 25 (~16:00 UTC). Every session stopped,
