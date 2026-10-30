@@ -1,0 +1,10 @@
+```python
+@gene('m14', 'nearest tile next to a safe altar that no enemy champion stands on or next to (a tribute beside an enemy gets hit), else one no enemy stands on')
+def bank_t2() -> Tile:
+    s = SAFE_RING - enemy_tiles()
+    calm = s
+    for u in enemies():
+        calm = calm - near(u.pos, 1)
+    t = closest(calm)
+    return t if valid(t) else closest(s)
+```

@@ -1,0 +1,5 @@
+```python
+@gene("a13", "a purchase is still due this turn (other options wait, unscored); the lock only before round 1200 (a late lock rarely pays back)")
+def shop_pending() -> Bool:
+    return RULE >= 2 and at_spawn() and can_shop() and ((LOCK_BUY and round() < 1200 and not has_lock() and gold() >= 10) or (next_shard() >= 0 and gold() >= 30))
+```

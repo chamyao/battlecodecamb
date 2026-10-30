@@ -1,0 +1,8 @@
+```python
+@gene('s8', 'under fire: in danger or an enemy champion within 6 (parent B radius); one recalling home is leaving and does not count')
+def under_fire() -> Bool:
+    if in_danger():
+        return True
+    h = here()
+    return any(dist(h, u.pos) <= 6 and (u.health_frac >= 0.15 or unit_gems(u) > 0) and not is_recalling(u) for u in enemies())
+```

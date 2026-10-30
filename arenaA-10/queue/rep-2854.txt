@@ -1,0 +1,5 @@
+```python
+@gene("r6", "pass-through bank: gems and an altar next to us, with nothing able to hit us, or with a bag of 10 or fewer (a one-turn channel; damage does not cancel a tribute, so bank it before a fight can take it)")
+def r_pass() -> Bool:
+    return gems() > 0 and valid(adj_altar()) and (gems() <= 10 or not foe_in_reach())
+```

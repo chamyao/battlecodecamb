@@ -339,3 +339,70 @@
 [03:18:12] [A10] rejected tune : behavioural twin
 [03:18:21] [A10] birth A103818 (llm_cross session) of ['A103790', 'A103789'] species S9; 24 genomes $7.80
 [03:18:43] [A10] birth A103819 (tune ) of ['A103740'] species S7; 24 genomes $7.80
+[03:19:00] [A10] rejected mutate session: behavioural twin
+[03:19:05] [A10] summary: births 3820 deaths 3797 games 888544 $7.80; top [('A103801', 51.58, 0.83, 328, 'S6'), ('A103805', 50.55, 0.8, 280, 'S8'), ('A103766', 50.11, 0.83, 584, 'S5')]; top vs anchors {'A103801': None, 'A103805': 0.938, 'A103766': 0.833}
+[03:19:05] [A10] birth A103820 (tune ) of ['A103766'] species S5; 24 genomes $7.80
+[03:19:06] [A10] rejected mutate session: behavioural twin
+[03:19:07] [A10] rejected mutate session: behavioural twin
+[03:19:14] [A10] rejected mutate session: behavioural twin
+[03:19:24] [A10] birth A103821 (mutate session) of ['A103815'] species S6; 24 genomes $7.80
+[03:19:26] [A10] birth A103822 (tune ) of ['A103801'] species S6; 24 genomes $7.80
+[03:19:29] [A10] birth A103823 (mutate session) of ['A103801'] species S6; 24 genomes $7.80
+[03:19:35] [A10] birth A103824 (tune ) of ['A103788'] species S9; 24 genomes $7.80
+[03:20:11] [A10] rejected tune : behavioural twin
+[03:20:16] [A10] birth A103825 (llm_cross session) of ['A103792', 'A103805'] species S9; 24 genomes $7.80
+[03:20:22] [A10] rejected mutate session: behavioural twin
+[03:20:22] [A10] rejected mutate session: behavioural twin
+[03:20:40] [A10] birth A103826 (tune ) of ['A103766'] species S5; 24 genomes $7.80
+[03:20:48] [A10] rejected tune : behavioural twin
+[03:20:58] [A10] rejected mutate session: EditError: modified fixed gene c1 (rule_goal)
+[03:21:03] [A10] rejected tune : behavioural twin
+[03:22:11] [A10] birth A103827 (mutate session) of ['A103801'] species S6; 24 genomes $7.80
+[03:22:18] [A10] birth A103828 (mutate session) of ['A103766'] species S5; 24 genomes $7.80
+[03:22:26] [A10] birth A103829 (mutate session) of ['A103811'] species S9; 24 genomes $7.80
+[03:22:33] [A10] rejected mutate session: behavioural twin
+[03:22:47] [A10] rejected mutate session: EditError: modified fixed gene c0 (rule)
+[03:22:56] [A10] rejected mutate session: EditError: modified fixed gene c0 (rule)
+[03:23:05] [A10] rejected mutate session: EditError: modified fixed gene r4 (r_recall)
+[03:23:36] [A10] summary: births 3830 deaths 3807 games 891496 $7.80; top [('A103801', 50.96, 0.81, 432, 'S6'), ('A103821', 50.85, 0.82, 184, 'S6'), ('A103800', 50.71, 0.82, 448, 'S8')]; top vs anchors {'A103801': 1.0, 'A103821': 1.0, 'A103800': 1.0}
+[03:23:36] [A10] birth A103830 (mutate session) of ['A103826'] species S6; 24 genomes $7.80
+[03:23:42] [A10] rejected mutate session: behavioural twin
+[03:23:55] [A10] birth A103831 (mutate session) of ['A103828'] species S5; 24 genomes $7.80
+[03:23:55] [A10] rejected mutate session: behavioural twin
+[03:24:03] [A10] birth A103832 (mutate session) of ['A103821'] species S6; 24 genomes $7.80
+[03:24:08] [A10] birth A103833 (tune ) of ['A103830'] species S8; 24 genomes $7.80
+[03:24:13] [A10] birth A103834 (mutate session) of ['A103772'] species S8; 24 genomes $7.80
+[03:24:18] [A10] rejected mutate session: behavioural twin
+[03:24:40] [A10] birth A103835 (cross ) of ['A103772', 'A103766'] species S5; 24 genomes $7.80
+[03:24:44] [A10] rejected llm_cross session: behavioural twin
+[03:24:57] [A10] rejected mutate session: behavioural twin
+[03:25:10] [A10] birth A103836 (cross ) of ['A103805', 'A103834'] species S8; 24 genomes $7.80
+[03:25:16] [A10] birth A103837 (mutate session) of ['A103834'] species S8; 24 genomes $7.80
+[03:25:20] [A10] birth A103838 (mutate session) of ['A103795'] species S4; 24 genomes $7.80
+[03:25:24] [A10] birth A103839 (mutate session) of ['A103801'] species S6; 24 genomes $7.80
+[03:25:30] [A10] rejected mutate session: behavioural twin
+[03:25:39] [A10] rejected mutate session: behavioural twin
+[03:25:57] [A10] summary: births 3840 deaths 3817 games 892912 $7.80; top [('A103834', 51.24, 0.96, 96, 'S8'), ('A103821', 50.77, 0.81, 208, 'S6'), ('A103840', 50.67, 6.0, 0, 'S6')]; top vs anchors {'A103834': 0.75, 'A103821': 1.0, 'A103822': None}
+[03:25:57] [A10] birth A103840 (cross ) of ['A103821', 'A103822'] species S6; 24 genomes $7.80
+[03:25:58] [A10] rejected tune : behavioural twin
+[03:26:02] [A10] birth A103841 (mutate session) of ['A103800'] species S8; 24 genomes $7.80
+[03:26:02] [A10] rejected mutate session: behavioural twin
+[03:26:20] [A10] rejected mutate session: behavioural twin
+[03:26:30] [A10] rejected mutate session: behavioural twin
+[03:26:39] [A10] birth A103842 (mutate session) of ['A103837'] species S8; 24 genomes $7.80
+[03:26:45] [A10] rejected mutate session: behavioural twin
+[03:27:11] [A10] birth A103843 (mutate session) of ['A103789'] species S7; 24 genomes $7.80
+[03:27:17] [A10] rejected mutate session: behavioural twin
+[03:27:31] [A10] rejected mutate session: behavioural twin
+[03:27:40] [A10] birth A103844 (mutate session) of ['A103829'] species S9; 24 genomes $7.80
+[03:27:42] [A10] birth A103845 (cross ) of ['A103772', 'A103766'] species S5; 24 genomes $7.80
+[03:27:44] [A10] rejected mutate session: behavioural twin
+[03:27:50] [A10] rejected tune : behavioural twin
+[03:27:59] [A10] rejected cross : behavioural twin
+[03:28:03] [A10] birth A103846 (mutate session) of ['A103823'] species S6; 24 genomes $7.80
+[03:28:40] [A10] birth A103847 (mutate session) of ['A103822'] species S6; 24 genomes $7.80
+[03:28:47] [A10] birth A103848 (mutate session) of ['A103766'] species S5; 24 genomes $7.80
+[03:28:55] [A10] rejected mutate session: behavioural twin
+[03:29:05] [A10] rejected mutate session: behavioural twin
+[03:29:14] [A10] birth A103849 (tune ) of ['A103772'] species S5; 24 genomes $7.80
+[03:29:22] [A10] rejected mutate session: behavioural twin

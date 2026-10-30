@@ -10,3 +10,4 @@
 | v33port-heal | 54/80 | 64/80 | 62/80 | v33port-h4 + self-heal below 75% while carrying 10+ gems. Sent to arena (req 2687). h4 + this + calm altar tile + hurt-carrier bank-first = 52/80 vs v33, 69 B318, 60 A61188 (plateau ~52 +- 2). |
 | v33port-heal-recall | 55/80 | 64/80 | 62/80 | v33port-heal + recall (r4, below 30%) only when no enemy champion can hit within 2 turns (damage cancels the channel). Sent to arena (req 2717). |
 | v33port-calmbank | 56/80 | 64/80 | 60/80 | q1 (= v33port-heal-recall + monolith push after round 1400 with 3+ allies, 55/80) + bank_t2 prefers safe-altar tiles no enemy champion stands next to. Not yet sent to the arena. |
+| v33port-spawnedge | 57/80 | 64/80 | 60/80 | v33port-calmbank + safe altar ring excludes altars within 3 of a golem spawn + no fight against a foe next to its own spawn while I am below half health. Sent to arena (req 2831). |
