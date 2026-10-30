@@ -68,3 +68,16 @@ From here a pass needs >= 76/140 vs v40 (genome/v0 8e6dfb46c v39a-x6-83, sha 823
 (v40m, sha 8e8c265a), 0 crashes. Both opponent bots are built on this checkout's runtime (dd28e2f3).
 Restart: genome/search 60a2da208 cherry-picked (tuner skips pick/top), rule picks restored in A11391/A11497, anchors
 v40 (weight 4), v41 (2), v28-emblem, B318 added (calibrating 200 games), v40 ingested as a seed, max births 1200.
+
+600-birth trio re-gated vs v40 / v41: A11594 70 / 73, A11599 73 / 74, A11584 69 / 71 (0 crashes). All fail.
+
+## 700 births (top 3 by mu at birth ~703), vs v40 / v41
+
+| genome | sha256 | arena mu at pick (games) | vs v40 | vs v41 | crashes | result |
+| --- | --- | --- | --- | --- | --- | --- |
+| A11663 | c63d0c9b77e2c3a4... | 28.35 (536) | 73/140 | 72/140 | 0 | fail |
+| A11696 | 380b8b4b431b90ed... | 28.16 (160) | 74/140 | 72/140 | 0 | fail |
+| A11691 | 73c216b628e704ec... | 28.00 (248) | 68/140 | 68/140 | 0 | fail |
+
+Arena anchors after calibration: v40 26.94, v41 27.02, v38 25.20, v33 25.00, v28-emblem 23.45, B318 22.81. The v40
+seed (A11619) died at 26.1. Sim rates the tops ~+1.4 mu over v40; real says they are about even or below.

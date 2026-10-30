@@ -1,0 +1,17 @@
+```python
+@gene('m12', 'bank walk: open safe altar unless a safe altar is 3+ tiles nearer; else any safe altar, else any altar; banking under threat (rule 11) takes whichever of the two safe choices is farther from the nearest visible enemy champion', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if valid(a) and valid(b):
+        if RULE == 11 and a != b:
+            return a if foe_gap(a) + 2 >= foe_gap(b) else b
+        if dist(here(), b) + 3 < dist(here(), a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```
