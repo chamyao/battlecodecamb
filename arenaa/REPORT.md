@@ -2,6 +2,22 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 12:40 UTC: A-11 b1000 tops pass the deaths pre-filter
+
+Real cambc 4.0.0, 70x2, 0 crashes; wins /140 and deaths to champions summed over the 140 games. x6-30 isn't on
+any branch, so the stress anchors are x6-61 and x8-140 (v43).
+
+| genome | vs x6-61 | vs x8-140 | vs v40 |
+| --- | --- | --- | --- |
+| v40 | 66, 1746 | 59, 1938 | - |
+| A11976 (7a753124) | 76, 1573 | 75, 1559 | 78, 1551 (v40 1728) |
+| A111001 (c92dea62) | 78, 1599 | 76, 1570 | 78, 1575 (v40 1673) |
+| A111000 (d54770a3) | 73, 1594 | 80, 1523 | 77, 1521 (v40 1639) |
+
+- All three die ~10-20% less than v40 against the same opponents. Sent to the genome lead; my pick is A11976.
+- Caveats: the writer has them 66-71 vs v41. Search's gatekeeper-52: A111001/A11976 solo-blocked on boss-battle.
+- Search: newer A-11 genomes score 2-3 points higher h2h but farm less (solo +0.8k to +1.5k vs +3k to +6k before).
+
 ## 2026-10-30 11:45 UTC: ladder screens of A-11 tops lose (more deaths)
 
 - Intel's 30-game ladder screens vs v40's 13-17: A11501 10-20, A11696 12-18, A11599 11-19. All three have +1.7 to +2.4
