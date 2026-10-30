@@ -10,6 +10,39 @@ interpreter's measured block prices (`docs/FUEL.md`) do not apply. In the simula
 - the runtime's own work beyond those calls, `Ctx::extra()` in each primitive (simulator only),
   fitted below. Without it the simulator undercharged genomes ~6.7x (Oct 24).
 
+## Sim optimistic for evolved genomes: extra() x 1.04 (Oct 30)
+
+Search's gate (regate40/BIAS.md) had the sim above real for all 9 gated genomes (mean +9.8 / 140; worst:
+A103823-w1 vs v39a, sim 83 vs real 66). Traced on cambc 4.0.0:
+- Rules are exact. A103823-w1 and v39a each replay action for action on 6 maps (00lanes, 01elk-arena,
+  02arena, 00crater, 02treasure-box, 00galaxy) at 1e8 fuel.
+- Fuel was under, and more so on heavy turns. On identical games both genomes ran at 0.971-0.985 of real.
+  Per turn, real = 1.04-1.09 x sim - ~1000: light turns are right, 40-70k turns 2-4k under. The per-op,
+  per-gene and per-phase fits do not isolate one primitive. The profile build adds ~35% on the real side, and
+  the gap does not follow chunks; it grows on taller maps.
+- At 1x that shows up as budget hits. In 140 real games of A103823-w1 vs v39a, turns at the 100k cap per game:
+  A103823-w1 9.1 real vs 6.5 sim, v39a 7.9 vs 6.3. The heavier genome was spared more in the sim.
+- Sim fuel multiplier 0.975 / 0.95 took the sim from 83 to 77 / 74 A wins (real 68 in my 140 games).
+
+Fix: every `extra()` price x 1.04 (`kExtraScale`). Host calls and own ops are unchanged; own ops x 2 or x 3
+also moved the h2h but overshot whole-game fuel by ~900 per turn. With x 1.04:
+
+| measure | before | after |
+|---|---|---|
+| whole game sim / real, A103823-w1 and v39a, 4 maps | 0.971-0.985 | 0.996-1.011 |
+| heavy-turn quartile gap per turn | +1.8k to +2.7k | +0.1k to +0.9k |
+| A103823-w1 vs v39a, sim A wins (real 68) | 83 | 73 (agree 87 -> 89 / 140) |
+| A103930-w1 vs v39a, sim A wins (real 63, lead's gate) | 78 | 69 |
+| A61188 vs B792 (real 83) | 73 | 79 (agree 90 -> 90) |
+| B792 vs B318 (real 65) | 75 | 78 (agree 90 -> 89) |
+| B1145 vs A61188 (real 61) | 56 | 52 (agree 89 -> 93) |
+
+Over the five matchups the mean sim - real goes from +5.0 to +2.2 (mean |sim - real| 11.0 -> 7.4). Total per-game agreement over the four with
+my real games goes from 356 to 361 / 560. Single matchups carry about +-7 of noise: 1% fuel flips about 20% of
+these games. The part of a gate's offset that remains is selection: a genome is gated because its sim score is
+high. Every genome's sim fuel moves with this change, by design. The per-primitive probe prices above are now
+~4% over their probes.
+
 ## Engine 2.0.0 (cambc 4.0.0) port (Oct 30)
 
 The ladder moved to engine 2.0.0: 70 maps (30 new), 42 new items (seven families of shards and emblems,
