@@ -225,3 +225,9 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
   not uploaded. (Arena B's earlier old/new splits counted the ten new 00-maps as old; totals were right.)
 - v39a live as ladder version 39 (submitted 2026-10-30T04:11:26Z, bundle sha256 97492ba3...). Validation: band_v2
   (intel b99c234), old maps paired with b13, new maps with b14.
+
+## New-item probes on v39a (Arena B lead, runtime 671ac45b, cambc 4.0.0, /140 vs v39a)
+
+- Str emblem first: Prospector 76, Hunter 66, Capture 62, Skirmish 61, Tribute 51. In place of Jungle: all <= 65.
+- v39a-prospector-first (sha ca9c2a42...): my gate4 vs the live v39 build is 69/140 (old 35/80, new 34/60), 0 crashes.
+  Fails (a shop-order change, bar 81). The new-map gain (+3-4) is consistent but is paid back on the old maps.
