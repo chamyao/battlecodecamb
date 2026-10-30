@@ -99,11 +99,11 @@ void print_champion(const char* tag, std::uint32_t h, bool self)
 	std::int32_t p0{}, p1{};
 	int q0 = sdk_bc_champion_priority(h, 0, &p0), q1 = sdk_bc_champion_priority(h, 1, &p1);
 	std::printf(" prio=%d,%d", q0 ? -1000 - q0 : p0, q1 ? -1000 - q1 : p1);
-	std::array<std::uint32_t, 42> items{};
+	std::array<std::uint32_t, 84> items{}; // engine 2.0.0: 84 items
 	if (sdk_champion_items(h, items.data()) == 0)
 	{
 		std::printf(" items=");
-		for (int i = 0; i < 42; ++i)
+		for (int i = 0; i < 84; ++i)
 			if (items[i]) std::printf("%d:%u;", i, items[i]);
 	}
 	if (self)
@@ -164,7 +164,9 @@ void observe(char phase)
 		if (sdk_camp_group_state(g, &st) != 0 || st == 0) continue;
 		std::int32_t cd{};
 		int rc = sdk_camp_group_cooldown(g, &cd);
-		std::printf("@@group %u st=%u cd=%d\n", g, st, rc ? -1000 - rc : cd);
+		camp_group_capture_state cap{};
+		const int rc2 = sdk_camp_group_capture_state(g, &cap);
+		std::printf("@@group %u st=%u cd=%d cap=%d,%d\n", g, st, rc ? -1000 - rc : cd, rc2 ? -1000 - rc2 : cap.timer, rc2 ? 0 : cap.state);
 	}
 	{
 		std::array<ward_info, 32> w{};
@@ -410,11 +412,11 @@ void play_turn(std::uint32_t round)
 	{
 		if (gold >= 30 && chance(70))
 		{
-			const std::uint32_t item = static_cast<std::uint32_t>(rint(0, 6)) * 6 + static_cast<std::uint32_t>(rint(0, 2)) * 2;
+			const std::uint32_t item = static_cast<std::uint32_t>(rint(0, 13)) * 6 + static_cast<std::uint32_t>(rint(0, 2)) * 2; // 14 families since engine 2.0.0
 			act_buy(item, static_cast<std::uint32_t>(rint(1, std::max(1, static_cast<int>(gold / 30)))));
 		}
 		if (chance(25)) act_buyc(chance(50) ? 0 : 2);
-		if (chance(3)) act_buy(static_cast<std::uint32_t>(rint(0, 43)), static_cast<std::uint32_t>(rint(0, 2)));
+		if (chance(3)) act_buy(static_cast<std::uint32_t>(rint(0, 85)), static_cast<std::uint32_t>(rint(0, 2)));
 		if (ci.type == 11 && chance(10)) act_sell(static_cast<std::uint32_t>(rint(0, 41)));
 	}
 #if TRACER_FUZZ
@@ -439,7 +441,7 @@ void play_turn(std::uint32_t round)
 			case 7: act_submit(p); break;
 			case 8: act_ward(p); break;
 			case 9: act_sell(static_cast<std::uint32_t>(rint(0, 43))); break;
-			default: act_buy(static_cast<std::uint32_t>(rint(0, 43)), static_cast<std::uint32_t>(rint(0, 3))); break;
+			default: act_buy(static_cast<std::uint32_t>(rint(0, 85)), static_cast<std::uint32_t>(rint(0, 3))); break;
 			}
 		}
 #endif

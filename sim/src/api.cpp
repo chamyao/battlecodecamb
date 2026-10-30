@@ -509,6 +509,21 @@ Err Api::camp_group_cooldown(std::uint32_t g, std::int32_t* out)
 	return Err::success;
 }
 
+Err Api::camp_group_capture_state(std::uint32_t g, std::int32_t* timer, std::int32_t* state)
+{
+	charge(Call::camp_group_capture_state);
+	if (g >= g_.groups.size()) return Err::api_invalid_camp_group;
+	const Group& G = g_.groups[g];
+	bool visible = false;
+	for (int h : g_.map().groups[g].camps) visible |= sees(g_.map().camps[h].pos);
+	if (!visible) return Err::api_not_in_vision;
+	*timer = G.capture_team >= 0 ? G.capture_timer : settings().capture_time;
+	if (G.state != GroupState::reward) *state = 0; // no_capture_available
+	else if (G.capture_team < 0) *state = g_.capture_contested(static_cast<int>(g)) ? 2 : 4; // contested / capture_available
+	else *state = G.capture_team == g_.champs[champ_].team ? 1 : 3; // ally_capturing / enemy_capturing
+	return Err::success;
+}
+
 Err Api::wards(WardRecord* out, std::uint32_t cap, std::uint32_t* count)
 {
 	*count = 0;

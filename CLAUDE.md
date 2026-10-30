@@ -13,3 +13,12 @@ Reference docs (exported from the handbook, Oct 2026):
 
 The official engine ships in the pip package `cambc` (closed native binary,
 deterministic). It is the reference our simulator is tested against.
+
+## How sessions are organised
+
+One coordinating session drives the plan (`docs/STRATEGY.md`). Workstreams that
+are a different enough space of work get their own Claude session, which Cham
+can talk to directly: e.g. the simulator (`sim/`, branch `sim/engine`), replay
+analysis of top teams. Each works on its own branch and coordinates by
+messages between sessions; nobody pushes to `main` without asking Cham, except
+docs updates from the coordinating session.

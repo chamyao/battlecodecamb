@@ -197,7 +197,7 @@ public:
 	Err champion_restrictions(std::uint32_t h, std::uint8_t* out);
 	Err champion_ability_props(std::uint32_t h, std::uint32_t slot, AbilityProps* out);
 	Err champion_cooldown(std::uint32_t h, std::uint32_t slot, std::int32_t* out);
-	Err champion_items(std::uint32_t h, std::uint32_t* out /*42*/);
+	Err champion_items(std::uint32_t h, std::uint32_t* out /*kNumItems*/);
 	Err champion_consumables(std::uint32_t h, std::uint32_t* out /*4*/);
 	Err champion_gems(std::uint32_t h, std::uint32_t* out);
 	Err champion_gold(std::uint32_t h, std::uint32_t* out);
@@ -218,6 +218,7 @@ public:
 	Err camp_buffs(std::uint32_t h, CampBuffRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err camp_group_state(std::uint32_t g, std::uint32_t* out);
 	Err camp_group_cooldown(std::uint32_t g, std::int32_t* out);
+	Err camp_group_capture_state(std::uint32_t g, std::int32_t* timer, std::int32_t* state); // engine 2.0.0
 	Err wards(WardRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err teleports(TeleportRecord* out, std::uint32_t cap, std::uint32_t* count);
 	Err altar_locks(AltarLockRecord* out, std::uint32_t cap, std::uint32_t* count);

@@ -12,7 +12,7 @@ constexpr int kMaxDim = 100;
 constexpr int kMaxChampions = 12; // up to 6 bodies per team (Cassi & Issac count as one pick)
 constexpr int kMaxCamps = 256;
 constexpr int kMaxGroups = 256;
-constexpr int kNumItems = 42;
+constexpr int kNumItems = 84; // engine 2.0.0: 14 families x (3 stats x shard / emblem)
 constexpr int kNumConsumables = 4;
 constexpr int kSharedMemory = 8;
 constexpr int kDraftMemory = 1024;
@@ -53,7 +53,7 @@ enum class Passive : std::uint8_t
 	stun_immunity, omnivamp_retired, missing_health_damage
 };
 
-enum class ItemPassive : std::uint8_t { none, monster, durability, treasure, jungle, home };
+enum class ItemPassive : std::uint8_t { none, monster, durability, treasure, jungle, home, tribute, capture, prospector, hunter, skirmish, collectors };
 
 namespace target
 {

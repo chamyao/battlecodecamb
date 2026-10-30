@@ -1,0 +1,755 @@
+{
+ "camp_layout": [
+  {
+   "group": 0,
+   "gold": 0,
+   "gems": 28,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 0,
+     "type": "gem_cluster",
+     "x": 4,
+     "y": 25
+    },
+    {
+     "handle": 2,
+     "type": "gem_cluster",
+     "x": 4,
+     "y": 24
+    },
+    {
+     "handle": 4,
+     "type": "gem_cluster",
+     "x": 4,
+     "y": 23
+    },
+    {
+     "handle": 98,
+     "type": "gem_cluster",
+     "x": 4,
+     "y": 22
+    }
+   ]
+  },
+  {
+   "group": 1,
+   "gold": 0,
+   "gems": 28,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 1,
+     "type": "gem_cluster",
+     "x": 25,
+     "y": 25
+    },
+    {
+     "handle": 3,
+     "type": "gem_cluster",
+     "x": 25,
+     "y": 24
+    },
+    {
+     "handle": 5,
+     "type": "gem_cluster",
+     "x": 25,
+     "y": 23
+    },
+    {
+     "handle": 99,
+     "type": "gem_cluster",
+     "x": 25,
+     "y": 22
+    }
+   ]
+  },
+  {
+   "group": 2,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 6,
+     "type": "gold_cluster",
+     "x": 2,
+     "y": 17
+    },
+    {
+     "handle": 60,
+     "type": "wolf",
+     "x": 2,
+     "y": 18
+    },
+    {
+     "handle": 70,
+     "type": "gold_cluster",
+     "x": 1,
+     "y": 18
+    },
+    {
+     "handle": 72,
+     "type": "gold_cluster",
+     "x": 3,
+     "y": 18
+    },
+    {
+     "handle": 88,
+     "type": "gold_cluster",
+     "x": 2,
+     "y": 19
+    }
+   ]
+  },
+  {
+   "group": 3,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 7,
+     "type": "gold_cluster",
+     "x": 27,
+     "y": 17
+    },
+    {
+     "handle": 61,
+     "type": "wolf",
+     "x": 27,
+     "y": 18
+    },
+    {
+     "handle": 71,
+     "type": "gold_cluster",
+     "x": 28,
+     "y": 18
+    },
+    {
+     "handle": 73,
+     "type": "gold_cluster",
+     "x": 26,
+     "y": 18
+    },
+    {
+     "handle": 89,
+     "type": "gold_cluster",
+     "x": 27,
+     "y": 19
+    }
+   ]
+  },
+  {
+   "group": 4,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 8,
+     "type": "gold_cluster",
+     "x": 2,
+     "y": 14
+    },
+    {
+     "handle": 58,
+     "type": "wolf",
+     "x": 2,
+     "y": 13
+    },
+    {
+     "handle": 66,
+     "type": "gold_cluster",
+     "x": 1,
+     "y": 13
+    },
+    {
+     "handle": 68,
+     "type": "gold_cluster",
+     "x": 3,
+     "y": 13
+    },
+    {
+     "handle": 86,
+     "type": "gold_cluster",
+     "x": 2,
+     "y": 12
+    }
+   ]
+  },
+  {
+   "group": 5,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 9,
+     "type": "gold_cluster",
+     "x": 27,
+     "y": 14
+    },
+    {
+     "handle": 59,
+     "type": "wolf",
+     "x": 27,
+     "y": 13
+    },
+    {
+     "handle": 67,
+     "type": "gold_cluster",
+     "x": 28,
+     "y": 13
+    },
+    {
+     "handle": 69,
+     "type": "gold_cluster",
+     "x": 26,
+     "y": 13
+    },
+    {
+     "handle": 87,
+     "type": "gold_cluster",
+     "x": 27,
+     "y": 12
+    }
+   ]
+  },
+  {
+   "group": 6,
+   "gold": 0,
+   "gems": 77,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 10,
+     "type": "gem_cluster",
+     "x": 9,
+     "y": 25
+    },
+    {
+     "handle": 12,
+     "type": "gem_cluster",
+     "x": 9,
+     "y": 24
+    },
+    {
+     "handle": 14,
+     "type": "gem_cluster",
+     "x": 9,
+     "y": 23
+    },
+    {
+     "handle": 16,
+     "type": "gem_cluster",
+     "x": 9,
+     "y": 22
+    },
+    {
+     "handle": 18,
+     "type": "gem_cluster",
+     "x": 8,
+     "y": 21
+    },
+    {
+     "handle": 20,
+     "type": "gem_cluster",
+     "x": 8,
+     "y": 20
+    },
+    {
+     "handle": 22,
+     "type": "gem_cluster",
+     "x": 8,
+     "y": 19
+    },
+    {
+     "handle": 48,
+     "type": "gem_cluster",
+     "x": 8,
+     "y": 25
+    },
+    {
+     "handle": 50,
+     "type": "gem_cluster",
+     "x": 8,
+     "y": 24
+    },
+    {
+     "handle": 52,
+     "type": "gem_cluster",
+     "x": 8,
+     "y": 23
+    },
+    {
+     "handle": 54,
+     "type": "gem_cluster",
+     "x": 8,
+     "y": 22
+    }
+   ]
+  },
+  {
+   "group": 7,
+   "gold": 0,
+   "gems": 77,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 11,
+     "type": "gem_cluster",
+     "x": 20,
+     "y": 25
+    },
+    {
+     "handle": 13,
+     "type": "gem_cluster",
+     "x": 20,
+     "y": 24
+    },
+    {
+     "handle": 15,
+     "type": "gem_cluster",
+     "x": 20,
+     "y": 23
+    },
+    {
+     "handle": 17,
+     "type": "gem_cluster",
+     "x": 20,
+     "y": 22
+    },
+    {
+     "handle": 19,
+     "type": "gem_cluster",
+     "x": 21,
+     "y": 21
+    },
+    {
+     "handle": 21,
+     "type": "gem_cluster",
+     "x": 21,
+     "y": 20
+    },
+    {
+     "handle": 23,
+     "type": "gem_cluster",
+     "x": 21,
+     "y": 19
+    },
+    {
+     "handle": 49,
+     "type": "gem_cluster",
+     "x": 21,
+     "y": 25
+    },
+    {
+     "handle": 51,
+     "type": "gem_cluster",
+     "x": 21,
+     "y": 24
+    },
+    {
+     "handle": 53,
+     "type": "gem_cluster",
+     "x": 21,
+     "y": 23
+    },
+    {
+     "handle": 55,
+     "type": "gem_cluster",
+     "x": 21,
+     "y": 22
+    }
+   ]
+  },
+  {
+   "group": 8,
+   "gold": 0,
+   "gems": 168,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 24,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 24
+    },
+    {
+     "handle": 25,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 24
+    },
+    {
+     "handle": 26,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 23
+    },
+    {
+     "handle": 27,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 23
+    },
+    {
+     "handle": 28,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 22
+    },
+    {
+     "handle": 29,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 22
+    },
+    {
+     "handle": 30,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 21
+    },
+    {
+     "handle": 31,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 21
+    },
+    {
+     "handle": 32,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 20
+    },
+    {
+     "handle": 33,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 20
+    },
+    {
+     "handle": 34,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 19
+    },
+    {
+     "handle": 35,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 19
+    },
+    {
+     "handle": 36,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 18
+    },
+    {
+     "handle": 37,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 18
+    },
+    {
+     "handle": 38,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 17
+    },
+    {
+     "handle": 39,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 17
+    },
+    {
+     "handle": 40,
+     "type": "gem_cluster",
+     "x": 14,
+     "y": 16
+    },
+    {
+     "handle": 41,
+     "type": "gem_cluster",
+     "x": 15,
+     "y": 16
+    },
+    {
+     "handle": 42,
+     "type": "gem_cluster",
+     "x": 13,
+     "y": 24
+    },
+    {
+     "handle": 43,
+     "type": "gem_cluster",
+     "x": 16,
+     "y": 24
+    },
+    {
+     "handle": 44,
+     "type": "gem_cluster",
+     "x": 13,
+     "y": 23
+    },
+    {
+     "handle": 45,
+     "type": "gem_cluster",
+     "x": 16,
+     "y": 23
+    },
+    {
+     "handle": 46,
+     "type": "gem_cluster",
+     "x": 13,
+     "y": 22
+    },
+    {
+     "handle": 47,
+     "type": "gem_cluster",
+     "x": 16,
+     "y": 22
+    }
+   ]
+  },
+  {
+   "group": 9,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 56,
+     "type": "wolf",
+     "x": 2,
+     "y": 8
+    },
+    {
+     "handle": 62,
+     "type": "gold_cluster",
+     "x": 1,
+     "y": 8
+    },
+    {
+     "handle": 64,
+     "type": "gold_cluster",
+     "x": 3,
+     "y": 8
+    },
+    {
+     "handle": 94,
+     "type": "gold_cluster",
+     "x": 2,
+     "y": 7
+    },
+    {
+     "handle": 96,
+     "type": "gold_cluster",
+     "x": 2,
+     "y": 9
+    }
+   ]
+  },
+  {
+   "group": 10,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 57,
+     "type": "wolf",
+     "x": 27,
+     "y": 8
+    },
+    {
+     "handle": 63,
+     "type": "gold_cluster",
+     "x": 28,
+     "y": 8
+    },
+    {
+     "handle": 65,
+     "type": "gold_cluster",
+     "x": 26,
+     "y": 8
+    },
+    {
+     "handle": 95,
+     "type": "gold_cluster",
+     "x": 27,
+     "y": 7
+    },
+    {
+     "handle": 97,
+     "type": "gold_cluster",
+     "x": 27,
+     "y": 9
+    }
+   ]
+  },
+  {
+   "group": 11,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 74,
+     "type": "wolf",
+     "x": 8,
+     "y": 2
+    },
+    {
+     "handle": 76,
+     "type": "gold_cluster",
+     "x": 8,
+     "y": 3
+    },
+    {
+     "handle": 78,
+     "type": "gold_cluster",
+     "x": 8,
+     "y": 1
+    },
+    {
+     "handle": 90,
+     "type": "gold_cluster",
+     "x": 7,
+     "y": 2
+    },
+    {
+     "handle": 92,
+     "type": "gold_cluster",
+     "x": 9,
+     "y": 2
+    }
+   ]
+  },
+  {
+   "group": 12,
+   "gold": 120,
+   "gems": 4,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 75,
+     "type": "wolf",
+     "x": 21,
+     "y": 2
+    },
+    {
+     "handle": 77,
+     "type": "gold_cluster",
+     "x": 21,
+     "y": 3
+    },
+    {
+     "handle": 79,
+     "type": "gold_cluster",
+     "x": 21,
+     "y": 1
+    },
+    {
+     "handle": 91,
+     "type": "gold_cluster",
+     "x": 22,
+     "y": 2
+    },
+    {
+     "handle": 93,
+     "type": "gold_cluster",
+     "x": 20,
+     "y": 2
+    }
+   ]
+  },
+  {
+   "group": 13,
+   "gold": 0,
+   "gems": 21,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 80,
+     "type": "gem_cluster",
+     "x": 1,
+     "y": 26
+    },
+    {
+     "handle": 82,
+     "type": "gem_cluster",
+     "x": 1,
+     "y": 25
+    },
+    {
+     "handle": 84,
+     "type": "gem_cluster",
+     "x": 1,
+     "y": 24
+    }
+   ]
+  },
+  {
+   "group": 14,
+   "gold": 0,
+   "gems": 21,
+   "respawn": 50,
+   "camps": [
+    {
+     "handle": 81,
+     "type": "gem_cluster",
+     "x": 28,
+     "y": 26
+    },
+    {
+     "handle": 83,
+     "type": "gem_cluster",
+     "x": 28,
+     "y": 25
+    },
+    {
+     "handle": 85,
+     "type": "gem_cluster",
+     "x": 28,
+     "y": 24
+    }
+   ]
+  }
+ ],
+ "groups": [],
+ "masks": {
+  "walls": "00f0030000fc0000001e000080070000e0010000780000001e000000030000c0000000300000000c000000030000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fc0000ffff3ffcffffffffffffffffffff0f",
+  "bushes": "200000010800400002001080000004200000c10f00c00f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "holes": "0000000000000000000000000000000000000000000000020010800000042000000108004000020010800000042000000108004000020010800000042000000108004000020010800000042000000108004000020010800000042000000108004000000000000000000000000000000000",
+  "altars": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+ },
+ "metadata": {
+  "width": 30,
+  "height": 30,
+  "chunked_width": 4,
+  "chunked_height": 4,
+  "chunk_stride": 4,
+  "board_bytes": 128,
+  "field_bytes": 2048
+ },
+ "spawn": {
+  "0": [
+   1,
+   1,
+   4,
+   4
+  ],
+  "1": [
+   26,
+   1,
+   29,
+   4
+  ]
+ },
+ "symmetry": 0
+}

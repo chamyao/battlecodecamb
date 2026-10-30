@@ -43,6 +43,10 @@ CONSTANTS = {
     "AB_NONE": 0, "AB_RESET": 1, "AB_DAMAGE": 2, "AB_AOE": 3, "AB_CC": 4, "AB_HEAL": 5, "AB_DASH": 6, "AB_SHIELD": 7,
     # item passives (cbs::ItemPassive)
     "P_NONE": 0, "P_MONSTER": 1, "P_DURABILITY": 2, "P_TREASURE": 3, "P_JUNGLE": 4, "P_HOME": 5,
+    # engine 2.0.0 item passives
+    "P_TRIBUTE": 6, "P_CAPTURE": 7, "P_PROSPECTOR": 8, "P_HUNTER": 9, "P_SKIRMISH": 10, "P_COLLECTORS": 11,
+    # camp group capture states (engine 2.0.0 camp_group_capture_type), as capture_state(g) returns them
+    "CAP_NONE": 0, "CAP_ALLY": 1, "CAP_CONTESTED": 2, "CAP_ENEMY": 3, "CAP_AVAILABLE": 4,
     # ability target bits
     "T_CAMPS": 1, "T_ENEMIES": 2, "T_ALLIES": 4, "T_SELF": 8, "T_GROUND": 16,
     "INF": 1e9,
@@ -138,6 +142,8 @@ PRIMS = {
     "buff_turns": (("Unit", "Num"), "Num", "X.buff_turns({0}, {1})"),
     "channel_left": (("Unit",), "Num", "X.channel_left({0})"),
     "group_cooldown": (("Num",), "Num", "X.group_cooldown({0})"),
+    "capture_state": (("Num",), "Num", "X.capture_state({0})"),
+    "capture_timer": (("Num",), "Num", "X.capture_timer({0})"),
     "lock_hits": (("Tile",), "Num", "X.lock_hits({0})"),
     "lock_enemy": (("Tile",), "Bool", "X.lock_enemy({0})"),
     "ally_wards": ((), "Tiles", "X.ally_wards()"),
@@ -190,13 +196,13 @@ UNCALIBRATED = set()
 # calibrated Oct 24 (genome/FUEL.md): wfield, path_step, path_len, territory, dash_field, attack_damage, cast_damage, shield;
 # the raw SDK reads cooldown, ability_*, item_count, unit_gold, buff_value, buff_turns, channel_left,
 # group_cooldown, lock_hits, lock_enemy; ally_wards, enemy_wards, ward_charges, ward_cooldown, my_ward,
-# ward_sight, sight, teleport_dest, teleport_left, priority, can_sell
+# ward_sight, sight, teleport_dest, teleport_left, priority, can_sell; Oct 30 (cambc 4.0.0, calib9): capture_state, capture_timer
 # Primitives whose inlined bot code takes a local's address, so a gene using one gets a shadow-stack frame
 # (prologue and epilogue on every call, ~12 fuel). Found by compiling each primitive alone with the bot's
 # flags (wasi-sdk -O3) and checking for the stack-pointer write (FUEL.md).
 FRAMED_PRIMS = {"alive", "ally_tiles", "altars", "at", "box_field", "bushes", "camp_spawns", "camp_tiles", "can_attack",
                 "can_move", "channel_left", "channeling", "dash_field", "enemy_gems", "enemy_spawn", "enemy_tiles", "field",
-                "field_avoid", "group_cooldown", "group_respawning", "group_reward", "group_tiles", "holes", "is_awake",
+                "field_avoid", "group_cooldown", "capture_state", "capture_timer", "group_respawning", "group_reward", "group_tiles", "holes", "is_awake",
                 "locked_altars", "me", "my_spawn", "my_ward", "near", "nearest", "path_len", "path_step", "priority",
                 "read_shared", "round", "sight", "size", "spawn_group", "spawn_type", "team_gems", "territory",
                 "type_spawns", "unit_gems", "unit_gold", "visible", "vision", "walk_nearest", "walls", "ward_sight",
