@@ -205,3 +205,9 @@ hold 117, gem-groups after 6 buys, bossbush.
   with gems 638 vs 820 and deaths to champions 12.2 vs 8.2. New maps are 43% of the pool and the main weakness.
 - Bug: v38 as team A on 00quarry freezes (0 gems, 60 gold; no actions from round 63). Confirmed in my gate4 log; v33
   wins that map. With the Arena A lead to fix. 02the-pack is 0-0 for every bot (gold tiebreak), not a regression.
+
+## Engine-2 runtime on genome/v0 (merge 6fb46951 of genome/fuel f952d598)
+
+- Sim exact vs cambc 4.0.0 (seed 70/70 maps), new item passives, capture_state/capture_timer prims; kNumItems 84.
+- v38 rebuilt on it (same genome, new constants) vs the live v38 build: 69/140, 0 crashes; 00quarry-A still frozen.
+  The constants alone are neutral, so no upload.
