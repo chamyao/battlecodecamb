@@ -28,6 +28,8 @@ from pathlib import Path
 
 from funsearch.evaluate import MAPS, ROOT
 
+NG = 2 * len(MAPS)  # distinct games per pair: every map once from each side (80 on engine 1.0.3, 140 on 2.0.0)
+
 from .. import build as gbuild
 from .score import Scorer
 
@@ -213,7 +215,7 @@ def gate(text, ref, anchors, threads=5, min_wins=43, regress=0.03, bars=None, lo
     bars = {} if bars is None else bars
     drops = {}
     for anc in anchors:
-        key = f"{Path(ref).name}|{Path(anc).name}|80"
+        key = f"{Path(ref).name}|{Path(anc).name}|{NG}"
         if key not in bars:
             bars[key] = R.rate(rspec, R.side(anc), threads)
         bw, bn = bars[key]
@@ -275,8 +277,8 @@ def main():
                 old, _, need = args.regate_from.partition(":")
                 for l in txt.splitlines():
                     r = json.loads(l) if l.strip() else {}
-                    if f"@{old}/80" in r.get("key", "") and r.get("h2h_wins", 0) < int(need or 43):
-                        seen.add(r["key"].replace(f"@{old}/80", f"@{Path(args.ref).stem}/80"))
+                    if f"@{old}/{NG}" in r.get("key", "") and r.get("h2h_wins", 0) < int(need or 43):
+                        seen.add(r["key"].replace(f"@{old}/{NG}", f"@{Path(args.ref).stem}/{NG}"))
     ref_text = Path(args.ref).read_text() if args.ref.endswith(".genome") else None
 
     def log(msg):
@@ -377,7 +379,7 @@ def main():
                     and m["games"] >= args.min_games]
             for m in (live if chain.startswith("files:") else sorted(live, key=lambda m: -m["mu"])[:args.top]):
                 # one key per genome across a chain of resumed jobs, per reference bot
-                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/80" + ("/paired" if args.sign_alpha > 0 else "")
+                key = f"{dirs[0]}:{m['name']}@{Path(args.ref).stem}/{NG}" + ("/paired" if args.sign_alpha > 0 else "")
                 if key in seen:
                     continue
                 seen.add(key)
