@@ -238,3 +238,7 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
   - A103823-w1 (sha 35af880b): sim h2h 83/140, real 66/140, 0 crashes.
   - A103930-w1 (sha 478dd015): sim h2h 78/140, real 63/140, 0 crashes.
   The 2.0.0 sim head-to-head overrates these A-10 genomes by ~15/140 against v39a.
+- Batch 15 (intel b15.md, bb35d7d), 60 games: v39 31-29 vs v38 30-30 on the same games. Old maps 18-12 vs 19-11 (the
+  one flip is vs JOHN_BANEGA_DON, which changed its bot); b14 new maps 7-13 vs 5-15; 10 extra new maps 6-4 = 6-4.
+  The fix also unfroze 02harvest (L -> W 1027-481) and 00quarry (0 -> 865 gems). Nothing regressed; v39 kept.
+  b15 is the band baseline from now on.
