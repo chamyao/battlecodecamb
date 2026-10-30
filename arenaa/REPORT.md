@@ -10,6 +10,8 @@ Newest first. Scripts in arenaa/; data on remote/genome.
   v40 is ~7-10 games above v39a.
 - Writer asked to gate vs v40, add v40/v40m as anchors and seeds, and stop the tuner perturbing rule() pick/top ids
   (it found lineages where the unthreatened r_hold branch picks 15, the monolith walk).
+- v40m is live as **v41**. The genome lead's gate of the A-11 passes vs v41: A11106 71, A11101 73 (fail). A-11 anchors to
+  track the live bot (v41 + v40 + v38, with v33 as the fixed reference).
 
 ## 2026-10-30 06:30 UTC: A-11 check-in
 
