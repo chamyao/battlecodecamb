@@ -81,3 +81,14 @@ v40 (weight 4), v41 (2), v28-emblem, B318 added (calibrating 200 games), v40 ing
 
 Arena anchors after calibration: v40 26.94, v41 27.02, v38 25.20, v33 25.00, v28-emblem 23.45, B318 22.81. The v40
 seed (A11619) died at 26.1. Sim rates the tops ~+1.4 mu over v40; real says they are about even or below.
+
+## 800 births (top 3 by mu at birth ~808), vs v40 / v41
+
+| genome | sha256 | arena mu at pick (games) | vs v40 | vs v41 | crashes | result |
+| --- | --- | --- | --- | --- | --- | --- |
+| A11791 | 0859ce55158cc1d5... | 29.29 (296) | 73/140 | 74/140 | 0 | fail |
+| A11807 | 5ea058fb703ef7c2... | 28.13 (96) | 61/140 | 67/140 | 0 | fail |
+| A11806 | d2641d3aec87cc5b... | 27.84 (80) | 71/140 | 66/140 | 0 | fail |
+
+v40's v2 (contest edit, healthiest-fighter-first) is now spreading in the population, through update-link replies and
+v40-graft cross replies (tools/xv40.py). A11791 carries it.

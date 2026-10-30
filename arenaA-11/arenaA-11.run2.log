@@ -346,3 +346,103 @@
 [10:33:47] [A11] rejected mutate session: behavioural twin
 [10:34:16] [A11] birth A11803 (cross ) of ['A11774', 'A11794'] species S0; 24 genomes $0.00
 [10:34:35] [A11] rejected tune : behavioural twin
+[10:34:52] [A11] rejected mutate session: GenomeError: blocked line 764: cannot assign to at
+[10:34:53] [A11] rejected mutate session: GenomeError: blocked line 757: cannot assign to at
+[10:35:06] [A11] rejected llm_cross session: behavioural twin
+[10:35:23] [A11] rejected mutate session: behavioural twin
+[10:35:25] [A11] birth A11804 (mutate session) of ['A11788'] species S2; 24 genomes $0.00
+[10:35:25] [A11] birth A11805 (mutate session) of ['A11803'] species S0; 24 genomes $0.00
+[10:35:26] [A11] birth A11806 (mutate session) of ['A11788'] species S2; 24 genomes $0.00
+[10:35:28] [A11] birth A11807 (mutate session) of ['A11107'] species S8; 24 genomes $0.00
+[10:35:40] [A11] rejected tune : behavioural twin
+[10:35:59] [A11] birth A11808 (cross ) of ['A11806', 'A11804'] species S2; 24 genomes $0.00
+[10:36:36] [A11] rejected mutate session: GenomeError: blocked line 757: cannot assign to at
+[10:37:56] [A11] rejected tune : behavioural twin
+[10:38:00] [A11] birth A11809 (mutate session) of ['A11801'] species S7; 24 genomes $0.00
+[10:38:00] [A11] rejected mutate session: behavioural twin
+[10:38:00] [A11] rejected mutate session: behavioural twin
+[10:38:02] [A11] summary: births 810 deaths 787 games 182280 $0.00; top [('A11788', 28.32, 0.79, 504, 'S2'), ('A11801', 27.77, 0.8, 256, 'S7'), ('A11809', 27.77, 6.0, 0, 'S7')]; top vs anchors {'A11788': 0.55, 'A11801': 0.562, 'A11808': 0.594}
+[10:38:02] [A11] birth A11810 (mutate session) of ['A11801'] species S7; 24 genomes $0.00
+[10:38:03] [A11] birth A11811 (mutate session) of ['A11775'] species S9; 24 genomes $0.00
+[10:38:05] [A11] birth A11812 (mutate session) of ['A11800'] species S9; 24 genomes $0.00
+[10:38:05] [A11] birth A11813 (llm_cross session) of ['A11800', 'A11704'] species S9; 24 genomes $0.00
+[10:38:32] [A11] birth A11814 (tune ) of ['A11706'] species S6; 24 genomes $0.00
+[10:39:13] [A11] rejected cross : behavioural twin
+[10:39:34] [A11] birth A11815 (tune ) of ['A11801'] species S7; 24 genomes $0.00
+[10:39:55] [A11] birth A11816 (cross ) of ['A11808', 'A11788'] species S2; 24 genomes $0.00
+[10:40:06] [A11] rejected mutate session: EditError: no change
+[10:40:08] [A11] rejected mutate session: EditError: no change
+[10:40:30] [A11] birth A11817 (mutate session) of ['A11499'] species S8; 24 genomes $0.00
+[10:41:03] [A11] birth A11818 (mutate session) of ['A11774'] species S0; 24 genomes $0.00
+[10:41:06] [A11] birth A11819 (mutate session) of ['A11801'] species S7; 24 genomes $0.00
+[10:41:07] [A11] summary: births 820 deaths 797 games 183456 $0.00; top [('A11810', 29.22, 0.9, 104, 'S7'), ('A11812', 28.35, 0.88, 112, 'S9'), ('A11808', 28.25, 0.81, 168, 'S2')]; top vs anchors {'A11810': 0.719, 'A11812': 0.688, 'A11808': 0.594}
+[10:41:07] [A11] birth A11820 (mutate session) of ['A11706'] species S6; 24 genomes $0.00
+[10:41:07] [A11] birth A11821 (mutate session) of ['A11810'] species S7; 24 genomes $0.00
+[10:41:44] [A11] rejected mutate session: EditError: no change
+[10:42:32] [A11] birth A11822 (mutate session) of ['A11680'] species S5; 24 genomes $0.00
+[10:42:33] [A11] rejected mutate session: behavioural twin
+[10:42:36] [A11] birth A11823 (mutate session) of ['A11816'] species S2; 24 genomes $0.00
+[10:43:24] [A11] rejected mutate session: EditError: no change
+[10:43:48] [A11] rejected llm_cross session: behavioural twin
+[10:44:45] [A11] birth A11824 (mutate session) of ['A11818'] species S9; 24 genomes $0.00
+[10:44:46] [A11] birth A11825 (mutate session) of ['A11815'] species S7; 24 genomes $0.00
+[10:44:46] [A11] birth A11826 (mutate session) of ['A11818'] species S0; 24 genomes $0.00
+[10:44:46] [A11] birth A11827 (mutate session) of ['A11810'] species S7; 24 genomes $0.00
+[10:44:47] [A11] birth A11828 (tune ) of ['A11810'] species S7; 24 genomes $0.00
+[10:44:48] [A11] birth A11829 (mutate session) of ['A11818'] species S9; 24 genomes $0.00
+[10:44:48] [A11] rejected mutate session: behavioural twin
+[10:45:56] [A11] rejected mutate session: EditError: no change
+[10:45:56] [A11] rejected mutate session: EditError: no change
+[10:45:56] [A11] rejected mutate session: EditError: no change
+[10:46:17] [A11] summary: births 830 deaths 807 games 185356 $0.00; top [('A11810', 28.41, 0.81, 208, 'S7'), ('A11821', 28.09, 0.81, 200, 'S7'), ('A11774', 27.94, 0.79, 1040, 'S0')]; top vs anchors {'A11810': 0.625, 'A11821': 0.708, 'A11774': 0.521}
+[10:46:17] [A11] birth A11830 (tune ) of ['A11827'] species S7; 24 genomes $0.00
+[10:46:58] [A11] birth A11831 (mutate session) of ['A11656'] species S3; 24 genomes $0.00
+[10:46:59] [A11] birth A11832 (mutate session) of ['A11656'] species S3; 24 genomes $0.00
+[10:47:00] [A11] birth A11833 (mutate session) of ['A11821'] species S7; 24 genomes $0.00
+[10:47:00] [A11] rejected mutate session: behavioural twin
+[10:47:17] [A11] birth A11834 (tune ) of ['A11821'] species S7; 24 genomes $0.00
+[10:48:28] [A11] rejected mutate session: behavioural twin
+[10:48:31] [A11] birth A11835 (mutate session) of ['A11827'] species S7; 24 genomes $0.00
+[10:48:31] [A11] rejected mutate session: behavioural twin
+[10:49:19] [A11] rejected mutate session: EditError: no change
+[10:49:19] [A11] rejected mutate session: EditError: no change
+[10:49:45] [A11] rejected mutate session: behavioural twin
+[10:50:28] [A11] rejected mutate session: behavioural twin
+[10:50:32] [A11] birth A11836 (mutate session) of ['A11680'] species S5; 24 genomes $0.00
+[10:50:33] [A11] birth A11837 (mutate session) of ['A11827'] species S7; 24 genomes $0.00
+[10:50:33] [A11] birth A11838 (mutate session) of ['A11810'] species S7; 24 genomes $0.00
+[10:50:33] [A11] rejected tune : behavioural twin
+[10:50:34] [A11] birth A11839 (mutate session) of ['A11821'] species S7; 24 genomes $0.00
+[10:51:24] [A11] rejected mutate session: GenomeError: blocked line 743: cannot assign to at
+[10:51:25] [A11] rejected mutate session: EditError: no change
+[10:52:00] [A11] summary: births 840 deaths 817 games 187324 $0.00; top [('A11810', 28.48, 0.79, 344, 'S7'), ('A11827', 27.92, 0.8, 208, 'S7'), ('A11680', 27.72, 0.79, 2112, 'S5')]; top vs anchors {'A11810': 0.625, 'A11827': 0.609, 'A11680': 0.583}
+[10:52:00] [A11] birth A11840 (tune ) of ['A11839'] species S7; 24 genomes $0.00
+[10:52:29] [A11] birth A11841 (mutate session) of ['A11774'] species S9; 24 genomes $0.00
+[10:52:29] [A11] rejected mutate session: behavioural twin
+[10:52:30] [A11] birth A11842 (mutate session) of ['A11820'] species S6; 24 genomes $0.00
+[10:52:30] [A11] birth A11843 (mutate session) of ['A11821'] species S7; 24 genomes $0.00
+[10:52:31] [A11] birth A11844 (mutate session) of ['A11706'] species S6; 24 genomes $0.00
+[10:53:07] [A11] birth A11845 (tune ) of ['A11827'] species S7; 24 genomes $0.00
+[10:53:48] [A11] birth A11846 (mutate session) of ['A11824'] species S9; 24 genomes $0.00
+[10:53:48] [A11] rejected mutate session: behavioural twin
+[10:53:49] [A11] birth A11847 (mutate session) of ['A11841'] species S9; 24 genomes $0.00
+[10:53:49] [A11] rejected mutate session: behavioural twin
+[10:53:49] [A11] birth A11848 (mutate session) of ['A11774'] species S0; 24 genomes $0.00
+[10:53:50] [A11] birth A11849 (mutate session) of ['A11815'] species S7; 24 genomes $0.00
+[10:53:50] [A11] rejected mutate session: behavioural twin
+[10:54:29] [A11] summary: births 850 deaths 827 games 188772 $0.00; top [('A11829', 28.25, 0.8, 328, 'S9'), ('A11846', 27.95, 0.99, 72, 'S9'), ('A11841', 27.78, 0.82, 160, 'S9')]; top vs anchors {'A11829': 0.625, 'A11846': 0.875, 'A11841': 0.5}
+[10:54:30] [A11] birth A11850 (cross ) of ['A11849', 'A11810'] species S7; 24 genomes $0.00
+[10:54:33] [A11] birth A11851 (tune ) of ['A11774'] species S9; 24 genomes $0.00
+[10:54:57] [A11] birth A11852 (tune ) of ['A11846'] species S9; 24 genomes $0.00
+[10:55:00] [A11] rejected mutate session: EditError: no change
+[10:55:00] [A11] rejected mutate session: EditError: no change
+[10:55:00] [A11] rejected mutate session: EditError: no change
+[10:55:00] [A11] rejected mutate session: EditError: no change
+[10:55:24] [A11] birth A11853 (cross ) of ['A11770', 'A11817'] species S8; 24 genomes $0.00
+[10:55:35] [A11] birth A11854 (mutate session) of ['A11680'] species S5; 24 genomes $0.00
+[10:55:38] [A11] rejected mutate session: behavioural twin
+[10:55:40] [A11] birth A11855 (mutate session) of ['A11815'] species S7; 24 genomes $0.00
+[10:55:42] [A11] rejected tune : behavioural twin
+[10:55:44] [A11] birth A11856 (tune ) of ['A11836'] species S5; 24 genomes $0.00
+[10:55:44] [A11] birth A11857 (tune ) of ['A11810'] species S7; 24 genomes $0.00
+[10:56:14] [A11] birth A11858 (cross ) of ['A11857', 'A11827'] species S7; 24 genomes $0.00

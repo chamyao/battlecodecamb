@@ -1,0 +1,29 @@
+```python
+@gene('a0', "value of a move, attack, tribute, recall, lock or ward option under this turn's rule; default rule also hits enemy champions in reach (not on their spawn; killable ones and carriers of 10+ gems, then carriers and wounded first); a ward goes down in a bush on the camp walk or while holding a capture")
+def act_value(o: Option) -> Num:
+    k = o.kind
+    r = RULE
+    if k == MOVE:
+        return move_value(o) if walks() else 0
+    if k == ATTACK:
+        if r == 7 or r == 14:
+            return 178 if o.unit.pos == TGT else 0
+        if r == 13:
+            return 150 if o.unit.pos == TGT else 0
+        if r == 20:
+            if o.unit.is_enemy and o.unit.is_champion:
+                if o.unit.pos in enemy_spawn():
+                    return 0
+                return 120 + min(5, unit_gems(o.unit) / 4) + (15 if unit_gems(o.unit) >= 10 else 0) + 4 * (1 - o.unit.health_frac) + (10 if attack_damage(me(), o.unit) >= o.unit.health + shield(o.unit) else 0)
+            return 90 if o.unit.is_camp and farmable(o.unit) and o.unit.pos == reach_camp().pos else 0
+        return 0
+    if k == TRIBUTE:
+        return 150 if (r == 6 or r == 9 or r == 10 or r == 17) and o.tile == TGT else 0
+    if k == RECALL:
+        return 150 if r == 4 or r == 5 else 0
+    if k == LOCK:
+        return 150 if r == 8 and o.tile == TGT else 0
+    if k == WARD:
+        return 130 if (r == 20 or r == 16) and o.tile == here() and here() in bushes() and count_units(enemies()) == 0 else 0
+    return 0
+```
