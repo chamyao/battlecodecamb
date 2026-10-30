@@ -83,3 +83,21 @@ and the top teams' core is far worse for our play style. VV's nerf does not make
 
 ## Search pass A103740 (arenaA-10) on 4.0.0
 Old-engine sim 46/80 vs v38 (gatekeeper-32, all anchors clean). cambc 4.0.0 vs v38: 61/140 (old maps 45/80, new 16/60). Fail.
+
+## Solo vs idle on cambc 4.0.0, all 70 maps (side A, rounds to finish; 2000 = never)
+v38 total 83,068 rounds vs v33 80,876. Maps where v38 is >150 slower than v33 or either never finishes:
+| map | v38 | v33 |
+|---|---|---|
+| 02stalactites (new) | 1782 | 408 |
+| 00quarry (new) | 2000 (freeze; intel reproduced) | 869 |
+| 01boss-battle | 2000 | 1398 |
+| 01elk-arena | 1979 | 1550 |
+| 01gold-rush | 2000 | 1815 |
+| 01starvation | 2000 | 1813 |
+| 00stampede | 2000 | 1810 |
+| 02gift-wrapping (new) | 1130 | 916 |
+| 01starfish | 1305 | 1141 |
+| 00the-line, 02guardians, 02the-pack (new) | 2000 | 2000 (neither finishes) |
+v38 is faster on 00contest, 00interlock, 00reverse-spiral, 00ribs, 02arena, 02fields. Solo is not the main new-map gap
+(b14 new-map losses are fights: half the gold, +4 champion deaths), but v38 has solo regressions vs v33 on 7 maps, and
+three new maps are unsolvable solo for both.
