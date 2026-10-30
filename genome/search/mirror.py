@@ -51,8 +51,9 @@ def main():
         return subprocess.run(["git", "-C", str(wt), *args], capture_output=True, text=True)
 
     while True:
-        status = json.loads(_http(base))["status"]
-        try:
+        status = "unknown"
+        try:  # a service blip (HTTP error on the status read too) must not end the mirror
+            status = json.loads(_http(base))["status"]
             copy(base, a.path, wt / a.dest)
             (wt / a.dest / "RUN.json").write_text(json.dumps({k: v for k, v in json.loads(_http(base)).items()
                                                               if k != "log_tail"}, indent=1))
