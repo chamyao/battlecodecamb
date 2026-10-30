@@ -475,3 +475,5 @@ Passes the loosened bar with that caveat; sent to the genome lead.
 | **s-skirm3** vs d-out2b | **72** | 41 / 31 | 1062 / 1102; captures 10811 / 10626 (+1.7%); gems lost on death 6698 / 6639 (level); solo 158,738, the same slow 00stampede A game |
 The solo results of s-skirm3 and s-hunt3 are identical (same total, same stampede game). The slowdown comes from delaying the Durability emblem by one slot, not from the family bought.
 Both pass the loosened bar; sent to the genome lead.
+| dr-marc (Ren → Marcella in the draft) vs d-out2b | 64 | 35 / 29 | 1005 / 1077; captures 10612 / 10566; gems lost on death 7553 / 7324; solo: stampede A 2000 |
+Fails the loosened bar. The genome's fight and cast genes evolved with Ren in that draft slot, so a straight swap leaves Marcella under-used. A Marcella pick would need its own tuning pass.
