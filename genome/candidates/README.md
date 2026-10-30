@@ -288,3 +288,10 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
 - Reverted: v40 re-submitted as ladder version 42 (2026-10-30T07:36:04Z, same bundle 7317ef88...). b16 stays the band baseline.
 - A11393 (400-birth check, sha b749078f): writer's real vs v39a 77/140; my gate4 vs live v40 71/140, 0 crashes. Fails.
 - 500-birth check: A11476 (sha 361c3c1b; 77 vs v39a) is 70/140 vs live v40; A11501 (sha fb1b19cd; 76 vs v39a) is 75/140 vs v40. 0 crashes. Both fail.
+
+## exploit-8 (Arena B lead, multi-opponent fitness, vs v40)
+
+- x8-140 (sha e3217087cf823457): v40 + break enemy captures before the timer ends, hit the champion over camps in a
+  fight, lock the altar nearest an enemy gem carrier. Arena B (all on 671ac45b): 81 vs v40, 80 vs v38 (v40: 84),
+  72 vs v33 (v40: 65); kills/deaths 10.0/6.9 vs the mirror's 8.75/8.75.
+- My gate4 vs live v40: 81/140 (old 48, new 33), 0 crashes. GO as v43; band paired with b16.
