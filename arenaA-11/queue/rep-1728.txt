@@ -1,0 +1,11 @@
+```python
+@gene('m15', 'nearest open tile next to any altar (not blocked) out of monolith reach if possible, else any open altar tile, else nearest tile next to any altar', parents=['m15'])
+def bank_t3() -> Tile:
+    open_ring = ALTAR_RING - taken()
+    if size(open_ring) > 0:
+        safe = open_ring & SAFE_RING
+        if size(safe) > 0:
+            return closest(safe)
+        return closest(open_ring)
+    return closest(ALTAR_RING)
+```

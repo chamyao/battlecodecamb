@@ -1,0 +1,5 @@
+```python
+@gene('m5', 'tiles next to an altar that can be stood on (no walls, holes, altars or enemy spawn)')
+def altar_ring() -> Tiles:
+    return ring(altars(), 1) - walls() - holes() - altars() - enemy_spawn()
+```

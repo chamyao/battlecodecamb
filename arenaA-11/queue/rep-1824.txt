@@ -1,0 +1,9 @@
+```python
+@gene("r4", "recall: below 30% health (45% carrying 10+ gems) and no enemy able to hit us within the 5-turn channel")
+def r_recall() -> Bool:
+    if at_spawn():
+        return False
+    if not (hurt_below(0.3) or (gems() >= 10 and hurt_below(0.45))):
+        return False
+    return threat_eta() > 5
+```

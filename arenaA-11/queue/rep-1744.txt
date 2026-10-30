@@ -1,0 +1,5 @@
+```python
+@gene('s10', 'fewest turns until a visible enemy champion could hit us (1000 if none); ones recalling home are leaving and do not count; a stunned one loses its stun turns (buff 1)')
+def threat_eta() -> Num:
+    return min((eta(dist(here(), u.pos) - u.attack_range, u.move_speed) + buff_turns(u, 1) for u in enemies() if not is_recalling(u)), default=1000)
+```

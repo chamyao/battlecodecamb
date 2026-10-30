@@ -1,0 +1,6 @@
+```python
+@gene('s15', 'the nearest visible camp, big camps (monoliths, golems) ranked last; awake camps (already in a fight) count 3 tiles nearer; camps with an enemy champion within 3 count 4 tiles farther; wounded camps preferred among near-equal distances')
+def live_camp() -> Unit:
+    et = enemy_tiles()
+    return best(camps(), lambda c: -dist(here(), c.pos) - 2 * c.health_frac - (1000 if c.pos in BIG_CAMPS else 0) + (3 if is_awake(c) else 0) - (4 if size(et & near(c.pos, 3)) > 0 else 0))
+```
