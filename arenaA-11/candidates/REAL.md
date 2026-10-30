@@ -1,3 +1,27 @@
+# arenaA-11 summary (final, 2026-10-30 14:35 UTC)
+
+**Run.** 1377 births in total, 38.6k matches (309k sim games), from 06:06 to 14:35 UTC. Every Claude call went through the file queue and was answered by the session writer; no API was used.
+- Leg 1 (0-618 births): anchors v38/v33, gate vs v39a.
+- Leg 2 (618-1206 births): v40 (weight 4), v41 (2), v28-emblem and B318 anchors; gate vs v40 and v41.
+- Leg 3 (1206-1377 births, stopped by the Arena A lead): stress anchors x6-61/x8-140 (2), survival-only mutations.
+
+**Best real results.** All on cambc 4.0.0, 70 maps x 2 sides, 0 crashes, every genome checked.
+- Vs v39a, the old reference: A11594 80, A11599 79, A11584 78, A11106 78.
+- Vs v40: A111001 78, A11976 78, A111000 77, A11774 76. None of them also reached 76 vs v41: 66, 70, 71 and 69.
+- Ladder screens (Arena A lead) all lost to v40's 13-17: A11501 10-20, A11696 12-18, A11599 11-19, A11791 9-21, A11976 10-20.
+
+**Findings.**
+- The a9 hurt-shard edit is my "below 60% health buy a jungle health shard first" shop edit. It cuts deaths by 10-20% vs v40-class opponents (A11976 ~1560 vs v40 1728-1938). Combined with prospector-first a11, it also causes the 01boss-battle solo stall: the wanted item swaps while shop_pending blocks every other option, so a hurt champion parks on spawn. Swapping v40's a9 back fixes the stall (real boss-battle B: 0 -> 1003 gems) but throws away the survival edge: A11976-a9 gets 74 vs v40 with deaths ~1766. The directed fix A11976-a9b was dropped with the lineage, so it was not built.
+- The d1 draft change came from my edits: Ren ahead of Ryth, then Varg added, so tops (A11976 among them) draft Vendetta, VV, Tavi, Ren, Varg instead of v40's Ryth/Ren. Arena B's real probes favour v38's draft, so treat d1 as a suspect in the A lineage's ladder losses.
+- Arena mu does not predict real or ladder results. Tops sat at +1 to +3.5 mu over v40 in the sim, while real gates scattered 58-80 around v39a/v40 and every ladder screen lost. Aggressive lineages die more; cautious ones capture less (A11976: captures -7.6/game). Selection pressure is population-relative, and no arena stat ranked the ladder screens (Arena A lead's validation of 9 genomes).
+- One real gate is +-8/140: A111001 scored 78 vs v40 but 66 vs v41, though v41 differs from v40 only in fuel (m8).
+
+**Lessons for the next arena.**
+- The tuner perturbed rule ids and guards in c0: `pick = 1.1356`, 16 -> 15 (capture hold became the monolith walk), guards like `246 > top` overriding idle/heal/run, and similar damage to update priorities and BUYS counters. Fixed upstream in genome/search 60a2da208 (pick/top skipped); other id-like constants (set_priority bases, LAST_GOLD - 30) are still exposed.
+- Long writer loops missed lead messages for hours: one stop and one course change arrived 1-3 h late. A loop must read notifications between batches.
+- Real gates must compare against the live bot from the start: legs 1-2 gated vs v39a after v40 was live.
+- Fitness needs a term for what the ladder rewards (deaths and captures vs live-like opponents), not only wins vs the population.
+
 # arenaA-11 real-engine checks (cambc 4.0.0, engine 2.0.0; 70 maps x 2 sides vs live v39)
 
 Bots built with genome/bot/sync.sh at genome/v0 dd28e2f3 (this checkout's genome/, sim/, bot/), run with
