@@ -299,3 +299,5 @@ Stall checks on just those two A games (v40 re-run reproduces 1424 / 429):
 | joinoff (control: r_join returns False) | 1424 | 429 |
 The rule really does fire against idle enemies. It doesn't come from reaching for foes on their spawn, or from monsters. The likely trigger is an ally hurt by camps near an idle enemy champion. I haven't diagnosed it further.
 This is the same pattern as the x7/x8 table: a local head-to-head edge, paid for with stalls against a parked enemy.
+
+The genome lead's call: let the ladder decide. v40-join3 is #7 in the ladder-screen queue (boss-battle and stalactites are known-fragile maps). The cohesion line stops unless the screen likes it.
