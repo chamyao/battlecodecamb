@@ -8,7 +8,7 @@ for s in sys.argv[1:]:
     q = json.load(open(f'{R}/queue/req-{s}.json')); u = q['user']
     print(f"##### {q['seq']} {q['op']} {q['parents']} | {u.splitlines()[0][:70]}")
     if '## Link' not in u:
-        print(u[-3000:]); continue
+        print('(llm cross: use tools/xover.py)'); continue
     print('\n'.join(re.findall(r'## Link\(s\) to mutate: .*', u)))
     for blk in re.findall(r'## EDITABLE gene \w+.*?\n```python\n(.*?)```', u, re.S):
         gid = re.search(r"@gene\(['\"]([^'\"]+)['\"]", blk).group(1)

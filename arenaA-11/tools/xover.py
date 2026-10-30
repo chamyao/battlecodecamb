@@ -15,8 +15,13 @@ if len(sys.argv) == 2:
         elif edit.body_canon(ga[k]) != edit.body_canon(gb[k]):
             print('diff', k, re.search(r'def (\w+)', ga[k]).group(1), '| B:', gb[k].splitlines()[0][len(k)+10:160])
     sys.exit()
+ids = sys.argv[2:]
+if ids == ['auto']:
+    pref = ['r7', 'r4', 'r11', 'm14', 's10', 's11', 'r9', 'r17', 'm13', 'r5', 'r12', 's15', 'm11', 'a2']
+    ids = [k for k in pref if k in ga and k in gb and edit.body_canon(ga[k]) != edit.body_canon(gb[k])][:3]
+    print('auto', ids)
 txt = A
-for k in sys.argv[2:]:
+for k in ids:
     if k in ga:
         txt = txt.replace(ga[k], gb[k])
     else:

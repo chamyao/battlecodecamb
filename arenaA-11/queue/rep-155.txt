@@ -1,0 +1,9 @@
+```python
+@gene('m1', 'first tile of a set, preferring altars not enemy-locked, then the one with fewest enemy champions within 3 (row-major ties), invalid if empty')
+def first_tile(s: Tiles) -> Tile:
+    open_s = s - locked_altars()
+    et = enemy_tiles()
+    if size(open_s) > 0:
+        return best(open_s, lambda t: -size(et & near(t, 3)))
+    return best(s, lambda t: -size(et & near(t, 3)))
+```

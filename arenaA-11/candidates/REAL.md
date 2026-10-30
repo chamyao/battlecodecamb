@@ -16,3 +16,14 @@ Anchors at that point: v38 25.20 (frozen after calibration), v33 25.00 (fixed); 
 A11106 differs from v39a in 9 genes (a11 next_shard, a9 shop_value, a7, a12, c0 rule, c1 rule_goal (reads RULE),
 r12, r14, r17); its next_shard is prospector-strength first (Arena B measured that alone at 76 and 69 vs v39a). Their arena mu fell after the pick (A11106 27.5 at 576 games; A11101 and A1182 culled at 26.9 / 27.6),
 so the passes are within the mirror noise band (+-~8/140); a second real run would be needed before upload.
+
+## 200 births (top 3 by mu at birth 202, A11106 already checked)
+
+| genome | sha256 | arena mu at pick (games) | real vs v39 | crashes | result |
+| --- | --- | --- | --- | --- | --- |
+| A11172 | 9e9d64a7422d9f80... | 28.37 (344) | 73/140 | 0 | fail |
+| A11159 | a4ed9139d971bc34... | 27.99 (328) | 76/140 | 0 | PASS (at bar) |
+| A11150 | 7b46dd9559a72a08... | 27.96 (456) | 71/140 | 0 | fail |
+
+A11106 (78 at the 100 check) was second by mu (28.08, 1048 games). Real scores of arena tops cluster at 71-78,
+i.e. v39a +- noise; nothing yet clears the bar by a margin.
