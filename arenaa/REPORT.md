@@ -33,6 +33,14 @@ v40 and the stress anchors (x6-61, x8-140): captures and gems captured (up) and 
 A real gate on those stats, not wins only, before any ladder screen.
 Not started; nothing Arena-A-side is queued for the ladder.
 
+Validation (the genome lead's condition for a go): the fitness must rank the 9 screened genomes in screen order:
+x6-61 13 and the v40 control 13; A11696 12; A11599 11; A11501, v43-fix3 and A11976 10; A11791 9; x7-125 7 (30 games each).
+Method: sim (genome/v0 eca597e5, mean sim-vs-real bias +0.6) via intel's sim_metrics, 70 maps x 2 bot-seeded, fuel
+0.98/1.0/1.02, vs v40, x6-61 and x8-140. Per-game stats: win, captures, gems captured, deaths to champions (from the
+opponent's kills), gems lost to champions. Candidate fitnesses are compared by Spearman rank correlation with
+screen wins: wins alone, captures - k*deaths_champ, gems_captured - lost_to_champs, and a fitted 2-term blend
+(leave-one-out, so 9 points can't overfit it). Running since 13:50 (~35 min).
+
 ## 2026-10-30 13:10 UTC: A-11 check-in (1139 births)
 
 - b1100 gate vs v40/v41: A111088 66/58, A111026 69/71, A111099 67/73. All fail. b1000's 77-78 didn't repeat; arena
