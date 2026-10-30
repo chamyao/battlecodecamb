@@ -267,3 +267,8 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
   0 crashes. GO, queued after b16 (v40's band) finishes, so the two batches stay clean.
 - v40m live as ladder version 41 (submitted 2026-10-30T06:33:54Z, bundle sha256 7cd1e540...). Validation: b17 paired
   with b16. Revert target v40 (7317ef88...).
+
+## arenaA-11 (engine-2 sim, writer session_01H75at7s2GPNPWtwopowYqq), 100-birth check
+
+- A11106 (sha 99fa6598): writer's real vs v39a 78/140; my gate4 vs live v41 71/140, 0 crashes. Fails.
+- A11101 (sha 36e0777d): writer's real vs v39a 76/140; my gate4 vs live v41 73/140, 0 crashes. Fails.
