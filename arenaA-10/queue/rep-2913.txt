@@ -1,0 +1,20 @@
+```python
+@gene('c1', "where this turn's rule walks; banking under threat goes to the nearest altar, a calm bank walk and banking before a dangerous group prefer the safe, unlocked altar; reads this turn's RULE instead of re-running rule()")
+def rule_goal() -> Tile:
+    r = RULE
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        return closest(ALTAR_RING)
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return bank_goal()
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+```

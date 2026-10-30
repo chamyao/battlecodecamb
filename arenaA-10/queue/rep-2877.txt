@@ -1,0 +1,7 @@
+```python
+@gene("m3", "an altar within lock reach (2), preferring one next to a safe banking tile (the altar we bank at), then not enemy-locked")
+def lock_altar() -> Tile:
+    s = altars() & near(here(), 2)
+    pref = s & ring(SAFE_RING, 1)
+    return first_tile(pref) if size(pref) > 0 else first_tile(s)
+```
