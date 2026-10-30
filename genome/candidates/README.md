@@ -174,3 +174,7 @@ hold 117, gem-groups after 6 buys, bossbush.
   cambc 4.0.0 (70 maps x 2 sides).
 - Real cambc 4.0.0 (engine 2.0.0), 70 maps x 2 sides vs v33: 82/140, 0 crashes, 140/140 results; old 40 maps 47/80,
   30 new maps 35/60; 18 games reach round 2000. v38 is kept.
+
+## arenaA-10 ports, gated on cambc 4.0.0 vs v38 (70 maps x 2 sides; bar 76/140, 0 crashes)
+
+- A103646-v33port-kf (sha 38e8e2ff...): 63/140, 0 crashes. Fails.
