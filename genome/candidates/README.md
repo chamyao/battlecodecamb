@@ -337,9 +337,11 @@ Screen order: A11696, A11599 (one stall each), then v43-fix3, A11501, x6-61.
 | s6 | x6-61 | v50 | 13-17 | 13-17 | 3 / 3 | +24.5 +- 26.4 | level, not promoted |
 | s7 | x7-125 | v51 | 7-23 | 13-17 | 2 / 8 | -48.5 +- 36.4 | clearly down; reverted to v40 (v52) |
 | s8 | v40 control | v52 | 13-17 | 13-17 | 3 / 3 | +10 +- 22 | drift control: noise floor about +-3 flips |
+| s9 | A11976 | v53 | 10-20 | 13-17 (s8) | 3 / 6 | -65.7 +- 42.1 | down: deaths fixed (+0.6) but captures -7.6 |
 - A11774 (sha a66b6b33, older A-11 lineage): 76 vs v40 / 69 vs v41; solo total 157,114, stalls on stalactites A and B. Screen queue last.
 - All four A-lineage screens are below v40 with +1.7 to +3.0 deaths to champions per game; A11774 dropped from the queue.
 - A11976 (sha 7a753124, A-11 b1000 after the survival-first course): my gate4 vs v40 78/140, 0 crashes, deaths 1551 vs v40's 1728; vs x6-61 76, vs x8-140 75 (Arena A lead). Screen queue: right after the v40 control.
 - Screens finding (intel SCREENS.md): every candidate below the noise has +1.2 to +3.1 deaths to champions per game
   vs real opponents (control +0.7). Fight-seeking edits (exploit-7/8, the A lineage) lose champions on the ladder;
   gate4 and solo checks can't see it. v40-join3 dropped. Next: survival-first candidates (A11976).
+- s9: survival-first removes the excess deaths but farms less (captures -7.6, gems captured -54). v40 sits between the two failure modes; the A lineage is dropped from the screen queue.
