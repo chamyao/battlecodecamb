@@ -135,3 +135,16 @@ Probe on 4.0.0 vs v38 (/140, old /80, new /60), all 0 errors, none passes:
 | gem-first from round 3 (no buy gate) | 58 | 30 | 28 |
 Richer-group targeting does not pay against v38; the band's rich-group opponents also out-fight us there, so the yield
 gap is not a camp-choice constant.
+
+## New-family probes on v39a (runtime genome/v0 671ac45b, kNumItems 84), cambc 4.0.0 vs v39a
+v39a = v38 + quarry bush fix (sha 22ec24cf). Each family's Str emblem either first, or in place of Jungle-HP:
+| family | first (total / old / new) | in place of Jungle |
+|---|---|---|
+| Prospector (+25% cluster share) | **76 / 42 / 34** | 58 / 34 / 24 |
+| Hunter (+50 kill gold) | 66 / 35 / 31 | 64 / 34 / 30 |
+| Capture (3-round capture) | 62 / 33 / 29 | 65 / 33 / 32 |
+| Skirmish (x1.05 vs champions) | 61 / 35 / 26 | 46 / 22 / 24 |
+| Tribute (shorter channel) | 51 / 26 / 25 | 58 / 33 / 25 |
+Hold-out for prospector-first (total / old / new): vs v38 71 / 35 / 36 (v39a itself 71 / 38 / 33); vs v33 83 / 47 / 36
+(v39a 78 / 46 / 32). New maps +3-4 over v39a against every reference. Hunter and Skirmish do not pay as a first emblem;
+Jungle stays load-bearing.
