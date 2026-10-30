@@ -269,6 +269,9 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   39 = v39a (04:11 UTC Oct 30): v38 plus a one-gene fix for a freeze on 00quarry (camp spawn hidden in a bush
   under engine 2.0.0 vision). 72/140 vs v38 on cambc 4.0.0. Ladder engine is 2.0.0 (cambc 4.0.0, 70 maps) since
   Oct 25 23:42 UTC; genome sim ported and exact vs 4.0.0 (genome/v0 671ac45b). New maps weak: 5-15 in b14.
+  v39 b15: 31-29 (v38 30-30). 40 = exploit-6 x6-83 (06:08 UTC Oct 30, bundle 7317ef88...): contests gem groups
+  an enemy farms, healthiest fighter first; holds contested captures. 79/140 vs v39 on 4.0.0 (old maps 46/80,
+  new 33/60), 0 crashes. Validation: b16. Revert target v39 (97492ba3...). Queued next: v40m (79/140 vs v40).
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any

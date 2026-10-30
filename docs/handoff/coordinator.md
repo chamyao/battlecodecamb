@@ -18,7 +18,8 @@ add blocks to the language when a diagnosis needs one, and keep Cham informed (s
   ~48 new item types, camp capture. Our sim (deploy/v0), arena engines and local cambc 3.0.5 measure the OLD
   engine; all gates since Oct 26 are on old rules. Genome sim ported, exact vs 4.0.0 (genome/v0 671ac45b);
   deploy/v0 and arena engines are still on the old engine.
-- Live (Oct 30 04:11 UTC): v39 = v38 + 00quarry bush-camp freeze fix (72/140 vs v38 on 4.0.0). New maps 5-15 in b14.
+- Live (Oct 30 06:08 UTC): v40 = genome x6-83 (7317ef88...; 79/140 vs v39 on 4.0.0), band b16 pending.
+  Before: v39 (04:11 UTC) = v38 + 00quarry bush-camp freeze fix; b15 31-29.
   Before: v38 (02:06 UTC) = genome A93635-v33port (d54619f2...), b13 29-21 (engine-change confounded).
   Before: v37 (Oct 25 15:28 UTC) = v33's bundle (B1873-bossbush) again; v34 and v36 tweaks were no better. Earlier, v35 = v33's bundle (genome B1873-bossbush, 37e7be1a...; ranked 86-74, band 32-18),
   re-uploaded after v34 (v33-cash3-ahead4, 9842ac5c) went 28-22 on the band. Before: v32 = B1873
