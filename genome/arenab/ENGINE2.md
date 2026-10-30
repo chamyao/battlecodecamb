@@ -239,3 +239,13 @@ My solo checks used a C++ starter with play_turn removed as "idle"; fuel/search 
 draft). 00quarry side A, real 4.0.0: x8-140 (v43) 879 vs starter-idle but 1699 vs genome-idle (B side 796); v40 861/794,
 v39a 891/794 vs genome-idle. The sim was right: v43 stalls on quarry A against that draft. Solo-vs-idle numbers earlier in this
 file used the starter idle. From here, solo checks use the genome idle.
+
+## v43 quarry-A stall: bisection and fix (solo vs genome idle, real 4.0.0)
+v40 genes swapped into x8-140 one at a time (differ: Zb, a0, c0, m1, m11, v2): only Zb (farmable) fixes quarry A (1699 -> 861).
+x8-140's Zb: no camp hit while an enemy champion is in my reach and I am above half health. On quarry A the idle enemies
+stand on their spawn within reach of our camps, so those camps are never farmed.
+v43-fix (cand/engine2/v43-fix.genome): the same rule, ignoring enemies on their own spawn.
+- Solo vs genome idle, all 70 maps x 2 sides: totals v40 158,785, v43 159,965, v43-fix 159,048; 0 losses each.
+  quarry A 861 (v40 861). Remaining v43-only slow spots, unchanged by the fix: boss-battle B 2000 (v40 1498), famine B 1773
+  (1532), expanse A 1463 (1309).
+- vs v43 (x8-140 on 671ac45b): 71 / 41 / 30, a bugfix-level change.
