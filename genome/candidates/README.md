@@ -220,3 +220,6 @@ of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets prob
   0 crashes. Arena A lead: vs v33 84/140 (v38 82), only 00quarry differs.
 - Built on the engine-2 runtime (671ac45b) vs live v38: 71/140 (the runtime change reshuffles chaotic games).
 - Uploaded as a pure bugfix (exception to the 76 bar: every other game is unchanged), built on 35bcf691a's runtime.
+- Arena B solo-cluster bisection (stampede, starvation, gold-rush, boss-battle): only v33's v2 and m11 help all four.
+  v38 + v33 v2 (sha 437b3b49): 77/140 vs v38, 79 vs v33 (v38 itself 82), solo 79,348 vs 83,068. Within mirror noise,
+  not uploaded. (Arena B's earlier old/new splits counted the ten new 00-maps as old; totals were right.)
