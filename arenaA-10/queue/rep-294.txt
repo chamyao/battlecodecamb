@@ -1,0 +1,7 @@
+```python
+@gene("r7", "fight the weakest enemy champion in reach (not on its own spawn)")
+def r_fight() -> Bool:
+    f = fight_foe()
+    m = me()
+    return exists(f) and dist(m.pos, f.pos) <= m.attack_range and not (f.pos in enemy_spawn())
+```

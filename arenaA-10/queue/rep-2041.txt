@@ -1,0 +1,8 @@
+```python
+@gene("r7", "fight the weakest enemy champion in reach (not on its own spawn), but not a losing trade: below 40% health against a healthy foe (above 80%) that carries no gems")
+def r_fight() -> Bool:
+    f = fight_foe()
+    if not exists(f) or dist(here(), f.pos) > me().attack_range or f.pos in enemy_spawn():
+        return False
+    return not (me().health_frac < 0.4 and f.health_frac > 0.8 and unit_gems(f) == 0)
+```

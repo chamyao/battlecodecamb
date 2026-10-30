@@ -1,0 +1,7 @@
+```python
+@gene("r4", "recall: below 30% health, or below 50% with 150+ gold to spend on spawn (an emblem's worth of shards)")
+def r_recall() -> Bool:
+    if at_spawn():
+        return False
+    return hurt_below(0.3) or (hurt_below(0.5) and gold() >= 150)
+```

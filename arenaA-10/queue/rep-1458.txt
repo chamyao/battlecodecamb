@@ -1,0 +1,16 @@
+```python
+@gene("c2", "the altar or unit tile this turn's rule acts on; a camp fight hits an awake camp in reach first (a sleeping one would wake a second group)")
+def rule_target() -> Tile:
+    r = rule()
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13:
+        return reach_camp().pos
+    if r == 14:
+        return best(camps(), lambda c: (2 if is_awake(c) else 1) * 10 - c.health_frac if in_reach(c) else 0).pos
+    return tile(-1, -1)
+```

@@ -1,0 +1,26 @@
+```python
+@gene('v3', "option kinds worth listing this pass: only those this turn's rule (or shopping, cast-ahead from rule 10 up: not while passing a bank, fighting or locking) can use; shop kinds only when we can actually shop on spawn; wards only with a charge in hand, in a bush on the camp walk or while holding a capture", parents=['v3'])
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and can_shop() and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == CAST:
+        return r == 7 or r == 14 or ((r == 3 or r == 20 or r == 5 or walks()) and dash_gate() and (SK0 == AB_DASH or SK1 == AB_DASH)) or (r >= 10 and ahead_on())
+    if k == ATTACK:
+        return r == 7 or r == 13 or r == 14 or r == 20
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == WARD:
+        return (r == 20 or r == 16) and ward_charges() > 0 and here() in bushes()
+    return False
+```

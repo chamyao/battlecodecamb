@@ -1,0 +1,6 @@
+```python
+@gene("s10", "fewest turns until a visible enemy champion could hit us (1000 if none); nearly dead gemless enemies are ignored")
+def threat_eta() -> Num:
+    h = here()
+    return min((eta(dist(h, u.pos) - u.attack_range, u.move_speed) for u in enemies() if u.health_frac >= 0.15 or unit_gems(u) > 0), default=1000)
+```

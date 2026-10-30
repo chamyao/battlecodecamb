@@ -1,0 +1,34 @@
+```python
+@gene('v3', "option kinds worth listing this pass: only those this turn's rule (or shopping, cast-ahead) can use; casts only with a ready slot; no lock buying after round 1200; shop kinds only when we can actually shop on spawn; wards only with a charge in hand, in a bush on the camp walk or while holding a capture", parents=['v3'])
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY_LOCK and round() > 1200:
+        return False
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and can_shop() and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == CAST:
+        if not slot_ready(0) and not slot_ready(1):
+            return False
+        return r == 7 or r == 14 or ((r == 3 or r == 20 or r == 5 or walks()) and dash_gate() and (SK0 == AB_DASH or SK1 == AB_DASH)) or (r >= 6 and ahead_on())
+    if k == ATTACK:
+        return r == 7 or r == 13 or r == 14 or r == 20
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == WARD:
+        return (r == 20 or r == 16) and ward_charges() > 0 and here() in bushes()
+    return False
+
+@gene("a13", "a purchase is still due this turn (other options wait, unscored); the lock is not bought after round 1200")
+def shop_pending() -> Bool:
+    return RULE >= 2 and at_spawn() and can_shop() and ((LOCK_BUY and not has_lock() and gold() >= 10 and round() <= 1200) or (next_shard() >= 0 and gold() >= 30))
+```

@@ -1,0 +1,29 @@
+```python
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked: an altar under our own visible lock counts; 1000 if none)")
+def altar_eta() -> Num:
+    la = locked_altars()
+    bad = la - la
+    for t in la:
+        if not (lock_hits(t) > 0 and not lock_enemy(t)):
+            bad = bad | near(t, 0)
+    h = here()
+    d = min((max(0, dist(h, a) - 1) for a in altars() - bad), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer or the open one has a visible enemy within 4; else any safe altar, else any altar', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if valid(a) and valid(b):
+        if dist(here(), b) + 4 < dist(here(), a):
+            return b
+        if b != a and any(dist(u.pos, a) <= 4 for u in enemies()):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```

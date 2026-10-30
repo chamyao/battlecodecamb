@@ -1,0 +1,13 @@
+```python
+@gene('s5', 'a visible enemy champion can hit me now or after one step (move + attack); nearly dead ones count only if they carry gems; while I am above 80% health, ones below 40% without gems do not count (they will not engage)')
+def foe_in_reach() -> Bool:
+    h = here()
+    r = me().attack_range
+    floor_h = 0.4 if me().health_frac > 0.8 else 0.2
+    return any(dist(h, u.pos) <= max(r, u.attack_range + u.move_speed) for u in enemies() if u.health_frac > floor_h or unit_gems(u) > 0)
+
+@gene('s15', 'the nearest visible camp, big camps (monoliths, golems) ranked last; camps of the group I stand on preferred (finish the group first); wounded camps preferred among near-equal distances')
+def live_camp() -> Unit:
+    g = spawn_group(here())
+    return best(camps(), lambda c: -dist(here(), c.pos) - 2 * c.health_frac - (1000 if c.pos in BIG_CAMPS else 0) + (4 if g >= 0 and camp_group(c) == g else 0))
+```

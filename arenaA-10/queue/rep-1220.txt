@@ -1,0 +1,67 @@
+```python
+@gene('c0', "this turn's rule: the highest-priority rule whose condition holds (ids 1-20, 20 always holds); the monolith walk also fires late when behind with 3+ allies close; the pre-fight bank outranks the fight")
+def rule() -> Num:
+    top = 0
+    pick = 0
+    if 200 > top and r_idle():
+        top = 200
+        pick = 1
+    if 190 > top and r_heal():
+        top = 190
+        pick = 2
+    if 180 > top and r_run():
+        top = 180
+        pick = 3
+    if 175 > top and r_recall():
+        top = 175
+        pick = 4
+    if 170 > top and r_cashout():
+        top = 170
+        pick = 5
+    if 160 > top and r_pass():
+        top = 160
+        pick = 6
+    if 155 > top and r_prefight():
+        top = 155
+        pick = 9
+    if 150 > top and r_fight():
+        top = 150
+        pick = 7
+    if 264 > top and r_lock():
+        top = 140
+        pick = 8
+    if 120 > top and bank_on() and valid(adj_altar()):
+        top = 120
+        pick = 10
+    if 118 > top and bank_on() and threat_near():
+        top = 118
+        pick = 11
+    if 116 > top and bank_on() and bank_blocked():
+        top = 116
+        pick = 13
+    if 114 > top and bank_on():
+        top = 114
+        pick = 12
+    if 100 > top and r_camp():
+        top = 100
+        pick = 14
+    if 90 > top and (r_mono() or (round() > 1000 and team_gems() < enemy_gems() and size(ally_tiles() & near(here(), 6)) >= 4)):
+        top = 90
+        pick = 15
+    if 105 > top and r_hold():
+        top = 105
+        pick = 16
+    if 70 > top and r_bankgroup() and valid(adj_altar()):
+        top = 70
+        pick = 17
+    if 68 > top and r_bankgroup():
+        top = 68
+        pick = 18
+    if 60 > top and r_live():
+        top = 60
+        pick = 19
+    if 10 > top:
+        top = 10
+        pick = 20
+    return pick
+```

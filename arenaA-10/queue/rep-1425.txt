@@ -1,0 +1,9 @@
+```python
+@gene("w12", "tiles held by something other than a camp, or next to an altar we see locked by the enemy (a tribute there only chips the lock): never a goal")
+def taken() -> Tiles:
+    t = blocked() - camp_block()
+    for a in locked_altars():
+        if lock_enemy(a):
+            t = t | near(a, 1)
+    return t
+```

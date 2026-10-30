@@ -1,0 +1,7 @@
+```python
+@gene('a4', 'cast-ahead target: enemies off their spawn; one tributing or recalling first (a stun or hit cancels it), then most gems, nearest, wounded')
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    h = here()
+    return best(enemies(), lambda u: -INF if u.pos in es else unit_gems(u) * 10 - dist(h, u.pos) - 15 * u.health_frac + (40 if is_tributing(u) or is_recalling(u) else 0))
+```

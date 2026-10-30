@@ -1,0 +1,8 @@
+```python
+@gene("w12", "tiles held by something other than a camp, or next to a visible enemy champion (never a goal)")
+def taken() -> Tiles:
+    et = enemy_tiles()
+    if size(et) == 0:
+        return blocked() - camp_block()
+    return (blocked() - camp_block()) | ring(et, 1)
+```

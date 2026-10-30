@@ -1,0 +1,9 @@
+```python
+@gene('s6', 'visible enemy champions within r tiles (nearly dead ones count only if carrying gems; my tile read once)')
+def enemies_within(r: Num) -> Num:
+    h = here()
+    return count(
+        dist(h, u.pos) <= r and (u.health_frac >= 0.15 or unit_gems(u) > 0)
+        for u in enemies()
+    )
+```

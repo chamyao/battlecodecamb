@@ -1,0 +1,20 @@
+```python
+@gene('w9', 'the dash landing tile closest to GOAL by walking, ties broken by fewest enemy champions within 3 of it (weighted 20 each), invalid if none; enemy tiles read once', parents=['w9'])
+def dash_spot() -> Tile:
+    h = here()
+    if not valid(GOAL) or GOAL == h:
+        return tile(-1, -1)
+    mine = at(FIELD, h)
+    bk = INF
+    s = tile(-1, -1)
+    ft = foe_tiles()
+    for t in near(h, 2):
+        d = at(FIELD, t)
+        if d < mine and t != h and not (t in BLOCK):
+            if dash_path_ok(t):
+                k = d * 10 + 20 * count(dist(e, t) <= 3 for e in ft)
+                if k < bk:
+                    bk = k
+                    s = t
+    return s
+```

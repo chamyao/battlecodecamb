@@ -1,0 +1,6 @@
+```python
+@gene('a5', 'cast-ahead applies: nearest enemy within my attack range + 3 and not on its spawn')
+def ahead_on() -> Bool:
+    f = ahead_foe()
+    return exists(f) and dist(here(), f.pos) <= me().attack_range + 3 and not (f.pos in enemy_spawn())
+```

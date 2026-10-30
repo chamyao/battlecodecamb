@@ -1,0 +1,9 @@
+```python
+@gene('s4', 'within my basic attack range; a sleeping monolith or golem does not count before round 1000 (walking past one must not wake it)')
+def in_reach(u: Unit) -> Bool:
+    if dist(here(), u.pos) > me().attack_range:
+        return False
+    if u.is_camp and round() < 1000 and u.pos in BIG_CAMPS and not is_awake(u):
+        return False
+    return True
+```

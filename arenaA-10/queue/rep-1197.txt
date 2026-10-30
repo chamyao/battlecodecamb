@@ -1,0 +1,14 @@
+```python
+@gene("r4", "recall: below 30% health and nothing near, unless gems can be banked at an adjacent altar first with nothing able to hit us (then the pass-through bank runs)")
+def r_recall() -> Bool:
+    if not hurt_below(0.3) or at_spawn():
+        return False
+    return not (gems() > 0 and valid(adj_altar()) and not foe_in_reach())
+
+@gene("r18", "on a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem); the cheap camp checks run before the camp walk's goal")
+def r_live() -> Bool:
+    c = live_camp()
+    if not exists(c) or c.pos in BIG_CAMPS:
+        return False
+    return dist(camp_goal(), here()) == 0
+```

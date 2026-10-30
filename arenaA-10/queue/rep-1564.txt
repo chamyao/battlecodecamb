@@ -1,0 +1,12 @@
+```python
+@gene('w10', 'GOAL can be walked to: not terrain and not held by a healthy enemy champion unless it is over 3 away (it will likely have moved; a weak one on GOAL is walked at and hit; allies move, so an ally on GOAL does not block the walk)', parents=['w10'])
+def walk_open() -> Bool:
+    h = here()
+    if not valid(GOAL) or GOAL == h:
+        return False
+    if GOAL in TERRAIN:
+        return False
+    if dist(h, GOAL) > 3:
+        return True
+    return not any(u.pos == GOAL and u.health_frac > 0.3 for u in enemies())
+```

@@ -1,0 +1,5 @@
+```python
+@gene('w1', 'camp spawn tiles out of vision, not respawning, not in a group cleared and waiting for capture, and not within 1 of me: assumed occupied')
+def unseen_camps() -> Tiles:
+    return camp_spawns() - vision() - near(here(), 1) - respawning() - cleared_groups()
+```

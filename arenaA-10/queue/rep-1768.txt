@@ -1,0 +1,15 @@
+```python
+@gene('r5', 'recall with 8+ gems when hurt (threshold rises faster with carried gems: 0.63 at 8, 0.83 at 20) and nothing near (no enemy able to hit us within the 5-turn channel), unless an altar is close enough to bank first')
+def r_cashout() -> Bool:
+    if at_spawn():
+        return False
+    g = gems()
+    if g < 8:
+        return False
+    f = min(0.85, 0.5 + g / 60)
+    if not hurt_below(f):
+        return False
+    if under_fire() or threat_eta() <= 5:
+        return False
+    return altar_eta() > 4
+```

@@ -1,0 +1,5 @@
+```python
+@gene("w2", "tiles holding a camp (seen, or an unseen camp spawn no ally stands next to)")
+def camp_block() -> Tiles:
+    return camp_tiles() | (unseen_camps() - ring(ally_tiles(), 1))
+```

@@ -1,0 +1,11 @@
+```python
+@gene('a9', "shopping on spawn: the team's altar lock (only before round 1200: a late lock is rarely placed in time), then shards in the policy's split; cheap checks first")
+def shop_value(o: Option) -> Num:
+    if RULE < 2 or not at_spawn():
+        return 0
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY and round() < 1200 else 0
+    if o.item != next_shard() or o.count > shard_left():
+        return 0
+    return 190 + o.count / 100
+```

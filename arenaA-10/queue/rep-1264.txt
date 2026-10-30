@@ -1,0 +1,7 @@
+```python
+@gene('m3', 'an altar within lock reach (2) out of monolith reach (5), none while an enemy champion is within 5 (placing the lock there wastes the turn)')
+def lock_altar() -> Tile:
+    if enemies_within(5) > 0:
+        return tile(-1, -1)
+    return first_tile(altars() & near(here(), 2) - ring(type_spawns(MONOLITH), 5))
+```

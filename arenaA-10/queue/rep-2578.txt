@@ -1,0 +1,9 @@
+```python
+@gene('s4', 'within my basic attack range (enemy champions on their own spawn never count: hitting them there is wasted; nor do sleeping monoliths and golems: do not wake a big camp by passing it)')
+def in_reach(u: Unit) -> Bool:
+    if u.is_champion and u.pos in enemy_spawn():
+        return False
+    if u.is_camp and u.pos in BIG_CAMPS and not is_awake(u):
+        return False
+    return dist(here(), u.pos) <= me().attack_range
+```

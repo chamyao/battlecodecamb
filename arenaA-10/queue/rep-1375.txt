@@ -1,0 +1,21 @@
+```python
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer or a healthy enemy champion stands within 3 of it; else any safe altar, else any altar', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    if valid(a) and valid(b):
+        if dist(here(), b) + 4 < dist(here(), a):
+            return b
+        if b != a and guarded(a) and not guarded(b):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+
+@gene("new", "a healthy visible enemy champion stands within 3 of tile t", parents=["m12"])
+def guarded(t: Tile) -> Bool:
+    return any(dist(u.pos, t) <= 3 and u.health_frac > 0.3 for u in enemies())
+```

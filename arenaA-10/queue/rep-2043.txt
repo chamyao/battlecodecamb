@@ -1,0 +1,9 @@
+```python
+@gene("w12", "tiles held by something other than a camp (never a goal); a recalling ally's tile does not count (it is leaving)")
+def taken() -> Tiles:
+    t = blocked() - camp_block()
+    for a in allies():
+        if is_recalling(a):
+            t = t - near(a.pos, 0)
+    return t
+```

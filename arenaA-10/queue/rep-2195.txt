@@ -1,0 +1,22 @@
+```python
+@gene('m11', "the camp walk's goal: nearest non-big spawn of a live group that no ally is already capturing; else the nearest non-big spawn of a group respawning within 30 turns (be there when it comes back); else any non-big camp spawn, then any camp spawn")
+def camp_goal() -> Tile:
+    t = closest(CAMP_BASE - respawning() - BIG_CAMPS - held_groups())
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE & soon_groups(30))
+    if valid(t):
+        return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+
+@gene("new", "spawn tiles of groups respawning within n turns", parents=["m11"])
+def soon_groups(n: Num) -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if group_respawning(g) and group_cooldown(g) <= n:
+            acc = acc | group_tiles(g)
+    return acc
+```

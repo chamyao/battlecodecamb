@@ -1,0 +1,16 @@
+```python
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer (6+ tiles); else any safe altar, else any altar', parents=['m12'])
+def bank_goal() -> Tile:
+    a = bank_t1()
+    b = bank_t2()
+    h = here()
+    if valid(a) and valid(b):
+        if dist(h, b) + 6 < dist(h, a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```

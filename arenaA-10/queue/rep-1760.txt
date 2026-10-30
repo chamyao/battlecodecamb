@@ -1,0 +1,10 @@
+```python
+@gene("r7", "fight the weakest enemy champion in reach (not on its own spawn); with 15+ gems carried, skip an empty-bagged foe healthier than us (bank instead of risking the bag)")
+def r_fight() -> Bool:
+    f = fight_foe()
+    if not exists(f) or dist(here(), f.pos) > me().attack_range or f.pos in enemy_spawn():
+        return False
+    if gems() >= 15 and unit_gems(f) == 0 and f.health > me().health:
+        return False
+    return True
+```

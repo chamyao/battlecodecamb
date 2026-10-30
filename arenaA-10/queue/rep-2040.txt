@@ -1,0 +1,13 @@
+```python
+@gene("a6", "fight casts: shield/heal on self (in camp fights only below 70% health, saving them for champions), or the slot at TGT first, attack resets once the attack is spent")
+def strike_cast(o: Option, k: Num) -> Num:
+    if k == AB_SHIELD or k == AB_HEAL:
+        if o.unit != me():
+            return 0
+        if RULE == 14 and me().health_frac >= 0.7:
+            return 0
+        return 170 - o.slot
+    if k == AB_RESET:
+        return 150 - o.slot if not can_attack() else 0
+    return 170 - o.slot if o.tile == TGT else 0
+```

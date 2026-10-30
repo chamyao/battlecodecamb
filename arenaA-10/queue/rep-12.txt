@@ -1,0 +1,6 @@
+```python
+@gene('a4', 'cast-ahead target: enemies off their spawn only (one on its spawn would block the cast-ahead), gems first, nearer weighted more, low health preferred')
+def ahead_foe() -> Unit:
+    es = enemy_spawn()
+    return best(enemies(), lambda u: -INF if u.pos in es else unit_gems(u) * 10 - 2 * dist(here(), u.pos) - 6 * u.health_frac)
+```

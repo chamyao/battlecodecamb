@@ -1,0 +1,21 @@
+```python
+@gene('a9', "shopping on spawn: the team's altar lock, then shards in the policy's split; cheap checks first")
+def shop_value(o: Option) -> Num:
+    if RULE < 2 or not at_spawn():
+        return 0
+    if o.kind == BUY_LOCK:
+        return 200 if LOCK_BUY else 0
+    if o.item != next_shard() or o.count > shard_left():
+        return 0
+    return 190 + o.count / 100
+@gene('a16', "units of the next shard still to buy: what the turn's budget still pays for, capped at the shards that finish the current emblem (no surplus treasure or jungle shards)")
+def shard_left() -> Num:
+    n = floor(SHOP_GOLD / 30) - shards_done()
+    if n <= 0:
+        return 0
+    ns = next_shard()
+    need = 5 - items_owned(ns)
+    if ns != 36 and need > 0:
+        return min(n, need)
+    return n
+```

@@ -1,0 +1,5 @@
+```python
+@gene('s15', 'the nearest visible camp, big camps (monoliths, golems) ranked last; wounded camps preferred among near-equal distances')
+def live_camp() -> Unit:
+    return best(camps(), lambda c: -dist(here(), c.pos) - 2 * c.health_frac - (1000 if c.pos in BIG_CAMPS else 0))
+```

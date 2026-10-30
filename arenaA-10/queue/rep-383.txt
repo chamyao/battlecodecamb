@@ -1,0 +1,6 @@
+```python
+@gene("a10", "the team's lock is neither bought nor placed and I have none and can pay; not before round 150 so early gold goes to shards")
+def wants_lock() -> Bool:
+    v = read_shared(7)
+    return floor(v) - 4 * floor(v / 4) == 0 and not has_lock() and gold() >= 10 and round() >= 150
+```

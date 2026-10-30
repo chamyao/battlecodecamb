@@ -1,0 +1,14 @@
+```python
+@gene('m15', 'nearest open tile next to any altar (not blocked) with no healthy enemy champion within 3, else any open altar tile, else nearest tile next to any altar', parents=['m15'])
+def bank_t3() -> Tile:
+    open_ring = ALTAR_RING - taken()
+    quiet = open_ring
+    for u in enemies():
+        if u.health_frac > 0.3:
+            quiet = quiet - near(u.pos, 3)
+    if size(quiet) > 0:
+        return closest(quiet)
+    if size(open_ring) > 0:
+        return closest(open_ring)
+    return closest(ALTAR_RING)
+```

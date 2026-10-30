@@ -1,0 +1,10 @@
+```python
+@gene('m1', 'first tile of a set, preferring altars not enemy-locked, then the one nearest the enemy spawn (a lock there denies them most), invalid if empty')
+def first_tile(s: Tiles) -> Tile:
+    open_s = s - locked_altars()
+    pool = open_s if size(open_s) > 0 else s
+    if size(pool) <= 1:
+        return best(pool, lambda t: 0)
+    es = enemy_spawn()
+    return best(pool, lambda t: -dist(t, nearest(es, t)))
+```

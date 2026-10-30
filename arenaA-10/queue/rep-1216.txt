@@ -1,0 +1,24 @@
+```python
+@gene("c2", "the altar or unit tile this turn's rule acts on (reads the turn's rule keep)")
+def rule_target() -> Tile:
+    r = RULE
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+
+@gene('m15', 'nearest open tile next to any altar (not blocked, no visible enemy champion within 2), else nearest open tile, else nearest tile next to any altar', parents=['m15'])
+def bank_t3() -> Tile:
+    open_ring = ALTAR_RING - taken()
+    if size(open_ring) > 0:
+        calm = open_ring - ring(enemy_tiles(), 2)
+        if size(calm) > 0:
+            return closest(calm)
+        return closest(open_ring)
+    return closest(ALTAR_RING)
+```

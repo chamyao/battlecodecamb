@@ -1,0 +1,8 @@
+```python
+@gene("m3", "an altar within lock reach (2), none while a healthy enemy champion is within 4 (do not spend the turn under threat)")
+def lock_altar() -> Tile:
+    h = here()
+    if any(dist(h, u.pos) <= 4 and u.health_frac > 0.3 for u in enemies()):
+        return tile(-1, -1)
+    return first_tile(altars() & near(h, 2))
+```

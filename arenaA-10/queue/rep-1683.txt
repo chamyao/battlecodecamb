@@ -1,0 +1,26 @@
+```python
+@gene('m11', "the camp walk's goal: nearest non-big spawn of a live group that no ally is already capturing; with none live, the non-big spawn of the group respawning soonest (counting the walk), then any camp spawn")
+def camp_goal() -> Tile:
+    t = closest(CAMP_BASE - respawning() - BIG_CAMPS - held_groups())
+    if valid(t):
+        return t
+    h = here()
+    bg = -1
+    bk = INF
+    for g in range(num_groups()):
+        if group_respawning(g):
+            gt = group_tiles(g) & CAMP_BASE
+            if size(gt) > 0:
+                k = group_cooldown(g) + dist(h, nearest(gt, h))
+                if k < bk:
+                    bk = k
+                    bg = g
+    if bg >= 0:
+        t = closest(group_tiles(bg) & CAMP_BASE)
+        if valid(t):
+            return t
+    t = closest(CAMP_BASE - BIG_CAMPS)
+    if valid(t):
+        return t
+    return closest(CAMP_BASE)
+```

@@ -1,0 +1,37 @@
+```python
+@gene("c1", "where this turn's rule walks; banking under threat prefers an unlocked safe altar when it is at most 2 tiles farther than the nearest altar")
+def rule_goal() -> Tile:
+    r = rule()
+    if r == 3:
+        return closest(my_spawn())
+    if r == 11:
+        a = closest(ALTAR_RING)
+        b = bank_t1()
+        if valid(a) and valid(b) and dist(here(), b) <= dist(here(), a) + 2:
+            return b
+        return a
+    if r == 12:
+        return bank_goal()
+    if r == 15:
+        return closest(camp_spawns() - respawning() - type_spawns(GOLEM))
+    if r == 18:
+        return closest(SAFE_RING)
+    if r == 19:
+        return live_camp().pos
+    if r == 20:
+        return camp_goal()
+    return tile(-1, -1)
+
+@gene("c2", "the altar or unit tile this turn's rule acts on (reads the turn's rule keep)")
+def rule_target() -> Tile:
+    r = RULE
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+```

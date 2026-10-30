@@ -1,0 +1,7 @@
+```python
+@gene("s2", "standing on our spawn region (a dead champion counts: it shops as if on spawn)")
+def at_spawn() -> Bool:
+    if not alive():
+        return True
+    return here() in my_spawn()
+```

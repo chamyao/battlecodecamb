@@ -1,0 +1,10 @@
+```python
+@gene('r1', 'nothing to do: dead, channeling, cannot act, or recalling with nothing near or one turn left (stay put so the recall completes)', parents=['r1'])
+def r_idle() -> Bool:
+    if not alive() or channeling() or (not can_move() and not can_attack()):
+        return True
+    m = me()
+    if not is_recalling(m):
+        return False
+    return channel_left(m) <= 1 or not under_fire()
+```

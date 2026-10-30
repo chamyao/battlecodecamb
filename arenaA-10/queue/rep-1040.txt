@@ -1,0 +1,57 @@
+```python
+@gene('v2', 'start of turn: choose the rule, its goal and target; shared-memory and priority writes (fighters, retreaters and pre-fight bankers act first next round)')
+def update() -> None:
+    if not MAPPED:
+        ALTAR_RING = altar_ring()
+        SAFE_RING = safe_altar_ring()
+        MONO_GROUPS = mono_groups()
+        TERRAIN = walls() | holes() | altars() | enemy_spawn()
+        BIG_CAMPS = type_spawns(MONOLITH) | type_spawns(GOLEM)
+        CAMP_BASE = camp_spawns() - BIG_CAMPS - MONO_GROUPS
+        SK0 = slot_kind(0)
+        SK1 = slot_kind(1)
+        MAPPED = True
+    RULE = rule()
+    GOAL = rule_goal()
+    TGT = rule_target()
+    OPEN = False
+    if walks() and valid(GOAL) and GOAL != here():
+        BLOCK = blocked()
+        OPEN = walk_open()
+        FIELD = walk_field()
+    LOCK_BUY = RULE >= 2 and at_spawn() and wants_lock()
+    if LOCK_BUY:
+        write_shared(7, read_shared(7) + 2)
+    SHOP_GOLD = gold() - (10 if LOCK_BUY else 0)
+    if RULE == 8:
+        write_shared(7, read_shared(7) + 1)
+    if RULE == 7 or RULE == 3 or RULE == 9:
+        set_priority(150 + rand(20))
+    elif RULE == 20:
+        set_priority(1 + rand(100))
+
+@gene('v3', "option kinds worth listing this pass: only those this turn's rule (or shopping, cast-ahead) can use; shop kinds only when we can actually shop on spawn; wards only with a charge in hand", parents=["v3"])
+def consider(k: Num) -> Bool:
+    r = RULE
+    if k == PICK:
+        return True
+    if k == BUY or k == BUY_LOCK:
+        return r >= 2 and can_shop() and at_spawn()
+    if shop_pending():
+        return False
+    if k == MOVE:
+        return walks()
+    if k == CAST:
+        return r == 7 or r == 14 or ((r == 3 or r == 20 or r == 5 or walks()) and dash_gate() and (SK0 == AB_DASH or SK1 == AB_DASH)) or (r >= 6 and ahead_on())
+    if k == ATTACK:
+        return r == 7 or r == 13 or r == 14 or r == 20
+    if k == TRIBUTE:
+        return r == 6 or r == 9 or r == 10 or r == 17
+    if k == RECALL:
+        return r == 4 or r == 5
+    if k == LOCK:
+        return r == 8
+    if k == WARD:
+        return r == 20 and ward_charges() > 0 and here() in bushes() and count_units(enemies()) == 0
+    return False
+```

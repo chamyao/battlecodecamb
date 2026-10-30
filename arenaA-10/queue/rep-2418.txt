@@ -1,0 +1,7 @@
+```python
+@gene('m5', 'tiles next to an altar that can be stood on (no walls, holes or altars), leaving out camp spawns (a respawn would take them) unless every one is a camp spawn')
+def altar_ring() -> Tiles:
+    r = ring(altars(), 1) - walls() - holes() - altars()
+    free = r - camp_spawns()
+    return free if size(free) > 0 else r
+```

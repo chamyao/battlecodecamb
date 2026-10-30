@@ -1,0 +1,17 @@
+```python
+@gene("d1", "draft preference: Vendetta, Vesper Vale, Tavi, Ryth, Marcella, Ren, then anything")
+def pick_value(c: Num) -> Num:
+    if c == VENDETTA:
+        return 6
+    if c == VESPER_VALE:
+        return 5
+    if c == TAVI:
+        return 4
+    if c == RYTH:
+        return 3
+    if c == MARCELLA:
+        return 2.5
+    if c == REN:
+        return 2
+    return 1
+```

@@ -1,0 +1,7 @@
+```python
+@gene("r4", "recall: below 30% health and nothing near, unless gems can be banked at an adjacent altar first with nothing able to hit us (then the pass-through bank runs)")
+def r_recall() -> Bool:
+    if not hurt_below(0.3) or at_spawn():
+        return False
+    return not (gems() > 0 and valid(adj_altar()) and not foe_in_reach())
+```

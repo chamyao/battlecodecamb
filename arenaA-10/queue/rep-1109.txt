@@ -1,0 +1,9 @@
+```python
+@gene("r9", "pre-fight bank: altar next to us and 5+ gems with an enemy able to reach us within 2 turns, or 10+ gems within 3")
+def r_prefight() -> Bool:
+    g = gems()
+    if g < 5 or not valid(adj_altar()):
+        return False
+    t = threat_eta()
+    return t <= 2 or (g >= 10 and t <= 3)
+```

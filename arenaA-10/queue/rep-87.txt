@@ -1,0 +1,5 @@
+```python
+@gene("r4", "recall: below 25% health and nothing near (stay in the fight a little longer; recalling at 38% lost)")
+def r_recall() -> Bool:
+    return not at_spawn() and hurt_below(0.25)
+```

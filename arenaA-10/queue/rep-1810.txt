@@ -1,0 +1,11 @@
+```python
+@gene("w5", "walking field to GOAL, searched out to my own tile; tiles an awake camp near me can hit are avoided unless that camp is near GOAL (do not take free hits walking past)")
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    h = here()
+    av = blocked() - g
+    for c in camps():
+        if c.attack_range > 0 and is_awake(c) and dist(c.pos, h) <= 6 and dist(c.pos, GOAL) > 2:
+            av = av | near(c.pos, c.attack_range)
+    return field_avoid(g, av - g - near(h, 0), near(h, 0))
+```

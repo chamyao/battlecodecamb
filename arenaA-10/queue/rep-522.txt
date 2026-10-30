@@ -1,0 +1,5 @@
+```python
+@gene("w3", "tiles I cannot step onto: terrain, altars, enemy spawn, enemy units, camps, and allies only within 3 (farther allies will have moved by the time we get there)")
+def blocked() -> Tiles:
+    return (TERRAIN | (ally_tiles() & near(here(), 3)) | enemy_tiles() | camp_block()) - near(here(), 0)
+```

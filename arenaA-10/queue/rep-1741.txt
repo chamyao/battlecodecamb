@@ -1,0 +1,14 @@
+```python
+@gene('v1', 'value of doing this option now; casts are not held back by a pending purchase (they spend no gold)')
+def score(o: Option) -> Num:
+    k = o.kind
+    if k == PICK:
+        return pick_value(o.champ)
+    if k == BUY or k == BUY_LOCK:
+        return shop_value(o)
+    if k == CAST:
+        return cast_value(o)
+    if shop_pending():
+        return 0
+    return act_value(o)
+```

@@ -1,0 +1,5 @@
+```python
+@gene("w2", "tiles holding a camp (seen, or an unseen camp spawn within 10: farther guesses distort the walk more than they help)")
+def camp_block() -> Tiles:
+    return camp_tiles() | (unseen_camps() & near(here(), 10))
+```

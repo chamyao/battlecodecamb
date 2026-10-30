@@ -1,0 +1,6 @@
+```python
+@gene("w5", "walking field to GOAL, searched out to my own tile; reuses the turn's block set")
+def walk_field() -> Field:
+    g = near(GOAL, 0)
+    return field_avoid(g, BLOCK - g, near(here(), 0))
+```

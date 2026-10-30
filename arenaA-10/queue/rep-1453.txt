@@ -1,0 +1,13 @@
+```python
+@gene('r12', 'threat near: an enemy champion off its own spawn (healing ones are not chasing) within 5, or within 7 when we are hurt, or able to hit us within 3 turns; nearly dead ones count only if carrying gems')
+def threat_near() -> Bool:
+    h = here()
+    es = enemy_spawn()
+    hurt = hurt_below(0.5)
+    for u in enemies():
+        if (u.health_frac >= 0.15 or unit_gems(u) > 0) and not (u.pos in es):
+            d = dist(h, u.pos)
+            if d <= 5 or (hurt and d <= 7) or eta(d - u.attack_range, u.move_speed) <= 3:
+                return True
+    return False
+```

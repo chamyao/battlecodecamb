@@ -1,0 +1,6 @@
+```python
+@gene("s3", "health below a fraction of max (my unit read once)")
+def hurt_below(f: Num) -> Bool:
+    m = me()
+    return m.health < f * m.max_health
+```

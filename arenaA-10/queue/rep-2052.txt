@@ -1,0 +1,9 @@
+```python
+@gene("w11", "tiles next to me a dash may pass through (not wall, not enemy spawn, not inside an awake camp's reach)")
+def dash_mids() -> Tiles:
+    m = near(here(), 1) - walls() - enemy_spawn()
+    for c in camps():
+        if c.attack_range > 0 and is_awake(c) and dist(c.pos, here()) <= c.attack_range + 2:
+            m = m - near(c.pos, c.attack_range)
+    return m
+```

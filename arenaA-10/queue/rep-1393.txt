@@ -1,0 +1,16 @@
+```python
+@gene('a12', 'dash this turn: retreat with fuel > 30k; walking rules with GOAL over 2 away and fuel > 35k')
+def dash_gate() -> Bool:
+    if RULE == 3:
+        return fuel() > 30000
+    if walks() and valid(GOAL) and dist(here(), GOAL) > 2 and fuel() > 35000:
+        return True
+    return False
+
+@gene("a10", "the team's lock is neither bought nor placed and I have none and can pay, before round 1200 (a late lock is never placed)")
+def wants_lock() -> Bool:
+    if round() >= 1200:
+        return False
+    v = read_shared(7)
+    return floor(v) - 4 * floor(v / 4) == 0 and not has_lock() and gold() >= 10
+```

@@ -1,0 +1,19 @@
+```python
+@gene("c2", "the altar or unit tile this turn's rule acts on (reads the turn's rule keep)")
+def rule_target() -> Tile:
+    r = RULE
+    if r == 6 or r == 9 or r == 10 or r == 17:
+        return adj_altar()
+    if r == 7:
+        return fight_foe().pos
+    if r == 8:
+        return lock_altar()
+    if r == 13 or r == 14:
+        return reach_camp().pos
+    return tile(-1, -1)
+
+@gene('s13', 'in-reach enemy champion off its own spawn: carried gems first, then lowest health')
+def fight_foe() -> Unit:
+    es = enemy_spawn()
+    return best(enemies(), lambda u: unit_gems(u) * 10 - u.health if in_reach(u) and not (u.pos in es) else -INF)
+```

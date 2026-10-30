@@ -1,0 +1,8 @@
+```python
+@gene("r6", "pass-through bank: gems, an altar next to us and nothing able to hit us, or 5+ gems with an ally next to us (covered)")
+def r_pass() -> Bool:
+    g = gems()
+    if g <= 0 or not valid(adj_altar()):
+        return False
+    return not foe_in_reach() or (g >= 5 and size((ally_tiles() - near(here(), 0)) & near(here(), 1)) > 0)
+```

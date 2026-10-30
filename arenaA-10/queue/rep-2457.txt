@@ -1,0 +1,8 @@
+```python
+@gene('r13', 'the camp in reach stands on the nearest open altar-adjacent tile while I bank: fight the blocker (cheap camp check first)')
+def bank_blocked() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not in_reach(c) or not (c.pos in camp_spawns()):
+        return False
+    return c.pos == bank_t3()
+```

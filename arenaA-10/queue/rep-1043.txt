@@ -1,0 +1,6 @@
+```python
+@gene("r18", "on or next to a dead camp of an uncleared group: walk to the nearest living camp (not monolith or golem)")
+def r_live() -> Bool:
+    c = live_camp()
+    return exists(c) and dist(camp_goal(), here()) <= 1 and not (c.pos in BIG_CAMPS)
+```

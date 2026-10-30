@@ -1,0 +1,10 @@
+```python
+@gene("m8", "spawn tiles of every group with a monolith")
+def mono_groups() -> Tiles:
+    cs = camp_spawns()
+    acc = cs - cs
+    for g in range(num_groups()):
+        if any(spawn_type(t) == MONOLITH for t in group_tiles(g)):
+            acc = acc | group_tiles(g)
+    return acc
+```

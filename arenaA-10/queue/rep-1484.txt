@@ -1,0 +1,12 @@
+```python
+@gene("s11", "turns to stand next to an altar we can tribute at (not enemy-locked; our own visible lock does not block us; 1000 if none)")
+def altar_eta() -> Num:
+    ok = altars() - locked_altars()
+    for t in locked_altars():
+        if visible(t) and not lock_enemy(t):
+            ok = ok | near(t, 0)
+    d = min((max(0, dist(here(), a) - 1) for a in ok), default=-1)
+    if d < 0:
+        return 1000
+    return eta(d, me().move_speed)
+```

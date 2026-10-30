@@ -1,0 +1,11 @@
+```python
+@gene("r7", "fight the weakest enemy champion in reach (not on its own spawn)")
+def r_fight() -> Bool:
+    f = fight_foe()
+    return exists(f) and dist(here(), f.pos) <= me().attack_range and not (f.pos in enemy_spawn())
+
+@gene('s13', 'in-reach enemy champion off its own spawn: carried gems first, then lowest health')
+def fight_foe() -> Unit:
+    es = enemy_spawn()
+    return best(enemies(), lambda u: unit_gems(u) * 10 - u.health if in_reach(u) and not (u.pos in es) else -INF)
+```

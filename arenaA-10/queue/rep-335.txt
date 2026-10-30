@@ -1,0 +1,10 @@
+```python
+@gene("m9", "spawn tiles of respawning groups")
+def respawning() -> Tiles:
+    cs = camp_spawns()
+    acc = cs - cs
+    for g in range(num_groups()):
+        if group_respawning(g):
+            acc = acc | group_tiles(g)
+    return acc
+```

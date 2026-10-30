@@ -1,0 +1,13 @@
+```python
+@gene("w2", "tiles holding a camp (seen, or an unseen camp spawn not in a group cleared and waiting for capture)")
+def camp_block() -> Tiles:
+    return camp_tiles() | (unseen_camps() - cleared_groups())
+
+@gene("new", "spawn tiles of groups cleared and waiting for capture (their camps are dead, so the tiles are walkable)", parents=["w2"])
+def cleared_groups() -> Tiles:
+    acc = camp_spawns() - camp_spawns()
+    for g in range(num_groups()):
+        if group_reward(g):
+            acc = acc | group_tiles(g)
+    return acc
+```

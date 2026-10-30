@@ -1,0 +1,5 @@
+```python
+@gene('w2', 'tiles holding a camp (seen, or an unseen camp spawn within 15 of me not in a group cleared and waiting for capture; farther unseen spawns stay open so long routes stay straight)')
+def camp_block() -> Tiles:
+    return camp_tiles() | ((unseen_camps() & near(here(), 15)) - cleared_groups())
+```

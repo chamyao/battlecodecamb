@@ -1,0 +1,5 @@
+```python
+@gene('r12', 'threat near: enemy within 5, hurt or carrying 10+ gems with an enemy within 7, or able to hit us within 3 turns')
+def threat_near() -> Bool:
+    return enemies_within(5) > 0 or ((hurt_below(0.5) or gems() >= 10) and enemies_within(7) > 0) or threat_eta() <= 3
+```

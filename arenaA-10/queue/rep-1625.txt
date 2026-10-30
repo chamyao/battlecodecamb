@@ -1,0 +1,6 @@
+```python
+@gene("s14", "a visible camp in reach: one my next hit kills first, then the one with least health")
+def reach_camp() -> Unit:
+    m = me()
+    return best(camps(), lambda c: (2000000 if attack_damage(m, c) >= c.health else 1000000) - c.health if in_reach(c) else 0)
+```

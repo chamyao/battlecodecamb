@@ -1,0 +1,10 @@
+```python
+@gene('a13', 'a purchase is still due this turn (other options wait, unscored); cheap checks first')
+def shop_pending() -> Bool:
+    if RULE < 2 or gold() < 10 or not at_spawn() or not can_shop():
+        return False
+    return (LOCK_BUY and not has_lock()) or (gold() >= 30 and next_shard() >= 0)
+@gene('s8', 'under fire: an enemy champion within 6 or in danger (the cheap count first)')
+def under_fire() -> Bool:
+    return enemies_within(6) > 0 or in_danger()
+```

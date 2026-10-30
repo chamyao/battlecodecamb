@@ -1,0 +1,16 @@
+```python
+@gene('w10', 'GOAL can be walked to: not terrain and not held by an enemy champion (allies move, so an ally on GOAL does not block the walk); enemy tiles read once per pass', parents=['w10'])
+def walk_open() -> Bool:
+    if not valid(GOAL) or GOAL == here() or GOAL in TERRAIN:
+        return False
+    return not (GOAL in foe_tiles())
+@gene("w6", "how much closer a step onto t brings me to GOAL (0: no walk this turn); turn-start field and blocks; on bank walks a step into an awake camp's reach loses ties")
+def step_gain(t: Tile) -> Num:
+    if not OPEN or t in BLOCK:
+        return 0
+    g = at(FIELD, here()) - at(FIELD, t)
+    if g > 0 and (RULE == 11 or RULE == 12) and gems() > 0:
+        if any(is_awake(c) and dist(c.pos, t) <= c.attack_range for c in camps()):
+            return g - 0.5
+    return g
+```

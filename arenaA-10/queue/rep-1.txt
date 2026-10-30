@@ -1,0 +1,11 @@
+```python
+@gene("m6", "tiles next to an altar out of monolith reach (5) and not within 7 of the enemy spawn (banking there invites ganks)")
+def safe_altar_ring() -> Tiles:
+    es = enemy_spawn()
+    ok = altars() - ring(type_spawns(MONOLITH), 5)
+    acc = ok - ok
+    for a in ok:
+        if size(es) == 0 or dist(a, nearest(es, a)) > 7:
+            acc = acc | near(a, 1)
+    return acc
+```

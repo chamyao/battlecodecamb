@@ -1,0 +1,9 @@
+```python
+@gene('w7', 'a dash may land on p: a free middle tile (holes may be dashed over) next to both ends that no visible enemy champion is adjacent to, unless p is adjacent to me', parents=['w7'])
+def dash_path_ok(p: Tile) -> Bool:
+    if dist(here(), p) <= 1:
+        return True
+    ev = enemies()
+    ho = holes()
+    return any(dist(q, p) <= 1 and (not (q in BLOCK) or q in ho) and not any(dist(e.pos, q) <= 1 for e in ev) for q in dash_mids())
+```

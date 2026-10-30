@@ -1,0 +1,7 @@
+```python
+@gene('s4', 'within my basic attack range; an enemy champion on its own spawn never counts (so the fight picks a target off it)')
+def in_reach(u: Unit) -> Bool:
+    if dist(here(), u.pos) > me().attack_range:
+        return False
+    return not (u.is_champion and u.is_enemy and u.pos in enemy_spawn())
+```

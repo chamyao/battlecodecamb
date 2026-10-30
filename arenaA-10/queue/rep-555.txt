@@ -1,0 +1,6 @@
+```python
+@gene("s3", "health below a fraction of max, counting a shield on me as health")
+def hurt_below(f: Num) -> Bool:
+    m = me()
+    return m.health + shield(m) < f * m.max_health
+```

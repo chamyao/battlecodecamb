@@ -1,0 +1,13 @@
+```python
+@gene("a16", "units of the next shard still to buy, never past the 5 its emblem needs (the next kind starts its emblem sooner)")
+def shard_left() -> Num:
+    d = shards_done()
+    left = 0
+    for k in range(4):
+        if left == 0 and d < shard_until(k + 1):
+            left = shard_until(k + 1) - d
+    ns = next_shard()
+    if ns >= 0 and ns != 36:
+        left = min(left, max(0, 5 - items_owned(ns)))
+    return left
+```

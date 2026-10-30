@@ -1,0 +1,13 @@
+```python
+@gene("m14", "nearest tile next to a safe altar not locked by the enemy (our own lock does not block us)")
+def bank_t2() -> Tile:
+    return closest(SAFE_RING & ring(altars() - locked_altars() | own_locked(), 1))
+
+@gene("new", "altars locked by our own team (a tribute there is not blocked)", parents=["m14"])
+def own_locked() -> Tiles:
+    acc = altars() - altars()
+    for t in locked_altars():
+        if not lock_enemy(t):
+            acc = acc | near(t, 0)
+    return acc
+```

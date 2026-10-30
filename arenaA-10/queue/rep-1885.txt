@@ -1,0 +1,12 @@
+```python
+@gene('m3', 'an altar within lock reach (2), the open one nearest the enemy spawn first (deny their bank); none while an enemy champion is within 5 (placing the lock there wastes the turn)')
+def lock_altar() -> Tile:
+    if enemies_within(5) > 0:
+        return tile(-1, -1)
+    s = altars() & near(here(), 2)
+    open_s = s - locked_altars()
+    if size(open_s) == 0:
+        return first_tile(s)
+    es = enemy_spawn()
+    return best(open_s, lambda t: -dist(t, nearest(es, t)))
+```

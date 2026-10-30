@@ -1,0 +1,5 @@
+```python
+@gene("w12", "tiles held by something other than a camp (never a goal): terrain and units, read without the camp sets")
+def taken() -> Tiles:
+    return (TERRAIN | ally_tiles() | enemy_tiles()) - camp_tiles() - near(here(), 0)
+```

@@ -1,0 +1,7 @@
+```python
+@gene('s5', 'a visible enemy champion can hit me now or after one step (move + attack); nearly dead ones count only if they carry gems, stunned ones only if already in their range')
+def foe_in_reach() -> Bool:
+    h = here()
+    r = me().attack_range
+    return any(dist(h, u.pos) <= (u.attack_range if buff_turns(u, 1) > 0 else max(r, u.attack_range + u.move_speed)) for u in enemies() if u.health_frac > 0.2 or unit_gems(u) > 0)
+```

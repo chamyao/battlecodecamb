@@ -1,0 +1,13 @@
+```python
+@gene('w4', 'nearest tile of s by walking; if none is walk-reachable, fall back to the straight-line nearest free tile of s (any tile of s if all are held); invalid if s empty', parents=['w4'])
+def closest(s: Tiles) -> Tile:
+    if here() in s:
+        return here()
+    cand = s - taken()
+    w = walk_nearest(cand, here(), blocked() - cand)
+    if valid(w):
+        return w
+    if size(cand) > 0:
+        return nearest(cand, here())
+    return nearest(s, here())
+```

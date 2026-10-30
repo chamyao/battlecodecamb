@@ -1,0 +1,5 @@
+```python
+@gene("m14", "nearest tile next to a safe altar that no enemy champion stands on")
+def bank_t2() -> Tile:
+    return closest(SAFE_RING - enemy_tiles())
+```

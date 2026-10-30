@@ -1,0 +1,9 @@
+```python
+@gene("r2", "heal on spawn: below 95% health and nothing can be hit from here; in the last 150 rounds only below half health (no time to top up)")
+def r_heal() -> Bool:
+    if not at_spawn() or foe_in_reach():
+        return False
+    if round() > 1850:
+        return me().health_frac < 0.5
+    return me().health < 0.95 * me().max_health
+```

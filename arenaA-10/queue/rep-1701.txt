@@ -1,0 +1,15 @@
+```python
+@gene('w4', 'nearest tile of s by walking; if none is walk-reachable, fall back to the straight-line nearest free tile of s (any tile of s if all are held); invalid if s empty; the block set is read once', parents=['w4'])
+def closest(s: Tiles) -> Tile:
+    h = here()
+    if h in s:
+        return h
+    b = blocked()
+    cand = s - (b - camp_block())
+    w = walk_nearest(cand, h, b - cand)
+    if valid(w):
+        return w
+    if size(cand) > 0:
+        return nearest(cand, h)
+    return nearest(s, h)
+```

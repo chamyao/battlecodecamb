@@ -1,0 +1,5 @@
+```python
+@gene("w2", "tiles holding a camp (seen, or an unseen camp spawn)")
+def camp_block() -> Tiles:
+    return unseen_camps() | camp_tiles()
+```

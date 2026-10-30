@@ -1,0 +1,22 @@
+```python
+@gene('m12', 'bank walk: open safe altar unless a safe altar is much nearer; else any safe altar, else any altar; an altar with a visible enemy champion within 4 is skipped while another is known', parents=['m12'])
+def bank_goal() -> Tile:
+    ft = enemy_tiles()
+    a = bank_t1()
+    b = bank_t2()
+    if size(ft) > 0:
+        if valid(a) and any(dist(e, a) <= 4 for e in ft):
+            a = tile(-1, -1)
+        if valid(b) and any(dist(e, b) <= 4 for e in ft):
+            b = tile(-1, -1)
+    h = here()
+    if valid(a) and valid(b):
+        if dist(h, b) + 4 < dist(h, a):
+            return b
+        return a
+    if valid(a):
+        return a
+    if valid(b):
+        return b
+    return bank_t3()
+```

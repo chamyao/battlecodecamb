@@ -1,0 +1,5 @@
+```python
+@gene("r2", "heal on spawn: hurt and nothing can be hit from here, or below half health (spawn heals; fight from it rather than step off)")
+def r_heal() -> Bool:
+    return at_spawn() and me().health < me().max_health and (not foe_in_reach() or hurt_below(0.5))
+```
