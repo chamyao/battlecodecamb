@@ -370,3 +370,6 @@ New variants:
 - **d-out4:** retreat when no ally is within 6 and 2+ enemies are within 6, or when outnumbered by 2+. This covers the dominant 2v1 case.
 - **d-out2b / d-out4b:** d-out2 / d-out4, but enemy champions on their own spawn are not counted. In a quick check on its 2 stall games, d-out2b removes both stalls (1355 / 1511).
 - **d-out4c:** d-out4b with enemies counted within 8; the outnumbered retreat walks to the nearest ally champion more than 2 away (regroup), else to spawn. This follows the genome lead's 'don't be alone near 2+ enemies'.
+| d-out4b | 63 | 36 / 27 | 998 / 1052; captures 10596 / 11134 (-5%); solo: new stall 02stalactites A 2000 |
+Retreating whenever a champion is alone against 2 costs captures and the head-to-head (the same trade as the cautious ladder screens).
+(A batch job queued on a pgrep wait loop matched its own command line and hung for 2 hours. `full.sh` now runs one variant per job.)
