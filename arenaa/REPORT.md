@@ -13,6 +13,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - 11:47 check-in (943 births): b900 gate vs v40/v41: A11893 70/67, A11876 69/71, A11774 76/69 (an older lineage,
   1872 games; offered to the queue). The writer's sim-vs-real table isn't done; with ladder screens as the real test,
   it's now secondary.
+- 12:03: the A11791 screen is 9-21 vs v40's 13-17, with +3.0 deaths/game. A11774 dropped. New pre-filter for ladder
+  screens: deaths to champions <= v40's in real gates vs v40 and the stress anchors, plus >= 72 vs v40. Passed to the
+  writer, with a suggestion to re-seed from v40 plus single survival edits.
 
 ## 2026-10-30 10:46 UTC: new regime, ladder screens
 
