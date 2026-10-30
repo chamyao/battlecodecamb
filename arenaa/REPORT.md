@@ -9,6 +9,13 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Real cambc 4.0.0 (gate4 method, built at genome/v0 6fb46951) gives 68/140 (sha 35af880b) and 67/140 (sha 478dd015)
   vs v39a, 0 crashes; 68 and 66 on the old runtime build.
 - A 10-15 game gap. Asked search to diff one map (sim vs cambc). Until it is resolved, uploads need a real gate4 pass.
+- Resolved (search, genome/search regate40/BIAS.md): the cause is chaos plus winner's curse, not a setup bug.
+  - The shas match.
+  - A 2% fuel-multiplier change moves A103823-w1's h2h by up to 19 games (73/64/83/64/75 at 0.96-1.04; mean 71.8 vs
+    real 68). Per-game sim-cambc agreement is ~64%.
+  - The gatekeeper picked candidates on a lucky 1x draw (+9.8 offset on that draw, +5.3 on the 5-level mean).
+  - Gatekeeper-43 now gates on the 5-level mean (bar 80).
+  - Lesson for A-11: single-sample h2h selection on chaotic games overfits the draw; average over perturbations.
 
 ## 2026-10-30 05:00 UTC: v39a live as ladder v39; A-11 waits on Cham's go
 
