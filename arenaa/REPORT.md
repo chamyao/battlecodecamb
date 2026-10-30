@@ -13,6 +13,9 @@ Newest first. Scripts in arenaa/; data on remote/genome.
 - Asked the writer to measure sim h2h vs v40 (5-level fuel ensemble) for the 6 real-gated genomes plus a v40 control.
   If the sim is high for evolved genomes, model error is being selected for, and it goes to fuel. If not, arena mu vs
   h2h is the gap, and fitness needs a direct h2h-vs-v40 term.
+- 10:30 check-in (b748): anchors v41 27.02, v40 26.94, v38 25.20, v33 25.00, v28-emblem 23.45, B318 22.81. Tops are
+  A11728 29.24 and A11663 28.47 (0.598 vs anchors over 112 games; real 73/140 vs v40). Waiting on the writer's
+  sim-vs-real table.
 
 ## 2026-10-30 09:22 UTC: A-11 interrupted to deliver the restart order
 
