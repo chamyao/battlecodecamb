@@ -159,3 +159,8 @@ prospector-first vs live v39: 69 / 35 / 34 (genome lead's run: same). Follow-ups
 | ... >= 30 (pros-cond30) | 69 / 37 / 32 |
 None reaches the 76 structural bar. The +3-4 new-map edge is real but small; no map-type gate isolates it from the
 old-map cost. Shop probes on 2.0.0 are done: v39a's shop stands.
+
+## Exploiters on 2.0.0
+exploit-5 keepers (old engine) vs live v39 on 4.0.0 (total / old / new): x5-24 65/31/34, x5-108 64/36/28, x5-134 69/41/28.
+None is a strong exploiter on 2.0.0. exploit-6 briefed (relay writer): runtime 671ac45b sim, target v39a, seeds v39a/x5-134/x5-24,
+fitness wins + 0.01 x kills, 150 programs, top 8 real-screened on 4.0.0 (140 games), keepers become stress anchors.
