@@ -390,3 +390,9 @@ Second death edit on top of d-out2b. Tavi is the most frequent victim on the lad
 Variants:
 - **d2-tout:** for Tavi, dx1 uses d-out's trigger (2+ enemies and more of them than of us within 6). Other champions keep d-out2b's +2 margin.
 - **d2-th:** adds rule dt1 at priority 171. Tavi off spawn and below 0.5 health, with an enemy champion off its spawn within 6 or able to hit it within 2 turns → retreat to spawn.
+| **d2-tout** | **76** | 41 / 35 | 963 / 1151 (-1.3 per game); died after <50% HP 22% / 25%; captures 10832 / 10725 (level); solo total 160,456, no losses; new slow: 02stalactites A 2000 (v40 429) |
+The stalactites A "stall" is resource exhaustion, not a retreat loop.
+- Our team has 790 submitted by round 450. After that no event of any kind happens: all champions stand still with 0 gems, far from the idle enemy.
+- v40 wins at 429, presumably by reaching the threshold before the map's resources run out. d2-tout ends 10 gems short.
+- This is the fragile map from the v38 bisection, where 8 unrelated single swaps move it.
+d2-tout goes to the genome lead with this caveat.
