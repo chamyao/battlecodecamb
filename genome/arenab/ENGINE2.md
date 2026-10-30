@@ -484,3 +484,5 @@ Pre-built and pre-gated stacks, ready for whichever screen wins:
 | s-hs4 vs d-out2b | 67 | 41 / 26 | 1110 / 1143; captures level; gems lost on death 7048 / 5880; solo: gold-rush B 2000 (1845), famine B 1836 (1675) |
 | s-sh4 vs d-out2b | 73 | 41 / 32 | 1125 / 1181; captures 10765 / 10568 (+1.9%); **gems lost on death 6973 / 6227 (+5.3 per game)**; solo: the same 2 slow games |
 Stacking both new emblems delays Durability by 2 slots, and gems lost on death rise. A 4th emblem would need to come after Durability, not before.
+| s-sh5 (Skirmish, Durability, Hunter) vs d-out2b | 73 | 42 / 31 | 1093 / 1175; captures level; gems lost on death 6948 / 6579 (+2.6 per game); solo: boss-battle A and B 2000 (1424 / 1572) |
+Not clean: more gems lost on death and the boss-battle stalls. Gating s-hs5 (Hunter, Durability, Skirmish).
