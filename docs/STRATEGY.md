@@ -284,6 +284,9 @@ Grammar code: `policygen/` (branch `grammar/v0`).
   45-51 = screens (A11501, A11696, A11599, A11791, v43-fix3, x6-61, x7-125): none beat v40 on the same games
   (v40 13-17; best x6-61 level, x7-125 7-23). 52 = v40 again (drift control 13-17). Fight-seekers die +1.2 to +3.1
   more per game vs ladder teams; no local metric ranks the screens. Next lever: ladder-like local opponents.
+  53-55: more screens and v40 controls (v40 live as v55). 56 = d-out2b (v40 + retreat to spawn when outnumbered by
+  2+ enemy champions within 6; idea from the Fish low-HP study). Screen 12-18 vs v40's 10-20; band b19 31-29 vs
+  v40's same-hour 30-30, fewer gems lost on death: adopted.
 - **Arena (Oct 23):** Jerry's private arena, v7zg-cast vs house bot metab-v3:
   13-7 (Elo ~1600); lost both sides of contest (monoliths) and quadrants.
 - **Search lines (Oct 23):** hybrid FunSearch (builds on the best from any
