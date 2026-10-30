@@ -101,3 +101,9 @@ v38 total 83,068 rounds vs v33 80,876. Maps where v38 is >150 slower than v33 or
 v38 is faster on 00contest, 00interlock, 00reverse-spiral, 00ribs, 02arena, 02fields. Solo is not the main new-map gap
 (b14 new-map losses are fights: half the gold, +4 champion deaths), but v38 has solo regressions vs v33 on 7 maps, and
 three new maps are unsolvable solo for both.
+
+## Solo bisection on 4.0.0: v33 genes swapped into v38, one at a time (02stalactites, 00quarry vs idle)
+Base v38: stalactites 1782, quarry 2000. 31 genes differ.
+- 02stalactites: 8 different single swaps each fix it (a12 399, m11 427, s4 433, v2 448, r11 454, s15 454, r3 461, s3 515);
+  8 others make it 2000 (a3, a8, a9, r16, v3, w1, w10, w3). Fragile timing/path behaviour, no single cause.
+- 00quarry: no single swap fixes it (all 2000). Left to intel (replay extractor on v2) and the genome lead.
