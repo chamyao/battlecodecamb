@@ -51,3 +51,20 @@ i.e. v39a +- noise; nothing yet clears the bar by a margin.
 | A11453 | e7a3145adf73f62a... | 28.60 (1080) | 72/140 | 0 | fail |
 | A11501 | fb1b19cd2bbc3c70... | 28.46 (96) | 76/140 | 0 | PASS (at bar) |
 | A11476 | 361c3c1bc3a8a25b... | 28.24 (872) | 77/140 | 0 | PASS |
+
+## 600 births vs v39a (last check against the old reference)
+
+| genome | sha256 | arena mu at pick (games) | real vs v39a | crashes |
+| --- | --- | --- | --- | --- |
+| A11584 | fcab5c3306d23873... | 28.74 (440) | 78/140 | 0 |
+| A11594 | 55fa6b28b2824ff0... | 28.11 (136) | 80/140 | 0 |
+| A11599 | 068e7c98f8713cfc... | 28.11 (80) | 79/140 | 0 |
+
+## Restart at 618 births (09:23 UTC): gate reference is now the live v40
+
+Leads' re-gates vs live v40 (real cambc, 0 crashes): A11106 69, A11393 71, A11261 71, A11476 70, A11501 75 (76 vs v41);
+vs v41: A11106 71, A11101 73, A11159 73. So no v39a pass holds vs v40.
+From here a pass needs >= 76/140 vs v40 (genome/v0 8e6dfb46c v39a-x6-83, sha 823f1ca3) AND >= 76 vs v41
+(v40m, sha 8e8c265a), 0 crashes. Both opponent bots are built on this checkout's runtime (dd28e2f3).
+Restart: genome/search 60a2da208 cherry-picked (tuner skips pick/top), rule picks restored in A11391/A11497, anchors
+v40 (weight 4), v41 (2), v28-emblem, B318 added (calibrating 200 games), v40 ingested as a seed, max births 1200.

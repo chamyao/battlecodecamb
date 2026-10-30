@@ -160,7 +160,7 @@ def rule() -> Num:
         pick = 8
     if 130 > top and r_prefight():
         top = 130
-        pick = 9
+        pick = 10
     if 120 > top and bank_on() and valid(adj_altar()):
         top = 120
         pick = 10
