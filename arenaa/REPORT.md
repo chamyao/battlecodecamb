@@ -2,6 +2,14 @@
 
 Newest first. Scripts in arenaa/; data on remote/genome.
 
+## 2026-10-30 05:30 UTC: the 2.0.0 sim's residual bias is fuel pricing; fixed in genome/v0 b9d2fae1
+
+- One-map diff (real replays at arenaa/data/simdiff/): 01elk-arena A103823-w1 vs v39a is 0-1008 real, 900-468 sim.
+- Fuel: no rule divergence. The games replay action for action on 6 maps at 1e8 fuel. The sim under-priced heavy turns
+  by 2-4k, so heavy genomes hit the 100k cap less in the sim (6.5 vs 9.1 cap hits per game real).
+- Fix: every extra() price x1.04 (genome/v0 b9d2fae1, fuel 4fee8e27). A103823-w1 sim 73 (real 68); mean bias +2.2/140.
+- A-11, not yet started (waits on Cham's go), is to use b9d2fae1. The old runtime rewarded fuel-heavy genomes.
+
 ## 2026-10-30 05:20 UTC: 2.0.0-sim gate passes don't reproduce on real cambc
 
 - Search (gatekeeper-41, 2.0.0 sim) reports the A-10 genomes with the w1 bush fix grafted: A103823-w1 83/140 and
