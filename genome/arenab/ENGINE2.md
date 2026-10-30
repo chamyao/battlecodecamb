@@ -458,3 +458,6 @@ deaths.py now also reports gems lost on death to champions (carried the round be
 | b-tb15 vs d-out2b | 72 | 42 / 30 | 1055 / 1049; captures 10603 / 10583; **gems lost on death 7124 / 6345 (+5.6 per game)**; solo clean |
 b-tb15 passes the head-to-head bar but repeats the v34 cash3 failure: more gems are lost on death, because carriers walk to bank with an enemy near. Not sent.
 **b-near:** n = 10, and only when the altar is at most 2 turns away (and before the threat).
+| b-near vs d-out2b | 71 | 41 / 30 | 1096 / 1077; captures 10536 / 10766 (-2%); gems lost on death 6666 / 6670 (level); solo clean |
+Bank-under-threat line closed. The loose trigger (b-tb15) raises gems lost on death; the tight one (b-near) changes nothing.
+Gems lost on death are not cut by bank timing on top of d-out2b; d-out2b's retreat already takes the carrier out.
