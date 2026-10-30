@@ -10,3 +10,79 @@
 [09:24:32] [A11] birth A11620 (tune ) of ['A11607'] species S0; 24 genomes $0.00
 [09:24:35] [A11] birth A11621 (tune ) of ['A11617'] species S6; 24 genomes $0.00
 [09:24:36] [A11] birth A11622 (tune ) of ['A11423'] species S2; 24 genomes $0.00
+[09:25:34] [A11] rejected mutate session: EditError: no change
+[09:25:34] [A11] rejected mutate session: EditError: no change
+[09:25:34] [A11] rejected mutate session: EditError: no change
+[09:26:51] [A11] birth A11623 (mutate session) of ['A11607'] species S0; 24 genomes $0.00
+[09:26:51] [A11] birth A11624 (mutate session) of ['A11607'] species S0; 24 genomes $0.00
+[09:26:54] [A11] rejected mutate session: behavioural twin
+[09:26:54] [A11] rejected mutate session: behavioural twin
+[09:26:55] [A11] birth A11625 (tune ) of ['A11601'] species S0; 24 genomes $0.00
+[09:26:57] [A11] birth A11626 (llm_cross session) of ['A11618', 'A11585'] species S8; 24 genomes $0.00
+[09:26:57] [A11] birth A11627 (cross ) of ['A11597', 'A11601'] species S0; 24 genomes $0.00
+[09:27:54] [A11] rejected mutate session: behavioural twin
+[09:28:19] [A11] rejected cross : behavioural twin
+[09:28:30] [A11] birth A11628 (tune ) of ['A11607'] species S0; 24 genomes $0.00
+[09:28:39] [A11] birth A11629 (cross ) of ['A11607', 'A11601'] species S0; 24 genomes $0.00
+[09:29:02] [A11] summary: births 630 deaths 607 games 142416 $0.00; top [('A11499', 27.76, 0.8, 2992, 'S4'), ('A11607', 27.56, 0.8, 288, 'S0'), ('A11601', 27.4, 0.79, 408, 'S0')]; top vs anchors {'A11499': 0.544, 'A11607': 0.812, 'A11601': 0.469}
+[09:29:02] [A11] birth A11630 (cross ) of ['A11585', 'A11601'] species S0; 24 genomes $0.00
+[09:29:21] [A11] rejected mutate session: GenomeError: blocked line 740: cannot assign to at
+[09:29:23] [A11] rejected mutate session: EditError: no change
+[09:29:39] [A11] birth A11631 (cross ) of ['A11499', 'A11107'] species S8; 24 genomes $0.00
+[09:30:28] [A11] birth A11632 (mutate session) of ['A11622'] species S2; 24 genomes $0.00
+[09:30:30] [A11] rejected mutate session: behavioural twin
+[09:30:33] [A11] birth A11633 (mutate session) of ['A11618'] species S8; 24 genomes $0.00
+[09:30:33] [A11] birth A11634 (mutate session) of ['A11620'] species S0; 24 genomes $0.00
+[09:30:33] [A11] rejected mutate session: behavioural twin
+[09:31:38] [A11] anchor v40 frozen at mu 26.94 after 200 games
+[09:32:24] [A11] rejected mutate session: behavioural twin
+[09:32:25] [A11] rejected mutate session: behavioural twin
+[09:32:28] [A11] birth A11635 (mutate session) of ['A11601'] species S0; 24 genomes $0.00
+[09:32:28] [A11] rejected mutate session: behavioural twin
+[09:32:30] [A11] birth A11636 (mutate session) of ['A11499'] species S8; 24 genomes $0.00
+[09:32:30] [A11] rejected mutate session: behavioural twin
+[09:32:30] [A11] rejected mutate session: behavioural twin
+[09:33:13] [A11] anchor v41 frozen at mu 27.02 after 200 games
+[09:33:35] [A11] birth A11637 (mutate session) of ['A11625'] species S0; 24 genomes $0.00
+[09:33:36] [A11] birth A11638 (mutate session) of ['A11622'] species S2; 24 genomes $0.00
+[09:33:38] [A11] birth A11639 (mutate session) of ['A11588'] species S3; 24 genomes $0.00
+[09:33:48] [A11] new species S9 founded by A11640
+[09:33:48] [A11] summary: births 640 deaths 617 games 143724 $0.00; top [('A11635', 28.73, 0.92, 88, 'S0'), ('A11640', 28.28, 6.0, 0, 'S9'), ('A11628', 27.83, 0.84, 144, 'S0')]; top vs anchors {'A11635': 0.5, 'A11628': 0.583, 'A11607': 0.792}
+[09:33:48] [A11] birth A11640 (cross ) of ['A11628', 'A11635'] species S9; 24 genomes $0.00
+[09:34:29] [A11] rejected mutate session: EditError: no change
+[09:34:31] [A11] rejected mutate session: EditError: no change
+[09:34:31] [A11] rejected mutate session: EditError: no change
+[09:34:31] [A11] rejected mutate session: EditError: no change
+[09:35:28] [A11] birth A11641 (mutate session) of ['A11601'] species S0; 24 genomes $0.00
+[09:35:28] [A11] rejected mutate session: behavioural twin
+[09:35:30] [A11] birth A11642 (mutate session) of ['A11633'] species S8; 24 genomes $0.00
+[09:35:31] [A11] birth A11643 (mutate session) of ['A11628'] species S0; 24 genomes $0.00
+[09:36:13] [A11] rejected mutate session: EditError: no change
+[09:36:13] [A11] rejected mutate session: EditError: no change
+[09:36:39] [A11] birth A11644 (mutate session) of ['A11423'] species S2; 24 genomes $0.00
+[09:36:51] [A11] birth A11645 (tune ) of ['A11643'] species S0; 24 genomes $0.00
+[09:37:25] [A11] birth A11646 (mutate session) of ['A11625'] species S0; 24 genomes $0.00
+[09:37:31] [A11] birth A11647 (mutate session) of ['A11635'] species S9; 24 genomes $0.00
+[09:37:31] [A11] rejected mutate session: behavioural twin
+[09:37:31] [A11] rejected mutate session: behavioural twin
+[09:37:35] [A11] birth A11648 (tune ) of ['A11499'] species S8; 24 genomes $0.00
+[09:38:10] [A11] rejected tune : behavioural twin
+[09:38:14] [A11] rejected tune : behavioural twin
+[09:38:45] [A11] birth A11649 (mutate session) of ['A11640'] species S9; 24 genomes $0.00
+[09:38:59] [A11] summary: births 650 deaths 627 games 145364 $0.00; top [('A11643', 28.59, 0.94, 88, 'S0'), ('A11640', 28.24, 0.85, 128, 'S9'), ('A11650', 28.24, 6.0, 0, 'S9')]; top vs anchors {'A11643': 0.5, 'A11640': None, 'A11554': 0.569}
+[09:38:59] [A11] birth A11650 (tune ) of ['A11640'] species S9; 24 genomes $0.00
+[09:39:45] [A11] birth A11651 (tune ) of ['A11635'] species S9; 24 genomes $0.00
+[09:39:53] [A11] rejected mutate session: GenomeError: blocked line 760: cannot assign to at
+[09:39:53] [A11] rejected mutate session: EditError: no change
+[09:39:54] [A11] rejected mutate session: EditError: no change
+[09:40:58] [A11] anchor v28-emblem frozen at mu 23.45 after 200 games
+[09:41:16] [A11] birth A11652 (mutate session) of ['A11640'] species S9; 24 genomes $0.00
+[09:41:16] [A11] birth A11653 (mutate session) of ['A11643'] species S0; 24 genomes $0.00
+[09:41:18] [A11] birth A11654 (mutate session) of ['A11635'] species S9; 24 genomes $0.00
+[09:41:19] [A11] birth A11655 (cross ) of ['A11650', 'A11647'] species S0; 24 genomes $0.00
+[09:41:19] [A11] birth A11656 (mutate session) of ['A11588'] species S3; 24 genomes $0.00
+[09:41:20] [A11] birth A11657 (cross ) of ['A11631', 'A11642'] species S8; 24 genomes $0.00
+[09:41:20] [A11] rejected cross : behavioural twin
+[09:41:40] [A11] rejected mutate session: EditError: no change
+[09:41:57] [A11] anchor B318 frozen at mu 22.81 after 200 games
+[09:42:02] [A11] rejected tune : behavioural twin

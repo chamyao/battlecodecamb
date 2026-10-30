@@ -1,0 +1,8 @@
+```python
+@gene("a13", "a purchase is still due this turn (other options wait, unscored); the gold checks come first (cheapest)")
+def shop_pending() -> Bool:
+    g = gold()
+    if g < 10:
+        return False
+    return RULE >= 2 and at_spawn() and can_shop() and ((LOCK_BUY and not has_lock()) or (g >= 30 and next_shard() >= 0))
+```
