@@ -1,0 +1,308 @@
+{
+ "name": "A93635-v33port",
+ "ref": "B1873-bossbush (v33)",
+ "h2h_wins": 46,
+ "h2h_games": 80,
+ "h2h": 0.575,
+ "clear": true,
+ "rule": "paired sign test",
+ "sign_alpha": 0.1,
+ "anchor_rows_exclude": [
+  "01boss-battle"
+ ],
+ "solo_farm": {
+  "total": 49319.0,
+  "ref_total": 48980.1,
+  "gain": -338.9,
+  "max_slower": 150,
+  "block_maps": {
+   "00contest": 377.8,
+   "01boss-battle": 1382.0
+  },
+  "warn_maps": {},
+  "deltas": {
+   "00ambush": -87.5,
+   "00collision": 0.0,
+   "00contest": 377.8,
+   "00corners": 6.5,
+   "00eight": 3.0,
+   "00elkring": 16.5,
+   "00expanse": -200.0,
+   "00fragment": -26.5,
+   "00gem-fields": -36.0,
+   "00gemfight": -58.0,
+   "00great-wall": 36.0,
+   "00interlock": -95.5,
+   "00lanes": -21.0,
+   "00lost-world": -13.5,
+   "00monolith": -2.0,
+   "00packs": 21.5,
+   "00pilgrimage": -70.5,
+   "00quadrants": -47.0,
+   "00reverse-spiral": -214.5,
+   "00road-of-riches": -19.5,
+   "00rows": -29.0,
+   "00rushbait-v2": -283.0,
+   "00split": 10.5,
+   "00stampede": -104.5,
+   "00swirl": 23.0,
+   "01big-world": 64.5,
+   "01boss-battle": 1382.0,
+   "01broken-curve": 8.5,
+   "01concentrated-wealth": -50.5,
+   "01corridors": -166.5,
+   "01elk-arena": -52.0,
+   "01fracture": -43.5,
+   "01gold-rush": -74.0,
+   "01hooks": -30.5,
+   "01islands": 19.0,
+   "01shortcut": 46.0,
+   "01starfish": 27.0,
+   "01starvation": 120.1,
+   "01the-farm": -57.0,
+   "01yellow-brick-road": -41.0
+  },
+  "total_worse": true,
+  "blocks": true,
+  "warns": false
+ },
+ "anchor_deltas": {
+  "v36": {
+   "wins": 43,
+   "ref_wins": 41,
+   "games": 78,
+   "diverging": 36,
+   "drops": 17,
+   "gains": 19,
+   "p": 0.6911,
+   "blocks": false
+  },
+  "v34": {
+   "wins": 35,
+   "ref_wins": 33,
+   "games": 78,
+   "diverging": 36,
+   "drops": 17,
+   "gains": 19,
+   "p": 0.6911,
+   "blocks": false
+  },
+  "B1873": {
+   "wins": 45,
+   "ref_wins": 39,
+   "games": 78,
+   "diverging": 38,
+   "drops": 16,
+   "gains": 22,
+   "p": 0.8721,
+   "blocks": false
+  },
+  "A81582-rh-mono-all": {
+   "wins": 43,
+   "ref_wins": 36,
+   "games": 78,
+   "diverging": 37,
+   "drops": 15,
+   "gains": 22,
+   "p": 0.9061,
+   "blocks": false
+  },
+  "A81582-ringheal": {
+   "wins": 46,
+   "ref_wins": 44,
+   "games": 78,
+   "diverging": 38,
+   "drops": 18,
+   "gains": 20,
+   "p": 0.6864,
+   "blocks": false
+  },
+  "v28-emblem": {
+   "wins": 57,
+   "ref_wins": 53,
+   "games": 78,
+   "diverging": 30,
+   "drops": 13,
+   "gains": 17,
+   "p": 0.8192,
+   "blocks": false
+  },
+  "a61188-mono": {
+   "wins": 63,
+   "ref_wins": 55,
+   "games": 78,
+   "diverging": 28,
+   "drops": 10,
+   "gains": 18,
+   "p": 0.9564,
+   "blocks": false
+  },
+  "A61188": {
+   "wins": 66,
+   "ref_wins": 56,
+   "games": 78,
+   "diverging": 20,
+   "drops": 5,
+   "gains": 15,
+   "p": 0.9941,
+   "blocks": false
+  },
+  "B318": {
+   "wins": 65,
+   "ref_wins": 64,
+   "games": 78,
+   "diverging": 19,
+   "drops": 9,
+   "gains": 10,
+   "p": 0.6762,
+   "blocks": false
+  },
+  "B792": {
+   "wins": 68,
+   "ref_wins": 64,
+   "games": 78,
+   "diverging": 18,
+   "drops": 7,
+   "gains": 11,
+   "p": 0.8811,
+   "blocks": false
+  },
+  "hunter": {
+   "wins": 74,
+   "ref_wins": 70,
+   "games": 78,
+   "diverging": 12,
+   "drops": 4,
+   "gains": 8,
+   "p": 0.927,
+   "blocks": false
+  },
+  "hunter-carry": {
+   "wins": 74,
+   "ref_wins": 73,
+   "games": 78,
+   "diverging": 9,
+   "drops": 4,
+   "gains": 5,
+   "p": 0.7461,
+   "blocks": false
+  },
+  "farmer": {
+   "wins": 62,
+   "ref_wins": 55,
+   "games": 78,
+   "diverging": 19,
+   "drops": 6,
+   "gains": 13,
+   "p": 0.9682,
+   "blocks": false
+  },
+  "deathball": {
+   "wins": 72,
+   "ref_wins": 72,
+   "games": 78,
+   "diverging": 10,
+   "drops": 5,
+   "gains": 5,
+   "p": 0.623,
+   "blocks": false
+  },
+  "rushbank": {
+   "wins": 66,
+   "ref_wins": 66,
+   "games": 78,
+   "diverging": 14,
+   "drops": 7,
+   "gains": 7,
+   "p": 0.6047,
+   "blocks": false
+  },
+  "exploit-357": {
+   "wins": 60,
+   "ref_wins": 58,
+   "games": 78,
+   "diverging": 14,
+   "drops": 6,
+   "gains": 8,
+   "p": 0.788,
+   "blocks": false
+  },
+  "exploit-353": {
+   "wins": 62,
+   "ref_wins": 63,
+   "games": 78,
+   "diverging": 17,
+   "drops": 9,
+   "gains": 8,
+   "p": 0.5,
+   "blocks": false
+  },
+  "tune-v20-L1c": {
+   "wins": 63,
+   "ref_wins": 62,
+   "games": 78,
+   "diverging": 23,
+   "drops": 11,
+   "gains": 12,
+   "p": 0.6612,
+   "blocks": false
+  },
+  "style-gconv1": {
+   "wins": 67,
+   "ref_wins": 67,
+   "games": 78,
+   "diverging": 16,
+   "drops": 8,
+   "gains": 8,
+   "p": 0.5982,
+   "blocks": false
+  },
+  "v7": {
+   "wins": 76,
+   "ref_wins": 77,
+   "games": 78,
+   "diverging": 3,
+   "drops": 2,
+   "gains": 1,
+   "p": 0.5,
+   "blocks": false
+  },
+  "tune-v20-L1": {
+   "wins": 66,
+   "ref_wins": 65,
+   "games": 78,
+   "diverging": 17,
+   "drops": 8,
+   "gains": 9,
+   "p": 0.6855,
+   "blocks": false
+  },
+  "rall2-ca4-lean-g": {
+   "wins": 68,
+   "ref_wins": 71,
+   "games": 78,
+   "diverging": 15,
+   "drops": 9,
+   "gains": 6,
+   "p": 0.3036,
+   "blocks": false
+  },
+  "opp-tune5-metadraft": {
+   "wins": 78,
+   "ref_wins": 76,
+   "games": 78,
+   "diverging": 2,
+   "drops": 0,
+   "gains": 2,
+   "p": 1.0,
+   "blocks": false
+  }
+ },
+ "blocked_by": [
+  "solo_farm"
+ ],
+ "warnings": [],
+ "h2h_fuel10_wins": 49,
+ "h2h_fuel10": 0.6125,
+ "passed": false
+}
