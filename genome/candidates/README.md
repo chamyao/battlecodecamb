@@ -273,3 +273,11 @@ groups only (same set, so fuel only). Turn-1 median max 178.7k -> 162.2k; turn-1
 - A11106 (sha 99fa6598): writer's real vs v39a 78/140; my gate4 vs live v41 71/140, 0 crashes. Fails.
 - A11101 (sha 36e0777d): writer's real vs v39a 76/140; my gate4 vs live v41 73/140, 0 crashes. Fails.
 - A11159 (200-birth check, sha a4ed9139): writer's real vs v39a 76/140; my gate4 vs live v41 73/140, 0 crashes. Fails.
+
+## exploit-7 (Arena B lead, vs v40)
+
+- x7-125 (sha 4afcd1b6): v40 + hold through threat with 3 allies, focus fire, no monoliths with an enemy within 6,
+  later cash-out (0.4 + gems/60, cap 0.7), stop piling on held captures. Arena B real: 77 vs v40, 80 vs v38, 76 vs v33,
+  79 vs x6-61.
+- x7-125m = x7-125 + v41's cheap mono_groups (sha 1dbbde1f): my gate4 vs live v41 70/140 (old 37, new 33), 0 crashes.
+  Fails (mirror level).
