@@ -211,3 +211,34 @@ hold 117, gem-groups after 6 buys, bossbush.
 - Sim exact vs cambc 4.0.0 (seed 70/70 maps), new item passives, capture_state/capture_timer prims; kNumItems 84.
 - v38 rebuilt on it (same genome, new constants) vs the live v38 build: 69/140, 0 crashes; 00quarry-A still frozen.
   The constants alone are neutral, so no upload.
+
+## v39a (v38 + quarry bush fix; Arena A lead, genome/arenaa 1fad7357e)
+
+genome/candidates/v39a.genome, sha256 22ec24cf7b33d238... One gene: w1 unseen_camps subtracts near(here(), 1) instead
+of near(here(), 0), so a camp spawn hidden in a bush (00quarry (6,10)) gets probed instead of treated as occupied forever.
+- My gate4, built on the live bot's runtime (genome/v0 35bcf691a) vs live v38: 72/140 = mirror 70 + both 00quarry games;
+  0 crashes. Arena A lead: vs v33 84/140 (v38 82), only 00quarry differs.
+- Built on the engine-2 runtime (671ac45b) vs live v38: 71/140 (the runtime change reshuffles chaotic games).
+- Uploaded as a pure bugfix (exception to the 76 bar: every other game is unchanged), built on 35bcf691a's runtime.
+- Arena B solo-cluster bisection (stampede, starvation, gold-rush, boss-battle): only v33's v2 and m11 help all four.
+  v38 + v33 v2 (sha 437b3b49): 77/140 vs v38, 79 vs v33 (v38 itself 82), solo 79,348 vs 83,068. Within mirror noise,
+  not uploaded. (Arena B's earlier old/new splits counted the ten new 00-maps as old; totals were right.)
+- v39a live as ladder version 39 (submitted 2026-10-30T04:11:26Z, bundle sha256 97492ba3...). Validation: band_v2
+  (intel b99c234), old maps paired with b13, new maps with b14.
+
+## New-item probes on v39a (Arena B lead, runtime 671ac45b, cambc 4.0.0, /140 vs v39a)
+
+- Str emblem first: Prospector 76, Hunter 66, Capture 62, Skirmish 61, Tribute 51. In place of Jungle: all <= 65.
+- v39a-prospector-first (sha ca9c2a42...): my gate4 vs the live v39 build is 69/140 (old 35/80, new 34/60), 0 crashes.
+  Fails (a shop-order change, bar 81). The new-map gain (+3-4) is consistent but is paid back on the old maps.
+
+## Search gatekeeper-41 (engine-2 sim) near-misses, real-checked vs live v39
+
+- All regate40 and A-10 genomes fail the sim solo check on 00quarry (no w1 fix). With v39a's w1 fix grafted:
+  - A103823-w1 (sha 35af880b): sim h2h 83/140, real 66/140, 0 crashes.
+  - A103930-w1 (sha 478dd015): sim h2h 78/140, real 63/140, 0 crashes.
+  The 2.0.0 sim head-to-head overrates these A-10 genomes by ~15/140 against v39a.
+- Batch 15 (intel b15.md, bb35d7d), 60 games: v39 31-29 vs v38 30-30 on the same games. Old maps 18-12 vs 19-11 (the
+  one flip is vs JOHN_BANEGA_DON, which changed its bot); b14 new maps 7-13 vs 5-15; 10 extra new maps 6-4 = 6-4.
+  The fix also unfroze 02harvest (L -> W 1027-481) and 00quarry (0 -> 865 gems). Nothing regressed; v39 kept.
+  b15 is the band baseline from now on.
