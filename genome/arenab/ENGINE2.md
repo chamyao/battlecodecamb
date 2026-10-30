@@ -443,3 +443,6 @@ Per gem-bearing capture we get about 17.2 gems, so the low gems-per-capture figu
 Gold-only captures pay: their gold buys the fights we win. Skipping them loses fights and stalls the solo games.
 | c-gem3 vs d-out2b | 66 | 36 / 30 | 1046 / 1010; captures 10600 / 10859 (-2%); solo famine B 1930 (1675) |
 Moving to gem groups earlier fails too. Opposite probe, **c-gem9**: stay on mixed camps until 9 buys.
+| c-gem9 vs d-out2b | 71 | 41 / 30 | 1082 / 1092; captures 10774 / 10688 (level); solo clean (159,063) |
+The gold → gem switch point is flat from 6 to 9 buys and falls off at 3; skipping gold clusters is clearly bad.
+d-out2b's camp targeting is at a local optimum on this axis. Capture-side line closed: no candidate.
