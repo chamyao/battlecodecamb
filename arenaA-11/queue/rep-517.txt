@@ -1,0 +1,11 @@
+```python
+@gene('r14', 'fight the first camp in reach, but do not wake a sleeping one with a healthy (50%+) enemy champion within 4 (it would third-party the fight)')
+def r_camp() -> Bool:
+    c = reach_camp()
+    if not exists(c) or not farmable(c):
+        return False
+    if is_awake(c):
+        return True
+    h = here()
+    return not any(dist(h, u.pos) <= 4 and u.health_frac >= 0.5 for u in enemies())
+```
