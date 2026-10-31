@@ -33,3 +33,13 @@ Signal it would have caught, in-sample (the screen was chosen from these same ru
 - 28 of 33 flips are inside the screen, and the verdict would have been the same in all four cases.
 - **Blind spot:** a candidate can open a new swing in a "dead" game. The v39 freeze fix flipped 02harvest vs Sloppy Joe, which is outside the screen.
 - **Proposal:** screen first (6 groups). Promote a candidate that is up on flips and gems to the full band (12 groups) before deciding to keep it. Revert at once if the screen is clearly down. Re-baseline the screen on the live version every ~4 hours, or after any opponent shows a changed game.
+
+## Where the pipeline runs (from 2026-10-31 01:28Z)
+
+The session scratch directory was retired, so the working copies moved to ~/ws/intel (outside the repo):
+- bin/cambc4: the cambc 4.0.0 binary.
+- ws4: the cambc 4.0.0 workspace. bots/ holds every candidate build; the .cambc build caches were removed, so the next run rebuilds.
+- an/analysis: analysis/sprint1 plus tools/extract_v2 and the v2_0_0 wasm.
+- runs/: fetched and extracted screens.
+
+Usage: `RESUME_V=<live> SCR=~/ws/intel/runs WS4=~/ws/intel/ws4 CAMBC4=~/ws/intel/bin/cambc4 AN=~/ws/intel/an/analysis genome/intel/tools/screen_cycle.sh ...`
