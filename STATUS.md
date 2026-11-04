@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-11-04 10:14 UTC. Instance up since 2026-11-04 09:51:22 (UTC); load: 0.15 0.03 0.01 on 16 threads.
+Updated 2026-11-04 10:25 UTC. Instance up since 2026-11-04 09:51:22 (UTC); load: 0.08 0.02 0.01 on 16 threads.
 Disk: 14G used of 38G.
 
 ## python3 processes
@@ -13,27 +13,6 @@ Disk: 14G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[09:36:10] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-remote: fatal error in commit_refs        
-To https://github.com/chamyao/battlecodecamb
- ! [remote rejected] HEAD -> ec2/status (failure)
-error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
-[09:41:27] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[09:47:08] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[09:51:49] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[09:57:01] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-remote: fatal error in commit_refs        
-To https://github.com/chamyao/battlecodecamb
- ! [remote rejected] HEAD -> ec2/status (failure)
-error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
-[10:02:59] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-remote: Internal Server Error        
-remote: Request ID BFB2:3AAD92:3769F9:4EDD28:6AEB02D4        
-remote: Time 2026-11-04T10:03:00Z
-To https://github.com/chamyao/battlecodecamb
- ! [remote rejected] HEAD -> ec2/status (Internal Server Error)
-error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
-remote: Internal Server Error        
 remote: Request ID CD84:27C9D5:3556F4:4C5A23:6AEB02D9        
 remote: Time 2026-11-04T10:03:06Z
 To https://github.com/chamyao/battlecodecamb
@@ -53,4 +32,25 @@ To https://github.com/chamyao/battlecodecamb
  ! [remote rejected] HEAD -> ec2/status (Internal Server Error)
 error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
 [10:14:40] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[10:20:05] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+remote: Internal Server Error        
+remote: Request ID D1EE:3A9C79:25D945C:31E3E66:6AEB06D6        
+remote: Time 2026-11-04T10:20:06Z
+To https://github.com/chamyao/battlecodecamb
+ ! [remote rejected] HEAD -> ec2/status (Internal Server Error)
+error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
+remote: Internal Server Error        
+remote: Request ID D20E:185516:231D325:2EBB593:6AEB06DC        
+remote: Time 2026-11-04T10:20:12Z
+To https://github.com/chamyao/battlecodecamb
+ ! [remote rejected] HEAD -> ec2/status (Internal Server Error)
+error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
+remote: Internal Server Error        
+remote: Request ID ABC6:27ECD3:248D88A:307A583:6AEB06E6        
+remote: Time 2026-11-04T10:20:22Z
+To https://github.com/chamyao/battlecodecamb
+ ! [remote rejected] HEAD -> ec2/status (Internal Server Error)
+error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
+[10:20:37] runner: push to ec2/status failed
+[10:25:46] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
