@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-11-05 16:05 UTC. Instance up since 2026-11-05 15:54:28 (UTC); load: 0.15 0.03 0.01 on 16 threads.
+Updated 2026-11-05 16:11 UTC. Instance up since 2026-11-05 15:54:28 (UTC); load: 0.15 0.03 0.01 on 16 threads.
 Disk: 14G used of 38G.
 
 ## python3 processes
@@ -13,15 +13,6 @@ Disk: 14G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[12:13:48] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[12:18:58] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[12:24:23] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[12:29:33] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[12:34:43] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[12:45:19] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[12:50:30] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[12:55:42] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[13:00:52] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [13:06:02] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [13:11:12] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [13:16:22] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -53,4 +44,13 @@ Disk: 14G used of 38G.
 [15:55:06] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [16:00:17] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [16:05:50] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+remote: fatal error in commit_refs        
+To https://github.com/chamyao/battlecodecamb
+ ! [remote rejected] HEAD -> ec2/status (failure)
+error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
+remote: fatal error in commit_refs        
+To https://github.com/chamyao/battlecodecamb
+ ! [remote rejected] HEAD -> ec2/status (failure)
+error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
+[16:11:36] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
