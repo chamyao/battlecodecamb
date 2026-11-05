@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-11-05 23:46 UTC. Instance up since 2026-11-05 23:20:12 (UTC); load: 0.15 0.04 0.01 on 16 threads.
+Updated 2026-11-05 23:52 UTC. Instance up since 2026-11-05 23:51:46 (UTC); load: 0.46 0.11 0.04 on 16 threads.
 Disk: 14G used of 38G.
 
 ## python3 processes
@@ -13,7 +13,6 @@ Disk: 14G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[16:14:58] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 remote: fatal error in commit_refs        
 To https://github.com/chamyao/battlecodecamb
  ! [remote rejected] HEAD -> ec2/status (failure)
@@ -53,4 +52,5 @@ error: failed to push some refs to 'https://github.com/chamyao/battlecodecamb'
 [23:36:08] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [23:41:17] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [23:46:28] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[23:52:11] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
