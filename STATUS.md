@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-11-13 13:37 UTC. Instance up since 2026-11-13 13:37:08 (UTC); load: 0.28 0.07 0.02 on 16 threads.
+Updated 2026-11-13 13:43 UTC. Instance up since 2026-11-13 13:42:50 (UTC); load: 0.28 0.07 0.02 on 16 threads.
 Disk: 15G used of 38G.
 
 ## python3 processes
@@ -13,7 +13,6 @@ Disk: 15G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[10:13:13] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [10:18:23] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [10:23:33] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [10:28:44] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -53,4 +52,5 @@ Disk: 15G used of 38G.
 [13:28:21] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [13:33:33] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [13:37:35] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[13:43:16] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
