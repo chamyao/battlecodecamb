@@ -5,7 +5,7 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-11-23 02:15 UTC. Instance up since 2026-11-23 01:57:08 (UTC); load: 16.11 12.02 6.06 on 16 threads.
+Updated 2026-11-23 02:20 UTC. Instance up since 2026-11-23 01:57:08 (UTC); load: 16.14 14.65 8.94 on 16 threads.
 Disk: 26G used of 38G.
 
 ## python3 processes
@@ -14,7 +14,6 @@ Disk: 26G used of 38G.
 ```
 ## tick.log (last 40 lines)
 ```
-[22:29:29] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:34:39] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:39:49] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:44:59] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -54,4 +53,5 @@ remote:      https://github.com/chamyao/battlecodecamb/pull/new/remote/goban
 remote: 
 [02:09:54] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [02:15:09] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[02:20:24] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
