@@ -5,38 +5,15 @@
 hybrid remote/hybrid fb5107a (+c474b96) = arena run 10; style style/arena-overlay 391f2d4 = arena runs 5/6;
 pure remote/pure 331d404; tune finished earlier (remote/tune). Instance shutdown is the account owner's call.
 
-Updated 2026-11-23 02:03 UTC. Instance up since 2026-11-23 01:57:08 (UTC); load: 0.58 0.18 0.06 on 16 threads.
-Disk: 17G used of 38G.
+Updated 2026-11-23 02:09 UTC. Instance up since 2026-11-23 01:57:08 (UTC); load: 9.60 4.42 2.00 on 16 threads.
+Disk: 26G used of 38G.
 
 ## python3 processes
 ```
-2072 venv/bin/python3 prep.py kgs.npz raw 0.5
-2100 venv/bin/python3 prep.py kgs.npz raw 0.5
-2101 venv/bin/python3 prep.py kgs.npz raw 0.5
-2102 venv/bin/python3 prep.py kgs.npz raw 0.5
-2103 venv/bin/python3 prep.py kgs.npz raw 0.5
-2104 venv/bin/python3 prep.py kgs.npz raw 0.5
-2105 venv/bin/python3 prep.py kgs.npz raw 0.5
-2106 venv/bin/python3 prep.py kgs.npz raw 0.5
-2107 venv/bin/python3 prep.py kgs.npz raw 0.5
-2108 venv/bin/python3 prep.py kgs.npz raw 0.5
-2110 venv/bin/python3 prep.py kgs.npz raw 0.5
-2111 venv/bin/python3 prep.py kgs.npz raw 0.5
-2112 venv/bin/python3 prep.py kgs.npz raw 0.5
-2113 venv/bin/python3 prep.py kgs.npz raw 0.5
-2114 venv/bin/python3 prep.py kgs.npz raw 0.5
-2115 venv/bin/python3 prep.py kgs.npz raw 0.5
-2117 venv/bin/python3 prep.py kgs.npz raw 0.5
+2589 venv/bin/python3 train.py mix.npz run1 --blocks 6 --ch 64 --steps 80000 --batch 256 --every 500 --threads 16 --bf16 --resume run1/start.pt
 ```
 ## tick.log (last 40 lines)
 ```
-[21:48:08] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[21:53:18] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[21:58:28] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[22:03:38] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[22:08:48] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[22:13:58] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
-[22:19:09] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:24:19] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:29:29] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 [22:34:39] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
@@ -70,4 +47,11 @@ Disk: 17G used of 38G.
 [02:03:27] goban: setup done; starting from m0014000.pt
 [02:03:27] goban: data: downloading and extracting
 [02:03:40] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
+[02:09:53] goban: bench: fp32 1076 bf16 2089 positions/s; mode '--bf16'
+[02:09:53] goban: training: resume from run1/start.pt
+remote: 
+remote: Create a pull request for 'remote/goban' on GitHub by visiting:        
+remote:      https://github.com/chamyao/battlecodecamb/pull/new/remote/goban        
+remote: 
+[02:09:54] pure: halted: pure moved to the arena (17:40 UTC); final state on remote/pure
 ```
